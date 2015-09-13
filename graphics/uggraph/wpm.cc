@@ -2253,7 +2253,7 @@ INT NS_DIM_PREFIX Zoom (PICTURE *thePicture, DOUBLE factor)
   }
   if (factor <= 0.0)
   {
-    UserWrite("zoom factor has to be positve\n");
+    UserWrite("zoom factor has to be positive\n");
     return (0);
   }
 

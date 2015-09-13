@@ -1429,7 +1429,7 @@ INT NS_DIM_PREFIX GetMJRawRegularUpwindShapes (const FVElementGeometry *geo, con
 
 /****************************************************************************/
 /*D
-   GetMJRawPositiveUpwindShapes - compute nodal and ip shape functions for MJ Raws positve upwinding (2D)
+   GetMJRawPositiveUpwindShapes - compute nodal and ip shape functions for MJ Raws positive upwinding (2D)
 
    SYNOPSIS:
    INT GetMJRawPositiveUpwindShapes (const FVElementGeometry *geo, const DOUBLE_VECTOR IPVel[MAXF],
@@ -1442,7 +1442,7 @@ INT NS_DIM_PREFIX GetMJRawRegularUpwindShapes (const FVElementGeometry *geo, con
    .  IPShape - resulting ip shape functions
 
    DESCRIPTION:
-   This function computes nodal and ip shape functions for MJ Raws positve upwinding (2D).
+   This function computes nodal and ip shape functions for MJ Raws positive upwinding (2D).
    Not only nodes but also ips are involved. The system of equations for ip values has
    to be solved later.
 

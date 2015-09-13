@@ -441,7 +441,7 @@ int ShellOpen (ShellWindow *sh)
   {
     sscanf(buffer," %d ",&n);
     if (n>0) MaxLines = n;
-    else printf("shellbuffersize variable in defaults file = %d  - should be a positve integer (>0)\n",n);
+    else printf("shellbuffersize variable in defaults file = %d  - should be a positive integer (>0)\n",n);
   }
   LineBuffer = (int *) calloc(MaxLines,sizeof(int));
         #endif
