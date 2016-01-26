@@ -1,0 +1,26 @@
+variables:
+  configure_flags: "--enable-dune --enable-parallel --enable-maintainer-mode"
+
+debian:8--gcc:
+  image: duneci/base:8
+  script:
+  - autoreconf -si
+  - ./configure ${configure_flags} && make && make check
+
+debian:9--gcc:
+  image: duneci/base:9
+  script:
+  - autoreconf -si
+  - ./configure ${configure_flags} && make && make check
+
+debian:8--clang:
+  image: duneci/base:8
+  script:
+  - autoreconf -si
+  - ./configure ${configure_flags} CXX=/usr/bin/clang++ && make && make check
+
+debian:9--clang:
+  image: duneci/base:9
+  script:
+  - autoreconf -si
+  - ./configure ${configure_flags} CXX=/usr/bin/clang++ && make && make check
