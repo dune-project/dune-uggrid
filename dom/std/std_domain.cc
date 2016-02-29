@@ -4271,7 +4271,7 @@ BNDP_SaveBndP_Ext (BNDP * BndP)
   BND_PS *bp;
   INT i, j;
   int iList[2];
-  double dList[DIM - 1];
+  double dList[DIM];
 
   /* TODO: save free boundary points */
   iList[0] = BND_PATCH_ID (BndP);
