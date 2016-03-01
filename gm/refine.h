@@ -262,12 +262,8 @@ INT Get_Sons_of_ElementSide(const ELEMENT *theElement,
                             ELEMENT *SonList[MAX_SONS],
                             INT *SonSides,
                             INT NeedSons,
-                            INT ioflag
-#ifdef FOR_DUNE
-                            /* Only used by Dune.  And default parameters are only allowed in C++ */
-                            , INT useRefineClass=0
-#endif
-                            );
+                            INT ioflag,
+                            INT useRefineClass=0);
 INT     Connect_Sons_of_ElementSide                     (GRID *theGrid, ELEMENT *theElement, INT side, INT Sons_of_Side, ELEMENT **Sons_of_Side_List, INT *SonSides, INT ioflag);
 INT             Refinement_Changes                                              (ELEMENT *theElement);
 

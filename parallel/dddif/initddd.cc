@@ -190,11 +190,11 @@ static void ddd_InitGenericElement (INT tag, DDD_TYPE dddType, int etype)
                  EL_GDATA,  ELDEF(ge->id),
                  EL_GDATA,  ELDEF(ge->flag),
                  EL_GDATA,  ELDEF(ge->property),
-#ifdef FOR_DUNE
+
                  /* LDATA, because Dune indices are local */
                  EL_LDATA,  ELDEF(ge->levelIndex),
                  EL_LDATA,  ELDEF(ge->leafIndex),
-#endif
+
                  EL_GDATA,  ELDEF(ge->lb1),
                  EL_LDATA,  ELDEF(ge->pred),
                  EL_LDATA,  ELDEF(ge->succ),
@@ -469,9 +469,7 @@ static void ddd_DefineTypes (void)
                  EL_GDATA,  ELDEF(iv.id),
                  EL_GDATA,  ELDEF(iv.x),
                  EL_GDATA,  ELDEF(iv.xi),
-#ifdef FOR_DUNE
                  EL_LDATA,  ELDEF(iv.leafIndex),
-#endif
                  EL_LDATA,  ELDEF(iv.pred),
                  EL_LDATA,  ELDEF(iv.succ),
                  EL_LDATA,  ELDEF(iv.data),
@@ -509,9 +507,7 @@ static void ddd_DefineTypes (void)
                  EL_GDATA,  ELDEF(bv.id),
                  EL_GDATA,  ELDEF(bv.x),
                  EL_GDATA,  ELDEF(bv.xi),
-#ifdef FOR_DUNE
                  EL_LDATA,  ELDEF(bv.leafIndex),
-#endif
                  EL_LDATA,  ELDEF(bv.pred),
                  EL_LDATA,  ELDEF(bv.succ),
                  EL_LDATA,  ELDEF(bv.data),
@@ -545,10 +541,8 @@ static void ddd_DefineTypes (void)
 
                  /* TODO: muss umgerechnet werden! */
                  EL_GDATA,  ELDEF(n.id),
-#ifdef FOR_DUNE
                  EL_LDATA,  ELDEF(n.levelIndex),
                  EL_GDATA,  ELDEF(n.isLeaf),
-#endif
                  EL_LDATA,  ELDEF(n.pred),
                  EL_LDATA,  ELDEF(n.succ),
 
@@ -640,11 +634,9 @@ static void ddd_DefineTypes (void)
                  EL_LDATA,  ELDEF(e.links[1].next),
                  EL_OBJPTR, ELDEF(e.links[1].nbnode), TypeNode,
 
-#ifdef FOR_DUNE
                  EL_LDATA,  ELDEF(e.levelIndex),
                  EL_LDATA,  ELDEF(e.leafIndex),
                  EL_GDATA,  ELDEF(e.id),
-#endif
                  EL_DDDHDR, &e.ddd,
 
                  EL_OBJPTR, ELDEF(e.midnode),  TypeNode,

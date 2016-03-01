@@ -585,9 +585,7 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
         #ifdef ModelP
   DDD_AttrSet(PARHDR(pn),GRID_ATTR(theGrid));
   /* SETPRIO(pn,PrioMaster); */
-#ifdef FOR_DUNE
   pn->message_buffer = 0;
-#endif
         #endif
   ID(pn) = (theGrid->mg->nodeIdCounter)++;
   START(pn) = NULL;
@@ -2282,9 +2280,7 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
         #endif
   SETLOFFSET(link1,1);
 
-#ifdef FOR_DUNE
   pe->id = (theGrid->mg->edgeIdCounter)++;
-#endif
 
   SETLEVEL(pe,GLEVEL(theGrid));
         #ifdef ModelP
@@ -3238,11 +3234,9 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   theMG->vertIdCounter = 0;
   theMG->nodeIdCounter = 0;
   theMG->elemIdCounter = 0;
-#ifdef FOR_DUNE
   theMG->edgeIdCounter = 0;
 #ifndef ModelP
   theMG->vectorIdCounter = 0;
-#endif
 #endif
   theMG->topLevel = -1;
   theMG->bottomLevel = 0;

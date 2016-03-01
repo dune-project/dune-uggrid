@@ -697,11 +697,9 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
   SETVNEW(pv,1);
   /* SETPRIO(pv,PrioMaster); */
 
-#ifdef FOR_DUNE
 #ifndef ModelP
   // Dune uses the id field for face indices in sequential grids
   pv->id = (theGrid->mg->vectorIdCounter)++;
-#endif
 #endif
 
     #ifdef __BLOCK_VECTOR_DESC__

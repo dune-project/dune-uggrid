@@ -618,14 +618,12 @@ struct vector {
   /** \brief ordering of unknowns                                 */
   UINT index;
 
-#ifdef FOR_DUNE
 #ifndef ModelP   // Dune uses ddd.gid for ids in parallel
   /** \brief A unique and persistent, but not necessarily consecutive index
 
       Used to implement face ids for Dune.
    */
   INT id;
-#endif
 #endif
 
   /** \brief used bitwise to skip unknowns                */
@@ -735,14 +733,12 @@ struct ivertex {
   /** \brief Local coordinates in father element  */
   DOUBLE xi[DIM];
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per node */
 
   /** \brief An index hat is unique and consecutive per level.
       Controlled by DUNE */
   int leafIndex;
-#endif
 
 #ifdef ModelP
   /** \todo Please doc me! */
@@ -784,14 +780,12 @@ struct bvertex {
   /** \brief Local coordinates in father element  */
   DOUBLE xi[DIM];
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per node */
 
   /** \brief An index hat is unique and consecutive per level.
       Controlled by DUNE */
   int leafIndex;
-#endif
 
 #ifdef ModelP
   /** \brief Information about the parallelization of this object */
@@ -841,7 +835,6 @@ struct node {
   /** \brief Unique id used for load/store                */
   INT id;
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per node */
 
@@ -855,7 +848,6 @@ struct node {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
-#endif
 #endif
 
 #ifdef ModelP
@@ -916,7 +908,6 @@ struct edge {
   /* two links */
   struct link links[2];
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      place to store codim dim-1 indices */
 
@@ -930,7 +921,6 @@ struct edge {
 
   /** \brief A unique and persistent, but not necessarily consecutive index */
   INT id;
-#endif
 
 #ifdef ModelP
   /** Bookkeeping information for DDD */
@@ -964,7 +954,6 @@ struct generic_element {
   /** \brief to store NodeOrder for hexahedrons   */
   INT property;
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per element */
 
@@ -979,7 +968,6 @@ struct generic_element {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
-#endif
 #endif
 
 #ifdef ModelP
@@ -1020,7 +1008,6 @@ struct triangle {
   /** \brief Even more property bits */
   INT property;
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per element */
 
@@ -1035,7 +1022,6 @@ struct triangle {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
-#endif
 #endif
 
 #ifdef ModelP
@@ -1105,7 +1091,6 @@ struct quadrilateral {
   /** \brief Even more flags */
   INT property;
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per element */
 
@@ -1120,7 +1105,6 @@ struct quadrilateral {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
-#endif
 #endif
 
 #ifdef ModelP
@@ -1191,7 +1175,6 @@ struct tetrahedron {
   /** \brief Even more flags */
   INT property;
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per element */
 
@@ -1206,7 +1189,6 @@ struct tetrahedron {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
-#endif
 #endif
 
 #ifdef ModelP
@@ -1282,7 +1264,6 @@ struct pyramid {
   /** \brief Even more flags */
   INT property;
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per element */
 
@@ -1297,7 +1278,6 @@ struct pyramid {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
-#endif
 #endif
 
 #ifdef ModelP
@@ -1371,7 +1351,6 @@ struct prism {
   /** \brief Even more flags */
   INT property;
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per element */
 
@@ -1386,7 +1365,6 @@ struct prism {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
-#endif
 #endif
 
 #ifdef ModelP
@@ -1461,7 +1439,6 @@ struct hexahedron {
   /** \brief Even more flags */
   INT property;
 
-#ifdef FOR_DUNE
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per element */
 
@@ -1476,7 +1453,6 @@ struct hexahedron {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
-#endif
 #endif
 
 #ifdef ModelP
@@ -1671,14 +1647,12 @@ struct multigrid {
   /** \brief count objects in that multigrid              */
   INT elemIdCounter;
 
-#ifdef FOR_DUNE
   /** \brief count objects in that multigrid              */
   INT edgeIdCounter;
 
 #ifndef ModelP
   /** \brief Count vector objects in that multigrid   */
   INT vectorIdCounter;
-#endif
 #endif
 
   /** \brief depth of the element tree                    */
