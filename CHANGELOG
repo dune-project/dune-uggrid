@@ -1,3 +1,13 @@
+Release 3.13.0 (01-03-2016)
+---------------------------
+
+* Rename macros _2 and _3 to UG_DIM_2 and UG_DIM_3 respectively, to avoid clashes
+  with symbols of the same name in libc++.
+* Add file .gitlab-ci.yml to drive the Gitlab continuous integration features
+* Remove an obsolete XCode project file, and an obsolete mystery file 'conf.h'
+* Fix an out-of-bounds array access reported by the gcc sanitizer
+
+
 Release 3.12.1 (11-05-2015)
 -------------------------
 
