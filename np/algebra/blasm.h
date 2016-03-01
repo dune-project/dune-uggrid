@@ -25,11 +25,11 @@
 #ifndef __BLASM__
 #define __BLASM__
 
-#ifdef _2
+#ifdef UG_DIM_2
 #define __UG__
 #endif
 
-#ifdef _3
+#ifdef UG_DIM_3
 #define __UG__
 #endif
 

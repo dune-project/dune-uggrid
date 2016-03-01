@@ -176,8 +176,8 @@ UG_CPPFLAGS="-I\$(top_srcdir) -I\$(top_srcdir)/low -I\$(top_srcdir)/gm -I\$(top_
 AC_SUBST(UG_CPPFLAGS)
 # export EXTRAFLAGS for libug.pc, CPPFLAGS would be quite wrong :)
 AC_SUBST(UG_EXTRAFLAGS)
-AC_SUBST(UG_2DFLAGS, '$(UG_CPPFLAGS) -D_2')
-AC_SUBST(UG_3DFLAGS, '$(UG_CPPFLAGS) -D_3')
+AC_SUBST(UG_2DFLAGS, '$(UG_CPPFLAGS) -DUG_DIM_2')
+AC_SUBST(UG_3DFLAGS, '$(UG_CPPFLAGS) -DUG_DIM_3')
 
 AC_ARG_ENABLE([2d],AC_HELP_STRING([--enable-2d],[build library for 2d (default is YES)]),[build2d=$enableval],[build2d=yes])
 AM_CONDITIONAL(BUILD2D, test x$build2d = xyes)

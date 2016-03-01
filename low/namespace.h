@@ -57,7 +57,7 @@
 #define NS_PREFIX UG::
 #define USING_UG_NAMESPACE using namespace UG;
 
-#ifdef _3
+#ifdef UG_DIM_3
 #define START_UGDIM_NAMESPACE namespace UG { namespace D3 {
 #define USING_UGDIM_NAMESPACE using namespace UG::D3;
 #define USING_UG_NAMESPACES namespace UG {namespace D3 {} } using namespace UG; using namespace UG::D3;

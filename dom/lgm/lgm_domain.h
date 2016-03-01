@@ -80,7 +80,7 @@
 #define LGM_ACCELERATE
 
 /* new lgm only for 3D, acceleration only for new lgm */
-#ifdef _2
+#ifdef UG_DIM_2
 #undef NEW_LGM
 #endif
 #ifndef NEW_LGM
@@ -110,11 +110,11 @@ START_UGDIM_NAMESPACE
 /*                                                                                                                                                      */
 /****************************************************************************/
 
-#ifdef _2
+#ifdef UG_DIM_2
 #define LGM_DIM                                                         2
 #endif
 
-#ifdef _3
+#ifdef UG_DIM_3
 #define LGM_DIM                                                         3
 #endif
 

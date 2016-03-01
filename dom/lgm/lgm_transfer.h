@@ -53,11 +53,11 @@ START_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-#ifdef _2
+#ifdef UG_DIM_2
 #define LGM_TRDIM                                                       2
 #endif
 
-#ifdef _3
+#ifdef UG_DIM_3
 #define LGM_TRDIM                                                       3
 #endif
 

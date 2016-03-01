@@ -10869,9 +10869,9 @@ static INT ShowConfigCommand (INT argc, char **argv)
 
   UserWrite("Configuration of this program:\n");
 
-#ifdef _2
+#ifdef UG_DIM_2
   UserWrite("    Dimension:    2\n");
-#elif defined _3
+#elif defined UG_DIM_3
   UserWrite("    Dimension:    3\n");
 #else
   UserWrite("    Dimension:    unknown\n");

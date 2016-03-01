@@ -10,7 +10,7 @@
 #ifndef UG_SMALLVECS_H
 #define UG_SMALLVECS_H
 
-/* convert _2 and _3 to DIM and others */
+/* convert UG_DIM_2 and UG_DIM_3 to DIM and others */
 #include "dimension.h"
 
 /* basic types */
