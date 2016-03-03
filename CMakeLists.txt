@@ -169,5 +169,8 @@ foreach(i ${SUBDIRS})
 endforeach(i ${SUBDIRS})
 
 add_subdirectory(cmake/modules)
+# set variable names for config.h
+set(ARCHNAME ${CMAKE_LIBRARY_ARCHITECTURE})
+set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # finalize the dune project, e.g., generate config.h etc.
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
