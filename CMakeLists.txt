@@ -79,6 +79,7 @@ macro(ug_add_dim_libs LIB_NAME)
   #     ${_saved_libs})
   endif()
 
+  ug_expand_object_libs(OBJECT_LIBS "" ${ADD_LIB_OBJECT_LIBS})
   foreach(dim  ${UG_ENABLED_DIMENSIONS})
     #message("will expand ${dim} ${ADD_LIB_OBJECT_DIM_LIBS}")
     # if(ADD_LIB_OBJECT)
@@ -92,10 +93,10 @@ macro(ug_add_dim_libs LIB_NAME)
     #   endforeach()
     # endif()
     ug_expand_object_libs(OBJECT_DIM_LIBS ${dim} ${ADD_LIB_OBJECT_DIM_LIBS})
-    message("creatig lib ${LIB_NAME}${dim}")
+
     add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
       ${ADD_LIB_SOURCES_${dim}D}
-      ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS})
+      ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
     target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-D_${dim}")
   endforeach()
 endmacro()
