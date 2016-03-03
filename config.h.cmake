@@ -15,7 +15,7 @@
    data structure. */
 #cmakedefine UG_USE_SYSTEM_HEAP 1
 
-/* end dune-uggrid */
+/* begin private section */
 
 /* obsolete architecture string */
 #cmakedefine ARCHNAME ${CMAKE_LIBRARY_ARCHITECTURE}
@@ -92,3 +92,7 @@
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #cmakedefine TIME_WITH_SYS_TIME 1
+
+/* end private section */
+
+/* end dune-uggrid */
