@@ -41,7 +41,7 @@ include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
   ${PROJECT_SOURCE_DIR}/parallel/dddif ${PROJECT_SOURCE_DIR}/parallel/util
   ${PROJECT_SOURCE_DIR}/parallel/ddd/include )
 
-add_definitions("UGLIB")
+add_definitions(-DUGLIB)
 
 set(UG_ENABLED_DIMENSIONS)
 if(UG_ENABLE_2D)
@@ -96,13 +96,13 @@ macro(ug_add_dim_libs LIB_NAME)
     add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
       ${ADD_LIB_SOURCES_${dim}D}
       ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS})
-    target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "_${dim}")
+    target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-D_${dim}")
   endforeach()
 endmacro()
 # !!! maybe make this configurable later
 set(DYNAMIC_MEMORY_ALLOCMODEL True)
 if(UG_ENABLE_DEBUGGING)
-  add_definitions("Debug")
+  add_definitions("-DDebug")
 endif()
 
 check_include_file(alloca.h HAVE_ALLOCA_H)

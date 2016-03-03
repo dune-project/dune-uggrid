@@ -3,7 +3,7 @@ foreach(i ${SUBDIRS})
   add_subdirectory(${i})
 endforeach(i ${SUBDIRS})
 
-add_definitions("DDD_FRONTEND_C")
+add_definitions("-DDDD_FRONTEND_C")
 
 if(HAVE_MPI)
   ug_add_dim_libs(ddd OBJECT ddd.cc)# OBJECT_DIM_LIBS analyser basic ctrl
