@@ -1,12 +1,11 @@
-find_package(Flex)
-find_package(Bison)
-
 if(MPI_FOUND)
-  add_definitions("ModelP")
+  add_definitions("-DModelP")
 endif()
 
 set(UG_ENABLE_SYSTEM_HEAP True CACHE BOOL
   "Whether to use the UG heap or the one of the operating system")
 
-if(UG_ENABLE_SYSTEM_HEAP)
-  set(UG_USE_SYSTEM_HEAP True)
+set(UG_USE_SYSTEM_HEAP ${UG_ENABLE_SYSTEM_HEAP})
+
+message("UG_USE_SYSTEM_HEAP=${UG_USE_SYSTEM_HEAP}")
+message("UG_ENABLE_SYSTEM_HEAP=${UG_ENABLE_SYSTEM_HEAP}|")
