@@ -3643,7 +3643,7 @@ static int compare_node (const void *e0, const void *e1)
 INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, INT *Sons_of_Side,
                                            ELEMENT *SonList[MAX_SONS], INT *SonSides,
                                            INT NeedSons, INT ioflag,
-                                           INT useRefineClass
+                                           INT useRefineClass)
 {
   INT i,j,nsons;
   enum MarkClass markclass;
