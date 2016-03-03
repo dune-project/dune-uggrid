@@ -18,7 +18,10 @@
 /* begin private section */
 
 /* obsolete architecture string */
-#cmakedefine ARCHNAME ${CMAKE_LIBRARY_ARCHITECTURE}
+#cmakedefine ARCHNAME "${CMAKE_LIBRARY_ARCHITECTURE}"
+
+/* UG memory allocation model */
+#define DYNAMIC_MEMORY_ALLOCMODEL 1
 
 /* see parallel/ddd/dddi.h */
 #cmakedefine DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS}
@@ -36,7 +39,7 @@
 #cmakedefine HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <float.h> header file, and it defines. */
-#cmakedefine HAVE_DIRENT_H 1
+#cmakedefine HAVE_FLOAT_H 1
 
 /* Define to 1 if you have the <limits.h> header file, and it defines. */
 #cmakedefine HAVE_LIMITS_H 1
