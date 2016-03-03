@@ -38,7 +38,8 @@ include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
   ${PROJECT_SOURCE_DIR}/np/udm ${PROJECT_SOURCE_DIR}/np/procs
   ${PROJECT_SOURCE_DIR}/parallel ${PROJECT_SOURCE_DIR}/parallel/ddd
   ${PROJECT_SOURCE_DIR}/parallel/ppif ${PROJECT_SOURCE_DIR}/ddd/include
-  ${PROJECT_SOURCE_DIR}/parallel/dddif ${PROJECT_SOURCE_DIR}/parallel/util)
+  ${PROJECT_SOURCE_DIR}/parallel/dddif ${PROJECT_SOURCE_DIR}/parallel/util
+  ${PROJECT_SOURCE_DIR}/parallel/ddd/include )
 
 add_definitions("UGLIB")
 
