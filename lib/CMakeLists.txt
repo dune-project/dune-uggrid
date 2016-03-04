@@ -7,8 +7,8 @@ endif()
 
 set(_dim_libs ug_gm gg np algebra amg field procs udm graphics uggrape uggraph ugui devices low)
 
-ug_add_dim_libs(ugL SOURCES ../initug.cc OBJECT_DIM_LIBS ${_dim_libs} domL ngin OBJECT_LIBS low)
-ug_add_dim_libs(ugS SOURCES ../initug.cc
+ug_add_dim_libs(ugL DUNE SOURCES ../initug.cc OBJECT_DIM_LIBS ${_dim_libs} domL ngin OBJECT_LIBS  devices low)
+ug_add_dim_libs(ugS DUNE SOURCES ../initug.cc
   OBJECT_DIM_LIBS ${_dim_libs} domS ${_parallel_dim_libs}
   OBJECT_LIBS low ${_parallel_libs})
 

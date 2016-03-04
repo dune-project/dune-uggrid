@@ -64,7 +64,7 @@ endmacro()
 #
 macro(ug_add_dim_libs LIB_NAME)
   #message("create ${LIB_NAME} ${ARGN}")
-  cmake_parse_arguments(ADD_LIB  "OBJECT" ""
+  cmake_parse_arguments(ADD_LIB  "OBJECT;DUNE" ""
     "SOURCES;SOURCES_2D;SOURCES_3D;OBJECT_LIBS;OBJECT_DIM_LIBS" ${ARGN})
   if(ADD_LIB_OBJECT)
     set(OBJECT "OBJECT")
@@ -94,10 +94,17 @@ macro(ug_add_dim_libs LIB_NAME)
     # endif()
     ug_expand_object_libs(OBJECT_DIM_LIBS ${dim} ${ADD_LIB_OBJECT_DIM_LIBS})
 
-    add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
-      ${ADD_LIB_SOURCES_${dim}D}
-      ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
+    if(ADD_LIB_DUNE)
+      dune_add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
+        ${ADD_LIB_SOURCES_${dim}D}
+        ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
+      target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-D_${dim}")
+    else()
+      add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
+        ${ADD_LIB_SOURCES_${dim}D}
+        ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
     target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-D_${dim}")
+    endif()
   endforeach()
 endmacro()
 # !!! maybe make this configurable later
