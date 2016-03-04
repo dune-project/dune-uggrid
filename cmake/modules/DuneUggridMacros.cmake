@@ -1,3 +1,5 @@
+find_package(X11)
+
 if(MPI_FOUND)
   add_definitions("-DModelP")
 endif()
