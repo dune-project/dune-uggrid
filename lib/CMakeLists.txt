@@ -5,7 +5,7 @@ if(MPI_FOUND)
   set(_parallel_libs ppifmpi parutil)
 endif()
 
-set(_dim_libs ug_gm gg np algebra amg field procs udm graphics uggrape uggraph ugui devices low)
+set(_dim_libs ug_gm gg np algebra amg field procs udm graphics uggrape uggraph ugui low)
 
 ug_add_dim_libs(ugL DUNE SOURCES ../initug.cc OBJECT_DIM_LIBS ${_dim_libs} domL ngin OBJECT_LIBS  devices low)
 ug_add_dim_libs(ugS DUNE SOURCES ../initug.cc

@@ -8,7 +8,7 @@ set(SOURCES  ugdevices.cc sockcomm.cc
 set(devincludedir  ${CMAKE_INSTALL_INCLUDEDIR})
 set(devinclude_HEADERS  ugdevices.h)
 
-ug_add_dim_libs(devices OBJECT ${SOURCES})
+add_library(devices OBJECT ${SOURCES})
 add_library(devS ${SOURCES} sif/sif.cc)
 add_library(devR ${SOURCES} rif/remote.cc)
 add_library(devX ${SOURCE} xif/xmain.cc xif/xgraph.cc xif/xshell.cc)
