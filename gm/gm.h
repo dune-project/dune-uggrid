@@ -316,7 +316,8 @@ enum RefinementRule
 {NO_REFINEMENT = 0,
  COPY = 1,
  RED =  2,
- BLUE = 3,
+ BLUE = 3,    /* Does not actually do anything in 3d.
+                 Consider removing it from the list of 3d rules. */
  COARSE = 4,
 #ifdef __TWODIM__
  BISECTION_1 = 5,
