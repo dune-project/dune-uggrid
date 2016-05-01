@@ -57,8 +57,14 @@
 /* Define to 1 if you have the <memory.h> header file, and it defines. */
 #cmakedefine HAVE_MEMORY_H 1
 
+/* Define to 1 if you have the `memxpy' function. */
+#cmakedefine HAVE_MEMCPY 1
+
 /* Define to 1 if you have the `memmove' function. */
 #cmakedefine HAVE_MEMMOVE 1
+
+/* Define to 1 if you have the `memset' function. */
+#cmakedefine HAVE_MEMSET 1
 
 /* Define to 1 if you have the `realloc' function. */
 #cmakedefine HAVE_REALLOC 1
@@ -78,11 +84,20 @@
 /* Define to 1 if you have the <strings.h> header file, and it defines. */
 #cmakedefine HAVE_STRINGS_H 1
 
+/* Define to 1 if you have the `strrchr' function. */
+#cmakedefine HAVE_STRRCHR 1
+
 /* Define to 1 if you have the <strrchr.h> header file, and it defines. */
 #cmakedefine HAVE_STRRCHR_H 1
 
+/* Define to 1 if you have the `strstr' function. */
+#cmakedefine HAVE_STRSTR 1
+
 /* Define to 1 if you have the <strstr.h> header file, and it defines. */
 #cmakedefine HAVE_STRSTR_H 1
+
+/* Define to 1 if you have the `strchr' function. */
+#cmakedefine HAVE_STRTOL 1
 
 /* Define to 1 if you have the <strtol.h> header file, and it defines. */
 #cmakedefine HAVE_STRTOL_H 1

@@ -133,6 +133,7 @@ set(HAVE_ALLOCA True)
 
 check_function_exists(bzero HAVE_BZERO)
 check_function_exists(malloc HAVE_MALLOC)
+check_function_exists(memcpy HAVE_MEMCPY)
 check_function_exists(memmove HAVE_MEMMOVE)
 check_function_exists(memset HAVE_MEMSET)
 check_function_exists(realloc HAVE_REALLOX)
