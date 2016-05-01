@@ -98,12 +98,12 @@ macro(ug_add_dim_libs LIB_NAME)
       dune_add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
         ${ADD_LIB_SOURCES_${dim}D}
         ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
-      target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-D_${dim}")
+      target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-DUG_DIM_${dim}")
     else()
       add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
         ${ADD_LIB_SOURCES_${dim}D}
         ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
-    target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-D_${dim}")
+    target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-DUG_DIM_${dim}")
     endif()
   endforeach()
 endmacro()

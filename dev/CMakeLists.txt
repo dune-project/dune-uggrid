@@ -13,7 +13,7 @@ add_library(devS ${SOURCES} sif/sif.cc)
 add_library(devR ${SOURCES} rif/remote.cc)
 dune_add_library(devX xif/xmain.cc xif/xgraph.cc xif/xshell.cc
   $<TARGET_OBJECTS:devices> ADD_LIBS {X11_LIBRARIES})
-target_compile_definitions(devX PRIVATE "-D_2")
+target_compile_definitions(devX PRIVATE "-DUG_DIM_2")
 #add_subdirectory(sif)
 #add_subdirectory(xif)
 #add_subdirectory(rif)
