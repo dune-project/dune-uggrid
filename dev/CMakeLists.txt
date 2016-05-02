@@ -11,9 +11,10 @@ set(devinclude_HEADERS  ugdevices.h)
 add_library(devices OBJECT ${SOURCES})
 add_library(devS ${SOURCES} sif/sif.cc)
 add_library(devR ${SOURCES} rif/remote.cc)
-dune_add_library(devX xif/xmain.cc xif/xgraph.cc xif/xshell.cc
-  $<TARGET_OBJECTS:devices> ADD_LIBS {X11_LIBRARIES})
+add_library(devX xif/xmain.cc xif/xgraph.cc xif/xshell.cc
+  $<TARGET_OBJECTS:devices>)
 target_compile_definitions(devX PRIVATE "-DUG_DIM_2")
+target_link_libraries(devX "${X11_LIBRARIES}")
 #add_subdirectory(sif)
 #add_subdirectory(xif)
 #add_subdirectory(rif)
