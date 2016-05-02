@@ -26,7 +26,7 @@ find_package(BISON)
 set(UG_ENABLE_DEBUGGING False CACHE BOOL "Enable UG debugging (default is Off)")
 set(UG_ENABLE_2D True CACHE BOOL "Build library for 2d (default is On)")
 set(UG_ENABLE_3D True CACHE BOOL "Build library for 3d (default is On)")
-set(UG_DDD_MACROBITS "24" CACHE STRING
+set(UG_DDD_MAX_MACROBITS "24" CACHE STRING
   "Set number of bits of an unsigned int used to store the process number,
        the remaining bits are used to store the local entity id")
 

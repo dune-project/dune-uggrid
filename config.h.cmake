@@ -24,7 +24,7 @@
 #define DYNAMIC_MEMORY_ALLOCMODEL 1
 
 /* see parallel/ddd/dddi.h */
-#cmakedefine DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS}
+#cmakedefine DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MAX_MACROBITS}
 
 /* Define to 1 if you have `alloca', as a function or macro. */
 #cmakedefine HAVE_ALLOCA 1
