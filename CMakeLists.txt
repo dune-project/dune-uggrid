@@ -26,9 +26,13 @@ find_package(BISON)
 set(UG_ENABLE_DEBUGGING False CACHE BOOL "Enable UG debugging (default is Off)")
 set(UG_ENABLE_2D True CACHE BOOL "Build library for 2d (default is On)")
 set(UG_ENABLE_3D True CACHE BOOL "Build library for 3d (default is On)")
+set(UG_ENABLE_SYSTEM_HEAP ON CACHE BOOL "If ON/True then we are using the operating system heap instead of the one internal to UG (Default: ON")
 set(UG_DDD_MAX_MACROBITS "24" CACHE STRING
   "Set number of bits of an unsigned int used to store the process number,
        the remaining bits are used to store the local entity id")
+if(UG_ENABLE_SYSTEM_HEAP)
+  add_definitions("-DUG_USE_SYSTEM_HEAP=1")
+endif()
 
 #set the include headers
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
