@@ -33,6 +33,11 @@ set(UG_DDD_MAX_MACROBITS "24" CACHE STRING
 if(UG_ENABLE_SYSTEM_HEAP)
   add_definitions("-DUG_USE_SYSTEM_HEAP=1")
 endif()
+if(UG_ENABLE_DEBUGGING)
+  add_definitions("-DDebug")
+endif()
+
+add_definitions(-DUGLIB -DFOR_DUNE)
 
 #set the include headers
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
@@ -45,7 +50,6 @@ include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
   ${PROJECT_SOURCE_DIR}/parallel/dddif ${PROJECT_SOURCE_DIR}/parallel/util
   ${PROJECT_SOURCE_DIR}/parallel/ddd/include )
 
-add_definitions(-DUGLIB)
 
 set(UG_ENABLED_DIMENSIONS)
 if(UG_ENABLE_2D)
@@ -113,9 +117,6 @@ macro(ug_add_dim_libs LIB_NAME)
 endmacro()
 # !!! maybe make this configurable later
 set(DYNAMIC_MEMORY_ALLOCMODEL True)
-if(UG_ENABLE_DEBUGGING)
-  add_definitions("-DDebug")
-endif()
 
 check_include_file(alloca.h HAVE_ALLOCA_H)
 check_include_file(dirent.h HAVE_DIRENT_H)
