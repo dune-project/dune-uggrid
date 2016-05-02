@@ -73,7 +73,7 @@ endmacro()
 macro(ug_add_dim_libs LIB_NAME)
   #message("create ${LIB_NAME} ${ARGN}")
   cmake_parse_arguments(ADD_LIB  "OBJECT;DUNE" ""
-    "SOURCES;SOURCES_2D;SOURCES_3D;OBJECT_LIBS;OBJECT_DIM_LIBS" ${ARGN})
+    "SOURCES;SOURCES_2D;SOURCES_3D;OBJECT_LIBS;OBJECT_DIM_LIBS;ADD_LIBS" ${ARGN})
   if(ADD_LIB_OBJECT)
     set(OBJECT "OBJECT")
 #    set_property(GLOBAL PROPERTY ${LIB_NAME}_OBJECT_LIBS ${ADD_LIB_OBJECT_LIBS})
@@ -103,14 +103,21 @@ macro(ug_add_dim_libs LIB_NAME)
     ug_expand_object_libs(OBJECT_DIM_LIBS ${dim} ${ADD_LIB_OBJECT_DIM_LIBS})
 
     if(ADD_LIB_DUNE)
+      if(ADD_LIB_ADD_LIBS)
+        set(_EXTRA_ARGS "ADD_LIBS" ${ADD_LIB_ADD_LIBS})
+      endif()
       dune_add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
         ${ADD_LIB_SOURCES_${dim}D}
-        ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
+        ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS}
+        ${_EXTRA_ARGS})
       target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-DUG_DIM_${dim}")
     else()
       add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
         ${ADD_LIB_SOURCES_${dim}D}
         ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
+      if(ADD_LIB_ADD_LIBS)
+        dune_target_link_libraries(${LIB_NAME}${dim} ${ADD_LIB_ADD_LIBS})
+      endif()
     target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-DUG_DIM_${dim}")
     endif()
   endforeach()
