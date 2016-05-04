@@ -1,15 +1,15 @@
 /* begin dune-uggrid */
 /* Define to the version of dune-common */
-#define DUNE_UGGRID_VERSION "${DUNE_COMMON_VERSION}"
+#define DUNE_UGGRID_VERSION "${DUNE_UGGRID_VERSION}"
 
 /* Define to the major version of dune-common */
-#define DUNE_UGGRID_VERSION_MAJOR ${DUNE_COMMON_VERSION_MAJOR}
+#define DUNE_UGGRID_VERSION_MAJOR ${DUNE_UGGRID_VERSION_MAJOR}
 
 /* Define to the minor version of dune-common */
-#define DUNE_UGGRID_VERSION_MINOR ${DUNE_COMMON_VERSION_MINOR}
+#define DUNE_UGGRID_VERSION_MINOR ${DUNE_UGGRID_VERSION_MINOR}
 
 /* Define to the revision of dune-common */
-#define DUNE_UGGRID_VERSION_REVISION ${DUNE_COMMON_VERSION_REVISION}
+#define DUNE_UGGRID_VERSION_REVISION ${DUNE_UGGRID_VERSION_REVISION}
 
 /* If this is set, the operating system heap is used instead of UG's own heap
    data structure. */
@@ -30,16 +30,19 @@
 #cmakedefine HAVE_ALLOCA 1
 
 /* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix). */
-#cmakedefine  HAVE_ALLOCA_H 1
+#cmakedefine HAVE_ALLOCA_H 1
 
 /* Define to 1 if you have the `bzero' function. */
-#cmakedefine HAVE_BZERO
+#cmakedefine HAVE_BZERO 1
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'. */
 #cmakedefine HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <float.h> header file, and it defines. */
 #cmakedefine HAVE_FLOAT_H 1
+
+/* Define to 1 if you have the floor function. */
+#cmakedefine HAVE_FLOOR 1
 
 /* Define to 1 if you have the <limits.h> header file, and it defines. */
 #cmakedefine HAVE_LIMITS_H 1
@@ -57,11 +60,9 @@
 /* Define to 1 if you have the <memory.h> header file, and it defines. */
 #cmakedefine HAVE_MEMORY_H 1
 
-/* Define to 1 if you have the `memxpy' function. */
-#cmakedefine HAVE_MEMCPY 1
-
-/* Define to 1 if you have the `memmove' function. */
-#cmakedefine HAVE_MEMMOVE 1
+/* Define to 1 if you have the `memcpy' function. */
+// Was never set with autotools for whatever reason.
+//#cmakedefine HAVE_MEMCPY 1
 
 /* Define to 1 if you have the `memset' function. */
 #cmakedefine HAVE_MEMSET 1
@@ -74,6 +75,9 @@
 
 /* Define to 1 if you have the `strchr' function. */
 #cmakedefine HAVE_STRCHR 1
+
+/* Define to 1 if you have the `strrchr' function. */
+#cmakedefine HAVE_STRRCHR 1
 
 /* Define to 1 if you have the `strdup' function. */
 #cmakedefine HAVE_STRDUP 1
