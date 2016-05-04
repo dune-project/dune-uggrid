@@ -195,11 +195,7 @@ set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
 #install header
 install(FILES initug.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
 foreach(i ${SUBDIRS})
-  if(${i} STREQUAL "test")
-    set(opt EXCLUDE_FROM_ALL)
-  endif(${i} STREQUAL "test")
-  add_subdirectory(${i} ${opt})
-  unset(opt)
+  add_subdirectory(${i})
 endforeach(i ${SUBDIRS})
 
 add_subdirectory(cmake/modules)
