@@ -192,8 +192,6 @@ set(SUBDIRS  parallel low dev gm dom graphics np ui lib tools)
 
 set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
 
-# install pkg-config information
-install(FILES libug.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 #install header
 install(FILES initug.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
 foreach(i ${SUBDIRS})
