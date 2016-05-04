@@ -19,4 +19,5 @@ target_link_libraries(devX "${X11_LIBRARIES}")
 #add_subdirectory(xif)
 #add_subdirectory(rif)
 
+install(TARGETS devX DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${devinclude_HEADERS} DESTINATION  ${CMAKE_INSTALL_PKGINCLUDEDIR})

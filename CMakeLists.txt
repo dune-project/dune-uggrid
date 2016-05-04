@@ -79,6 +79,9 @@ macro(ug_add_dim_libs LIB_NAME)
   #message("create ${LIB_NAME} ${ARGN}")
   cmake_parse_arguments(ADD_LIB  "OBJECT;DUNE" ""
     "SOURCES;SOURCES_2D;SOURCES_3D;OBJECT_LIBS;OBJECT_DIM_LIBS;ADD_LIBS" ${ARGN})
+  if(ADD_LIB_APPEND)
+    set(_append "APPEND") # append all libraries in export.
+  endif()
   if(ADD_LIB_OBJECT)
     set(OBJECT "OBJECT")
 #    set_property(GLOBAL PROPERTY ${LIB_NAME}_OBJECT_LIBS ${ADD_LIB_OBJECT_LIBS})
@@ -114,7 +117,7 @@ macro(ug_add_dim_libs LIB_NAME)
       dune_add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
         ${ADD_LIB_SOURCES_${dim}D}
         ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS}
-        ${_EXTRA_ARGS})
+        ${_EXTRA_ARGS} ${_append})
       target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-DUG_DIM_${dim}")
     else()
       add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
@@ -125,6 +128,7 @@ macro(ug_add_dim_libs LIB_NAME)
       endif()
     target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-DUG_DIM_${dim}")
     endif()
+    set(_append "APPEND") # Do not overwrite but append next lib in export
   endforeach()
 endmacro()
 # !!! maybe make this configurable later
