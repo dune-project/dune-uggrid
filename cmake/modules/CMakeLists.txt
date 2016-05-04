@@ -1,4 +1,1 @@
-set(modules
-  DuneCommonMacros.cmake
-)
-install(FILES "${modules}" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/modules)
+install(FILES DuneUggridMacros.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/modules)
