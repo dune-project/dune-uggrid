@@ -39,6 +39,11 @@ endif()
 
 add_definitions(-DUGLIB -DFOR_DUNE)
 
+#Always build parallel libs if MPI is found
+if(MPI_C_FOUND)
+  add_definitions("-DModelP")
+endif()
+
 #set the include headers
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
   ${PROJECT_SOURCE_DIR}/gm ${PROJECT_SOURCE_DIR}/dev ${PROJECT_SOURCE_DIR}/dom
