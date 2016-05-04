@@ -20,9 +20,14 @@ dune_project()
 
 find_package(FLEX)
 find_package(BISON)
-
+find_package(MPI)
 # set defines that are only used internally.
 # The rest is in cmake/modules/DuneUggrid.cmake
+if(MPI_C_FOUND)
+  set(UG_ENABLE_PARALLEL True CACHE BOOL "Enable a parallel UG (default is True if MPI is there false otherwise")
+else()
+  set(UG_ENABLE_PARALLEL False CACHE BOOL "Enable a parallel UG (default is True if MPI is there false otherwise")
+endif()
 set(UG_ENABLE_DEBUGGING False CACHE BOOL "Enable UG debugging (default is Off)")
 set(UG_ENABLE_2D True CACHE BOOL "Build library for 2d (default is On)")
 set(UG_ENABLE_3D True CACHE BOOL "Build library for 3d (default is On)")
@@ -40,7 +45,10 @@ endif()
 add_definitions(-DUGLIB -DFOR_DUNE)
 
 #Always build parallel libs if MPI is found
-if(MPI_C_FOUND)
+if(UG_ENABLE_PARALLEL)
+  if(NOT MPI_C_FOUND)
+    message(SEND_ERROR "A parallel UG was requested but MPI was not found. Either change variable UG_ENABLE_PARALLEL or install MPI." )
+  endif()
   add_definitions("-DModelP")
 endif()
 
@@ -187,8 +195,12 @@ if(HAVE_TIME_H AND HAVE_SYS_TIME_H)
   set(TIME_WITH_SYS_TIME True)
 endif()
 
-# do everything in the subdirs (order matters!)
-set(SUBDIRS  parallel low dev gm dom graphics np ui lib tools)
+# do everything in the subdirs (order matters because of library dependencies!)
+if(ENABLE_UG_PARALLEL)
+  set(SUBDIRS  parallel)
+else()
+  set SUBDIRS "")
+set(SUBDIRS  ${SUBDIRS} low dev gm dom graphics np ui lib tools)
 
 set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
 
