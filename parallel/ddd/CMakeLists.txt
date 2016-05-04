@@ -11,4 +11,4 @@ if(HAVE_MPI)
 endif()
 
 # header files that are not explicitly used but need to be distributed
-install(FILES include/ddd.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES include/ddd.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
