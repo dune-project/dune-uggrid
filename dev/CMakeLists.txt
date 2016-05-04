@@ -10,7 +10,7 @@ set(devinclude_HEADERS  ugdevices.h)
 add_library(devices OBJECT ${SOURCES})
 # We need a unique name for the object library that will become libdevS
 # later in lib
-add_library(devSo OBJECT $<TARGET_OBJECTS:devices> sif/sif.cc)
+add_library(devSif OBJECT sif/sif.cc)
 add_library(devR ${SOURCES} rif/remote.cc)
 add_library(devX xif/xmain.cc xif/xgraph.cc xif/xshell.cc
   $<TARGET_OBJECTS:devices>)
