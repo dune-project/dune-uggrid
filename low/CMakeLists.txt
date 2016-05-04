@@ -8,7 +8,7 @@ set(DIMDEPSOURCES  boxtree.cc pfile.cc)
 
 # dimension-independent lib
 add_library(low OBJECT ugenv.cc heaps.cc fifo.cc misc.cc defaults.cc initlow.cc
-  fileopen.cc ugstruct.cc debug.cc bio.cc scan.cc ugtimer.cc tree.cc)
+  fileopen.cc ugstruct.cc debug.cc bio.cc scan.cc ugtimer.cc tree.cc bbtree.cc)
 
 # dimension-dependent libs (2D 3D)
 ug_add_dim_libs(low OBJECT SOURCES ${DIMDEPSOURCES} )
