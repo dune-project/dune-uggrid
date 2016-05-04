@@ -4,7 +4,7 @@ set(SOURCES  initddd.cc memmgr.cc handler.cc lb.cc debugger.cc lbrcb.cc
 
 install(FILES parallel.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
 
-if(MPI_FOUND)
+if(MPI_C_FOUND)
   include_directories(${PROJECT_SOURCE_DIR}/parallel/ddd/include)
   ug_add_dim_libs(dddif OBJECT SOURCES ${SOURCES})
 endif()

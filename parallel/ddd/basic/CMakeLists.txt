@@ -1,6 +1,6 @@
 set(SOURCES  io.cc lowcomm.cc notify.cc reduct.cc topo.cc)
 
-if(MPI_FOUND)
+if(MPI_C_FOUND)
   ug_add_dim_libs(basic OBJECT SOURCES ${SOURCES})
 endif()
 

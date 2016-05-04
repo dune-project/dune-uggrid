@@ -1,4 +1,4 @@
-if(MPI_FOUND)
+if(MPI_C_FOUND)
   # we need to deactivate the MPI C++ bindings
   # Maybe dune-common should export them?
   add_definitions(-DENABLE_MPI=1 -DMPICH_SKIP_MPICXX -DMPIPP_H)
