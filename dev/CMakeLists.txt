@@ -5,11 +5,12 @@
 
 set(SOURCES  ugdevices.cc sockcomm.cc
   ppm/ppm.cc meta/metafile.cc ps/postscript.cc ps/postscriptbw.cc)
-set(devincludedir  ${CMAKE_INSTALL_INCLUDEDIR})
 set(devinclude_HEADERS  ugdevices.h)
 
 add_library(devices OBJECT ${SOURCES})
-add_library(devS ${SOURCES} sif/sif.cc)
+# We need a unique name for the object library that will become libdevS
+# later in lib
+add_library(devSo OBJECT $<TARGET_OBJECTS:devices> sif/sif.cc)
 add_library(devR ${SOURCES} rif/remote.cc)
 add_library(devX xif/xmain.cc xif/xgraph.cc xif/xshell.cc
   $<TARGET_OBJECTS:devices>)
