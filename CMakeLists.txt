@@ -37,12 +37,15 @@ set(UG_DDD_MAX_MACROBITS "24" CACHE STRING
        the remaining bits are used to store the local entity id")
 if(UG_ENABLE_SYSTEM_HEAP)
   add_definitions("-DUG_USE_SYSTEM_HEAP=1")
+  set(UG_EXTRAFLAGS "-DUG_USE_SYSTEM_HEAP=1")
 endif()
 if(UG_ENABLE_DEBUGGING)
   add_definitions("-DDebug")
+  set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DDebug")
 endif()
 
 add_definitions(-DUGLIB -DFOR_DUNE)
+set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DUGLIB -DFOR_DUNE")
 
 #Always build parallel libs if MPI is found
 if(UG_ENABLE_PARALLEL)
@@ -50,6 +53,7 @@ if(UG_ENABLE_PARALLEL)
     message(SEND_ERROR "A parallel UG was requested but MPI was not found. Either change variable UG_ENABLE_PARALLEL or install MPI." )
   endif()
   add_definitions("-DModelP")
+  set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DModelP")
 endif()
 
 #set the include headers
@@ -202,11 +206,26 @@ else()
   set(SUBDIRS "")
 endif()
 set(SUBDIRS  ${SUBDIRS} low dev gm dom graphics np ui lib tools)
-
 set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
 
-# install pkg-config information
-install(FILES libug.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+# create and install pkg-config information and
+# cmake package configuration as ug not dune-uggrid
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix "\${prefix}")
+set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+if(UG_ENABLE_PARALLEL)
+  set(parallel "yes")
+else()
+  set(parallel "no")
+endif()
+set(fordune "yes")
+set(VERSION ${DUNE_UGGRID_VERSION})
+set(UG_XLIBS "${X11_LIBRARIES}")
+configure_file(libug.pc.in libug.pc)
+configure_file(ug-config.cmake.in ug-config.cmake @ONLY)
+configure_file(ug-config-version.cmake.in ug-config-version.cmake @ONLY)
+
 #install header
 install(FILES initug.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
 foreach(i ${SUBDIRS})
@@ -219,3 +238,11 @@ set(ARCHNAME ${CMAKE_LIBRARY_ARCHITECTURE})
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # finalize the dune project, e.g., generate config.h etc.
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
+
+# This comes after finalize as it uses DUNE_INSTALL_LIBDIR
+# computed there.
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libug.pc
+  DESTINATION ${DUNE_INSTALL_LIBDIR}/pkgconfig)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ug-config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/ug-config-version.cmake
+  DESTINATION ${DUNE_INSTALL_LIBDIR}/cmake/ug)
