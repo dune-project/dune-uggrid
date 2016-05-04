@@ -28,6 +28,7 @@ if(MPI_C_FOUND)
 else()
   set(UG_ENABLE_PARALLEL False CACHE BOOL "Enable a parallel UG (default is True if MPI is there false otherwise")
 endif()
+
 set(UG_ENABLE_DEBUGGING False CACHE BOOL "Enable UG debugging (default is Off)")
 set(UG_ENABLE_2D True CACHE BOOL "Build library for 2d (default is On)")
 set(UG_ENABLE_3D True CACHE BOOL "Build library for 3d (default is On)")
@@ -237,6 +238,9 @@ add_subdirectory(cmake/modules)
 set(ARCHNAME ${CMAKE_LIBRARY_ARCHITECTURE})
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # finalize the dune project, e.g., generate config.h etc.
+# Use package init to set additional information
+set(PACKAGE_INIT "set(UG_PARALLEL ${parallel})
+set(UG_FOR_DUNE yes)")
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
 
 # This comes after finalize as it uses DUNE_INSTALL_LIBDIR
