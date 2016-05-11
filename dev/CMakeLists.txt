@@ -12,13 +12,11 @@ add_library(devices OBJECT ${SOURCES})
 # later in lib
 add_library(devSif OBJECT sif/sif.cc)
 add_library(devR ${SOURCES} rif/remote.cc)
-add_library(devX xif/xmain.cc xif/xgraph.cc xif/xshell.cc
-  $<TARGET_OBJECTS:devices>)
-target_compile_definitions(devX PRIVATE "-DUG_DIM_2")
-target_link_libraries(devX "${X11_LIBRARIES}")
-#add_subdirectory(sif)
-#add_subdirectory(xif)
-#add_subdirectory(rif)
-
-install(TARGETS devX DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(X11_FOUND)
+  add_library(devX xif/xmain.cc xif/xgraph.cc xif/xshell.cc
+    $<TARGET_OBJECTS:devices>)
+  target_compile_definitions(devX PRIVATE "-DUG_DIM_2")
+  target_link_libraries(devX "${X11_LIBRARIES}")
+  install(TARGETS devX DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif(X11_FOUND)
 install(FILES ${devinclude_HEADERS} DESTINATION  ${CMAKE_INSTALL_PKGINCLUDEDIR})
