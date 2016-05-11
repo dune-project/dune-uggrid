@@ -10,3 +10,8 @@ flex_target(nginlex2 ngin-lex.ll ${CMAKE_CURRENT_BINARY_DIR}/ngin-lex.cc
 add_definitions("-DUG_DIM_2")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/dom/lgm)
 add_library(ngin2 OBJECT ${BISON_nginyacc2_OUTPUTS} ${FLEX_nginlex2_OUTPUTS})
+
+if(DUNE_BUILD_BOTH_LIBS)
+  # For shared libraries we need position independent code
+  set_property(TARGET ngin2 PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+endif()

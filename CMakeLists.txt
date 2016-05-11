@@ -84,6 +84,7 @@ macro(ug_expand_object_libs var dim)
     set(${var} ${${var}} "\$<TARGET_OBJECTS:${_lib}${dim}>")
   endforeach()
 endmacro()
+
 # a macro that creates the libraries for all dimensions.
 #
 macro(ug_add_dim_libs LIB_NAME)
@@ -104,20 +105,33 @@ macro(ug_add_dim_libs LIB_NAME)
       if(ADD_LIB_ADD_LIBS)
         set(_EXTRA_ARGS "ADD_LIBS" ${ADD_LIB_ADD_LIBS})
       endif()
+      if(OBJECT)
+        message(FATAL_ERROR "OBJECT may only be used in conjuction with DUNE property")
+      endif()
       dune_add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
         ${ADD_LIB_SOURCES_${dim}D}
         ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS}
         ${_EXTRA_ARGS} ${_append})
-      target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-DUG_DIM_${dim}")
+      set(_libs "${LIB_NAME}${dim}")
+      if(DUNE_BUILD_BOTH_LIBS)
+        set(_libs ${_libs} "${LIB_NAME}${dim}-shared")
+      endif()
     else()
       add_library("${LIB_NAME}${dim}" ${OBJECT} ${ADD_LIB_SOURCES}
         ${ADD_LIB_SOURCES_${dim}D}
         ${ADD_LIB_UNPARSED_ARGUMENTS} ${OBJECT_DIM_LIBS} ${OBJECT_LIBS})
+      if(OBJECT AND DUNE_BUILD_BOTH_LIBS)
+        set_property(TARGET "${LIB_NAME}${dim}" PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+      endif()
       if(ADD_LIB_ADD_LIBS)
         dune_target_link_libraries(${LIB_NAME}${dim} ${ADD_LIB_ADD_LIBS})
       endif()
-    target_compile_definitions("${LIB_NAME}${dim}" PRIVATE "-DUG_DIM_${dim}")
+      set(_libs "${LIB_NAME}${dim}")
     endif()
+    message("Building libs ${_libs} DUNE_BUILD_BOTH_LIBS=${DUNE_BUILD_BOTH_LIBS}")
+    foreach(_lib ${_libs})
+      target_compile_definitions("${_lib}" PRIVATE "-DUG_DIM_${dim}")
+    endforeach()
     set(_append "APPEND") # Do not overwrite but append next lib in export
   endforeach()
 endmacro()

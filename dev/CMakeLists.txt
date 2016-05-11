@@ -11,6 +11,10 @@ add_library(devices OBJECT ${SOURCES})
 # We need a unique name for the object library that will become libdevS
 # later in lib
 add_library(devSif OBJECT sif/sif.cc)
+if(DUNE_BUILD_BOTH_LIBS)
+  # For shared libraries we need position independent code
+  set_property(TARGET devices devSif PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+endif()
 add_library(devR ${SOURCES} rif/remote.cc)
 if(X11_FOUND)
   add_library(devX xif/xmain.cc xif/xgraph.cc xif/xshell.cc
