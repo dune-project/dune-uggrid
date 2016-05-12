@@ -2,7 +2,7 @@
 set(PARSERPREFIX ng2d)
 
 # generate header file, rename prefix
-bison_target(nginyacc2 ngin-yacc.yy ${CMAKE_CURRENT_BINARY_DIR}/ngin-yac.cc
+bison_target(nginyacc2 ngin-yacc.yy ${CMAKE_CURRENT_BINARY_DIR}/ngin-yacc.cc
   COMPILE_FLAGS "-p ${PARSERPREFIX}")
 flex_target(nginlex2 ngin-lex.ll ${CMAKE_CURRENT_BINARY_DIR}/ngin-lex.cc
   COMPILE_FLAGS "-P${PARSERPREFIX}")
