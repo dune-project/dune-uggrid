@@ -229,7 +229,7 @@ set(ARCHNAME ${CMAKE_LIBRARY_ARCHITECTURE})
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # finalize the dune project, e.g., generate config.h etc.
 # Use package init to set additional information
-set(PACKAGE_INIT "set(UG_PARALLEL ${parallel})
+set(dune-uggrid_INIT "set(UG_PARALLEL ${parallel})
 set(UG_FOR_DUNE yes)")
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
 
