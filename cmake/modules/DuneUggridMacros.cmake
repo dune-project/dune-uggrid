@@ -25,3 +25,17 @@ else()
   #add_definitions("-DENABLE_UG=1")
   set(UG_DEFINITIONS "ENABLE_UG=1")
 endif()
+
+# Check whether dune-uggrid is installed
+if(NOT dune-uggrid_INSTALLED)
+  #Yes, then we have setup the complete include path to the ug headers.
+  include_directories(${dune-uggrid_PREFIX} ${dune-uggrid_PREFIX}/low
+    ${dune-uggrid_PREFIX}/gm ${dune-uggrid_PREFIX}/dev ${dune-uggrid_PREFIX}/dom
+    ${dune-uggrid_PREFIX}/np ${dune-uggrid_PREFIX}/ui
+    ${dune-uggrid_PREFIX}/graphics/uggraph ${dune-uggrid_PREFIX}/np/algebra
+    ${dune-uggrid_PREFIX}/np/udm ${dune-uggrid_PREFIX}/np/procs
+    ${dune-uggrid_PREFIX}/parallel ${dune-uggrid_PREFIX}/parallel/ddd
+    ${dune-uggrid_PREFIX}/parallel/ppif ${dune-uggrid_PREFIX}/ddd/include
+    ${dune-uggrid_PREFIX}/parallel/dddif ${dune-uggrid_PREFIX}/parallel/util
+    ${dune-uggrid_PREFIX}/parallel/ddd/include )
+endif(NOT dune-uggrid_INSTALLED)
