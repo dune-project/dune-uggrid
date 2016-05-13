@@ -8,6 +8,8 @@ set(UG_USE_SYSTEM_HEAP ${UG_ENABLE_SYSTEM_HEAP})
 set(UG_FOUND True)
 set(HAVE_UG True)
 set(UG_VERSION "${DUNE_UGGRID_VERSION}")
+# The dune module is alway 3.13.0 or above!
+add_definitions(-DUG_USE_NEW_DIMENSION_DEFINES)
 
 if(UG_PARALLEL STREQUAL "yes")
   # Actually we probably should activate UG
