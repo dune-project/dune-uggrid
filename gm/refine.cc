@@ -3642,11 +3642,8 @@ static int compare_node (const void *e0, const void *e1)
 
 INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, INT *Sons_of_Side,
                                            ELEMENT *SonList[MAX_SONS], INT *SonSides,
-                                           INT NeedSons, INT ioflag
-#ifdef FOR_DUNE
-                                           , INT useRefineClass
-#endif
-                                           )
+                                           INT NeedSons, INT ioflag,
+                                           INT useRefineClass)
 {
   INT i,j,nsons;
   enum MarkClass markclass;
@@ -3681,11 +3678,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
      mark classes may not be set the way this method expects it.  Hence we allow the option
      to use REFINECLASS instead.  To be absolutely certain we don't break existing code
      we keep the old behaviour as the default.*/
-        #ifdef FOR_DUNE
   markclass = (enum MarkClass) ((useRefineClass) ? REFINECLASS(theElement) : MARKCLASS(theElement));
-        #else
-  markclass = (enum MarkClass) MARKCLASS(theElement);
-        #endif
         #endif
 
   /** \todo quick fix */

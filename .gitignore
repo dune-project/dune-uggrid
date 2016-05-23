@@ -2,7 +2,11 @@ Automake.global
 Makefile
 Makefile.in
 .deps
-config.*
+config.h
+config.in
+config.log
+config.status
+config.sub
 configure
 aclocal.m4
 autom4te.cache

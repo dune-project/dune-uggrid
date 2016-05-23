@@ -296,9 +296,7 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
   DimZ = 1;
   Factor(procs, &DimX, &DimY);
 
-#ifndef FOR_DUNE
   if (me==master) printf("DimX=%d, DimY=%d, DimZ=%d\n", DimX, DimY, DimZ);
-#endif
 
   /* tree configuration */
 
