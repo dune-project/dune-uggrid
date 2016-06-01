@@ -231,6 +231,11 @@ set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # Use package init to set additional information
 set(dune-uggrid_INIT "set(UG_PARALLEL ${parallel})
 set(UG_FOR_DUNE yes)")
+# Work around systems that do not set CMAKE_LIBRARY_ARCHITECTURE
+# Needed to always define ARCHNAME in config.h
+if(NOT CMAKE_LIBRARY_ARCHITECTURE)
+  set(CMAKE_LIBRARY_ARCHITECTURE "unknown")
+endif(NOT CMAKE_LIBRARY_ARCHITECTURE)
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
 
 # This comes after finalize as it uses DUNE_INSTALL_LIBDIR
