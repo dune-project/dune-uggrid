@@ -8,7 +8,7 @@ set(BUILD_DOCS 1)
 cmake_minimum_required(VERSION 2.8.12)
 
 #find dune-common and set the module path
-find_package(dune-common)
+find_package(dune-common REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
      "${CMAKE_SOURCE_DIR}/cmake/modules")# make sure our own modules are found
 
