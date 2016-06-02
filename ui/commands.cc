@@ -10883,8 +10883,6 @@ static INT ShowConfigCommand (INT argc, char **argv)
   UserWrite("    Model:        sequential\n");
 #endif
 
-  UserWriteF("   Architecture: %s\n",ARCHNAME);
-
 #ifdef Debug
   UserWrite("    Debugging:    ON\n");
 #elif defined NDEBUG

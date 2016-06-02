@@ -754,7 +754,7 @@ INT NS_PREFIX DirWalk (const char *dir, ProcessFileProc fcn)
 
 #endif
 
-  printf("fileopen.c: DirWalk() not implemented for architecture: %s\n",ARCHNAME);
+  printf("fileopen.c: DirWalk() not implemented for this architecture\n");
 
   REP_ERR_RETURN (NOT_IMPLEMENTED);
 }
