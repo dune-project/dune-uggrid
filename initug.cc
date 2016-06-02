@@ -171,8 +171,6 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
   /* create struct for configuration parameters */
   if (MakeStruct (":conf"))
     return (__LINE__);
-  if (SetStringVar ("conf:arch", ARCHNAME))
-    return (__LINE__);
 
   /* set variable for parallel modus */
 #ifdef ModelP

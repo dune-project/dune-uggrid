@@ -17,9 +17,6 @@
 
 /* begin private section */
 
-/* obsolete architecture string */
-#cmakedefine ARCHNAME "${CMAKE_LIBRARY_ARCHITECTURE}"
-
 /* UG memory allocation model */
 #define DYNAMIC_MEMORY_ALLOCMODEL 1
 
