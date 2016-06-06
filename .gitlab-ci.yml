@@ -1,26 +1,14 @@
-variables:
-  configure_flags: "--enable-dune --enable-parallel --enable-maintainer-mode"
-
-debian:8--gcc:
-  image: duneci/base:8
+---
+dune:git--clang:
+  image: duneci/dune:git
   script:
-  - autoreconf -si
-  - ./configure ${configure_flags} && make && make check
+  - dunecontrol --opts=/duneci/opts.clang --current all
+  - dunecontrol --current make build_tests
+  - dunecontrol --current make test
 
-debian:9--gcc:
-  image: duneci/base:9
+dune:git--gcc:
+  image: duneci/dune:git
   script:
-  - autoreconf -si
-  - ./configure ${configure_flags} && make && make check
-
-debian:8--clang:
-  image: duneci/base:8
-  script:
-  - autoreconf -si
-  - ./configure ${configure_flags} CXX=/usr/bin/clang++ && make && make check
-
-debian:9--clang:
-  image: duneci/base:9
-  script:
-  - autoreconf -si
-  - ./configure ${configure_flags} CXX=/usr/bin/clang++ && make && make check
+  - dunecontrol --opts=/duneci/opts.gcc --current all
+  - dunecontrol --current make build_tests
+  - dunecontrol --current make test
