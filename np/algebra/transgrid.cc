@@ -748,7 +748,7 @@ INT NS_DIM_PREFIX ClearIMatrix (GRID *g, VECDATA_DESC *theVD)
   MATRIX *m;
 
   if (VD_IS_SCALAR(theVD)) {
-    register SHORT mask = VD_SCALTYPEMASK(theVD);
+    SHORT mask = VD_SCALTYPEMASK(theVD);
 
     for (v = PFIRSTVECTOR(g); v != NULL; v = SUCCVC(v)) {
       VINDEX(v) = 0;
@@ -930,7 +930,7 @@ INT NS_DIM_PREFIX GetInterpolationMatrix (ELEMENT *theElement, ELEMENT *theFathe
   VECTOR *evec[MAX_NODAL_VECTORS];
   MATRIX *m;
   INT nev,nfv,ie,jf,ke,kf,nce,ncf;
-  register SHORT i,j;
+  SHORT i,j;
   DOUBLE *mptr;
 
   nev = GetAllVectorsOfElementOfType (theElement,evec,theVD);
@@ -1033,7 +1033,7 @@ INT NS_DIM_PREFIX AddInterpolationMatrix (GRID *theGrid,
   VECTOR *evec[MAX_NODAL_VECTORS];
   MATRIX *m;
   INT nev,nfv,ie,jf,ke,kf,nce,ncf,block;
-  register SHORT i,j;
+  SHORT i,j;
   DOUBLE *mptr,val;
 
   nev = GetAllVectorsOfElementOfType (theElement,evec,theVD);
@@ -1117,7 +1117,7 @@ static INT RestrictByMatrix_General (GRID *FineGrid, const VECDATA_DESC *to,
   VECTOR *v,*w;
   DOUBLE sum,*vptr,*wptr,*mptr;
   INT vtype,wtype,vncomp,wncomp,vecskip;
-  register SHORT i,j,xc,yc,xmask,ymask;
+  SHORT i,j,xc,yc,xmask,ymask;
   const SHORT *offset;
   short rcomp;
 
@@ -1297,7 +1297,7 @@ static INT InterpolateCorrectionByMatrix_General (GRID *FineGrid, const VECDATA_
   VECTOR *v,*w;
   DOUBLE sum,*vptr,*wptr,*mptr;
   INT vtype,wtype,vncomp,wncomp,vecskip;
-  register SHORT i,j,xc,yc,xmask,ymask;
+  SHORT i,j,xc,yc,xmask,ymask;
 
   if (DOWNGRID(FineGrid)==NULL)
     return (NUM_NO_COARSER_GRID);
@@ -1428,7 +1428,7 @@ INT NS_DIM_PREFIX InterpolateNewVectorsByMatrix (GRID *FineGrid, const VECDATA_D
   VECTOR *v,*w;
   DOUBLE sum,*vptr,*wptr,*mptr;
   INT vtype,wtype,vncomp,wncomp,vecskip;
-  register SHORT i,j,xc,xmask;
+  SHORT i,j,xc,xmask;
 
   if (DOWNGRID(FineGrid)==NULL)
     return (NUM_NO_COARSER_GRID);
@@ -1516,9 +1516,9 @@ INT NS_DIM_PREFIX ClearGhostMatrix (GRID *g, MATDATA_DESC *Mat)
 {
   VECTOR *v,*w;
   MATRIX *m;
-  register DOUBLE *mptr;
+  DOUBLE *mptr;
   INT vtype,mtype,rmask,cmask,mc,vncomp,wncomp;
-  register SHORT i,j,*mcomp;
+  SHORT i,j,*mcomp;
 
 
   if (MD_IS_SCALAR(Mat)) {
@@ -1577,11 +1577,11 @@ INT NS_DIM_PREFIX AssembleGalerkinByMatrix (GRID *FineGrid, MATDATA_DESC *Mat, I
   GRID *CoarseGrid;
   MATRIX *m,*im,*jm,*cm;
   VECTOR *v,*w,*iv,*jv;
-  register DOUBLE sum,*mptr,*cmptr,*imptr,*jmptr,mvalue;
-  register DOUBLE *imptr0,*imptr1,*jmptr0,*jmptr1,*madjptr,fac;
+  DOUBLE sum,*mptr,*cmptr,*imptr,*jmptr,mvalue;
+  DOUBLE *imptr0,*imptr1,*jmptr0,*jmptr1,*madjptr,fac;
   INT vtype,ivtype,mtype,cmtype,vncomp,wncomp,ivncomp,jvncomp,rmask,cmask;
   INT wtype,ivindex;
-  register SHORT i,j,k,l,mc,*mcomp,*cmcomp,*madjcomp;
+  SHORT i,j,k,l,mc,*mcomp,*cmcomp,*madjcomp;
 
   CoarseGrid = DOWNGRID(FineGrid);
   if (CoarseGrid == NULL)

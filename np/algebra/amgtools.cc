@@ -2872,8 +2872,8 @@ INT NS_DIM_PREFIX NBFineGridCorrection (GRID *theGrid, const VECDATA_DESC *to,co
   DOUBLE Inv_ii[MAX_MAT_COMP];
 
   INT vsmask;                           /* vec skip mask        */
-  register SHORT mcomp;                 /* mat-component(s)     */
-  register SHORT tvcomp,fvcomp;         /* #vector-component(s) */
+  SHORT mcomp;                 /* mat-component(s)     */
+  SHORT tvcomp,fvcomp;         /* #vector-component(s) */
 
   /* Check that only mtype=0x0 (for other, AMG is unclear anyhow).    */
   /* Define and set the variables scalar, blockN, blockNN, and error. */
@@ -2959,8 +2959,8 @@ INT NS_DIM_PREFIX NBTransformDefect (GRID *theGrid, const VECDATA_DESC *to, cons
   DOUBLE sum_j[MAX_VEC_COMP];
 
   INT vsmask;                           /* vec skip mask       */
-  register SHORT mcomp;                 /* mat-component(s)    */
-  register SHORT tvcomp,fvcomp;         /* vector-component(s) */
+  SHORT mcomp;                 /* mat-component(s)    */
+  SHORT tvcomp,fvcomp;         /* vector-component(s) */
 
   /* Check that only mtype=0x0 (for other, AMG is unclear anyhow).    */
   /* Define and set the variables scalar, blockN ,blockNN, and error. */
@@ -3126,9 +3126,9 @@ INT NS_DIM_PREFIX FastGalerkinFromInterpolation(GRID *theGrid, MATDATA_DESC *A,
   INT icomp,mcomp,rcomp;
   DOUBLE R_ikA_kl[MAX_MAT_COMP];
   GRID *coarseGrid;
-  register VECTOR *cvi,*cvj;
+  VECTOR *cvi,*cvj;
   VECTOR *vk,*vl;
-  register MATRIX *cmij,*plj;
+  MATRIX *cmij,*plj;
   MATRIX *mkl,*rik;
   INT symmetric, rinj, pinj;
 

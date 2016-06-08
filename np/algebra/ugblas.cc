@@ -89,9 +89,9 @@ USING_UG_NAMESPACES
 
 /** @name Macros to define VEC_SCALAR, VECDATA_DESC and MATDATA_DESC components */
 /*@{ */
-#define DEFINE_VS_CMPS(a)                               register DOUBLE a ## 0,a ## 1,a ## 2
-#define DEFINE_VD_CMPS(x)                               register INT x ## 0,x ## 1,x ## 2
-#define DEFINE_MD_CMPS(m)                               register INT m ## 00,m ## 01,m ## 02,m ## 10,m ## 11,m ## 12,m ## 20,m ## 21,m ## 22
+#define DEFINE_VS_CMPS(a)                               DOUBLE a ## 0,a ## 1,a ## 2
+#define DEFINE_VD_CMPS(x)                               INT x ## 0,x ## 1,x ## 2
+#define DEFINE_MD_CMPS(m)                               INT m ## 00,m ## 01,m ## 02,m ## 10,m ## 11,m ## 12,m ## 20,m ## 21,m ## 22
 /*@}*/
 
 /** @name Macros to set VEC_SCALAR components */
@@ -3107,7 +3107,7 @@ static INT UG_GlobalSumNDOUBLE_X (INT ncomp, DOUBLE *a)
 #define T_PR_IN                 {PRINTVEC(x); PRINTVEC(y)}
 #define T_ARGS_BV       ,INT yc,DOUBLE *a
 #define T_USE_Y
-#define T_CONFIG        register DOUBLE sum = 0.0;
+#define T_CONFIG        DOUBLE sum = 0.0;
 #define T_MOD_SCAL      sum += VVALUE(v,xc) * VVALUE(v,yc);
 #define T_MOD_VECTOR_1  sum += VVALUE(v,cx0) * VVALUE(v,cy0);
 #define T_MOD_VECTOR_2  sum += VVALUE(v,cx1) * VVALUE(v,cy1);
@@ -3158,7 +3158,7 @@ static INT UG_GlobalSumNDOUBLE_X (INT ncomp, DOUBLE *a)
 #define T_PR_DBG                (" a=VS")
 #define T_PR_IN                 PRINTVEC(x)
 #define T_CONFIG        const SHORT *aoff = VD_OFFSETPTR(x); DOUBLE *value;   \
-  register DOUBLE s;                                                                        \
+  DOUBLE s;                                                                        \
   for (i=0; i<VD_NCOMP(x); i++) a[i] = 0.0;
 #define T_MOD_SCAL      s = VVALUE(v,xc); a[aoff[VTYPE(v)]] += s*s;
 #define T_PREP_SWITCH   value = a+aoff[vtype];
@@ -3235,7 +3235,7 @@ static INT UG_GlobalSumNDOUBLE_X (INT ncomp, DOUBLE *a)
 
 #define T_FUNCNAME      NS_DIM_PREFIX dnrm2
 #define T_ARGS          ,DOUBLE *a
-#define T_CONFIG        register DOUBLE s, sum = 0.0;
+#define T_CONFIG        DOUBLE s, sum = 0.0;
 #define T_PR_IN                 PRINTVEC(x)
 #define T_MOD_SCAL      s = VVALUE(v,xc); sum += s*s;
 #define T_MOD_VECTOR_1  s = VVALUE(v,cx0); sum += s*s;
@@ -3524,7 +3524,7 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_ARGS         ,const MATDATA_DESC *M,const MATDATA_DESC *N
 #define T_PR_DBG                (" M=%s N=%s",ENVITEM_NAME(M),ENVITEM_NAME(N))
 #define T_ARGS_BV      ,INT mc,INT nc
-#define T_PREP_SCAL    register SHORT nc = MD_SCALCMP(N);
+#define T_PREP_SCAL    SHORT nc = MD_SCALCMP(N);
 #define T_MOD_SCAL     MVALUE(mat,mc)=MVALUE(mat,nc);
 #define T_PREP_SWITCH  INT mcomp;DEFINE_MD_CMPS(n);
 #define T_PREP_11      SET_MD_CMP_11(n,N,rtype,ctype);
@@ -3649,7 +3649,7 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_ARGS         ,const MATDATA_DESC *M,const MATDATA_DESC *N
 #define T_PR_DBG                (" M=%s N=%s",ENVITEM_NAME(M),ENVITEM_NAME(N))
 #define T_ARGS_BV      ,INT mc,INT nc
-#define T_PREP_SCAL    register SHORT nc = MD_SCALCMP(N);
+#define T_PREP_SCAL    SHORT nc = MD_SCALCMP(N);
 #define T_MOD_SCAL     MVALUE(mat,mc)+=MVALUE(mat,nc);
 #define T_PREP_SWITCH  INT mcomp;DEFINE_MD_CMPS(n);
 #define T_PREP_11      SET_MD_CMP_11(n,N,rtype,ctype);
@@ -3787,7 +3787,7 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_USE_Y
 #define T_USE_MATMUL
 #define T_CONFIG           INT j; DOUBLE s[MAX_SINGLE_VEC_COMP],sum;DEFINE_VS_CMPS(s);
-#define T_CONFIG_BV        register DOUBLE sum;
+#define T_CONFIG_BV        DOUBLE sum;
 #define T_LOOP_SCAL    sum = 0.0;
 #define T_MOD_SCAL     sum += MVALUE(mat,mc) * VVALUE(w,yc);
 #define T_POST_SCAL    VVALUE(v,xc) = sum;
@@ -3894,7 +3894,7 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_USE_Y
 #define T_USE_MATMUL
 #define T_CONFIG           INT j; DOUBLE s[MAX_SINGLE_VEC_COMP],sum;DEFINE_VS_CMPS(s);
-#define T_CONFIG_BV    register DOUBLE sum;
+#define T_CONFIG_BV    DOUBLE sum;
 #define T_LOOP_SCAL    sum = 0.0;
 #define T_MOD_SCAL     sum += MVALUE(mat,mc) * VVALUE(w,yc);
 #define T_POST_SCAL    VVALUE(v,xc) += sum;
@@ -4002,7 +4002,7 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_USE_Y
 #define T_USE_MATMUL
 #define T_CONFIG           INT j; DOUBLE s[MAX_SINGLE_VEC_COMP],sum;DEFINE_VS_CMPS(s);
-#define T_CONFIG_BV    register DOUBLE sum;
+#define T_CONFIG_BV    DOUBLE sum;
 #define T_LOOP_SCAL    sum = 0.0;
 #define T_MOD_SCAL     sum += MVALUE(mat,mc) * VVALUE(w,yc);
 #define T_POST_SCAL    VVALUE(v,xc) -= sum;
@@ -4067,9 +4067,9 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 INT NS_DIM_PREFIX l_dsetrandom (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a)
 {
   VECTOR *first_v;
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
   enum VectorType vtype;
   DOUBLE scale;
   DEFINE_VD_CMPS(cx);
@@ -4123,9 +4123,9 @@ INT NS_DIM_PREFIX l_dsetrandom (GRID *g, const VECDATA_DESC *x, enum VectorClass
 INT NS_DIM_PREFIX l_dsetrandom2 (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE from, DOUBLE to, INT skip)
 {
   VECTOR *first_v;
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
   enum VectorType vtype;
   DOUBLE scale;
   DEFINE_VD_CMPS(cx);
@@ -4262,10 +4262,10 @@ INT NS_DIM_PREFIX l_dsetrandom2 (GRID *g, const VECDATA_DESC *x, enum VectorClas
 INT NS_DIM_PREFIX l_dsetnonskip (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a)
 {
   VECTOR *first_v;
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
-  register INT vskip;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
+  INT vskip;
   enum VectorType vtype;
   DEFINE_VD_CMPS(cx);
 
@@ -4341,10 +4341,10 @@ INT NS_DIM_PREFIX l_dsetnonskip (GRID *g, const VECDATA_DESC *x, enum VectorClas
 
 INT NS_DIM_PREFIX a_dsetnonskip (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a)
 {
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
-  register INT vskip;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
+  INT vskip;
   enum VectorType vtype;
   INT lev;
   DEFINE_VD_CMPS(cx);
@@ -4417,10 +4417,10 @@ INT NS_DIM_PREFIX a_dsetnonskip (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DE
 
 INT NS_DIM_PREFIX s_dsetnonskip (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, DOUBLE a)
 {
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
-  register INT vskip;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
+  INT vskip;
   enum VectorType vtype;
   INT lev;
   DEFINE_VD_CMPS(cx);
@@ -4510,10 +4510,10 @@ INT NS_DIM_PREFIX s_dsetnonskip (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DE
 INT NS_DIM_PREFIX l_dsetskip (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a)
 {
   VECTOR *first_v;
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
-  register INT vskip;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
+  INT vskip;
   enum VectorType vtype;
   DEFINE_VD_CMPS(cx);
 
@@ -4596,9 +4596,9 @@ INT NS_DIM_PREFIX l_dsetfunc (GRID *g, const VECDATA_DESC *x, enum VectorClass x
   DOUBLE val[MAX_SINGLE_VEC_COMP];
   DOUBLE_VECTOR Point;
   INT maxsmallblock;
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
   enum VectorType vtype;
   DEFINE_VD_CMPS(cx);
 
@@ -4672,10 +4672,10 @@ INT NS_DIM_PREFIX l_dsetfunc (GRID *g, const VECDATA_DESC *x, enum VectorClass x
 INT NS_DIM_PREFIX l_dcopy_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *x, enum VectorClass xclass, const VECDATA_DESC *y)
 {
   VECTOR *first_v,*end_v;
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
-  register INT err;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
+  INT err;
   enum VectorType vtype;
   DEFINE_VD_CMPS(cx);
   DEFINE_VD_CMPS(cy);
@@ -4732,9 +4732,9 @@ INT NS_DIM_PREFIX l_dscale_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *x, enum V
 {
   VECTOR *first_v,*end_v;
   const DOUBLE *value;
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
   enum VectorType vtype;
   const SHORT *aoff;
   DEFINE_VS_CMPS(a);
@@ -4788,10 +4788,10 @@ INT NS_DIM_PREFIX l_daxpy_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *x, enum Ve
 {
   VECTOR *first_v,*end_v;
   const DOUBLE *value;
-  register VECTOR *v;
-  register SHORT i;
-  register SHORT ncomp;
-  register INT err;
+  VECTOR *v;
+  SHORT i;
+  SHORT ncomp;
+  INT err;
   enum VectorType vtype;
   const SHORT *aoff;
   DEFINE_VS_CMPS(a);
@@ -4880,8 +4880,8 @@ INT NS_DIM_PREFIX l_mean (const GRID *g, const VECDATA_DESC *x, enum VectorClass
 {
   DOUBLE *value;
   VECTOR *v,*first_v;
-  register SHORT i;
-  register SHORT ncomp;
+  SHORT i;
+  SHORT ncomp;
   enum VectorType vtype;
   const SHORT *spoff;
   DEFINE_VD_CMPS(cx);
@@ -4938,12 +4938,12 @@ INT NS_DIM_PREFIX l_mean (const GRID *g, const VECDATA_DESC *x, enum VectorClass
 
 INT NS_DIM_PREFIX l_dmatset_SB (BLOCKVECTOR *dest, BLOCKVECTOR *source,const MATDATA_DESC *M, DOUBLE a)
 {
-  register VECTOR *v,*first_v, *end_v;
-  register MATRIX *m;
+  VECTOR *v,*first_v, *end_v;
+  MATRIX *m;
   INT rtype,ctype;
   UINT first_index,last_index;
-  register SHORT i;
-  register SHORT nr;
+  SHORT i;
+  SHORT nr;
   DEFINE_MD_CMPS(m);
 
   first_v = BVFIRSTVECTOR(dest);
@@ -5064,11 +5064,11 @@ INT NS_DIM_PREFIX l_dmatset_SB (BLOCKVECTOR *dest, BLOCKVECTOR *source,const MAT
 
 INT NS_DIM_PREFIX l_dmattranspose (GRID *g, const MATDATA_DESC *M1, const MATDATA_DESC *M2)
 {
-  register VECTOR *v,*first_v;
-  register MATRIX *m;
+  VECTOR *v,*first_v;
+  MATRIX *m;
   INT rtype,ctype;
-  register SHORT i;
-  register SHORT nr;
+  SHORT i;
+  SHORT nr;
   DEFINE_MD_CMPS(m);
   DEFINE_MD_CMPS(mc);
 
@@ -5197,10 +5197,10 @@ INT NS_DIM_PREFIX l_dmattranspose (GRID *g, const MATDATA_DESC *M1, const MATDAT
 
 INT NS_DIM_PREFIX l_dmatmul_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass)
 {
-  register VECTOR *v,*w,*first_v,*end_v;
-  register MATRIX *mat;
+  VECTOR *v,*w,*first_v,*end_v;
+  MATRIX *mat;
   INT err,xmask,ymask,first_index,last_index;
-  register SHORT xc,yc,mc;
+  SHORT xc,yc,mc;
   DOUBLE sum;
 
 #ifndef NDEBUG
@@ -5244,10 +5244,10 @@ INT NS_DIM_PREFIX l_dmatmul_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum
 
 INT NS_DIM_PREFIX l_dtpmatmul_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass)
 {
-  register VECTOR *v,*w,*first_v,*end_v;
-  register MATRIX *mat;
+  VECTOR *v,*w,*first_v,*end_v;
+  MATRIX *mat;
   INT err,xmask,ymask,first_index,last_index;
-  register SHORT xc,yc,mc;
+  SHORT xc,yc,mc;
   DOUBLE sum;
 
 #ifndef NDEBUG
@@ -5291,10 +5291,10 @@ INT NS_DIM_PREFIX l_dtpmatmul_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, en
 
 INT NS_DIM_PREFIX l_dmatmul_set_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass)
 {
-  register VECTOR *v,*w,*first_v,*end_v;
-  register MATRIX *mat;
+  VECTOR *v,*w,*first_v,*end_v;
+  MATRIX *mat;
   INT err,xmask,ymask,first_index,last_index;
-  register SHORT xc,yc,mc;
+  SHORT xc,yc,mc;
   DOUBLE sum;
 
 #ifndef NDEBUG
@@ -5338,10 +5338,10 @@ INT NS_DIM_PREFIX l_dmatmul_set_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, 
 
 INT NS_DIM_PREFIX l_dtpmatmul_set_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass)
 {
-  register VECTOR *v,*w,*first_v,*end_v;
-  register MATRIX *mat;
+  VECTOR *v,*w,*first_v,*end_v;
+  MATRIX *mat;
   INT err,xmask,ymask,first_index,last_index;
-  register SHORT xc,yc,mc;
+  SHORT xc,yc,mc;
   DOUBLE sum;
 
 #ifndef NDEBUG
@@ -5385,10 +5385,10 @@ INT NS_DIM_PREFIX l_dtpmatmul_set_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x
 
 INT NS_DIM_PREFIX l_dmatmul_minus_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass)
 {
-  register VECTOR *v,*w,*first_v,*end_v;
-  register MATRIX *mat;
+  VECTOR *v,*w,*first_v,*end_v;
+  MATRIX *mat;
   INT err,xmask,ymask,first_index,last_index;
-  register SHORT xc,yc,mc;
+  SHORT xc,yc,mc;
   DOUBLE sum;
 
 #ifndef NDEBUG
@@ -5432,11 +5432,11 @@ INT NS_DIM_PREFIX l_dmatmul_minus_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x
 
 INT NS_DIM_PREFIX s_dtpmatmul_set (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass)
 {
-  register VECTOR *v,*w;
-  register MATRIX *mat;
+  VECTOR *v,*w;
+  MATRIX *mat;
   INT rtype,ctype,err,xmask,ymask,lev;
-  register SHORT i,j,xc,yc,mc;
-  register SHORT nr,nc;
+  SHORT i,j,xc,yc,mc;
+  SHORT nr,nc;
   DOUBLE s[MAX_SINGLE_VEC_COMP],sum;
   DEFINE_VD_CMPS(cx);
 
@@ -5763,10 +5763,10 @@ INT NS_DIM_PREFIX s_dtpmatmul_set (MULTIGRID *mg, INT fl, INT tl, const VECDATA_
 
 INT NS_DIM_PREFIX l_dtpmatmul (GRID *g, const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass)
 {
-  register VECTOR *v,*w,*first_v;
-  register MATRIX *mat;
+  VECTOR *v,*w,*first_v;
+  MATRIX *mat;
   INT err,xmask,ymask;
-  register SHORT xc,yc,mc;
+  SHORT xc,yc,mc;
   DOUBLE sum;
 
 #ifndef NDEBUG
@@ -5845,9 +5845,9 @@ INT NS_DIM_PREFIX l_dtpmatmul (GRID *g, const VECDATA_DESC *x, INT xclass, const
 
 INT NS_DIM_PREFIX d2matmulBS ( const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_col1, const BV_DESC *bvd_col2, const BV_DESC_FORMAT *bvdf, INT M_res_comp, INT M1comp, INT M2comp, GRID *grid )
 {
-  register VECTOR *vi, *vj, *vk, *end_v;
-  register MATRIX *mik, *mkj, *mij;
-  register CONNECTION *con;
+  VECTOR *vi, *vj, *vk, *end_v;
+  MATRIX *mik, *mkj, *mij;
+  CONNECTION *con;
   INT extra_cons = 0;
 
   ASSERT( (M_res_comp >= 0) && (M1comp >= 0) && (M2comp >= 0) );
@@ -5930,9 +5930,9 @@ INT NS_DIM_PREFIX d2matmulBS ( const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_co
 
 INT NS_DIM_PREFIX d2matmul_minusBS ( const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_col1, const BV_DESC *bvd_col2, const BV_DESC_FORMAT *bvdf, INT M_res_comp, INT M1comp, INT M2comp, GRID *grid )
 {
-  register VECTOR *vi, *vj, *vk, *end_v;
-  register MATRIX *mik, *mkj, *mij;
-  register CONNECTION *con;
+  VECTOR *vi, *vj, *vk, *end_v;
+  MATRIX *mik, *mkj, *mij;
+  CONNECTION *con;
   INT extra_cons = 0;
 
   ASSERT( (M_res_comp >= 0) && (M1comp >= 0) && (M2comp >= 0) );
@@ -6019,9 +6019,9 @@ INT NS_DIM_PREFIX d2matmul_minusBS ( const BLOCKVECTOR *bv_row1, const BV_DESC *
 
 INT NS_DIM_PREFIX d3matmulBS ( const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_col1, const BV_DESC *bvd_col2, const BV_DESC *bvd_col3, const BV_DESC_FORMAT *bvdf, INT M_res_comp, INT M1comp, INT M2comp, INT M3comp, GRID *grid )
 {
-  register VECTOR *vi, *vj, *vk, *vl, *end_v;
-  register MATRIX *mik, *mkl, *mlj, *mij;
-  register CONNECTION *con;
+  VECTOR *vi, *vj, *vk, *vl, *end_v;
+  MATRIX *mik, *mkl, *mlj, *mij;
+  CONNECTION *con;
   INT extra_cons = 0;
 
   ASSERT( (M_res_comp >= 0) && (M1comp >= 0) && (M2comp >= 0) && (M3comp >= 0) );
@@ -6106,9 +6106,9 @@ INT NS_DIM_PREFIX d3matmulBS ( const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_co
 
 DOUBLE NS_DIM_PREFIX CalculateDefectAndNormBS( const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT d_comp, INT f_comp, INT K_comp, INT u_comp )
 {
-  register VECTOR *v, *end_v;
-  register MATRIX *m;
-  register DOUBLE sum, result;
+  VECTOR *v, *end_v;
+  MATRIX *m;
+  DOUBLE sum, result;
 
   ASSERT( (d_comp >= 0) && (f_comp >= 0) && (K_comp >= 0) && (u_comp >= 0) );
 

@@ -1,3 +1,0 @@
-#!/bin/tcsh
-
-ug_dart.pl -e all -t Nightly

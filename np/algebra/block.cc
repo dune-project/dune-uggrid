@@ -106,8 +106,8 @@ INT NS_DIM_PREFIX SolveSmallBlock (SHORT n, const SHORT *scomp, DOUBLE *sol,
 {
   DOUBLE BlockMat[MAX_SINGLE_MAT_COMP],BlockSol[MAX_SINGLE_VEC_COMP], det;
   DOUBLE aux,M3div0,M6div0;
-  register DOUBLE piv;
-  register SHORT i,j,k;
+  DOUBLE piv;
+  SHORT i,j,k;
   INT pivrow;
   DOUBLE factor;
 
@@ -226,8 +226,8 @@ INT NS_DIM_PREFIX SolveInverseSmallBlock (SHORT n, const SHORT *scomp, DOUBLE *s
                                           const SHORT *invcomp, const DOUBLE *inv,
                                           const DOUBLE *rhs)
 {
-  register DOUBLE sum;
-  register SHORT i,j;
+  DOUBLE sum;
+  SHORT i,j;
 
   if (n>=MAX_SINGLE_VEC_COMP)
     return (1);
@@ -425,8 +425,8 @@ INT NS_DIM_PREFIX MatMulSmallBlock (SHORT nr, SHORT nc, SHORT n,
                                     const SHORT *mcomp1, const DOUBLE *mat1,
                                     const DOUBLE *mat2, DOUBLE *resmat)
 {
-  register INT i,j,k;
-  register DOUBLE sum;
+  INT i,j,k;
+  DOUBLE sum;
 
   for (i=0; i<nr; i++)
     for (j=0; j<nc; j++)
@@ -633,8 +633,8 @@ INT NS_DIM_PREFIX InvertSpdMatrix (INT n, DOUBLE mat[LOCAL_DIM][LOCAL_DIM],
 
 INT NS_DIM_PREFIX SolveFullMatrix (INT n, DOUBLE *sol, DOUBLE *mat, DOUBLE *rhs)
 {
-  register DOUBLE dinv,piv,sum;
-  register INT i,j,k;
+  DOUBLE dinv,piv,sum;
+  INT i,j,k;
   INT ipv[LOCAL_DIM];
 
   if (n > LOCAL_DIM)
@@ -733,9 +733,9 @@ INT NS_DIM_PREFIX Choleskydecomposition (INT n, DOUBLE *mat, DOUBLE *chol)
 
 INT NS_DIM_PREFIX InvertFullMatrix_piv (INT n, DOUBLE *mat, DOUBLE *inv)
 {
-  register DOUBLE dinv,piv,sum;
+  DOUBLE dinv,piv,sum;
   DOUBLE rhs[LOCAL_DIM];
-  register INT i,j,k;
+  INT i,j,k;
   INT ipv[LOCAL_DIM];
 
   if (n > LOCAL_DIM)
@@ -842,8 +842,8 @@ INT NS_DIM_PREFIX SolveFullMatrix2 (INT n, DOUBLE *sol, DOUBLE *mat, DOUBLE *rhs
 INT NS_DIM_PREFIX InvertFullMatrix_gen (INT n, DOUBLE *mat, DOUBLE *inv,
                                         DOUBLE *rhs, INT *ipv)
 {
-  register DOUBLE dinv,piv,sum;
-  register INT i,j,k;
+  DOUBLE dinv,piv,sum;
+  INT i,j,k;
 
   for (i=0; i<n; i++)
     ipv[i] = i;

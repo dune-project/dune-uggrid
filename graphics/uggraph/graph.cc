@@ -849,7 +849,7 @@ void NS_DIM_PREFIX UgStyledLine (COORD_POINT point1, COORD_POINT point2, DOUBLE 
 {
   SHORT_POINT out1,out2, end;
   INT reject,dummy;
-  register double x1, y1, x2, y2;
+  double x1, y1, x2, y2;
   double dx_dash, dy_dash, dx_space, dy_space;
   COORD_POINT temp;
 

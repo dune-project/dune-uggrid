@@ -78,9 +78,9 @@ USING_UG_NAMESPACES
 #define VALUELENSTR         "63"
 
 /* macros to define VEC_SCALAR, VECDATA_DESC and MATDATA_DESC components */
-#define DEFINE_VS_CMPS(a)                               register DOUBLE a ## 0,a ## 1,a ## 2
-#define DEFINE_VD_CMPS(x)                               register INT x ## 0,x ## 1,x ## 2
-#define DEFINE_MD_CMPS(m)                               register INT m ## 00,m ## 01,m ## 02,m ## 10,m ## 11,m ## 12,m ## 20,m ## 21,m ## 22
+#define DEFINE_VS_CMPS(a)                               DOUBLE a ## 0,a ## 1,a ## 2
+#define DEFINE_VD_CMPS(x)                               INT x ## 0,x ## 1,x ## 2
+#define DEFINE_MD_CMPS(m)                               INT m ## 00,m ## 01,m ## 02,m ## 10,m ## 11,m ## 12,m ## 20,m ## 21,m ## 22
 
 #define SET_YCMP_2(y,v,tp,cp)                   {cp=VD_CMPPTR_OF_TYPE(v,tp); y ## 0 = (cp)[0]; y ## 1 = (cp)[1];}
 #define SET_MCMP_22(m,M,rt,ct,cp)               {cp = MD_MCMPPTR_OF_RT_CT(M,rt,ct); \
@@ -205,8 +205,8 @@ static INT MySolveSmallBlock (SHORT n, const SHORT *scomp, DOUBLE *sol, const SH
 {
   DOUBLE BlockMat[MAX_SINGLE_MAT_COMP],BlockSol[MAX_SINGLE_VEC_COMP], det;
   DOUBLE aux,M3div0,M6div0;
-  register DOUBLE dinv,piv,sum;
-  register SHORT i,j,k;
+  DOUBLE dinv,piv,sum;
+  SHORT i,j,k;
 
   if (n>=MAX_SINGLE_VEC_COMP)
     return (1);
@@ -567,10 +567,10 @@ INT l_nlgs (NP_NLGS *nlgs, NP_NL_ASSEMBLE *ass, GRID *grid, const DOUBLE *damp,
   MULTIGRID *mg;
   INT level;
   INT rtype,ctype,myindex,error;
-  register MATRIX *mat;
-  register SHORT *tmpptr,*dcomp,*xcomp,*vcomp;
-  register SHORT i;
-  register SHORT n;
+  MATRIX *mat;
+  SHORT *tmpptr,*dcomp,*xcomp,*vcomp;
+  SHORT i;
+  SHORT n;
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
   DOUBLE r[MAX_SINGLE_VEC_COMP];

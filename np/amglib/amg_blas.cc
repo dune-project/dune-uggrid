@@ -131,8 +131,8 @@
 
 int AMG_dset (AMG_VECTOR *x, double a)
 {
-  register int i,n;
-  register double *values;
+  int i,n;
+  double *values;
 
   n = AMG_VECTOR_N(x)*AMG_VECTOR_B(x);
   values = AMG_VECTOR_X(x);
@@ -143,8 +143,8 @@ int AMG_dset (AMG_VECTOR *x, double a)
 
 int AMG_randomize (AMG_VECTOR *x)
 {
-  register int i,n;
-  register double *values;
+  int i,n;
+  double *values;
 
   n = AMG_VECTOR_N(x)*AMG_VECTOR_B(x);
   values = AMG_VECTOR_X(x);
@@ -155,8 +155,8 @@ int AMG_randomize (AMG_VECTOR *x)
 
 int AMG_dcopy (AMG_VECTOR *x, AMG_VECTOR *y)
 {
-  register int i,n;
-  register double *values_x, *values_y;
+  int i,n;
+  double *values_x, *values_y;
 
   n = AMG_VECTOR_N(x)*AMG_VECTOR_B(x);
   if (AMG_VECTOR_N(x)!=AMG_VECTOR_N(y)) return(AMG_FATAL);
@@ -171,8 +171,8 @@ int AMG_dcopy (AMG_VECTOR *x, AMG_VECTOR *y)
 
 int AMG_dscale (AMG_VECTOR *x, double a)
 {
-  register int i,n;
-  register double *values;
+  int i,n;
+  double *values;
 
   n = AMG_VECTOR_N(x)*AMG_VECTOR_B(x);
   values = AMG_VECTOR_X(x);
@@ -183,8 +183,8 @@ int AMG_dscale (AMG_VECTOR *x, double a)
 
 int AMG_daxpy (AMG_VECTOR *x, double a, AMG_VECTOR *y)
 {
-  register int i,n;
-  register double *values_x, *values_y;
+  int i,n;
+  double *values_x, *values_y;
 
   n = AMG_VECTOR_N(x)*AMG_VECTOR_B(x);
   if (AMG_VECTOR_N(x)!=AMG_VECTOR_N(y)) return(AMG_FATAL);
@@ -199,9 +199,9 @@ int AMG_daxpy (AMG_VECTOR *x, double a, AMG_VECTOR *y)
 
 double AMG_ddot (AMG_VECTOR *x, AMG_VECTOR *y)
 {
-  register int i,n;
-  register double *values_x, *values_y;
-  register double s=0.0;
+  int i,n;
+  double *values_x, *values_y;
+  double s=0.0;
 
   n = AMG_VECTOR_N(x)*AMG_VECTOR_B(x);
   if (AMG_VECTOR_N(x)!=AMG_VECTOR_N(y)) return(AMG_FATAL);
@@ -264,11 +264,11 @@ int AMG_dmatcopy (AMG_MATRIX *A, AMG_MATRIX *B)
 
 int AMG_dmatmul (AMG_VECTOR *x_, AMG_MATRIX *A, AMG_VECTOR *y_)
 {
-  register int n,i,k,start,end;
-  register double *x, *y, *a, *xx, *aa, *yy;
-  register int *ra, *ja;
-  register double s;
-  register int b,bb;
+  int n,i,k,start,end;
+  double *x, *y, *a, *xx, *aa, *yy;
+  int *ra, *ja;
+  double s;
+  int b,bb;
 
   /* plausi */
   if (AMG_VECTOR_N(x_)!=AMG_MATRIX_N(A)) return(AMG_FATAL);
@@ -367,11 +367,11 @@ int AMG_dmatmul (AMG_VECTOR *x_, AMG_MATRIX *A, AMG_VECTOR *y_)
 
 int AMG_dmatminus (AMG_VECTOR *x_, AMG_MATRIX *A, AMG_VECTOR *y_)
 {
-  register int n,i,k,start,end;
-  register double *x, *y, *a, *xx, *aa, *yy;
-  register int *ra, *ja;
-  register double s;
-  register int b,bb;
+  int n,i,k,start,end;
+  double *x, *y, *a, *xx, *aa, *yy;
+  int *ra, *ja;
+  double s;
+  int b,bb;
 
   /* plausi */
   if (AMG_VECTOR_N(x_)!=AMG_MATRIX_N(A)) return(AMG_FATAL);
