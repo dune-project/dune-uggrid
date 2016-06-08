@@ -82,9 +82,6 @@ extern "C"
 }
 #endif
 
-/* RCS_ID
-$Header$ 
-*/
 
 #ifdef FAMG_CLEAREMPTY_PE
 INT FAMGXferDelMatComp;

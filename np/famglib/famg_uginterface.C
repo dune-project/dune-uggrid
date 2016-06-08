@@ -28,9 +28,6 @@
 #include "famg_heap.h"
 #include "famg_sparse.h"
 
-/* RCS_ID
-$Header$
-*/
 
     // actually these should be a system member functions. Maybe it is more
     // flexibel this way.

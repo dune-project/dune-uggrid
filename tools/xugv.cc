@@ -125,8 +125,6 @@
 /* class name of the application */
 #define APPL_KLASSE    "Xugview"
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 
 XtAppContext kontext;                     /* application kontext */

@@ -146,8 +146,6 @@ static char pp_action_str[64];
 
 REP_ERR_FILE
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

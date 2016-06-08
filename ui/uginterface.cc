@@ -127,8 +127,6 @@ static INT theCmdKeyVarID;                              /* env ID for the /Cmd K
 static INT MousePos[2]={-1,-1};
 static OUTPUTDEVICE *DefaultDevice;     /* our default ouput device             */
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*D

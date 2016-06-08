@@ -108,9 +108,6 @@ REP_ERR_FILE;
 static struct FAMG_Interface famg_interface;
 static struct FAMGParameter_ug famg_parameter;
 
-/* RCS_ID
-$Header$
-*/
 
 /****************************************************************************/
 /*                                                                          */

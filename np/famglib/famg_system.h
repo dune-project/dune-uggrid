@@ -36,9 +36,6 @@ extern "C" {
 #include "famg_multigrid.h"
 #include "famg_sparse.h"
 
-/* RCS_ID
-   $Header$
- */
 
 const int FAMGMULTIGRIDS=1;
 

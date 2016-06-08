@@ -88,8 +88,6 @@ USING_UG_NAMESPACES
                                                  m ## 10 = (cp)[2]; m ## 11 = (cp)[3];}
 #define SET_CMPS_22(y,v,m,M,rt,ct,cp)   SET_MCMP_22(m,M,rt,ct,cp); SET_YCMP_2(y,v,ct,cp);
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*                                                                          */

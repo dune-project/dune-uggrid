@@ -126,8 +126,6 @@ static float tx,ty,mxx,myy,mxy,myx;
 static int landscape = 0;
 static int swap_bytes;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*                                                                          */

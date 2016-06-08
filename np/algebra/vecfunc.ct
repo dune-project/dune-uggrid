@@ -16,9 +16,6 @@
 /*                                                                          */
 /****************************************************************************/
 
-/* RCS_ID
-$Header$
-*/
 
 INT T_FUNCNAME (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x T_ARGS)
 {

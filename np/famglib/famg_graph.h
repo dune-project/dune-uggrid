@@ -34,9 +34,6 @@ extern "C"
 #endif
 
 #include "famg_algebra.h"
-/* RCS_ID
-   $Header$
- */
 
 const int FAMGMAXPARENTS=2;
 

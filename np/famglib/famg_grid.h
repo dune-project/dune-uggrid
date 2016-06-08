@@ -27,9 +27,6 @@
 #include "famg_graph.h"
 #include "famg_transfer.h"
 
-/* RCS_ID
-   $Header$
- */
 
 //additional measurement and output
 //#define XFERTIMING

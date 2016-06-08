@@ -86,8 +86,6 @@ static char optionBuffer[OPTIONBUFFERLEN]; /* buffer to assemble options	*/
 static char *options[MAXOPTIONS];               /* array of pointers to strings         */
 static INT optionCount=0;                               /* number of options incl. cmd name */
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

@@ -96,8 +96,6 @@ int NS_PREFIX _partition_ = 0; /* to have in the serial case this variable as a 
 /*                                                                          */
 /****************************************************************************/
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*                                                                          */

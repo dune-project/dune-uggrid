@@ -23,9 +23,6 @@
 #ifndef __FAMG_ALGEBRA__
 #define __FAMG_ALGEBRA__
 
-/* RCS_ID
-   $Header$
- */
 
 // if defined, only one type of alegra data structure is active (ug DS if USE_UG_DS is
 // defined otherwise array DS); this avoids the use of virtual classes and is thus

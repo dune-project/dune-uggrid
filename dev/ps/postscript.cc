@@ -117,8 +117,6 @@ static float red[COLORS];
 static float green[COLORS];
 static float blue[COLORS];
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

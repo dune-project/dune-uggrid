@@ -30,9 +30,6 @@
 #include "famg_graph.h"
 #include "famg_fifo.h"
 
-/* RCS_ID
-$Header$
-*/
    
     // Class List
 

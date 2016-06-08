@@ -23,9 +23,6 @@
 #include <math.h>
 #include "famg_algebraalgebra.h"
 
-/* RCS_ID
-$Header$
-*/
 
 
 

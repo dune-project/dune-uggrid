@@ -47,9 +47,6 @@ extern "C"
     
 #include "famg_uginterface.h"
 
-/* RCS_ID
-$Header$
-*/
 
 static long BlackColor; /* Black  */
 static long RedColor; /* Red  */

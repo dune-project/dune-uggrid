@@ -38,9 +38,6 @@ static char testf[FAMG_IOBUFFFER_LEN];
 #include "pargm.h"
 #endif
 
-/* RCS_ID
-$Header$
-*/
 
 void FAMGError(ostrstream &OutputString)
 {

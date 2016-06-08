@@ -41,9 +41,6 @@ extern "C"
 // forward declaration
 class FAMGGrid;
 
-/* RCS_ID
-   $Header$
- */
 
 // Class FAMGTransferEntry
 

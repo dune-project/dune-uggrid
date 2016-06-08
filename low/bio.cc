@@ -98,8 +98,6 @@ static W_mdouble_proc Write_mdouble;
 static R_string_proc Read_string;
 static W_string_proc Write_string;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*                                                                          */

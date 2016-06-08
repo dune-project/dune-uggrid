@@ -136,8 +136,6 @@ INT NS_DIM_PREFIX FFCrossOffdiagMats;   /* number of offdiagonal matrix entries 
 /*																			*/
 /****************************************************************************/
 
-/* data for CVS */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 REP_ERR_FILE
 

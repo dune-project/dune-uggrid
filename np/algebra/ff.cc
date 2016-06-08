@@ -78,8 +78,6 @@ USING_UG_NAMESPACES
 /*																			*/
 /****************************************************************************/
 
-/* data for CVS */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 REP_ERR_FILE
 

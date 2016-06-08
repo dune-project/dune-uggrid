@@ -74,8 +74,6 @@ USING_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-/* data for CVS */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 static FILE *stream;
 static INT lgmdomainpathes_set;

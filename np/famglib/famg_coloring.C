@@ -38,9 +38,6 @@ extern "C"
 #include "famg_coloring.h"
 #include "famg_ugalgebra.h"
 
-/* RCS_ID
-$Header$
-*/
 
 /****************************************************************************/
 /*																			*/

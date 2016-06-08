@@ -107,8 +107,6 @@ static PrintfProcPtr printdebug=printf;
 static FILE                                     *debugfile=NULL;
 static char                             *debugfilename;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

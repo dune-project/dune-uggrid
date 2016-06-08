@@ -2,9 +2,6 @@
 // vi: set et ts=4 sw=2 sts=2:
 
 
-/* RCS_ID
-   $Header$
- */
 
 #define LIST_LEN 200
 

@@ -73,8 +73,6 @@ static short RedTab[COLORS];
 static short GreenTab[COLORS];
 static short BlueTab[COLORS];
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

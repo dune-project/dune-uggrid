@@ -30,9 +30,6 @@ extern "C" {
 #include "famg_misc.h"
 #include "famg_sparse.h"
 
-/* RCS_ID
-$Header$
-*/
  
 
 #ifdef FAMG_SPARSE_BLOCK

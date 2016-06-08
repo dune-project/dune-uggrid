@@ -49,8 +49,6 @@ using namespace PPIF;
 
 USING_UG_NAMESPACES
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

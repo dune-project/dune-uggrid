@@ -130,8 +130,6 @@ static short green[256];
 static short blue[256];
 static long saveColor;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

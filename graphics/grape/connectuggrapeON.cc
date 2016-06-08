@@ -278,8 +278,6 @@ static F_HEL_INFO *data_f_hel_info_struct = NULL;
 static BUTTON *buttfswitch;
 
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

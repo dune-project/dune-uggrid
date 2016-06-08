@@ -39,9 +39,6 @@ extern "C"
 }
 #endif
 
-/* RCS_ID
-$Header$
-*/
 
 //
 // Class FAMGTransferEntry

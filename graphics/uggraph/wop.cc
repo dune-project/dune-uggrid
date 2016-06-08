@@ -898,8 +898,6 @@ static INT WOP_EXT_End;                                            /* flag for e
 
 static INT do_bullet;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

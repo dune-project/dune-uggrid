@@ -576,8 +576,6 @@ REP_ERR_FILE
 static VECDATA_DESC *FF_VECDATA_DESC_ARRAY[FF_MAX_VECS];
 
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

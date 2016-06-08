@@ -32,9 +32,6 @@
 #include "famg_system.h"
 #include "famg_sparse.h"
 
-/* RCS_ID
-$Header$
-*/
 
 // data structure local to this file
 struct leaveinfo

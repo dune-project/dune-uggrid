@@ -24,9 +24,6 @@
 #ifndef __FAMG_HEAP__
 #define __FAMG_HEAP__
 
-/* RCS_ID
-   $Header$
- */
 
 #define FAMGMAXSTACK 8
 

@@ -78,8 +78,6 @@ static INT ObjectDirID;
 static INT ClassVarID;
 static INT ObjectVarID;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

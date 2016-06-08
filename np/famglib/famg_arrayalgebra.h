@@ -23,8 +23,5 @@
 #ifndef __FAMG_ARRAYALGEBRA__
 #define __FAMG_ARRAYALGEBRA__
 
-/* RCS_ID
-   $Header$
- */
 
 #endif

@@ -193,8 +193,6 @@ static int mutelevel=0;
 static char *execCmdBuffer;
 #endif
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/
