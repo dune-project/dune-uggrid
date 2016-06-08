@@ -173,24 +173,6 @@ enum PrioMergeVals {
 #endif
 
 
-/*
-        macros for controlling the executable information system
-        this is based on usage off the RCS 'ident' command.
- */
-/*
-   #define DDD_RCS_STRING DDDRCSSTRING(DDD_VERSION,INFO_FRONTEND,MAX_OBJ,MAX_CPL)
-   #define DDDRCSSTRING(ddd_version,info_frontend,max_obj,max_cpl)\
-                DDDRCSSTRINGAUX(ddd_version,info_frontend,max_obj,max_cpl)
-   #define DDDRCSSTRINGAUX(ddd_version,info_frontend,max_obj,max_cpl)\
-                "$""State: DDD_VERSION="ddd_version" DDD_FRONTEND="info_frontend" DDD_MAXOBJ="#max_obj" DDD_MAXCPL="#max_cpl" $"
-
-   #define RCSID(header,module_rcs_string) RCSIDAUX(header,module_rcs_string)
-   #define RCSIDAUX(header,module_rcs_string) static char rcsid[] = #header ## module_rcs_string;
- */
-#define RCSID(a,b)
-
-
-
 /****************************************************************************/
 /*                                                                          */
 /* data structures exported by the corresponding source file                */

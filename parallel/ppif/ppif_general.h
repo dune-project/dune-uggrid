@@ -48,10 +48,6 @@
 #define PPIFRCSSTRINGAUX(ppif_version,arch_version)\
   "$" "State: PPIF_VERSION=" # ppif_version " ARCH_VERSION=" # arch_version " $"
 
-#define RCSID(header,module_rcs_string) RCSIDAUX(header,module_rcs_string)
-#define RCSIDAUX(header,module_rcs_string) static char rcsid[] = header ## module_rcs_string;
-
-
 /****************************************************************************/
 /*																			*/
 /* data structures exported by the corresponding source file				*/
