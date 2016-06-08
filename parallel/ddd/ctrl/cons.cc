@@ -115,8 +115,6 @@ typedef struct _CONSMSG
 /****************************************************************************/
 
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 static LC_MSGTYPE consmsg_t;

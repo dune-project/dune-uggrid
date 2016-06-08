@@ -83,8 +83,6 @@ VChannelPtr *theTopology;
 /*                                                                          */
 /****************************************************************************/
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 static DDD_PROC    *theProcArray;

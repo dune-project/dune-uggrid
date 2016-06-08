@@ -56,8 +56,6 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 static int send_mesgs;

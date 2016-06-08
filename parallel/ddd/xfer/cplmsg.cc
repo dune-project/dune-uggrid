@@ -82,8 +82,6 @@ typedef struct _CPLMSG
 /****************************************************************************/
 
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 

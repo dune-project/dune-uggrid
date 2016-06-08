@@ -278,8 +278,6 @@ typedef struct _ID_PLIST {
 /*                                                                          */
 /****************************************************************************/
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 static ID_PLIST   *thePLists;

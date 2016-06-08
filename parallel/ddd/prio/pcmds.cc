@@ -101,8 +101,6 @@ typedef struct _PRIO_GLOBALS
 /*                                                                          */
 /****************************************************************************/
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 /* one instance of PRIO_GLOBALS */
 static PRIO_GLOBALS prioGlobals;
