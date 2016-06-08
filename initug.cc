@@ -103,11 +103,6 @@ USING_UG_NAMESPACES
 /*                                                                          */
 /****************************************************************************/
 
-/* RCS string */
-static char
-RCS_ID
-  ("$Header$",
-  UG_RCS_STRING);
 
 /****************************************************************************/
 /** \brief Call the init functions for all the ug modules

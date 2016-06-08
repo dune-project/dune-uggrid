@@ -131,9 +131,6 @@ extern INT GenerateSurfaceGrid (HEAP *theHeap, INT MarkKey, LGM_SURFACE *aSurfac
 extern INT InitSurface(CoeffProcPtr Coeff);
 extern int AddGeomElement (int node0, int node1, int node2, int neigbor0, int neigbor1, int neigbor2);
 
-/* data for CVS */
-/*static char RCS_ID("$Header$",UG_RCS_STRING);
- */
 static INT currSubdom, currSurface, currLine;
 
 static CoeffProcPtr Coefficients[8];

@@ -61,12 +61,6 @@
 #define RCSIDAUX1(header,module_rcs_string) static char rcsid1[] = header module_rcs_string;
 
 
-#define RCS_ID(header,module_rcs_string) RCS_ID_AUX(header,module_rcs_string)
-#define RCS_ID_AUX(header,module_rcs_string) rcsid[] = header module_rcs_string
-
-#define RCS_ID1(header,module_rcs_string) RCS_ID_AUX1(header,module_rcs_string)
-#define RCS_ID_AUX1(header,module_rcs_string) rcsid1[] = header module_rcs_string
-
 /****************************************************************************/
 /*																			*/
 /* data structures exported by the corresponding source file				*/
