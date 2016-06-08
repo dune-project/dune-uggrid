@@ -43,17 +43,6 @@
 
 #define UG_VERSION "ug 3.8"
 
-#define UG_RCS_STRING UGRCSSTRING(UG_VERSION,ARCH_VERSION,DIM,MODEL,GRAPE_SUPPORT,NETGEN_SUPPORT,DOM_MODULE,DEBUG_MODE)
-
-#define UGRCSSTRING(ug_version,arch_version,dim,model,grape,netgen,dom_module,debug_mode)\
-  UGRCSSTRINGAUX(ug_version,arch_version,dim,model,grape,netgen,dom_module,debug_mode)
-
-#define UGRCSSTRINGAUX(ug_version,arch_version,dim,model,grape,netgen,dom_module,debug_mode)\
-  "$" "State: UG_VERSION=" # ug_version " ARCH_VERSION=" # arch_version " DIM=" # dim\
-  " GRAPE_SUPPORT=" # grape " MODEL=" # model\
-  " NETGEN_SUPPORT=" # netgen " DOM_MODULE=" # dom_module\
-  " DEBUG_MODE=" # debug_mode " $"
-
 /****************************************************************************/
 /*																			*/
 /* data structures exported by the corresponding source file				*/

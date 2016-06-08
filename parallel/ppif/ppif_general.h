@@ -42,12 +42,6 @@
 /* defintions of RCS macros */
 #define PPIF_VERSION "PPIF_1_0"
 
-#define PPIF_RCS_STRING PPIFRCSSTRING(PPIF_VERSION,ARCH_VERSION)
-#define PPIFRCSSTRING(ppif_version,arch_version)\
-  PPIFRCSSTRINGAUX(ppif_version,arch_version)
-#define PPIFRCSSTRINGAUX(ppif_version,arch_version)\
-  "$" "State: PPIF_VERSION=" # ppif_version " ARCH_VERSION=" # arch_version " $"
-
 /****************************************************************************/
 /*																			*/
 /* data structures exported by the corresponding source file				*/
