@@ -96,8 +96,6 @@ static ShellWindow shell;                                       /* our only shel
 FILE *i_pipe=NULL;                          /* input to ug                  */
 FILE *o_pipe=NULL;                                                  /* output from ug               */
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

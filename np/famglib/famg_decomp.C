@@ -26,9 +26,6 @@
 #include "famg_misc.h"
 #include "famg_system.h"
 
-/* RCS_ID
-$Header$
-*/
 
 // Class FAMGDecompEntry
 

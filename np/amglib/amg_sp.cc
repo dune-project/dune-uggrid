@@ -43,10 +43,6 @@
 #include "amg_low.h"
 #include "amg_sp.h"
 
-/* RCS string
-   static char RCS_ID("$Header$",UG_RCS_STRING);
- */
-
 /****************************************************************************/
 /*																			*/
 /* defines in the following order											*/

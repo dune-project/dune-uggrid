@@ -213,8 +213,6 @@ static INT statistik[7];
  */
 /* ... DIRKS NEU */
 
-/* data for CVS */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 
 

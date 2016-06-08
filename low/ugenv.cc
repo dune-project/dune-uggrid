@@ -65,8 +65,6 @@ USING_UG_NAMESPACE
 static ENVDIR *path[MAXENVPATH] = {NULL};
 static int pathIndex;                   /* entry to path array              */
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /** \brief Initialize the Environment and the heap

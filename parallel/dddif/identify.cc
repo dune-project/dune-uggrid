@@ -109,8 +109,6 @@ INT NS_DIM_PREFIX ident_mode = IDENT_OFF;
 /*																			*/
 /****************************************************************************/
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /* this function is called for low level identification */
 static INT (*Ident_FctPtr)(DDD_HDR *IdentObjectHdr, INT nobject,

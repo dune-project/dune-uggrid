@@ -22,9 +22,6 @@
 #ifndef __FAMG_ONLYUGALGEBRA__
 #define __FAMG_ONLYUGALGEBRA__
 
-/* RCS_ID
-   $Header$
- */
 
 extern "C"
 {

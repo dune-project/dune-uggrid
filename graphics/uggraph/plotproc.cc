@@ -86,8 +86,6 @@ static INT NodeVectorComp;
 static INT ElementVectorComp;
 static INT GradientFlag;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

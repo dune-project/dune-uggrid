@@ -104,8 +104,6 @@ static OUTPUTDEVICE *defaultOuputDevice=NULL;   /* console graphical outp.	*/
 static INT theOutputDevDirID;                   /* env type for Output Device dir	*/
 static INT theOutputDevVarID;                   /* env type for Output Device vars	*/
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

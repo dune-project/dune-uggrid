@@ -109,8 +109,6 @@ static INT theSeed = 0;
 static INT initialize=0;
 static DOUBLE *H;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /************************************************************************/
 /*																		*/

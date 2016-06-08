@@ -96,8 +96,6 @@ typedef struct _CplSegm
 /*                                                                          */
 /****************************************************************************/
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 

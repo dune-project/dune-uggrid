@@ -166,8 +166,6 @@ static HASH_TABLE *ht_nodes=NULL;
 #endif
 HASH_TABLE *ht_mem=NULL;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

@@ -77,9 +77,6 @@
 /*																			*/
 /****************************************************************************/
 
-/* RCS_ID
-   $Header$
- */
 
 /* user installable print handler */
 static AMG_PrintFuncPtr AMG_UserPrint=NULL;

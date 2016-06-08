@@ -88,13 +88,6 @@ static FILE *stream;                            /* file                         
 static char buffer[DIO_BUFFERSIZE]; /* general purpose buffer		*/
 static int intList[DIO_INTSIZE];        /* general purpose integer list */
 
-/* RCS string */
-#ifdef __MGIO_USE_IN_UG__
-
-static char RCS_ID("$Header$",UG_RCS_STRING);
-
-#endif
-
 /****************************************************************************/
 /*																			*/
 /* forward declarations of functions used before they are defined			*/

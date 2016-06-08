@@ -30,9 +30,6 @@
 #include "famg_interface.h"
 #include "famg_system.h"
 
-/* RCS_ID
-$Header$
-*/
 
 int firsti;
 

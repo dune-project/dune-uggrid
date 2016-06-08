@@ -144,8 +144,6 @@ typedef struct _HASH_ENTRY
 /*                                                                          */
 /****************************************************************************/
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 
 #ifdef GENERAL_HEAP

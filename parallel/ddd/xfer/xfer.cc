@@ -67,8 +67,6 @@ XFER_GLOBALS xferGlobals;
 /****************************************************************************/
 
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 

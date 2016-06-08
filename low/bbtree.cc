@@ -53,8 +53,6 @@ typedef struct tree_point_dist_data
 /*****************************************************************************
 * PRIVATE global variables (global to this source file)                     *
 *****************************************************************************/
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 INT theBBTDim = 0;
 HEAP *theBBTHeap = NULL;

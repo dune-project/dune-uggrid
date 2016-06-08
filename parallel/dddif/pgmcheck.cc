@@ -118,8 +118,6 @@ using namespace PPIF;
 
 REP_ERR_FILE
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /* count for errors to report from communication scatter functions */
 static INT check_distributed_objects_errors = 0;

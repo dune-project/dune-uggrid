@@ -57,8 +57,6 @@
 /****************************************************************************/
 
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 
 static char buf[MAXLINE];

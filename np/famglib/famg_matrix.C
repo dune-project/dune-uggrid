@@ -27,9 +27,6 @@
 #include "famg_heap.h"
 #include "famg_grid.h"
 
-/* RCS_ID
-$Header$
-*/
 
 static double famgzero = 0.0;
 

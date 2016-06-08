@@ -24,9 +24,6 @@
 #ifndef FAMG_INTERFACE
 #define FAMG_INTERFACE
 
-/* RCS_ID
-   $Header$
- */
 
 // exported functions
 

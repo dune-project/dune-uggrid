@@ -116,8 +116,6 @@ static int NHelpFiles;                                  /* no of open helpfiles 
 
 REP_ERR_FILE
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

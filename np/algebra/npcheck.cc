@@ -81,8 +81,6 @@ USING_UG_NAMESPACES
 static INT pcheck;
 #endif
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 INT NS_DIM_PREFIX CheckSymmetryOfMatrix (GRID *theGrid, MATDATA_DESC *A)
 {

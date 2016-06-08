@@ -16,9 +16,6 @@
 /*																			*/
 /****************************************************************************/
 
-/* RCS_ID
-$Header$
-*/
  	#ifdef T_SURFACE_MODE 
 	for (lev=FULLREFINELEVEL(mg); lev<tl; lev++)
 		for (v=FIRSTVECTOR(GRID_ON_LEVEL(mg,lev)); v!=NULL; v=SUCCVC(v))

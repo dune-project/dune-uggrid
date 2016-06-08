@@ -24,9 +24,6 @@
 #ifndef __FAMG_FIFO__
 #define __FAMG_FIFO__
 
-/* RCS_ID
-   $Header$
- */
 
 // integer fifo. for pointers: cast pointers to integer.
 

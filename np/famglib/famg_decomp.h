@@ -26,9 +26,6 @@
 
 #include "famg_algebra.h"
 
-/* RCS_ID
-   $Header$
- */
 
 struct FAMGDecompBitField
 {

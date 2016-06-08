@@ -59,9 +59,6 @@ extern "C"
 
 #endif
 
-/* RCS_ID
-$Header$
-*/
 
 void prm(int level, int comp)
 // for debugging

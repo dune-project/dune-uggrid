@@ -28,9 +28,6 @@
 #include "famg_transfer.h"
 #include "famg_graph.h"
 
-/* RCS_ID
-   $Header$
- */
 
 // for other data structures, FAMGMatrixPtr may contain only
 // one pointer to the matrix entry

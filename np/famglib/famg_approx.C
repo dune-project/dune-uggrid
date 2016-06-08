@@ -37,9 +37,6 @@ A new version will be checked in soon !
 #include "famg_graph.h"
 #include "famg_system.h"
 
-/* RCS_ID
-$Header$
-*/
 
 #ifndef FAMG_SPARSE_BLOCK
 

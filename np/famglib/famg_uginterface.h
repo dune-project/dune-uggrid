@@ -24,9 +24,6 @@
 #ifndef __FAMG_UGINTERFACE__
 #define __FAMG_UGINTERFACE__
 
-/* RCS_ID
-   $Header$
- */
 
 //#include "gm.h"        /* for ug data structure               */
 #include "famg_ugalgebra.h"

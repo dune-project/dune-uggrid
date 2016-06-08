@@ -52,10 +52,6 @@ START_UGDIM_NAMESPACE
 #define NPINL_x(p)                      (((NP_NL_ITER*)(p))->x)
 #define NPINL_b(p)                      (((NP_NL_ITER*)(p))->b)
 
-/* RCS string
-   $Header$
- */
-
 /****************************************************************************/
 /*                                                                          */
 /* definition of exported data structures                                   */

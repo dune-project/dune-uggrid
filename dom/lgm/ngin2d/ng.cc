@@ -100,8 +100,6 @@ static INT Global_MarkKey;
 static int lgmdomainpathes_set;
 #endif
 
-/* data for CVS */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

@@ -72,8 +72,6 @@ static int del_edg_fnd;
 static MG_GGDATA *myMGdata;
 static GG_PARAM *myPars;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 static INT QuObj;
 static INT ScObj;

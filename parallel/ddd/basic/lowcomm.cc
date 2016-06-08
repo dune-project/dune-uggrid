@@ -185,8 +185,6 @@ typedef struct _TABLE_DESC
 /****************************************************************************/
 
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 

@@ -38,9 +38,6 @@ static FAMGParameter *famgparaptr;
 const int famgnv = 50; // maximum number of Arnoldi vectors
 #endif
 
-/* RCS_ID
-$Header$
-*/
 
 // Class  Parameter
 void FAMGSetParameter(FAMGParameter *ptr)

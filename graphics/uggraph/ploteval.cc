@@ -91,9 +91,6 @@ static INT theMatrixValVarID;
 static INT theVPlotProcDirID;
 static INT theElemVectorVarID;
 
-/* data for CVS */
-static char rcsid[] = "$Header$";
-
 /****************************************************************************/
 /*																			*/
 /* forward declarations of functions used before they are defined			*/

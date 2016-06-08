@@ -24,9 +24,6 @@
 #include "famg_heap.h"
 #include "famg_interface.h"
 
-/* RCS_ID
-$Header$
-*/
 
 static FAMGSystem *famgsystemptr;
 

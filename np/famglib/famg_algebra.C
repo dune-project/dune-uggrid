@@ -37,9 +37,6 @@ extern "C"
 #include "famg_graph.h"
 #include "famg_sparse.h"
 
-/* RCS_ID
-$Header$
-*/
 
 #ifdef __AIX__
 // xlC on AIX doesn't know the key word typename

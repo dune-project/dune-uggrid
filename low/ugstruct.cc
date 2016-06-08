@@ -76,8 +76,6 @@ static INT pathIndex;
 static INT theStringDirID;                      /* env type for String dirs                     */
 static INT theStringVarID;                      /* env type for String vars                     */
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /** \brief Change current structure directory

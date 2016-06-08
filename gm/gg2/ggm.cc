@@ -82,8 +82,6 @@ static INT IflObj;
 static INT FlObj;
 static INT FcObj;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*                                                                          */

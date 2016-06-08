@@ -174,8 +174,6 @@ typedef struct _SizesSegm
 /****************************************************************************/
 
 
-/* Revision Control System string */
-RCSID("$Header$",DDD_RCS_STRING)
 
 
 static AddDataSegm *segmAddData = NULL;

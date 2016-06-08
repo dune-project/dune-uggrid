@@ -87,8 +87,6 @@ using namespace PPIF;
 /*																			*/
 /****************************************************************************/
 
-/* data for CVS */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 
 #ifdef ModelP

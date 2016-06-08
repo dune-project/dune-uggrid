@@ -80,8 +80,6 @@ static DOUBLE BL_chol[LOCAL_DIM][LOCAL_DIM];
 static DOUBLE BL_imat[LOCAL_DIM*LOCAL_DIM];
 static DOUBLE BL_mat1[LOCAL_DIM*LOCAL_DIM];
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

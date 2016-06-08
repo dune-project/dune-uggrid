@@ -25,8 +25,6 @@
 
 static int noline=1;
 
-/* data for CVS */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /* forward declare stuff from ngin-yacc.y */
 int ngerror (char *s); 

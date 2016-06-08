@@ -7,10 +7,6 @@
    broadcasts.
  */
 
-/*
-   $Header$
- */
-
 #include <config.h>
 #include <cstddef>
 #include <stdarg.h>

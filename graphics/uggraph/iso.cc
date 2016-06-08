@@ -71,8 +71,6 @@ static int Pri[8][12] = {
   {1, 5, 3, 4, 0, 2, 3, 1, 2, 5, 3, 1}
 };
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 
 static void Interpolate(double *x, TET *tet, double lambda, int i, int j)

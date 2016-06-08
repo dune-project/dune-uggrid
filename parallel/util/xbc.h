@@ -7,10 +7,6 @@
    broadcasts.
  */
 
-/*
-   $Header$
- */
-
 #ifndef __XBC__
 #define __XBC__
 

@@ -22,9 +22,6 @@
 #ifndef __FAMG_COLORING__
 #define __FAMG_COLORING__
 
-/* RCS_ID
-   $Header$
- */
 
 #ifdef ModelP
 

@@ -137,8 +137,6 @@ static Pixmap pattern[NO_PATTERNS];
 static unsigned long red_mask, green_mask, blue_mask;
 static int red_shift, green_shift, blue_shift;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 unsigned long NS_PREFIX UGBlack (void)
 {

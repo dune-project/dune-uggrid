@@ -43,10 +43,6 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-/* RCS string
-   $Header$
- */
-
 /****************************************************************************/
 /*																			*/
 /* data structures exported by the corresponding source file				*/

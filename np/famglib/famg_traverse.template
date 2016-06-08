@@ -21,9 +21,6 @@
 
 #include "famg_algebra.h"
 
-/* RCS_ID
-$Header$
-*/
 
 // respected preprocessor variables:
 //		FAMG_TRAVERSE_RETURN_TYPE

@@ -26,9 +26,6 @@
 
 #include "famg_grid.h"
 
-/* RCS_ID
-   $Header$
- */
 
 const int FAMGMAXGRIDS=32;
 

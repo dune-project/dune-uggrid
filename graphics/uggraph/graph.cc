@@ -99,8 +99,6 @@ static DOUBLE LineFactor=1;
 
 static char buffer[256];                                                /* general purpose text buff*/
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 /****************************************************************************/
 /*																			*/

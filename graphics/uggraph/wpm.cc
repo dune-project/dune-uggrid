@@ -79,8 +79,6 @@ static INT thePicVarID;
 static INT thePlotObjTypesDirID;
 static INT thePlotObjTypesVarID;
 
-/* RCS string */
-static char RCS_ID("$Header$",UG_RCS_STRING);
 
 static INT SetDeviceInfo (void)
 {
