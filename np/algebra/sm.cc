@@ -318,8 +318,8 @@ NS_PREFIX INT NS_DIM_PREFIX String2SMArray (SHORT n, char *str, SHORT *comps)
 
 NS_PREFIX INT NS_DIM_PREFIX SM_Compute_Reduced_Size (SPARSE_MATRIX *sm)
 {
-  register INT i, j, off;
-  register INT ident_count;
+  INT i, j, off;
+  INT ident_count;
 
   if (sm->N<0)
     ERR_RETURN (-1);              /* Error: sparse matrix has negative size */
@@ -363,7 +363,7 @@ NS_PREFIX INT NS_DIM_PREFIX SM_Compute_Reduced_Size (SPARSE_MATRIX *sm)
 
 NS_PREFIX INT NS_DIM_PREFIX SM_Compute_Reduced_Offsets (SPARSE_MATRIX *sm, SHORT *reduced_offsets)
 {
-  register INT i, j, k, off;
+  INT i, j, k, off;
 
   if (sm->N < 0)
     ERR_RETURN (-1);              /* Error: sparse matrix has negative size */
@@ -409,7 +409,7 @@ NS_PREFIX INT NS_DIM_PREFIX SM_Compute_Reduced_Offsets (SPARSE_MATRIX *sm, SHORT
 
 NS_PREFIX INT NS_DIM_PREFIX SM_Compare (SPARSE_MATRIX *sm1, SPARSE_MATRIX *sm2)
 {
-  register INT i, j, off1, off2;
+  INT i, j, off1, off2;
 
   if (sm1->nrows!=sm2->nrows) return(1);
   if (sm1->ncols!=sm2->ncols) return(2);
@@ -469,7 +469,7 @@ NS_PREFIX INT NS_DIM_PREFIX SM_Compare (SPARSE_MATRIX *sm1, SPARSE_MATRIX *sm2)
 
 NS_PREFIX INT NS_DIM_PREFIX SM_Compute_Diff_From_Offset (INT N, SHORT *offset, ptrdiff_t *Diff)
 {
-  register int i;
+  int i;
 
   if (N<0)
     ERR_RETURN (-1);              /* Error: sparse matrix has negative size */
@@ -511,7 +511,7 @@ NS_PREFIX INT NS_DIM_PREFIX SM_Compute_Diff_From_Offset (INT N, SHORT *offset, p
 NS_PREFIX INT NS_DIM_PREFIX SM_Compute_yDiff_From_Offset (INT N, SHORT *col_ind, SHORT *cmp_off,
                                                           ptrdiff_t *Diff)
 {
-  register int i;
+  int i;
 
   if (N<0)
     ERR_RETURN (-1);              /* Error: sparse matrix has negative size */
@@ -528,8 +528,8 @@ NS_PREFIX INT NS_DIM_PREFIX SM_Compute_yDiff_From_Offset (INT N, SHORT *col_ind,
 
 NS_PREFIX INT NS_DIM_PREFIX Decompose_LR_pivot (int n, DOUBLE *mat, int *pivot)
 {
-  register DOUBLE dinv, piv, sum, factor;
-  register int i, j, k, off_i, off_j;
+  DOUBLE dinv, piv, sum, factor;
+  int i, j, k, off_i, off_j;
 
   for (i=0; i<n; i++)
     pivot[i] = i;
@@ -578,8 +578,8 @@ NS_PREFIX INT NS_DIM_PREFIX Decompose_LR_pivot (int n, DOUBLE *mat, int *pivot)
 
 NS_PREFIX INT NS_DIM_PREFIX Solve_LR (int n, const DOUBLE *LR, const int *pivot, DOUBLE *x, const DOUBLE *b)
 {
-  register int i, j, off_i;
-  register DOUBLE sum;
+  int i, j, off_i;
+  DOUBLE sum;
 
   /* solve L x' = b (note that b/LR must be accessed via pivot) */
   for (i=0; i<n; i++)
@@ -630,8 +630,8 @@ NS_PREFIX INT NS_DIM_PREFIX Solve_LR (int n, const DOUBLE *LR, const int *pivot,
 NS_PREFIX INT NS_DIM_PREFIX SM_Decompose_LR_pivot (const SPARSE_MATRIX *sm, DOUBLE *values,
                                                    DOUBLE *LR, int *pivot)
 {
-  register int i,j,k,n;
-  register DOUBLE *Row_Ptr;
+  int i,j,k,n;
+  DOUBLE *Row_Ptr;
 
   n = sm->nrows;
   if (n!=sm->ncols)

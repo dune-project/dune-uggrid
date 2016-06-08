@@ -68,9 +68,9 @@ USING_UG_NAMESPACES
 
 /** @name Macros to define VEC_SCALAR, VECDATA_DESC and MATDATA_DESC components */
 /** @{*/
-#define DEFINE_VS_CMPS(a)                               register DOUBLE a ## 0,a ## 1,a ## 2
-#define DEFINE_VD_CMPS(x)                               register INT x ## 0,x ## 1,x ## 2
-#define DEFINE_MD_CMPS(m)                               register INT m ## 00,m ## 01,m ## 02,m ## 10,m ## 11,m ## 12,m ## 20,m ## 21,m ## 22
+#define DEFINE_VS_CMPS(a)                               DOUBLE a ## 0,a ## 1,a ## 2
+#define DEFINE_VD_CMPS(x)                               INT x ## 0,x ## 1,x ## 2
+#define DEFINE_MD_CMPS(m)                               INT m ## 00,m ## 01,m ## 02,m ## 10,m ## 11,m ## 12,m ## 20,m ## 21,m ## 22
 /** @}*/
 
 /** @name Macros to set VECDATA_DESC and MATDATA_DESC components */
@@ -272,10 +272,10 @@ INT NS_DIM_PREFIX l_jac (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, 
 {
   VECTOR *vec,*first_vec;
   INT rtype,err;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *vcomp,*dcomp;
-  register SHORT i;
-  register SHORT n;
+  SHORT vc,dc,mc,mask;
+  SHORT *vcomp,*dcomp;
+  SHORT i;
+  SHORT n;
   DOUBLE s[MAX_SINGLE_VEC_COMP];
 
   PRINTDEBUG(np,1,("l_jac: l=%d v=%s M=%s d=%s\n",(int)GLEVEL(g),ENVITEM_NAME(v),ENVITEM_NAME(M),ENVITEM_NAME(d)));
@@ -414,17 +414,17 @@ INT NS_DIM_PREFIX l_lgs (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, 
   VECTOR *vec,*w,*first_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *mcomp,*wcomp,*dcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  SHORT *mcomp,*wcomp,*dcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*vmat;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr,*vcomp;
+  SHORT *tmpptr,*vcomp;
   DOUBLE *wmat;
 
   PRINTDEBUG(np,1,("l_lgs: l=%d v=%s M=%s d=%s\n",(int)GLEVEL(g),ENVITEM_NAME(v),ENVITEM_NAME(M),ENVITEM_NAME(d)));
@@ -619,9 +619,9 @@ INT NS_DIM_PREFIX l_lgs_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MAT
   VECTOR *vec,*w,*first_vec,*end_vec;
   INT err;
   UINT myindex,first_index;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  DOUBLE sum;
 
 #ifndef NDEBUG
   if ( (err = MatmulCheckConsistency(v,M,d)) != NUM_OK )
@@ -667,9 +667,9 @@ INT NS_DIM_PREFIX l_tplgs_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const M
   VECTOR *vec,*w,*first_vec,*end_vec;
   INT err;
   UINT myindex,last_index;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  DOUBLE sum;
 
 #ifndef NDEBUG
   if ( (err = MatmulCheckConsistency(v,M,d)) != NUM_OK )
@@ -737,17 +737,17 @@ INT NS_DIM_PREFIX l_ugs (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, 
   VECTOR *vec,*w,*last_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *mcomp,*wcomp,*dcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  SHORT *mcomp,*wcomp,*dcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*vmat;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr,*vcomp;
+  SHORT *tmpptr,*vcomp;
   DOUBLE *wmat;
 
   PRINTDEBUG(np,1,("l_ugs: l=%d v=%s M=%s d=%s\n",(int)GLEVEL(g),ENVITEM_NAME(v),ENVITEM_NAME(M),ENVITEM_NAME(d)));
@@ -934,9 +934,9 @@ INT NS_DIM_PREFIX l_ugs_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MAT
   VECTOR *vec,*w,*last_vec,*end_vec;
   INT err;
   UINT myindex,last_index;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  DOUBLE sum;
 
 #ifndef NDEBUG
   if ( (err = MatmulCheckConsistency(v,M,d)) != NUM_OK )
@@ -1004,17 +1004,17 @@ INT NS_DIM_PREFIX l_lgsB (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
   BLOCKVECTOR *theBV;
   INT rtype,ctype,myindex,err,maxBVmembers,index;
   UINT bvn;
-  register MATRIX *mat;
-  register SHORT vc,mc,mask;
-  register SHORT *mcomp,*wcomp,*vcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,mc,mask;
+  SHORT *mcomp,*wcomp,*vcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP];
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr;
+  SHORT *tmpptr;
 
 #ifndef NDEBUG
   if ( (err = MatmulCheckConsistency(v,M,d)) != NUM_OK )
@@ -1244,9 +1244,9 @@ INT NS_DIM_PREFIX l_lgsB (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
 INT NS_DIM_PREFIX gs_solveBS ( const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, DOUBLE eps, INT max_it, INT K_comp, INT u_comp, INT f_comp, INT aux_comp, INT verbose, INT eps_relative )
 {
   VECTOR *v, *end_v, *first_v, *w;
-  register SHORT it;
-  register MATRIX *mat;
-  register DOUBLE sum;
+  SHORT it;
+  MATRIX *mat;
+  DOUBLE sum;
   DOUBLE start_norm, new_norm;
   INT ret = 0;
 
@@ -1346,19 +1346,19 @@ INT NS_DIM_PREFIX l_lsor (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
   VECTOR *vec,*w,*first_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *mcomp,*wcomp,*dcomp,*vcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum,dmp;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  SHORT *mcomp,*wcomp,*dcomp,*vcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum,dmp;
   DOUBLE s[MAX_SINGLE_VEC_COMP];
   const DOUBLE *tdmp;
   const SHORT *offset;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr;
+  SHORT *tmpptr;
   DOUBLE *wmat;
 
   PRINTDEBUG(np,1,("l_lsor: l=%d v=%s M=%s d=%s dmp=VS\n",(int)GLEVEL(g),ENVITEM_NAME(v),ENVITEM_NAME(M),ENVITEM_NAME(d)));
@@ -1566,17 +1566,17 @@ INT NS_DIM_PREFIX l_usor (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
   VECTOR *vec,*w,*last_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *mcomp,*wcomp,*dcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  SHORT *mcomp,*wcomp,*dcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*vmat;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr,*vcomp;
+  SHORT *tmpptr,*vcomp;
   const SHORT *offset = VD_OFFSETPTR(v);
   DOUBLE *wmat;
 
@@ -1589,7 +1589,7 @@ INT NS_DIM_PREFIX l_usor (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
 
   if (MD_IS_SCALAR(M) && VD_IS_SCALAR(v) && VD_IS_SCALAR(d))
   {
-    register DOUBLE dmp  = omega[0];
+    DOUBLE dmp  = omega[0];
     vc    = VD_SCALCMP(v);
     mc    = MD_SCALCMP(M);
     dc    = VD_SCALCMP(d);
@@ -1780,17 +1780,17 @@ INT NS_DIM_PREFIX l_usor_ld (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC 
   VECTOR *vec,*w,*last_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask,dmp;
-  register SHORT *mcomp,*wcomp,*dcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask,dmp;
+  SHORT *mcomp,*wcomp,*dcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*vmat;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr,*vcomp;
+  SHORT *tmpptr,*vcomp;
   DOUBLE *wmat;
 
 #ifndef NDEBUG
@@ -1834,7 +1834,7 @@ INT NS_DIM_PREFIX l_usor_ld (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC 
 
   L_REVERSE_VLOOP__CLASS(vec,last_vec,EVERY_CLASS)
   {
-    register SHORT *tdmp;
+    SHORT *tdmp;
 
     rtype = VTYPE(vec);
     tdmp    = VD_CMPPTR_OF_TYPE(omega,rtype);
@@ -2015,18 +2015,18 @@ INT NS_DIM_PREFIX l_lsor_ld (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC 
   VECTOR *vec,*w,*first_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask,dmp;
-  register SHORT *tdmp,*mcomp,*wcomp,*dcomp,*vcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask,dmp;
+  SHORT *tdmp,*mcomp,*wcomp,*dcomp,*vcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP];
   const SHORT *offset;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr;
+  SHORT *tmpptr;
   DOUBLE *wmat;
 
   PRINTDEBUG(np,1,("l_lsor_ld: l=%d v=%s M=%s d=%s dmp=VS\n",(int)GLEVEL(g),ENVITEM_NAME(v),ENVITEM_NAME(M),ENVITEM_NAME(d)));
@@ -2257,9 +2257,9 @@ INT NS_DIM_PREFIX l_ilubthdecomp (GRID *g, const MATDATA_DESC *M, const VEC_SCAL
   DOUBLE CorMat[MAX_SINGLE_MAT_COMP];
   DOUBLE sum;
   INT offset[NVECTYPES+1];
-  register DOUBLE *Diag,*Piv,*Elm,*Mat,*Djj,*Dkk;
-  register SHORT *DiagComp,*PivComp,*ElmComp,*MatComp,*DjjComp,*DkkComp;
-  register INT i0,j0,k0,l,m;
+  DOUBLE *Diag,*Piv,*Elm,*Mat,*Djj,*Dkk;
+  SHORT *DiagComp,*PivComp,*ElmComp,*MatComp,*DjjComp,*DkkComp;
+  INT i0,j0,k0,l,m;
   INT type,ctype,rtype,PivIsZero,CorIsZero;
   INT n,n2,nr,nnr,nc,nrnc;
   INT i,mc,mask;
@@ -2859,9 +2859,9 @@ INT NS_DIM_PREFIX l_icdecomp (GRID *g, const MATDATA_DESC *M)
   DOUBLE InvMat[MAX_SINGLE_MAT_COMP];
   DOUBLE CorMat[MAX_SINGLE_MAT_COMP];
   DOUBLE sum;
-  register DOUBLE *Dii,*Dij,*Dik,*Djk,*Dji;
-  register SHORT *DiiComp,*DijComp,*DikComp,*DjkComp,*DjiComp;
-  register INT i0,j0,k0,l;
+  DOUBLE *Dii,*Dij,*Dik,*Djk,*Dji;
+  SHORT *DiiComp,*DijComp,*DikComp,*DjkComp,*DjiComp;
+  INT i0,j0,k0,l;
   INT type,ctype,rtype,CorIsZero;
   SHORT n,n2,nr,nnr,nc;
   INT i,mc,mask;
@@ -3139,9 +3139,9 @@ INT NS_DIM_PREFIX l_iluspdecomp (GRID *g, const MATDATA_DESC *M, const VEC_SCALA
   DOUBLE InvMat[MAX_SINGLE_MAT_COMP],PivMat[MAX_SINGLE_MAT_COMP],CorMat[MAX_SINGLE_MAT_COMP];
   DOUBLE sum;
   INT offset[NVECTYPES+1];
-  register DOUBLE *Diag,*Piv,*Elm,*Mat,*Tmp,*Djj,*Dkk;
-  register SHORT *DiagComp,*PivComp,*ElmComp,*MatComp,*TmpComp,*DjjComp,*DkkComp;
-  register INT i0,j0,k0;
+  DOUBLE *Diag,*Piv,*Elm,*Mat,*Tmp,*Djj,*Dkk;
+  SHORT *DiagComp,*PivComp,*ElmComp,*MatComp,*TmpComp,*DjjComp,*DkkComp;
+  INT i0,j0,k0;
   INT type,ctype,rtype,PivIsZero,CorIsZero;
   INT n,n2,nr,nnr,nc,nrnc;
   INT i,j,l,m,mc,tc,mask,found;
@@ -3661,9 +3661,9 @@ INT NS_DIM_PREFIX l_lrdecomp (GRID *g, const MATDATA_DESC *M)
   DOUBLE InvMat[MAX_SINGLE_MAT_COMP],PivMat[MAX_SINGLE_MAT_COMP];
   DOUBLE CorMat[MAX_SINGLE_MAT_COMP];
   DOUBLE sum;
-  register DOUBLE *Diag,*Piv,*Elm,*Mat;
-  register SHORT *DiagComp,*PivComp,*ElmComp,*MatComp;
-  register INT i0,j0,k0;
+  DOUBLE *Diag,*Piv,*Elm,*Mat;
+  SHORT *DiagComp,*PivComp,*ElmComp,*MatComp;
+  INT i0,j0,k0;
   INT type,ctype,rtype,PivIsZero,CorIsZero;
   INT n,n2,nr,nnr,nc,nrnc;
   INT i,l,mc,mask;
@@ -3912,11 +3912,11 @@ INT NS_DIM_PREFIX l_lrdecomp (GRID *g, const MATDATA_DESC *M)
 
 INT NS_DIM_PREFIX LUDecomposeDiagBS( const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT A_comp, GRID *grid )
 {
-  register VECTOR *vi, *end_vi, *vj, *vk;
-  register DOUBLE aii, aji, ajk_corr;
-  register MATRIX *mij, *mik, *mjk;
-  register CONNECTION *con;
-  register INT extra_con = 0;
+  VECTOR *vi, *end_vi, *vj, *vk;
+  DOUBLE aii, aji, ajk_corr;
+  MATRIX *mij, *mik, *mjk;
+  CONNECTION *con;
+  INT extra_con = 0;
 
   ASSERT( bv != NULL );
   ASSERT( A_comp != -1 );
@@ -4166,9 +4166,9 @@ INT NS_DIM_PREFIX l_lrdecompB (GRID *g, const MATDATA_DESC *M)
   DOUBLE InvMat[MAX_SINGLE_MAT_COMP],PivMat[MAX_SINGLE_MAT_COMP];
   DOUBLE CorMat[MAX_SINGLE_MAT_COMP];
   DOUBLE sum;
-  register DOUBLE *Diag,*Piv,*Elm,*Mat;
-  register SHORT *DiagComp,*PivComp,*ElmComp,*MatComp;
-  register INT i0,j0,k0;
+  DOUBLE *Diag,*Piv,*Elm,*Mat;
+  SHORT *DiagComp,*PivComp,*ElmComp,*MatComp;
+  INT i0,j0,k0;
   INT type,ctype,rtype,PivIsZero,CorIsZero;
   INT n,n2,nr,nnr,nc,nrnc;
   INT i,l,mc,mask,index,maxBVmembers,bvn;
@@ -4446,17 +4446,17 @@ INT NS_DIM_PREFIX l_luiter (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *
   VECTOR *vec,*w,*first_vec,*last_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *mcomp,*vcomp,*wcomp,*dcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  SHORT *mcomp,*vcomp,*wcomp,*dcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*wmat,*vmat;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr;
+  SHORT *tmpptr;
 
   PRINTDEBUG(np,1,("l_luiter: l=%d v=%s M=%s d=%s\n",(int)GLEVEL(g),ENVITEM_NAME(v),ENVITEM_NAME(M),ENVITEM_NAME(d)));
 
@@ -4799,9 +4799,9 @@ INT NS_DIM_PREFIX l_luiter_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const 
 {
   VECTOR *vec,*w,*first_vec,*last_vec;
   INT myindex,err,first_index,last_index;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  DOUBLE sum;
 
 #ifndef NDEBUG
   if ( (err = MatmulCheckConsistency(v,M,d)) != NUM_OK )
@@ -4863,9 +4863,9 @@ INT NS_DIM_PREFIX l_tpluiter_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *v, cons
 {
   VECTOR *vec,*w,*first_vec,*last_vec;
   INT myindex,err,first_index,last_index;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  DOUBLE sum;
 
 #ifndef NDEBUG
   if ( (err = MatmulCheckConsistency(v,M,d)) != NUM_OK )
@@ -4958,10 +4958,10 @@ INT NS_DIM_PREFIX l_tpluiter_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *v, cons
 
 INT NS_DIM_PREFIX solveLUMatBS( const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT dest_comp, INT LU_comp, INT source_comp )
 {
-  register VECTOR *vi, *end_v, *vj;
-  register MATRIX *m;
-  register DOUBLE val, diag;
-  register INT index_vi;
+  VECTOR *vi, *end_v, *vj;
+  MATRIX *m;
+  DOUBLE val, diag;
+  INT index_vi;
 
   ASSERT( bv != NULL );
   ASSERT( dest_comp != -1 );
@@ -5059,17 +5059,17 @@ INT NS_DIM_PREFIX l_luiterB (GRID *g, const BLOCKVECTOR *bv, const VECDATA_DESC 
   VECTOR *vec,*w,*first_vec,*last_vec;
   INT rtype,ctype,err,bvn,maxBVmembers;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *mcomp,*vcomp,*wcomp,*dcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  SHORT *mcomp,*vcomp,*wcomp,*dcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*wmat,*vmat;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr;
+  SHORT *tmpptr;
 
 #ifndef NDEBUG
   if ( (err = MatmulCheckConsistency(v,M,d)) != NUM_OK )
@@ -5432,12 +5432,12 @@ INT NS_DIM_PREFIX l_lltiter (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC 
   VECTOR *vec,*w,*first_vec,*last_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat,*dmat;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *mcomp,*wcomp,*dcomp;
-  register SHORT i,j;
-  register SHORT n,nc,nr;
-  register DOUBLE sum;
+  MATRIX *mat,*dmat;
+  SHORT vc,dc,mc,mask;
+  SHORT *mcomp,*wcomp,*dcomp;
+  SHORT i,j;
+  SHORT n,nc,nr;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*wmat;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
@@ -5753,8 +5753,8 @@ INT NS_DIM_PREFIX l_ilubthdecomp_fine (GRID *g, const MATDATA_DESC *M, const VEC
   DOUBLE sum;
   INT offset[NVECTYPES+1];
   DOUBLE *Diag,*Piv,*Elm,*Mat,*Djj,*Dkk;
-  register SHORT *DiagComp,*PivComp,*ElmComp,*MatComp,*DjjComp,*DkkComp;
-  register INT i0,j0,k0,l,m;
+  SHORT *DiagComp,*PivComp,*ElmComp,*MatComp,*DjjComp,*DkkComp;
+  INT i0,j0,k0,l,m;
   INT type,ctype,rtype,PivIsZero,CorIsZero;
   INT n,n2,nr,nnr,nc,nrnc;
   INT i,mc,mask;
@@ -6143,17 +6143,17 @@ INT NS_DIM_PREFIX l_luiter_fine (GRID *g, const VECDATA_DESC *v, const MATDATA_D
   VECTOR *vec,*w,*first_vec,*last_vec;
   INT rtype,ctype,err;
   UINT myindex;
-  register MATRIX *mat;
-  register SHORT vc,dc,mc,mask;
-  register SHORT *mcomp,*vcomp,*wcomp,*dcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT vc,dc,mc,mask;
+  SHORT *mcomp,*vcomp,*wcomp,*dcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*wmat,*vmat;
   DEFINE_VS_CMPS(s);
   DEFINE_VD_CMPS(cy);
   DEFINE_MD_CMPS(m);
-  register SHORT *tmpptr;
+  SHORT *tmpptr;
 
   PRINTDEBUG(np,1,("l_luiter_fine: l=%d v=%s M=%s d=%s\n",(int)GLEVEL(g),ENVITEM_NAME(v),ENVITEM_NAME(M),ENVITEM_NAME(d)));
 
@@ -7117,8 +7117,8 @@ static INT InvertSparseBlock (SPARSE_MATRIX *sm, MATRIX *mat, DOUBLE *invmat)
 static INT SolveInverseSparseBlock (SPARSE_MATRIX *sm, MATRIX *mat,
                                     DOUBLE *sol, const DOUBLE *rhs)
 {
-  register DOUBLE sum;
-  register INT i,j;
+  DOUBLE sum;
+  INT i,j;
 
   if (sm->nrows>=MAX_SINGLE_VEC_COMP)
     return (1);
@@ -7175,7 +7175,7 @@ INT NS_DIM_PREFIX l_iluspbldecomp (GRID *g, const MATDATA_DESC *M, const VEC_SCA
   DOUBLE Mat[MAX_SINGLE_MAT_COMP];
 
   DOUBLE sum;
-  register INT i0,j0,k0,m0;
+  INT i0,j0,k0,m0;
   INT type,ctype,rtype,PivIsZero;
   INT i,n;
   INT mattype,colind,ind,current;
@@ -7373,11 +7373,11 @@ INT NS_DIM_PREFIX l_iluspbliter (GRID *g, const VECDATA_DESC *v, const MATDATA_D
 #ifdef _SPARSE_
   VECTOR *vec,*w,*first_vec,*last_vec;
   INT rtype,ctype,myindex;
-  register MATRIX *mat;
-  register SHORT *dcomp;
-  register SHORT i,j;
-  register SHORT n,nc;
-  register DOUBLE sum;
+  MATRIX *mat;
+  SHORT *dcomp;
+  SHORT i,j;
+  SHORT n,nc;
+  DOUBLE sum;
   DOUBLE s[MAX_SINGLE_VEC_COMP],*wmat,*vmat;
   SPARSE_MATRIX *sm;
 

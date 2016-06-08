@@ -161,9 +161,9 @@ INT NS_DIM_PREFIX TFFCalculateTheta( const BLOCKVECTOR *bv_dest,
                                      const BV_DESC_FORMAT *bvdf,
                                      INT tv_comp )
 {
-  register VECTOR *v_dest, *v_source, *end_dest, *pred_dest, *pred_source, *succ_dest, *succ_source, *start_dest;
-  register DOUBLE val, pred_val, succ_val;
-  register MATRIX *m;
+  VECTOR *v_dest, *v_source, *end_dest, *pred_dest, *pred_source, *succ_dest, *succ_source, *start_dest;
+  DOUBLE val, pred_val, succ_val;
+  MATRIX *m;
   INT missed, pred_found, succ_found, pred_in_block, succ_in_block;
   INT aux_comp, L_comp, Theta_comp;
 
@@ -383,9 +383,9 @@ INT NS_DIM_PREFIX FFCalculateThetaAndUpdate( const BLOCKVECTOR *bv_dest,
                                              INT tv2_comp,
                                              GRID *grid)
 {
-  register VECTOR *vi, *vip1, *end_v;
-  register DOUBLE e1i, e2i, e1ip1, e2ip1, a1, a2, det, off_val;
-  register MATRIX *m_offdiag;
+  VECTOR *vi, *vip1, *end_v;
+  DOUBLE e1i, e2i, e1ip1, e2ip1, a1, a2, det, off_val;
+  MATRIX *m_offdiag;
   INT aux1_comp, aux2_comp, K_comp, T_comp;
   CONNECTION *con;
 
@@ -518,8 +518,8 @@ static INT FFO0CalculateThetaAndUpdate( const BLOCKVECTOR *bv_dest,
                                         GRID *grid)
 /* Gabriels FF 0. Ordnung */
 {
-  register VECTOR *vi, *end_v;
-  register DOUBLE tvval, pred_val, succ_val, val;
+  VECTOR *vi, *end_v;
+  DOUBLE tvval, pred_val, succ_val, val;
   INT aux_comp, K_comp, T_comp, missed;
 
   aux_comp = GET_AUX_VEC;
@@ -755,8 +755,8 @@ INT NS_DIM_PREFIX TFFDecomp( DOUBLE wavenr,
                              INT tv_comp,
                              GRID *grid )
 {
-  register BLOCKVECTOR *bv_i, *bv_im1, *bv_end;
-  register BV_DESC *bvd_i, *bvd_im1, *bvd_temp;
+  BLOCKVECTOR *bv_i, *bv_im1, *bv_end;
+  BV_DESC *bvd_i, *bvd_im1, *bvd_temp;
   BV_DESC bvd1, bvd2;
   INT K_comp, FF_comp;
 #ifdef THETA_ANA
@@ -1018,8 +1018,8 @@ INT NS_DIM_PREFIX FFDecomp( DOUBLE wavenr,
                             INT tv2_comp,
                             GRID *grid )
 {
-  register BLOCKVECTOR *bv_i, *bv_im1, *bv_end;
-  register BV_DESC *bvd_i, *bvd_im1, *bvd_temp;
+  BLOCKVECTOR *bv_i, *bv_im1, *bv_end;
+  BV_DESC *bvd_i, *bvd_im1, *bvd_temp;
   BV_DESC bvd1, bvd2;
   INT K_comp, FF_comp;
 #ifdef FFCOMM

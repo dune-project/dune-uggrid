@@ -156,8 +156,8 @@ REP_ERR_FILE
 INT NS_DIM_PREFIX storeVectorBS( BLOCKVECTOR *bv, INT x_comp, GRID *grid )
 /* store the given vector in an allocated buffer in the blockvector */
 {
-  register DOUBLE *mem;
-  register VECTOR *v, *end_v;
+  DOUBLE *mem;
+  VECTOR *v, *end_v;
 
   if ( (mem = BACKUP_MEM(bv)) == NULL )
   {
@@ -190,8 +190,8 @@ INT NS_DIM_PREFIX storeVectorBS( BLOCKVECTOR *bv, INT x_comp, GRID *grid )
 INT NS_DIM_PREFIX restoreVectorBS( BLOCKVECTOR *bv, INT x_comp )
 /* restore the given vector from an allocated buffer in the blockvector */
 {
-  register DOUBLE *mem;
-  register VECTOR *v, *end_v;
+  DOUBLE *mem;
+  VECTOR *v, *end_v;
 
   mem = BACKUP_MEM( bv );
 
@@ -208,16 +208,16 @@ INT NS_DIM_PREFIX restoreVectorBS( BLOCKVECTOR *bv, INT x_comp )
 #ifdef NIE_DAA    /* nur fuer veraltete Datenstruktur geeignet */
 static INT HasDirichletNeighbour( const VECTOR *v )
 {
-  register NODE *my_node, *nb_node;
-  register LINK *link;
-  register VERTEX *nb_vertex;
+  NODE *my_node, *nb_node;
+  LINK *link;
+  VERTEX *nb_vertex;
 
   ASSERT(false);       /* neues boundary konzept einbauen */
   REP_ERR_RETURN(1);
 
-  register VSEGMENT *vseg;
-  register BndCondProcPtr bnd_cond;
-  register BNDSEGDESC *bnd_desc;
+  VSEGMENT *vseg;
+  BndCondProcPtr bnd_cond;
+  BNDSEGDESC *bnd_desc;
 
   DOUBLE value;
   INT type;
@@ -258,7 +258,7 @@ static INT HasDirichletNeighbour( const VECTOR *v )
 void NS_DIM_PREFIX printv( INT x_nr )
 /* for calling from a debugger */
 {
-  register VECTOR *v;
+  VECTOR *v;
   DOUBLE pos[DIM];
   GRID *g;
 
@@ -287,7 +287,7 @@ void NS_DIM_PREFIX printv( INT x_nr )
 void NS_DIM_PREFIX printvgrid( GRID *g, INT x_nr )
 /* for calling from a debugger */
 {
-  register VECTOR *v;
+  VECTOR *v;
   DOUBLE pos[DIM];
 
   for (v=FIRSTVECTOR(g); v!= NULL; v=SUCCVC(v))
@@ -313,7 +313,7 @@ void NS_DIM_PREFIX printvgrid( GRID *g, INT x_nr )
 void NS_DIM_PREFIX printvBS( const BLOCKVECTOR *bv, INT x_nr )
 /* for calling from a debugger */
 {
-  register VECTOR *v;
+  VECTOR *v;
   DOUBLE pos[DIM];
 
   for (v=BVFIRSTVECTOR(bv); v!= BVENDVECTOR(bv); v=SUCCVC(v))
@@ -339,8 +339,8 @@ void NS_DIM_PREFIX printvBS( const BLOCKVECTOR *bv, INT x_nr )
 void NS_DIM_PREFIX printm( INT m_nr )
 /* for calling from a debugger */
 {
-  register VECTOR *v, *w;
-  register MATRIX *m;
+  VECTOR *v, *w;
+  MATRIX *m;
   GRID *g;
 
   g = GRID_ON_LEVEL(GetCurrentMultigrid(), CURRENTLEVEL(GetCurrentMultigrid()));
@@ -374,8 +374,8 @@ void NS_DIM_PREFIX printm( INT m_nr )
 void NS_DIM_PREFIX printmgrid( GRID *g, INT m_nr )
 /* for calling from a debugger */
 {
-  register VECTOR *v, *w;
-  register MATRIX *m;
+  VECTOR *v, *w;
+  MATRIX *m;
 
 #ifdef ModelP
   printf(PFMT,me);
@@ -406,8 +406,8 @@ void NS_DIM_PREFIX printmgrid( GRID *g, INT m_nr )
 void NS_DIM_PREFIX printmMG( MULTIGRID *theMG, INT m_nr )
 /* for calling from a debugger */
 {
-  register VECTOR *v, *w;
-  register MATRIX *m;
+  VECTOR *v, *w;
+  MATRIX *m;
   GRID *g; int i;
 
   for ( i=0; i <= TOPLEVEL(theMG); i++ )
@@ -440,8 +440,8 @@ void NS_DIM_PREFIX printmMG( MULTIGRID *theMG, INT m_nr )
 void NS_DIM_PREFIX printmBS( const BLOCKVECTOR *bv_row, const BLOCKVECTOR *bv_col, INT m_nr )
 /* for calling from a debugger */
 {
-  register VECTOR *v, *w;
-  register MATRIX *m;
+  VECTOR *v, *w;
+  MATRIX *m;
 
 #ifdef ModelP
   printf(PFMT,me);
@@ -480,8 +480,8 @@ void NS_DIM_PREFIX printmBS( const BLOCKVECTOR *bv_row, const BLOCKVECTOR *bv_co
 void NS_DIM_PREFIX printPatternBS( const BLOCKVECTOR *bv_row, const BLOCKVECTOR *bv_col, INT m_nr )
 /* for calling from a debugger */
 {
-  register VECTOR *v, *w;
-  register MATRIX *m;
+  VECTOR *v, *w;
+  MATRIX *m;
 
 #ifdef ModelP
   printf(PFMT,me);
@@ -527,7 +527,7 @@ void NS_DIM_PREFIX printPatternBS( const BLOCKVECTOR *bv_row, const BLOCKVECTOR 
 
 static void printBVrec( BLOCKVECTOR *bv_first, const char *indent, const BV_DESC *bvd_parent, const BV_DESC_FORMAT *bvdf )
 {
-  register VECTOR *v;
+  VECTOR *v;
   BLOCKVECTOR *bv;
   char indent_rec[200];
   BV_DESC bvd_bv;
@@ -664,8 +664,8 @@ INT NS_DIM_PREFIX FF_PrepareGrid( GRID *grid, DOUBLE *meshwidth, INT init, INT K
 /* must be a square grid */
 {
   INT n, nn;
-  register VECTOR *v;
-  register MATRIX *m, *mnext;
+  VECTOR *v;
+  MATRIX *m, *mnext;
   BLOCKVECTOR *bv_inner;
   BV_DESC bvd_dirichlet;
 
@@ -844,13 +844,13 @@ INT NS_DIM_PREFIX FF_PrepareGrid( GRID *grid, DOUBLE *meshwidth, INT init, INT K
 
 void NS_DIM_PREFIX FFConstructTestvector( const BLOCKVECTOR *bv, INT tv_comp, DOUBLE wavenr, DOUBLE wavenr_3D )
 {
-  register DOUBLE hkpi, pos;
-  register VECTOR *v, *end_v;
-  register BLOCKVECTOR *bv_glob_end;
+  DOUBLE hkpi, pos;
+  VECTOR *v, *end_v;
+  BLOCKVECTOR *bv_glob_end;
   INT length;
 #       ifdef __THREEDIM__
-  register BLOCKVECTOR *bv_end,*bv_i;
-  register DOUBLE plane_pos, tensor;
+  BLOCKVECTOR *bv_end,*bv_i;
+  DOUBLE plane_pos, tensor;
   DOUBLE plane_hkpi;
   INT plane_length;
 #       endif
@@ -965,8 +965,8 @@ static void CalculateTv_loc_linesegments( const BLOCKVECTOR *bv, INT tv_comp, DO
 /* isolates the single linesegments (leaf blockvectors) and calculates for
    each of these segments an ordinary (1D) testvector */
 {
-  register VECTOR *v, *end_v;
-  register BLOCKVECTOR *bv_i, *bv_end;
+  VECTOR *v, *end_v;
+  BLOCKVECTOR *bv_i, *bv_end;
 
   if ( BV_IS_EMPTY( bv ) )
     return;
@@ -974,7 +974,7 @@ static void CalculateTv_loc_linesegments( const BLOCKVECTOR *bv, INT tv_comp, DO
 #ifdef QQQTTTT /* auskommentiert fuer Variante, die sich an den Vector-Koordinaten orientiert */
   if ( BV_IS_LEAF_BV(bv) )
   {
-    register DOUBLE pos, hkpi;
+    DOUBLE pos, hkpi;
     DOUBLE meshwidth, coord;
 
     /* go simply over the vectors of the blockvector */
@@ -997,8 +997,8 @@ static void CalculateTv_loc_linesegments( const BLOCKVECTOR *bv, INT tv_comp, DO
   if ( BV_IS_LEAF_BV(bv) )
   {
     DOUBLE_VECTOR position;
-    register DOUBLE kpi;
-    register const INT orientation = (BVORIENTATION(bv)==BVHORIZONTAL ? 0 : 1);
+    DOUBLE kpi;
+    const INT orientation = (BVORIENTATION(bv)==BVHORIZONTAL ? 0 : 1);
 
     /* go simply over the vectors of the blockvector */
     kpi = PI * wavenr;
@@ -1078,9 +1078,9 @@ static void CalculateTv_loc_linesegments( const BLOCKVECTOR *bv, INT tv_comp, DO
 
 void NS_DIM_PREFIX FFConstructTestvector_loc( const BLOCKVECTOR *bv, INT tv_comp, DOUBLE wavenr, DOUBLE wavenr_3D )
 {
-  register DOUBLE tensor, pos, hkpi, plane_hkpi, plane_pos;
-  register VECTOR *v, *end_v;
-  register BLOCKVECTOR *bv_i, *bv_end;
+  DOUBLE tensor, pos, hkpi, plane_hkpi, plane_pos;
+  VECTOR *v, *end_v;
+  BLOCKVECTOR *bv_i, *bv_end;
   DOUBLE meshwidth, coord, line_pos;
 
   if ( BVTVTYPE( bv ) != BV2DTV )
@@ -1219,8 +1219,8 @@ void NS_DIM_PREFIX FFConstructTestvector_loc( const BLOCKVECTOR *bv, INT tv_comp
 
 INT NS_DIM_PREFIX FFMultWithM( const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT y_comp, INT x_comp )
 {
-  register BLOCKVECTOR *bv_i, *bv_ip1, *bv_stop;
-  register BV_DESC *bvd_i, *bvd_ip1, *bvd_temp;
+  BLOCKVECTOR *bv_i, *bv_ip1, *bv_stop;
+  BV_DESC *bvd_i, *bvd_ip1, *bvd_temp;
   BV_DESC bvd1, bvd2;
   INT aux_comp, L_comp, T_comp;
 
@@ -1369,8 +1369,8 @@ INT NS_DIM_PREFIX FFMultWithMInv(
 #endif
   )
 {
-  register BLOCKVECTOR *bv_i, *bv_ip1, *bv_stop;
-  register BV_DESC *bvd_i=NULL, *bvd_ip1, *bvd_temp;
+  BLOCKVECTOR *bv_i, *bv_ip1, *bv_stop;
+  BV_DESC *bvd_i=NULL, *bvd_ip1, *bvd_temp;
   BV_DESC bvd1, bvd2;
   BLOCKVECTOR *bv_first;
   INT aux_comp, L_comp;
@@ -1613,7 +1613,7 @@ INT NS_DIM_PREFIX FFMultWithMInvDD( GRID *grid,
                                     const VECDATA_DESC *v,
                                     const VECDATA_DESC *b )
 {
-  register BLOCKVECTOR *bv_subdom, *bv_lines;
+  BLOCKVECTOR *bv_subdom, *bv_lines;
   BV_DESC bvd_subdom, bvd_lines;
   INT v_comp, b_comp, aux_comp, L_comp;
   bv_subdom = GFIRSTBV(grid);

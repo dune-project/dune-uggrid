@@ -89,7 +89,7 @@ INT NS_DIM_PREFIX CheckSymmetryOfMatrix (GRID *theGrid, MATDATA_DESC *A)
   MATRIX *m,*mt;
   VECTOR *v,*w;
   DOUBLE *mptr,*mtptr;
-  register SHORT i,j,rcomp,ccomp,*mcomp,*mtcomp,vtype,mtype;
+  SHORT i,j,rcomp,ccomp,*mcomp,*mtcomp,vtype,mtype;
 
   for (v=FIRSTVECTOR(theGrid); v!=NULL; v=SUCCVC(v)) {
     vtype = VTYPE(v);

@@ -976,9 +976,9 @@ static INT CopyDiagMatrix (GRID *theGrid, MATDATA_DESC *A, VECDATA_DESC *diag)
   VECTOR *v;
 
   if (MD_IS_SCALAR(A)) {
-    register SHORT mc = MD_SCALCMP(A);
-    register SHORT vc = VD_SCALCMP(diag);
-    register SHORT mask = MD_SCAL_RTYPEMASK(A);
+    SHORT mc = MD_SCALCMP(A);
+    SHORT vc = VD_SCALCMP(diag);
+    SHORT mask = MD_SCAL_RTYPEMASK(A);
 
     for (v=FIRSTVECTOR(theGrid); v!=NULL; v=SUCCVC(v))
       if ((VDATATYPE(v)&mask))
@@ -1992,8 +1992,8 @@ static INT PGSConstruct (NP_BASE *theNP)
 static INT SolveFullMatrix3 (INT n, DOUBLE *sol, DOUBLE mat[MAX_PATCH][MAX_PATCH],
                              DOUBLE *rhs)
 {
-  register DOUBLE dinv,piv,sum;
-  register int i,j,k;
+  DOUBLE dinv,piv,sum;
+  int i,j,k;
   INT ipv[MAX_PATCH];
 
   /*
@@ -2079,9 +2079,9 @@ static INT SolveFullMatrix3 (INT n, DOUBLE *sol, DOUBLE mat[MAX_PATCH][MAX_PATCH
 static INT InvertFullMatrix3 (INT n, DOUBLE mat[MAX_PATCH][MAX_PATCH],
                               DOUBLE *inv)
 {
-  register DOUBLE dinv,piv,sum;
+  DOUBLE dinv,piv,sum;
   DOUBLE rhs[MAX_PATCH];
-  register INT i,j,k;
+  INT i,j,k;
   INT ipv[MAX_PATCH];
 
   if (n > MAX_PATCH) {
@@ -7385,7 +7385,7 @@ static INT FFApplyPreconditioner( NP_FF *np, INT level,VECDATA_DESC *x, VECDATA_
 static void FFGenerateCheckA( BLOCKVECTOR *bv, INT v_comp, INT nr_of_call, INT scaling_comp )
 /* the result is inconsistent */
 {
-  register VECTOR *v;
+  VECTOR *v;
   DOUBLE pos[DIM];
 
   BLOCK_L_VLOOP( v, BVFIRSTVECTOR(bv), BVENDVECTOR( bv ) )
@@ -7400,7 +7400,7 @@ static void FFGenerateCheckA( BLOCKVECTOR *bv, INT v_comp, INT nr_of_call, INT s
 static void FFGenerateCheckB( BLOCKVECTOR *bv, INT v_comp, INT nr_of_call, INT scaling_comp )
 /* the result is inconsistent */
 {
-  register VECTOR *v;
+  VECTOR *v;
   DOUBLE pos[DIM];
 
   BLOCK_L_VLOOP( v, BVFIRSTVECTOR(bv), BVENDVECTOR( bv ) )
@@ -7415,7 +7415,7 @@ static void FFGenerateCheckB( BLOCKVECTOR *bv, INT v_comp, INT nr_of_call, INT s
 void FFCopyVector( GRID *grid, INT dest, INT source )
 /* copy the whole vector in the grid; vectors are identified by their component number */
 {
-  register VECTOR *v;
+  VECTOR *v;
 
   for( v=PFIRSTVECTOR(grid); v!=NULL; v=SUCCVC(v) )
     VVALUE(v,dest) = VVALUE(v,source);
@@ -7462,7 +7462,7 @@ static INT FFIter (NP_ITER *theNP, INT level,
        (M^-1 * M^-1*d, d) == ( M^-1*d, M^-1 * d ). */
 
     DOUBLE norm1, norm2;
-    register VECTOR *v;
+    VECTOR *v;
     static INT nr_of_call=0;
 
     nr_of_call++;

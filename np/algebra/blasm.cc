@@ -813,7 +813,7 @@ static INT Matrix_Loop_Mxy(GRID *grid, unsigned int _vroot_mask_, unsigned int _
           M_ptr = (DOUBLE *) ((char *) matD + M_start_off_D);
           x_ptr = (DOUBLE *) ((char *) vect + y_start_offset);
           {
-            register DOUBLE diag = *M_ptr;
+            DOUBLE diag = *M_ptr;
             if (diag==0.0)
               ERR_RETURN (-1);                                    /* Error: diagonal is not invertible */
             *x_ptr = *sum_vec / diag;
