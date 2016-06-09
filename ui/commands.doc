@@ -1664,21 +1664,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  covise covise - Enable covise interface
-
- \section Description
-   This command enables docking of a Covise user interface by a remote
-   workstation.
-
-\section Syntax
-  <li> hostname		- hostname of workstation which runs Covise
-
- \section Keywords
-   multigrid, graphics, Covise, plot
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  screensize screensize - Print the size of the monitor screen in pixels
 
  \section Description
