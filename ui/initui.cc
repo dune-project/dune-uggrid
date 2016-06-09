@@ -45,7 +45,6 @@
 #include "ugstruct.h"
 #include "commands.h"
 #include "mmio.h"
-#include "tecplot.h"
 #include "avs.h"
 #include "dataexplorer.h"
 #include "fieldio.h"
@@ -142,13 +141,6 @@ INT NS_DIM_PREFIX InitUi (INT argc, char **argv)
 
   /* init commands of ug's command line interface */
   if ((err=InitCommands())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* tecplot output */
-  if ((err=InitTecplot())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);
