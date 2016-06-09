@@ -50,9 +50,6 @@
 
 
 #include "initgraph.h"
-#ifdef _PV3
-#include "pv3if.h"
-#endif
 
 /* own header */
 #include "graphics.h"
@@ -130,12 +127,6 @@ INT NS_DIM_PREFIX InitGraphics (void)
   error = InitUGGraph();
   if (error!=0)
     return(error);
-
-#ifdef _PV3
-  error = InitPV3();
-  if (error!=0)
-    return(error);
-#endif
 
   return(0);         /* no error */
 }
