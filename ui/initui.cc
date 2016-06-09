@@ -46,7 +46,6 @@
 #include "commands.h"
 #include "mmio.h"
 #include "avs.h"
-#include "dataexplorer.h"
 #include "fieldio.h"
 
 /* own header */
@@ -148,13 +147,6 @@ INT NS_DIM_PREFIX InitUi (INT argc, char **argv)
 
   /* avs output */
   if ((err=InitAVS())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* DataExplorer output */
-  if ((err=InitDataExplorer())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);
