@@ -4,7 +4,7 @@
 #add_subdirectory(ps)
 
 set(SOURCES  ugdevices.cc sockcomm.cc
-  ppm/ppm.cc meta/metafile.cc ps/postscript.cc ps/postscriptbw.cc)
+  ppm/ppm.cc meta/metafile.cc)
 set(devinclude_HEADERS  ugdevices.h)
 
 add_library(devices OBJECT ${SOURCES})
