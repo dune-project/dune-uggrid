@@ -110,9 +110,6 @@
 #include "wop.h"
 #include "graph.h"
 #include "graphics/grape/connectuggrape.h"
-#ifdef _COVISE
-#include "graphics/covise/coviseif.h"
-#endif
 
 /* user interface module */
 #include "uginterface.h"
@@ -7202,38 +7199,6 @@ static INT CallGrapeCommand (INT argc, char **argv)
 }
 
 
-#ifdef _COVISE
-
-/** \brief Implementation of \ref covise. */
-static INT CoviseCommand (INT argc, char **argv)
-{
-  MULTIGRID *theCurrMG;
-  char hostname[NAMESIZE];
-
-  /* see if multigrid exists */
-  theCurrMG = currMG;
-  if (theCurrMG==NULL)
-  {
-    UserWrite("cannot start covise without multigrid\n");
-    return (CMDERRORCODE);
-  }
-
-
-  if (sscanf(argv[0],"covise %s",hostname)!=1)
-  {
-    UserWrite("covise: specify hostname to connect to!\n");
-    return(PARAMERRORCODE);
-  }
-
-  /* call covise */
-  if (ConnectCovise(theCurrMG, hostname)) return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-#endif
-
-
-
 /** \brief Implementation of \ref screensize. */
 static INT ScreenSizeCommand (INT argc, char **argv)
 {
@@ -11579,10 +11544,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* commands for grape */
   if (CreateCommand("grape",                      CallGrapeCommand                                )==NULL) return (__LINE__);
-#ifdef _COVISE
-  /* commands for covise */
-  if (CreateCommand("covise",                     CoviseCommand                                   )==NULL) return (__LINE__);
-#endif
 
   /* commands for window and picture management */
   if (CreateCommand("screensize",         ScreenSizeCommand                               )==NULL) return (__LINE__);

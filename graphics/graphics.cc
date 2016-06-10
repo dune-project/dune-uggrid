@@ -50,12 +50,6 @@
 
 
 #include "initgraph.h"
-#ifdef _COVISE
-#include "coviseif.h"
-#endif
-#ifdef _PV3
-#include "pv3if.h"
-#endif
 
 /* own header */
 #include "graphics.h"
@@ -134,19 +128,6 @@ INT NS_DIM_PREFIX InitGraphics (void)
   if (error!=0)
     return(error);
 
-#ifdef _COVISE
-  /* init Covise interface */
-  error = InitCoviseIF();
-  if (error!=0)
-    return(error);
-#endif
-
-#ifdef _PV3
-  error = InitPV3();
-  if (error!=0)
-    return(error);
-#endif
-
   return(0);         /* no error */
 }
 
@@ -154,14 +135,5 @@ INT NS_DIM_PREFIX InitGraphics (void)
 
 INT NS_DIM_PREFIX ExitGraphics (void)
 {
-        #ifdef _COVISE
-  INT error;
-
-  /* close Covise interface */
-  error = ExitCoviseIF();
-  if (error!=0)
-    return(error);
-        #endif
-
   return(0);         /* no error */
 }
