@@ -83,22 +83,6 @@ then
 	done
 	doctext -latex -mpath $UGROOT/doc/ug3/ug/overview -heading ug/gm -quotefmt *.doc
 
-	# generate gg2 man pages
-	cd $UGROOT/gm/gg2;
-	for i in *.c *.h
-	do
-		doctext -latex -mpath $UGROOT/doc/ug3/ug/gm/gg2 -heading ug/gm/gg2 -quotefmt $i
-	done
-	doctext -latex -mpath $UGROOT/doc/ug3/ug/overview -heading ug/gm/gg2 -quotefmt *.doc
-
-	# generate gg3 man pages
-	cd $UGROOT/gm/gg3;
-	for i in *.c *.h
-	do
-		doctext -latex -mpath $UGROOT/doc/ug3/ug/gm/gg3 -heading ug/gm/gg3 -quotefmt $i
-	done
-	doctext -latex -mpath $UGROOT/doc/ug3/ug/overview -heading ug/gm/gg3 -quotefmt *.doc
-
 	# generate dom man pages
 	cd $UGROOT/dom;
 	for i in *.c *.h

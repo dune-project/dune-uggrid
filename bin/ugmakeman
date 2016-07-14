@@ -62,15 +62,6 @@ then
 	doctext -quotefmt -mpath $UGROOT/man/man5 -ext 5 -heading ug/gm *.c *.h
 	doctext -quotefmt -mpath $UGROOT/man/man3 -ext 3 -heading ug/gm *.doc
 
-	# generate gg man pages
-	echo "Generating gg-pages"
-	cd $UGROOT/gm/gg2;
-	doctext -quotefmt -mpath $UGROOT/man/man5 -ext 5 -heading ug/gm/gg2 *.c *.h
-	doctext -quotefmt -mpath $UGROOT/man/man3 -ext 3 -heading ug/gm/gg2 *.doc
-        cd $UGROOT/gm/gg3;
-        doctext -quotefmt -mpath $UGROOT/man/man5 -ext 5 -heading ug/gm/gg3 *.c *.h
-        doctext -quotefmt -mpath $UGROOT/man/man3 -ext 3 -heading ug/gm/gg3 *.doc
-
 	# generate uggraph man pages
 	echo "Generating uggraph-pages"
 	cd $UGROOT/graphics/uggraph;
