@@ -85,17 +85,6 @@
 #define MODEL "SEQUENTIAL"
 #endif
 
-#undef __GRAPE_TRUE__
-#ifdef _GRAPE
-#define __GRAPE_TRUE__
-#endif
-
-#ifdef _GRAPE
-#define GRAPE_SUPPORT "ON"
-#else
-#define GRAPE_SUPPORT "OFF"
-#endif
-
 #ifdef _NETGEN
 #define NETGEN_SUPPORT "ON"
 #else

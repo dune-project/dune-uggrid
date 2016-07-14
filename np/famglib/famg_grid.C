@@ -77,7 +77,6 @@ extern "C"
 {
 #include "wpm.h"
 #include "wop.h"
-#include "connectuggrape.h"
 #include "uginterface.h"
 }
 #endif

@@ -84,7 +84,6 @@ for MPI (not recommended on HP):
 		MODEL_ENV_LFLAGS = -L$(MPIHOME)/lib/IRIX/ch_p4 -lmpi
 
 Set other configuration options, you want using 'ugconf'.
-All but GRAPE should work with parallel models.
 
 
 2. Compile UG

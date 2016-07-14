@@ -1,5 +1,3 @@
-add_subdirectory(gg2)
-add_subdirectory(gg3)
 set(SOURCES  algebra.cc enrol.cc evm.cc mgio.cc
   ugio.cc ugm.cc cw.cc initgm.cc elements.cc
   shapes.cc evalproc.cc rm.cc refine.cc smooth.cc

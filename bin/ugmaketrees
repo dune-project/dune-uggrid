@@ -119,13 +119,8 @@ then
           ugmkdir std;
           cd ..;
 	ugmkdir gm;
-          cd gm;
-          ugmkdir gg2;
-          ugmkdir gg3;
-          cd ..; 
 	ugmkdir graphics;
           cd graphics;
-          ugmkdir grape;
           ugmkdir uggraph;
           cd ..;
 	ugmkdir low;

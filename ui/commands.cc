@@ -86,15 +86,6 @@
 #include "shapes.h"
 #include "mgio.h"
 
-/* grid generator module */
-#ifdef __TWODIM__
-#include "gm/gg2/ggm.h"
-#include "gm/gg2/ggmain.h"
-#endif
-#if defined __THREEDIM__ && defined _NETGEN
-#include "gm/gg3/gg3d.h"
-#endif
-
 /* numerics module */
 #include "np.h"
 #include "ugblas.h"
@@ -109,7 +100,6 @@
 #include "wpm.h"
 #include "wop.h"
 #include "graph.h"
-#include "graphics/grape/connectuggrape.h"
 
 /* user interface module */
 #include "uginterface.h"
@@ -6769,292 +6759,6 @@ static INT FindFlippedElementsCommand(INT argc, char **argv)
 }
 #endif
 
-/** \brief Implementation of \ref makegrid. */
-static INT MakeGridCommand  (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  INT i,Single_Mode,display;
-  MESH *mesh;
-  INT MarkKey;
-#ifdef __TWODIM__
-  CoeffProcPtr coeff;
-  GG_ARG args;
-  GG_PARAM params;
-  INT smooth;
-  long ElemID,m;
-  int iValue;
-  double tmp;
-#endif
-#if defined __THREEDIM__ && defined _NETGEN
-  INT smooth, from, to, prism, save;
-  DOUBLE h,vol_h;
-  INT coeff;
-#ifdef ModelP
-  INT mprocs;
-#endif
-#endif
-
-  /* get current multigrid */
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"makegrid","no open multigrid");
-    return (CMDERRORCODE);
-  }
-        #if defined ModelP && !defined __THREEDIM__
-  if (me!=master)
-  {
-    if (FixCoarseGrid(theMG)) return (CMDERRORCODE);
-    return (OKCODE);
-  }
-        #endif
-  if ((CURRENTLEVEL(theMG)!=0)||(TOPLEVEL(theMG)!=0))
-  {
-    PrintErrorMessage('E',"MakeGridCommand","only for a multigrid with exactly one level a grid can be generated");
-    RETURN(GM_ERROR);
-  }
-  MarkKey = MG_MARK_KEY(theMG);
-  if (MG_COARSE_FIXED(theMG)) {
-    MG_COARSE_FIXED(theMG) = false;
-    MarkTmpMem(MGHEAP(theMG),&MarkKey);
-    MG_MARK_KEY(theMG) = MarkKey;
-    if ((MGNDELEMPTRARRAY(theMG) =
-           (ELEMENT***)GetTmpMem(MGHEAP(theMG),NDELEM_BLKS_MAX*sizeof(ELEMENT**),MarkKey))==NULL)
-    {
-      ReleaseTmpMem(MGHEAP(theMG),MarkKey);
-      PrintErrorMessage('E',"makegrid","ERROR: could not allocate memory from the MGHeap");
-      return (CMDERRORCODE);
-    }
-    for (i=0; i<NDELEM_BLKS_MAX; i++) MGNDELEMBLK(theMG,i) = NULL;
-  }
-
-  Single_Mode = 0;
-  display = 0;
-
-  /* check options */
-#ifdef __TWODIM__
-  args.doanimate = args.doupdate = args.dostep = args.equilateral = args.plotfront = args.printelem = args.doangle = args.doEdge = args.doAngle = args.doConstDel =  NO;
-  args.doedge = YES;
-  ElemID = -1;
-#endif
-
-  if (DisposeGrid(GRID_ON_LEVEL(theMG,0)))
-  {
-    UserWriteF("makegrid: cannot dispose coarse grid\n");
-    DisposeMultiGrid(theMG);
-    return (CMDERRORCODE);
-  }
-
-  if (CreateNewLevel(theMG,0)==NULL)
-  {
-    UserWriteF("makegrid: cannot create new level\n");
-    DisposeMultiGrid(theMG);
-    return (CMDERRORCODE);
-  }
-  mesh = BVP_GenerateMesh (MGHEAP(theMG),MG_BVP(theMG),argc,argv,MarkKey);
-  if (mesh == NULL)
-  {
-    UserWriteF("makegrid: cannot generate boundary mesh\n");
-    ReleaseTmpMem(MGHEAP(theMG),MarkKey);
-    return (CMDERRORCODE);
-  }
-  else
-    InsertMesh(theMG,mesh);
-
-  if (mesh->nElements == NULL)
-  {
-#ifdef __TWODIM__
-    coeff = NULL;
-    params.h_global = .0;
-    params.CheckCos = cos(PI/18.0);
-    params.searchconst = 0.2;
-    smooth = 5;
-    for (i=1; i<argc; i++)
-      switch (argv[i][0])
-      {
-      case 'a' :
-        args.doanimate = YES;
-        break;
-      case 'u' :
-        args.doupdate = YES;
-        break;
-      case 's' :
-        args.dostep = YES;
-        break;
-      case 'f' :
-        args.plotfront = YES;
-        break;
-      case 'p' :
-        args.printelem = YES;
-        break;
-      case 'E' :
-        args.equilateral = YES;
-        break;
-      case 'e' :
-        if (sscanf(argv[i],"e %ld",&ElemID)!=1)
-        {
-          PrintHelp("makegrid",HELPITEM," (could not read <element id>)");
-          return (PARAMERRORCODE);
-        }
-        break;
-      case 'k' :
-        args.doedge = YES;
-        break;
-      case 'w' :
-        args.doangle = YES;
-        break;
-      case 'K' :
-        args.doEdge = YES;
-        break;
-      case 'W' :
-        args.doAngle = YES;
-        break;
-      case 'C' :
-        args.doConstDel = YES;
-        args.doedge = NO;
-        break;
-      case 'm' :
-        if (sscanf(argv[i],"m %ld",&m)!=1)
-        {
-          PrintHelp("makegrid",HELPITEM," (could not read <element id>)");
-          return (PARAMERRORCODE);
-        }
-        coeff = MG_GetCoeffFct(theMG,m);
-        break;
-      case 'h' :
-        if (sscanf(argv[i],"h %lf",&tmp)!=1)
-        {
-          PrintHelp("makegrid",HELPITEM," (could not read <element id>)");
-          return (PARAMERRORCODE);
-        }
-        if (tmp > 0) params.h_global = tmp;
-        break;
-      case 'A' :
-        if (sscanf(argv[i],"A %lf",&tmp)!=1)
-        {
-          PrintHelp("makegrid",HELPITEM," (could not read <element id>)");
-          return (PARAMERRORCODE);
-        }
-        if ((tmp > 0) && (tmp < 90)) params.CheckCos = cos(tmp*PI/180.0);
-        break;
-      case 'S' :
-        if (sscanf(argv[i],"S %lf",&tmp)!=1)
-        {
-          PrintHelp("makegrid",HELPITEM," (could not read <element id>)");
-          return (PARAMERRORCODE);
-        }
-        if ((tmp > 0) && (tmp < 1.0)) params.searchconst = tmp;
-        break;
-      case 'd' :
-        if (sscanf(argv[i],"d %d",&iValue)!=1) break;
-        Single_Mode = iValue;
-        break;
-      case 'D' :
-        if (sscanf(argv[i],"D %d",&iValue)!=1) break;
-        display = iValue;
-        break;
-      case 'g' :
-        if (sscanf(argv[i],"g %d",&iValue)!=1) break;
-        smooth = iValue;
-        break;
-      default :
-        break;
-      }
-    params.epsi = params.h_global * 0.125;
-
-    if (GenerateGrid(theMG, &args, &params, mesh, coeff, Single_Mode, display))
-    {
-      PrintErrorMessage('E',"makegrid","execution failed");
-      ReleaseTmpMem(MGHEAP(theMG),MarkKey);
-      return (CMDERRORCODE);
-    }
-    if (SmoothMultiGrid(theMG,smooth,GM_KEEP_BOUNDARY_NODES)!=GM_OK)
-    {
-      PrintErrorMessage('E',"makegrid","failed smoothing the multigrid");
-      return (CMDERRORCODE);
-    }
-    if (CheckOrientationInGrid (GRID_ON_LEVEL(theMG,0)))
-    {
-      PrintErrorMessage('E',"makegrid","orientation wrong");
-      return (CMDERRORCODE);
-    }
-#endif
-
-#if defined __THREEDIM__ && defined _NETGEN
-    if (ReadArgvINT("s",&smooth,argc,argv)) smooth = 0;
-    if (ReadArgvDOUBLE("h",&h,argc,argv)) h = 1.0;
-    if(h<0)
-      if (ReadArgvINT("c",&coeff,argc,argv)) coeff = 0;
-
-    if (ReadArgvINT("s",&save,argc,argv))
-      save = 0;
-    if (ReadArgvINT("p",&prism,argc,argv))
-      prism = 0;
-    if (ReadArgvINT("f",&from,argc,argv))
-      from = 1;
-    if(from<1)
-      from = 1;
-    if (ReadArgvINT("t",&to,argc,argv))
-      to = theMG->theBVPD.nSubDomains;
-    if(to>theMG->theBVPD.nSubDomains)
-      to = theMG->theBVPD.nSubDomains;
-
-    if (ReadArgvDOUBLE("v",&vol_h,argc,argv))
-      vol_h = h;
-
-                #ifdef ModelP && defined __THREEDIM__ && defined _NETGEN
-    if (ReadArgvINT("x",&mprocs,argc,argv))
-    {
-      /* sequential */
-      mprocs = 1;
-    }
-    else
-    {
-      INT nsub,ndiv,i,j;
-
-      mprocs = MAX(1,MIN(procs,mprocs));
-      nsub = theMG->theBVPD.nSubDomains/mprocs;
-      ndiv = theMG->theBVPD.nSubDomains%mprocs;
-
-      if (me<ndiv)
-      {
-        nsub++;
-        from = nsub*me+1;
-        to   = MIN(theMG->theBVPD.nSubDomains,nsub*me+nsub);
-      }
-      else
-      {
-        from = nsub*me+1+ndiv;
-        to   = MIN(theMG->theBVPD.nSubDomains,nsub*me+nsub+ndiv);
-      }
-
-      UserWriteF("%5d: Parallel Triangulation of %d subdomains:\n",me,theMG->theBVPD.nSubDomains);
-      UserWriteF("%5d: mprocs=%d nsub=%d from=%d to=%d\n",me,mprocs,nsub,from,to);
-    }
-                #endif
-
-    if (GenerateGrid3d(theMG,mesh,vol_h,smooth,ReadArgvOption("d",argc,argv),coeff, from, to, prism, save, argc, argv))
-    {
-      PrintErrorMessage('E',"makegrid","execution failed");
-      ReleaseTmpMem(MGHEAP(theMG),MarkKey);
-      return (CMDERRORCODE);
-    }
-#endif
-  }
-
-  if (FixCoarseGrid(theMG)) return (CMDERRORCODE);
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
-
-        #if defined ModelP && defined __THREEDIM__ && defined _NETGEN
-  if (mprocs > 1)
-    if (IdentifySDGrid(theMG,mprocs)) return (CMDERRORCODE);
-        #endif
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref status. */
 static INT StatusCommand  (INT argc, char **argv)
 {
@@ -7177,26 +6881,6 @@ static INT CADGridConvertCommand(INT argc, char **argv)
   return (OKCODE);
 }
 #endif
-
-
-/** \brief Implementation of \ref grape. */
-static INT CallGrapeCommand (INT argc, char **argv)
-{
-  MULTIGRID *theCurrMG;
-
-  /* see if multigrid exists */
-  theCurrMG = currMG;
-  if (theCurrMG==NULL)
-  {
-    UserWrite("cannot call grape without multigrid\n");
-    return (CMDERRORCODE);
-  }
-
-  /* call grape */
-  if (CallGrape(theCurrMG)) return (CMDERRORCODE);
-
-  return (OKCODE);
-}
 
 
 /** \brief Implementation of \ref screensize. */
@@ -11532,7 +11216,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("vmlist",             VMListCommand                                   )==NULL) return (__LINE__);
   if (CreateCommand("convert",        ConvertCommand                  )==NULL) return(__LINE__);
   if (CreateCommand("quality",            QualityCommand                                  )==NULL) return (__LINE__);
-  if (CreateCommand("makegrid",           MakeGridCommand                                 )==NULL) return (__LINE__);
   if (CreateCommand("status",                     StatusCommand                                   )==NULL) return (__LINE__);
 #ifdef __THREEDIM__
   if (CreateCommand("fiflel",                     FindFlippedElementsCommand              )==NULL) return (__LINE__);
@@ -11541,9 +11224,6 @@ INT NS_DIM_PREFIX InitCommands ()
 #if defined(CAD) && defined(__THREEDIM__)
   if (CreateCommand("cadconvert",     CADGridConvertCommand           )==NULL) return (__LINE__);
 #endif
-
-  /* commands for grape */
-  if (CreateCommand("grape",                      CallGrapeCommand                                )==NULL) return (__LINE__);
 
   /* commands for window and picture management */
   if (CreateCommand("screensize",         ScreenSizeCommand                               )==NULL) return (__LINE__);

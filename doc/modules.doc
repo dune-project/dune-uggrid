@@ -38,9 +38,6 @@ UG KERNEL:
 	Since they are implemented as commands, it is possible to access them on the script or command line level.
 	This allows a quick and easy formulation of your appropriate solver and rapid prototyping of new ideas.
 
-.   'grid~generator~(gg)' - Contains an advancing front grid generator for triangular
-    meshes.
-
 .   'grid~management~(gm)' - The grid manager module performs all operations which manipulate the grid. It controls the creation 
 	and deletion of new elements during refine and provides a well defined interface to the layers above.
 	For more details see man page `gm`.
@@ -226,10 +223,7 @@ ug31
     |            |----dom/
     |            |    \----std/
     |            |----gm/
-    |            |    |----gg2/
-    |            |    \----gg3/
     |            |----graphics/
-    |            |    |----grape/
     |            |    \----uggraph/
     |            |----low/
     |            |----numerics/
@@ -238,16 +232,7 @@ ug31
     |----dom/
     |    \----std/
     |----gm/
-    |    |----gg2/
-    |    \----gg3/
-    |        \----netgen/
-    |            |----general/
-    |            |----geom/
-    |            |----linalg/
-    |            |----meshing/
-    |            \----opti/
     |----graphics/
-    |    |----grape/
     |    \----uggraph/
     |----include/
     |----lib/

@@ -17,10 +17,6 @@
       <li> \ref std </li>
     </ul>
     <li> \ref gm </li>
-     <ul>
-      <li> \ref gg2 </li>
-      <li> \ref gg3 </li>
-    </ul>
     <li> \ref graphics </li>
     <li> \ref low </li>
     <li> \ref np </li>
