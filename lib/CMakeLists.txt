@@ -5,7 +5,7 @@ if(UG_ENABLE_PARALLEL)
   set(_parallel_libs ppifmpi parutil)
 endif()
 
-set(_dim_libs ug_gm gg np algebra amg field procs udm graphics uggrape uggraph ugui low)
+set(_dim_libs ug_gm gg np algebra amg field procs udm graphics uggraph ugui low)
 
 
 dune_add_library(devS APPEND $<TARGET_OBJECTS:devSif>  $<TARGET_OBJECTS:devices>)

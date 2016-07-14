@@ -229,7 +229,6 @@ ug31
     |            |    |----gg2/
     |            |    \----gg3/
     |            |----graphics/
-    |            |    |----grape/
     |            |    \----uggraph/
     |            |----low/
     |            |----numerics/
@@ -247,7 +246,6 @@ ug31
     |            |----meshing/
     |            \----opti/
     |----graphics/
-    |    |----grape/
     |    \----uggraph/
     |----include/
     |----lib/

@@ -1652,18 +1652,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page grape grape - Switch to interactive grape mode
-
- \section Description
-   This command switches to interactive grape mode. Quitting grape returns to ug.
-
-   
- \section Keywords
-   multigrid, graphics, GRAPE, plot
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  screensize screensize - Print the size of the monitor screen in pixels
 
  \section Description

@@ -125,7 +125,6 @@ then
           cd ..; 
 	ugmkdir graphics;
           cd graphics;
-          ugmkdir grape;
           ugmkdir uggraph;
           cd ..;
 	ugmkdir low;

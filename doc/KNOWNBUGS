@@ -38,8 +38,7 @@ UG/ug/tools/
 
 ugpfm:
 Bug description: after merging parallel data files, solution values probably at
-	processor boundaries are wrong. This leads for example to uncorrect flow
-	fields when visualizing with GRAPE.
+	processor boundaries are wrong.
 	This might also be bug in UG/ug/gm/ugio.c.
 
 Applikation: d3f

@@ -37,32 +37,9 @@
 #ifndef __LGM_DOM__
 #define __LGM_DOM__
 
-#ifdef Grape
-
-#include "grape.h"
-
-#define SHORT  short
-#define INT    int
-#define FLOAT  float
-#define DOUBLE double
-#define COORD  float
-#define SCREEN_COORD  float
-
-/*dummy types */
-#define ENVDIR char
-#define ENVVAR char
-#define ConfigProcPtr char
-
-#warning LGM_DIM 3 for Grape is overwritten later anyway ?!
-#define LGM_DIM 3
-
-#else
-
 #include "ugenv.h"
 #include "heaps.h"
 #include "domain.h"
-
-#endif
 
 /* need dimension defines even */
 #include "dimension.h"
@@ -510,10 +487,6 @@ struct lgm_line {
   struct linedisc *ldisc;                       /* discretization of the line   */
   LINEDISCNEW *ldiscnew;                        /* discretization of the line   */
 
-  /* specials for grape */
-        #ifdef Grape
-  INT active;
-        #endif
   INT used;
   struct lgm_point point[1];                    /* points of line stored here   */
 };
@@ -550,11 +523,6 @@ struct lgm_surface {
   struct lgm_point *point;                              /* ptr to first point					*/
   struct lgm_triangle *triangle;                /* ptr to first triangle				*/
 
-  /* specials for grape */
-        #ifdef Grape
-  INT active;
-        #endif
-
   /* for fast triangle search OS_CHANGED */
         #ifdef LGM_ACCELERATE
   BBT_TREE *bbtree;
@@ -581,12 +549,6 @@ struct lgm_subdom {
   /* problem */
   char ProblemName[128];                                /* name of problem                                              */
   struct lgm_problem *theProblem;               /* ptr to problem                                               */
-
-  /* specials for grape */
-        #ifdef Grape
-  INT active;
-  SUPROP_DEV *suprop;
-        #endif
 
   /* references */
   struct lgm_surface *surface[1];               /* begin of surface reference field             */
@@ -698,14 +660,6 @@ typedef struct lgm_bndp_surf LGM_BNDP_PSURFACE;
 
 #endif
 
-#ifdef Grape
-typedef struct Domain3d
-{
-  INSTANCE_STRUCT;\
-  LGM_DOMAIN *domain;
-} DOMAIN3D;
-#endif
-
 /****************************************************************************/
 /*                                                                                                                                                      */
 /* definition of exported global variables                                                                      */
@@ -739,10 +693,8 @@ INT Surface_Local2Global (LGM_SURFACE *theSurface, DOUBLE *global, DOUBLE *local
 BNDP *BNDP_InsertBndP (HEAP *Heap, BVP *aBVP, double *global);
 #endif
 
-#ifndef Grape
 LGM_PROBLEM *CreateProblem (const char *name, InitProcPtr config, DomainSizeConfig domconfig, BndCondProcPtr BndCond, int numOfCoefficients, CoeffProcPtr coeffs[], int numOfUserFct, UserProcPtr userfct[]);
 LGM_PROBLEM *CreateProblemWithInnerBCs (const char *name, InitProcPtr config, DomainSizeConfig domconfig, BndCondProcPtr BndCond, BndCondProcPtr InnerBndCond, int numOfCoefficients, CoeffProcPtr coeffs[], int numOfUserFct, UserProcPtr userfct[]);
-#endif
 INT SetBoundaryCondition (LGM_DOMAIN *theDomain, BndCondProcPtr BndCond, BndCondProcPtr InnerBndCond);
 INT SetDomainSize (LGM_DOMAIN *theDomain);
 

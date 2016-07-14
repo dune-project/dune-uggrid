@@ -109,7 +109,6 @@
 #include "wpm.h"
 #include "wop.h"
 #include "graph.h"
-#include "graphics/grape/connectuggrape.h"
 
 /* user interface module */
 #include "uginterface.h"
@@ -7179,26 +7178,6 @@ static INT CADGridConvertCommand(INT argc, char **argv)
 #endif
 
 
-/** \brief Implementation of \ref grape. */
-static INT CallGrapeCommand (INT argc, char **argv)
-{
-  MULTIGRID *theCurrMG;
-
-  /* see if multigrid exists */
-  theCurrMG = currMG;
-  if (theCurrMG==NULL)
-  {
-    UserWrite("cannot call grape without multigrid\n");
-    return (CMDERRORCODE);
-  }
-
-  /* call grape */
-  if (CallGrape(theCurrMG)) return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref screensize. */
 static INT ScreenSizeCommand (INT argc, char **argv)
 {
@@ -11541,9 +11520,6 @@ INT NS_DIM_PREFIX InitCommands ()
 #if defined(CAD) && defined(__THREEDIM__)
   if (CreateCommand("cadconvert",     CADGridConvertCommand           )==NULL) return (__LINE__);
 #endif
-
-  /* commands for grape */
-  if (CreateCommand("grape",                      CallGrapeCommand                                )==NULL) return (__LINE__);
 
   /* commands for window and picture management */
   if (CreateCommand("screensize",         ScreenSizeCommand                               )==NULL) return (__LINE__);

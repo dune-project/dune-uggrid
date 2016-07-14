@@ -48,7 +48,6 @@ extern "C"
 /* test */
 #include "wpm.h"
 #include "wop.h"
-#include "connectuggrape.h"
 #include "uginterface.h"
 
 #ifdef USE_UG_DS

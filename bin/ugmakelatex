@@ -128,14 +128,6 @@ then
 	doctext -latex -mpath $UGROOT/doc/ug3/ug/overview -heading ug/graphics -quotefmt *.doc
 
 	# generate graph man pages
-	cd $UGROOT/graphics/grape;
-	for i in *.c *.h
-	do
-		doctext -latex -mpath $UGROOT/doc/ug3/ug/graphics -heading ug/graphics/grape -quotefmt $i
-	done
-	doctext -latex -mpath $UGROOT/doc/ug3/ug/overview -heading ug/graphics/grape -quotefmt *.doc
-
-	# generate graph man pages
 	cd $UGROOT/graphics/uggraph;
 	for i in *.c *.h
 	do
