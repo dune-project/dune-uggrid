@@ -331,11 +331,6 @@ INT             RestrictPartitioning            (MULTIGRID *theMG);
 /* from pgmcheck.c */
 INT             CheckInterfaces                         (GRID *theGrid);
 
-#ifdef USE_FAMG
-INT pamgDo( MULTIGRID *theMG, INT level );
-INT pamgCheckDo( MULTIGRID *theMG, INT level );
-#endif
-
 #endif /* ModelP */
 
 END_UGDIM_NAMESPACE

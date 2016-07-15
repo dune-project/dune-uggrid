@@ -757,17 +757,6 @@ INT NS_DIM_PREFIX CreateVector (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *o
   *vHandle = NULL;
   mg = MYMG(theGrid);
 
-#ifdef USE_FAMG
-  /* for FAMG the following situation may occur: there are vectors on
-     algebraic levels which haven't a geometric object. Creating a coarse grid
-     instance from such a vector would result in a core dump because the
-     part can't be determined without a geometric object.
-     The quick hack for this: if no geometric object is given, set part = 0.
-   */
-  if( object==NULL )
-    part = 0;
-  else
-#endif
   part = GetDomainPart(BVPD_S2P_PTR(MG_BVPD(mg)),object,NOSIDE);
 
   if (part < 0)
@@ -3739,7 +3728,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   }
 
   /* set flags in connections */
-#if defined __OVERLAP2__ || defined USE_FAMG
+#if defined __OVERLAP2__
   for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
 #else
   for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
@@ -3782,7 +3771,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
                    me, MDEST(Adj),VINDEX_PRTX(theVector));
       }
 
-                        #if defined ModelP && !(defined  __OVERLAP2__ || defined USE_FAMG)
+                        #if defined ModelP && ! defined  __OVERLAP2__
       if (prio != PrioHGhost)
                         #endif
       if (MUSED(theMatrix)!=1 &&  !CEXTRA(MMYCON(theMatrix)))
@@ -3795,7 +3784,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
                    GLEVEL(theGrid),CEXTRA(MMYCON(theMatrix)));
       }
 
-                        #if defined ModelP && !(defined  __OVERLAP2__ || defined USE_FAMG)
+                        #if defined ModelP && ! defined  __OVERLAP2__
       if (GHOSTPRIO(prio) && !CEXTRA(MMYCON(theMatrix)))
       {
         errors++;
@@ -3900,7 +3889,7 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 
   ASSERT(theVector != NULL);
 
-        #if defined __OVERLAP2__ || defined USE_FAMG
+        #if defined __OVERLAP2__
   if( VOBJECT(theVector) == NULL )
   {
     for (i=0; i<DIM; i++)

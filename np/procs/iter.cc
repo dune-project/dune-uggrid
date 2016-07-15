@@ -69,10 +69,6 @@
 #include "blasm.h"
 #include "order.h"
 
-#ifdef USE_FAMG
-#include "ug-famg.h"
-#endif
-
 USING_UG_NAMESPACES
   using namespace PPIF;
 
@@ -7829,36 +7825,9 @@ static INT Lmgc (NP_ITER *theNP, INT level,
   UserWriteF("last t*b of presmoothing : %f\n",eunorm);
   ENDDEBUG
 
-#ifdef USE_FAMG
-  if((*np->Transfer->RestrictDefect) == FAMGRestrictDefect)
-  {
-    ((NP_FAMG_TRANSFER*)np->Transfer)->smooth_globsol = c;
-    ((NP_FAMG_TRANSFER*)np->Transfer)->smooth_sol = np->t;
-    ((NP_FAMG_TRANSFER*)np->Transfer)->smooth_def = b;
-  }
-#endif
-
   if ((*np->Transfer->RestrictDefect)
         (np->Transfer,level,b,b,A,Factor_One,result))
     REP_ERR_RETURN(1);
-
-#ifdef USE_FAMG
-  IFDEBUG(np,4)
-        #ifdef ModelP
-  if (l_vector_collect(theGrid,b) != NUM_OK) NP_RETURN(1,result[0]);
-        #endif
-  dnrm2(theMG,level,level,ALL_VECTORS,b,&eunorm);
-  UserWriteF("defect on fine grid after restriction : %f\n",eunorm);
-  dnrm2(NP_MG(theNP),level,level,ALL_VECTORS,np->t,&eunorm);
-  UserWriteF("correction update on fine grid after restriction : %f\n",eunorm);
-  dnrm2(NP_MG(theNP),level,level,ALL_VECTORS,c,&eunorm);
-  UserWriteF("correction on fine grid after restriction : %f\n",eunorm);
-  ddot(theMG,level,level,ALL_VECTORS,b,c,&eunorm);
-  UserWriteF("c*b on fine grid after restriction : %f\n",eunorm);
-  ddot(theMG,level,level,ALL_VECTORS,b,np->t,&eunorm);
-  UserWriteF("t*b on fine grid after restriction : %f\n",eunorm);
-  ENDDEBUG
-#endif
 
   IFDEBUG(np,4)
         #ifdef ModelP
@@ -7874,13 +7843,6 @@ static INT Lmgc (NP_ITER *theNP, INT level,
     if (Lmgc(theNP,level-1,c,b,A,result))
       REP_ERR_RETURN(1);
 
-#ifdef USE_FAMG
-  if((*np->Transfer->InterpolateCorrection) == FAMGInterpolateCorrection)
-  {
-    ((NP_FAMG_TRANSFER*)np->Transfer)->smooth_sol = np->t;
-    ((NP_FAMG_TRANSFER*)np->Transfer)->smooth_def = b;
-  }
-#endif
   if ((*np->Transfer->InterpolateCorrection)
         (np->Transfer,level,np->t,c,A,np->damp,result))
     REP_ERR_RETURN(1);

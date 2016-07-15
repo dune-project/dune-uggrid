@@ -10350,27 +10350,6 @@ static INT PStatCommand (INT argc, char **argv)
   return(OKCODE);
 }
 
-#ifdef USE_FAMG
-static INT pamgCheckCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  int level;
-
-  theMG = currMG;
-  level = 0;
-  if (argv[1][0]=='l')
-  {
-    if (sscanf(argv[1],"l %d",&level)!=1)
-      return (CMDERRORCODE);
-  }
-
-  if (pamgCheckDo( theMG, level ) > 0)
-    return(CMDERRORCODE);
-
-  return (OKCODE);
-}
-#endif
-
 #endif /* ModelP */
 
 
@@ -11318,11 +11297,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("lbs",                        LBSCommand                                      )==NULL) return (__LINE__);
   if (CreateCommand("context",            ContextCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("pstat",                      PStatCommand                                )==NULL) return (__LINE__);
-
-#ifdef USE_FAMG
-  if (CreateCommand("pamgcheck",      pamgCheckCommand                )==NULL) return(__LINE__);
-#endif
-
 #endif /* ModelP */
 
   /* array commands */

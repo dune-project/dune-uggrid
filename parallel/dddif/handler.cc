@@ -245,7 +245,7 @@ static void VectorXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   PRINTDEBUG(dddif,1,(PFMT " VectorXferCopy(): v=" VINDEX_FMTX " proc=%d "
                       "prio=%d vtype=%d\n",me,VINDEX_PRTX(pv),proc,prio,VTYPE(pv)))
 
-#if defined __OVERLAP2__ || defined USE_FAMG
+#if defined __OVERLAP2__
   flag = 1;             /* for overlap 2 ghost-matrices are required too */
 #else
   flag = (!GHOSTPRIO(prio));
@@ -285,17 +285,6 @@ static void VectorGatherMatX (DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **Dat
   MATRIX  *mat;
   INT nmat = 0;
 
-#ifdef USE_FAMG
-  /* VOBJECT(vec) may be NULL */
-  if( VOBJECT(vec)==NULL )
-  {
-    PRINTDEBUG(dddif,3,(PFMT " VectorGatherMatX(): v=" VINDEX_FMTX
-                        " cnt=%d type=%d veobj=%d vtype=%d\n",
-                        me,VINDEX_PRTX(vec),cnt,type_id,
-                        OBJT(vec),VTYPE(vec)))
-  }
-  else
-#endif
   PRINTDEBUG(dddif,3,(PFMT " VectorGatherMatX(): v=" VINDEX_FMTX
                       " VOBJID=%d cnt=%d type=%d veobj=%d vtype=%d\n",
                       me,VINDEX_PRTX(vec),ID(VOBJECT(vec)),cnt,type_id,
@@ -345,7 +334,7 @@ static void VectorScatterConnX (DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **D
                       " cnt=%d type=%d veobj=%d vtype=%d\n",\
                       me,VINDEX_PRTX(vec),cnt,type_id,OBJT(vec),VTYPE(vec)))
 
-#if !(defined __OVERLAP2__ || defined USE_FAMG)
+#if ! defined __OVERLAP2__
   if (GHOSTPRIO(prio))
   {
     PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v=" VINDEX_FMTX
@@ -374,7 +363,7 @@ static void VectorScatterConnX (DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **D
       continue;
     }
 
-#if !(defined __OVERLAP2__ || defined USE_FAMG)
+#if ! defined __OVERLAP2__
     if (GHOST(MDEST(mcopy)))
     {
       /* destination vector has only prio Ghost on this processor */
@@ -665,53 +654,6 @@ static void VectorObjMkCons (DDD_OBJ obj, int newness)
   }
 }
 
-
-
-/****************************************************************************/
-/*																			*/
-/* Function:  VectorDelete													*/
-/*																			*/
-/* Purpose:   remove vector from UG data structure.							*/
-/*			  current implementation only for level 0 grids					*/
-/*																			*/
-/* Input:	  DDD_OBJ	obj:	the vector to handle						*/
-/*																			*/
-/* Output:	  void															*/
-/*																			*/
-/****************************************************************************/
-#ifdef USE_FAMG
-void NS_DIM_PREFIX VectorDelete (DDD_OBJ obj)
-{
-  VECTOR          *pv                     = (VECTOR *)obj;
-  INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(pv)));
-  GRID            *theGrid        = GRID_ON_LEVEL(dddctrl.currMG,level);
-
-  PRINTDEBUG(dddif,2,(PFMT " VectorDelete(): v=" VINDEX_FMTX
-                      " VOBJ=%d l=%d\n",me,VINDEX_PRTX(pv),OBJT(pv),level))
-
-  /* remove vector from its object */
-  if (VOTYPE(pv)==NODEVEC)
-  {
-    if( VOBJECT(pv)!=NULL && level>=0 )                 /* borders may have no node object on this pe */
-    {
-      if(DisposeNode(theGrid,(NODE *)VOBJECT(pv)))                      /* dispose implicitely the vector */
-        ASSERT(0);
-    }
-    else
-    {
-      if (DisposeVector(theGrid, pv))                   /* vector without node; on algebraic levels the nodes are only used jointly from level 0 and may not be disposed from levels<0 ! */
-        ASSERT(0);
-    }
-  }
-  else
-  {
-    PRINTDEBUG(dddif,0,(PFMT " VectorDelete(): VTYPE=%d not "
-                        "implemented yet\n", me, VTYPE(pv)))
-    assert(0);
-  }
-}
-#endif
-
 static void VectorPriorityUpdate (DDD_OBJ obj, DDD_PRIO isnew)
 {
   VECTOR  *pv                     = (VECTOR *)obj;
@@ -742,7 +684,7 @@ static void VectorPriorityUpdate (DDD_OBJ obj, DDD_PRIO isnew)
   }
 
   /* dispose connections for geom levels not for amg levels */
-#if !(defined __OVERLAP2__ || defined USE_FAMG)
+#if ! defined __OVERLAP2__
   if (level>=0)
     if (GHOSTPRIO(isnew))
     {
@@ -989,9 +931,6 @@ static void NodeObjMkCons (DDD_OBJ obj, int newness)
       break;
 
     case (MID_NODE) :
-                                #ifdef USE_FAMG
-      break;                           /* TODO remove if possible; reason for this fix: aborts in famg_strukt1-3 */
-                                #endif
       ASSERT(OBJT(NFATHER(theNode)) == EDOBJ);
       MIDNODE((EDGE *)NFATHER(theNode)) = theNode;
       break;
@@ -2280,13 +2219,9 @@ void NS_DIM_PREFIX ddd_HandlerInit (INT handlerSet)
   DDD_SetHandlerXFERSCATTERX     (TypeVector, VectorScatterConnX);
   DDD_SetHandlerOBJMKCONS        (TypeVector, VectorObjMkCons);
   DDD_SetHandlerSETPRIORITY      (TypeVector, VectorPriorityUpdate);
-#ifdef USE_FAMG
-  DDD_SetHandlerDELETE           (TypeVector, VectorDelete);
-#else
   /* TODO: not used
           DDD_SetHandlerDELETE           (TypeVector, VectorDelete);
    */
-#endif
 
   DDD_SetHandlerUPDATE           (TypeIVertex, VertexUpdate);
   DDD_SetHandlerSETPRIORITY      (TypeIVertex, VertexPriorityUpdate);

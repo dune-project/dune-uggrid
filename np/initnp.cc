@@ -65,11 +65,6 @@
 
 #include "initnp.h"
 #include "numproc.h"
-#include "amglib/amg_ug.h"
-
-#ifdef USE_FAMG
-#include "ug-famg.h"
-#endif
 
 USING_UG_NAMESPACES
 
@@ -219,20 +214,6 @@ INT NS_DIM_PREFIX InitNumerics ()
     SetHiWrd(err,__LINE__);
     return (err);
   }
-
-  /* init amg solver */
-  if ((err=InitAMGSolver())!=0) {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-#ifdef USE_FAMG
-  /* init famg solver */
-  if ((err=InitFAMG())!=0) {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-#endif
 
   /* init order numproc */
   if ((err=InitOrder())!=0) {
