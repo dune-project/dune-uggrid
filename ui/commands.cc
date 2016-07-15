@@ -6809,32 +6809,6 @@ static INT ScreenSizeCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref linefac. */
-static INT LineFacCommand (INT argc, char **argv)
-{
-  double Value;
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  if (sscanf(argv[0],"linefac %lf",&Value)!=1)
-  {
-    PrintErrorMessage('E',"linefac","specify a factor");
-    return (PARAMERRORCODE);
-  }
-
-  SetLineFactor(Value);
-
-  InvalidatePicturesOfMG(currMG);
-
-  return (OKCODE);
-}
-
-
-
 /** \brief Implementation of \ref setcurrmg. */
 static INT SetCurrentMultigridCommand (INT argc, char **argv)
 {
@@ -9232,7 +9206,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* commands for window and picture management */
   if (CreateCommand("screensize",         ScreenSizeCommand                               )==NULL) return (__LINE__);
-  if (CreateCommand("linefac",            LineFacCommand                                  )==NULL) return (__LINE__);
   if (CreateCommand("updateDoc",          UpdateDocumentCommand                   )==NULL) return (__LINE__);
   if (CreateCommand("cmfn",                       CreateMetafileNameCommand               )==NULL) return (__LINE__);
   if (CreateCommand("setpalette",         SetPaletteCommand                               )==NULL) return (__LINE__);

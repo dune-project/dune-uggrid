@@ -1658,20 +1658,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  linefac linefac - Set factor to zoom line width
-
- \section Description
-   This command sets factor to zoom line width (default 1).
-   
-\section Syntax
-   'linefac \<factor>'
-   
- \section Keywords
-   graphics, plot, window, picture, view, linewidth
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  setcurrmg setcurrmg - Change the current multigrid
 
  \section Description
