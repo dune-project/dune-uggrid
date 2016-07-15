@@ -96,10 +96,6 @@
 #include "udm.h"
 #include "fvgeom.h"
 
-/* graph module */
-#include "wpm.h"
-#include "graph.h"
-
 /* user interface module */
 #include "ugstruct.h"
 #include "cmdint.h"
@@ -2741,9 +2737,6 @@ static INT LevelCommand (INT argc, char **argv)
   UserWriteF("  current level is %d (bottom level %d, top level %d)\n",
              CURRENTLEVEL(theMG),BOTTOMLEVEL(theMG),TOPLEVEL(theMG));
 
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
-
   return(OKCODE);
 }
 
@@ -3755,9 +3748,6 @@ static INT InsertInnerNodeCommand (INT argc, char **argv)
     return (CMDERRORCODE);
   }
 
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
-
   return (OKCODE);
 }
 
@@ -3825,9 +3815,6 @@ static INT InsertBoundaryNodeCommand (INT argc, char **argv)
     PrintErrorMessage('E',"bn","inserting a boundary node failed");
     return (CMDERRORCODE);
   }
-
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
 
   return (OKCODE);
 }
@@ -3962,9 +3949,6 @@ static INT InsertGlobalNodeCommand (INT argc, char **argv)
   else
     UserWrite("  ### gn: inserted a bn\n");
 
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
-
 Exit_gn:
   for (i=0; i<my_argc; i++)
     if (my_argv[i]!=NULL)
@@ -4016,8 +4000,6 @@ static INT DeleteNodeCommand (INT argc, char **argv)
           return (CMDERRORCODE);
         }
     ClearSelection(theMG);
-    InvalidatePicturesOfMG(theMG);
-    InvalidateUgWindowsOfMG(theMG);
 
     return (OKCODE);
   }
@@ -4034,9 +4016,6 @@ static INT DeleteNodeCommand (INT argc, char **argv)
     PrintErrorMessage('E',"deln","deleting the node failed");
     return (CMDERRORCODE);
   }
-
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
 
   return (OKCODE);
 }
@@ -4172,8 +4151,6 @@ static INT MoveNodeCommand (INT argc, char **argv)
     return (PARAMERRORCODE);
   }
 
-  InvalidatePicturesOfMG(theMG);
-
   return (OKCODE);
 }
 
@@ -4245,8 +4222,6 @@ static INT InsertElementCommand (INT argc, char **argv)
     }
     else
     {
-      InvalidatePicturesOfMG(theMG);
-      InvalidateUgWindowsOfMG(theMG);
       return (OKCODE);
     }
   }
@@ -4282,9 +4257,6 @@ static INT InsertElementCommand (INT argc, char **argv)
     PrintErrorMessage('E',"ie","inserting the element failed");
     return (CMDERRORCODE);
   }
-
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
 
   return (OKCODE);
 }
@@ -4445,8 +4417,6 @@ static INT DeleteElementCommand (INT argc, char **argv)
           return (CMDERRORCODE);
         }
     ClearSelection(theMG);
-    InvalidatePicturesOfMG(theMG);
-    InvalidateUgWindowsOfMG(theMG);
 
     return (OKCODE);
   }
@@ -4463,9 +4433,6 @@ static INT DeleteElementCommand (INT argc, char **argv)
     PrintErrorMessage('E',"dele","deleting the element failed");
     return (CMDERRORCODE);
   }
-
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
 
   return (OKCODE);
 }
@@ -4582,9 +4549,6 @@ static INT AdaptCommand (INT argc, char **argv)
         #endif
 
   rv = AdaptMultiGrid(theMG,mode,seq,mgtest);
-
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
 
   switch (rv)
   {
@@ -5142,8 +5106,6 @@ static INT SmoothMGCommand (INT argc, char **argv)
     return (CMDERRORCODE);
   }
 
-  InvalidatePicturesOfMG(theMG);
-
   return (OKCODE);
 }
 
@@ -5300,9 +5262,6 @@ static INT SmoothGridCommand (INT argc, char **argv)
     lowLevel = MAX(lowLevel,1);
     if (SmoothGrid(theMG,lowLevel,CURRENTLEVEL(theMG),LimitLocDis,bnd_num,bnd,option)!=0) return(CMDERRORCODE);
   }
-
-  InvalidatePicturesOfMG(theMG);
-  InvalidateUgWindowsOfMG(theMG);
 
   return (OKCODE);
 }
@@ -6914,9 +6873,6 @@ static INT UpdateDocumentCommand (INT argc, char **argv)
         #endif
 
   NO_OPTION_CHECK(argc,argv);
-
-  InvalidatePicturesOfMG(currMG);
-  InvalidateUgWindowsOfMG(currMG);
 
   return (OKCODE);
 }
