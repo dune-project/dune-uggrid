@@ -8871,7 +8871,7 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
     case NODEVEC :
     {
       theNode = (NODE*)VOBJECT(theVector);
-                                #if defined __OVERLAP2__ || defined USE_FAMG
+                                #if defined __OVERLAP2__
       if ( theNode == NULL )
         UserWriteF("NODE-V NULL                ");
       else
