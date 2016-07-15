@@ -107,24 +107,11 @@ typedef struct {
 /*																			*/
 /****************************************************************************/
 
-static UGWINDOW *currUgWindow;
 static PICTURE *currPicture;
-
-static INT autoRefresh;                                 /* ON or OFF						*/
-static INT use_bullet = NO;             /* whether auto refresh uses bullet */
-static DOUBLE offset_factor = 1.0;      /* offset factor for bullet         */
-
-static const char *ArrowToolFuncs[N_ARROW_FUNCS]={"pointer",
-                                                  "pan",
-                                                  "zoom",
-                                                  "rotate",
-                                                  "rotate cut",
-                                                  "move cut"};
 
 static INT theCmdKeyDirID;                              /* env ID for the /Cmd Key dir		*/
 static INT theCmdKeyVarID;                              /* env ID for the /Cmd Key dir		*/
 
-static INT MousePos[2]={-1,-1};
 static OUTPUTDEVICE *DefaultDevice;     /* our default ouput device             */
 
 
@@ -316,12 +303,8 @@ static INT DoCmdKey (char c, char *String)
 static INT ProcessEvent (char *String, INT EventMask)
 {
   EVENT theEvent;
-  DOUBLE qw, qh, scaling;
   UGWINDOW *theUgW;
-  PICTURE *thePic;
-  WINDOWID WinID;
-  INT UGW_LLL_old[2], UGW_LUR_old[2], Offset[2], nfct, r;
-  static INT MousePosition[2];
+  INT r;
 
 #ifdef ModelP
   if (me==master)
@@ -400,9 +383,6 @@ static INT ProcessEvent (char *String, INT EventMask)
 
 INT NS_DIM_PREFIX UserInterrupt (const char *text)
 {
-  INT Code,EventMask,mutelevel;
-  char buffer[128];
-
 #ifndef ModelP
   EventMask = TERM_CMDKEY;
 
