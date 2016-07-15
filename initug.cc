@@ -70,9 +70,6 @@ using namespace PPIF;
 /* numerics module */
 #include "np/initnumerics.h"
 
-/* graphics module */
-#include "graphics/graphics.h"
-
 /* user interface module */
 #include "ui/initui.h"
 
@@ -265,17 +262,6 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
     return (1);
   }
 
-  /* init the graphics module */
-  if ((err = InitGraphics ()) != 0)
-  {
-    printf
-      ("ERROR in InitUg while InitGraphics (line %d): called routine line %d\n",
-      (int) HiWrd (err), (int) LoWrd (err));
-    printf ("aborting ug\n");
-
-    return (1);
-  }
-
   return (0);
 }
 
@@ -298,19 +284,6 @@ INT NS_DIM_PREFIX
 ExitUg (void)
 {
   INT err;
-
-
-  /* exit graphics module */
-  PRINTDEBUG (init, 1, ("%d:     ExitGraphics()...\n", me))
-  if ((err = ExitGraphics ()) != 0)
-  {
-    printf
-      ("ERROR in ExitUg while ExitGraphics (line %d): called routine line %d\n",
-      (int) HiWrd (err), (int) LoWrd (err));
-    printf ("aborting ug\n");
-
-    return (1);
-  }
 
   /* exit ui module */
   PRINTDEBUG (init, 1, ("%d:     ExitUi()...\n", me))
