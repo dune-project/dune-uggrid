@@ -74,21 +74,9 @@ int ParExecCommand (char *s);
 
 INT                     InitUgInterface                                 (void);
 
-INT                     DelCmdKey                                               (char c);
-INT                     SetCmdKey                                               (char c, const char *Comment, INT ShowBar, const char *String);
-INT                     DelAllCmdKeys                                   (void);
-INT                     ListCmdKeys                                     (INT Long);
-
-INT                     SetCurrentPicture                               (PICTURE *thePicture);
-PICTURE                 *GetCurrentPicture                              (void);
-INT                     SetCurrentUgWindow                              (UGWINDOW *theUgWindow);
-UGWINDOW                *GetCurrentUgWindow                     (void);
-
 INT                     UserInterrupt                                   (const char *text);
 INT                     UserIn                                                  (char *String);
 INT                     UserRead                                                (char *String);
-
-INT SetRefreshState (bool status, INT bullet, DOUBLE factor);
 
 END_UGDIM_NAMESPACE
 
