@@ -98,7 +98,6 @@
 
 /* graph module */
 #include "wpm.h"
-#include "wop.h"
 #include "graph.h"
 
 /* user interface module */
@@ -7162,86 +7161,6 @@ static INT SetCurrentWindowCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref drawtext. */
-static INT DrawTextCommand (INT argc, char **argv)
-{
-  UGWINDOW *theWin;
-  char winname[NAMESIZE],text[NAMESIZE];
-  COORD_POINT pos;
-  INT i,mode,centeropt,size;
-  double x,y;
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  theWin = GetCurrentUgWindow();
-  if (theWin==NULL)
-  {
-    PrintErrorMessage('E',"drawtext","there's no window to draw text");
-    return (CMDERRORCODE);
-  }
-
-  if (sscanf(argv[0],expandfmt(CONCAT3("drawtext %lf %lf %",NAMELENSTR,"[ -~]")),&x,&y,text)!=3)
-  {
-    PrintErrorMessage('E',"drawtext","specify position with two integers and then the text");
-    return (CMDERRORCODE);
-  }
-  pos.x = x; pos.y = y;
-
-  /* check options */
-  centeropt = false;
-  mode = TEXT_REGULAR;
-  size   = 0;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'w' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("w %",NAMELENSTR,"[a-zA-Z0-9_]")),winname)!=1)
-      {
-        PrintErrorMessage('E',"drawtext","specify a window name with w option");
-        return (PARAMERRORCODE);
-      }
-      if ((theWin=GetUgWindow(winname))==NULL)
-      {
-        PrintErrorMessageF('E',"drawtext","there is no window named '%s'",winname);
-        return (PARAMERRORCODE);
-      }
-      break;
-
-    case 's' :
-      if (sscanf(argv[i],"s %d",&size)!=1)
-      {
-        PrintErrorMessage('E',"drawtext","specify a size with s option");
-        return (PARAMERRORCODE);
-      }
-      break;
-
-    case 'm' :
-      if (strstr(argv[i],"reg")!=NULL)
-        mode = TEXT_REGULAR;
-      else if (strstr(argv[i],"inv")!=NULL)
-        mode = TEXT_INVERSE;
-      else if (strstr(argv[i],"ind")!=NULL)
-        mode = TEXT_INDEXED;
-      break;
-
-    case 'c' :
-      centeropt = true;
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("drawtext",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  DrawWindowText(theWin,pos,text,size,centeropt,mode);
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref openpicture. */
 static INT OpenPictureCommand (INT argc, char **argv)
 {
@@ -7667,7 +7586,6 @@ static INT PictureWindowCommand (INT argc, char **argv)
     PrintErrorMessage('W',"picwin","there's no picture to move");
     return (OKCODE);
   }
-  if (ErasePicture(thePic)) return (CMDERRORCODE);
   if (MovePictureToNewWindow(thePic))
   {
     PrintErrorMessage('E',"picwin","failed to create a new window for the picture");
@@ -7676,52 +7594,6 @@ static INT PictureWindowCommand (INT argc, char **argv)
 
   SetCurrentUgWindow(PIC_UGW(thePic));
   SetCurrentPicture(thePic);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref clearpicture. */
-static INT ClearPictureCommand (INT argc, char **argv)
-{
-  PICTURE *thePicture;
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  thePicture = GetCurrentPicture();
-  if (thePicture==NULL)
-  {
-    UserWrite("WARNING: there is no current picture\n");
-    return (OKCODE);
-  }
-  ErasePicture(thePicture);
-  DrawPictureFrame(thePicture,WOP_ACTIVE);
-
-  /* picture has changed */
-  if (InvalidatePicture(thePicture))
-    return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref picframe. */
-static INT PicFrameCommand (INT argc, char **argv)
-{
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  if (strchr(argv[0],'0')!=NULL)
-    SetDoFramePicture (NO);
-  else
-    SetDoFramePicture (YES);
 
   return (OKCODE);
 }
@@ -8260,32 +8132,6 @@ static INT RotateCommand (INT argc, char **argv)
   return (OKCODE);
 }
 
-
-/** \brief Implementation of \ref textfac. */
-static INT TextFacCommand (INT argc, char **argv)
-{
-  double Value;
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  if (sscanf(argv[0],"textfac %lf",&Value)!=1)
-  {
-    PrintErrorMessage('E',"textfac","specify a factor");
-    return (PARAMERRORCODE);
-  }
-
-  SetTextFactor(Value);
-
-  InvalidatePicturesOfMG(currMG);
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref linefac. */
 static INT LineFacCommand (INT argc, char **argv)
 {
@@ -8400,222 +8246,6 @@ static INT PlotObjectListCommand (INT argc, char **argv)
   return (OKCODE);
 }
 
-
-/** \brief Implementation of \ref plot. */
-static INT PlotCommand (INT argc, char **argv)
-{
-  UGWINDOW *theUgW;
-  PICTURE *thePic,*currPic;
-  INT i,OrderStrategy,all,bullet,noframe;
-  DOUBLE zOffsetFactor;
-
-  /* scan for options */
-
-  OrderStrategy = 0;
-  all = bullet = noframe = NO;
-  zOffsetFactor = 1.0;
-
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'o' :
-      sscanf(argv[i],"o %d", &OrderStrategy);
-      break;
-    case 'a' :
-      all = YES;
-      break;
-    case 'b' :
-      bullet = YES;
-      sscanf(argv[i],"b %lf", &zOffsetFactor);
-      break;
-    case 'n' :
-      noframe = YES;
-      break;
-
-    default :
-      break;
-    }
-  if (SetOrderStrategy(OrderStrategy)!=0)
-  {
-    PrintErrorMessage('E',"plot","invalid order mode");
-    return (CMDERRORCODE);
-  }
-
-  if (all)
-  {
-    currPic = GetCurrentPicture();
-
-    /* plot all pictures in all windows */
-    for (theUgW=GetFirstUgWindow(); theUgW!=NULL; theUgW=GetNextUgWindow(theUgW))
-      for (thePic=GetFirstPicture(theUgW); thePic!=NULL; thePic=GetNextPicture(thePic))
-      {
-        if (bullet) {
-          if (BulletDrawUgPicture(thePic, zOffsetFactor)!=0)
-          {
-            PrintErrorMessage('E',"plot","error during WorkOnPicture");
-            return (CMDERRORCODE);
-          }
-        }
-        else {
-          if (DrawUgPicture(thePic)!=0)
-          {
-            PrintErrorMessage('E',"plot","error during WorkOnPicture");
-            return (CMDERRORCODE);
-          }
-        }
-
-                                #ifdef ModelP
-        if (me == master)
-        {
-                                #endif
-
-        if (thePic==currPic)
-          DrawPictureFrame(thePic,WOP_ACTIVE);
-        else
-          DrawPictureFrame(thePic,WOP_NOT_ACTIVE);
-#ifdef ModelP
-        }
-#endif
-      }
-
-    return (OKCODE);
-  }
-
-  /* current picture */
-  thePic = GetCurrentPicture();
-  if (thePic==NULL)
-  {
-    PrintErrorMessage('E',"plot","there's no current picture");
-    return (CMDERRORCODE);
-  }
-
-  if (bullet) {
-    if (BulletDrawUgPicture(thePic, zOffsetFactor)!=0)
-    {
-      PrintErrorMessage('E',"plot","error during WorkOnPicture");
-      return (CMDERRORCODE);
-    }
-  }
-  else {
-    if (DrawUgPicture(thePic)!=0)
-    {
-      PrintErrorMessage('E',"plot","error during WorkOnPicture");
-      return (CMDERRORCODE);
-    }
-  }
-
-        #ifdef ModelP
-  if (me == master)
-        #endif
-
-  /* picture is current */
-  if (noframe==NO)
-    DrawPictureFrame(thePic,WOP_ACTIVE);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref findrange. */
-static INT FindRangeCommand (INT argc, char **argv)
-{
-  PICTURE *thePic;
-  WORK myWork,*theWork;
-  INT i,sym,put;
-  DOUBLE min,max;
-
-  /* following variables: keep type for sscanf */
-  double zoom;
-
-        #ifdef ModelP
-  if (!CONTEXT(me)) {
-    PRINTDEBUG(ui,0,("%2d: FindRangeCommand(): me not in Context,"\
-                     " range found\n",me))
-    return(OKCODE);
-  }
-        #endif
-
-  theWork = &myWork;
-
-  /* current picture */
-  thePic = GetCurrentPicture();
-  if (thePic==NULL)
-  {
-    PrintErrorMessage('E',"findrange","there's no current picture");
-    return (CMDERRORCODE);
-  }
-
-  /* check options */
-  put = sym = NO;
-  zoom = 1.0;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 's' :
-      sym = YES;
-      break;
-
-    case 'p' :
-      put = YES;
-      break;
-
-    case 'z' :
-      if (sscanf(argv[i],"z %lf",&zoom)!=1)
-      {
-        PrintErrorMessage('E',"findrange","specify a zoom factor with z option");
-        return (PARAMERRORCODE);
-      }
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("findrange",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  /* fill work struct */
-  W_ID(theWork) = FINDRANGE_WORK;
-
-  W_FINDRANGE_WORK(theWork)->symmetric = sym;
-  W_FINDRANGE_WORK(theWork)->zoom          = zoom;
-  W_FINDRANGE_WORK(theWork)->put           = put;
-
-  if (WorkOnPicture(thePic,theWork)!=0)
-  {
-    PrintErrorMessage('E',"findrange","error during WorkOnPicture");
-    return (CMDERRORCODE);
-  }
-
-  /* read out min and max */
-  min = W_FINDRANGE_WORK(theWork)->min;
-        #ifdef ModelP
-  Broadcast(&min,sizeof(double));
-  W_FINDRANGE_WORK(theWork)->min = min;
-        #endif
-
-  max = W_FINDRANGE_WORK(theWork)->max;
-        #ifdef ModelP
-  Broadcast(&max,sizeof(double));
-  W_FINDRANGE_WORK(theWork)->max = max;
-        #endif
-
-  UserWriteF(" FR_min = %20.16e\n FR_max = %20.16e\n",min,max);
-
-  if (put)
-    if (InvalidatePicture(thePic))
-      return (CMDERRORCODE);
-
-  if (    (SetStringValue(":findrange:min",min)!=0)
-          ||      (SetStringValue(":findrange:max",max)!=0))
-  {
-    PrintErrorMessage('E',"findrange","could not set :findrange:min or :findrange:max");
-    return (CMDERRORCODE);
-  }
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref setcurrmg. */
 static INT SetCurrentMultigridCommand (INT argc, char **argv)
 {
@@ -8657,29 +8287,6 @@ static INT UpdateDocumentCommand (INT argc, char **argv)
 
   InvalidatePicturesOfMG(currMG);
   InvalidateUgWindowsOfMG(currMG);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref rotmode. */
-static INT RotModeCommand (INT argc, char **argv)
-{
-  INT mode;
-
-  NO_OPTION_CHECK(argc,argv);
-
-  if (strchr(argv[0],'E')!=NULL)
-    mode = ROTMODE_EULER;
-  else if (strchr(argv[0],'S')!=NULL)
-    mode = ROTMODE_SPHERE;
-  else
-  {
-    PrintHelp("rotmode",HELPITEM," (specify Euler or Sphere)");
-    return(PARAMERRORCODE);
-  }
-
-  SetRotMode(mode);
 
   return (OKCODE);
 }
@@ -11210,11 +10817,8 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("openppic",       OpenPlacedPicturesCommand           )==NULL) return (__LINE__);
   if (CreateCommand("closewindow",        CloseWindowCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("setcurrwindow",      SetCurrentWindowCommand                 )==NULL) return (__LINE__);
-  if (CreateCommand("drawtext",           DrawTextCommand                                 )==NULL) return (__LINE__);
   if (CreateCommand("openpicture",        OpenPictureCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("closepicture",       ClosePictureCommand                     )==NULL) return (__LINE__);
-  if (CreateCommand("clearpicture",       ClearPictureCommand                     )==NULL) return (__LINE__);
-  if (CreateCommand("picframe",           PicFrameCommand                                 )==NULL) return (__LINE__);
   if (CreateCommand("setcurrpicture", SetCurrentPictureCommand            )==NULL) return (__LINE__);
   if (CreateCommand("picwin",                     PictureWindowCommand                    )==NULL) return (__LINE__);
   if (CreateCommand("setview",            SetViewCommand                                  )==NULL) return (__LINE__);
@@ -11225,14 +10829,10 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("zoom",                       ZoomCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("drag",                       DragCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("rotate",             RotateCommand                                   )==NULL) return (__LINE__);
-  if (CreateCommand("textfac",            TextFacCommand                                  )==NULL) return (__LINE__);
   if (CreateCommand("linefac",            LineFacCommand                                  )==NULL) return (__LINE__);
   if (CreateCommand("setplotobject",      SetPlotObjectCommand                    )==NULL) return (__LINE__);
   if (CreateCommand("polist",             PlotObjectListCommand                   )==NULL) return (__LINE__);
-  if (CreateCommand("plot",                       PlotCommand                                     )==NULL) return (__LINE__);
-  if (CreateCommand("findrange",          FindRangeCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("updateDoc",          UpdateDocumentCommand                   )==NULL) return (__LINE__);
-  if (CreateCommand("rotmode",            RotModeCommand                                  )==NULL) return (__LINE__);
   if (CreateCommand("cmfn",                       CreateMetafileNameCommand               )==NULL) return (__LINE__);
   if (CreateCommand("setpalette",         SetPaletteCommand                               )==NULL) return (__LINE__);
 

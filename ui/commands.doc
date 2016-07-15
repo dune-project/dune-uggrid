@@ -1736,31 +1736,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  drawtext drawtext - Draw text in a ug window
-
- \section Description
-   This command draws text into a ug window.
-
-\section Syntax
-   'drawtext \<xpos> \<ypos> \<text> [$w \<window name>] [$c] [$i]'
-
-  <li> \<xpos>                 - x-coordinate in pixels (origin is the lower left corner)
-  <li> \<ypos>                 - y-coordinate in pixels (origin is the lower left corner)
-  <li> \<text>                 - text to draw
-  <li> $w~\<window~name>       - draw text into this window (default: current window)
-  <li> $i                     - draw text inverse
-  <li> $c                     - center text at \<xpos> \<ypos>
-  <li> $s~\<size>              - text size
-   
- \section Keywords
-   graphics, plot, window, text
-   
-   SEE ALSO:
-   'openwindow'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  openpicture openpicture - Open a new picture
 
  \section Description
@@ -1863,44 +1838,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
    SEE ALSO:
    'openwindow', 'openpicture'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  clearpicture clearpicture - Clear current picture
-
- \section Description
-   This command clears current picture.
-   It calls the function 'ErasePicture'.
-
-\section Syntax
-   'clearpicture'
-   
- \section Keywords
-   graphics, plot, window, picture, clear, erase
-   
-   SEE ALSO:
-   'openwindow', 'openpicture'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  picframe picframe - Toggle framing of pictures
-
- \section Description
-   This command toggles the framing of pictures. If on a black frame is drawn
-   around each picture to show its bounds. The current picture is indicated
-   by an orange frame, while the frame of a currently drawn picture turns red.
-   It is recommended to switch off framing for other devices than 'screen'.
-   
-\section Syntax
-   'picframe 0|1'
-   
- \section Keywords
-   graphics, plot, window, picture, frame
-   
-   SEE ALSO:
-   'openwindow'
 */
 /****************************************************************************/
 
@@ -2107,19 +2044,6 @@ setview [$i] [$o \<x> \<y> \<z> $t \<x> \<y> \<z>] [$x \<x> \<y> [\<z>]] [$p \< 
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  textfac textfac - Set factor to zoom text sizes
-
- \section Description
-   This command sets factor to zoom text sizes (default 1).
-   
-\section Syntax
-   'textfac \<factor>'
-   
- \section Keywords
-   graphics, plot, window, picture, view, textsize
-*/
-/****************************************************************************/
-/****************************************************************************/
 /** \page  linefac linefac - Set factor to zoom line width
 
  \section Description
@@ -2206,50 +2130,6 @@ setplotobject EScalar $e v_sol $d 1;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  plot plot - Plot an object
-
- \section Description
-   This command plots the object of the current picture according to 
-   its specifications.
-   It calls the function 'WorkOnPicture'.
-
-\section Syntax
-   'plot [$o [0|1|2]] [$b [\<factor>]] [$a]'
-
-  <li>  $o	- ordering strategy (only used for 3D hidden surface)
-  <li>  $b  - use bullet plotter
-  <li>  $a  - plot all pictures in all windows
-   
- \section Keywords
-   graphics, plot, window, picture, plotobject, draw
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  findrange findrange - Find the range of values to be plotted
-
- \section Description
-   This command computes the range of  values to be plotted for the object 
-   in the current picture. The result will be printed and 
-   stored into :findrange:min and :findrange:max.
-   It calls the function 'WorkOnPicture'.
-
-\section Syntax
-   'findrange [$z \<zoom factor>] [$s] [$p]'
-
-  <li> $z~\<zoom factor>       - zoom the range by this factor
-  <li> $s                     - symmetrize the range (min=max)
-  <li> $p                     - store range in plot object
-   
- \section Keywords
-   graphics, plot, window, picture, plotobject, range, values
-
-   SEE ALSO:
-   'plot'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  setcurrmg setcurrmg - Change the current multigrid
 
  \section Description
@@ -2281,25 +2161,6 @@ setplotobject EScalar $e v_sol $d 1;
    
  \section Keywords
    graphics, plot, window, picture, plotobject, invalidate
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  rotmode rotmode - Rotation mode for 3D pictures (arrow tool)
-
- \section Description
-   This command toggles the rotation mode for 3D plot objects between
-   Euler angle mode and Virtual Sphere. Just try both to find the most
-   convenient one.
-
-\section Syntax
-   'rotmode E[uler] | S[phere]'
-   
- \section Keywords
-   graphics, plot, window, picture, plotobject, arrowtool
-   
-   SEE ALSO:
-   arrowtool
 */
 /****************************************************************************/
 
