@@ -49,7 +49,6 @@
 #include "ugenv.h"
 #include "ugm.h"
 #include "algebra.h"
-#include "cmdint.h"
 #include "commands.h"
 #include "helpmsg.h"
 #include "evm.h"
