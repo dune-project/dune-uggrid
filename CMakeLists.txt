@@ -18,8 +18,6 @@ include(DuneMacros)
 # start a dune project with information from dune.module
 dune_project()
 
-find_package(FLEX REQUIRED)
-find_package(BISON REQUIRED)
 find_package(MPI)
 # set defines that are only used internally.
 # The rest is in cmake/modules/DuneUggrid.cmake
