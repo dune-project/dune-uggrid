@@ -1,6 +1,6 @@
 set(SOURCES  initddd.cc memmgr.cc handler.cc lb.cc debugger.cc lbrcb.cc
   gridcons.cc support.cc identify.cc identify.h trans.cc priority.cc
-  pgmcheck.cc overlap.cc partition.cc pamg.cc)
+  pgmcheck.cc overlap.cc partition.cc)
 
 install(FILES parallel.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
 

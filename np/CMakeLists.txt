@@ -1,6 +1,5 @@
 set(SOURCES  initnp.cc)# initnp.h initnumerics.h np.h num.h)
 
-# famglib ist auch im alten Makefile nicht drin
 add_subdirectory(algebra)
 add_subdirectory(amglib)
 add_subdirectory(field)
