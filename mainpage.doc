@@ -13,7 +13,6 @@
     <li> \ref dev </li>
     <li> \ref dom </li>
     <ul>
-      <li> \ref lgm </li>
       <li> \ref std </li>
     </ul>
     <li> \ref gm </li>
