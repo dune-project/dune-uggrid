@@ -360,16 +360,6 @@ INT NS_DIM_PREFIX SetCurrentMultigrid (MULTIGRID *theMG)
 }
 
 
-/** \brief Implementation of \ref quit. */
-static INT QuitCommand (INT argc, char **argv)
-{
-  NO_OPTION_CHECK(argc,argv);
-  SetDoneFlag();
-  return(QUITCODE);
-}
-
-
-
 /** \brief Implementation of \ref exitug. */
 static INT ExitUgCommand (INT argc, char **argv)
 {
@@ -9192,7 +9182,6 @@ INT NS_DIM_PREFIX InitCommands ()
 #endif
 
   /* general commands */
-  if (CreateCommand("quit",                       QuitCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("exitug",                     ExitUgCommand                                   )==NULL) return (__LINE__);
   if (CreateCommand("help",                       HelpCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("checkhelp",          CheckHelpCommand                                )==NULL) return (__LINE__);

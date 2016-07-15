@@ -1,20 +1,6 @@
 
 
 /****************************************************************************/
-/*! \page quit quit - Quits UG
-
-   This command quits the program and closes the shell.
-
-\section Syntax
-   'quit'
-   
- \section Keywords
-   exit, terminate, bye
-*/
-/****************************************************************************/
-
-
-/****************************************************************************/
 /** \page   exitug  exitug - Exits UG
 
    This command exits the current application and closes the shell.

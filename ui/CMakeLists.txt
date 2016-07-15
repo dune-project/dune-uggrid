@@ -1,4 +1,4 @@
-set(SOURCES  uginterface.cc initui.cc cmdint.cc cmdline.cc
+set(SOURCES  uginterface.cc initui.cc cmdline.cc
   commands.cc helpmsg.cc
   mmio.cc fieldio.cc)
 install(FILES cmdint.h cmdline.h commands.h
