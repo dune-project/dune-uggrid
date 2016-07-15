@@ -1,7 +1,6 @@
 set(SOURCES  initnp.cc)# initnp.h initnumerics.h np.h num.h)
 
 add_subdirectory(algebra)
-add_subdirectory(amglib)
 add_subdirectory(field)
 add_subdirectory(procs)
 add_subdirectory(udm)

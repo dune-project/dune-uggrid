@@ -65,7 +65,6 @@
 
 #include "initnp.h"
 #include "numproc.h"
-#include "amglib/amg_ug.h"
 
 USING_UG_NAMESPACES
 
@@ -212,12 +211,6 @@ INT NS_DIM_PREFIX InitNumerics ()
 
   /* init projection num procs */
   if ((err=InitProject())!=0) {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* init amg solver */
-  if ((err=InitAMGSolver())!=0) {
     SetHiWrd(err,__LINE__);
     return (err);
   }
