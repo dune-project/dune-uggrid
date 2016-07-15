@@ -278,12 +278,6 @@ static INT lessopt,greateropt,selectopt;
 static char mintext[32],maxtext[32],minmaxtext[32];
 /*@}*/
 
-/** @name Counters for windows and pictures */
-/*@{*/
-static INT wincounter=1;
-static INT piccounter=1;
-/*@}*/
-
 /** @name Stuff for the array commands */
 /*@{*/
 static INT theArrayDirID;
@@ -1483,8 +1477,6 @@ INT NS_DIM_PREFIX ConfigureCommand (INT argc, char **argv)
 static INT CloseCommand (INT argc, char **argv)
 {
   MULTIGRID *theMG;
-  UGWINDOW *theWin;
-  PICTURE *thePic,*NextPic,*currPic;
   INT i;
   bool closeonlyfirst;
 
