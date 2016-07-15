@@ -40,7 +40,6 @@
 
 /* graph module */
 #include "wpm.h"
-#include "wop.h"
 #include "plotproc.h"
 
 /* own header */
@@ -81,13 +80,6 @@ INT NS_DIM_PREFIX InitUGGraph (void)
 
   /* init wpm.c */
   if ((err=InitWPM())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* init wop.c */
-  if ((err=InitWOP())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);

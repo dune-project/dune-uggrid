@@ -42,7 +42,6 @@
 #include "ugdevices.h"
 #include "gm.h"
 #include "wpm.h"
-#include "wop.h"
 #include "cmdint.h"
 #include "debug.h"
 #include "general.h"
