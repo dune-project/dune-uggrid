@@ -241,128 +241,6 @@ static INT DoCmdKey (char c, char *String)
 
 /****************************************************************************/
 /*D
-        DoInfoBox - print current info into infobox of active ugwindow
-
-        SYNOPSIS:
-        void DoInfoBox (WINDOWID win, INT mp[2])
-
-        PARAMETERS:
-   .    win - ugwindow
-   .    mp  - mouse position in window
-
-        DESCRIPTION:
-        If win contains the current picture the toolbox is valid.
-                Then either the mouse is
-                        inside the toolbox: print meaning of the tool that is pointed on
-                        inside the currpic: print dynamic info if available
-                        outside the currpic: print 'mouse out'
-        Else print '---'
-
-        RETURN VALUE:
-        none
-   D*/
-/****************************************************************************/
-
-static void DoInfoBox (WINDOWID win, INT mp[2])
-{
-  UGWINDOW *ugw;
-  PICTURE *thePic;
-  INT tool,state,nfct,fct;
-  char buffer[128];
-
-  ugw = WinID2UgWindow(win);
-
-  if ((currPicture!=NULL) && (PIC_UGW(currPicture)==ugw))
-  {
-    /* curr pic is in active ugwindow */
-    if (WhichTool(win,mp,&tool))
-    {
-      /* mouse in toolbox */
-      if (UGW_BOXSTATE(ugw)!=tool)
-      {
-        /* print meaning of tool */
-        buffer[0] = '\0';
-        switch (tool)
-        {
-        case arrowTool :
-          if (PO_USESCUT(PIC_PO(currPicture)) && (CUT_STATUS(VO_CUT(PIC_VO(currPicture)))==ACTIVE))
-            nfct = N_ARROW_FUNCS;
-          else
-            nfct = N_ARROW_FUNCS_WO_CUT;
-
-          fct = (tool==UGW_CURRTOOL(ugw)) ? UGW_CURRFUNC(ugw) : 0;
-          sprintf(buffer,"%s [%d/%d]",ArrowToolFuncs[fct],(int)(fct+1),(int)nfct);
-          break;
-
-        default :
-          if (VO_STATUS(PIC_VO(currPicture)) == ACTIVE)
-          {
-            nfct = POH_NTOOLFUNC(PIC_POH(currPicture),tool);
-            if (nfct==0)
-              strcpy(buffer,"tool disabled");
-            else
-            {
-              fct = (tool==UGW_CURRTOOL(ugw)) ? UGW_CURRFUNC(ugw) : 0;
-              sprintf(buffer,"%s [%d/%d]",POH_TOOLNAME(PIC_POH(currPicture),tool,fct),(int)fct+1,(int)nfct);
-            }
-          }
-        }
-        DrawInfoBox(win,buffer);
-        UGW_BOXSTATE(ugw) = tool;
-      }
-    }
-    else
-    {
-      /* mouse outside toolbox */
-      if (V2_ISEQUAL(MousePos,mp))
-        return;
-
-      /* print dynamic info */
-      V2_COPY(mp,MousePos);
-      thePic = Mouse2Picture(ugw,MousePos);
-      if (thePic==currPicture)
-      {
-        /* mouse in current picture */
-        if ((VO_STATUS(PIC_VO(currPicture)) == ACTIVE) && POH_DYNAMIC_INFO_AVAIL(PIC_POH(currPicture)))
-        {
-          if (POH_DYNAMIC_INFO(PIC_POH (currPicture))(currPicture,UGW_CURRTOOL(ugw),UGW_CURRFUNC(ugw),MousePos,buffer)==0)
-            state = MOUSE_IN_CURR_PIC;
-          else
-            state = STATIC_TEXT;
-          if (!((state==STATIC_TEXT) && (UGW_BOXSTATE(ugw)==STATIC_TEXT)))
-            DrawInfoBox(win,buffer);
-          UGW_BOXSTATE(ugw) = state;
-        }
-        else if (UGW_BOXSTATE(ugw)!=STATIC_TEXT)
-        {
-          sprintf(buffer,"no dynamic info");
-          DrawInfoBox(win,buffer);
-          UGW_BOXSTATE(ugw) = STATIC_TEXT;
-        }
-      }
-      else if (UGW_BOXSTATE(ugw)!=MOUSE_OUT_CURR_PIC)
-      {
-        /* mouse outside current picture */
-        sprintf(buffer,"mouse outside");
-        UGW_BOXSTATE(ugw) = MOUSE_OUT_CURR_PIC;
-        DrawInfoBox(win,buffer);
-      }
-    }
-  }
-  else
-  {
-    /* no info available */
-    if (UGW_BOXSTATE(ugw)!=NO_INFO_AVAILABLE)
-    {
-      sprintf(buffer,"---");
-      DrawInfoBox(win,buffer);
-      UGW_BOXSTATE(ugw) = NO_INFO_AVAILABLE;
-    }
-  }
-}
-
-/****************************************************************************/
-/*D
         ProcessEvent - the event handler of ug
 
         SYNOPSIS:
@@ -463,9 +341,6 @@ static INT ProcessEvent (char *String, INT EventMask)
 #ifdef ModelP
       if (me == master)
 #endif
-      if (theEvent.NoEvent.GraphWinActive!=0)
-        DoInfoBox(  theEvent.NoEvent.GraphWinActive,
-                    theEvent.NoEvent.Mouse);
       /* do current work (not if UserInterrupt is calling) */
       for (theUgW=GetFirstUgWindow(); theUgW!=NULL; theUgW=GetNextUgWindow(theUgW))
       {
