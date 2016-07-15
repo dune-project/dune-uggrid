@@ -362,63 +362,6 @@ static void DoInfoBox (WINDOWID win, INT mp[2])
 }
 
 /****************************************************************************/
-/*																			*/
-/* Function:  PrintEvent													*/
-/*																			*/
-/* Purpose:   print event													*/
-/*																			*/
-/* Input:	  VIEW *theView, INT Type										*/
-/*																			*/
-/* Output:	  none															*/
-/*																			*/
-/****************************************************************************/
-
-static void PrintEvent (EVENT theEvent)
-{
-  switch (EVENT_TYPE(theEvent))
-  {
-  case EVENT_ERROR :
-    UserWrite("EVENT_ERROR\n");
-    break;
-  case NO_EVENT :
-    break;
-  case TERM_GOAWAY :
-    UserWrite("TERM_GOAWAY\n");
-    break;
-  case TERM_CMDKEY :
-    UserWrite("TERM_CMDKEY\n");
-    break;
-  case TERM_STRING :
-    UserWrite("TERM_STRING\n");
-    break;
-  case DOC_GOAWAY :
-    UserWrite("DOC_GOAWAY\n");
-    break;
-  case DOC_ACTIVATE :
-    UserWrite("DOC_ACTIVATE\n");
-    break;
-  case DOC_DRAG :
-    UserWrite("DOC_DRAG\n");
-    break;
-  case DOC_GROW :
-    UserWrite("DOC_GROW\n");
-    break;
-  case DOC_CHANGETOOL :
-    UserWrite("DOC_CHANGETOOL\n");
-    break;
-  case DOC_CONTENTCLICK :
-    UserWrite("DOC_CONTENTCLICK\n");
-    break;
-  case DOC_UPDATE :
-    UserWrite("DOC_UPDATE\n");
-    break;
-  default :
-    UserWrite("UNKNOWN\n");
-    break;
-  }
-}
-
-/****************************************************************************/
 /*D
         ProcessEvent - the event handler of ug
 
@@ -510,9 +453,6 @@ static INT ProcessEvent (char *String, INT EventMask)
   XBroadcast(2, &theEvent, sizeof(theEvent), &r, sizeof(r));
 #endif
   if (r) return PE_ERROR;
-
-  /* print event
-     PrintEvent(theEvent); */
 
   switch (EVENT_TYPE(theEvent))
   {
