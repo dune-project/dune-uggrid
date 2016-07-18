@@ -43,7 +43,6 @@
 #include "helpmsg.h"
 #include "ugstruct.h"
 #include "commands.h"
-#include "mmio.h"
 #include "fieldio.h"
 
 /* own header */
@@ -123,13 +122,6 @@ INT NS_DIM_PREFIX InitUi (INT argc, char **argv)
 
   /* init commands of ug's command line interface */
   if ((err=InitCommands())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* matrix market input/output */
-  if ((err=InitMMIO())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);

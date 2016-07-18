@@ -101,7 +101,6 @@
 #include "cmdint.h"
 #include "cmdline.h"
 #include "helpmsg.h"
-#include "mmio.h"
 #include "dio.h"
 
 #ifdef ModelP
