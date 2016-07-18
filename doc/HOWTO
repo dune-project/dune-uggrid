@@ -51,21 +51,6 @@ Vector plotobject:
 	See also UG/ug/graphics/uggraph/wop.c: EVector2D,EVector3D
 	
 
-UG/ug/tools:
------------
-
-ugpfm: 
-
-ugpfm is for merging parallel datafiles/directories into their
-sequential counterpart.
-To read in the sequential file(s) increase the heap size in the
-loaddata command with the $h option, since the file(s) contain
-the heap size allocated by a single of the former parallel 
-processes. This heap size is in most cases to small for the
-big sequential multigrid of the merged file(s) and the resulting 
-error gives no hint towards increasing the heap size.
-
-
 UG/ug/gm:
 --------
 
