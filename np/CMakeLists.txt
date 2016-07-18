@@ -1,7 +1,6 @@
 set(SOURCES  initnp.cc)# initnp.h initnumerics.h np.h num.h)
 
 add_subdirectory(algebra)
-add_subdirectory(procs)
 add_subdirectory(udm)
 
 ug_add_dim_libs(np OBJECT SOURCES ${SOURCES})
