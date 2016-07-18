@@ -1,6 +1,6 @@
 # normal headers
 set(lowinclude_HEADERS  heaps.h ugenv.h ugstruct.h misc.h debug.h ugtypes.h
-  general.h dimension.h smallvecs.h   tree.h boxtree.h ugtimer.h scan.h
+  general.h dimension.h tree.h boxtree.h ugtimer.h scan.h
   defaults.h fileopen.h namespace.h)
 
 # special library for the parts of low that need a dimension
