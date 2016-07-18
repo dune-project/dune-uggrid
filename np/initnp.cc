@@ -50,7 +50,6 @@
 #include "ts.h"
 #include "bdf.h"
 #include "ew.h"
-#include "field/field.h"
 #include "db.h"
 #include "fas.h"
 #include "nliter.h"
@@ -193,12 +192,6 @@ INT NS_DIM_PREFIX InitNumerics ()
 
   /* init data io */
   if ((err=DIO_Init())!=0) {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* init stochastic field */
-  if ((err=InitStochField())!=0) {
     SetHiWrd(err,__LINE__);
     return (err);
   }
