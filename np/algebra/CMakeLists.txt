@@ -3,7 +3,6 @@ set(SOURCES
   ugiter.cc
   transgrid.cc
   block.cc
-  quadrature.cc
   fvgeom.cc
   ff_gen.cc
   ff.cc
@@ -15,7 +14,6 @@ set(SOURCES
 set(npinclude_HEADERS
   block.h
   fvgeom.h
-  quadrature.h
   sm.h)
 
 ug_add_dim_libs(algebra OBJECT SOURCES ${SOURCES})
