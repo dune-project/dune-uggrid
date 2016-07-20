@@ -5,7 +5,6 @@ set(SOURCES
   block.cc
   quadrature.cc
   fvgeom.cc
-  fegeom.cc
   ff_gen.cc
   ff.cc
   npcheck.cc
@@ -15,7 +14,6 @@ set(SOURCES
 
 set(npinclude_HEADERS
   block.h
-  fegeom.h
   fvgeom.h
   quadrature.h
   sm.h)
