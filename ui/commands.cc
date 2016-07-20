@@ -282,19 +282,6 @@ static bool arraypathes_set = false;
 
 REP_ERR_FILE
 
-
-
-/****************************************************************************/
-/*                                                                          */
-/* forward declarations of functions used before they are defined           */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined(CAD) && defined(__THREEDIM__)
-MULTIGRID *ConvertCADGrid  (char *theFormat, char *CADOutputFileName,unsigned long heapSize);
-#endif
-
-
 /****************************************************************************/
 /** \brief Return a pointer to the current multigrid
  *
@@ -6656,78 +6643,6 @@ static INT StatusCommand  (INT argc, char **argv)
 }
 
 
-#if defined(CAD) && defined(__THREEDIM__)
-/** \brief Implementation of \ref cadconvert. */
-static INT CADGridConvertCommand(INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char CADOutputFileName[NAMESIZE];
-
-  char Format[NAMESIZE];
-  char *theFormat;
-
-  unsigned long heapSize;
-  INT i,hopt;
-
-  /* get CADfile name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" cadconvert %",NAMELENSTR,"[ -~]")),CADOutputFileName)!=1) || (strlen(CADOutputFileName)==0))
-    sprintf(CADOutputFileName,"untitled-%d",(int)untitledCounter++);
-
-  /* get problem, domain and format */
-  theFormat = NULL;
-  heapSize = 0;
-  hopt = false;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'f' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("f %",NAMELENSTR,"[ -~]")),Format)!=1)
-      {
-        PrintHelp("open",HELPITEM," (cannot read format specification)");
-        return(PARAMERRORCODE);
-      }
-      theFormat = Format;
-      break;
-
-    case 'h' :
-      if (sscanf(argv[i],"h %lu",&heapSize)!=1)
-      {
-        PrintHelp("new",HELPITEM," (cannot read heapsize specification)");
-        return(PARAMERRORCODE);
-      }
-      hopt = true;
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("new",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  if (!(hopt))
-  {
-    PrintHelp("new",HELPITEM," (the d, p, f and h arguments are mandatory)");
-    return(PARAMERRORCODE);
-  }
-
-  /* check options */
-  theMG = ConvertCADGrid(theFormat, CADOutputFileName, heapSize);
-  if (theMG == NULL)
-  {
-    PrintErrorMessage('E',"cadconvert","execution failed");
-    return (CMDERRORCODE);
-  }
-
-  if (SetCurrentMultigrid(theMG)!=0)
-    return (CMDERRORCODE);
-
-
-
-  return (OKCODE);
-}
-#endif
-
-
 /** \brief Implementation of \ref setcurrmg. */
 static INT SetCurrentMultigridCommand (INT argc, char **argv)
 {
@@ -8730,10 +8645,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("status",                     StatusCommand                                   )==NULL) return (__LINE__);
 #ifdef __THREEDIM__
   if (CreateCommand("fiflel",                     FindFlippedElementsCommand              )==NULL) return (__LINE__);
-#endif
-
-#if defined(CAD) && defined(__THREEDIM__)
-  if (CreateCommand("cadconvert",     CADGridConvertCommand           )==NULL) return (__LINE__);
 #endif
 
   /* commands for window and picture management */

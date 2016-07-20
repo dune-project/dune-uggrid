@@ -3241,11 +3241,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   theMG->topLevel = -1;
   theMG->bottomLevel = 0;
   MG_BVP(theMG) = theBVP;
-        #if defined(CAD) && defined(__THREEDIM__)
-  MG_NPROPERTY(theMG) = 1;
-        #else
   MG_NPROPERTY(theMG) = BVPD_NSUBDOM(theBVPDesc);
-        #endif
   RESETMGSTATUS(theMG);
   MG_GENPURP(theMG) = NULL;
 

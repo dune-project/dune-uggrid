@@ -1549,32 +1549,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  cadconvert cadconvert - Convert predefined CADgrid
-
- \section Description
-   This command converts a predefined CADgrid to an UG-multigrid.
-   The complete boundary descriptions are created automatically.
-   Additionally boundary conditions can be chosen from a boundary condition class library.
-
-\section Syntax
-   'cadconvert $\<filename> $h\<heapsize>'
-
-   <ul>
-     <li> $ \<filename>  - filename = name of CADOutputfile ("*.ans", ANSYS/PREP7-Format) </li>
-     <li> $f \<format>   - one of the enroled formats matching with \<problem> </li>
-     <li> $h \<heapsize> - the heapsize to be allocated </li>
-   </ul>
-
-
- \section Example
-   'cadconvert $ wuerfel.ans $h 12000;'
-   
- \section Keywords
-   multigrid, generate, create, mesh, net, grid, coarse, CAD, ANSYS, PREP7
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  setcurrwindow setcurrwindow - Set the current window
 
  \section Description
