@@ -43,7 +43,6 @@
 #include "helpmsg.h"
 #include "ugstruct.h"
 #include "commands.h"
-#include "fieldio.h"
 
 /* own header */
 #include "initui.h"
@@ -122,13 +121,6 @@ INT NS_DIM_PREFIX InitUi (INT argc, char **argv)
 
   /* init commands of ug's command line interface */
   if ((err=InitCommands())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* fieldio module */
-  if ((err=InitFieldIO())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);
