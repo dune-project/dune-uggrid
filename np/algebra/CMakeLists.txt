@@ -9,7 +9,7 @@ set(SOURCES
   npcheck.cc
   sm.cc
   blasm.cc
-  ugeblas.cc)
+)
 
 set(npinclude_HEADERS
   block.h
