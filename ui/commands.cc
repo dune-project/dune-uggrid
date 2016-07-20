@@ -6841,96 +6841,6 @@ static INT MakeVDsubCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref mflops. */
-static INT MFLOPSCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  GRID *g;
-  INT i,l;
-  INT ncomp;
-  VECDATA_DESC *x,*y;
-  MATDATA_DESC *A;
-  VECTOR *v;
-  MATRIX *mat;
-  INT n,m,loop;
-  DOUBLE nop;
-  VEC_SCALAR scal;
-  DOUBLE time_ddot, time_matmul;
-
-  /* get MG */
-  theMG = GetCurrentMultigrid();
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"value","no current multigrid");
-    return(CMDERRORCODE);
-  }
-  l = CURRENTLEVEL(theMG);
-  g = GRID_ON_LEVEL(theMG,l);
-
-  /* read arguments, allocate two vectors and a matrix */
-  A = ReadArgvMatDesc(theMG,"A",argc,argv);
-  x = ReadArgvVecDesc(theMG,"x",argc,argv);
-  y = ReadArgvVecDesc(theMG,"y",argc,argv);
-  if (x == NULL)
-  {
-    PrintErrorMessage('E',"x","could not read symbol");
-    return (PARAMERRORCODE);
-  }
-  if (AllocVDFromVD(theMG,l,l,x,&y))
-    return (CMDERRORCODE);
-  if (AllocMDFromVD(theMG,l,l,x,x,&A))
-    return (CMDERRORCODE);
-  if (ReadArgvINT("loop",&loop,argc,argv))
-  {
-    loop = 100;
-  }
-
-  /* gather statistics */
-  n = m = 0;
-  for (v=FIRSTVECTOR(g); v!= NULL; v=SUCCVC(v))
-  {
-    n++;
-    for (mat=VSTART(v); mat!=NULL; mat = MNEXT(mat))
-      m++;
-  }
-  ncomp = VD_ncmps_in_otype(x,NODEVEC);
-  if ((ncomp <= 0) || (VD_NCOMP(x) != ncomp)) {
-    PrintErrorMessage('E',"mflops","only for NODEVEC");
-    return (PARAMERRORCODE);
-  }
-
-  /* initialize */
-  dset(theMG,l,l,ALL_VECTORS,x,1.0);
-  dset(theMG,l,l,ALL_VECTORS,y,1.0);
-  dmatset(theMG,l,l,ALL_VECTORS,A,1.0);
-
-  /* loop */
-  time_ddot = CURRENT_TIME;
-  for (i=1; i<=loop; i++)
-    ddot(theMG,l,l,ALL_VECTORS,x,x,scal);
-  time_ddot = CURRENT_TIME - time_ddot;
-
-  time_matmul = CURRENT_TIME;
-  for (i=1; i<=loop; i++)
-    dmatmul(theMG,l,l,ALL_VECTORS,y,A,x);
-  time_matmul = CURRENT_TIME - time_matmul;
-
-  if (FreeMD(theMG,l,l,A)) REP_ERR_RETURN(CMDERRORCODE);
-  if (FreeVD(theMG,l,l,y)) REP_ERR_RETURN(CMDERRORCODE);
-
-  nop = 2*n*ncomp*loop;
-  UserWriteF("DDOT t=%12.4E op=%12.4E MFLOPs=%12.6f\n",
-             (double)time_ddot,(double)nop,
-             (double)0.000001*nop/time_ddot);
-  nop = m*ncomp*ncomp*2*loop;
-  UserWriteF("MMUL t=%12.4E op=%12.4E MFLOPs=%12.6f\n",
-             (double)time_matmul,(double)nop,
-             (double)0.000001*nop/time_matmul);
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref rand. */
 static INT RandCommand (INT argc, char **argv)
 {
@@ -8655,7 +8565,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* vectors and matrices */
   if (CreateCommand("clear",                      ClearCommand                                    )==NULL) return (__LINE__);
-  if (CreateCommand("mflops",         MFLOPSCommand                   )==NULL) return (__LINE__);
   if (CreateCommand("makevdsub",      MakeVDsubCommand                )==NULL) return (__LINE__);
 
   if (CreateCommand("rand",                       RandCommand                                             )==NULL) return (__LINE__);

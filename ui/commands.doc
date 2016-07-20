@@ -1644,26 +1644,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  mflops mflops - Floating point speed measuring
-
- \section Description
-   This function tests the performance of the UG specific blas routines.
-
-\section Syntax
-   'mflops $x \<vec> [$y \<tmp>] [$A \<mat>] [$l \<loop>]'
-
-  <li> $x~\<vec>   - vector
-  <li> $y~\<tmp>   - second vector
-  <li> $A~\<mat>   - matrix
-  <li> $l~\<loop>  - loop number
-
-   REMARK:
-   Due to the inaccuracy of the most UNIX clock systems take a huge loop number
-   to get an good average.
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  rand rand - Assign a value to a symbolic vector
 
  \section Description
