@@ -46,7 +46,6 @@
 
 /* dev module */
 #include "ugdevices.h"
-#include "initdev.h"
 
 #include "namespace.h"
 
@@ -57,35 +56,6 @@ using namespace PPIF;
 #endif
 
 USING_UG_NAMESPACE
-
-/****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*    compile time constants defining static data size (i.e. arrays)        */
-/*    other constants                                                       */
-/*    macros                                                                */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*																			*/
-/* data structures used in this source file (exported data structures are	*/
-/*		  in the corresponding include file!)								*/
-/*																			*/
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*																			*/
-/* definition of exported global variables									*/
-/*																			*/
-/****************************************************************************/
-
-
 
 /****************************************************************************/
 /*																			*/
@@ -99,199 +69,6 @@ USING_UG_NAMESPACE
 static INT mutelevel=0;
 
 static FILE *logFile=NULL;                                              /* log file pointer             */
-static OUTPUTDEVICE *defaultOuputDevice=NULL;   /* console graphical outp.	*/
-
-static INT theOutputDevDirID;                   /* env type for Output Device dir	*/
-static INT theOutputDevVarID;                   /* env type for Output Device vars	*/
-
-
-/****************************************************************************/
-/*																			*/
-/* forward declarations of functions used before they are defined			*/
-/*																			*/
-/****************************************************************************/
-
-
-/****************************************************************************/
-/*D
-   CreateOutputDevice - allocate OUTPUTDEVICE structure in environment
-
-   SYNOPSIS:
-   OUTPUTDEVICE *CreateOutputDevice (char *name);
-
-   PARAMETERS:
-   .  name - name of the device
-
-   DESCRIPTION:
-   This function allocates OUTPUTDEVICE structure in environment
-
-   RETURN VALUE:
-   OUTPUTDEVICE *
-   .n    pointer to requested structure
-   .n    NULL if operation failed.
-   D*/
-/****************************************************************************/
-
-OUTPUTDEVICE * NS_PREFIX CreateOutputDevice (const char *name)
-{
-  OUTPUTDEVICE *dev;
-
-  if (ChangeEnvDir("/Output Devices")==NULL)
-    return (NULL);
-
-  if ((dev=(OUTPUTDEVICE *)MakeEnvItem(name,theOutputDevVarID,sizeof(OUTPUTDEVICE))) == NULL )
-  {
-    printf("error: cannot create output device %s\n",name);
-    return(NULL);
-  }
-
-  return(dev);
-}
-
-/****************************************************************************/
-/*D
-   GetOutputDevice - search an OUTPUTDEVICE structure with name in the environment
-
-   SYNOPSIS:
-   OUTPUTDEVICE *GetOutputDevice (const char *name);
-
-   PARAMETERS:
-   .  name - name of the device
-
-   DESCRIPTION:
-   This function returns an OUTPUTDEVICE structure with name in the environment.
-
-   RETURN VALUE:
-   OUTPUTDEVICE *
-   .n    pointer to requested structure
-   .n    NULL if operation failed.
-   D*/
-/****************************************************************************/
-
-OUTPUTDEVICE * NS_PREFIX GetOutputDevice (const char *name)
-{
-  return((OUTPUTDEVICE *) SearchEnv(name,"/Output Devices",theOutputDevVarID,theOutputDevDirID));
-}
-
-/****************************************************************************/
-/*D
-   GetDefaultOutputDevice - return OUTPUTDEVICE structure for screen output
-
-   SYNOPSIS:
-   OUTPUTDEVICE *GetDefaultOutputDevice (void);
-
-   PARAMETERS:
-   .  void
-
-   DESCRIPTION:
-   This function returns the OUTPUTDEVICE structure for screen output.
-
-   RETURN VALUE:
-   OUTPUTDEVICE *
-   .n     pointer to
-   .n     NULL if no screen output device available.
-   D*/
-/****************************************************************************/
-
-OUTPUTDEVICE * NS_PREFIX GetDefaultOutputDevice (void)
-{
-  return(defaultOuputDevice);
-}
-
-/****************************************************************************/
-/*D
-   UgSetPalette - set color/black-white/gray palette
-
-   SYNOPSIS:
-   void UgSetPalette (OUTPUTDEVICE *dev, INT palette);
-
-   PARAMETERS:
-   .  dev - outputdevice
-   .  palette - color/bw/gray
-
-   DESCRIPTION:
-   This function sets a color/black-white/gray palette.
-
-   RETURN VALUE:
-   INT
-   D*/
-/****************************************************************************/
-
-INT NS_PREFIX UgSetPalette (OUTPUTDEVICE *dev, INT palette)
-{
-  short red[256],green[256],blue[256];
-  short i;
-
-        #ifdef ModelP
-  if (me != master)
-    return (1);
-        #endif
-
-  if (dev==NULL)
-    return (1);
-
-  switch (palette)
-  {
-  case COLOR_PALETTE :
-  {
-    short res = 63;
-    short delta = 4;
-    short max = 252;
-    short r,g,b,j;
-
-    /* fixed colors */
-    i = 0;
-    red[i] = 255; green[i] = 255; blue[i++] = 255;                      /* 0 = white */
-    red[i] = 255; green[i] = 0      ; blue[i++] = 255;                          /* 1 = magenta */
-
-    /* color spectrum */
-    r = g = 0; b = max;
-    red[i] = r; green[i] = g; blue[i++] = b;                                    /* 2 = blue */
-
-    /* blue to cyan */
-    for (j=0; j<res; j++)
-    {
-      g += delta;
-      red[i] = r; green[i] = g; blue[i++] = b;
-    }                                                                           /* 65 = cyan */
-    /* cyan to green */
-    for (j=0; j<res; j++)
-    {
-      b -= delta;
-      red[i] = r; green[i] = g; blue[i++] = b;
-    }                                                                           /* 128 = green */
-    /* green to yellow */
-    for (j=0; j<res; j++)
-    {
-      r += delta;
-      red[i] = r; green[i] = g; blue[i++] = b;
-    }                                                                           /* 191 = yellow */
-    /* yellow to rot */
-    for (j=0; j<res; j++)
-    {
-      g -= delta;
-      red[i] = r; green[i] = g; blue[i++] = b;
-    }                                                                           /* 254 = red */
-    red[i] = 0; green[i] = 0  ; blue[i++] = 0;                                  /* 255 = black */
-    break;
-  }
-  case BLACK_WHITE_PALETTE :
-    red[0] = green[0] = blue[0] = 0;                                    /* white */
-    for (i=1; i<256; i++)
-      red[i] = green[i] = blue[i] = 1;                                  /* black */
-    break;
-  case GRAY_PALETTE :
-    for (i=0; i<256; i++)
-      red[i] = green[i] = blue[i] = i;                                  /* gray  */
-    break;
-  default :
-    return(1);
-  }
-
-  (*dev->SetNewPalette)(0,256,red,green,blue);
-
-  return (0);
-}
 
 /****************************************************************************/
 /*D
@@ -454,7 +231,7 @@ void NS_PREFIX UserWrite (const char *s)
         #endif
 
   if (mutelevel>-1000)
-    WriteString(s);
+    printf("%s", s);
   if (logFile!=NULL) {
     if ( fputs(s,logFile) < 0 )
     {
@@ -531,7 +308,7 @@ int NS_PREFIX UserWriteF (const char *format, ...)
         #endif
 
   if (mutelevel>-1000)
-    WriteString(buffer);
+    printf("%s", buffer);
 
         #ifdef ModelP
 }
@@ -736,13 +513,6 @@ INT NS_PREFIX GetMuteLevel (void)
 
 INT NS_PREFIX InitDevices (int *argcp, char **argv)
 {
-  ENVDIR *DevDir;
-  ENVITEM *dev;
-  INT error=0,i,screen;
-  char sv[32];
-#       ifdef ModelP
-  INT with_defaultOuputDevice;
-#       endif
   char buffer[256];
 
   /* get default mutelevel from defaults file */
@@ -753,105 +523,6 @@ INT NS_PREFIX InitDevices (int *argcp, char **argv)
     SetMuteLevel ((INT) ival);
   }
 
-  /* install the /Output Devices directory */
-  if (ChangeEnvDir("/")==NULL)
-  {
-    SetHiWrd(error,__LINE__);
-    return (error);
-  }
-  theOutputDevDirID = GetNewEnvDirID();
-  if ((DevDir=(ENVDIR*)MakeEnvItem("Output Devices",theOutputDevDirID,sizeof(ENVDIR)))==NULL)
-  {
-    SetHiWrd(error,__LINE__);
-    return (error);
-  }
-  theOutputDevVarID = GetNewEnvVarID();
-
-  /* init screen device */
-        #ifdef ModelP
-  if (me == master) {
-        #endif
-
-  defaultOuputDevice = InitScreen(argcp,argv,&error);
-  assert(!error);               /*if (error) return(1);*/
-
-        #ifdef ModelP
-  /* send number of command line arguments after InitScreen() */
-  Broadcast(argcp, sizeof(int));
-
-  with_defaultOuputDevice = (defaultOuputDevice!=NULL);
-}
-else {
-  int i, new_argc;
-
-  /* get number of command line arguments after InitScreen() */
-  Broadcast(&new_argc, sizeof(int));
-
-  /* if number has been reduced, remove first arg from command line */
-  while (new_argc<*argcp)
-  {
-    for(i=1; i < (*argcp)-1; i++)
-    {
-      argv[i] = argv[i+1];
-    }
-    if (*argcp > 1) (*argcp)--;
-  }
-}
-
-Broadcast(&with_defaultOuputDevice, sizeof(INT));
-if (with_defaultOuputDevice)
-{
-  if (me!=master)
-  {
-    defaultOuputDevice = (OUTPUTDEVICE *)malloc(sizeof(OUTPUTDEVICE));
-    /* TODO:  set function pointers to NULL */
-  }
-
-  Broadcast((void *)defaultOuputDevice,sizeof(OUTPUTDEVICE));
-}
-else
-{
-  if (me!=master)
-    defaultOuputDevice = NULL;
-}
-        #endif
-
-
-  /* init metafile device */
-  if (InitMeta()!=0)
-  {
-    SetHiWrd(error,__LINE__);
-    return (error);
-  }
-
-  /* create struct and fill stringvars */
-  if (MakeStruct(":Devices")!=0)
-  {
-    SetHiWrd(error,__LINE__);
-    return (error);
-  }
-  screen=0;
-  for (i=0, dev=ENVDIR_DOWN(DevDir); dev!=NULL; i++, dev=NEXT_ENVITEM(dev))
-  {
-    sprintf(sv,":Devices:device%d",(int)i);
-    if (SetStringVar(sv,ENVITEM_NAME(dev))!=0)
-    {
-      SetHiWrd(error,__LINE__);
-      return (error);
-    }
-    if (strcmp(ENVITEM_NAME(dev),"screen")==0) screen=1;
-  }
-  if (SetStringValue(":Devices:nDevices",i)!=0)
-  {
-    SetHiWrd(error,__LINE__);
-    return (error);
-  }
-  if (SetStringValue(":Devices:Screen",screen)!=0)
-  {
-    SetHiWrd(error,__LINE__);
-    return (error);
-  }
-
   return(0);
 }
 
@@ -859,8 +530,5 @@ else
 
 INT NS_PREFIX ExitDevices (void)
 {
-  /* clean up screen device */
-  ExitScreen();
-
   return(0);         /* no error */
 }

@@ -126,9 +126,7 @@ MODULAR STRUCTURE OF THE UG KERNEL:
 	language in separate file. This script file can then be executed as one unity.
 
 .   'devices~(dev)' -
-	`devices` defines an abstract device interface with a fixed functionality. The drivers for different real 
-	devices as X11 or the `ug` internal graphics meta format are implemented in separate modules. All access 
-	to X11 is for example managed by the submodule `xif`.
+	`devices` defines an abstract device interface with a fixed functionality.
 
 .   'numerical~procedures~(numerics)' -
 	The numerical procedures are a toolset for the construction of new solvers on very high languages level.

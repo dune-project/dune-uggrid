@@ -442,56 +442,6 @@ static INT CheckHelpCommand (INT argc, char **argv)
   return (OKCODE);
 }
 
-/** \brief Implementation of \ref cmfn. */
-static INT CreateMetafileNameCommand (INT argc, char **argv)
-{
-  INT res,i,nopt;
-  int frame;
-  char name[LONGSTRSIZE],varname[LONGSTRSIZE];
-  char fullname[LONGSTRSIZE];
-  char *ext;
-
-  nopt = 0;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'n' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("n %",NAMELENSTR,"[ -~]")),varname)!=1)
-      {
-        PrintErrorMessage('E',"cmfn","can't read varname");
-        return(PARAMERRORCODE);
-      }
-      nopt = 1;
-      break;
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  res = sscanf(argv[0],expandfmt(CONCAT3(" cmfn %",LONGSTRLENSTR,"[0-9:.a-zA-Z_] %255[0-9:.a-zA-Z_]")),name,buffer);
-  if (res!=2) return(CMDERRORCODE);
-
-  if (GetStringValueInt(buffer,&frame)) return(CMDERRORCODE);
-  ext = GetStringVar("EXT");
-
-  if (ext==NULL)
-    sprintf(fullname,"%s.%04d",name,frame);
-  else
-    sprintf(fullname,"%s.%04d.%s",name,frame,ext);
-
-  if (nopt)
-  {
-    if (SetStringVar(varname,fullname)) return(CMDERRORCODE);
-  }
-  else
-  {
-    if (SetStringVar(name,fullname)) return(CMDERRORCODE);
-  }
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref readclock. */
 static INT ReadClockCommand (INT argc, char **argv)
 {
@@ -6778,36 +6728,6 @@ static INT CADGridConvertCommand(INT argc, char **argv)
 #endif
 
 
-/** \brief Implementation of \ref screensize. */
-static INT ScreenSizeCommand (INT argc, char **argv)
-{
-  INT size[2];
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  if (GetScreenSize(size)==false)
-  {
-    PrintErrorMessage('W',"screensize","there is no monitor");
-    return (OKCODE);
-  }
-
-  UserWriteF(" screen width: %d, screen height: %d\n",(int)size[0], (int)size[1]);
-
-  if (    (SetStringValue(":screensize:width",size[0])!=0)
-          ||      (SetStringValue(":screensize:height",size[1])!=0))
-  {
-    PrintErrorMessage('E',"screensize","could not set :screensize:width or :screensize:height");
-    return (CMDERRORCODE);
-  }
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref setcurrmg. */
 static INT SetCurrentMultigridCommand (INT argc, char **argv)
 {
@@ -6846,59 +6766,6 @@ static INT UpdateDocumentCommand (INT argc, char **argv)
         #endif
 
   NO_OPTION_CHECK(argc,argv);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref setpalette. */
-static INT SetPaletteCommand (INT argc, char **argv)
-{
-  OUTPUTDEVICE *theOutDev;
-  INT i,palette;
-  char plt,devname[NAMESIZE];
-
-  if (sscanf(argv[0],"setpalette %c",&plt)!=1)
-  {
-    PrintHelp("setpalette",HELPITEM," (specify c|bw|g)");
-    return(PARAMERRORCODE);
-  }
-  switch (plt)
-  {
-  case 'c' : palette = COLOR_PALETTE; break;
-  case 'b' : palette = BLACK_WHITE_PALETTE; break;
-  case 'g' : palette = GRAY_PALETTE; break;
-  default :
-    PrintHelp("setpalette",HELPITEM," (specify c|bw|g)");
-    return(PARAMERRORCODE);
-  }
-
-  /* check options */
-  theOutDev  = GetDefaultOutputDevice();
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'd' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("d %",NAMELENSTR,"[a-zA-Z0-9_-]")),devname)!=1)
-      {
-        PrintErrorMessage('E',"setpalette","specify device name with d option");
-        return (PARAMERRORCODE);
-      }
-      if ((theOutDev=GetOutputDevice(devname))==NULL)
-      {
-        PrintErrorMessageF('E',"setpalette","there is no device named '%s'",devname);
-        return (PARAMERRORCODE);
-      }
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("setpalette",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  if (UgSetPalette(theOutDev,palette))
-    REP_ERR_RETURN(CMDERRORCODE);
 
   return (OKCODE);
 }
@@ -8189,26 +8056,6 @@ static INT InitFindRange (void)
   return (0);
 }
 
-/****************************************************************************/
-/** \brief Create struct :screensize
-
-   This function creates the struct _screensize for the 'screensize' command.
-
-   RETURN VALUE:
-   .n    0 if ok
-   .n    1 if error occured.
- */
-/****************************************************************************/
-
-static INT InitScreenSize (void)
-{
-  /* install a struct for screensize */
-  if (MakeStruct(":screensize")!=0)
-    return (1);
-  return (0);
-}
-
-
 /** \brief Implementation of \ref lb. */
 INT NS_DIM_PREFIX LBCommand (INT argc, char **argv)
 {
@@ -9090,7 +8937,7 @@ static INT MakePeriodicCommand (INT argc, char **argv)
 
    This function does initialization of all ug-commands, using
    'CreateCommand'.
-   It initializes 'clock', 'findrange', 'screensize' and 'array'
+   It initializes 'clock', 'findrange' and 'array'
    commands.
 
    SEE ALSO:
@@ -9204,10 +9051,7 @@ INT NS_DIM_PREFIX InitCommands ()
 #endif
 
   /* commands for window and picture management */
-  if (CreateCommand("screensize",         ScreenSizeCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("updateDoc",          UpdateDocumentCommand                   )==NULL) return (__LINE__);
-  if (CreateCommand("cmfn",                       CreateMetafileNameCommand               )==NULL) return (__LINE__);
-  if (CreateCommand("setpalette",         SetPaletteCommand                               )==NULL) return (__LINE__);
 
   /* commands for problem management */
   if (CreateCommand("reinit",             ReInitCommand                                   )==NULL) return (__LINE__);
@@ -9280,7 +9124,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   if (InitClock()                 !=0) return (__LINE__);
   if (InitFindRange()     !=0) return (__LINE__);
-  if (InitScreenSize()    !=0) return (__LINE__);
   if (InitArray()                 !=0) return (__LINE__);
 
   return(0);

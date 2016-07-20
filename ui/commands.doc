@@ -80,53 +80,6 @@
 */
 /****************************************************************************/
 
-
-/****************************************************************************/
-/** \page   cmfn cmfn - Creates a metafile name
-
- \section Description
-   This command creates a metafile names.
-   It creates a string containing the name of a metafile name for
-   animation by xugv.
-
-\section Syntax
-   'cmfn \<name> \<var>'
-
-  <li> \<name> - first part of the metafile names
-  <li> \<var> - the contents of var will be appended to the name
-
- \section Example
-\verbatim
-frame="
-    cmfn film step;
-    openwindow 0 0 820 420 $d meta $n \@film;
-    openpicture $s 10 10 800 400 $n framepic;
-    setplotobject EScalar $e S2 $m COLOR $d 0 $f 0.0 $t 1.0;
-    setview;
-    zoom 0.4;
-    plot;
-    closewindow;
-";
-step = 0;
-steps = 100;
-\@frame;
-repeat {
-    print "STEP ", step;
-    \@mysolve; 
-    step=step+1;
-    \@frame;
-    if (step==steps) break;
-}
-\endverbatim
-
-   This runs 'mysolve' 100 times and 
-   creates metafiles 'film.0000', 'film.0001', 'film.0002', ... 'film.0100'.
-   
- \section Keywords
-   movie, film
-*/
-/****************************************************************************/
-
 /****************************************************************************/
 /** \page   readclock readclock - Print execution time
 
@@ -1622,22 +1575,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  screensize screensize - Print the size of the monitor screen in pixels
-
- \section Description
-   This command prints the size of the monitor screen in pixels.
-   It prints the size in pixels of the screen (if there) on the shell
-   and in the variables ':screensize:width', ':screensize:height'
-
-\section Syntax
-   'screensize'
-   
- \section Keywords
-   screen, size, width, height
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  setcurrwindow setcurrwindow - Set the current window
 
  \section Description
@@ -1689,21 +1626,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    graphics, plot, window, picture, plotobject, invalidate
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  setpalette setpalette - Switch palette of default device
-
- \section Description
-   This command switches the palette of the default device.
-
-\section Syntax
-   'setpalette c|bw|g [$d \<device>]'
-  <li> $d~\<device>     - specify the name of an output device (default: screen)
-   
- \section Keywords
-   graphics, plot, window, picture, device
 */
 /****************************************************************************/
 

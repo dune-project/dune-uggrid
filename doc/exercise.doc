@@ -35,14 +35,6 @@ configuration (smooth, basesolver, number of pre- and
 postsmoothing steps), number of iteration steps, solution time
 depending on the problem size and number of processors ...
 
-EXERCISE 3:
-
-Take one of the time dependent demo scripts and 
-make a meta film (see gpd.scr for an example).
-Therefore, choose a finer grid and smaller time steps.
-Then, let the script run over night.
-The film can be displayed by 'xugv'.
-
 EXERCISE 4:
 
 Try all discretizations in fe/appl/simple.scr and find 

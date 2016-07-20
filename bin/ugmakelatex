@@ -62,13 +62,6 @@ then
 	done
 
 	# generate dev man pages
-	cd $UGROOT/dev/meta;
-	for i in *.c *.h
-	do
-		doctext -latex -mpath $UGROOT/doc/ug3/ug/dev -heading ug/dev/meta -quotefmt $i
-	done
-
-	# generate dev man pages
 	cd $UGROOT/dev/ps;
 	for i in *.c *.h
 	do

@@ -111,7 +111,6 @@ then
           cd dev;
           ugmkdir xif;
           ugmkdir sif;  
-          ugmkdir meta;  
           ugmkdir ps;  
           cd ..;
         ugmkdir dom;
