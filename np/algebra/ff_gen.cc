@@ -41,7 +41,7 @@
 #include "commands.h"    /* for GetCurrentMultigrid              */
 #include "debug.h"
 
-#include "num.h"
+#include "np.h"
 #include "ugblas.h"
 
 #include "ff_gen.h"

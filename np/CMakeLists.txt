@@ -1,4 +1,4 @@
-set(SOURCES  initnp.cc)# initnp.h initnumerics.h np.h num.h)
+set(SOURCES  initnp.cc)# initnp.h initnumerics.h np.h)
 
 add_subdirectory(algebra)
 add_subdirectory(udm)
