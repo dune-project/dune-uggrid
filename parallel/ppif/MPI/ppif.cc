@@ -60,12 +60,6 @@
 
 /*#include "ugtypes.h"*/
 
-/*#define _PV3*/
-
-#ifdef _PV3
-#include <pV3.h>
-#endif
-
 using namespace PPIF;
 
 /****************************************************************************/
@@ -91,11 +85,7 @@ using namespace PPIF;
 #define PPIF_SUCCESS    0       /* Return value for success                 */
 #define PPIF_FAILURE    1       /* Return value for failure                 */
 
-#ifndef _PV3
 #define COMM MPI_COMM_WORLD
-#else
-#define COMM Comm
-#endif
 
 /****************************************************************************/
 /*                                                                          */
@@ -138,16 +128,6 @@ int PPIF::degree;                      /* degree of downtree nodes              
 VChannelPtr PPIF::uptree = NULL;       /* channel uptree                           */
 VChannelPtr PPIF::downtree[MAXT] = {NULL};  /* channels downtree (may be empty)    */
 int PPIF::slvcnt[MAXT];                /* number of processors in subtree          */
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-#ifdef _PV3
-static MPI_Comm Comm;
-#endif
 
 /****************************************************************************/
 /*                                                                          */
@@ -239,17 +219,6 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
     if (mpierror) MPI_Abort( MPI_COMM_WORLD, mpierror);
     PPIFBeganMPI = 1;
   }
-#ifdef _PV3
-  else
-  {
-    printf("MPI already initialized, InitPPIF() failed.\n");
-    return PPIF_FAILURE;
-  }
-  if (pV_MPIStart(MPI_COMM_WORLD, 1, 0, 0, &Comm) != 0) {
-    printf("pV3 Concentrator cannot be selected. InitPPIF() failed.\n");
-    return PPIF_FAILURE;
-  }
-#endif
   MPI_Comm_rank (COMM, &me);
   MPI_Comm_size (COMM, &procs);
 
@@ -320,9 +289,6 @@ int PPIF::ExitPPIF ()
 
   if (PPIFBeganMPI)
   {
-#ifdef _PV3
-    pV_MPISTOP();
-#endif
     mpierror = MPI_Finalize();
     if (mpierror) MPI_Abort(MPI_COMM_WORLD, mpierror);
     PPIFBeganMPI = 0;
