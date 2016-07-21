@@ -111,7 +111,6 @@ int         InfoASend        (VChannelPtr vc, msgid m);
 int         InfoARecv        (VChannelPtr vc, msgid m);
 
 /* miscellaneous */
-int         UsedSpace        (void);
 void        PrintHostMessage (const char *s);
 double      CurrentTime      (void);
 

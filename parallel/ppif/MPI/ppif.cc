@@ -146,8 +146,6 @@ int PPIF::slvcnt[MAXT];                /* number of processors in subtree       
 /*                                                                          */
 /****************************************************************************/
 
-static int vc_count=0;          /* number of used VChan                     */
-
 #ifdef _PV3
 static MPI_Comm Comm;
 #endif
@@ -175,8 +173,6 @@ static VChannelPtr NewVChan (int p, int id)
   myChan->p      = p;
   myChan->chanid = id;
 
-  vc_count += 1;
-
   return (myChan);
 }
 
@@ -185,8 +181,6 @@ static void DeleteVChan (VChannelPtr myChan)
 
 {
   free(myChan);
-
-  vc_count -= 1;
 }
 
 
@@ -261,8 +255,6 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
   MPI_Comm_size (COMM, &procs);
 
   master = 0;
-
-  vc_count = 0;
 
   DimZ = 1;
   Factor(procs, &DimX, &DimY);
@@ -619,12 +611,6 @@ int PPIF::InfoARecv (void* v, msgid m)
 /* Miscellaneous                                                            */
 /*                                                                          */
 /****************************************************************************/
-
-int PPIF::UsedSpace ()
-
-{
-  return vc_count*sizeof(MPIVChannel);
-}
 
 void PPIF::PrintHostMessage (const char *s)
 
