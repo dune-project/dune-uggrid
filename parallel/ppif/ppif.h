@@ -129,7 +129,6 @@ int             GetMail                  (int *sourceId, int *reqId, void *data,
 int         UsedSpace        (void);
 void        PrintHostMessage (const char *s);
 double      CurrentTime      (void);
-int         Distance             (int p, int q);
 
 }  // end namespace PPIF
 

@@ -89,8 +89,6 @@ using namespace PPIF;
 #define ID_GLOBAL       102     /* channel id: global                       */
 #define ID_MAIL         103     /* channel id: mail                         */
 
-#define ABS(i)          (((i)<0) ? (-(i)) : (i))
-
 #define PPIF_SUCCESS    0       /* Return value for success                 */
 #define PPIF_FAILURE    1       /* Return value for failure                 */
 
@@ -678,22 +676,4 @@ double PPIF::CurrentTime ()
 
 {
   return(((float)(clock())/((float)CLOCKS_PER_SEC)));
-}
-
-int PPIF::Distance (int p, int q)
-
-{
-  int pX,pY,pZ,qX,qY,qZ;
-
-  pX = p%DimX;
-  p = p/DimX;
-  pY = p%DimY;
-  pZ = p/DimY;
-
-  qX = q%DimX;
-  q = q/DimX;
-  qY = q%DimY;
-  qZ = q/DimY;
-
-  return (ABS (pX-qX) + ABS (pY-qY) + ABS (pZ-qZ) );
 }
