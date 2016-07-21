@@ -121,10 +121,6 @@ int         InfoADisc        (VChannelPtr vc);
 int         InfoASend        (VChannelPtr vc, msgid m);
 int         InfoARecv        (VChannelPtr vc, msgid m);
 
-/* random communication */
-int             SendMail                 (int destId, int reqId, void *data, int size);
-int             GetMail                  (int *sourceId, int *reqId, void *data, int *size);
-
 /* miscellaneous */
 int         UsedSpace        (void);
 void        PrintHostMessage (const char *s);

@@ -616,46 +616,6 @@ int PPIF::InfoARecv (void* v, msgid m)
 
 /****************************************************************************/
 /*                                                                          */
-/* Random communication                                                         */
-/*                                                                          */
-/****************************************************************************/
-
-int PPIF::SendMail (int destId, int reqId, void *data, int size)
-
-{
-  if (MPI_SUCCESS == MPI_Send (data, size, MPI_BYTE, destId, ID_MAIL, COMM) )
-    return (PPIF_SUCCESS);
-
-  return (PPIF_FAILURE);
-}
-
-int PPIF::GetMail (int *sourceId, int *reqId, void *data, int *size)
-
-{
-  MPI_Status status;
-  int flag;
-
-  MPI_Iprobe (MPI_ANY_SOURCE, ID_MAIL, COMM, &flag, &status);
-
-  if (!flag) return (0);
-
-  *sourceId = status.MPI_SOURCE;
-  *reqId    = ID_MAIL;
-
-  if (MPI_SUCCESS != MPI_Recv (data, RAND_MSG_SIZE, MPI_BYTE, *sourceId, ID_MAIL, COMM, &status) )
-  {
-    printf ("GetMail: %d no mesg!\n", me);
-    return (-1);
-  }
-
-  MPI_Get_count (&status, MPI_BYTE, size);
-
-  return (1);
-}
-
-
-/****************************************************************************/
-/*                                                                          */
 /* Miscellaneous                                                            */
 /*                                                                          */
 /****************************************************************************/
