@@ -77,17 +77,6 @@ extern int slvcnt[];                   /* number of processors in subtree       
 
 /****************************************************************************/
 /*                                                                          */
-/* macros                                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-#define APOS_TO_AID(x,y,z)  ((z<<16)|(y<<8)|x)   /* array pos to compact for*/
-#define XPOS(aid)           (aid&0xFF)           /* xpos from compact form  */
-#define YPOS(aid)           ((aid&0xFF00)>>8)    /* ypos from compact form  */
-#define ZPOS(aid)           ((aid&0xFF0000)>>16) /* zpos from compact form  */
-
-/****************************************************************************/
-/*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
 /****************************************************************************/
