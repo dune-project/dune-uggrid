@@ -130,8 +130,6 @@ int         UsedSpace        (void);
 void        PrintHostMessage (const char *s);
 double      CurrentTime      (void);
 int         Distance             (int p, int q);
-int         aid_to_pid       (int x, int y, int z);
-int         pid_to_aid       (int p);
 
 }  // end namespace PPIF
 

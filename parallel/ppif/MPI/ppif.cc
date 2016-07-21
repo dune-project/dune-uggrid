@@ -206,31 +206,6 @@ static void DeleteVChan (VChannelPtr myChan)
 /*                                                                          */
 /****************************************************************************/
 
-int PPIF::aid_to_pid (int x, int y, int z)
-
-{
-  if ((x<0)||(x>=DimX)) return (-1);
-  if ((y<0)||(y>=DimY)) return (-1);
-  if ((z<0)||(z>=DimZ)) return (-1);
-
-  return ( (z*DimY+y)*DimX+x);
-}
-
-int PPIF::pid_to_aid (int p)
-
-{
-  int x, y, z;
-
-  if ((p<0)||(p>=procs)) return (-1);
-
-  x = p%DimX;
-  p = p/DimX;
-  y = p%DimY;
-  z = p/DimY;
-
-  return ((z<<16)|(y<<8)|x);
-}
-
 /*
    Factor N into two integers that are as close together as possible
  */
