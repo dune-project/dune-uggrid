@@ -56,7 +56,6 @@
 
 #include <mpi.h>
 
-#include "../ppif_general.h"
 #include "../ppif.h"
 
 /*#include "ugtypes.h"*/
