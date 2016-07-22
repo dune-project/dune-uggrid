@@ -556,7 +556,6 @@ static void SetLOI (IDENTINFO *ii, int loi)
 {
   ID_REFDBY *rby;
   ID_TUPEL  *tupel = ii->tupel;
-  int i;
 
   /*
      printf("%4d: %08x SetLOI(%d, %d)\n", me, ii->msg.gid, loi, ii->loi);
