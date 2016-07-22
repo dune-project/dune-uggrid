@@ -309,7 +309,7 @@ static int ConsCheckGlobalCpl (void)
 {
   CONS_INFO *cplBuf=NULL;
   COUPLING     *cpl;
-  int i, j, lenCplBuf, nRecvMsgs, nSendMsgs;
+  int i, j, lenCplBuf, nRecvMsgs;
   CONSMSG      *sendMsgs=NULL, *cm=NULL;
   LC_MSGHANDLE *recvMsgs;
   int error_cnt = 0;
@@ -363,7 +363,7 @@ static int ConsCheckGlobalCpl (void)
     qsort(cplBuf, lenCplBuf, sizeof(CONS_INFO), sort_CplBufDest);
 
   /* accumulate messages (one for each partner); inform receivers */
-  nSendMsgs = ConsBuildMsgInfos(cplBuf, lenCplBuf, &sendMsgs);
+  ConsBuildMsgInfos(cplBuf, lenCplBuf, &sendMsgs);
 
   /* init communication topology */
   nRecvMsgs = LC_Connect(consmsg_t);
@@ -573,7 +573,7 @@ static int Cons2CheckGlobalCpl (void)
 {
   CONS_INFO *cplBuf;
   COUPLING     *cpl, *cpl2;
-  int i, j, lenCplBuf, nRecvMsgs, nSendMsgs;
+  int i, j, lenCplBuf, nRecvMsgs;
   CONSMSG      *sendMsgs, *cm=0;
   LC_MSGHANDLE *recvMsgs;
   int error_cnt = 0;
@@ -627,7 +627,7 @@ static int Cons2CheckGlobalCpl (void)
     qsort(cplBuf, lenCplBuf, sizeof(CONS_INFO), sort_CplBufDest);
 
   /* accumulate messages (one for each partner); inform receivers */
-  nSendMsgs = ConsBuildMsgInfos(cplBuf, lenCplBuf, &sendMsgs);
+  ConsBuildMsgInfos(cplBuf, lenCplBuf, &sendMsgs);
 
   /* init communication topology */
   nRecvMsgs = LC_Connect(consmsg_t);
