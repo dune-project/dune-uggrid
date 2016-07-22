@@ -1077,12 +1077,7 @@ static void idcons_CheckPairs (void)
         of local communications between the processors.
  */
 
-#if defined(C_FRONTEND)
 DDD_RET DDD_IdentifyEnd (void)
-#endif
-#ifdef CPP_FRONTEND
-DDD_RET DDD_Library::IdentifyEnd (void)
-#endif
 {
   ID_PLIST        *plist, *pnext=NULL;
   IdEntry *id;
@@ -1419,15 +1414,8 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
    @param ident Identification value. This is an arbitrary number to identify two corresponding operations on different processors.
  */
 
-#ifdef C_FRONTEND
 void DDD_IdentifyNumber (DDD_HDR hdr, DDD_PROC proc, int ident)
 {
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Object::IdentifyNumber (DDD_PROC proc, int ident)
-{
-  DDD_HDR hdr = this;
-#endif
 IdEntry *id;
 
 id = IdentifyIdEntry(hdr, proc, ID_NUMBER);
@@ -1473,15 +1461,8 @@ printf("%4d: IdentifyNumber %08x %02d with %4d num %d\n", me,
    @param ident Identification value. This is an arbitrary string to identify two corresponding operations on different processors.
  */
 
-#ifdef C_FRONTEND
 void DDD_IdentifyString (DDD_HDR hdr, DDD_PROC proc, char *ident)
 {
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Object::IdentifyString (DDD_PROC proc, char *ident)
-{
-  DDD_HDR hdr = this;
-#endif
 IdEntry *id;
 
 id = IdentifyIdEntry(hdr, proc, ID_STRING);
@@ -1533,15 +1514,8 @@ printf("%4d: IdentifyString %08x %02d with %4d str %s\n", me,
    @param ident Identification object. This is an arbitrary global object which is known to both processors involved to identify the two corresponding operations on these processors.
  */
 
-#ifdef C_FRONTEND
 void DDD_IdentifyObject (DDD_HDR hdr, DDD_PROC proc, DDD_HDR ident)
 {
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Object::IdentifyObject (DDD_PROC proc, DDD_Object* ident)
-{
-  DDD_HDR hdr   = this;
-#endif
 IdEntry *id;
 
 id = IdentifyIdEntry(hdr, proc, ID_OBJECT);
@@ -1601,12 +1575,7 @@ printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", me,
         \end{description}
  */
 
-#if defined(C_FRONTEND)
 void DDD_IdentifyBegin (void)
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Library::IdentifyBegin (void)
-#endif
 {
   /* step mode and check whether call to IdentifyBegin is valid */
   if (!IdentStepMode(IMODE_IDLE))

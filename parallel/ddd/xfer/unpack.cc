@@ -424,13 +424,7 @@ static void PutDepData (char *data,
       /* scatter data via handler */
       if (desc->handlerXFERSCATTER)
       {
-#if defined(C_FRONTEND)
         desc->handlerXFERSCATTER(obj, addCnt, addTyp, (void *)chunk, newness);
-#endif
-                                #ifdef CPP_FRONTEND
-        CallHandler(desc,XFERSCATTER) (HParam(obj)
-                                       addCnt, addTyp, (void *)chunk, newness);
-                                #endif
       }
     }
     else
@@ -461,13 +455,7 @@ static void PutDepData (char *data,
       /* scatter data via handler */
       if (desc->handlerXFERSCATTERX)
       {
-#ifdef C_FRONTEND
         desc->handlerXFERSCATTERX(obj, addCnt, addTyp, table, newness);
-#endif
-                                #ifdef CPP_FRONTEND
-        CallHandler(desc,XFERSCATTERX) (HParam(obj)
-                                        addCnt, addTyp, table, newness);
-                                #endif
       }
     }
 
@@ -616,12 +604,7 @@ static void AcceptObjFromMsg (
 
       /* construct LDATA */
       if (desc->handlerLDATACONSTRUCTOR)
-#ifdef C_FRONTEND
         desc->handlerLDATACONSTRUCTOR(newcopy);
-#endif
-#ifdef CPP_FRONTEND
-      CallHandler(desc,LDATACONSTRUCTOR) (HParamOnly(newcopy));
-#endif
     }
   }
 }
@@ -1225,14 +1208,7 @@ static void CallUpdateHandler (LC_MSGHANDLE xm)
       if (desc->handlerUPDATE)
       {
         DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
-
-#if defined(C_FRONTEND)
         desc->handlerUPDATE(obj);
-#endif
-
-                                #ifdef CPP_FRONTEND
-        CallHandler(desc,UPDATE) (HParamOnly(obj));
-                                #endif
       }
     }
   }
@@ -1358,12 +1334,7 @@ static void CallSetPriorityHandler (LC_MSGHANDLE xm)
         DDD_PRIO new_prio = OTE_PRIO(theObjects, &(theObjTab[i]));                        /* remember new prio */
         OBJ_PRIO(theObjTab[i].hdr) = theObjTab[i].oldprio;
 
-#ifdef C_FRONTEND
         desc->handlerSETPRIORITY(obj, new_prio);
-#endif
-                                #ifdef CPP_FRONTEND
-        CallHandler(desc,SETPRIORITY) (HParam(obj) new_prio);
-                                #endif
 
         /* restore new priority */
         OBJ_PRIO(theObjTab[i].hdr) = new_prio;
@@ -1419,12 +1390,7 @@ static void CallObjMkConsHandler (LC_MSGHANDLE xm, int required_newness)
       /* call application handler for object consistency */
       if (desc->handlerOBJMKCONS)
       {
-#ifdef C_FRONTEND
         desc->handlerOBJMKCONS(obj, newness);
-#endif
-                                #ifdef CPP_FRONTEND
-        CallHandler(desc,OBJMKCONS) (HParam(obj) newness);
-                                #endif
       }
     }
   }
@@ -1550,11 +1516,7 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                  const DDD_HDR *localCplObjs, int nLocalCplObjs,
                  XISetPrioPtrArray *theSP,
                  XIDelObj **arrayDO, int nDO,
-#ifdef CPP_FRONTEND
-                 XICopyObjPtrArray *,
-#else
                  XICopyObjPtrArray *arrayCO,
-#endif
                  XICopyObj **arrayNewOwners, int nNewOwners)
 {
   TENewCpl     *allNewCpl;

@@ -634,16 +634,8 @@ void DisposeCouplingList (COUPLING *cpl)
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef C_FRONTEND
 int *DDD_InfoProcList (DDD_HDR hdr)
 {
-#endif
-#ifdef CPP_FRONTEND
-int *DDD_Object::InfoProcList (void)
-{
-  DDD_HDR hdr = this;
-#endif
-
 COUPLING *cpl;
 int i, objIndex = OBJ_INDEX(hdr);
 

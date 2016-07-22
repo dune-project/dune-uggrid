@@ -29,12 +29,7 @@
 #define CAT(a,b)    _CAT(a,b)
 
 
-#ifdef CPP_FRONTEND
-#define HDLR_FUNCNAME CAT(DDD_Library::SetHandler,HDLR_NAME)
-#else
 #define HDLR_FUNCNAME CAT(DDD_SetHandler,HDLR_NAME)
-#endif
-
 #define HDLR_TYPENAME CAT(Handler,HDLR_NAME)
 #define HDLR_VARNAME  CAT(handler,HDLR_NAME)
 
@@ -61,17 +56,8 @@
 /****************************************************************************/
 
 
-#if defined(C_FRONTEND) || defined(CPP_FRONTEND)
 void HDLR_FUNCNAME (DDD_TYPE type_id, HDLR_TYPENAME funcptr)
 {
-#endif
-
-#ifdef F_FRONTEND
-void HDLR_FUNCNAME (DDD_TYPE *fid, HDLR_TYPENAME funcptr)
-{
-	DDD_TYPE type_id = *fid;
-#endif
-
 	TYPE_DESC *desc = &(theTypeDefs[type_id]);
 
 	if (desc->mode != DDD_TYPE_DEFINED)

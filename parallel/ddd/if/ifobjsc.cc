@@ -75,12 +75,7 @@ static void IFComputeShortcutTable (DDD_IF ifId)
   /* fill in object pointers, this is the 4-fold indirection step */
   for(i=0; i<nItems; i++)
   {
-#ifdef CPP_FRONTEND
-    // TODO, avoid dirty cast!
-    objs[i] = (DDD_Object*)(cpls[i]->obj);
-#else
     objs[i] = OBJ_OBJ(cpls[i]->obj);
-#endif
   }
 }
 

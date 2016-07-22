@@ -78,31 +78,9 @@ START_UGDIM_NAMESPACE
 #define IF_EXCHANGE
 #include "ifcmd.ct"
 
-#ifdef CPP_FRONTEND
-#define IF_NAME Exchange
-#define IF_EXCHANGE
-#define IF_CBR
-#include "ifcmd.ct"
-#endif
-
-
-
 #define IF_NAME Oneway
 #define IF_ONEWAY
 #include "ifcmd.ct"
-
-#ifdef CPP_FRONTEND
-#define IF_NAME Oneway
-#define IF_ONEWAY
-#define IF_CBR
-#include "ifcmd.ct"
-#endif
-
-
-
-
-
-#ifndef CPP_FRONTEND
 
 #define IF_NAME ExecLocal
 #define IF_EXECLOCAL
@@ -160,8 +138,6 @@ START_UGDIM_NAMESPACE
 #define IF_WITH_ATTR
 #define IF_WITH_XARGS
 #include "ifcmd.ct"
-
-#endif
 
 /****************************************************************************/
 
