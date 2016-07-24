@@ -8,7 +8,6 @@ set(SOURCES
   fegeom.cc
   ff_gen.cc
   ff.cc
-  amgtools.cc
   npcheck.cc
   sm.cc
   blasm.cc

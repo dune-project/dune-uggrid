@@ -1,10 +1,9 @@
 # The libs from these directories are needed for devices
-#add_subdirectory(ppm)
 #add_subdirectory(meta)
 #add_subdirectory(ps)
 
 set(SOURCES  ugdevices.cc sockcomm.cc
-  ppm/ppm.cc meta/metafile.cc)
+  meta/metafile.cc)
 set(devinclude_HEADERS  ugdevices.h)
 
 add_library(devices OBJECT ${SOURCES})
