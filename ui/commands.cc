@@ -214,8 +214,6 @@ typedef struct
 
 static MULTIGRID *currMG=NULL;                  /*!< The current multigrid			*/
 
-static NP_BASE *currNumProc=NULL;               /*!< Current numerical procedure		*/
-
 static char buffer[BUFFERSIZE];         /*!< General purpose text buffer		*/
 
 static FILE     *protocolFile=NULL;     /*!< For protocol commands			*/
