@@ -214,8 +214,6 @@ typedef struct
 
 static MULTIGRID *currMG=NULL;                  /*!< The current multigrid			*/
 
-static NP_BASE *currNumProc=NULL;               /*!< Current numerical procedure		*/
-
 static char buffer[BUFFERSIZE];         /*!< General purpose text buffer		*/
 
 static FILE     *protocolFile=NULL;     /*!< For protocol commands			*/
@@ -281,19 +279,6 @@ static bool arraypathes_set = false;
 /*@}*/
 
 REP_ERR_FILE
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* forward declarations of functions used before they are defined           */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined(CAD) && defined(__THREEDIM__)
-MULTIGRID *ConvertCADGrid  (char *theFormat, char *CADOutputFileName,unsigned long heapSize);
-#endif
-
 
 /****************************************************************************/
 /** \brief Return a pointer to the current multigrid
@@ -441,56 +426,6 @@ static INT CheckHelpCommand (INT argc, char **argv)
 
   return (OKCODE);
 }
-
-/** \brief Implementation of \ref cmfn. */
-static INT CreateMetafileNameCommand (INT argc, char **argv)
-{
-  INT res,i,nopt;
-  int frame;
-  char name[LONGSTRSIZE],varname[LONGSTRSIZE];
-  char fullname[LONGSTRSIZE];
-  char *ext;
-
-  nopt = 0;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'n' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("n %",NAMELENSTR,"[ -~]")),varname)!=1)
-      {
-        PrintErrorMessage('E',"cmfn","can't read varname");
-        return(PARAMERRORCODE);
-      }
-      nopt = 1;
-      break;
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  res = sscanf(argv[0],expandfmt(CONCAT3(" cmfn %",LONGSTRLENSTR,"[0-9:.a-zA-Z_] %255[0-9:.a-zA-Z_]")),name,buffer);
-  if (res!=2) return(CMDERRORCODE);
-
-  if (GetStringValueInt(buffer,&frame)) return(CMDERRORCODE);
-  ext = GetStringVar("EXT");
-
-  if (ext==NULL)
-    sprintf(fullname,"%s.%04d",name,frame);
-  else
-    sprintf(fullname,"%s.%04d.%s",name,frame,ext);
-
-  if (nopt)
-  {
-    if (SetStringVar(varname,fullname)) return(CMDERRORCODE);
-  }
-  else
-  {
-    if (SetStringVar(name,fullname)) return(CMDERRORCODE);
-  }
-
-  return (OKCODE);
-}
-
 
 /** \brief Implementation of \ref readclock. */
 static INT ReadClockCommand (INT argc, char **argv)
@@ -6706,108 +6641,6 @@ static INT StatusCommand  (INT argc, char **argv)
 }
 
 
-#if defined(CAD) && defined(__THREEDIM__)
-/** \brief Implementation of \ref cadconvert. */
-static INT CADGridConvertCommand(INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char CADOutputFileName[NAMESIZE];
-
-  char Format[NAMESIZE];
-  char *theFormat;
-
-  unsigned long heapSize;
-  INT i,hopt;
-
-  /* get CADfile name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" cadconvert %",NAMELENSTR,"[ -~]")),CADOutputFileName)!=1) || (strlen(CADOutputFileName)==0))
-    sprintf(CADOutputFileName,"untitled-%d",(int)untitledCounter++);
-
-  /* get problem, domain and format */
-  theFormat = NULL;
-  heapSize = 0;
-  hopt = false;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'f' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("f %",NAMELENSTR,"[ -~]")),Format)!=1)
-      {
-        PrintHelp("open",HELPITEM," (cannot read format specification)");
-        return(PARAMERRORCODE);
-      }
-      theFormat = Format;
-      break;
-
-    case 'h' :
-      if (sscanf(argv[i],"h %lu",&heapSize)!=1)
-      {
-        PrintHelp("new",HELPITEM," (cannot read heapsize specification)");
-        return(PARAMERRORCODE);
-      }
-      hopt = true;
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("new",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  if (!(hopt))
-  {
-    PrintHelp("new",HELPITEM," (the d, p, f and h arguments are mandatory)");
-    return(PARAMERRORCODE);
-  }
-
-  /* check options */
-  theMG = ConvertCADGrid(theFormat, CADOutputFileName, heapSize);
-  if (theMG == NULL)
-  {
-    PrintErrorMessage('E',"cadconvert","execution failed");
-    return (CMDERRORCODE);
-  }
-
-  if (SetCurrentMultigrid(theMG)!=0)
-    return (CMDERRORCODE);
-
-
-
-  return (OKCODE);
-}
-#endif
-
-
-/** \brief Implementation of \ref screensize. */
-static INT ScreenSizeCommand (INT argc, char **argv)
-{
-  INT size[2];
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  if (GetScreenSize(size)==false)
-  {
-    PrintErrorMessage('W',"screensize","there is no monitor");
-    return (OKCODE);
-  }
-
-  UserWriteF(" screen width: %d, screen height: %d\n",(int)size[0], (int)size[1]);
-
-  if (    (SetStringValue(":screensize:width",size[0])!=0)
-          ||      (SetStringValue(":screensize:height",size[1])!=0))
-  {
-    PrintErrorMessage('E',"screensize","could not set :screensize:width or :screensize:height");
-    return (CMDERRORCODE);
-  }
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref setcurrmg. */
 static INT SetCurrentMultigridCommand (INT argc, char **argv)
 {
@@ -6846,59 +6679,6 @@ static INT UpdateDocumentCommand (INT argc, char **argv)
         #endif
 
   NO_OPTION_CHECK(argc,argv);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref setpalette. */
-static INT SetPaletteCommand (INT argc, char **argv)
-{
-  OUTPUTDEVICE *theOutDev;
-  INT i,palette;
-  char plt,devname[NAMESIZE];
-
-  if (sscanf(argv[0],"setpalette %c",&plt)!=1)
-  {
-    PrintHelp("setpalette",HELPITEM," (specify c|bw|g)");
-    return(PARAMERRORCODE);
-  }
-  switch (plt)
-  {
-  case 'c' : palette = COLOR_PALETTE; break;
-  case 'b' : palette = BLACK_WHITE_PALETTE; break;
-  case 'g' : palette = GRAY_PALETTE; break;
-  default :
-    PrintHelp("setpalette",HELPITEM," (specify c|bw|g)");
-    return(PARAMERRORCODE);
-  }
-
-  /* check options */
-  theOutDev  = GetDefaultOutputDevice();
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'd' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("d %",NAMELENSTR,"[a-zA-Z0-9_-]")),devname)!=1)
-      {
-        PrintErrorMessage('E',"setpalette","specify device name with d option");
-        return (PARAMERRORCODE);
-      }
-      if ((theOutDev=GetOutputDevice(devname))==NULL)
-      {
-        PrintErrorMessageF('E',"setpalette","there is no device named '%s'",devname);
-        return (PARAMERRORCODE);
-      }
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("setpalette",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  if (UgSetPalette(theOutDev,palette))
-    REP_ERR_RETURN(CMDERRORCODE);
 
   return (OKCODE);
 }
@@ -7054,96 +6834,6 @@ static INT MakeVDsubCommand (INT argc, char **argv)
     REP_ERR_RETURN(CMDERRORCODE);
 
   UserWriteF("sub descriptor '%s' for '%s' created\n",ENVITEM_NAME(subVD),ENVITEM_NAME(theVD));
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref mflops. */
-static INT MFLOPSCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  GRID *g;
-  INT i,l;
-  INT ncomp;
-  VECDATA_DESC *x,*y;
-  MATDATA_DESC *A;
-  VECTOR *v;
-  MATRIX *mat;
-  INT n,m,loop;
-  DOUBLE nop;
-  VEC_SCALAR scal;
-  DOUBLE time_ddot, time_matmul;
-
-  /* get MG */
-  theMG = GetCurrentMultigrid();
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"value","no current multigrid");
-    return(CMDERRORCODE);
-  }
-  l = CURRENTLEVEL(theMG);
-  g = GRID_ON_LEVEL(theMG,l);
-
-  /* read arguments, allocate two vectors and a matrix */
-  A = ReadArgvMatDesc(theMG,"A",argc,argv);
-  x = ReadArgvVecDesc(theMG,"x",argc,argv);
-  y = ReadArgvVecDesc(theMG,"y",argc,argv);
-  if (x == NULL)
-  {
-    PrintErrorMessage('E',"x","could not read symbol");
-    return (PARAMERRORCODE);
-  }
-  if (AllocVDFromVD(theMG,l,l,x,&y))
-    return (CMDERRORCODE);
-  if (AllocMDFromVD(theMG,l,l,x,x,&A))
-    return (CMDERRORCODE);
-  if (ReadArgvINT("loop",&loop,argc,argv))
-  {
-    loop = 100;
-  }
-
-  /* gather statistics */
-  n = m = 0;
-  for (v=FIRSTVECTOR(g); v!= NULL; v=SUCCVC(v))
-  {
-    n++;
-    for (mat=VSTART(v); mat!=NULL; mat = MNEXT(mat))
-      m++;
-  }
-  ncomp = VD_ncmps_in_otype(x,NODEVEC);
-  if ((ncomp <= 0) || (VD_NCOMP(x) != ncomp)) {
-    PrintErrorMessage('E',"mflops","only for NODEVEC");
-    return (PARAMERRORCODE);
-  }
-
-  /* initialize */
-  dset(theMG,l,l,ALL_VECTORS,x,1.0);
-  dset(theMG,l,l,ALL_VECTORS,y,1.0);
-  dmatset(theMG,l,l,ALL_VECTORS,A,1.0);
-
-  /* loop */
-  time_ddot = CURRENT_TIME;
-  for (i=1; i<=loop; i++)
-    ddot(theMG,l,l,ALL_VECTORS,x,x,scal);
-  time_ddot = CURRENT_TIME - time_ddot;
-
-  time_matmul = CURRENT_TIME;
-  for (i=1; i<=loop; i++)
-    dmatmul(theMG,l,l,ALL_VECTORS,y,A,x);
-  time_matmul = CURRENT_TIME - time_matmul;
-
-  if (FreeMD(theMG,l,l,A)) REP_ERR_RETURN(CMDERRORCODE);
-  if (FreeVD(theMG,l,l,y)) REP_ERR_RETURN(CMDERRORCODE);
-
-  nop = 2*n*ncomp*loop;
-  UserWriteF("DDOT t=%12.4E op=%12.4E MFLOPs=%12.6f\n",
-             (double)time_ddot,(double)nop,
-             (double)0.000001*nop/time_ddot);
-  nop = m*ncomp*ncomp*2*loop;
-  UserWriteF("MMUL t=%12.4E op=%12.4E MFLOPs=%12.6f\n",
-             (double)time_matmul,(double)nop,
-             (double)0.000001*nop/time_matmul);
 
   return (OKCODE);
 }
@@ -7568,320 +7258,6 @@ static INT ShowPrintingFormatCommand (INT argc, char **argv)
   return (OKCODE);
 }
 
-/****************************************************************************/
-/** \brief Return a pointer to the current numproc
-
-   This function returns a pointer to the current numproc.
-
-   RETURN VALUE:
-   .n      pointer to numproc
-   .n      NULL if there is no current numproc.
- */
-/****************************************************************************/
-
-static NP_BASE *GetCurrentNumProc (void)
-{
-  return (currNumProc);
-}
-
-/****************************************************************************/
-/** \brief Set the current NumProc if it is valid
- *
- * @param theNumProc - pointer to multigrid
-
-   This function sets the current NumProc if it is valid, i. e.
-   the function checks whether 'theNumProc' acually points to a numproc.
-   It can be NULL only if no numproc is defined.
-
- * @return <ul>
-   .n    0 if ok
-   .n    1 if theNumProc is not in the numproc list
- */
-/****************************************************************************/
-
-static INT SetCurrentNumProc (NP_BASE *theNumProc)
-{
-  currNumProc = theNumProc;
-  return (0);
-}
-
-
-/** \brief Implementation of \ref npexecute. */
-static INT ExecuteNumProcCommand (INT argc, char **argv)
-{
-  char theNumProcName[NAMESIZE];
-  NP_BASE *theNumProc;
-  MULTIGRID *theMG;
-  INT err;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"npexecute","there is no current multigrid\n");
-    return (CMDERRORCODE);
-  }
-
-  /* get NumProc */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" npexecute %",NAMELENSTR,"[ -~]")),theNumProcName)!=1) || (strlen(theNumProcName)==0))
-  {
-    theNumProc = GetCurrentNumProc();
-    if (theNumProc == NULL)
-    {
-      PrintErrorMessage('E',"npexecute",
-                        "there is no current numerical procedure");
-      return (CMDERRORCODE);
-    }
-  }
-  else
-  {
-    theNumProc = GetNumProcByName (theMG,theNumProcName,"");
-    if (theNumProc == NULL)
-    {
-      PrintErrorMessage('E',"npexecute",
-                        "cannot find specified numerical procedure");
-      return (CMDERRORCODE);
-    }
-  }
-  if (theNumProc->status != NP_EXECUTABLE) {
-    PrintErrorMessage('E',"npexecute",
-                      "the num proc is not executable");
-    return (CMDERRORCODE);
-  }
-  if ((err=((*theNumProc->Execute)(theNumProc,argc,argv)))!=0)
-  {
-    PrintErrorMessageF('E',"npexecute","execution of '%s' failed (error code %d)",theNumProcName,err);
-    return (CMDERRORCODE);
-  }
-
-  return(OKCODE);
-}
-
-
-/** \brief Implementation of \ref npdisplay. */
-static INT NumProcDisplayCommand (INT argc, char **argv)
-{
-  NP_BASE *theNumProc;
-  MULTIGRID *theMG;
-  INT i,All,Class,err;
-  char theNumProcName[NAMESIZE],ClassName[NAMESIZE];
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"npdisplay","there is no current multigrid\n");
-    return (CMDERRORCODE);
-  }
-
-  /* check options */
-  All = Class = false;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'a' :
-      All = true;
-      break;
-
-    case 'c' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("c %",NAMELENSTR,"[ -~]")),ClassName)!=1)
-      {
-        PrintErrorMessage('W',"npdisplay","no class specified\n");
-        UserWrite("enroled classes are:\n");
-        if (MGListNPClasses(theMG))
-          return (CMDERRORCODE);
-        return (OKCODE);
-      }
-      Class = true;
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("npdisplay",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-  if (All && Class)
-  {
-    PrintErrorMessage('E',"npdisplay","a and c option are mutually exclusive");
-    return (CMDERRORCODE);
-  }
-  if (Class)
-  {
-    if (MGListNPsOfClass(theMG,ClassName))
-      return (CMDERRORCODE);
-    return (OKCODE);
-  }
-  if (All)
-  {
-    if (MGListAllNPs(theMG))
-      return (CMDERRORCODE);
-    return (OKCODE);
-  }
-
-  /* get NumProc */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" npdisplay %",NAMELENSTR,"[ -~]")),theNumProcName)!=1) || (strlen(theNumProcName)==0))
-  {
-    theNumProc = GetCurrentNumProc();
-    if (theNumProc == NULL)
-    {
-      PrintErrorMessage('E',"npdisplay","there is no current numerical procedure");
-      return (CMDERRORCODE);
-    }
-  }
-  else
-  {
-    theNumProc = GetNumProcByName (theMG,theNumProcName,"");
-    if (theNumProc == NULL)
-    {
-      PrintErrorMessage('E',"npdisplay","cannot find specified numerical procedure");
-      return (CMDERRORCODE);
-    }
-  }
-  if ((err=ListNumProc(theNumProc))!=0)
-  {
-    PrintErrorMessageF('E',"npdisplay","execution of '%s' failed (error code %d)",theNumProcName,err);
-    return (CMDERRORCODE);
-  }
-
-  return(OKCODE);
-}
-
-
-/** \brief Implementation of \ref npcreate. */
-static INT NumProcCreateCommand (INT argc, char **argv)
-{
-  char theNumProcName[NAMESIZE];
-  char ConstructName[NAMESIZE];
-  NP_BASE *theNumProc;
-  MULTIGRID *theMG;
-  INT err,ignore;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"npexecute","there is no current multigrid\n");
-    return (CMDERRORCODE);
-  }
-
-  /* get NumProc name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" npcreate %",NAMELENSTR,"[ -~]")),theNumProcName)!=1) || (strlen(theNumProcName)==0))
-  {
-    PrintErrorMessage('E',"npcreate","specify the name of the theNumProcName to create");
-    return (PARAMERRORCODE);
-  }
-  if (ReadArgvChar("c",ConstructName,argc,argv))
-  {
-    PrintErrorMessage('E',"npcreate","specify the name of the constructor");
-    return (PARAMERRORCODE);
-  }
-  ignore=ReadArgvOption("i",argc,argv);
-  if (ignore)
-  {
-    theNumProc = GetNumProcByName(theMG,theNumProcName,"");
-  }
-  if (!ignore || theNumProc==NULL)
-    if ((err=CreateObject(theMG,theNumProcName,ConstructName))!=0)
-    {
-      UserWriteF("creating of '%s' failed (error code %d)\n",theNumProcName,err);
-      return (CMDERRORCODE);
-    }
-  theNumProc = GetNumProcByName(theMG,theNumProcName,"");
-  if (SetCurrentNumProc(theNumProc)) return(PARAMERRORCODE);
-
-  return(OKCODE);
-}
-
-
-/** \brief Implementation of \ref npinit. */
-static INT NumProcInitCommand (INT argc, char **argv)
-{
-  char theNumProcName[NAMESIZE];
-  NP_BASE *theNumProc;
-  MULTIGRID *theMG;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"npinit","there is no current multigrid\n");
-    return (CMDERRORCODE);
-  }
-
-  /* get NumProc */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" npinit %",NAMELENSTR,"[ -~]")),theNumProcName)!=1) || (strlen(theNumProcName)==0))
-  {
-    theNumProc = GetCurrentNumProc();
-    if (theNumProc == NULL)
-    {
-      PrintErrorMessage('E',"npinit","there is no current numerical procedure");
-      return (CMDERRORCODE);
-    }
-  }
-  else
-  {
-    theNumProc = GetNumProcByName (theMG,theNumProcName,"");
-    if (theNumProc == NULL)
-    {
-      sprintf(buffer,"cannot find specified numerical procedure '%s'",theNumProcName);
-      PrintErrorMessage('E',"npinit",buffer);
-      return (CMDERRORCODE);
-    }
-  }
-  theNumProc->status = (*theNumProc->Init)(theNumProc,argc,argv);
-  switch (theNumProc->status) {
-  case NP_NOT_INIT :
-    UserWriteF("num proc %s has status NOT_INIT\n",theNumProcName);
-    return (CMDERRORCODE);
-  case NP_NOT_ACTIVE :
-    UserWriteF("num proc %s has status NOT_ACTIVE\n",theNumProcName);
-    return (CMDERRORCODE);
-  case NP_ACTIVE :
-    UserWriteF("num proc %s has status ACTIVE\n",theNumProcName);
-    break;
-  case NP_EXECUTABLE :
-    UserWriteF("num proc %s has status EXECUTABLE\n",theNumProcName);
-    break;
-  default :
-    PrintErrorMessage('E',"npinit","unknown status");
-    return (CMDERRORCODE);
-  }
-
-  return(OKCODE);
-}
-
-
-/** \brief Implementation of \ref scnp. */
-static INT SetCurrentNumProcCommand (INT argc, char **argv)
-{
-  NP_BASE *theNumProc;
-  MULTIGRID *theMG;
-  char npname[NAMESIZE];
-
-  NO_OPTION_CHECK(argc,argv);
-
-  /* get solver name */
-  if (sscanf(argv[0],expandfmt(CONCAT3(" scnp %",NAMELENSTR,"[ -~]")),npname)!=1)
-  {
-    PrintHelp("scnp",HELPITEM," (specify current NumProc name)");
-    return(PARAMERRORCODE);
-  }
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"npexecute","there is no current multigrid\n");
-    return (CMDERRORCODE);
-  }
-  theNumProc = GetNumProcByName (theMG,npname,"");
-  if (theNumProc == NULL)
-  {
-    PrintErrorMessage('E',"npexecute","cannot find specified numerical procedure");
-    return (CMDERRORCODE);
-  }
-
-  if (SetCurrentNumProc(theNumProc))
-    return (CMDERRORCODE);
-
-  return(OKCODE);
-}
-
-
 /** \brief Implementation of \ref createvector. */
 static INT CreateVecDescCommand (INT argc, char **argv)
 {
@@ -8188,26 +7564,6 @@ static INT InitFindRange (void)
     return (1);
   return (0);
 }
-
-/****************************************************************************/
-/** \brief Create struct :screensize
-
-   This function creates the struct _screensize for the 'screensize' command.
-
-   RETURN VALUE:
-   .n    0 if ok
-   .n    1 if error occured.
- */
-/****************************************************************************/
-
-static INT InitScreenSize (void)
-{
-  /* install a struct for screensize */
-  if (MakeStruct(":screensize")!=0)
-    return (1);
-  return (0);
-}
-
 
 /** \brief Implementation of \ref lb. */
 INT NS_DIM_PREFIX LBCommand (INT argc, char **argv)
@@ -9090,7 +8446,7 @@ static INT MakePeriodicCommand (INT argc, char **argv)
 
    This function does initialization of all ug-commands, using
    'CreateCommand'.
-   It initializes 'clock', 'findrange', 'screensize' and 'array'
+   It initializes 'clock', 'findrange' and 'array'
    commands.
 
    SEE ALSO:
@@ -9199,29 +8555,14 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("fiflel",                     FindFlippedElementsCommand              )==NULL) return (__LINE__);
 #endif
 
-#if defined(CAD) && defined(__THREEDIM__)
-  if (CreateCommand("cadconvert",     CADGridConvertCommand           )==NULL) return (__LINE__);
-#endif
-
   /* commands for window and picture management */
-  if (CreateCommand("screensize",         ScreenSizeCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("updateDoc",          UpdateDocumentCommand                   )==NULL) return (__LINE__);
-  if (CreateCommand("cmfn",                       CreateMetafileNameCommand               )==NULL) return (__LINE__);
-  if (CreateCommand("setpalette",         SetPaletteCommand                               )==NULL) return (__LINE__);
 
   /* commands for problem management */
   if (CreateCommand("reinit",             ReInitCommand                                   )==NULL) return (__LINE__);
 
-  /* commands for NumProc management */
-  if (CreateCommand("npexecute",          ExecuteNumProcCommand                   )==NULL) return (__LINE__);
-  if (CreateCommand("npdisplay",          NumProcDisplayCommand                   )==NULL) return (__LINE__);
-  if (CreateCommand("npcreate",           NumProcCreateCommand                    )==NULL) return (__LINE__);
-  if (CreateCommand("npinit",                     NumProcInitCommand                              )==NULL) return (__LINE__);
-  if (CreateCommand("scnp",                       SetCurrentNumProcCommand                )==NULL) return (__LINE__);
-
   /* vectors and matrices */
   if (CreateCommand("clear",                      ClearCommand                                    )==NULL) return (__LINE__);
-  if (CreateCommand("mflops",         MFLOPSCommand                   )==NULL) return (__LINE__);
   if (CreateCommand("makevdsub",      MakeVDsubCommand                )==NULL) return (__LINE__);
 
   if (CreateCommand("rand",                       RandCommand                                             )==NULL) return (__LINE__);
@@ -9280,7 +8621,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   if (InitClock()                 !=0) return (__LINE__);
   if (InitFindRange()     !=0) return (__LINE__);
-  if (InitScreenSize()    !=0) return (__LINE__);
   if (InitArray()                 !=0) return (__LINE__);
 
   return(0);

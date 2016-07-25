@@ -97,16 +97,8 @@ START_UGDIM_NAMESPACE
 
 
 
-#if defined(C_FRONTEND)
 void DDD_PrioritySet (DDD_HDR hdr, DDD_PRIO prio)
 {
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Object::PrioritySet (DDD_PRIO prio)
-{
-  DDD_HDR hdr = this;
-#endif
-
 /* check input parameters */
 if (prio>=MAX_PRIO)
 {

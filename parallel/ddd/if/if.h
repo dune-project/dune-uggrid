@@ -80,11 +80,7 @@ enum CplDir {
                             (iter)=(iter)->next)
 
 
-#ifdef CPP_FRONTEND
-typedef DDD_Object* IFObjPtr;
-#else
 typedef DDD_OBJ IFObjPtr;
-#endif
 
 
 
@@ -195,20 +191,11 @@ int     IFInitComm (DDD_IF);
 void    IFExitComm (DDD_IF);
 void    IFInitSend (IF_PROC *);
 int     IFPollSend (DDD_IF);
-#ifdef CPP_FRONTEND
-char*  IFCommLoopObjGather (DDD_GatherScatter&, IFObjPtr*, char*, size_t, int);
-char*  IFCommLoopObjScatter (DDD_GatherScatter&, IFObjPtr*, char*, size_t, int);
-#else
 char *  IFCommLoopObj (ComProcPtr, IFObjPtr *, char *, size_t, int);
-#endif
-#ifndef CPP_FRONTEND
 char *  IFCommLoopCpl (ComProcPtr, COUPLING **, char *, size_t, int);
 char *  IFCommLoopCplX (ComProcXPtr, COUPLING **, char *, size_t , int);
-#endif
-#ifndef CPP_FRONTEND
 void    IFExecLoopObj (ExecProcPtr, IFObjPtr *, int);
 void    IFExecLoopCplX (ExecProcXPtr, COUPLING **, int);
-#endif
 char *  IFCommHdrLoopCpl (ComProcHdrPtr, COUPLING **, char *, size_t, int);
 char *  IFCommHdrLoopCplX (ComProcHdrXPtr, COUPLING **, char *, size_t, int);
 void    IFExecHdrLoopCpl (ExecProcHdrPtr, COUPLING **, int);

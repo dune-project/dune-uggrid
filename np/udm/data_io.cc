@@ -45,7 +45,7 @@
 #include "misc.h"
 #include "bio.h"
 #include "dio.h"
-#include "num.h"
+#include "np.h"
 #include "ugm.h"
 #include "fileopen.h"
 

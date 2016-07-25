@@ -372,43 +372,9 @@ void DDD_ObjDelete (DDD_OBJ obj, size_t size, DDD_TYPE typ)
    @param aAttr  \ddd{attribute} of \ddd{object}
  */
 
-#if defined(C_FRONTEND)
 void DDD_HdrConstructor (DDD_HDR aHdr, DDD_TYPE aType,
                          DDD_PRIO aPrio, DDD_ATTR aAttr)
 {
-#endif
-
-#ifdef CPP_FRONTEND
-// construct as invalid DDD_Object
-DDD_Object::DDD_Object (void)
-{
-  /* invalidate this DDD_HDR */
-  MarkHdrInvalid(this);
-}
-
-
-
-// construct as valid DDD_Object
-DDD_Object::DDD_Object (DDD_TYPE aType, DDD_PRIO aPrio, DDD_ATTR aAttr)
-{
-  Init(aType, aPrio, aAttr);
-}
-
-
-void DDD_Object::Init (DDD_TYPE aType, DDD_PRIO aPrio, DDD_ATTR aAttr)
-{
-  DDD_HDR aHdr = this;
-
-  if (! IsHdrInvalid(aHdr))
-  {
-    sprintf(cBuffer,
-            "cannot initialize DDD_Object %08x twice in DDD_Object::Init",
-            OBJ_GID(aHdr));
-    DDD_PrintError('E', 2250, cBuffer);
-    HARD_EXIT;
-  }
-#endif
-
 /* check input parameters */
 if (aPrio>=MAX_PRIO)
 {
@@ -473,17 +439,6 @@ DDD_PrintDebug(cBuffer);
 
 
 
-#ifdef CPP_FRONTEND
-DDD_IndexObject::DDD_IndexObject (DDD_TYPE typ,
-                                  DDD_INDEX idx, DDD_PRIO prio, DDD_ATTR attr)
-  : DDD_Object(typ, prio, attr)
-{
-  _index = idx;
-}
-#endif
-
-
-
 /****************************************************************************/
 /*                                                                          */
 /* Function:  DDD_HdrDestructor                                             */
@@ -523,15 +478,8 @@ DDD_IndexObject::DDD_IndexObject (DDD_TYPE typ,
    @param hdr  the object's DDD Header
  */
 
-#if defined(C_FRONTEND)
 void DDD_HdrDestructor (DDD_HDR hdr)
 {
-#endif
-#ifdef CPP_FRONTEND
-DDD_Object::~DDD_Object (void)
-{
-  DDD_HDR hdr = this;
-#endif
 COUPLING   *cpl;
 int objIndex, xfer_active = ddd_XferActive();
 
@@ -638,7 +586,6 @@ MarkHdrInvalid(hdr);
 /*                                                                          */
 /****************************************************************************/
 
-#if defined(C_FRONTEND)
 DDD_OBJ DDD_ObjGet (size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 {
   DDD_OBJ obj;
@@ -678,7 +625,6 @@ DDD_OBJ DDD_ObjGet (size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 
   return(obj);
 }
-#endif
 
 
 
@@ -694,7 +640,6 @@ DDD_OBJ DDD_ObjGet (size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 /*                                                                          */
 /****************************************************************************/
 
-#if defined(C_FRONTEND)
 void DDD_ObjUnGet (DDD_HDR hdr, size_t size)
 
 {
@@ -714,7 +659,6 @@ void DDD_ObjUnGet (DDD_HDR hdr, size_t size)
   /* free raw memory */
   DDD_ObjDelete(obj, size, typ);
 }
-#endif
 
 
 
@@ -912,14 +856,8 @@ void ObjCopyGlobalData (TYPE_DESC *desc,
 
 /****************************************************************************/
 
-#ifdef C_FRONTEND
 DDD_HDR DDD_SearchHdr (DDD_GID gid)
 {
-#endif
-#ifdef CPP_FRONTEND
-DDD_HDR DDD_Library::SearchHdr (DDD_GID gid)
-{
-#endif
 int i;
 
 i=0;

@@ -616,47 +616,17 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
    @param B   second array of DDD priorities; the object set B from the new interface will only contain objects with one of these priorities.
  */
 
-#ifdef C_FRONTEND
 DDD_IF DDD_IFDefine (
   int nO, DDD_TYPE O[],
   int nA, DDD_PRIO A[],
   int nB, DDD_PRIO B[])
 {
-#endif
-#ifdef CPP_FRONTEND
-DDD_Interface::DDD_Interface (DDD_TYPE t, DDD_PRIO p1, DDD_PRIO p2, const char* name)
-{
-  Init(1, &t, 1, &p1, 1, &p2, name);
-}
-
-DDD_Interface::DDD_Interface (
-  int nO, DDD_TYPE O[],
-  int nA, DDD_PRIO A[],
-  int nB, DDD_PRIO B[],
-  const char *name)
-{
-  Init(nO, O, nA, A, nB, B, name);
-}
-
-void DDD_Interface::Init (
-  int nO, DDD_TYPE O[],
-  int nA, DDD_PRIO A[],
-  int nB, DDD_PRIO B[],
-  const char *name)
-{
-  _id = nIFs;
-#endif
-
 int i;
 COUPLING **tmpcpl;
 
 if (nIFs==MAX_IF) {
   DDD_PrintError('E', 4100, "no more interfaces in DDD_IFDefine");
-                #ifdef CPP_FRONTEND
-  HARD_EXIT;
-                #else
   return(0);
-                #endif
 }
 
 /* construct interface definition */
@@ -670,15 +640,8 @@ if (nO>1) qsort(theIF[nIFs].O, nO, sizeof(DDD_TYPE), sort_type);
 if (nA>1) qsort(theIF[nIFs].A, nA, sizeof(DDD_PRIO), sort_prio);
 if (nB>1) qsort(theIF[nIFs].B, nB, sizeof(DDD_PRIO), sort_prio);
 
-
-#if defined(C_FRONTEND)
 /* reset name string */
 theIF[nIFs].name[0] = 0;
-#endif
-#ifdef CPP_FRONTEND
-SetName(name);
-#endif
-
 
 /* compute hash tables for fast access */
 theIF[nIFs].maskO = 0;
@@ -701,11 +664,7 @@ if (nCplItems>0)
   if (! IS_OK(IFCreateFromScratch(tmpcpl, nIFs)))
   {
     DDD_PrintError('E', 4101, "cannot create interface in DDD_IFDefine");
-                        #ifdef CPP_FRONTEND
-    HARD_EXIT;
-                        #else
     return(0);
-                        #endif
   }
 
   /* free temporary array */
@@ -716,20 +675,14 @@ else
   if (! IS_OK(IFCreateFromScratch(NULL, nIFs)))
   {
     DDD_PrintError('E', 4102, "cannot create interface in DDD_IFDefine");
-                        #ifdef CPP_FRONTEND
-    HARD_EXIT;
-                        #else
     return(0);
-                        #endif
   }
 }
 
 
 nIFs++;
 
-        #ifndef CPP_FRONTEND
 return(nIFs-1);
-        #endif
 }
 
 
@@ -760,15 +713,8 @@ static void StdIFDefine (void)
 
 
 
-#ifdef C_FRONTEND
 void DDD_IFSetName (DDD_IF ifId, const char *name)
 {
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Interface::SetName (const char *name)
-{
-  DDD_IF ifId = _id;
-#endif
 /* copy name string */
 strncpy(theIF[ifId].name, name, IF_NAMELEN-1);
 }
@@ -932,16 +878,8 @@ static void IFDisplay (DDD_IF i)
    @param aIF  the \ddd{interface} ID.
  */
 
-#ifdef C_FRONTEND
 void DDD_IFDisplay (DDD_IF aIF)
 {
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Interface::Display (void)
-{
-  DDD_IF aIF = _id;
-#endif
-
 if (aIF>=nIFs)
 {
   sprintf(cBuffer, "invalid IF %02d in DDD_IFDisplay", aIF);
@@ -979,12 +917,7 @@ DDD_PrintLine("|\n");
         the number of exchange relations and the neighbour processor number.
  */
 
-#if defined(C_FRONTEND)
 void DDD_IFDisplayAll (void)
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Interface::DisplayAll (void)
-#endif
 {
   int i;
 
@@ -1140,17 +1073,8 @@ static size_t IFInfoMemory (DDD_IF ifId)
 
 
 
-#ifdef C_FRONTEND
 size_t DDD_IFInfoMemory (DDD_IF ifId)
 {
-#endif
-#ifdef CPP_FRONTEND
-size_t DDD_Interface::InfoMemory (void)
-{
-  DDD_IF ifId = _id;
-#endif
-
-
 if (ifId>=nIFs)
 {
   sprintf(cBuffer, "invalid IF %02d in DDD_IFInfoMemory", ifId);
@@ -1162,13 +1086,7 @@ return(IFInfoMemory(ifId));
 }
 
 
-
-#ifdef C_FRONTEND
 size_t DDD_IFInfoMemoryAll (void)
-#endif
-#ifdef CPP_FRONTEND
-size_t DDD_Interface::InfoMemoryAll (void)
-#endif
 {
   int i;
   size_t sum = 0;

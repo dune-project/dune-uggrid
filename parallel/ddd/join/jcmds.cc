@@ -784,17 +784,12 @@ static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         a set of local communications between the processors.
  */
 
-#ifdef C_FRONTEND
 DDD_RET DDD_JoinEnd (void)
-#endif
-#ifdef CPP_FRONTEND
-DDD_RET DDD_Library::JoinEnd (void)
-#endif
 {
   JIJoinPtrArray   *arrayJIJoin    = NULL;
   JIAddCplPtrArray *arrayJIAddCpl2 = NULL;
   JIAddCplPtrArray *arrayJIAddCpl3 = NULL;
-  int obsolete, nRecvMsgs1, nRecvMsgs2, nRecvMsgs3, nSendMsgs;
+  int obsolete, nRecvMsgs1, nRecvMsgs2, nRecvMsgs3;
   JOINMSG1    *sendMsgs1=NULL, *sm1=NULL;
   JOINMSG2    *sendMsgs2=NULL, *sm2=NULL;
   JOINMSG3    *sendMsgs3=NULL, *sm3=NULL;
@@ -840,7 +835,7 @@ DDD_RET DDD_Library::JoinEnd (void)
    */
   STAT_RESET;
   /* prepare msgs for JIJoin-items */
-  nSendMsgs = PreparePhase1Msgs(arrayJIJoin, &sendMsgs1, &sendMem);
+  PreparePhase1Msgs(arrayJIJoin, &sendMsgs1, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
@@ -950,7 +945,7 @@ DDD_RET DDD_Library::JoinEnd (void)
 
   STAT_RESET;
   /* prepare msgs for JIAddCpl-items */
-  nSendMsgs = PreparePhase2Msgs(arrayJIAddCpl2, &sendMsgs2, &sendMem);
+  PreparePhase2Msgs(arrayJIAddCpl2, &sendMsgs2, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
@@ -1058,7 +1053,7 @@ DDD_RET DDD_Library::JoinEnd (void)
 
   STAT_RESET;
   /* prepare msgs for JIAddCpl-items */
-  nSendMsgs = PreparePhase3Msgs(arrayJIAddCpl3, &sendMsgs3, &sendMem);
+  PreparePhase3Msgs(arrayJIAddCpl3, &sendMsgs3, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
@@ -1272,12 +1267,7 @@ void DDD_JoinObj (DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
         is carried out via a \funk{JoinEnd} call on each processor.
  */
 
-#ifdef C_FRONTEND
 void DDD_JoinBegin (void)
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Library::JoinBegin (void)
-#endif
 {
   /* step mode and check whether call to JoinBegin is valid */
   if (!JoinStepMode(JMODE_IDLE))

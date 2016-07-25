@@ -55,52 +55,11 @@ START_UGDIM_NAMESPACE
 
 #define DDD_VERSION    "1.9"
 
-
-/****************************************************************************/
-/*                                                                          */
-/* settings for switching C_FRONTEND/CPP_FRONTEND                           */
-/*                                                                          */
-/****************************************************************************/
-
-#ifdef DDD_FRONTEND_C
-#define C_FRONTEND
-#endif
-
-#ifdef DDD_FRONTEND_CPP
-#define CPP_FRONTEND
-#endif
-
-
-/* check FRONTEND-setting for plausibility */
-#if defined(C_FRONTEND) && defined(CPP_FRONTEND)
-#error DDD Configuration Error: C_FRONTEND and CPP_FRONTEND are set.
-#endif
-
-
-
-
-/* default frontend is C_FRONTEND */
-#ifndef C_FRONTEND
- #ifndef CPP_FRONTEND
-   #define C_FRONTEND
- #endif
-#endif
-
-
 /* helpful macros for FRONTEND switching, will be #undef'd when ddd.h ends */
 #define _FPTR
 #define _OBJREF   DDD_HDR
 
-
 /* F77SYM(lsym,usym) macro is defined in compiler.h. 961127 KB */
-
-/*
-   #ifdef __cplusplus
-   #ifndef CPP_FRONTEND
-   extern "C" {
-   #endif
-   #endif
- */
 
 /****************************************************************************/
 /*                                                                          */
@@ -343,21 +302,11 @@ typedef struct _DDD_HEADER
   unsigned int myIndex;         /* global object array index */
   DDD_GID gid;            /* global id */
 
-        #ifdef C_FRONTEND
   char empty[4];                 /* 4 unused bytes in current impl. */
-        #endif
 } DDD_HEADER;
 
-#ifdef CPP_FRONTEND
-typedef unsigned int DDD_INDEX;
-typedef char           * DDD_OBJ;
-class DDD_Object;  // forward declaration
-typedef DDD_Object     * DDD_HDR;
-#endif
-#ifdef C_FRONTEND
 typedef char           * DDD_OBJ;
 typedef DDD_HEADER     * DDD_HDR;
-#endif
 
 /* NULL values for DDD types */
 #define DDD_TYPE_NULL  0
@@ -391,9 +340,6 @@ enum Handlers {
 /* handler prototypes */
 
 /* handlers related to certain DDD_TYPE (i.e., member functions) */
-#if defined(C_FRONTEND) || \
-  (defined(CPP_FRONTEND) && ! defined(WITH_VIRTUAL_HANDLERS))
-
 typedef void (*HandlerLDATACONSTRUCTOR)(DDD_OBJ _FPTR);
 typedef void (*HandlerDESTRUCTOR)(DDD_OBJ _FPTR);
 typedef void (*HandlerDELETE)(DDD_OBJ _FPTR);
@@ -406,10 +352,7 @@ typedef void (*HandlerXFERGATHER)(DDD_OBJ _FPTR, int _FPTR, DDD_TYPE _FPTR, void
 typedef void (*HandlerXFERSCATTER)(DDD_OBJ _FPTR, int _FPTR, DDD_TYPE _FPTR, void *, int _FPTR);
 typedef void (*HandlerXFERGATHERX)(DDD_OBJ _FPTR, int _FPTR, DDD_TYPE _FPTR, char **);
 typedef void (*HandlerXFERSCATTERX)(DDD_OBJ _FPTR, int _FPTR, DDD_TYPE _FPTR, char **, int _FPTR);
-#endif
-#if defined(C_FRONTEND)
 typedef void (*HandlerXFERCOPYMANIP)(DDD_OBJ _FPTR);
-#endif
 
 
 
@@ -418,12 +361,10 @@ typedef DDD_TYPE (*HandlerGetRefType)(DDD_OBJ _FPTR, DDD_OBJ _FPTR);
 
 
 
-#if defined(C_FRONTEND)
 typedef int (*ExecProcPtr)(DDD_OBJ _FPTR);
 typedef int (*ExecProcXPtr)(DDD_OBJ _FPTR, DDD_PROC _FPTR, DDD_PRIO _FPTR);
 typedef int (*ComProcPtr)(DDD_OBJ _FPTR, void *);
 typedef int (*ComProcXPtr)(DDD_OBJ _FPTR, void *, DDD_PROC _FPTR, DDD_PRIO _FPTR);
-#endif
 
 
 
@@ -456,14 +397,10 @@ typedef int (*ComProcXPtr)(DDD_OBJ _FPTR, void *, DDD_PROC _FPTR, DDD_PRIO _FPTR
         C++ users should implement these access functions
         as inline functions.
  */
-/*#ifndef __cplusplus*/
-#ifdef C_FRONTEND
 #define DDD_InfoPriority(ddd_hdr)    ((ddd_hdr)->prio)
 #define DDD_InfoGlobalId(ddd_hdr)    ((ddd_hdr)->gid)
 #define DDD_InfoAttr(ddd_hdr)       ((ddd_hdr)->attr)
 #define DDD_InfoType(ddd_hdr)       ((ddd_hdr)->typ)
-#endif
-/*#endif*/
 
 
 /****************************************************************************/
@@ -472,495 +409,39 @@ typedef int (*ComProcXPtr)(DDD_OBJ _FPTR, void *, DDD_PROC _FPTR, DDD_PRIO _FPTR
 /*                                                                          */
 /****************************************************************************/
 
-
-#ifdef CPP_FRONTEND
-
-/**
-        DDD Type class.
-        Each DDD object has a previously specified DDD\_Type.
-
-        \todoTBC
- */
-
-// currently not used!
-class DDD_Type
-{
-public:
-  DDD_Type (DDD_TYPE type)  {
-    _dddtype = type;
-  }
-
-  void ChangeName (char*);
-  void Display();
-
-private:
-  DDD_TYPE _dddtype;
-};
-
-
-
-/**
-        DDD Library class.
-        Construct one single instance of the class in order to use
-        the functionality of the DDD library.
-
-        \todoTBC
- */
-
-class DDD_Library
-{
-public:
-  DDD_Library (int *, char ***);
-  ~DDD_Library ();
-
-  /// DDD\_Library is a Singleton
-  static DDD_Library* Instance();
-
-  /// shows status of DDD library
-  void Status (void);
-  void SetOption (DDD_OPTION, int);
-
-  DDD_PROC InfoMe (void);
-  DDD_PROC InfoMaster (void);
-  DDD_PROC InfoProcs (void);
-  int IsMaster (void)  {
-    return InfoMe()==InfoMaster();
-  }
-
-  /// redirect DDD stdout by registering callback function
-  void LineOutRegister (void (*func)(const char *s));
-
-  // from TypeManager
-  DDD_TYPE TypeDeclareStruct (const char* n="");
-  DDD_TYPE TypeDeclare (const char* n="")
-  {
-    return TypeDeclareStruct(n);
-  }
-
-  // for array-like objects
-  DDD_TYPE TypeDeclareIndex (int s=0, char* n="");
-  DDD_TYPE TypeDeclare (int s, char* n="")
-  {
-    return TypeDeclareIndex(s,n);
-  }
-
-  // for struct- or array-like objects
-  void TypeDefine (DDD_TYPE, ...);
-  void TypeChangeName (DDD_TYPE, char*);
-  void TypeDisplay(DDD_TYPE);
-  int InfoTypes (void);
-  int InfoHdrOffset (DDD_TYPE);
-
-                #ifndef WITH_VIRTUAL_HANDLERS
-  // handler registration
-  void SetHandlerLDATACONSTRUCTOR (DDD_TYPE, HandlerLDATACONSTRUCTOR);
-  void SetHandlerDESTRUCTOR       (DDD_TYPE, HandlerDESTRUCTOR);
-  void SetHandlerDELETE           (DDD_TYPE, HandlerDELETE);
-  void SetHandlerUPDATE           (DDD_TYPE, HandlerUPDATE);
-  void SetHandlerOBJMKCONS        (DDD_TYPE, HandlerOBJMKCONS);
-  void SetHandlerSETPRIORITY      (DDD_TYPE, HandlerSETPRIORITY);
-  void SetHandlerXFERCOPY         (DDD_TYPE, HandlerXFERCOPY);
-  void SetHandlerXFERDELETE       (DDD_TYPE, HandlerXFERDELETE);
-  void SetHandlerXFERGATHER       (DDD_TYPE, HandlerXFERGATHER);
-  void SetHandlerXFERSCATTER      (DDD_TYPE, HandlerXFERSCATTER);
-  void SetHandlerXFERGATHERX      (DDD_TYPE, HandlerXFERGATHERX);
-  void SetHandlerXFERSCATTERX     (DDD_TYPE, HandlerXFERSCATTERX);
-                #endif
-
-  // from PrioManager
-  void PrioMergeDefault (DDD_TYPE, int);
-  void PrioMergeDefine (DDD_TYPE, DDD_PRIO, DDD_PRIO, DDD_PRIO);
-  DDD_PRIO PrioMerge (DDD_TYPE, DDD_PRIO, DDD_PRIO);
-  void PrioMergeDisplay (DDD_TYPE);
-
-  // Identification
-  void    IdentifyBegin (void);
-  DDD_RET IdentifyEnd (void);
-
-  // Transfer
-  void XferBegin (void);
-  DDD_RET XferEnd (void);
-
-  // Prio
-  void PrioBegin (void);
-  DDD_RET PrioEnd (void);
-
-  // Join
-  void JoinBegin (void);
-  DDD_RET JoinEnd (void);
-
-  /* TODO some are missing here */
-
-  // miscellaneous
-  int ConsCheck (void);
-  void ListLocalObjects (void);
-  DDD_HDR SearchHdr (DDD_GID);
-
-
-private:
-  void ddd_TypeMgrInit (void);
-
-private:
-  static DDD_Library* _instance;
-};
-
-
-/****************************************************************************/
-
-/**
-        DDD Object class.
-        Each distributed object (\ie, DDD object) will have to inherit
-        from #DDD_Object#.
-
-        \todoTBC
- */
-
-class DDD_Object
-{
-public:
-  DDD_Object (DDD_TYPE, DDD_PRIO, DDD_ATTR a=0);
-  void Init (DDD_TYPE, DDD_PRIO, DDD_ATTR a=0);
-  DDD_Object ();
-  ~DDD_Object ();
-
-
-  // object properties
-  void PrioritySet (DDD_PRIO);
-  void AttrSet (DDD_ATTR);               /* this shouldn't be allowed */
-  int* InfoProcList (void);
-  DDD_PROC InfoProcPrio (DDD_PRIO);
-  int InfoIsLocal (void);
-  int InfoNCopies (void);
-
-  DDD_GID  InfoGlobalId (void) {
-    return (DDD_GID) _hdr.gid;
-  }
-  DDD_TYPE InfoType (void)     {
-    return (DDD_TYPE)_hdr.typ;
-  }
-  DDD_PRIO InfoPriority (void) {
-    return (DDD_PRIO)_hdr.prio;
-  }
-  DDD_ATTR InfoAttr (void)     {
-    return (DDD_ATTR)_hdr.attr;
-  }
-
-  /* Transfer */
-  void XferCopyObj (DDD_PROC, DDD_PRIO);
-  void XferDeleteObj (void);
-
-  /* Identification */
-  void IdentifyNumber (DDD_PROC, int);
-  void IdentifyString (DDD_PROC, char *);
-  void IdentifyObject (DDD_PROC, DDD_Object*);
-
-  friend void DDD_Library::ddd_TypeMgrInit (void);
-
-
-                #ifdef WITH_VIRTUAL_HANDLERS
-  // DDD Handlers as virtual functions
-  virtual void HandlerLDATACONSTRUCTOR (void) { }
-  virtual void HandlerDESTRUCTOR       (void) { }
-  virtual void HandlerDELETE           (void) { }
-  virtual void HandlerUPDATE           (void) { }
-  virtual void HandlerOBJMKCONS        (int) { }
-  virtual void HandlerSETPRIORITY      (DDD_PRIO) { }
-  virtual void HandlerXFERCOPY         (DDD_PROC, DDD_PRIO) { }
-  virtual void HandlerXFERDELETE       (void) { }
-  virtual void HandlerXFERGATHER       (int, DDD_TYPE, void *) { }
-  virtual void HandlerXFERSCATTER      (int, DDD_TYPE, void *, int) { }
-  virtual void HandlerXFERGATHERX      (int, DDD_TYPE, char **) { }
-  virtual void HandlerXFERSCATTERX     (int, DDD_TYPE, char **, int) { }
-                #endif
-
-  //protected:
-public:            // currently open to public, make protected later
-  DDD_HEADER _hdr;
-};
-
-
-/****************************************************************************/
-
-/**
-        DDD ObjectOf template class.
-        This template class simplifies the usage of the base class
-   #DDD_Object#.
-
-        \todoTBC
- */
-
-template<class T>
-class DDD_ObjectOf : public DDD_Object
-{
-public:
-  DDD_ObjectOf<T> (DDD_PRIO p, DDD_ATTR a=0)
-  : DDD_Object(GetType(),p,a)
-  { }
-
-  inline static DDD_TYPE GetType (void)
-  {
-    if (_dddtype==0)
-    {
-      //T* p=0;
-      _dddtype = DDD_Library::Instance()->TypeDeclareStruct();
-    }
-    return _dddtype;
-  }
-
-private:
-  static DDD_TYPE _dddtype;
-};
-
-template<class T>
-DDD_TYPE DDD_ObjectOf<T>::_dddtype = 0;
-
-
-/****************************************************************************/
-
-/**
-        DDD IndexObject class.
-        For objects stored in arrays, it is more convenient to
-        use the #DDD_IndexObject# class instead of the common
-        base class #DDD_Object#.
-
-        \todoTBC
- */
-
-class DDD_IndexObject : public DDD_Object
-{
-public:
-  DDD_IndexObject (DDD_TYPE, DDD_INDEX, DDD_PRIO, DDD_ATTR a=0);
-  ~DDD_IndexObject() {}
-
-  DDD_INDEX Index()    {
-    return _index;
-  }
-  operator int()       {
-    return _index;
-  }
-
-private:
-  DDD_INDEX _index;
-};
-
-
-
-/**
-        DDD IndexObjectOf template class.
-        This template class simplifies the usage of its base class
-   #DDD_IndexObject#.
-
-        \todoTBC
- */
-
-template<class T>
-class DDD_IndexObjectOf : public DDD_IndexObject
-{
-public:
-  DDD_IndexObjectOf<T> (DDD_INDEX i, DDD_PRIO p, DDD_ATTR a=0)
-  : DDD_IndexObject(GetType(),i,p,a)
-  { }
-
-  static DDD_TYPE GetType (void)
-  {
-    if (_dddtype==0)
-    {
-      //T* p=0;
-      _dddtype = DDD_Library::Instance()->TypeDeclareIndex();
-    }
-    return _dddtype;
-  }
-
-private:
-  static DDD_TYPE _dddtype;
-};
-
-template<class T>
-DDD_TYPE DDD_IndexObjectOf<T>::_dddtype = 0;
-
-
-
-/****************************************************************************/
-
-/**
-        DDD Communicator class.
-        Base class for all communicator classes.
-
-        \todoTBC
- */
-
-class DDD_Communicator
-{
-  // empty
-};
-
-
-/**
-        DDD GatherScatter class.
-        This communicator specifies two member functions for packing
-        and unpacking data for one distributed DDD object inside a
-        \ddd{interface}.
-
-        \todoTBC
- */
-
-class DDD_GatherScatter : public DDD_Communicator
-{
-public:
-  virtual int Gather  (DDD_Object*, void*) = 0;
-  virtual int Scatter (DDD_Object*, void*) = 0;
-};
-
-
-/**
-        DDD GatherScatterX class.
-        This communicator specifies two member functions for packing
-        and unpacking data for one distributed DDD object inside a
-        \ddd{interface}.
-        The handler functions #Gather# and #Scatter# take eXtended arguments.
-
-        \todoTBC
- */
-
-class DDD_GatherScatterX : public DDD_Communicator
-{
-public:
-  virtual int Gather  (DDD_Object*, void*, DDD_PROC, DDD_PRIO) = 0;
-  virtual int Scatter (DDD_Object*, void*, DDD_PROC, DDD_PRIO) = 0;
-};
-
-
-/**
-        DDD Exec class.
-        This communicator is used for local execution of a single
-        function for each object inside a \ddd{interface}.
-
-        \todoTBC
- */
-
-class DDD_Exec : public DDD_Communicator
-{
-public:
-  virtual int Exec (DDD_Object*) = 0;
-};
-
-
-/**
-        DDD ExecX class.
-        This communicator is used for local execution of a single
-        function for each object inside a \ddd{interface}.
-        The member function #Exec# takes eXtended arguments.
-
-        \todoTBC
- */
-
-class DDD_ExecX : public DDD_Communicator
-{
-public:
-  virtual int Exec (DDD_Object*, DDD_PROC, DDD_PRIO) = 0;
-};
-
-
-/****************************************************************************/
-
-/**
-        DDD Interface class.
-        This is the abstraction of distributed-graph overlap at processor
-        borders.
-
-        \todoTBC
- */
-
-class DDD_Interface
-{
-public:
-  DDD_Interface (int, DDD_TYPE O[],
-                 int, DDD_PRIO A[], int, DDD_PRIO B[], char* n="");
-  DDD_Interface (DDD_TYPE, DDD_PRIO, DDD_PRIO, char* n="");
-  void SetName (const char *);
-
-  static void DisplayAll (void);
-  void Display (void);
-
-  static size_t InfoMemoryAll (void);
-  size_t InfoMemory (void);
-
-
-  void Exchange  (                    size_t, DDD_GatherScatter*);
-  void Exchange  (                    size_t, DDD_GatherScatter&);
-  void Oneway    (         DDD_IF_DIR,size_t, DDD_GatherScatter*);
-  void Oneway    (         DDD_IF_DIR,size_t, DDD_GatherScatter&);
-  /* TODO: NIY
-                  void ExecLocal (                            DDD_Exec*);
-                  void AExchange (DDD_ATTR,           size_t, DDD_GatherScatter*);
-                  void AOneway   (DDD_ATTR,DDD_IF_DIR,size_t, DDD_GatherScatter*);
-                  void AExecLocal(DDD_ATTR,                   DDD_Exec*);
-
-                  void Exchange  (                    size_t, DDD_GatherScatterX*);
-                  void Oneway    (         DDD_IF_DIR,size_t, DDD_GatherScatterX*);
-                  void ExecLocal (                            DDD_ExecX*);
-                  void AExchange (DDD_ATTR,           size_t, DDD_GatherScatterX*);
-                  void AOneway   (DDD_ATTR,DDD_IF_DIR,size_t, DDD_GatherScatterX*);
-                  void AExecLocal(DDD_ATTR,                   DDD_ExecX*);
-   */
-
-private:
-  void Init (int,DDD_TYPE*, int,DDD_PRIO*, int,DDD_PRIO*, char*);
-
-private:
-  DDD_IF _id;
-};
-
-#endif
-
-
-/****************************************************************************/
-
-
 /*
         General DDD Module
  */
-#if defined(C_FRONTEND)
 void     DDD_Init (int *argcp, char ***argvp);
 void     DDD_Exit (void);
 void     DDD_Status (void);
 void     DDD_SetOption (DDD_OPTION _FPTR, int _FPTR);
-#endif
 
-#if defined(C_FRONTEND)
 DDD_PROC DDD_InfoMe (void);
 DDD_PROC DDD_InfoMaster (void);
 DDD_PROC DDD_InfoProcs (void);
-#endif
 
 
 /*
         Redirect line-oriented output, new in V1.2
  */
-#if defined(C_FRONTEND)
 void     DDD_LineOutRegister (void (*func)(const char *s));
-#endif
 
 
 /*
         Type Manager Module
  */
 
-#ifdef C_FRONTEND
 DDD_TYPE DDD_TypeDeclare (const char *name);
 int      DDD_InfoHdrOffset (DDD_TYPE);
-#endif
-#if defined(C_FRONTEND)
 void     DDD_TypeDefine (DDD_TYPE _FPTR, ...);
 void     DDD_TypeDisplay (DDD_TYPE _FPTR);
 
 /* oldstyle setting of DDD-handlers, will be removed in later versions */
 void     DDD_HandlerRegister (DDD_TYPE _FPTR, ...);
-#endif
 int      DDD_InfoTypes (void);
 
 
-#if defined(C_FRONTEND)
 /* newstyle, type-secure setting of handlers */
 void     DDD_SetHandlerLDATACONSTRUCTOR(DDD_TYPE _FPTR, HandlerLDATACONSTRUCTOR);
 void     DDD_SetHandlerDESTRUCTOR      (DDD_TYPE _FPTR, HandlerDESTRUCTOR);
@@ -975,22 +456,18 @@ void     DDD_SetHandlerXFERSCATTER     (DDD_TYPE _FPTR, HandlerXFERSCATTER);
 void     DDD_SetHandlerXFERGATHERX     (DDD_TYPE _FPTR, HandlerXFERGATHERX);
 void     DDD_SetHandlerXFERSCATTERX    (DDD_TYPE _FPTR, HandlerXFERSCATTERX);
 void     DDD_SetHandlerXFERCOPYMANIP   (DDD_TYPE _FPTR, HandlerXFERCOPYMANIP);
-#endif
 
 
-#ifdef C_FRONTEND
 void     DDD_PrioMergeDefault (DDD_TYPE, int);
 void     DDD_PrioMergeDefine (DDD_TYPE, DDD_PRIO, DDD_PRIO, DDD_PRIO);
 DDD_PRIO DDD_PrioMerge (DDD_TYPE, DDD_PRIO, DDD_PRIO);
 void     DDD_PrioMergeDisplay (DDD_TYPE);
-#endif
 
 
 
 /*
         Object Properties
  */
-#ifndef CPP_FRONTEND
 void     DDD_PrioritySet (DDD_HDR, DDD_PRIO);
 void     DDD_AttrSet (DDD_HDR, DDD_ATTR); /* this shouldn't be allowed */
 int  *   DDD_InfoProcList (DDD_HDR);
@@ -998,7 +475,6 @@ DDD_PROC DDD_InfoProcPrio (DDD_HDR, DDD_PRIO);
 int      DDD_InfoIsLocal (DDD_HDR);
 int      DDD_InfoNCopies (DDD_HDR);
 size_t   DDD_InfoCplMemory (void);
-#endif
 
 
 
@@ -1006,25 +482,20 @@ size_t   DDD_InfoCplMemory (void);
         Identification Environment Module
  */
 
-#if defined(C_FRONTEND)
 void     DDD_IdentifyBegin (void);
 DDD_RET  DDD_IdentifyEnd (void);
 void     DDD_IdentifyNumber (_OBJREF, DDD_PROC _FPTR, int _FPTR);
 void     DDD_IdentifyString (_OBJREF, DDD_PROC _FPTR, char *);
 void     DDD_IdentifyObject (_OBJREF, DDD_PROC _FPTR, _OBJREF);
-#endif
 
 
 /*
         Interface Module
  */
 
-#ifdef C_FRONTEND
 DDD_IF   DDD_IFDefine (int, DDD_TYPE O[], int, DDD_PRIO A[], int, DDD_PRIO B[]);
 void     DDD_IFSetName (DDD_IF, const char *);
-#endif
 
-#if defined(C_FRONTEND)
 void     DDD_IFDisplayAll (void);
 void     DDD_IFDisplay (DDD_IF _FPTR);
 size_t   DDD_IFInfoMemoryAll (void);
@@ -1043,55 +514,45 @@ void     DDD_IFExecLocalX (DDD_IF _FPTR,                                        
 void     DDD_IFAExchangeX (DDD_IF _FPTR,DDD_ATTR _FPTR,                 size_t _FPTR, ComProcXPtr,ComProcXPtr);
 void     DDD_IFAOnewayX   (DDD_IF _FPTR,DDD_ATTR _FPTR,DDD_IF_DIR _FPTR,size_t _FPTR, ComProcXPtr,ComProcXPtr);
 void     DDD_IFAExecLocalX(DDD_IF _FPTR,DDD_ATTR _FPTR,                               ExecProcXPtr);
-#endif
 
 
 /*
         Transfer Environment Module
  */
-#ifdef C_FRONTEND
 int      DDD_XferWithAddData (void);
 void     DDD_XferAddData (int _FPTR, DDD_TYPE _FPTR);
 void     DDD_XferAddDataX (int _FPTR, DDD_TYPE _FPTR, size_t sizes[]);
 int      DDD_XferIsPrunedDelete (_OBJREF);
 int      DDD_XferObjIsResent (_OBJREF);
-#endif
-#if defined(C_FRONTEND)
 void     DDD_XferBegin (void);
 DDD_RET  DDD_XferEnd (void);
 void     DDD_XferCopyObj (_OBJREF, DDD_PROC _FPTR, DDD_PRIO _FPTR);
 void     DDD_XferCopyObjX (_OBJREF, DDD_PROC _FPTR, DDD_PRIO _FPTR, size_t _FPTR);
 void     DDD_XferDeleteObj (_OBJREF);
 void     DDD_XferPrioChange (_OBJREF, DDD_PRIO _FPTR);
-#endif
 
 
 /*
         Prio Environment Module
  */
-#ifdef C_FRONTEND
 void     DDD_PrioBegin (void);
 DDD_RET  DDD_PrioEnd (void);
 void     DDD_PrioChange (_OBJREF, DDD_PRIO _FPTR);
-#endif
 
 
 
 /*
         Join Environment Module
  */
-#ifdef C_FRONTEND
 void     DDD_JoinBegin (void);
 DDD_RET  DDD_JoinEnd (void);
 void     DDD_JoinObj (_OBJREF, DDD_PROC _FPTR, DDD_GID _FPTR);
-#endif
 
 
 /*
         Object Manager
  */
 
-#ifdef C_FRONTEND
 DDD_OBJ  DDD_ObjNew (size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
 void     DDD_ObjDelete (DDD_OBJ, size_t, DDD_TYPE);
 void     DDD_HdrConstructor (DDD_HDR, DDD_TYPE, DDD_PRIO, DDD_ATTR);
@@ -1099,7 +560,6 @@ void     DDD_HdrConstructorMove (DDD_HDR, DDD_HDR);
 void     DDD_HdrDestructor (DDD_HDR);
 DDD_OBJ  DDD_ObjGet (size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
 void     DDD_ObjUnGet (DDD_HDR, size_t);
-#endif
 
 
 
@@ -1107,11 +567,9 @@ void     DDD_ObjUnGet (DDD_HDR, size_t);
         Maintainance & Debugging
  */
 
-#if defined(C_FRONTEND)
 int      DDD_ConsCheck (void);  /* returns total #errors since V1.6.6 */
 void     DDD_ListLocalObjects (void);
 DDD_HDR  DDD_SearchHdr (DDD_GID _FPTR);
-#endif
 
 
 /****************************************************************************/
@@ -1119,13 +577,6 @@ DDD_HDR  DDD_SearchHdr (DDD_GID _FPTR);
 #undef _FPTR
 #undef _OBJREF
 
-/*
-   #ifdef __cplusplus
-   #ifndef CPP_FRONTEND
-   }
-   #endif
-   #endif
- */
 /****************************************************************************/
 
 END_UGDIM_NAMESPACE

@@ -7,8 +7,6 @@ endif()
 
 set(_dim_libs ug_gm np algebra udm ugui low)
 
-
-dune_add_library(devS APPEND $<TARGET_OBJECTS:devSif>  $<TARGET_OBJECTS:devices>)
 ug_add_dim_libs(ugL SOURCES ../initug.cc OBJECT_DIM_LIBS ${_dim_libs} OBJECT_LIBS  devices low)
 ug_add_dim_libs(ugS APPEND DUNE SOURCES ../initug.cc
   OBJECT_DIM_LIBS ${_dim_libs} domS ${_parallel_dim_libs}

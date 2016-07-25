@@ -43,9 +43,7 @@ UG KERNEL:
 	For more details see man page `gm`.
 
 .   'devices~(dev)' -
-	`devices` defines an abstract device interface with a fixed functionality. The drivers for different real 
-	devices as X11 or the `ug` internal graphics meta format are implemented in separate modules. All access 
-	to X11 is for example managed by the submodule `xif`.
+	`devices` defines an abstract device interface with a fixed functionality.
 
 .   'low~tasks~(low)' -
 	This module handles low tasks as providing memory management, treating machine architecture and operation system 
@@ -123,7 +121,6 @@ ug31
 |    |    |----grids/
 |    |    |----gs/
 |    |    |----logfiles/
-|    |    |----metas/
 |    |    |----protos/
 |    |    \----scripts/
 |    |----man/
@@ -187,7 +184,6 @@ ug31
     |----bin/
     |----configs/
     |----dev/
-    |    |----meta/
     |    |----mif/
     |    |----ps/
     |    |----rif/
@@ -216,7 +212,6 @@ ug31
     |            |----admin/
     |            |----commands/
     |            |----dev/
-    |            |    |----meta/
     |            |    |----ps/
     |            |    |----sif/
     |            |    \----xif/
@@ -319,10 +314,6 @@ D*/
       pathname specification relatively to the current working directory or
       absolute, terminate the name with "/". Note that environment 
       variables such as '$UGROOT' are not interpreted; do not use them!
-.  metafilesdir -  searchpath to metafiles for pictures ('*.mete'). Give one
-      pathname specification relatively to the current working directory or
-      absolute, terminate the name with "/". Note that environment 
-      variables such as '$UGROOT' are not interpreted; do not use them!
 .  scriptpaths -  searchpaths to script files ('*.scr'). Give blank separated 
       pathname specifications relatively to the current working directory or
       absolute, terminate each name with "/". Note that environment 
@@ -354,7 +345,6 @@ helpfiles       ../../ug/doc/ug.help ../../ug/doc/ug2d.help ../pclib/ns.help
 gridpaths       ./grids/
 logfilesdir     ./example/
 protocoldir     ./example/
-metafilesdir    ./example/
 scriptpaths     ./example/ ./ ./plotscripts/
 arraypaths      ./example
 

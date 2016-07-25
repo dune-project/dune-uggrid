@@ -56,16 +56,9 @@
 
 #include <mpi.h>
 
-#include "../ppif_general.h"
 #include "../ppif.h"
 
 /*#include "ugtypes.h"*/
-
-/*#define _PV3*/
-
-#ifdef _PV3
-#include <pV3.h>
-#endif
 
 using namespace PPIF;
 
@@ -89,16 +82,10 @@ using namespace PPIF;
 #define ID_GLOBAL       102     /* channel id: global                       */
 #define ID_MAIL         103     /* channel id: mail                         */
 
-#define ABS(i)          (((i)<0) ? (-(i)) : (i))
-
 #define PPIF_SUCCESS    0       /* Return value for success                 */
 #define PPIF_FAILURE    1       /* Return value for failure                 */
 
-#ifndef _PV3
 #define COMM MPI_COMM_WORLD
-#else
-#define COMM Comm
-#endif
 
 /****************************************************************************/
 /*                                                                          */
@@ -144,18 +131,6 @@ int PPIF::slvcnt[MAXT];                /* number of processors in subtree       
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-static int vc_count=0;          /* number of used VChan                     */
-
-#ifdef _PV3
-static MPI_Comm Comm;
-#endif
-
-/****************************************************************************/
-/*                                                                          */
 /* forward declarations of functions used before they are defined           */
 /*                                                                          */
 /****************************************************************************/
@@ -177,8 +152,6 @@ static VChannelPtr NewVChan (int p, int id)
   myChan->p      = p;
   myChan->chanid = id;
 
-  vc_count += 1;
-
   return (myChan);
 }
 
@@ -187,8 +160,6 @@ static void DeleteVChan (VChannelPtr myChan)
 
 {
   free(myChan);
-
-  vc_count -= 1;
 }
 
 
@@ -205,31 +176,6 @@ static void DeleteVChan (VChannelPtr myChan)
 /*            int!=0: error                                                 */
 /*                                                                          */
 /****************************************************************************/
-
-int PPIF::aid_to_pid (int x, int y, int z)
-
-{
-  if ((x<0)||(x>=DimX)) return (-1);
-  if ((y<0)||(y>=DimY)) return (-1);
-  if ((z<0)||(z>=DimZ)) return (-1);
-
-  return ( (z*DimY+y)*DimX+x);
-}
-
-int PPIF::pid_to_aid (int p)
-
-{
-  int x, y, z;
-
-  if ((p<0)||(p>=procs)) return (-1);
-
-  x = p%DimX;
-  p = p/DimX;
-  y = p%DimY;
-  z = p/DimY;
-
-  return ((z<<16)|(y<<8)|x);
-}
 
 /*
    Factor N into two integers that are as close together as possible
@@ -273,23 +219,10 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
     if (mpierror) MPI_Abort( MPI_COMM_WORLD, mpierror);
     PPIFBeganMPI = 1;
   }
-#ifdef _PV3
-  else
-  {
-    printf("MPI already initialized, InitPPIF() failed.\n");
-    return PPIF_FAILURE;
-  }
-  if (pV_MPIStart(MPI_COMM_WORLD, 1, 0, 0, &Comm) != 0) {
-    printf("pV3 Concentrator cannot be selected. InitPPIF() failed.\n");
-    return PPIF_FAILURE;
-  }
-#endif
   MPI_Comm_rank (COMM, &me);
   MPI_Comm_size (COMM, &procs);
 
   master = 0;
-
-  vc_count = 0;
 
   DimZ = 1;
   Factor(procs, &DimX, &DimY);
@@ -356,9 +289,6 @@ int PPIF::ExitPPIF ()
 
   if (PPIFBeganMPI)
   {
-#ifdef _PV3
-    pV_MPISTOP();
-#endif
     mpierror = MPI_Finalize();
     if (mpierror) MPI_Abort(MPI_COMM_WORLD, mpierror);
     PPIFBeganMPI = 0;
@@ -643,55 +573,9 @@ int PPIF::InfoARecv (void* v, msgid m)
 
 /****************************************************************************/
 /*                                                                          */
-/* Random communication                                                         */
-/*                                                                          */
-/****************************************************************************/
-
-int PPIF::SendMail (int destId, int reqId, void *data, int size)
-
-{
-  if (MPI_SUCCESS == MPI_Send (data, size, MPI_BYTE, destId, ID_MAIL, COMM) )
-    return (PPIF_SUCCESS);
-
-  return (PPIF_FAILURE);
-}
-
-int PPIF::GetMail (int *sourceId, int *reqId, void *data, int *size)
-
-{
-  MPI_Status status;
-  int flag;
-
-  MPI_Iprobe (MPI_ANY_SOURCE, ID_MAIL, COMM, &flag, &status);
-
-  if (!flag) return (0);
-
-  *sourceId = status.MPI_SOURCE;
-  *reqId    = ID_MAIL;
-
-  if (MPI_SUCCESS != MPI_Recv (data, RAND_MSG_SIZE, MPI_BYTE, *sourceId, ID_MAIL, COMM, &status) )
-  {
-    printf ("GetMail: %d no mesg!\n", me);
-    return (-1);
-  }
-
-  MPI_Get_count (&status, MPI_BYTE, size);
-
-  return (1);
-}
-
-
-/****************************************************************************/
-/*                                                                          */
 /* Miscellaneous                                                            */
 /*                                                                          */
 /****************************************************************************/
-
-int PPIF::UsedSpace ()
-
-{
-  return vc_count*sizeof(MPIVChannel);
-}
 
 void PPIF::PrintHostMessage (const char *s)
 
@@ -703,22 +587,4 @@ double PPIF::CurrentTime ()
 
 {
   return(((float)(clock())/((float)CLOCKS_PER_SEC)));
-}
-
-int PPIF::Distance (int p, int q)
-
-{
-  int pX,pY,pZ,qX,qY,qZ;
-
-  pX = p%DimX;
-  p = p/DimX;
-  pY = p%DimY;
-  pZ = p/DimY;
-
-  qX = q%DimX;
-  q = q/DimX;
-  qY = q%DimY;
-  qZ = q/DimY;
-
-  return (ABS (pX-qX) + ABS (pY-qY) + ABS (pZ-qZ) );
 }

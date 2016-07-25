@@ -80,53 +80,6 @@
 */
 /****************************************************************************/
 
-
-/****************************************************************************/
-/** \page   cmfn cmfn - Creates a metafile name
-
- \section Description
-   This command creates a metafile names.
-   It creates a string containing the name of a metafile name for
-   animation by xugv.
-
-\section Syntax
-   'cmfn \<name> \<var>'
-
-  <li> \<name> - first part of the metafile names
-  <li> \<var> - the contents of var will be appended to the name
-
- \section Example
-\verbatim
-frame="
-    cmfn film step;
-    openwindow 0 0 820 420 $d meta $n \@film;
-    openpicture $s 10 10 800 400 $n framepic;
-    setplotobject EScalar $e S2 $m COLOR $d 0 $f 0.0 $t 1.0;
-    setview;
-    zoom 0.4;
-    plot;
-    closewindow;
-";
-step = 0;
-steps = 100;
-\@frame;
-repeat {
-    print "STEP ", step;
-    \@mysolve; 
-    step=step+1;
-    \@frame;
-    if (step==steps) break;
-}
-\endverbatim
-
-   This runs 'mysolve' 100 times and 
-   creates metafiles 'film.0000', 'film.0001', 'film.0002', ... 'film.0100'.
-   
- \section Keywords
-   movie, film
-*/
-/****************************************************************************/
-
 /****************************************************************************/
 /** \page   readclock readclock - Print execution time
 
@@ -1596,48 +1549,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  cadconvert cadconvert - Convert predefined CADgrid
-
- \section Description
-   This command converts a predefined CADgrid to an UG-multigrid.
-   The complete boundary descriptions are created automatically.
-   Additionally boundary conditions can be chosen from a boundary condition class library.
-
-\section Syntax
-   'cadconvert $\<filename> $h\<heapsize>'
-
-   <ul>
-     <li> $ \<filename>  - filename = name of CADOutputfile ("*.ans", ANSYS/PREP7-Format) </li>
-     <li> $f \<format>   - one of the enroled formats matching with \<problem> </li>
-     <li> $h \<heapsize> - the heapsize to be allocated </li>
-   </ul>
-
-
- \section Example
-   'cadconvert $ wuerfel.ans $h 12000;'
-   
- \section Keywords
-   multigrid, generate, create, mesh, net, grid, coarse, CAD, ANSYS, PREP7
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  screensize screensize - Print the size of the monitor screen in pixels
-
- \section Description
-   This command prints the size of the monitor screen in pixels.
-   It prints the size in pixels of the screen (if there) on the shell
-   and in the variables ':screensize:width', ':screensize:height'
-
-\section Syntax
-   'screensize'
-   
- \section Keywords
-   screen, size, width, height
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  setcurrwindow setcurrwindow - Set the current window
 
  \section Description
@@ -1693,21 +1604,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  setpalette setpalette - Switch palette of default device
-
- \section Description
-   This command switches the palette of the default device.
-
-\section Syntax
-   'setpalette c|bw|g [$d \<device>]'
-  <li> $d~\<device>     - specify the name of an output device (default: screen)
-   
- \section Keywords
-   graphics, plot, window, picture, device
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  clear clear - Assign a value to a symbolic vector
 
  \section Description
@@ -1744,26 +1640,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, numerics, userdata, vecdata, descriptor
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  mflops mflops - Floating point speed measuring
-
- \section Description
-   This function tests the performance of the UG specific blas routines.
-
-\section Syntax
-   'mflops $x \<vec> [$y \<tmp>] [$A \<mat>] [$l \<loop>]'
-
-  <li> $x~\<vec>   - vector
-  <li> $y~\<tmp>   - second vector
-  <li> $A~\<mat>   - matrix
-  <li> $l~\<loop>  - loop number
-
-   REMARK:
-   Due to the inaccuracy of the most UNIX clock systems take a huge loop number
-   to get an good average.
 */
 /****************************************************************************/
 
@@ -2004,106 +1880,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 	
 	SEE ALSO:
 	setpf
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   npexecute npexecute - Execute a NumProc
- *
- * This command executes a NumProc.
- * It calls the function 'ExecuteNumProc'.
-
- \section Syntax
-   'npexecute [\<num proc name>] \<argument list to be passed>'
-
-  <li> \<num~proc~name> - name of an existing NumProc
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, matdata, numproc, execute
-
-   * \sa numerics, NUM_PROC
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  npdisplay npdisplay - Display a NumProc
-
- \section Description
-   This command displays a NumProc.
-   It calls the function 'DisplayNumProc'.
-
- \section Syntax
-   'npdisplay [\<num proc name>] [$c [\<class>] | $a]'
-
-  <li> \<num~proc~name> - name of an existing NumProc (default is the current NumProc)
-  <li> $c~[\<class>]    - list all num procs of \<class> or list classes if \<class> omitted
-  <li> $a              - list all num procs
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, matdata, numproc, display, show, print
-
-   SEE ALSO:
-   'npcreate', 'npexecute'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  npcreate npcreate - Create a NumProc
-
- \section Description
-   This command creates a NumProc for the current multigrid with a given constructor.
-   It calls the function CreateNumProc().
-
- \section Syntax
-   'npcreate \<num proc name> $c \<constructor>'
-
-  <li> \<num~proc~name> 		- name of the new NumProc
-  <li> $c~\<num~proc~type>	- name of an existing constructor
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, matdata, numproc, create, install
-
-   SEE ALSO:
-   'npdisplay', 'npexecute', 'NUM_PROC'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  npinit npinit - Inizialize a NumProc
-
- \section Description
-   This command inizializes a NumProc.
-   It calls the function 'SetNumProc'.
-
- \section Syntax
-   'npinit \<argument list to be passed>'
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, matdata, numproc, initialize, parameters, configure
-
-   SEE ALSO:
-   'npcreate', 'npdisplay', 'numerics', 'NUM_PROC'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  scnp  scnp - Make a NumProc the current NumProc
-
- \section Description
-   This command makes a NumProc the current NumProc.
-   It sets current num proc.
-   It calls the function 'GetNumProcFromName'.
-
- \section Syntax
-   'scnp \<num proc name>'
-
-. \<num~proc~name> - name of an existing NumProc
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, matdata, numproc, active, current
-
-   SEE ALSO:
-   'npcreate', 'npdisplay', 'numerics', 'NUM_PROC'
 */
 /****************************************************************************/
 

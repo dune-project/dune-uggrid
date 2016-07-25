@@ -12,11 +12,6 @@
     The possibility of a very simple text interface is also offered ('sif'). With this
     interface ug should run on hardly any machine and also in batch mode.
     
-    Additionally there exists the possibility to write graphical ouput in form of 
-    a special ug-defined graphics commands format called 'metafile' to file which
-    later can be viewed using the
-    program 'xugv' or converting it to PostScript using the 'm2ps' tool.
-    
     The machine interface is split into two parts':'
 
 .n      a) output to the shell
@@ -56,7 +51,6 @@
     
 .n      xif - here is the source code for the XWindows interface
 .n      mif - here is the source code for the Macintosh interface
-.n      meta - here is the source code for the (machine independent) metafile interface
     
     SEE ALSO:
     EVENT, OUTPUTDEVICE, ProcessEvent

@@ -209,11 +209,6 @@ typedef struct _XIDelCmd
 {
   SLL_INFO_WITH_COUNTER(_XIDelCmd);
   DDD_HDR hdr;
-
-        #ifdef CPP_FRONTEND
-  DDD_Object *obj;
-        #endif
-
 } XIDelCmd;
 
 /* include template */

@@ -160,20 +160,6 @@ enum PrioMergeVals {
 
 
 /****************************************************************************/
-
-
-/*
-        macros for providing information for executable information system
- */
-#ifdef C_FRONTEND
-        #define INFO_FRONTEND "C_FRONTEND"
-#endif
-#ifdef CPP_FRONTEND
-        #define INFO_FRONTEND "CPP_FRONTEND"
-#endif
-
-
-/****************************************************************************/
 /*                                                                          */
 /* data structures exported by the corresponding source file                */
 /*                                                                          */
@@ -212,11 +198,6 @@ typedef struct _ELEM_DESC
   int offset;                         /* element offset from object address     */
   unsigned char *gbits;               /* ptr to gbits array, if type==EL_GBITS  */
 
-#if defined(CPP_FRONTEND)
-  char     *array;                        /* pointer to the array of this element   */
-  int msgoffset;                                          /* offset of this element in the message  */
-#endif
-
   size_t size;                        /* size of this element                   */
   int type;                           /* type of element, one of EL_xxx         */
 
@@ -246,17 +227,6 @@ typedef struct _TYPE_DESC
   const char  *name;                       /* textual object description           */
   int currTypeDefCall;                  /* number of current call to TypeDefine */
 
-#ifdef CPP_FRONTEND
-  int storage;                          /* STORAGE_ARRAY or STORAGE_STRUCT      */
-
-  /* if storage==STORAGE_ARRAY */
-  int arraySize;                                        /* number of elements in the arrays     */
-  //int    nextFree;				/* next free object in arrays           */
-  int elemHeader;                       /* which rec. type-elem contains hdr?
-                                           (offsetHeader gives local offset)    */
-                                        /* (hasHeader must be true)             */
-#endif
-
   /* if C_FRONTEND or (CPP_FRONTEND and storage==STORAGE_STRUCT) */
   int hasHeader;                        /* flag: real ddd type (with header)?   */
   int offsetHeader;                     /* offset of header from begin of obj   */
@@ -280,9 +250,7 @@ typedef struct _TYPE_DESC
   HandlerXFERSCATTER handlerXFERSCATTER;
   HandlerXFERGATHERX handlerXFERGATHERX;
   HandlerXFERSCATTERX handlerXFERSCATTERX;
-#if defined(C_FRONTEND)
   HandlerXFERCOPYMANIP handlerXFERCOPYMANIP;
-#endif
 
 
   DDD_PRIO *prioMatrix;                 /* 2D matrix for comparing priorities   */
@@ -369,13 +337,7 @@ extern VChannelPtr *theTopology;
 
 
 /* internal access of DDD_HEADER members */
-
-#ifdef CPP_FRONTEND
-#define ACCESS_HDR(o,c)   ((o)->_hdr.c)
-#else
 #define ACCESS_HDR(o,c)   ((o)->c)
-#endif
-
 
 /* type of object */
 #define OBJ_TYPE(o)     ACCESS_HDR(o,typ)
@@ -485,49 +447,6 @@ typedef int (*ExecProcHdrPtr)(DDD_HDR);
 typedef int (*ExecProcHdrXPtr)(DDD_HDR, DDD_PROC, DDD_PRIO);
 typedef int (*ComProcHdrPtr)(DDD_HDR, void *);
 typedef int (*ComProcHdrXPtr)(DDD_HDR, void *, DDD_PROC, DDD_PRIO);
-
-
-/****************************************************************************/
-/*                                                                          */
-/* specialties for CPP_FRONTEND                                             */
-/*                                                                          */
-/****************************************************************************/
-
-#ifdef CPP_FRONTEND
-
-/* not used up to now
-   class DDD_ObjPtr
-   {
-        public:
-
-                // access to DDD_HEADER of DDD_Object
-                DDD_HDR operator-> ()  { return &(_obj->_hdr); }
-
-                // access to DDD_Object itself
-                DDD_Object* operator* ()  { return _obj; }
-
-        private:
-                DDD_Object*  _obj;
-   };
-
-   #define HdrPtr   DDD_ObjPtr
- */
-
-#define CallHandler(desc,hname)     (desc->handler ## hname)
-#define HParam(obj)                 obj,
-#define HParamOnly(obj)             obj
-
-#endif
-
-
-#if defined(C_FRONTEND)
-/*
-   #define HdrPtr   DDD_HDR
- */
-
-#endif
-
-
 
 
 /****************************************************************************/
@@ -713,14 +632,6 @@ static char *mem_ptr;
 
 
 /****************************************************************************/
-
-/* macros for mapping internal usage of external functions */
-#if defined(C_FRONTEND)
-/* not used yet */
-#endif
-
-
-/****************************************************************************/
 /*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
@@ -731,9 +642,7 @@ int DDD_GetOption (DDD_OPTION);
 
 
 /* typemgr.c */
-#if defined(C_FRONTEND)
 void      ddd_TypeMgrInit (void);
-#endif
 void      ddd_TypeMgrExit (void);
 int       ddd_TypeDefined (TYPE_DESC *);
 
@@ -823,9 +732,6 @@ DDD_HDR  *LocalObjectsList (void);
 void      FreeLocalObjectsList (DDD_HDR *);
 DDD_HDR  *LocalCoupledObjectsList (void);
 void      FreeLocalCoupledObjectsList (DDD_HDR *);
-#ifdef CPP_FRONTEND
-DDD_OBJ  DDD_ObjNew (size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
-#endif
 
 /* basic/reduct.c */
 int       ddd_GlobalSumInt  (int);

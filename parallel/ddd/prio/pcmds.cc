@@ -325,12 +325,7 @@ static int ScatterPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
         between the processors.
  */
 
-#ifdef C_FRONTEND
 DDD_RET DDD_PrioEnd (void)
-#endif
-#ifdef CPP_FRONTEND
-DDD_RET DDD_Library::PrioEnd (void)
-#endif
 {
   /* step mode and check whether call to PrioEnd is valid */
   if (!PrioStepMode(PMODE_CMDS))
@@ -373,12 +368,7 @@ DDD_RET DDD_Library::PrioEnd (void)
         each processor.
  */
 
-#ifdef C_FRONTEND
 void DDD_PrioBegin (void)
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Library::PrioBegin (void)
-#endif
 {
   /* step mode and check whether call to JoinBegin is valid */
   if (!PrioStepMode(PMODE_IDLE))

@@ -146,25 +146,8 @@ static void LowComm_DefaultFree (void *buffer)
    @param  argvp      pointer to argv (the application's parameter list)
  */
 
-#if defined(C_FRONTEND)
 void DDD_Init (int *argcp, char ***argvp)
-#endif
-
-#ifdef CPP_FRONTEND
-DDD_Library::DDD_Library (int *argcp, char ***argvp)
-#endif
-
 {
-#ifdef CPP_FRONTEND
-  // check existence of another instance of DDD_Library
-  if (_instance!=0)
-  {
-    DDD_PrintError('E', 1021,
-                   "construction of two instances of DDD_Library is not allowed");
-    HARD_EXIT;
-  }
-#endif
-
   int buffsize;
 
   /* init lineout-interface to stdout */
@@ -247,11 +230,6 @@ DDD_Library::DDD_Library (int *argcp, char ***argvp)
   ddd_SetOption(OPT_IF_REUSE_BUFFERS,      OPT_OFF);
   ddd_SetOption(OPT_IF_CREATE_EXPLICIT,    OPT_OFF);
   ddd_SetOption(OPT_CPLMGR_USE_FREELIST,   OPT_ON);
-
-#ifdef CPP_FRONTEND
-  // remember pointer to singleton
-  _instance = this;
-#endif
 }
 
 
@@ -273,12 +251,7 @@ DDD_Library::DDD_Library (int *argcp, char ***argvp)
         to the DDD application programmer.
  */
 
-#if defined(C_FRONTEND)
 void DDD_Exit (void)
-#endif
-#ifdef CPP_FRONTEND
-DDD_Library::~DDD_Library (void)
-#endif
 {
   /* free bufferspace */
   FreeFix(iBuffer);
@@ -300,10 +273,6 @@ DDD_Library::~DDD_Library (void)
 
   /* exit PPIF */
   ExitPPIF();
-
-#ifdef CPP_FRONTEND
-  _instance = 0;
-#endif
 }
 
 
@@ -330,12 +299,7 @@ DDD_Library::~DDD_Library (void)
         \end{tabular}
  */
 
-#if defined(C_FRONTEND)
 void DDD_Status (void)
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Library::Status (void)
-#endif
 {
   sprintf(cBuffer, "| DDD_Status for proc=%03d, DDD-Version %s\n", me,
           DDD_VERSION);
@@ -394,13 +358,7 @@ void DDD_Library::Status (void)
    @param  func  handler function which should be used for text redirection
  */
 
-#ifdef C_FRONTEND
 void DDD_LineOutRegister (void (*func)(const char *s))
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Library::LineOutRegister (void (*func)(const char *))
-#endif
-
 {
   DDD_UserLineOutFunction = func;
 }
@@ -427,14 +385,8 @@ void DDD_Library::LineOutRegister (void (*func)(const char *))
    @param value    option value, possible values depend on option specifier
  */
 
-#ifdef C_FRONTEND
 void DDD_SetOption (DDD_OPTION option, int value)
 {
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Library::SetOption (DDD_OPTION option, int value)
-{
-#endif
 if (option>=OPT_END)
 {
   DDD_PrintError('E', 1090, "invalid DDD_OPTION in DDD_SetOption()");
@@ -483,19 +435,10 @@ int DDD_GetOption (DDD_OPTION option)
    @return  local processor number
  */
 
-#ifdef C_FRONTEND
 DDD_PROC DDD_InfoMe (void)
 {
   return me;
 }
-#endif
-#ifdef CPP_FRONTEND
-DDD_PROC DDD_Library::InfoMe (void)
-{
-  return me;
-}
-#endif
-
 
 
 /**
@@ -507,18 +450,10 @@ DDD_PROC DDD_Library::InfoMe (void)
 
    @return  master processor number
  */
-#ifdef C_FRONTEND
 DDD_PROC DDD_InfoMaster (void)
 {
   return master;
 }
-#endif
-#ifdef CPP_FRONTEND
-DDD_PROC DDD_Library::InfoMaster (void)
-{
-  return master;
-}
-#endif
 
 
 /**
@@ -527,46 +462,10 @@ DDD_PROC DDD_Library::InfoMaster (void)
    @return  total number of processors
  */
 
-#ifdef C_FRONTEND
 DDD_PROC DDD_InfoProcs (void)
 {
   return procs;
 }
-#endif
-#ifdef CPP_FRONTEND
-DDD_PROC DDD_Library::InfoProcs (void)
-{
-  return procs;
-}
-#endif
-
-
-/****************************************************************************/
-
-#ifdef CPP_FRONTEND
-/*
-        implementation for DDD_Library class
- */
-
-
-// pointer to single instance of DDD_Library
-DDD_Library* DDD_Library::_instance = 0;
-
-
-DDD_Library* DDD_Library::Instance (void)
-{
-  if (_instance==0)
-  {
-    DDD_PrintError('E', 1020, "no instance of DDD_Library exists");
-    HARD_EXIT;
-  }
-
-  return _instance;
-}
-
-
-#endif
-
 
 /****************************************************************************/
 

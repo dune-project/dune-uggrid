@@ -44,37 +44,13 @@
 	#define D_ABA(p)             (p->cplABA)
 #else
 	#define EXEC_LOOP(a,b,c)     NS_DIM_PREFIX IFExecLoopObj(a,b,c)
-	#ifdef CPP_FRONTEND
-	  #ifdef IF_CBR
-	    #define COMM_LOOP(a,b,c,d,e) \
-			CAT(NS_DIM_PREFIX IFCommLoopObj,a) (GatherScatter,b,c,d,e)
-	  #else
-	    #define COMM_LOOP(a,b,c,d,e) \
-			CAT(NS_DIM_PREFIX IFCommLoopObj,a) (*GatherScatter,b,c,d,e)
-	  #endif
-	#else
 	#define COMM_LOOP(a,b,c,d,e) NS_DIM_PREFIX IFCommLoopObj(a,b,c,d,e)
-	#endif
 	#define D_AB(p)              (p->objAB)
 	#define D_BA(p)              (p->objBA)
 	#define D_ABA(p)             (p->objABA)
 #endif
 
-
-#ifdef CPP_FRONTEND
-#define IF_FUNCNAME   CAT(DDD_Interface::,IF_NAME)
-#else
 #define IF_FUNCNAME   CAT(DDD_IF,IF_NAME)
-#endif
-
-#ifdef CPP_FRONTEND
-	#ifdef IF_CBR
-		#define REFDECL &
-	#else
-		#define REFDECL *
-	#endif
-#endif
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -193,11 +169,8 @@
 */
 
 
-#if defined(C_FRONTEND) || defined(CPP_FRONTEND)
 void IF_FUNCNAME (
-#ifdef C_FRONTEND
 	NS_DIM_PREFIX DDD_IF aIF,
-#endif
 	#ifdef IF_WITH_ATTR
 		NS_DIM_PREFIX DDD_ATTR aAttr,
 	#endif
@@ -212,45 +185,6 @@ void IF_FUNCNAME (
 			NS_DIM_PREFIX DDD_IF_DIR aDir,
 		#endif
 		size_t aSize,
-#ifdef C_FRONTEND
-		#ifdef IF_WITH_XARGS
-			NS_DIM_PREFIX ComProcXPtr Gather, NS_DIM_PREFIX ComProcXPtr Scatter)
-		#else
-			NS_DIM_PREFIX ComProcPtr Gather, NS_DIM_PREFIX ComProcPtr Scatter)
-		#endif
-#endif
-#ifdef CPP_FRONTEND
-		#ifdef IF_WITH_XARGS
-			NS_DIM_PREFIX DDD_GatherScatterX REFDECL GatherScatter)
-		#else
-			NS_DIM_PREFIX DDD_GatherScatter  REFDECL GatherScatter)
-		#endif
-#endif
-	#endif
-{
-	#ifdef CPP_FRONTEND
-		DDD_IF aIF     = _id;
-		//ComProcPtr Scatter = GatherScatter->Scatter;
-		//ComProcPtr Gather  = GatherScatter->Gather;
-	#endif
-#endif
-
-#ifdef F_FRONTEND
-void IF_FUNCNAME (NS_DIM_PREFIX DDD_IF *_aIF,
-	#ifdef IF_WITH_ATTR
-		NS_DIM_PREFIX DDD_ATTR *_aAttr,
-	#endif
-	#ifdef IF_EXECLOCAL
-		#ifdef IF_WITH_XARGS
-			ExecProcXPtr ExecProc)
-		#else
-			ExecProcPtr ExecProc)
-		#endif
-	#else
-		#ifdef IF_ONEWAY
-			int *_aDir,
-		#endif
-		size_t *_aSize,
 		#ifdef IF_WITH_XARGS
 			NS_DIM_PREFIX ComProcXPtr Gather, NS_DIM_PREFIX ComProcXPtr Scatter)
 		#else
@@ -258,19 +192,6 @@ void IF_FUNCNAME (NS_DIM_PREFIX DDD_IF *_aIF,
 		#endif
 	#endif
 {
-	/* in F_FRONTEND, copy call-by-ref params into variables */
-	DDD_IF aIF     = *_aIF;
-	#ifdef IF_WITH_ATTR
-	DDD_ATTR aAttr   = *_aAttr;
-	#endif
-	#ifndef IF_EXECLOCAL
-		#ifdef IF_ONEWAY
-		int    aDir      = *_aDir;
-		#endif
-		size_t aSize = *_aSize;
-	#endif
-#endif  /* F_FRONTEND */
-
 	NS_DIM_PREFIX IF_PROC		  *ifHead;
 	unsigned long tries;
 	int           recv_mesgs;
@@ -579,12 +500,6 @@ void IF_FUNCNAME (NS_DIM_PREFIX DDD_IF *_aIF,
 #undef D_AB
 #undef D_BA
 #undef D_ABA
-
-
-#ifdef CPP_FRONTEND
-#undef REFDECL
-#endif
-
 
 #undef _CAT
 #undef CAT

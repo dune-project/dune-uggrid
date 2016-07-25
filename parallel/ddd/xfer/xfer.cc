@@ -662,12 +662,7 @@ void ExecLocalXISetPrio (
       {
         DDD_OBJ obj = HDR2OBJ(hdr,desc);
 
-                                #if defined(C_FRONTEND)
         desc->handlerSETPRIORITY( obj, newprio);
-                                #endif
-                                #if defined(CPP_FRONTEND)
-        CallHandler(desc,SETPRIORITY) (HParam(obj) newprio);
-                                #endif
       }
 
       /* change actual priority to new value */
@@ -750,7 +745,6 @@ void ExecLocalXIDelCmd (XIDelCmd  **itemsD, int nD)
     TYPE_DESC  *desc = &(theTypeDefs[typ]);
     DDD_OBJ obj   = HDR2OBJ(hdr,desc);
 
-                #if defined(C_FRONTEND)
     /* do deletion */
     if (desc->handlerDELETE)
       desc->handlerDELETE( obj);
@@ -767,12 +761,6 @@ void ExecLocalXIDelCmd (XIDelCmd  **itemsD, int nD)
       DDD_HdrDestructor(hdr);
       DDD_ObjDelete(obj, desc->size, typ);
     }
-                #endif
-                #ifdef CPP_FRONTEND
-    // call destructor
-    //printf("%4d: calling destructor for %08x\n", me, origD[iD]->obj);
-    CallHandler(desc,DESTRUCTOR) (HParamOnly(obj));
-                #endif
   }
 
   OO_Free (origD /*,0*/);

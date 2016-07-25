@@ -394,12 +394,7 @@ static void DisplayMemResources (void)
         a set of local communications between the processors.
  */
 
-#ifdef C_FRONTEND
 DDD_RET DDD_XferEnd (void)
-#endif
-#ifdef CPP_FRONTEND
-DDD_RET DDD_Library::XferEnd (void)
-#endif
 {
   DDD_RET ret_code              = DDD_RET_OK;
   XICopyObjPtrArray *arrayXICopyObj = NULL;
@@ -979,12 +974,7 @@ static void XferInitCopyInfo (DDD_HDR hdr,
     {
       DDD_OBJ obj = HDR2OBJ(hdr,desc);
 
-                        #if defined(C_FRONTEND)
       desc->handlerXFERCOPY( obj, dest, prio);
-                        #endif
-                        #ifdef CPP_FRONTEND
-      CallHandler(desc,XFERCOPY) (HParam(obj) dest, prio);
-                        #endif
     }
 
     /* theXIAddData might be changed during handler execution */
@@ -1028,12 +1018,7 @@ static void XferInitCopyInfo (DDD_HDR hdr,
     {
       DDD_OBJ obj = HDR2OBJ(hdr,desc);
 
-                        #if defined(C_FRONTEND)
       desc->handlerXFERCOPY( obj, dest, prio);
-                        #endif
-                        #ifdef CPP_FRONTEND
-      CallHandler(desc,XFERCOPY) (HParam(obj) dest, prio);
-                        #endif
     }
 
     /* theXIAddData might be changed during handler execution */
@@ -1097,15 +1082,8 @@ static void XferInitCopyInfo (DDD_HDR hdr,
    @param prio  DDD priority of new object copy.
  */
 
-#ifdef C_FRONTEND
 void DDD_XferCopyObj (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Object::XferCopyObj (DDD_PROC proc, DDD_PRIO prio)
-{
-  DDD_HDR hdr = this;
-#endif
 TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
 
 #       if DebugXfer<=2
@@ -1127,7 +1105,6 @@ XferInitCopyInfo(hdr, desc, desc->size, proc, prio);
 /*                                                                          */
 /****************************************************************************/
 
-#if defined(C_FRONTEND)
 /**
         Transfer-command for objects of varying sizes.
         This function is an extension of \funk{XferCopyObj}.
@@ -1142,10 +1119,6 @@ XferInitCopyInfo(hdr, desc, desc->size, proc, prio);
    @param prio  DDD priority of new object copy.
    @param size  real size of local object.
  */
-#endif
-
-
-
 void DDD_XferCopyObjX (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio, size_t size)
 {
   TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
@@ -1180,7 +1153,6 @@ void DDD_XferCopyObjX (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio, size_t size)
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef C_FRONTEND
 /**
         Transfer array of additional data objects with a DDD local object.
         This function transfers an array of additional data objects
@@ -1307,10 +1279,8 @@ void DDD_XferAddDataX (int cnt, DDD_TYPE typ, size_t *sizes)
 
   theXIAddData->addLen += xa->addLen;
 }
-#endif
 
 
-#ifdef C_FRONTEND
 /**
         Tell application if additional data will be sent.
         If the application issues a \funk{XferCopyObj} command
@@ -1336,7 +1306,6 @@ int DDD_XferWithAddData (void)
      called. */
   return(theXIAddData!=NULL);
 }
-#endif
 
 
 
@@ -1359,26 +1328,13 @@ int DDD_XferWithAddData (void)
    @param hdr   DDD local object which has to be deleted.
  */
 
-#ifdef C_FRONTEND
 void DDD_XferDeleteObj (DDD_HDR hdr)
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Object::XferDeleteObj (void)
-#endif
 {
-        #ifdef CPP_FRONTEND
-  DDD_HDR hdr = this;
-        #endif
   TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
   XIDelCmd  *dc = NewXIDelCmd(SLLNewArgs);
 
   if (dc==NULL)
     HARD_EXIT;
-
-
-        #ifdef CPP_FRONTEND
-  dc->obj = this;
-        #endif
 
   dc->hdr = hdr;
 
@@ -1392,12 +1348,7 @@ void DDD_Object::XferDeleteObj (void)
   /* call application handler for deletion of dependent objects */
   if (desc->handlerXFERDELETE!=NULL)
   {
-                #if defined(C_FRONTEND)
     desc->handlerXFERDELETE(HDR2OBJ(hdr,desc));
-                #endif
-                #ifdef CPP_FRONTEND
-    CallHandler(desc,XFERDELETE) (HParamOnly(HDR2OBJ(hdr,desc)));
-                #endif
   }
 }
 
@@ -1417,12 +1368,7 @@ void DDD_Object::XferDeleteObj (void)
         is carried out via a \funk{XferEnd} call on each processor.
  */
 
-#ifdef C_FRONTEND
 void DDD_XferBegin (void)
-#endif
-#ifdef CPP_FRONTEND
-void DDD_Library::XferBegin (void)
-#endif
 {
   theXIAddData = NULL;
 
@@ -1454,8 +1400,6 @@ void DDD_Library::XferBegin (void)
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef C_FRONTEND
-
 /**
     Returns information about pruned \funk{XferDeleteObj} command.
     If a \funk{XferDeleteObj} command has been pruned (i.e., option
@@ -1484,9 +1428,6 @@ int DDD_XferIsPrunedDelete (DDD_HDR hdr)
   return(XFER_PRUNED_FALSE);
 }
 
-#endif
-
-
 
 
 /****************************************************************************/
@@ -1514,8 +1455,6 @@ int DDD_XferIsPrunedDelete (DDD_HDR hdr)
    @return  one of #XFER_RESENT_xxx#
  */
 
-#ifdef C_FRONTEND
-
 int DDD_XferObjIsResent (DDD_HDR hdr)
 {
   if (XferMode() != XMODE_BUSY)
@@ -1533,8 +1472,6 @@ int DDD_XferObjIsResent (DDD_HDR hdr)
 
   return(XFER_RESENT_FALSE);
 }
-
-#endif
 
 #endif /* SUPPORT_RESENT_FLAG */
 

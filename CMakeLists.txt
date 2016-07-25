@@ -194,7 +194,7 @@ if(UG_ENABLE_PARALLEL)
 else()
   set(SUBDIRS "")
 endif()
-set(SUBDIRS  ${SUBDIRS} low dev gm dom np ui lib tools)
+set(SUBDIRS  ${SUBDIRS} low dev gm dom np ui lib)
 set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
 
 # create and install pkg-config information and
