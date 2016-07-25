@@ -1,3 +1,5 @@
+add_subdirectory(test)
+
 set(SOURCES  io.cc lowcomm.cc notify.cc reduct.cc topo.cc)
 
 if(MPI_C_FOUND)
