@@ -1,14 +1,17 @@
 ---
-dune:git--clang:
-  image: duneci/dune:git
+before_script:
+  - duneci-install-module https://gitlab.dune-project.org/core/dune-common.git
+
+debian:9--clang:
+  image: duneci/base:9
   script:
   - dunecontrol --opts=/duneci/opts.clang --current all
   - dunecontrol --current make build_tests
-  - dunecontrol --current make test
+  - cd build-cmake; duneci-ctest
 
-dune:git--gcc:
-  image: duneci/dune:git
+debian:9--gcc:
+  image: duneci/base:9
   script:
   - dunecontrol --opts=/duneci/opts.gcc --current all
   - dunecontrol --current make build_tests
-  - dunecontrol --current make test
+  - cd build-cmake; duneci-ctest
