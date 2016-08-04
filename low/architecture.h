@@ -50,14 +50,4 @@
 #define _fmt_lG                 "lG"
 #define _fmt_lf                 "lf"
 
-/* --- other system functions --- */
-
-/* from autoconf-docs */
-#if !HAVE_WORKING_VFORK
-# define vfork fork
-#endif
-
-/* !!!! include/test somehow */
-
-
 #endif
