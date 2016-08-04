@@ -100,7 +100,6 @@
 #include "ugstruct.h"
 #include "cmdint.h"
 #include "cmdline.h"
-#include "helpmsg.h"
 #include "dio.h"
 
 #ifdef ModelP

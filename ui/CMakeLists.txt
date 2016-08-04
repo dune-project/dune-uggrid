@@ -1,5 +1,5 @@
 set(SOURCES initui.cc cmdline.cc
-  commands.cc helpmsg.cc
+  commands.cc
 )
 install(FILES cmdint.h cmdline.h commands.h
   DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
