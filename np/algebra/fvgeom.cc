@@ -47,7 +47,6 @@
 #include "algebra.h"
 #include "shapes.h"
 #include "commands.h"
-#include "helpmsg.h"
 #include "debug.h"
 #include "general.h"
 
