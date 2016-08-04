@@ -3,7 +3,6 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 parallel=@parallel@
-fordune=@fordune@
 
 Name: libug
 Version: @VERSION@

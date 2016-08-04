@@ -43,8 +43,8 @@ if(UG_ENABLE_DEBUGGING)
   set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DDebug")
 endif()
 
-add_definitions(-DUGLIB -DFOR_DUNE)
-set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DUGLIB -DFOR_DUNE")
+add_definitions(-DUGLIB)
+set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DUGLIB")
 
 #Always build parallel libs if MPI is found
 if(UG_ENABLE_PARALLEL)
@@ -208,7 +208,6 @@ if(UG_ENABLE_PARALLEL)
 else()
   set(parallel "no")
 endif()
-set(fordune "yes")
 set(VERSION ${DUNE_UGGRID_VERSION})
 set(UG_XLIBS "${X11_LIBRARIES}")
 configure_file(libug.pc.in libug.pc)
@@ -226,8 +225,7 @@ add_subdirectory(cmake/modules)
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # finalize the dune project, e.g., generate config.h etc.
 # Use package init to set additional information
-set(dune-uggrid_INIT "set(UG_PARALLEL ${parallel})
-set(UG_FOR_DUNE yes)")
+set(dune-uggrid_INIT "set(UG_PARALLEL ${parallel})")
 
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
 
