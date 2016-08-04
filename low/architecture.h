@@ -17,16 +17,13 @@
 
 /* --- numerical limits ---*/
 
-#ifdef HAVE_LIMITS_H
 #include <limits.h>
 #define MAX_S            SHRT_MAX
 #define MAX_I            INT_MAX
-#endif
 
 /* SMALL..: least number s.t. 1 + SMALL../SMALL_FAC != 1 */
 #define SMALL_FAC 10
 
-#ifdef HAVE_FLOAT_H
 #include <float.h>
 #define MAX_F            FLT_MAX
 #define SMALL_F         (FLT_EPSILON*SMALL_FAC)
@@ -34,7 +31,6 @@
 #define SMALL_D         (DBL_EPSILON*SMALL_FAC)
 #define MAX_C            FLT_MAX
 #define SMALL_C         (FLT_EPSILON*SMALL_FAC)
-#endif
 
 /* data alignment of 8 should suffice on all architecture */
 /* !!! set after testing? */
