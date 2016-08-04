@@ -7196,36 +7196,6 @@ static INT SymListCommand (INT argc, char **argv)
 }
 
 
-/****************************************************************************/
-/** \brief Implementation of \ref ???
-
-   .  argc - number of arguments (incl. its own name)
-   .  argv - array of strings giving the arguments
-
-   This function tests interesting machine parameters.
-
-   RETURN VALUE:
-   .n    0 if ok
-   .n    1 if error occured.
- */
-/****************************************************************************/
-
-static INT MachineTestCommand (INT argc, char **argv)
-{
-  /* determine parameters of memory */
-        #ifdef ModelP
-  if (me == master)
-        #endif
-  MemoryParameters();
-
-        #ifdef ModelP
-  /* determine performance of network */
-  /*	NetworkPerformance(); */
-        #endif
-
-  return (OKCODE);
-}
-
 /** \brief Implementation of \ref resetCEstat. */
 static INT ResetCEstatCommand (INT argc, char **argv)
 {
@@ -8344,7 +8314,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("symlist",            SymListCommand                      )==NULL) return (__LINE__);
 
   /* miscellaneous commands */
-  if (CreateCommand("machinetest",        MachineTestCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("resetCEstat",        ResetCEstatCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("printCEstat",        PrintCEstatCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("heapstat",           HeapStatCommand                             )==NULL) return (__LINE__);

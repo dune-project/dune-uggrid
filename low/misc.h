@@ -175,8 +175,6 @@ char            *ExpandCShellVars       (char *string);
 INT             ReadMemSizeFromString   (const char *s, MEM *mem_size);
 INT                     WriteMemSizeToString    (MEM mem_size, char *s);
 
-INT                     MemoryParameters        (void);
-
 END_UG_NAMESPACE
 
 #endif
