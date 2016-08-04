@@ -36,62 +36,6 @@
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page   readclock readclock - Print execution time
-
- \section Description
-   This command is for measuring the time used.
-   It prints the execution time since the last 'resetclock' to
-   string variable ':CLOCK'.
-
-\section Syntax
-   'readclock'   
-   
- \section Keywords
-   time, stopwatch, clock
-   
-   \sa resetclock
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   resetclock resetclock - Start the time mesuring
-
- \section Description
-   This command starts the time mesuring. 
-   It sets the global variable 'Time0' to zero.
-
-\section Syntax
-   'resetclock'
-   
- \section Keywords
-   time, stopwatch, clock
-   
- * \sa readclock
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   date date - Prints the date
-
- \section Description
-   This command prints the date to the shell resp. 
-   writes it in the string variable ':date'.
-
-\section Syntax
-   'date [$s] [$S]'
-
-  <li> no~option - print the date to the shell
-  <li> $s  		 -  put in the string variable ':date'.
-  <li> $S   	 -  use short format of the form yy.mm.dd
-   
- \section Keywords
-   time, calendar
-   
-   \sa resetclock, readclock
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page   ls ls - Lists the content of an environment directory.
 
  \section Description

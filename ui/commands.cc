@@ -257,8 +257,6 @@ static MARKRULE myMR[NO_OF_RULES]=     {{"red",        RED},
                                          #endif
                                         {"coarse", COARSE}};
 
-static DOUBLE Time0;                            /*!< Time offset for readclock		*/
-
 static char userPath[1024];             /*!< Environment path for ls,cd		*/
 
 static INT untitledCounter=0;   /*!< Counter for untitled multigrids	*/
@@ -349,94 +347,6 @@ static INT ExitUgCommand (INT argc, char **argv)
   exit(0);
 
   return 0;
-}
-
-
-/** \brief Implementation of \ref readclock. */
-static INT ReadClockCommand (INT argc, char **argv)
-{
-  DOUBLE Time;
-
-  NO_OPTION_CHECK(argc,argv);
-
-  Time = ARCH_DIFF_TIMER(CURRENT_TIME_LONG,Time0);
-
-  if (SetStringValue(":CLOCK",Time)!=0) {
-    PrintErrorMessage('E',"readclock",
-                      "could not get string variable :CLOCK");
-    return (CMDERRORCODE);
-  }
-
-  return (OKCODE);
-}
-
-/** \brief Implementation of \ref resetclock. */
-static INT ResetClockCommand (INT argc, char **argv)
-{
-  NO_OPTION_CHECK(argc,argv);
-
-  Time0 = CURRENT_TIME_LONG;
-
-  return (OKCODE);
-}
-
-/****************************************************************************/
-/** \brief Starting the time mesuring
- *
- * This function starts the time mesuring.
- * It sets the global variable 'Time0' to zero.
- *
- * @return <ul>
- *    <li> 0 if ok </li>
- *    <li> 1 if error occured. </li>
- * </ul>
- */
-/****************************************************************************/
-
-static INT InitClock(void)
-{
-  Time0 = CURRENT_TIME_LONG;
-
-  return(0);
-}
-
-
-/** \brief Implementation of \ref date. */
-static INT DateCommand (INT argc, char **argv)
-{
-  time_t Time;
-  const char *fmt;
-  INT i;
-  bool svopt;
-
-  /* check options */
-  svopt = false;
-  fmt = "%a %b %d %H:%M:%S %Y";
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 's' :
-      svopt = true;
-      break;
-
-    case 'S' :
-      fmt = "%y.%m.%d";;
-      break;
-
-    default :
-      PrintErrorMessageF('E', "DateCommand", "invalid option '%s'", argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  time(&Time);
-  strftime(buffer,BUFFERSIZE,fmt,localtime(&Time));
-
-  if (svopt)
-    SetStringVar(":date",buffer);
-  else
-    UserWriteF("%s\n",buffer);
-
-  return (OKCODE);
 }
 
 
@@ -8359,9 +8269,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* general commands */
   if (CreateCommand("exitug",                     ExitUgCommand                                   )==NULL) return (__LINE__);
-  if (CreateCommand("readclock",          ReadClockCommand                                )==NULL) return (__LINE__);
-  if (CreateCommand("resetclock",         ResetClockCommand                               )==NULL) return (__LINE__);
-  if (CreateCommand("date",                       DateCommand                                     )==NULL) return (__LINE__);
 
   /* commands for environement management */
   if (CreateCommand("cd",                         ChangeEnvCommand                                )==NULL) return (__LINE__);
@@ -8508,7 +8415,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   if (CreateCommand("dumpalg",            DumpAlgCommand                                  )==NULL) return (__LINE__);
 
-  if (InitClock()                 !=0) return (__LINE__);
   if (InitFindRange()     !=0) return (__LINE__);
   if (InitArray()                 !=0) return (__LINE__);
 
