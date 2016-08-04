@@ -1,3 +1,5 @@
+add_subdirectory(test)
+
 # normal headers
 set(lowinclude_HEADERS  heaps.h ugenv.h ugstruct.h misc.h debug.h ugtypes.h
   general.h dimension.h boxtree.h ugtimer.h scan.h
