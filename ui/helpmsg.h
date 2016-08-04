@@ -73,7 +73,6 @@ START_UGDIM_NAMESPACE
 /* online help mechenism */
 INT             InitHelpMsg                             (void);
 INT     PrintHelp                               (const char *HelpFor,int mode, const char *addText);
-INT     CheckHelp                               (void);
 
 END_UGDIM_NAMESPACE
 

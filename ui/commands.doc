@@ -62,25 +62,6 @@
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page   checkhelp checkhelp - Check wether all commands in /menu have a help item
-
- \section Description
-   This function checks wether for all commands in /menu a help item exists.
-   It also checks wether for all num proc types a help item exists.
-   
-   It prints all commands and num proc types for which help does NOT exist.
- 
-   It calls the funtion 'CheckHelp'.
-
-\section Syntax
-   'checkhelp'
-   
- \section Keywords
-   check
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page   readclock readclock - Print execution time
 
  \section Description

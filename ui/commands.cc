@@ -412,21 +412,6 @@ static INT HelpCommand (INT argc, char **argv)
   return (CMDERRORCODE);
 }
 
-
-/** \brief Implementation of \ref checkhelp. */
-static INT CheckHelpCommand (INT argc, char **argv)
-{
-  NO_OPTION_CHECK(argc,argv);
-
-        #ifdef ModelP
-  if (me != master) return(OKCODE);
-        #endif
-
-  CheckHelp();
-
-  return (OKCODE);
-}
-
 /** \brief Implementation of \ref readclock. */
 static INT ReadClockCommand (INT argc, char **argv)
 {
@@ -8469,7 +8454,6 @@ INT NS_DIM_PREFIX InitCommands ()
   /* general commands */
   if (CreateCommand("exitug",                     ExitUgCommand                                   )==NULL) return (__LINE__);
   if (CreateCommand("help",                       HelpCommand                                     )==NULL) return (__LINE__);
-  if (CreateCommand("checkhelp",          CheckHelpCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("readclock",          ReadClockCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("resetclock",         ResetClockCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("date",                       DateCommand                                     )==NULL) return (__LINE__);
