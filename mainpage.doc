@@ -365,7 +365,7 @@ static INT MakeStructCommand (INT argc, char **argv)
 	               "[0-9:.a-zA-Z_]")),name);
     if (res!=1)
     {
-        PrintHelp("ms",HELPITEM," (could not read name of struct)");
+        PrintErrorMessage('E', "MakeStructCommand", "could not read name of struct");
         return(PARAMERRORCODE);
     }
 	
