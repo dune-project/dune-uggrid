@@ -7226,41 +7226,6 @@ static INT MachineTestCommand (INT argc, char **argv)
   return (OKCODE);
 }
 
-/****************************************************************************/
-/** \brief Implementation of \ref system
-
-   SystemCommand - calls system routine
-
-   .  argc - number of arguments (incl. its own name)
-   .  argv - array of strings giving the arguments
-
-   This function calls a system routine.
-
-   'system \<system~command>'
-
-   .   \<system~command>	- this command string is passed to the system
-
-   KEYWORDS:
-   system, cshell, UNIX
- */
-/****************************************************************************/
-
-static INT SystemCommand (INT argc, char **argv)
-{
-  char *p;
-
-  if (strlen(argv[0])<8) return (PARAMERRORCODE);
-  p = argv[0]+7;
-
-  printf("system \n%s\n",p);
-
-  if (system(p)==-1)
-    UserWrite("system-error\n");
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref resetCEstat. */
 static INT ResetCEstatCommand (INT argc, char **argv)
 {
@@ -8380,7 +8345,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* miscellaneous commands */
   if (CreateCommand("machinetest",        MachineTestCommand                              )==NULL) return (__LINE__);
-  if (CreateCommand("system",                     SystemCommand                                   )==NULL) return (__LINE__);
   if (CreateCommand("resetCEstat",        ResetCEstatCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("printCEstat",        PrintCEstatCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("heapstat",           HeapStatCommand                             )==NULL) return (__LINE__);
