@@ -353,65 +353,6 @@ static INT ExitUgCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref help. */
-static INT HelpCommand (INT argc, char **argv)
-{
-  INT i,res,mode,rv;
-  COMMAND *Cmd;
-  char buf[NAMESIZE];
-
-        #ifdef ModelP
-  if (me != master) return(OKCODE);
-        #endif
-
-  mode = HELPITEM;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'k' :
-      mode = KEYWORD;
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("help",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  /* get HelpFor string */
-  res = sscanf(argv[0],expandfmt(CONCAT3("help %",NAMELENSTR,"[0-9a-zA-Z_]")),buf);
-  if (res==1)
-  {
-    rv = PrintHelp(buf,mode,NULL);
-    if (rv!=HELP_OK)
-    {
-      /* another try: ug command buf existing? */
-      UserWrite("no help found\n"
-                "maybe a command matches...\n");
-      Cmd = SearchUgCmd(buf);
-      if (Cmd!=NULL)
-        rv = PrintHelp(ENVITEM_NAME(Cmd),mode,NULL);
-    }
-  }
-  else
-    rv = PrintHelp("help",HELPITEM,NULL);
-
-  switch (rv)
-  {
-  case HELP_OK :
-    return (OKCODE);
-
-  case HELP_NOT_FOUND :
-    UserWriteF(" no help entry found for '%s'\n",buf);
-    return (OKCODE);
-
-  default :
-    PrintErrorMessage('E',"help","(unknown)");
-  }
-
-  return (CMDERRORCODE);
-}
-
 /** \brief Implementation of \ref readclock. */
 static INT ReadClockCommand (INT argc, char **argv)
 {
@@ -8453,7 +8394,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* general commands */
   if (CreateCommand("exitug",                     ExitUgCommand                                   )==NULL) return (__LINE__);
-  if (CreateCommand("help",                       HelpCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("readclock",          ReadClockCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("resetclock",         ResetClockCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("date",                       DateCommand                                     )==NULL) return (__LINE__);

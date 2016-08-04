@@ -36,32 +36,6 @@
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page   help help - Print help for a command or keyword
-
-   This command prints help for a given helpitem, e.g. a command. The helpitem
-   is looked up case insensitive. Command names can be abbreviated as if they
-   where called from the shell window.
-
-\section Syntax
-   help [[\<helpitem>] $k]
-
-  <li>  no~option      - this is  equivalent to 'help help'
-  <li>  \<helpitem>     - print help for \<helpitem> (string)
-  <li>  $k             - search for keyword \<helpitem> (multiple occurence)
-
- \section Example
-   'help PlotObj'
-   
-   prints help for the plotobject command.
-   
-   'help plot $k'
-
-   prints a list of all commands which are relevant for plotting
-   (openwindow, setview, zoom ...)
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page   readclock readclock - Print execution time
 
  \section Description
