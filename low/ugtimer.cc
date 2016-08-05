@@ -88,10 +88,10 @@ void NS_PREFIX new_timer (int *n)
   *n = -1;
 
   for (i=0; i<MAX_TIMER; i++)
-    if (ug_timer[i].used == 0)
+    if (!ug_timer[i].used)
     {
       *n = i;
-      ug_timer[i].used = 1;
+      ug_timer[i].used = true;
       ug_timer[i].start = 0.0;
       ug_timer[i].stop = 0.0;
       ug_timer[i].sum = 0.0;

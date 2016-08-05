@@ -100,7 +100,6 @@
 #include "ugstruct.h"
 #include "cmdint.h"
 #include "cmdline.h"
-#include "helpmsg.h"
 #include "dio.h"
 
 #ifdef ModelP
@@ -258,8 +257,6 @@ static MARKRULE myMR[NO_OF_RULES]=     {{"red",        RED},
                                          #endif
                                         {"coarse", COARSE}};
 
-static DOUBLE Time0;                            /*!< Time offset for readclock		*/
-
 static char userPath[1024];             /*!< Environment path for ls,cd		*/
 
 static INT untitledCounter=0;   /*!< Counter for untitled multigrids	*/
@@ -350,169 +347,6 @@ static INT ExitUgCommand (INT argc, char **argv)
   exit(0);
 
   return 0;
-}
-
-
-/** \brief Implementation of \ref help. */
-static INT HelpCommand (INT argc, char **argv)
-{
-  INT i,res,mode,rv;
-  COMMAND *Cmd;
-  char buf[NAMESIZE];
-
-        #ifdef ModelP
-  if (me != master) return(OKCODE);
-        #endif
-
-  mode = HELPITEM;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'k' :
-      mode = KEYWORD;
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("help",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  /* get HelpFor string */
-  res = sscanf(argv[0],expandfmt(CONCAT3("help %",NAMELENSTR,"[0-9a-zA-Z_]")),buf);
-  if (res==1)
-  {
-    rv = PrintHelp(buf,mode,NULL);
-    if (rv!=HELP_OK)
-    {
-      /* another try: ug command buf existing? */
-      UserWrite("no help found\n"
-                "maybe a command matches...\n");
-      Cmd = SearchUgCmd(buf);
-      if (Cmd!=NULL)
-        rv = PrintHelp(ENVITEM_NAME(Cmd),mode,NULL);
-    }
-  }
-  else
-    rv = PrintHelp("help",HELPITEM,NULL);
-
-  switch (rv)
-  {
-  case HELP_OK :
-    return (OKCODE);
-
-  case HELP_NOT_FOUND :
-    UserWriteF(" no help entry found for '%s'\n",buf);
-    return (OKCODE);
-
-  default :
-    PrintErrorMessage('E',"help","(unknown)");
-  }
-
-  return (CMDERRORCODE);
-}
-
-
-/** \brief Implementation of \ref checkhelp. */
-static INT CheckHelpCommand (INT argc, char **argv)
-{
-  NO_OPTION_CHECK(argc,argv);
-
-        #ifdef ModelP
-  if (me != master) return(OKCODE);
-        #endif
-
-  CheckHelp();
-
-  return (OKCODE);
-}
-
-/** \brief Implementation of \ref readclock. */
-static INT ReadClockCommand (INT argc, char **argv)
-{
-  DOUBLE Time;
-
-  NO_OPTION_CHECK(argc,argv);
-
-  Time = ARCH_DIFF_TIMER(CURRENT_TIME_LONG,Time0);
-
-  if (SetStringValue(":CLOCK",Time)!=0) {
-    PrintErrorMessage('E',"readclock",
-                      "could not get string variable :CLOCK");
-    return (CMDERRORCODE);
-  }
-
-  return (OKCODE);
-}
-
-/** \brief Implementation of \ref resetclock. */
-static INT ResetClockCommand (INT argc, char **argv)
-{
-  NO_OPTION_CHECK(argc,argv);
-
-  Time0 = CURRENT_TIME_LONG;
-
-  return (OKCODE);
-}
-
-/****************************************************************************/
-/** \brief Starting the time mesuring
- *
- * This function starts the time mesuring.
- * It sets the global variable 'Time0' to zero.
- *
- * @return <ul>
- *    <li> 0 if ok </li>
- *    <li> 1 if error occured. </li>
- * </ul>
- */
-/****************************************************************************/
-
-static INT InitClock(void)
-{
-  Time0 = CURRENT_TIME_LONG;
-
-  return(0);
-}
-
-
-/** \brief Implementation of \ref date. */
-static INT DateCommand (INT argc, char **argv)
-{
-  time_t Time;
-  const char *fmt;
-  INT i;
-  bool svopt;
-
-  /* check options */
-  svopt = false;
-  fmt = "%a %b %d %H:%M:%S %Y";
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 's' :
-      svopt = true;
-      break;
-
-    case 'S' :
-      fmt = "%y.%m.%d";;
-      break;
-
-    default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("date",HELPITEM,buffer);
-      return (PARAMERRORCODE);
-    }
-
-  time(&Time);
-  strftime(buffer,BUFFERSIZE,fmt,localtime(&Time));
-
-  if (svopt)
-    SetStringVar(":date",buffer);
-  else
-    UserWriteF("%s\n",buffer);
-
-  return (OKCODE);
 }
 
 
@@ -698,15 +532,14 @@ static INT SetCommand (INT argc, char **argv)
     case 'r' :
       if (res>1)
       {
-        PrintHelp("set",HELPITEM," (the r option applies not with setting a value)");
+        PrintErrorMessage('E', "SetCommand", "The 'r' option applies not with setting a value");
         return (PARAMERRORCODE);
       }
       ropt = true;
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("set",HELPITEM,buffer);
+      PrintErrorMessageF('E', "SetCommand", "Invalid option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -778,13 +611,13 @@ static INT DeleteVariableCommand (INT argc, char **argv)
 
   if (res!=1)
   {
-    PrintHelp("dv",HELPITEM," (could not read name of variable)");
+    PrintErrorMessage('E', "DeleteVariableCommand", "Could not read name of variable");
     return(PARAMERRORCODE);
   }
 
   if (argc!=1)
   {
-    PrintHelp("dv",HELPITEM,NULL);
+    PrintErrorMessage('E', "DeleteVariableCommand", "Wrong number of arguments");
     return(PARAMERRORCODE);
   }
 
@@ -810,7 +643,7 @@ static INT MakeStructCommand (INT argc, char **argv)
 
   if (res!=1)
   {
-    PrintHelp("ms",HELPITEM," (could not read name of struct)");
+    PrintErrorMessage('E', "MakeStructCommand", "Could not read name of struct");
     return(PARAMERRORCODE);
   }
 
@@ -874,13 +707,13 @@ static INT DeleteStructCommand (INT argc, char **argv)
 
   if (res!=1)
   {
-    PrintHelp("ds",HELPITEM," (could not read name of struct)");
+    PrintErrorMessage('E', "DeleteStructCommand", "Could not read name of struct");
     return(PARAMERRORCODE);
   }
 
   if (argc!=1)
   {
-    PrintHelp("ds",HELPITEM,NULL);
+    PrintErrorMessage('E', "DeleteStructCommand", "Wrong number of arguments");
     return(PARAMERRORCODE);
   }
 
@@ -937,8 +770,7 @@ static INT ProtocolCommand (INT argc, char **argv)
       continue;
 
     default :
-      sprintf(buffer," (unknown option '%s')",argv[i]);
-      PrintHelp("protocol",HELPITEM,buffer);
+      PrintErrorMessageF('E', "ProtocolCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
     /* write options not followed by a \ */
@@ -1070,7 +902,7 @@ static INT ProtoOnCommand (INT argc, char **argv)
   res = sscanf(argv[0],expandfmt(CONCAT3(" protoOn %",NAMELENSTR,"[ -~]")),protoFileName);
   if (res!=1)
   {
-    PrintHelp("protoOn",HELPITEM," (filename not found)");
+    PrintErrorMessage('E', "ProtoOnCommand", "Filename not found");
     return (PARAMERRORCODE);
   }
 
@@ -1101,8 +933,7 @@ static INT ProtoOnCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer," (unknown option '%s')",argv[i]);
-      PrintHelp("protoOn",HELPITEM,buffer);
+      PrintErrorMessageF('E', "ProtoOnCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -1200,8 +1031,7 @@ static INT LogOnCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("logon",HELPITEM,buffer);
+      PrintErrorMessageF('E', "LogOnCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -1273,8 +1103,7 @@ static INT LogOffCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("logon",HELPITEM,buffer);
+      PrintErrorMessageF('E', "LogOffCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -1316,8 +1145,7 @@ static INT CnomCommand (INT argc, char **argv)
   }
   if (argc!=2)
   {
-    PrintErrorMessage('E',"cnom","specify only one argument with cnom");
-    PrintHelp("cnom",HELPITEM,buffer);
+    PrintErrorMessage('E', "CnomCommand", "specify only one argument with cnom");
     return(PARAMERRORCODE);
   }
 
@@ -1348,7 +1176,7 @@ static INT CnomCommand (INT argc, char **argv)
 
   if (flag!=3)
   {
-    PrintHelp("cnom",HELPITEM,buffer);
+    PrintErrorMessage('E', "CnomCommand", "Wrong flag value");
     return (PARAMERRORCODE);
   }
 
@@ -1368,14 +1196,14 @@ INT NS_DIM_PREFIX ConfigureCommand (INT argc, char **argv)
   /* get BVP name */
   if ((sscanf(argv[0],expandfmt(CONCAT3(" configure %",NAMELENSTR,"[ -~]")),BVPName)!=1) || (strlen(BVPName)==0))
   {
-    PrintHelp("configure",HELPITEM," (cannot read BndValProblem specification)");
+    PrintErrorMessage('E', "ConfigureCommand", "cannot read BndValProblem specification");
     return(PARAMERRORCODE);
   }
 
   theBVP = BVP_GetByName(BVPName);
   if (theBVP == NULL)
   {
-    PrintHelp("configure",HELPITEM," (cannot read BndValProblem specification)");
+    PrintErrorMessage('E', "ConfigureCommand", "cannot read BndValProblem specification");
     return(PARAMERRORCODE);
   }
 
@@ -1412,8 +1240,7 @@ static INT CloseCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("close",HELPITEM,buffer);
+      PrintErrorMessageF('E', "CloseCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -1475,7 +1302,7 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
     case 'b' :
       if (sscanf(argv[i],expandfmt(CONCAT3("b %",NAMELENSTR,"[ -~]")),BVPName)!=1)
       {
-        PrintHelp("new",HELPITEM," (cannot read BndValProblem specification)");
+        PrintErrorMessage('E', "NewCommand", "cannot read BndValProblem specification");
         return(PARAMERRORCODE);
       }
       bopt = true;
@@ -1484,7 +1311,7 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
     case 'f' :
       if (sscanf(argv[i],expandfmt(CONCAT3("f %",NAMELENSTR,"[ -~]")),Format)!=1)
       {
-        PrintHelp("new",HELPITEM," (cannot read format specification)");
+        PrintErrorMessage('E', "NewCommand", "cannot read format specification");
         return(PARAMERRORCODE);
       }
       fopt = true;
@@ -1501,21 +1328,20 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
     case 'h' :
       if (ReadMemSizeFromString(argv[i]+1,&heapSize)!=0)           /* skip leading 'h' in argv */
       {
-        PrintHelp("new",HELPITEM," (cannot read heapsize specification)");
+        PrintErrorMessage('E', "NewCommand", "cannot read heapsize specification");
         return(PARAMERRORCODE);
       }
       hopt = true;
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("new",HELPITEM,buffer);
+      PrintErrorMessageF('E', "NewCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
   if (!(bopt && fopt && hopt))
   {
-    PrintHelp("new",HELPITEM," (the d, p, f and h arguments are mandatory)");
+    PrintErrorMessage('E', "NewCommand", "the d, p, f and h arguments are mandatory");
     return(PARAMERRORCODE);
   }
 
@@ -1564,7 +1390,7 @@ static INT OpenCommand (INT argc, char **argv)
     case 'b' :
       if (sscanf(argv[i],expandfmt(CONCAT3("b %",NAMELENSTR,"[ -~]")),BVPName)!=1)
       {
-        PrintHelp("open",HELPITEM," (cannot read BndValProblem specification)");
+        PrintErrorMessage('E', "OpenCommand", "cannot read BndValProblem specification");
         return(PARAMERRORCODE);
       }
       theBVP = BVPName;
@@ -1573,7 +1399,7 @@ static INT OpenCommand (INT argc, char **argv)
     case 'f' :
       if (sscanf(argv[i],expandfmt(CONCAT3("f %",NAMELENSTR,"[ -~]")),Format)!=1)
       {
-        PrintHelp("open",HELPITEM," (cannot read format specification)");
+        PrintErrorMessage('E', "OpenCommand", "cannot read format specification");
         return(PARAMERRORCODE);
       }
       theFormat = Format;
@@ -1590,7 +1416,7 @@ static INT OpenCommand (INT argc, char **argv)
     case 'm' :
       if (sscanf(argv[i],expandfmt(CONCAT3("m %",NAMELENSTR,"[ -~]")),Multigrid)!=1)
       {
-        PrintHelp("open",HELPITEM," (cannot read multigrid specification)");
+        PrintErrorMessage('E', "OpenCommand", "cannot read multigrid specification");
         return(PARAMERRORCODE);
       }
       theMGName = Multigrid;
@@ -1604,7 +1430,7 @@ static INT OpenCommand (INT argc, char **argv)
       }
       if (sscanf(argv[i],expandfmt(CONCAT3("t %",NAMELENSTR,"[ -~]")),type)!=1)
       {
-        PrintHelp("open",HELPITEM," (cannot read type specification)");
+        PrintErrorMessage('E', "OpenCommand", "cannot read type specification");
         return(PARAMERRORCODE);
       }
       break;
@@ -1612,7 +1438,7 @@ static INT OpenCommand (INT argc, char **argv)
     case 'h' :
       if (ReadMemSizeFromString(argv[i]+1,&heapSize)!=0)                           /* skip leading 'h' in argv */
       {
-        PrintHelp("open",HELPITEM," (cannot read heapsize specification)");
+        PrintErrorMessage('E', "OpenCommand", "cannot read heapsize specification");
         return(PARAMERRORCODE);
       }
       break;
@@ -1622,8 +1448,7 @@ static INT OpenCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("open",HELPITEM,buffer);
+      PrintErrorMessageF('E', "OpenCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -1689,7 +1514,7 @@ static INT SaveCommand (INT argc, char **argv)
     case 't' :
       if (sscanf(argv[i],expandfmt(CONCAT3("t %",NAMELENSTR,"[ -~]")),type)!=1)
       {
-        PrintHelp("open",HELPITEM," (cannot read type specification)");
+        PrintErrorMessage('E', "SaveCommand", "cannot read type specification");
         return(PARAMERRORCODE);
       }
       break;
@@ -1704,8 +1529,7 @@ static INT SaveCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("save",HELPITEM,buffer);
+      PrintErrorMessageF('E', "SaveCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -2345,20 +2169,20 @@ static INT SaveDataCommand (INT argc, char **argv)
       ret=sscanf(argv[i]+1," %s %d",mname,&iValue);
       if (ret!=2)
       {
-        PrintHelp("savedata",HELPITEM," (multiple vector specification)");
+        PrintErrorMessage('E', "SaveDataCommand", "multiple vector specification");
         return(PARAMERRORCODE);
       }
       nm=iValue;
       if (nm<1 || nm>NM_MAX)
       {
-        PrintHelp("savedata",HELPITEM," (multiple vector number out of range [0,xxx])");
+        PrintErrorMessage('E', "SaveDataCommand", "multiple vector number out of range [0,xxx]");
         return(PARAMERRORCODE);
       }
       break;
     case 't' :
       if (sscanf(argv[i],expandfmt(CONCAT3("t %",NAMELENSTR,"[ -~]")),type)!=1)
       {
-        PrintHelp("savedata",HELPITEM," (cannot read type specification)");
+        PrintErrorMessage('E', "SaveDataCommand", "cannot read type specification");
         return(PARAMERRORCODE);
       }
       break;
@@ -2366,13 +2190,13 @@ static INT SaveDataCommand (INT argc, char **argv)
     case 'n' :
       if (sscanf(argv[i],"n %d",&iValue)!=1)
       {
-        PrintHelp("savedata",HELPITEM," (cannot read number specification)");
+        PrintErrorMessage('E', "SaveDataCommand", "cannot read number specification");
         return(PARAMERRORCODE);
       }
       number = iValue;
       if (number<0 || number > 999999)
       {
-        PrintHelp("savedata",HELPITEM," (number out of range [0,9999999])");
+        PrintErrorMessage('E', "SaveDataCommand", "number out of range [0,9999999]");
         return(PARAMERRORCODE);
       }
       break;
@@ -2381,14 +2205,14 @@ static INT SaveDataCommand (INT argc, char **argv)
       ret = sscanf(argv[i],"T %lf %lf %lf",Value,Value+1,Value+2);
       if (ret<1 || ret>3)
       {
-        PrintHelp("savedata",HELPITEM," (cannot read TIME specification)");
+        PrintErrorMessage('E', "SaveDataCommand", "cannot read TIME specification");
         return(PARAMERRORCODE);
       }
       for (j=0; j<ret; j++)
         t[j] = Value[j];
       if (t[0]<0.0)
       {
-        PrintHelp("savedata",HELPITEM," (TIME out of range ]-inf, 0.0[)");
+        PrintErrorMessage('E', "SaveDataCommand", "TIME out of range ]-inf, 0.0[");
         return(PARAMERRORCODE);
       }
       break;
@@ -2402,7 +2226,7 @@ static INT SaveDataCommand (INT argc, char **argv)
     }
   if (((t[0]<0.0) && number>=0) || ((t[0]>=0.0) && number<0))
   {
-    PrintHelp("savedata",HELPITEM," (specify both or none the options 'n' and 'T')");
+    PrintErrorMessage('E', "SaveDataCommand", "specify both or none the options 'n' and 'T'");
     return(PARAMERRORCODE);
   }
 
@@ -2472,13 +2296,13 @@ static INT LoadDataCommand (INT argc, char **argv)
       ret=sscanf(argv[i]+1," %s %d",mname,&iValue);
       if (ret!=2)
       {
-        PrintHelp("savedata",HELPITEM," (multiple vector specification)");
+        PrintErrorMessage('E', "LoadDataCommand", "multiple vector specification");
         return(PARAMERRORCODE);
       }
       nm=iValue;
       if (nm<1 || nm>NM_MAX)
       {
-        PrintHelp("savedata",HELPITEM," (multiple vector number out of range [0,xxx])");
+        PrintErrorMessage('E', "LoadDataCommand", "multiple vector number out of range [0,xxx]");
         return(PARAMERRORCODE);
       }
       break;
@@ -2486,7 +2310,7 @@ static INT LoadDataCommand (INT argc, char **argv)
     case 't' :
       if (sscanf(argv[i],expandfmt(CONCAT3("t %",NAMELENSTR,"[ -~]")),type)!=1)
       {
-        PrintHelp("loaddata",HELPITEM," (cannot read type specification)");
+        PrintErrorMessage('E', "LoadDataCommand", "cannot read type specification");
         return(PARAMERRORCODE);
       }
       break;
@@ -2498,13 +2322,13 @@ static INT LoadDataCommand (INT argc, char **argv)
     case 'n' :
       if (sscanf(argv[i],"n %d",&iValue)!=1)
       {
-        PrintHelp("loaddata",HELPITEM," (cannot read number specification)");
+        PrintErrorMessage('E', "LoadDataCommand", "cannot read number specification");
         return(PARAMERRORCODE);
       }
       number = iValue;
       if (number<0 || number > 999999)
       {
-        PrintHelp("loaddata",HELPITEM," (number out of range [0,999999])");
+        PrintErrorMessage('E', "LoadDataCommand", "number out of range [0,999999]");
         return(PARAMERRORCODE);
       }
       break;
@@ -2512,7 +2336,7 @@ static INT LoadDataCommand (INT argc, char **argv)
     case 'h' :
       if (ReadMemSizeFromString(argv[i]+1,&heapSize)!=0)                           /* skip leading 'h' in argv */
       {
-        PrintHelp("new",HELPITEM," (cannot read heapsize specification)");
+        PrintErrorMessage('E', "LoadDataCommand", "cannot read heapsize specification");
         return(PARAMERRORCODE);
       }
       break;
@@ -2726,8 +2550,7 @@ static INT MGListCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer," (unknown option '%s')",argv[i]);
-      PrintHelp("mglist",HELPITEM,buffer);
+      PrintErrorMessageF('E', "MGListCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -2874,8 +2697,7 @@ static INT NListCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("nlist",HELPITEM,buffer);
+      PrintErrorMessageF('E', "NListCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -3011,8 +2833,7 @@ static INT EListCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("elist",HELPITEM,buffer);
+      PrintErrorMessageF('E', "EListCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -3088,8 +2909,7 @@ static INT SelectionListCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("slist",HELPITEM,buffer);
+      PrintErrorMessageF('E', "SelectionListCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -3134,8 +2954,7 @@ static INT RuleListCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("rlist",HELPITEM,buffer);
+      PrintErrorMessageF('E', "RuleListCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -3443,8 +3262,7 @@ static INT VMListCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("vmlist",HELPITEM,buffer);
+      PrintErrorMessageF('E', "VMListCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
   if (datatypes==0)
@@ -3919,8 +3737,7 @@ static INT DeleteNodeCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("deln",HELPITEM,buffer);
+      PrintErrorMessageF('E', "DeleteNodeCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -4047,8 +3864,7 @@ static INT MoveNodeCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("move",HELPITEM,buffer);
+      PrintErrorMessageF('E', "MoveNodeCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -4081,7 +3897,7 @@ static INT MoveNodeCommand (INT argc, char **argv)
   }
   else
   {
-    PrintHelp("move",HELPITEM," (either i or b option is mandatory)");
+    PrintErrorMessage('E', "MoveNodeCommand", "either i or b option is mandatory");
     return (PARAMERRORCODE);
   }
 
@@ -4141,8 +3957,7 @@ static INT InsertElementCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("ie",HELPITEM,buffer);
+      PrintErrorMessageF('E', "InsertElementCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -4336,8 +4151,7 @@ static INT DeleteElementCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("dele",HELPITEM,buffer);
+      PrintErrorMessageF('E', "DeleteElementCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -4438,8 +4252,7 @@ static INT AdaptCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("refine",HELPITEM,buffer);
+      PrintErrorMessageF('E', "AdaptCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -4899,8 +4712,7 @@ static INT MarkCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("mark",HELPITEM,buffer);
+      PrintErrorMessageF('E', "MarkCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -5011,7 +4823,7 @@ static INT SmoothMGCommand (INT argc, char **argv)
   /* check pararmeters */
   if (sscanf(argv[0],"smooth %d",&nit)!=1)
   {
-    PrintHelp("smooth",HELPITEM," (specify number of iterations)");
+    PrintErrorMessage('E', "SmoothMGCommand", "specify number of iterations");
     return (PARAMERRORCODE);
   }
 
@@ -5029,8 +4841,7 @@ static INT SmoothMGCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("move",HELPITEM,buffer);
+      PrintErrorMessageF('E', "SmoothMGCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -5227,12 +5038,12 @@ static INT OrderNodesCommand (INT argc, char **argv)
         #endif
   if (res!=1)
   {
-    PrintHelp("ordernodes",HELPITEM," (could not read order type)");
+    PrintErrorMessage('E', "OrderNodesCommand", "could not read order type");
     return(PARAMERRORCODE);
   }
   if (strlen(ord)!=DIM)
   {
-    PrintHelp("ordernodes",HELPITEM," (specify DIM chars out of 'rlud' or 'rlbfud' resp.)");
+    PrintErrorMessage('E', "OrderNodesCommand", "specify DIM chars out of 'rlud' or 'rlbfud' resp.");
     return(PARAMERRORCODE);
   }
   error = xused = yused = zused = false;
@@ -5279,7 +5090,7 @@ static INT OrderNodesCommand (INT argc, char **argv)
     }
   if (error)
   {
-    PrintHelp("ordernodes",HELPITEM," (bad combination of 'rludr' or 'rlbfud' resp.)");
+    PrintErrorMessage('E', "OrderNodesCommand", "bad combination of 'rludr' or 'rlbfud' resp.");
     return(PARAMERRORCODE);
   }
 
@@ -5309,8 +5120,7 @@ static INT OrderNodesCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("ordernodes",HELPITEM,buffer);
+      PrintErrorMessageF('E', "OrderNodesCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -5369,12 +5179,12 @@ static INT LexOrderVectorsCommand (INT argc, char **argv)
         #endif
   if (res!=1)
   {
-    PrintHelp("lexorderv",HELPITEM," (could not read order type)");
+    PrintErrorMessage('E', "LexOrderVectorsCommand", "could not read order type");
     return(PARAMERRORCODE);
   }
   if (strlen(ord)!=DIM)
   {
-    PrintHelp("lexorderv",HELPITEM," (specify DIM chars out of 'rlud', 'IOPN' or 'rlbfud' resp.)");
+    PrintErrorMessage('E', "LexOrderVectorsCommand", "specify DIM chars out of 'rlud', 'IOPN' or 'rlbfud' resp.");
     return(PARAMERRORCODE);
   }
   error = xused = yused = zused = rused = pused = false;
@@ -5436,7 +5246,7 @@ static INT LexOrderVectorsCommand (INT argc, char **argv)
     }
   if (error)
   {
-    PrintHelp("lexorderv",HELPITEM," (bad combination of 'rludr' or 'rlbfud' resp.)");
+    PrintErrorMessage('E', "LexOrderVectorsCommand", "bad combination of 'rludr' or 'rlbfud' resp.");
     return(PARAMERRORCODE);
   }
   mode = OV_CARTES;
@@ -5444,7 +5254,7 @@ static INT LexOrderVectorsCommand (INT argc, char **argv)
   {
     if (!(rused && pused))
     {
-      PrintHelp("lexorderv",HELPITEM," (bad combination of cartesian/polar direction)");
+      PrintErrorMessage('E', "LexOrderVectorsCommand", "bad combination of cartesian/polar direction");
       return(PARAMERRORCODE);
     }
     else
@@ -5500,8 +5310,7 @@ static INT LexOrderVectorsCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("lexorderv",HELPITEM,buffer);
+      PrintErrorMessageF('E', "LexOrderVectorsCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -5615,7 +5424,7 @@ static INT OrderVectorsCommand (INT argc, char **argv)
     case 'm' :
       if (sscanf(argv[i],"m %6[FCL]",modestr)!=1)
       {
-        PrintHelp("orderv",HELPITEM," (could not read the mode)");
+        PrintErrorMessage('E', "OrderVectorsCommand", "could not read the mode");
         return (PARAMERRORCODE);
       }
       if (strcmp(modestr,"FCFCLL")==0)
@@ -5628,7 +5437,8 @@ static INT OrderVectorsCommand (INT argc, char **argv)
         mode = GM_CCFFLL;
       else
       {
-        PrintHelp("orderv",HELPITEM," (you have to specify FFLLCC, FFLCLC, CCFFLL or FCFCLL as mode)");
+        PrintErrorMessage('E', "OrderVectorsCommand",
+                          "you have to specify FFLLCC, FFLCLC, CCFFLL or FCFCLL as mode");
         return (PARAMERRORCODE);
       }
       break;
@@ -5669,8 +5479,7 @@ static INT OrderVectorsCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("orderv",HELPITEM,buffer);
+      PrintErrorMessageF('E', "OrderVectorsCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -5728,8 +5537,7 @@ static INT RevertVecOrderCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("revvecorder",HELPITEM,buffer);
+      PrintErrorMessageF('E', "RevertVecOrderCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -5800,8 +5608,7 @@ static INT LineOrderVectorsCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("lineorderv",HELPITEM,buffer);
+      PrintErrorMessageF('E', "LineOrderVectorsCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -5878,7 +5685,7 @@ static INT FindCommand (INT argc, char **argv)
   /* check pararmeters */
   if (sscanf(argv[0],"find %lf %lf %lf",x,x+1,x+2)!=DIM)
   {
-    PrintHelp("find",HELPITEM," (could not get coordinates)");
+    PrintErrorMessage('E', "FindCommand", "could not get coordinates");
     return (PARAMERRORCODE);
   }
   for (i=0; i<DIM; i++)
@@ -5892,7 +5699,7 @@ static INT FindCommand (INT argc, char **argv)
     case 'n' :
       if (sscanf(argv[i],"n %lf",&tol)!=1)
       {
-        PrintHelp("find",HELPITEM," (could not read tolerance)");
+        PrintErrorMessage('E', "FindCommand", "could not read tolerance");
         return (PARAMERRORCODE);
       }
       for (j=0; j<DIM; j++)
@@ -5909,7 +5716,7 @@ static INT FindCommand (INT argc, char **argv)
     case 'v' :
       if (sscanf(argv[i],"v %lf",&tol)!=1)
       {
-        PrintHelp("find",HELPITEM," (could not read tolerance)");
+        PrintErrorMessage('E', "FindCommand", "could not read tolerance");
         return (PARAMERRORCODE);
       }
       for (j=0; j<DIM; j++)
@@ -5938,8 +5745,7 @@ static INT FindCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("find",HELPITEM,buffer);
+      PrintErrorMessageF('E', "FindCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -6191,8 +5997,7 @@ static INT SelectCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("select",HELPITEM,buffer);
+      PrintErrorMessageF('E', "SelectCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -6226,8 +6031,7 @@ static INT ExtraConnectionCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("extracon",HELPITEM,buffer);
+      PrintErrorMessageF('E', "ExtraConnectionCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
   theGrid = GRID_ON_LEVEL(theMG,CURRENTLEVEL(theMG));
@@ -6334,8 +6138,7 @@ static INT CheckCommand (INT argc, char **argv)
 
     default :
       if (!checknp) {
-        sprintf(buffer,"(invalid option '%s')",argv[i]);
-        PrintHelp("check",HELPITEM,buffer);
+        PrintErrorMessageF('E', "CheckCommand", "Unknown option '%s'", argv[i]);
         return (PARAMERRORCODE);
       }
     }
@@ -6512,8 +6315,7 @@ static INT QualityCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("quality",HELPITEM,buffer);
+      PrintErrorMessageF('E', "QualityCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -6652,7 +6454,7 @@ static INT SetCurrentMultigridCommand (INT argc, char **argv)
   /* get multigrid name */
   if (sscanf(argv[0],expandfmt(CONCAT3(" setcurrmg %",NAMELENSTR,"[ -~]")),mgname)!=1)
   {
-    PrintHelp("setcurrmg",HELPITEM," (specify current multigrid name)");
+    PrintErrorMessage('E', "SetCurrentMultigridCommand", "specify current multigrid name");
     return(PARAMERRORCODE);
   }
 
@@ -6763,8 +6565,7 @@ static INT ClearCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("clear",HELPITEM,buffer);
+      PrintErrorMessageF('E', "ClearCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
   if (j >= 0) {
@@ -6888,8 +6689,7 @@ static INT RandCommand (INT argc, char **argv)
       break;
 
     default :
-      sprintf(buffer,"(invalid option '%s')",argv[i]);
-      PrintHelp("rand",HELPITEM,buffer);
+      PrintErrorMessageF('E', "RandCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
     }
 
@@ -7193,7 +6993,8 @@ static INT CreateFormatCommand (INT argc, char **argv)
   switch (err)
   {
   case 0 : return (OKCODE);
-  case 1 : PrintHelp("newformat",HELPITEM,NULL);
+  case 1 :
+    PrintErrorMessage('E', "CreateFormatCommand", "Unknown error");
     return (PARAMERRORCODE);
   default : return (CMDERRORCODE);
   }
@@ -7241,7 +7042,8 @@ static INT SetPrintingFormatCommand (INT argc, char **argv)
   switch (err)
   {
   case 0 : return (OKCODE);
-  case 1 : PrintHelp("setpf",HELPITEM,NULL);
+  case 1 :
+    PrintErrorMessage('E', "SetPrintingFormatCommand", "Unknown error");
     return (PARAMERRORCODE);
   default : return (CMDERRORCODE);
   }
@@ -7389,71 +7191,6 @@ static INT SymListCommand (INT argc, char **argv)
       }
       break;
     }
-
-  return (OKCODE);
-}
-
-
-/****************************************************************************/
-/** \brief Implementation of \ref ???
-
-   .  argc - number of arguments (incl. its own name)
-   .  argv - array of strings giving the arguments
-
-   This function tests interesting machine parameters.
-
-   RETURN VALUE:
-   .n    0 if ok
-   .n    1 if error occured.
- */
-/****************************************************************************/
-
-static INT MachineTestCommand (INT argc, char **argv)
-{
-  /* determine parameters of memory */
-        #ifdef ModelP
-  if (me == master)
-        #endif
-  MemoryParameters();
-
-        #ifdef ModelP
-  /* determine performance of network */
-  /*	NetworkPerformance(); */
-        #endif
-
-  return (OKCODE);
-}
-
-/****************************************************************************/
-/** \brief Implementation of \ref system
-
-   SystemCommand - calls system routine
-
-   .  argc - number of arguments (incl. its own name)
-   .  argv - array of strings giving the arguments
-
-   This function calls a system routine.
-
-   'system \<system~command>'
-
-   .   \<system~command>	- this command string is passed to the system
-
-   KEYWORDS:
-   system, cshell, UNIX
- */
-/****************************************************************************/
-
-static INT SystemCommand (INT argc, char **argv)
-{
-  char *p;
-
-  if (strlen(argv[0])<8) return (PARAMERRORCODE);
-  p = argv[0]+7;
-
-  printf("system \n%s\n",p);
-
-  if (system(p)==-1)
-    UserWrite("system-error\n");
 
   return (OKCODE);
 }
@@ -7790,8 +7527,7 @@ static INT TraceCommand (INT argc, char **argv)
   STR_BREAK
 
   STR_DEFAULT
-  sprintf(buffer,"(invalid option '%s')",argv[i]);
-  PrintHelp("trace",HELPITEM,buffer);
+  PrintErrorMessageF('E', "TraceCommand", "Unknown option '%s'", argv[i]);
   return (PARAMERRORCODE);
   STR_BREAK
 
@@ -8468,11 +8204,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* general commands */
   if (CreateCommand("exitug",                     ExitUgCommand                                   )==NULL) return (__LINE__);
-  if (CreateCommand("help",                       HelpCommand                                     )==NULL) return (__LINE__);
-  if (CreateCommand("checkhelp",          CheckHelpCommand                                )==NULL) return (__LINE__);
-  if (CreateCommand("readclock",          ReadClockCommand                                )==NULL) return (__LINE__);
-  if (CreateCommand("resetclock",         ResetClockCommand                               )==NULL) return (__LINE__);
-  if (CreateCommand("date",                       DateCommand                                     )==NULL) return (__LINE__);
 
   /* commands for environement management */
   if (CreateCommand("cd",                         ChangeEnvCommand                                )==NULL) return (__LINE__);
@@ -8583,8 +8314,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("symlist",            SymListCommand                      )==NULL) return (__LINE__);
 
   /* miscellaneous commands */
-  if (CreateCommand("machinetest",        MachineTestCommand                              )==NULL) return (__LINE__);
-  if (CreateCommand("system",                     SystemCommand                                   )==NULL) return (__LINE__);
   if (CreateCommand("resetCEstat",        ResetCEstatCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("printCEstat",        PrintCEstatCommand                              )==NULL) return (__LINE__);
   if (CreateCommand("heapstat",           HeapStatCommand                             )==NULL) return (__LINE__);
@@ -8619,7 +8348,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   if (CreateCommand("dumpalg",            DumpAlgCommand                                  )==NULL) return (__LINE__);
 
-  if (InitClock()                 !=0) return (__LINE__);
   if (InitFindRange()     !=0) return (__LINE__);
   if (InitArray()                 !=0) return (__LINE__);
 

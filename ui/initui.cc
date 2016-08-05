@@ -40,7 +40,6 @@
 
 /* user interface module */
 #include "cmdline.h"
-#include "helpmsg.h"
 #include "ugstruct.h"
 #include "commands.h"
 
@@ -115,9 +114,6 @@ INT NS_DIM_PREFIX InitUi (INT argc, char **argv)
     SetHiWrd(err,__LINE__);
     return (err);
   }
-
-  /* init help mechanism */
-  InitHelpMsg();
 
   /* init commands of ug's command line interface */
   if ((err=InitCommands())!=0)

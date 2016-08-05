@@ -42,7 +42,6 @@
 #include "ugstruct.h"
 #include "ugm.h"
 #include "algebra.h"
-#include "helpmsg.h"
 #include "general.h"
 
 #include "np.h"

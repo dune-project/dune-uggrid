@@ -47,7 +47,7 @@ START_UG_NAMESPACE
 #define MAX_TIMER       30
 
 #define NEW_TIMER(n)    { new_timer(&(n)); }
-#define DEL_TIMER(n)    { ug_timer[(n)].used = 0; }
+#define DEL_TIMER(n)    { ug_timer[(n)].used = false; }
 #define RESET_TIMER(n)  { ug_timer[(n)].start= 0.0; \
                           ug_timer[(n)].stop = 0.0; \
                           ug_timer[(n)].sum = 0.0; }
@@ -65,7 +65,7 @@ START_UG_NAMESPACE
 /****************************************************************************/
 
 typedef struct {
-  char used;
+  bool used;
   double start;
   double stop;
   double sum;
