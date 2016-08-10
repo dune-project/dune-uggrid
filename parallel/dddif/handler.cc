@@ -1745,8 +1745,10 @@ static void ElementObjMkCons (DDD_OBJ obj, int newness)
   if (dddctrl.elemData) VOBJECT(EVECTOR(pe)) = (GEOM_OBJECT*)pe;
 
   if (dddctrl.sideData)
-    for (i=0; i<SIDES_OF_ELEM(pe); i++)
+    for (i=0; i<SIDES_OF_ELEM(pe); i++) {
       VOBJECT(SVECTOR(pe,i)) = (GEOM_OBJECT*)pe;
+      SETVECTORSIDE(SVECTOR(pe,i), i);
+    }
 
   /*  if called with prio old=ghost and new=ghost,
           then you have eventually to unlink and link
