@@ -3,8 +3,6 @@ set(SOURCES
   ugiter.cc
   transgrid.cc
   block.cc
-  ff_gen.cc
-  ff.cc
   npcheck.cc
   sm.cc
   blasm.cc
