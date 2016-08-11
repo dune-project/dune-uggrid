@@ -98,7 +98,6 @@
 #include "ugstruct.h"
 #include "cmdint.h"
 #include "cmdline.h"
-#include "dio.h"
 
 #ifdef ModelP
 #include "parallel.h"

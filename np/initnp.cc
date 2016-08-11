@@ -35,7 +35,6 @@
 #include "general.h"
 #include "udm.h"
 #include "formats.h"
-#include "dio.h"
 
 #include "initnp.h"
 #include "numproc.h"
@@ -86,12 +85,6 @@ INT NS_DIM_PREFIX InitNumerics ()
     return (err);
   }
   if ((err=InitFormats())!=0) {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* init data io */
-  if ((err=DIO_Init())!=0) {
     SetHiWrd(err,__LINE__);
     return (err);
   }

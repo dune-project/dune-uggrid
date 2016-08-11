@@ -5,7 +5,6 @@ set(SOURCES
   udm.cc
   formats.cc
   numproc.cc
-  dio.cc
 )
 
 set(npinclude_HEADERS  udm.h numproc.h formats.h npscan.h disctools.h pcr.h)
