@@ -415,9 +415,15 @@ static void ddd_DefineTypes (void)
 
   /* 1. DDD objects (with DDD_HEADER) */
 
+  /*
+   * A side vector's `VECTORSIDE` depends on which of the `objects` is used
+   * as a representative. To ensure consistency, both are handled in the same
+   * place (`ElementObjMkCons`).
+   */
+  gbits = ~((1 << VECTORSIDE_LEN)-1 << VECTORSIDE_SHIFT);
   DDD_TypeDefine(TypeVector, &v,
                  EL_DDDHDR, &v.ddd,
-                 EL_GDATA,  ELDEF(v.control),
+                 EL_GBITS,  ELDEF(v.control), &gbits,
 
                  /* object must be LDATA, because reftype may be a non-DDD-object */
                  /* (e.g., edge). therefore, 'object' must be updated by MKCONS-  */
