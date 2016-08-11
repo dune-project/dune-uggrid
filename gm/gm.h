@@ -85,12 +85,6 @@
 #define MODEL "SEQUENTIAL"
 #endif
 
-#ifdef _NETGEN
-#define NETGEN_SUPPORT "ON"
-#else
-#define NETGEN_SUPPORT "OFF"
-#endif
-
 #ifdef Debug
 #define DEBUG_MODE "ON"
 #else
