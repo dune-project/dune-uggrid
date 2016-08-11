@@ -94,7 +94,6 @@
 #include "data_io.h"
 #include "npcheck.h"
 #include "udm.h"
-#include "fvgeom.h"
 
 /* user interface module */
 #include "ugstruct.h"

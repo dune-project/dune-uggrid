@@ -33,7 +33,6 @@
 
 #include "np.h"
 #include "general.h"
-#include "fvgeom.h"
 #include "udm.h"
 #include "formats.h"
 #include "dio.h"
@@ -77,12 +76,6 @@ INT NS_DIM_PREFIX InitNumerics ()
 
   /* init procs */
   if ((err=InitNumProcManager())!=0) {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* init finite volumes */
-  if ((err=InitFiniteVolumeGeom())!=0) {
     SetHiWrd(err,__LINE__);
     return (err);
   }
