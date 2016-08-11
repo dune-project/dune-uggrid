@@ -79,12 +79,6 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef ModelP
-#define MODEL "PARALLEL"
-#else
-#define MODEL "SEQUENTIAL"
-#endif
-
 #ifdef Debug
 #define DEBUG_MODE "ON"
 #else
