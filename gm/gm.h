@@ -3602,18 +3602,8 @@ INT                     RevertVecOrder                                  (GRID *t
 
 /* functions for evaluation-fct management */
 INT              InitEvalProc                                                           (void);
-EVALUES         *CreateElementValueEvalProc                             (const char *name, PreprocessingProcPtr PreProc, ElementEvalProcPtr EvalProc);
-EVECTOR         *CreateElementVectorEvalProc                            (const char *name, PreprocessingProcPtr PreProc, ElementVectorProcPtr EvalProc, INT d);
-MVALUES         *CreateMatrixValueEvalProc                                      (const char *name, PreprocessingProcPtr PreProc, MatrixEvalProcPtr EvalProc);
-EVALUES         *CreateElementValueEvalProcFromCoeffProc        (const char *name, CoeffProcPtr CoeffProc);
-EVECTOR         *CreateElementVectorEvalProcFromCoeffProc       (const char *name, CoeffProcPtr CoeffProc, INT d);
 EVALUES         *GetElementValueEvalProc                                        (const char *name);
 EVECTOR         *GetElementVectorEvalProc                                       (const char *name);
-MVALUES         *GetMatrixValueEvalProc                                         (const char *name);
-EVALUES         *GetFirstElementValueEvalProc                           (void);
-EVALUES         *GetNextElementValueEvalProc                            (EVALUES *EvalProc);
-EVECTOR         *GetFirstElementVectorEvalProc                          (void);
-EVECTOR         *GetNextElementVectorEvalProc                           (EVECTOR *EvecProc);
 
 /* miscellaneous */
 INT             RenumberMultiGrid                                       (MULTIGRID *theMG, INT *nboe, INT *nioe, INT *nbov, INT *niov, NODE ***vid_n, INT *foid, INT *non, INT MarkKey);
