@@ -117,10 +117,6 @@ INT esc_mul      (EVEC_SCALAR x, const EVEC_SCALAR y, const EVEC_SCALAR z, const
 INT sc_mul_check (VEC_SCALAR x, const VEC_SCALAR y, const VEC_SCALAR z, const VECDATA_DESC *theVD);
 INT esc_mul_check (EVEC_SCALAR x, const EVEC_SCALAR y, const EVEC_SCALAR z, const EVECDATA_DESC *theVD);
 
-
-/* scanning argument lists                                                  */
-INT ReadArgvDisplay (INT argc, char **argv);
-
 END_UGDIM_NAMESPACE
 
 #endif
