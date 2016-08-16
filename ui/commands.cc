@@ -89,7 +89,6 @@
 /* numerics module */
 #include "np.h"
 #include "ugblas.h"
-#include "formats.h"
 #include "disctools.h"
 #include "npcheck.h"
 #include "udm.h"
@@ -6125,85 +6124,6 @@ static INT ReInitCommand (INT argc, char **argv)
   return(OKCODE);
 }
 
-/* see formats.c for the man page */
-
-/** \brief Implementation of \ref newformat. */
-static INT CreateFormatCommand (INT argc, char **argv)
-{
-  INT err;
-
-  err = CreateFormatCmd(argc,argv);
-
-  switch (err)
-  {
-  case 0 : return (OKCODE);
-  case 1 :
-    PrintErrorMessage('E', "CreateFormatCommand", "Unknown error");
-    return (PARAMERRORCODE);
-  default : return (CMDERRORCODE);
-  }
-}
-
-
-/** \brief Implementation of \ref delformat. */
-static INT DeleteFormatCommand (INT argc, char **argv)
-{
-  INT err;
-  char fmtname[NAMESIZE];
-
-  NO_OPTION_CHECK(argc,argv);
-
-  if (sscanf(argv[0],"delformat %s",fmtname)!=1)
-  {
-    PrintErrorMessage('E',"delformat","specify format to delete");
-    return (PARAMERRORCODE);
-  }
-
-  err = RemoveFormatWithSubs(fmtname);
-
-  switch (err)
-  {
-  case GM_OK : return (OKCODE);
-  default : return (CMDERRORCODE);
-  }
-}
-
-
-/** \brief Implementation of \ref setpf. */
-static INT SetPrintingFormatCommand (INT argc, char **argv)
-{
-  INT err;
-  MULTIGRID *theMG;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"setpf","there is no current multigrid\n");
-    return (CMDERRORCODE);
-  }
-  err = SetPrintingFormatCmd(theMG,argc,argv);
-
-  switch (err)
-  {
-  case 0 : return (OKCODE);
-  case 1 :
-    PrintErrorMessage('E', "SetPrintingFormatCommand", "Unknown error");
-    return (PARAMERRORCODE);
-  default : return (CMDERRORCODE);
-  }
-}
-
-
-/** \brief Implementation of \ref showpf. */
-static INT ShowPrintingFormatCommand (INT argc, char **argv)
-{
-  NO_OPTION_CHECK(argc,argv);
-
-  DisplayPrintingFormat();
-
-  return (OKCODE);
-}
-
 /** \brief Implementation of \ref resetCEstat. */
 static INT ResetCEstatCommand (INT argc, char **argv)
 {
@@ -7306,12 +7226,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("sub",                        SubCommand                                              )==NULL) return (__LINE__);
   if (CreateCommand("homotopy",       HomotopyCommand                 )==NULL) return(__LINE__);
   if (CreateCommand("interpolate",        InterpolateCommand                              )==NULL) return (__LINE__);
-
-  /* formats */
-  if (CreateCommand("newformat",          CreateFormatCommand                             )==NULL) return (__LINE__);
-  if (CreateCommand("delformat",          DeleteFormatCommand                             )==NULL) return (__LINE__);
-  if (CreateCommand("showpf",             ShowPrintingFormatCommand               )==NULL) return (__LINE__);
-  if (CreateCommand("setpf",                      SetPrintingFormatCommand                )==NULL) return (__LINE__);
 
   /* miscellaneous commands */
   if (CreateCommand("resetCEstat",        ResetCEstatCommand                              )==NULL) return (__LINE__);
