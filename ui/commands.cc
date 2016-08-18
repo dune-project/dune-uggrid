@@ -2939,7 +2939,7 @@ static INT SelectionListCommand (INT argc, char **argv)
 /** \brief Implementation of \ref rlist. */
 static INT RuleListCommand (INT argc, char **argv)
 {
-  INT i,allopt,rn,rv,tag;
+  INT i,allopt,rn,tag;
   char etype[32];
 
   rn = -1;
@@ -2960,9 +2960,9 @@ static INT RuleListCommand (INT argc, char **argv)
 
   /* scan parameters */
   if (allopt == false)
-    rv = sscanf(argv[0],"rlist %31[triquatethexa] %d",etype,&rn);
+    sscanf(argv[0],"rlist %31[triquatethexa] %d",etype,&rn);
   else
-    rv = sscanf(argv[0],"rlist %31[triaquadtetrahexa]",etype);
+    sscanf(argv[0],"rlist %31[triaquadtetrahexa]",etype);
 
   tag = -1;
         #ifdef __TWODIM__
