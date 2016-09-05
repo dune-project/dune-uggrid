@@ -147,13 +147,6 @@ INT NS_DIM_PREFIX InitGm ()
   /* set config variables for the script */
   if (SetStringValue("conf:dim",(DOUBLE)DIM))
     return(__LINE__);
-    #ifdef _NETGEN
-  if (SetStringValue("conf:netgen",1.0))
-    return(__LINE__);
-        #else
-  if (SetStringValue("conf:netgen",0.0))
-    return(__LINE__);
-    #endif
 
   return (0);
 }

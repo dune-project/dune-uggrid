@@ -45,7 +45,6 @@
 #include "evm.h"
 
 #include "formats.h"
-#include "pcr.h"
 #include "numproc.h"
 #include "np.h"
 
@@ -625,49 +624,6 @@ NP_BASE * NS_DIM_PREFIX ReadArgvNumProc (MULTIGRID *theMG, const char *name, con
     return (NULL);
 
   return(GetNumProcByName(theMG,value,npclass));
-}
-
-/****************************************************************************/
-/** \brief
-   ReadArgvDisplay - Read command strings
-
-   SYNOPSIS:
-   INT ReadArgvDisplay (INT argc, char **argv);
-
-   PARAMETERS:
-   .  argc - argument counter
-   .  argv - argument vector
-
-   DESCRIPTION:
-   This function reads the display status.
-
-   RETURN VALUE:
-   INT
-   .n    PCR_NO_DISPLAY     no display (default if not specified)
-   .n    PCR_RED_DISPLAY    reduced display
-   .n    PCR_FULL_DISPLAY   full display
-   D*/
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ReadArgvDisplay (INT argc, char **argv)
-{
-  INT i;
-  char value[VALUELEN];
-
-  for (i=0; i<argc; i++)
-    if (strncmp(argv[i],"display",7)==0)
-    {
-      if (sscanf(argv[i],"display %s",value) != 1)
-        continue;
-      if (strcmp(value,"no") == 0)
-        return(PCR_NO_DISPLAY);
-      else if (strcmp(value,"red") == 0)
-        return(PCR_RED_DISPLAY);
-      else if (strcmp(value,"full") == 0)
-        return(PCR_FULL_DISPLAY);
-    }
-
-  return(PCR_NO_DISPLAY);
 }
 
 /****************************************************************************/

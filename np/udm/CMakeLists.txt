@@ -1,14 +1,12 @@
 set(SOURCES
-  pcr.cc
   disctools.cc
   npscan.cc
   udm.cc
   formats.cc
   numproc.cc
-  dio.cc
-  data_io.cc)
+)
 
-set(npinclude_HEADERS  udm.h numproc.h formats.h npscan.h disctools.h pcr.h)
+set(npinclude_HEADERS  udm.h numproc.h formats.h npscan.h disctools.h)
 
 ug_add_dim_libs(udm OBJECT SOURCES ${SOURCES})
 

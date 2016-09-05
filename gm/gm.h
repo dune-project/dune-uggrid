@@ -79,18 +79,6 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef ModelP
-#define MODEL "PARALLEL"
-#else
-#define MODEL "SEQUENTIAL"
-#endif
-
-#ifdef _NETGEN
-#define NETGEN_SUPPORT "ON"
-#else
-#define NETGEN_SUPPORT "OFF"
-#endif
-
 #ifdef Debug
 #define DEBUG_MODE "ON"
 #else
@@ -155,21 +143,21 @@ START_UGDIM_NAMESPACE
 
 /** @name Some size macros for allocation purposes */
 /*@{*/
-/** \brief max number of sides of an elem       */
+/** \brief max number of sides of an element */
 #define MAX_SIDES_OF_ELEM               6
-/** \brief max number of edges of an element*/
+/** \brief max number of edges of an element */
 #define MAX_EDGES_OF_ELEM               12
-/** \brief max number of corners of an eleme*/
+/** \brief max number of corners of an element */
 #define MAX_CORNERS_OF_ELEM             8
-/** \brief max number of edges of a side    */
+/** \brief max number of edges of a side */
 #define MAX_EDGES_OF_SIDE               4
-/** \brief max number of edges meeting in co*/
+/** \brief max number of edges meeting in a corner */
 #define MAX_EDGES_OF_CORNER             4
-/** \brief max number of corners of a side  */
+/** \brief max number of corners of a side */
 #define MAX_CORNERS_OF_SIDE     4
 /** \brief an edge has always two corners.. */
 #define MAX_CORNERS_OF_EDGE             2
-/** \brief two sides have one edge in common*/
+/** \brief two sides have one edge in common */
 #define MAX_SIDES_OF_EDGE               2
 /** \brief max number of sons of an element */
 enum {MAX_SONS = 30};
@@ -3614,18 +3602,8 @@ INT                     RevertVecOrder                                  (GRID *t
 
 /* functions for evaluation-fct management */
 INT              InitEvalProc                                                           (void);
-EVALUES         *CreateElementValueEvalProc                             (const char *name, PreprocessingProcPtr PreProc, ElementEvalProcPtr EvalProc);
-EVECTOR         *CreateElementVectorEvalProc                            (const char *name, PreprocessingProcPtr PreProc, ElementVectorProcPtr EvalProc, INT d);
-MVALUES         *CreateMatrixValueEvalProc                                      (const char *name, PreprocessingProcPtr PreProc, MatrixEvalProcPtr EvalProc);
-EVALUES         *CreateElementValueEvalProcFromCoeffProc        (const char *name, CoeffProcPtr CoeffProc);
-EVECTOR         *CreateElementVectorEvalProcFromCoeffProc       (const char *name, CoeffProcPtr CoeffProc, INT d);
 EVALUES         *GetElementValueEvalProc                                        (const char *name);
 EVECTOR         *GetElementVectorEvalProc                                       (const char *name);
-MVALUES         *GetMatrixValueEvalProc                                         (const char *name);
-EVALUES         *GetFirstElementValueEvalProc                           (void);
-EVALUES         *GetNextElementValueEvalProc                            (EVALUES *EvalProc);
-EVECTOR         *GetFirstElementVectorEvalProc                          (void);
-EVECTOR         *GetNextElementVectorEvalProc                           (EVECTOR *EvecProc);
 
 /* miscellaneous */
 INT             RenumberMultiGrid                                       (MULTIGRID *theMG, INT *nboe, INT *nioe, INT *nbov, INT *niov, NODE ***vid_n, INT *foid, INT *non, INT MarkKey);
