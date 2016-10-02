@@ -1,5 +1,3 @@
-find_package(X11)
-
 # Compatibility against previous UG versions.
 set(UG_USE_SYSTEM_HEAP ${UG_ENABLE_SYSTEM_HEAP})
 set(UG_FOUND True)

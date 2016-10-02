@@ -9,5 +9,5 @@ Name: libug
 Version: @VERSION@
 Description: library for the discretization of PDEs on unstructured grids
 Requires:
-Libs: -L${libdir} -ldevS @UG_XLIBS@
+Libs: -L${libdir} -ldevS
 Cflags: -I${includedir} @UG_EXTRAFLAGS@
