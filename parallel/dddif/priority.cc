@@ -175,6 +175,7 @@ static int ComputeNodeBorderPrios (DDD_OBJ obj)
 
   if (me!=min_proc)
     SETPRIO(node, PrioBorder);
+  return 0;
 }
 
 
@@ -216,6 +217,7 @@ static int ComputeVectorBorderPrios (DDD_OBJ obj)
 
   if (me!=min_proc)
     SETPRIO(vector, PrioBorder);
+  return 0;
 }
 
 
@@ -258,6 +260,7 @@ static int ComputeEdgeBorderPrios (DDD_OBJ obj)
 
   if (me!=min_proc)
     SETPRIO(edge, PrioBorder);
+  return 0;
 }
 
 
