@@ -175,7 +175,7 @@ enum HandlerSets
 #define HGHOSTPRIO(p)                                   (p==PrioHGhost  || p==PrioVHGhost)
 
 
-#define GIDFMT                                                  "%08x"
+#define GID_FMT                                                 "%08x"
 
 /* This exchanges in the load balancing the connections too.
  #define __EXCHANGE_CONNECTIONS__                              */

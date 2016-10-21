@@ -303,7 +303,7 @@ enum {VERTEX_LISTPARTS = 1};
 #define EDID_PRTX(x) (x)
 
 #define PFMT            "%1d:"
-#define GIDFMT          "%1d"
+#define GID_FMT         "%1d"
 
 /* dummies for global id */
 #define EGID(e)     ID(e)
