@@ -427,8 +427,6 @@ LINK(OTYPE)
 LINKX(OTYPE)
 {
 	INT listpart		= PRIO2LISTPART(CAT(OTYPE,_LIST),Prio);
-	INT listpartprev	= listpart;
-	INT listpartnext	= listpart;
 	OTYPE *Object1		= NULL;
 
 	ASSERT(Grid != NULL);
