@@ -387,8 +387,8 @@ void lbs (const char *argv, MULTIGRID *theMG)
 
   /* dies balanciert ein GRID mit RCB ab fromlevel */
   case (4) :
-    if (fromlevel>=0 && fromlevel<=TOPLEVEL(theMG) ||
-        tolevel>=0 && tolevel<=TOPLEVEL(theMG)     ||
+    if ((fromlevel>=0 && fromlevel<=TOPLEVEL(theMG)) ||
+        (tolevel>=0 && tolevel<=TOPLEVEL(theMG))     ||
         tolevel < fromlevel)
     {
       int j;
