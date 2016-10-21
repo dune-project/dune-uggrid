@@ -175,8 +175,8 @@ void XferDisplayMsg (const char *comment, LC_MSGHANDLE xm)
 
     DDD_OBJ obj = OTE_OBJ(theObjects, &(theObjTab[i]));
 
-    sprintf(cBuffer, "%s 10 objtab    %06d typ=%1d gid=%08x "
-            "hdr=%08x size=%05d add=%05d\n",
+    sprintf(cBuffer, "%s 10 objtab    %06d typ=%1d gid=" OTE_GID_FMT
+            " hdr=%p size=%05d add=%05d\n",
             buf, (((char *)obj)-theObjects), OTE_TYPE(theObjects,&(theObjTab[i])),
             OTE_GID(theObjects,&(theObjTab[i])),
             theObjTab[i].hdr, theObjTab[i].size, theObjTab[i].addLen);
@@ -186,7 +186,7 @@ void XferDisplayMsg (const char *comment, LC_MSGHANDLE xm)
 
   for(i=0; i<lenSymTab; i++)
   {
-    sprintf(cBuffer, "%s 11 symtab %04d - %08x (%08x==%08x)\n",
+    sprintf(cBuffer, "%s 11 symtab %04d - " DDD_GID_FMT " (%08x==%08x)\n",
             buf, i,
             theSymTab[i].gid, theSymTab[i].adr.hdr, theSymTab[i].adr.ref);
     DDD_PrintDebug(cBuffer);
@@ -194,7 +194,7 @@ void XferDisplayMsg (const char *comment, LC_MSGHANDLE xm)
 
   for(i=0; i<lenNewCpl; i++)
   {
-    sprintf(cBuffer, "%s 12 newcpl %04d - %08x %4d %4d\n",
+    sprintf(cBuffer, "%s 12 newcpl %04d - " DDD_GID_FMT " %4d %4d\n",
             buf, i,
             NewCpl_GetGid(theNewCpl[i]),
             NewCpl_GetDest(theNewCpl[i]),
@@ -204,7 +204,7 @@ void XferDisplayMsg (const char *comment, LC_MSGHANDLE xm)
 
   for(i=0; i<lenOldCpl; i++)
   {
-    sprintf(cBuffer, "%s 13 oldcpl %04d - %08x %4d %4d\n",
+    sprintf(cBuffer, "%s 13 oldcpl %04d - " DDD_GID_FMT " %4d %4d\n",
             buf, i,
             theOldCpl[i].gid, theOldCpl[i].proc, theOldCpl[i].prio);
     DDD_PrintDebug(cBuffer);

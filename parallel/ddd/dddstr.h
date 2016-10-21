@@ -40,9 +40,9 @@
 #define ERR_ID_WRONG_MODE \
   "wrong Ident-mode (currently in %s, expected %s)"
 #define ERR_ID_SAME_TUPEL \
-  "same identification tupel for objects %08x and %08x"
+  "same identification tupel for objects " OBJ_GID_FMT " and " OBJ_GID_FMT
 #define ERR_ID_OBJ_CYCLE \
-  "IdentifyObject-cycle, objects %08x and %08x"
+  "IdentifyObject-cycle, objects " DDD_GID_FMT " and " DDD_GID_FMT
 #define ERR_ID_NOMEM_RESOLV \
   STR_NOMEM " in ResolveDependencies"
 #define ERR_ID_UNKNOWN_OPT \
@@ -70,9 +70,9 @@
 #define ERR_ID_NO_BEGIN \
   "Missing DDD_IdentifyBegin(), aborted"
 #define ERR_ID_NOT_WITH_ME \
-  "cannot identify %08x with myself"
+  "cannot identify " OBJ_GID_FMT " with myself"
 #define ERR_ID_NOT_WITH_PROC \
-  "cannot identify %08x with processor %d"
+  "cannot identify " OBJ_GID_FMT " with processor %d"
 #define ERR_ID_NOMEM_IDENTRY \
   STR_NOMEM "in IdentifyIdEntry"
 #define ERR_ID_NOMEM_IDNUMBER \

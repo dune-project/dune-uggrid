@@ -282,22 +282,22 @@ static void buggy_ElemShow (ELEMENT *e)
          ID(e), LEVEL(e), CORNERS_OF_ELEM(e));
 
   if (EFATHER(e))
-    printf("%4d:    father=%08x\n", me,
+    printf("%4d:    father=" DDD_GID_FMT "\n", me,
            DDD_InfoGlobalId(PARHDRE(EFATHER(e))));
 
   if (PREDE(e))
-    printf("%4d:    pred=%08x\n", me,
+    printf("%4d:    pred=" DDD_GID_FMT "\n", me,
            DDD_InfoGlobalId(PARHDRE(PREDE(e))));
 
   if (SUCCE(e))
-    printf("%4d:    succ=%08x\n", me,
+    printf("%4d:    succ=" DDD_GID_FMT "\n", me,
            DDD_InfoGlobalId(PARHDRE(SUCCE(e))));
 
   for(i=0; i<SIDES_OF_ELEM(e); i++)
   {
     if (NBELEM(e,i)!=NULL)
     {
-      printf("%4d:    nb[%d]=%08x\n", me,
+      printf("%4d:    nb[%d]=" DDD_GID_FMT "\n", me,
              i, DDD_InfoGlobalId(PARHDRE(NBELEM(e,i))));
     }
   }
@@ -306,7 +306,7 @@ static void buggy_ElemShow (ELEMENT *e)
   {
     for(i=0; SonList[i]!=NULL; i++)
     {
-      printf("%4d:    son[%d]=%08x prio=%d\n", me,
+      printf("%4d:    son[%d]=" DDD_GID_FMT " prio=%d\n", me,
              i,
              DDD_InfoGlobalId(PARHDRE(SonList[i])),
              DDD_InfoPriority(PARHDRE(SonList[i]))
@@ -351,15 +351,15 @@ static void buggy_NodeShow (NODE *n)
 
 
   if (NFATHER(n))
-    printf("%4d:    father=%08x\n", me,
+    printf("%4d:    father=" DDD_GID_FMT "\n", me,
            DDD_InfoGlobalId(PARHDR((NODE *)NFATHER(n))));
 
   if (PREDN(n))
-    printf("%4d:    pred=%08x\n", me,
+    printf("%4d:    pred=" DDD_GID_FMT "\n", me,
            DDD_InfoGlobalId(PARHDR(PREDN(n))));
 
   if (SUCCN(n))
-    printf("%4d:    succ=%08x\n", me,
+    printf("%4d:    succ=" DDD_GID_FMT "\n", me,
            DDD_InfoGlobalId(PARHDR(SUCCN(n))));
 }
 
@@ -398,7 +398,7 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
     {
       if (DDD_InfoGlobalId(PARHDRE(e))==gid)
       {
-        printf("%4d: ELEMENT gid=%08x, adr=%p, level=%d\n",
+        printf("%4d: ELEMENT gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
                me, gid, e, level);
         buggy_ShowCopies(PARHDRE(e));
         buggy_ElemShow(e);
@@ -412,7 +412,7 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
     {
       if (DDD_InfoGlobalId(PARHDR(n))==gid)
       {
-        printf("%4d: NODE gid=%08x, adr=%p, level=%d\n",
+        printf("%4d: NODE gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
                me, gid, n, level);
         buggy_ShowCopies(PARHDR(n));
         buggy_NodeShow(n);
@@ -427,13 +427,13 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
 
     if (hdr!=NULL)
     {
-      printf("%4d: DDDOBJ gid=%08x, typ=%d, level=%d\n",
+      printf("%4d: DDDOBJ gid=" DDD_GID_FMT ", typ=%d, level=%d\n",
              me, gid, DDD_InfoType(hdr), DDD_InfoAttr(hdr));
       buggy_ShowCopies(hdr);
     }
     else
     {
-      printf("%4d: unknown gid=%08x\n", me, gid);
+      printf("%4d: unknown gid=" DDD_GID_FMT "\n", me, gid);
     }
   }
 }
@@ -686,14 +686,14 @@ void NS_DIM_PREFIX dddif_PrintGridRelations (MULTIGRID *theMG)
   SYNC_CONTEXT;
   for(e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
   {
-    printf(PREFIX "master(e%07x, p%02d).\n", EGID(e), me);
+    printf(PREFIX "master(e" EGID_FMT ", p%02d).\n", EGID(e), me);
 
     for(j=0; j<SIDES_OF_ELEM(e); j++)
     {
       enb = NBELEM(e,j);
       if (enb!=NULL)
       {
-        printf(PREFIX "nb(e%07x, e%07x).\n", EGID(e), EGID(enb));
+        printf(PREFIX "nb(e" EGID_FMT ", e" EGID_FMT ").\n", EGID(e), EGID(enb));
       }
     }
   }

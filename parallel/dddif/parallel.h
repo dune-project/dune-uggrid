@@ -174,8 +174,8 @@ enum HandlerSets
 #define VGHOSTPRIO(p)                                   (p==PrioVGhost || p==PrioVHGhost)
 #define HGHOSTPRIO(p)                                   (p==PrioHGhost  || p==PrioVHGhost)
 
-
-#define GID_FMT                                                 "%08x"
+#define EGID_FMT DDD_GID_FMT
+#define GID_FMT                                                 DDD_GID_FMT
 
 /* This exchanges in the load balancing the connections too.
  #define __EXCHANGE_CONNECTIONS__                              */
