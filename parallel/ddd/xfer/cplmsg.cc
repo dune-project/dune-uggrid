@@ -387,21 +387,21 @@ static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
 
   for(i=0; i<lenDelCpl; i++)
   {
-    sprintf(cBuffer, "%s 14 delcpl %04d - %08x\n",
+    sprintf(cBuffer, "%s 14 delcpl %04d - " DDD_GID_FMT "\n",
             buf, i, theDelCpl[i].gid);
     DDD_PrintDebug(cBuffer);
   }
 
   for(i=0; i<lenModCpl; i++)
   {
-    sprintf(cBuffer, "%s 15 modcpl %04d - %08x %3d\n",
+    sprintf(cBuffer, "%s 15 modcpl %04d - " DDD_GID_FMT " %3d\n",
             buf, i, theModCpl[i].gid, theModCpl[i].prio);
     DDD_PrintDebug(cBuffer);
   }
 
   for(i=0; i<lenAddCpl; i++)
   {
-    sprintf(cBuffer, "%s 16 addcpl %04d - %08x %4d %3d\n",
+    sprintf(cBuffer, "%s 16 addcpl %04d - " DDD_GID_FMT " %4d %3d\n",
             buf, i, theAddCpl[i].gid, theAddCpl[i].proc, theAddCpl[i].prio);
     DDD_PrintDebug(cBuffer);
   }

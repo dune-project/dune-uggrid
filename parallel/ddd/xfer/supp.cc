@@ -237,7 +237,7 @@ int Method(Compare) (ClassPtr item1, ClassPtr item2)
 
 void Method(Print) (ParamThis _PRINTPARAMS)
 {
-  fprintf(fp, "XICopyObj dest=%d gid=%08x prio=%d\n",
+  fprintf(fp, "XICopyObj dest=%d gid=" DDD_GID_FMT " prio=%d\n",
           This->dest, This->gid, This->prio);
 }
 
@@ -297,7 +297,7 @@ int Method(Compare) (ClassPtr item1, ClassPtr item2)
 
 void Method(Print) (ParamThis _PRINTPARAMS)
 {
-  fprintf(fp, "XISetPrio gid=%08x prio=%d\n", This->gid, This->prio);
+  fprintf(fp, "XISetPrio gid=" DDD_GID_FMT " prio=%d\n", This->gid, This->prio);
 }
 
 #undef ClassName
