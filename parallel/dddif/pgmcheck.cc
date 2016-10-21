@@ -567,6 +567,8 @@ static int Gather_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
     ((DDD_GID *)data)[i] = GID(theEdge);
   }
         #endif
+
+  return 0;
 }
 
 static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
@@ -607,6 +609,8 @@ static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
     }
   }
         #endif
+
+  return 0;
 }
 
 #ifdef __THREEDIM__
@@ -630,6 +634,7 @@ static int Gather_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
   else
     ((DDD_GID *)data)[i++] = 0;
 
+  return 0;
 }
 
 static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
@@ -708,6 +713,8 @@ static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
     }
   }
   i++;
+
+  return 0;
 }
 #endif
 

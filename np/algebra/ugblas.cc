@@ -2077,6 +2077,8 @@ static int PrepareCountAndSortInconsMatrices (DDD_OBJ obj)
   VECTOR *pv = (VECTOR *)obj;
 
   SETVCUSED( pv, 1 );
+
+  return 0;
 }
 
 static int CountAndSortInconsMatrices (DDD_OBJ obj)

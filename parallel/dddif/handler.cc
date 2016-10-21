@@ -34,6 +34,7 @@
 
 #include <config.h>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <cassert>
 
@@ -1154,10 +1155,7 @@ DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD_OBJ obj, DDD_OBJ ref)
     return(TypeEdge);
 
   default :
-                        #ifdef Debug
-                        #endif
-    ASSERT(0);
-    break;
+    abort();
   }
 }
 
