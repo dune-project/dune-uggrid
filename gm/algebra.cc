@@ -3467,7 +3467,7 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
     if (VecObject == NULL)
     {
       errors++;
-      UserWriteF("%d: vector=" VINDEX_FMTX " %s GID=" GIDFMT " has NO BACKPTR\n",
+      UserWriteF("%d: vector=" VINDEX_FMTX " %s GID=" GID_FMT " has NO BACKPTR\n",
                  me, VINDEX_PRTX(theVector), ObjectString,
                  (OBJT(theObject)==BEOBJ || OBJT(theObject)==IEOBJ) ?
                  EGID(&(theObject->el)) : (OBJT(theObject)==NDOBJ) ?
