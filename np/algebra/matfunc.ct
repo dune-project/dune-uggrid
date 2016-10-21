@@ -47,12 +47,12 @@ INT T_FUNCNAME (MULTIGRID *mg, INT fl, INT tl, INT mode T_ARGS)
 #ifdef _SPARSE_
 	T_SPARSE_CALL
 #else
-	register VECTOR *v;
-	register MATRIX *mat;
+	VECTOR *v;
+	MATRIX *mat;
 	INT lev,rtype,ctype,nr,nc,i;
 	#ifdef T_USE_Y
-	register VECTOR *w;
-	register DOUBLE *mptr,*vptr;
+	VECTOR *w;
+	DOUBLE *mptr,*vptr;
 	#endif
 
 	#ifdef T_CONFIG
@@ -117,11 +117,11 @@ INT T_FUNCNAME (MULTIGRID *mg, INT fl, INT tl, INT mode T_ARGS)
 
 INT CAT(T_FUNCNAME,BS) (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf T_ARGS_BV)
 {
-	register VECTOR *v, *end_v;
-	register MATRIX *mat;
+	VECTOR *v, *end_v;
+	MATRIX *mat;
 
 	#ifdef T_USE_Y
-	register VECTOR *w;	
+	VECTOR *w;	
 	#endif
 	
 	#ifdef T_CONFIG_BV
