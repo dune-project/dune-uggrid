@@ -782,15 +782,6 @@ static void VertexUpdate (DDD_OBJ obj)
    */
 }
 
-static void VertexObjMkCons (DDD_OBJ obj, int newness)
-{
-  VERTEX  *theVertex      = (VERTEX *) obj;
-
-  PRINTDEBUG(dddif,1,(PFMT " VertexObjMkCons(): v=" VID_FMTX
-                      " I/BVOBJ=%d newness=%d\n",
-                      me,VID_PRTX(theVertex),OBJT(theVertex),newness))
-}
-
 
 static void BVertexXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {

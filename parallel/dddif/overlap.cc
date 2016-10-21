@@ -247,41 +247,6 @@ INT UpdateGridOverlap (GRID *theGrid)
 
 /****************************************************************************/
 /*
-   UpdateMultiGridOverlap -
-
-   SYNOPSIS:
-   static INT UpdateMultiGridOverlap (MULTIGRID *theMG, INT FromLevel);
-
-   PARAMETERS:
-   .  theMG
-   .  FromLevel
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   INT
- */
-/****************************************************************************/
-
-static INT UpdateMultiGridOverlap (MULTIGRID *theMG, INT FromLevel)
-{
-  INT l;
-  GRID    *theGrid;
-
-  ddd_HandlerInit(HSET_REFINE);
-
-  for (l=FromLevel; l<TOPLEVEL(theMG); l++)
-  {
-    theGrid = GRID_ON_LEVEL(theMG,l);
-    UpdateGridOverlap(theGrid);
-  }
-
-  return(GM_OK);
-}
-
-
-/****************************************************************************/
-/*
    DropUsedFlags -
 
    SYNOPSIS:
@@ -468,48 +433,6 @@ INT ConnectGridOverlap (GRID *theGrid)
   return(GM_OK);
 }
 
-
-
-/****************************************************************************/
-/*
-   ConnectMultiGridOverlap -
-
-   SYNOPSIS:
-   static INT	ConnectMultiGridOverlap (MULTIGRID *theMG, INT FromLevel);
-
-   PARAMETERS:
-   .  theMG
-   .  FromLevel
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   INT
- */
-/****************************************************************************/
-
-static INT      ConnectMultiGridOverlap (MULTIGRID *theMG, INT FromLevel)
-{
-  INT l;
-  GRID *theGrid;
-
-  /* drop used marks to fathers */
-  for (l=FromLevel+1; l<=TOPLEVEL(theMG); l++)
-  {
-    theGrid = GRID_ON_LEVEL(theMG,l);
-    if (DropUsedFlags(theGrid)) RETURN(GM_FATAL);
-  }
-
-  /* connect sons of elements with used flag set */
-  for (l=FromLevel; l<TOPLEVEL(theMG); l++)
-  {
-
-    theGrid = GRID_ON_LEVEL(theMG,l);
-    if (ConnectGridOverlap(theGrid)) RETURN(GM_FATAL);
-  }
-
-  return(GM_OK);
-}
 
 
 /****************************************************************************/
@@ -765,19 +688,6 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
     }
   }
 
-  return(GM_OK);
-}
-
-static INT ConnectOverlapVerticalMultiGrid (MULTIGRID *theMG)
-{
-  INT i;
-  GRID    *theGrid;
-
-  for (i=0; i<=TOPLEVEL(theMG); i++)
-  {
-    theGrid = GRID_ON_LEVEL(theMG,i);
-    if (ConnectOverlapVerticalGrid(theGrid)) return(GM_ERROR);
-  }
   return(GM_OK);
 }
 
