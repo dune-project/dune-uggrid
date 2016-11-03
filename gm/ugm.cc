@@ -101,9 +101,6 @@ USING_UGDIM_NAMESPACE
 #define ORDERRES                1e-3    /* resolution for OrderNodesInGrid			*/
 #define LINKTABLESIZE   32              /* max number of inks per node for ordering	*/
 
-/* local refinement hack */
-#undef _SCHALE_X_
-
 /** \brief macro for controlling debugging output by conditions on objects */
 #define UGM_CDBG(x,y)
 
@@ -9945,74 +9942,8 @@ static INT PropagatePeriodicNodeClass (GRID *theGrid, INT nclass)
 }
 #endif
 
-#ifdef _SCHALE_X_
-static INT PropagateNodeClassX (GRID *theGrid, INT nclass)
-{
-  ELEMENT *theElement;
-  INT i;
-
-  /* first: set node class to nclass-1 */
-  for (theElement=FIRSTELEMENT(theGrid);
-       theElement!= NULL; theElement = SUCCE(theElement))
-    if (MaxNodeClass(theElement) == nclass)
-      for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
-      {
-        NODE *theNode = CORNER(theElement,i);
-
-        if (NCLASS(theNode) < nclass)
-          SETNCLASS(theNode,nclass-1);
-      }
-
-  {
-    NODE *node;
-
-    /* second: set node class to nclass where class==nclass-1
-           otherwise dependence on order not connectivity! */
-    for (node=FIRSTNODE(theGrid); node!=NULL; node=SUCCN(node))
-      if (NCLASS(node)==(nclass-1))
-        SETNCLASS(node,nclass);
-  }
-
-        #ifdef __PERIODIC_BOUNDARY__
-  {
-    /* due to periodicity node class for periodic nodes has to be made consistent */
-    VECTOR *vec;
-    NODE *node;
-
-    for (node=FIRSTNODE(theGrid); node!=NULL; node=SUCCN(node)) {
-      vec=NVECTOR(node);
-
-      SETVCLASS(vec,MAX(NCLASS(node),VCLASS(vec)));
-    }
-
-    for (node=FIRSTNODE(theGrid); node!=NULL; node=SUCCN(node)) {
-      vec=NVECTOR(node);
-
-      SETNCLASS(node,MAX(VCLASS(vec),NCLASS(node)));
-    }
-
-  }
-        #endif
-
-  return(0);
-}
-#endif
-
 INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 {
-#ifdef _SCHALE_X_
-    #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses():"
-                   " 0. communication on level %d\n",me,GLEVEL(theGrid)))
-  /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
-                  Gather_NodeClass, Scatter_NodeClass);
-    #endif
-
-  /* set Node classes in the algebraic neighborhood to 3 */
-  if (PropagateNodeClassX(theGrid,3)) REP_ERR_RETURN(1);
-#endif
-
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses():"
                    " 1. communication on level %d\n",me,GLEVEL(theGrid)))
@@ -10228,73 +10159,8 @@ static INT PropagatePeriodicNextNodeClass (GRID *theGrid, INT nnclass)
 }
 #endif
 
-#ifdef _SCHALE_X_
-static INT PropagateNextNodeClassX (GRID *theGrid, INT nnclass)
-{
-  ELEMENT *theElement;
-  INT i;
-
-  /* first: set next node class to nnclass-1 */
-  for (theElement=FIRSTELEMENT(theGrid);
-       theElement!= NULL; theElement = SUCCE(theElement))
-    if (MaxNextNodeClass(theElement) == nnclass)
-      for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
-      {
-        NODE *theNode = CORNER(theElement,i);
-
-        if (NNCLASS(theNode) < nnclass)
-          SETNNCLASS(theNode,nnclass-1);
-      }
-
-  {
-    NODE *node;
-
-    /* second: set next node class to nnclass where class==nnclass-1
-       otherwise dependence on order not connectivity! */
-    for (node=FIRSTNODE(theGrid); node!=NULL; node=SUCCN(node)) {
-      if (NNCLASS(node)==nnclass-1)
-        SETNNCLASS(node,nnclass);
-    }
-  }
-
-#ifdef __PERIODIC_BOUNDARY__
-  {
-    /* due to periodicity periodic next node class for periodic nodes has to be made consistent */
-    VECTOR *vec;
-    NODE *node;
-
-    for (node=FIRSTNODE(theGrid); node!=NULL; node=SUCCN(node)) {
-      vec=NVECTOR(node);
-
-      SETVNCLASS(vec,MAX(NNCLASS(node),VNCLASS(vec)));
-    }
-
-    for (node=FIRSTNODE(theGrid); node!=NULL; node=SUCCN(node)) {
-      vec=NVECTOR(node);
-
-      SETNNCLASS(node,MAX(VNCLASS(vec),NNCLASS(node)));
-    }
-
-  }
-#endif
-
-  return (0);
-}
-#endif
-
 INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
 {
-#ifdef _SCHALE_X_
-    #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 0. communication\n",me))
-  /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
-                  Gather_NextNodeClass, Scatter_NextNodeClass);
-    #endif
-
-  if (PropagateNextNodeClassX(theGrid,3)) REP_ERR_RETURN(1);
-#endif
-
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 1. communication\n",me))
   /* exchange NNCLASS of Nodes */

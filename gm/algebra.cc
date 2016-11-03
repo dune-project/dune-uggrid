@@ -107,9 +107,6 @@ USING_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-/* DG local refinement hack */
-#undef _SCHALE_X_
-
 /** \brief Resolution for LexAlgDep */
 #define ORDERRES                1e-3
 
@@ -4092,28 +4089,6 @@ static INT PropagatePeriodicVectorClass (GRID *theGrid, INT vclass)
 }
 #endif
 
-#ifdef _SCHALE_X_
-static INT PropagateVectorClassX (GRID *theGrid, INT vclass)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix;
-
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-    if ((VCLASS(theVector)==vclass)&&(VSTART(theVector)!=NULL))
-      for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL;
-           theMatrix=MNEXT(theMatrix))
-        if ((VCLASS(MDEST(theMatrix))<vclass)
-            &&(CEXTRA(MMYCON(theMatrix))!=1))
-          SETVCLASS(MDEST(theMatrix),vclass-1);
-
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-    if (VCLASS(theVector)==(vclass-1))
-      SETVCLASS(theVector,vclass);
-
-  return(0);
-}
-#endif
 
 /****************************************************************************/
 /** \brief Compute vector classes after initialization
@@ -4131,21 +4106,6 @@ static INT PropagateVectorClassX (GRID *theGrid, INT vclass)
 /****************************************************************************/
 INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
 {
-#if defined(_SCHALE_X_) && !defined(DYNAMIC_MEMORY_ALLOCMODEL)
-    #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateVectorClasses():"
-                   " 0. communication on level %d\n",me,GLEVEL(theGrid)))
-  /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
-                  Gather_VectorVClass, Scatter_VectorVClass);
-    #endif
-
-  /* This call enlarges the set of 3-vector by one shell */
-  /* larger overlap needed according to theory of CW     */
-  /* added December 2000 for DG with local refinement    */
-  if (PropagateVectorClassX(theGrid,3)) REP_ERR_RETURN(1);
-#endif
-
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateVectorClasses():"
                    " 1. communication on level %d\n",me,GLEVEL(theGrid)))
@@ -4336,36 +4296,6 @@ static INT PropagateNextVectorClass (GRID *theGrid, INT vnclass)
   return(0);
 }
 
-#ifdef _SCHALE_X_
-static INT PropagateNextVectorClassX (GRID *theGrid, INT vnclass)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix;
-
-  /* set vector classes in the algebraic neighborhood to vnclass-1 */
-  /* use matrices to determine next vectors!!!!!                   */
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-    if ((VNCLASS(theVector)==vnclass)&&(VSTART(theVector)!=NULL))
-      for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL;
-           theMatrix=MNEXT(theMatrix))
-        if ((VNCLASS(MDEST(theMatrix))<vnclass)
-            &&(CEXTRA(MMYCON(theMatrix))!=1))
-          SETVNCLASS(MDEST(theMatrix),vnclass-1);
-
-  /* set class to vnclass if class==vnclass-1
-         otherwise dependence on ordering not connectivity! */
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-    if (VNCLASS(theVector)==(vnclass-1))
-      SETVNCLASS(theVector,vnclass);
-
-  /* only for this values valid */
-  ASSERT(vnclass==3 || vnclass==2);
-
-  return(0);
-}
-#endif
-
 #ifdef __PERIODIC_BOUNDARY__
 static INT PropagatePeriodicNextVectorClass (GRID *theGrid)
 {
@@ -4404,20 +4334,6 @@ static INT PropagatePeriodicNextVectorClass (GRID *theGrid)
 /****************************************************************************/
 INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
 {
-#if defined(_SCHALE_X_) && !defined(DYNAMIC_MEMORY_ALLOCMODEL)
-    #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextVectorClasses(): 0. communication\n",me))
-  /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
-                  Gather_VectorVNClass, Scatter_VectorVNClass);
-    #endif
-
-  /* This call enlarges the set of 3-vector by one shell */
-  /* larger overlap needed according to theory of CW     */
-  /* added December 2000 for DG with local refinement    */
-  if (PropagateNextVectorClassX(theGrid,3)) REP_ERR_RETURN(1);
-#endif
-
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextVectorClasses(): 1. communication\n",me))
   /* exchange VNCLASS of vectors */
