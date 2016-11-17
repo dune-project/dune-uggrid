@@ -1510,7 +1510,7 @@ static int Scatter_AMGMatrixCollect (DDD_OBJ obj, void *data)
     }
 
     if (igid<*maxgid && (gidbuf[igid]==dest)) {
-      printf("%d: %d->%d:",me,GID(pv),GID(MDEST(m)));
+      printf("%d: " GID_FMT "->" GID_FMT ":",me,GID(pv),GID(MDEST(m)));
       mtype = MTP(vtype,MDESTTYPE(m));
       ncomp = MD_COLS_IN_MTYPE(ConsMatrix,mtype);
       Comp = MD_MCMPPTR_OF_MTYPE(ConsMatrix,mtype);
@@ -2050,7 +2050,7 @@ static int Scatter_OffDiagMatrixComp (DDD_OBJ obj, void *data,
 
       if (igid<*maxgid && (gidbuf[igid]==dest))
       {
-        printf("%d: %d->%d:",me,GID(pv),GID(MDEST(m)));
+        printf("%d: " GID_FMT "->" GID_FMT ":",me,GID(pv),GID(MDEST(m)));
         mtype = MTP(vtype,MDESTTYPE(m));
         sm = MD_SM(ConsMatrix, mtype);
         ncomp = MD_COLS_IN_MTYPE(ConsMatrix,mtype);
@@ -2077,6 +2077,8 @@ static int PrepareCountAndSortInconsMatrices (DDD_OBJ obj)
   VECTOR *pv = (VECTOR *)obj;
 
   SETVCUSED( pv, 1 );
+
+  return 0;
 }
 
 static int CountAndSortInconsMatrices (DDD_OBJ obj)

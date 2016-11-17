@@ -26,14 +26,14 @@ if (MD_IS_SCALAR(M)
     && VD_IS_SCALAR(y)
 	#endif
 ) {
-	register SHORT mc = MD_SCALCMP(M);
-	register SHORT rmask = MD_SCAL_RTYPEMASK(M);
-	register SHORT cmask = MD_SCAL_CTYPEMASK(M);
+	SHORT mc = MD_SCALCMP(M);
+	SHORT rmask = MD_SCAL_RTYPEMASK(M);
+	SHORT cmask = MD_SCAL_CTYPEMASK(M);
 	#ifdef T_USE_X
-    register SHORT xc = VD_SCALCMP(x);
+    SHORT xc = VD_SCALCMP(x);
 	#endif
 	#ifdef T_USE_Y
-    register SHORT yc = VD_SCALCMP(y);
+    SHORT yc = VD_SCALCMP(y);
 	#endif
 
 	#ifdef T_PREP_SCAL
@@ -84,12 +84,12 @@ if (MD_SUCC_COMP(M)
 	for (rtype=0; rtype<NVECTYPES; rtype++) 
 		for (ctype=0; ctype<NVECTYPES; ctype++) 
 			if (MD_ISDEF_IN_RT_CT(M,rtype,ctype)) {
-				register INT m00;
+				INT m00;
                 #ifdef T_USE_X
 				DEFINE_VD_CMPS(cx);
                 #endif
                 #ifdef T_USE_Y
-				register INT cy0;
+				INT cy0;
                 #endif
 
                 #ifdef T_PREP_SWITCH

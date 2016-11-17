@@ -522,7 +522,7 @@ if (objIndex<NCpl_Get)
     if (DDD_GetOption(OPT_WARNING_DESTRUCT_HDR)==OPT_ON)
     {
       sprintf(cBuffer,
-              "inconsistency by deleting gid=%08x in DDD_HdrDestructor",
+              "inconsistency by deleting gid=" OBJ_GID_FMT " in DDD_HdrDestructor",
               OBJ_GID(hdr));
       DDD_PrintError('W', 2230, cBuffer);
     }

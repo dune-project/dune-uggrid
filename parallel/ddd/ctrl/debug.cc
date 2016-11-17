@@ -125,7 +125,7 @@ void DDD_ListLocalObjects (void)
   for(i=0; i<ddd_nObjs; i++)
   {
     o = locObjs[i];
-    sprintf(cBuffer, "%4d: #%04d  adr=0x%08x gid=0x%07x type=0x%02x"
+    sprintf(cBuffer, "%4d: #%04d  adr=%p gid=0x" OBJ_GID_FMT " type=0x%02x"
             " prio=%04d attr=%04d\n",
             me, i, o, OBJ_GID(o), OBJ_TYPE(o), OBJ_PRIO(o), OBJ_ATTR(o));
     DDD_PrintLine(cBuffer);

@@ -143,7 +143,7 @@ static int PreparePhase1Msgs (JIJoinPtrArray *arrayJoin,
   {
     if (ObjHasCpl(itemsJ[i]->hdr))
     {
-      sprintf(cBuffer, "cannot join %08x, object already distributed",
+      sprintf(cBuffer, "cannot join " OBJ_GID_FMT ", object already distributed",
               OBJ_GID(itemsJ[i]->hdr));
       DDD_PrintError('E', 7006, cBuffer);
       HARD_EXIT;
@@ -162,7 +162,7 @@ static int PreparePhase1Msgs (JIJoinPtrArray *arrayJoin,
     if (local_gid!=GID_INVALID && local_gid!=itemsJ[i]->new_gid)
     {
       sprintf(cBuffer,
-              "several (inconsistent) DDD_JoinObj-commands for local object %08x",
+              "several (inconsistent) DDD_JoinObj-commands for local object " DDD_GID_FMT,
               local_gid);
       DDD_PrintError('E', 7007, cBuffer);
       HARD_EXIT;
@@ -317,7 +317,7 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
             continue;
 
 #                                       if DebugJoin<=1
-          printf("%4d: Phase1 Join for %08x from %d, "
+          printf("%4d: Phase1 Join for " DDD_GID_FMT " from %d, "
                  "send AddCpl to %d.\n",
                  me, theJoin[i].gid, ji->te.proc, ji->dest);
 #                                       endif
@@ -339,7 +339,7 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
       }
       else
       {
-        sprintf(cBuffer, "no object %08x for join from %d",
+        sprintf(cBuffer, "no object " DDD_GID_FMT " for join from %d",
                 theJoin[i].gid, LC_MsgGetProc(jm));
         DDD_PrintError('E', 7300, cBuffer);
         HARD_EXIT;
@@ -1212,7 +1212,7 @@ void DDD_JoinObj (DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
 
   if (dest>=procs)
   {
-    sprintf(cBuffer, "cannot join %08x with %08x on processor %d (procs=%d)",
+    sprintf(cBuffer, "cannot join " OBJ_GID_FMT " with " DDD_GID_FMT " on processor %d (procs=%d)",
             OBJ_GID(hdr), new_gid, dest, procs);
     DDD_PrintError('E', 7003, cBuffer);
     HARD_EXIT;
@@ -1220,14 +1220,14 @@ void DDD_JoinObj (DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
 
   if (dest==me)
   {
-    sprintf(cBuffer, "cannot join %08x with myself", OBJ_GID(hdr));
+    sprintf(cBuffer, "cannot join " OBJ_GID_FMT " with myself", OBJ_GID(hdr));
     DDD_PrintError('E', 7004, cBuffer);
     HARD_EXIT;
   }
 
   if (ObjHasCpl(hdr))
   {
-    sprintf(cBuffer, "cannot join %08x, object already distributed",
+    sprintf(cBuffer, "cannot join " OBJ_GID_FMT ", object already distributed",
             OBJ_GID(hdr));
     DDD_PrintError('E', 7005, cBuffer);
     HARD_EXIT;
@@ -1244,7 +1244,7 @@ void DDD_JoinObj (DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
     return;
 
 #       if DebugJoin<=2
-  sprintf(cBuffer, "%4d: DDD_JoinObj %08x, dest=%d, new_gid=%08x\n",
+  sprintf(cBuffer, "%4d: DDD_JoinObj " OBJ_GID_FMT ", dest=%d, new_gid=" DDD_GID_FMT "\n",
           me, OBJ_GID(hdr), dest, new_gid);
   DDD_PrintDebug(cBuffer);
 #       endif

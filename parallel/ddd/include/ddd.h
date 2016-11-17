@@ -269,6 +269,7 @@ typedef ddd_gid_debug DDD_GID;
 typedef DDD_GID_T DDD_GID;
 #else
 typedef unsigned long DDD_GID;
+#define DDD_GID_FMT "%08lx"
 #endif
 #define DDD_GID_TO_INT(A) (unsigned int) A
 #endif

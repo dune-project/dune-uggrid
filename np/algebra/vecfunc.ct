@@ -19,7 +19,7 @@
 
 INT T_FUNCNAME (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x T_ARGS)
 {
-	register VECTOR *v;
+	VECTOR *v;
 	INT lev,vtype,ncomp,i;
 	DEFINE_VD_CMPS(cx);
 	#ifdef T_USE_Y
@@ -88,7 +88,7 @@ INT T_FUNCNAME (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x T
 
 INT CAT(T_FUNCNAME,BS) (const BLOCKVECTOR *bv, INT xc T_ARGS_BV)
 {
-	register VECTOR *v, *end_v;
+	VECTOR *v, *end_v;
 	#ifdef T_CONFIG
 	T_CONFIG;
 	#endif
