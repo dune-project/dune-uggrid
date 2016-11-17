@@ -350,6 +350,7 @@ extern VChannelPtr *theTopology;
 
 /* global id of object */
 #define OBJ_GID(o)      ACCESS_HDR(o,gid)
+#define OBJ_GID_FMT     DDD_GID_FMT
 
 /* get index into global object table */
 #define OBJ_INDEX(o)    ACCESS_HDR(o,myIndex)

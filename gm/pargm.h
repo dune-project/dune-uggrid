@@ -191,14 +191,14 @@ enum {VERTEX_LISTPARTS = 1};
 
 #ifdef ModelP
 
-#define ID_FMT      "%ld/%08x"
-#define ID_FFMT     "%9ld/%08x"
+#define ID_FMT      "%ld/" GID_FMT
+#define ID_FFMT     "%9ld/" GID_FMT
 #define ID_PRT(x)   ((long)ID(x)),GID(x)
-#define ID_FMTE     "%ld/%08x/%d"
-#define ID_FFMTE    "%9ld/%08x/%02d"
+#define ID_FMTE     "%ld/" GID_FMT "/%d"
+#define ID_FFMTE    "%9ld/" GID_FMT "/%02d"
 #define ID_PRTE(x)  ((long)ID(x)),GID(x),PRIO(x)
-#define ID_FMTX     "%d/%ld/%08x/%d"
-#define ID_FFMTX    "%x/%9ld/%08x/%02d"
+#define ID_FMTX     "%d/%ld/" GID_FMT "/%d"
+#define ID_FFMTX    "%x/%9ld/" GID_FMT "/%02d"
 #define ID_PRTX(x)  KeyForObject((KEY_OBJECT *)x),((long)ID(x)),GID(x),PRIO(x)
 
 #define VID_FMT     ID_FMT
@@ -232,13 +232,13 @@ enum {VERTEX_LISTPARTS = 1};
 #define VINDEX_FFMTX   ID_FFMTX
 #define VINDEX_PRTX(x) KeyForObject((KEY_OBJECT *)x),((long)VINDEX(x)),GID(x),PRIO(x)
 
-#define EDID_FMT     "%08x"
+#define EDID_FMT     GID_FMT
 #define EDID_FFMT    EDID_FMT
 #define EDID_PRT(x)  GID(x)
-#define EDID_FMTE    "%08x/%d"
+#define EDID_FMTE    GID_FMT "/%d"
 #define EDID_FFMTE   EDID_FMTE
 #define EDID_PRTE(x) GID(x),PRIO(x)
-#define EDID_FMTX    "%x/%08x/%d"
+#define EDID_FMTX    "%x/" GID_FMT "/%d"
 #define EDID_FFMTX   EDID_FMTX
 #define EDID_PRTX(x) x,GID(x),PRIO(x)
 
@@ -303,7 +303,7 @@ enum {VERTEX_LISTPARTS = 1};
 #define EDID_PRTX(x) (x)
 
 #define PFMT            "%1d:"
-#define GIDFMT          "%1d"
+#define GID_FMT         "%1d"
 
 /* dummies for global id */
 #define EGID(e)     ID(e)

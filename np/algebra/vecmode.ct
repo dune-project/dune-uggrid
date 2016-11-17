@@ -23,10 +23,10 @@ if (VD_IS_SCALAR(x)
     && VD_IS_SCALAR(y)
 	#endif
 ) {
-	register SHORT xc = VD_SCALCMP(x);
-	register SHORT mask = VD_SCALTYPEMASK(x);
+	SHORT xc = VD_SCALCMP(x);
+	SHORT mask = VD_SCALTYPEMASK(x);
 	#ifdef T_USE_Y
-    register SHORT yc = VD_SCALCMP(y);
+    SHORT yc = VD_SCALCMP(y);
 	#endif
 
 	#ifdef T_PREP_SCAL

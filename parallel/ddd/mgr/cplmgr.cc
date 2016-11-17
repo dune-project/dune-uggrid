@@ -486,7 +486,7 @@ COUPLING *ModCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
   if (! ObjHasCpl(hdr))
   {
     /* there are no couplings for this object! */
-    sprintf(cBuffer, "no couplings for %08x in ModCoupling", OBJ_GID(hdr));
+    sprintf(cBuffer, "no couplings for " OBJ_GID_FMT " in ModCoupling", OBJ_GID(hdr));
     DDD_PrintError('E', 2530, cBuffer);
     return(NULL);
   }
@@ -504,7 +504,7 @@ COUPLING *ModCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
   }
 
   /* coupling not found */
-  sprintf(cBuffer, "no coupling from %d for %08x in ModCoupling",
+  sprintf(cBuffer, "no coupling from %d for " OBJ_GID_FMT " in ModCoupling",
           proc, OBJ_GID(hdr));
   DDD_PrintError('E', 2531, cBuffer);
   HARD_EXIT;
@@ -739,7 +739,7 @@ void DDD_InfoCoupling (DDD_HDR hdr)
   COUPLING *cpl;
   int objIndex = OBJ_INDEX(hdr);
 
-  sprintf(cBuffer, "%4d: InfoCoupling for object %07x (%05d/%05d)\n",
+  sprintf(cBuffer, "%4d: InfoCoupling for object " OBJ_GID_FMT " (%05d/%05d)\n",
           me, OBJ_GID(hdr), objIndex, NCpl_Get);
   DDD_PrintLine(cBuffer);
 

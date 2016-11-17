@@ -924,7 +924,7 @@ static void XferInitCopyInfo (DDD_HDR hdr,
 
   if (dest>=procs)
   {
-    sprintf(cBuffer, "cannot transfer %08x to processor %d (procs=%d)",
+    sprintf(cBuffer, "cannot transfer " OBJ_GID_FMT " to processor %d (procs=%d)",
             OBJ_GID(hdr), dest, procs);
     DDD_PrintError('E', 6003, cBuffer);
     HARD_EXIT;

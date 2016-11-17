@@ -182,6 +182,8 @@ static int Gather_ElemDest (DDD_OBJ obj, void *data)
   ELEMENT *theElement = (ELEMENT *)obj;
 
   *(DDD_PROC *)data = PARTITION(theElement);
+
+  return 0;
 }
 
 
@@ -208,6 +210,8 @@ static int Scatter_ElemDest (DDD_OBJ obj, void *data)
   ELEMENT *theElement = (ELEMENT *)obj;
 
   PARTITION(theElement) = *(DDD_PROC *)data;
+
+  return 0;
 }
 
 
@@ -902,7 +906,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 
 int NS_DIM_PREFIX TransferGrid (MULTIGRID *theMG)
 {
-  TransferGridFromLevel(theMG,0);
+  return TransferGridFromLevel(theMG,0);
 }
 
 /****************************************************************************/

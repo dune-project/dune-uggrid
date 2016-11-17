@@ -746,7 +746,7 @@ void DDD_InfoIFImpl (DDD_IF ifId)
     for(i=0; i<ifh->nAB; i++)
     {
       COUPLING *c = ifh->cplAB[i];
-      sprintf(cBuffer, "|         gid=%08x proc=%04d prio=%02d "
+      sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
               "osc=%p/%p\n",
               OBJ_GID(c->obj), CPL_PROC(c), c->prio,
               ifh->objAB[i], OBJ_OBJ(c->obj)
@@ -759,7 +759,7 @@ void DDD_InfoIFImpl (DDD_IF ifId)
     for(i=0; i<ifh->nBA; i++)
     {
       COUPLING *c = ifh->cplBA[i];
-      sprintf(cBuffer, "|         gid=%08x proc=%04d prio=%02d "
+      sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
               "osc=%p/%p\n",
               OBJ_GID(c->obj), CPL_PROC(c), c->prio,
               ifh->objBA[i], OBJ_OBJ(c->obj)
@@ -772,7 +772,7 @@ void DDD_InfoIFImpl (DDD_IF ifId)
     for(i=0; i<ifh->nABA; i++)
     {
       COUPLING *c = ifh->cplABA[i];
-      sprintf(cBuffer, "|         gid=%08x proc=%04d prio=%02d "
+      sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
               "osc=%p/%p\n",
               OBJ_GID(c->obj), CPL_PROC(c), c->prio,
               ifh->objABA[i], OBJ_OBJ(c->obj)
