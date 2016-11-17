@@ -40,7 +40,7 @@
 #include "architecture.h"
 #include "debug.h"
 #include "ugtypes.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "domain.h"
 #include "evm.h"
 #include "parallel.h"

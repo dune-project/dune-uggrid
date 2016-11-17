@@ -36,7 +36,7 @@
 #include "general.h"
 #include "ugm.h"      /* for GetFreeOBJT() */
 #include "memmgr.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "namespace.h"
 
 /* UG namespaces: */

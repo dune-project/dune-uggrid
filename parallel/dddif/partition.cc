@@ -44,7 +44,7 @@
 #include "namespace.h"
 
 /* dev module */
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 /* gm module */
 #include "algebra.h"

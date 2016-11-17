@@ -69,7 +69,7 @@
 #include "debug.h"
 #include "general.h"
 
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #include "algebra.h"
 #include "dlmgr.h"

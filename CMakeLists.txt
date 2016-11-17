@@ -57,7 +57,7 @@ endif()
 
 #set the include headers
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
-  ${PROJECT_SOURCE_DIR}/gm ${PROJECT_SOURCE_DIR}/dev ${PROJECT_SOURCE_DIR}/dom
+  ${PROJECT_SOURCE_DIR}/gm ${PROJECT_SOURCE_DIR}/dom
   ${PROJECT_SOURCE_DIR}/np ${PROJECT_SOURCE_DIR}/ui
   ${PROJECT_SOURCE_DIR}/np/algebra
   ${PROJECT_SOURCE_DIR}/np/udm

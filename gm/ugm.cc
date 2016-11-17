@@ -55,7 +55,7 @@
 #include "general.h"
 #include "fifo.h"
 
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #include "evm.h"
 #include "gm.h"

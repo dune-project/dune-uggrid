@@ -27,7 +27,7 @@
 #define __COMPILE_CW__
 
 
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "architecture.h"
 #include "debug.h"
 #include "general.h"

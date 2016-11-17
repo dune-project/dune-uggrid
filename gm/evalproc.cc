@@ -38,7 +38,7 @@
 #include "gm.h"
 #include "ugenv.h"
 #include "evm.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "shapes.h"
 #include "elements.h"
 

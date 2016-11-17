@@ -70,7 +70,7 @@
 #include "defaults.h"
 #include "general.h"
 #include "ugenv.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #include "fileopen.h"
 

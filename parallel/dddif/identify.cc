@@ -35,7 +35,7 @@
 #include "general.h"
 #include "ugtypes.h"
 #include "debug.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #include "gm.h"
 #include "ugm.h"

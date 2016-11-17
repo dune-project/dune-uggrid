@@ -42,7 +42,7 @@
 #include "misc.h"
 
 /* dev module */
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 /* gm module */
 #include "evm.h"

@@ -38,7 +38,7 @@
 #include "architecture.h"
 #include "disctools.h"
 #include "debug.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "general.h"
 #include "gm.h"
 #include "misc.h"

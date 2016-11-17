@@ -39,7 +39,7 @@
 #include "ugm.h"
 #include "evm.h"
 #include "shapes.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "namespace.h"
 
 /* UG namespaces: */

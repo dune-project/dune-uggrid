@@ -37,7 +37,7 @@
 #include "ugtypes.h"
 #include "heaps.h"
 #include "misc.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #include "parallel.h"
 #include "general.h"

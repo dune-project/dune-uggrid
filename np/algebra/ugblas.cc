@@ -55,7 +55,7 @@
 #include "evm.h"
 #include "gm.h"
 #include "algebra.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "general.h"
 #include "debug.h"
 #ifdef ModelP

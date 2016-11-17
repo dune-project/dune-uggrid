@@ -72,7 +72,7 @@
 #include "general.h"
 
 /* devices module */
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 /* grid manager module */
 #include "gm.h"

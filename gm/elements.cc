@@ -24,7 +24,7 @@
 #include <cassert>
 
 #include "general.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #include "gm.h"
 #include "ugm.h"
