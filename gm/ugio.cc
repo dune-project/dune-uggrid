@@ -52,7 +52,7 @@
 #include "misc.h"
 #include "ugstruct.h"
 
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #ifdef ModelP
 #include "parallel.h"
 #endif

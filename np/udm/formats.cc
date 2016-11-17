@@ -33,7 +33,7 @@
 #include <cstring>
 #include <ctype.h>
 
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "enrol.h"
 #include "ugtypes.h"
 #include "misc.h"

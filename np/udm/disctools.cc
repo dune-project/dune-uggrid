@@ -38,7 +38,7 @@
 #include "gm.h"       /* for data structure               */
 #include "evm.h"      /* for data structure               */
 #include "general.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #include "ugblas.h"
 #include "disctools.h"

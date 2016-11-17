@@ -34,12 +34,11 @@
 #include <cassert>
 
 #include "ugtypes.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "misc.h"
 #include "gm.h"
 #include "elements.h"
 #include "algebra.h"
-#include "ugdevices.h"
 #include "evm.h"
 #include "shapes.h"
 #include "debug.h"

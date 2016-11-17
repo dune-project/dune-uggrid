@@ -69,7 +69,7 @@
 #include "evm.h"
 
 /* dev modules */
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 /* domain module */
 #include "std_internal.h"

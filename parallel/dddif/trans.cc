@@ -44,7 +44,7 @@
 #include "refine.h"
 #include "algebra.h"
 #include "debug.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #ifdef DYNAMIC_MEMORY_ALLOCMODEL
 #include "mgheapmgr.h"
 #endif

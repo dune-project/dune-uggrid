@@ -36,7 +36,7 @@
 #include "general.h"
 #include "gm.h"
 #include "ugenv.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "np.h"
 #include "numproc.h"
 

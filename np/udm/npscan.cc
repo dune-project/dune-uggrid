@@ -41,7 +41,7 @@
 
 #include "gm.h"
 #include "ugenv.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "evm.h"
 
 #include "formats.h"

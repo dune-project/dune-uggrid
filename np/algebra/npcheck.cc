@@ -30,7 +30,7 @@
 #include <config.h>
 #include <cmath>
 
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "ugtypes.h"
 #include "gm.h"
 #include "np.h"

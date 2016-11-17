@@ -39,7 +39,7 @@
 #include "misc.h"
 #include "ugenv.h"
 #include "cmdline.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "general.h"
 
 USING_UG_NAMESPACES

@@ -47,7 +47,7 @@
 #include "general.h"
 #include "fifo.h"
 
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "ugstruct.h"
 
 #include "evm.h"

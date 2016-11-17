@@ -12,7 +12,7 @@
 #include "memmgr.h"
 #include "general.h"
 #include "ugm.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 #include "namespace.h"
 
 #include "debugger.h"

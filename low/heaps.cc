@@ -42,7 +42,7 @@
 #include "misc.h"
 #include "general.h"
 #include "debug.h"
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #if defined(DYNAMIC_MEMORY_ALLOCMODEL) && defined(Debug)
 #include "gm.h"

@@ -45,7 +45,7 @@
 #include "general.h"
 
 /* dev module */
-#include "ugdevices.h"
+#include <dev/ugdevices.h>
 
 #include "namespace.h"
 
