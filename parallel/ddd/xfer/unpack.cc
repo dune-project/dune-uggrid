@@ -251,8 +251,8 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
             if (theSymTab[stIdx].adr.hdr!=OBJ2HDR(*ref,refdesc))
             {
               sprintf(cBuffer,
-                      "reference collision in %08x "
-                      "(old=%08x, inc=%08x) in LocalizeObject\n",
+                      "reference collision in " OBJ_GID_FMT " "
+                      "(old=" OBJ_GID_FMT ", inc=" OBJ_GID_FMT ") in LocalizeObject\n",
                       OBJ_GID(OBJ2HDR(obj,desc)),
                       OBJ_GID(OBJ2HDR(*ref,refdesc)),
                       OBJ_GID(theSymTab[stIdx].adr.hdr));

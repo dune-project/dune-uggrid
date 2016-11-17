@@ -71,12 +71,6 @@ using namespace PPIF;
  */
 
 
-/* define this to detect size of allocatable memory */
-/*
-   #define DETECT_MEMORY_SIZE
- */
-
-
 
 
 #define HARD_EXIT assert(0)
@@ -849,59 +843,6 @@ void memmgr_ReleaseHMEM (long theMarkKey)
 
 
 /****************************************************************************/
-
-#define MAX_MALLOCS 256
-
-
-/*
-        DetectAllocatableMemory()
-
-        This function tries to find out the amount of memory
-        which can be allocated from the local heap. This is
-        done by allocating a sequence of memory blocks,
-        starting with big ones. NOTE: this function shouldn't
-        be used on systems where virtual memory is available
-        (e.g., workstations); the page swapping mechanism
-        will break down if you try to do DetectAllocatableMemory()
-        on such systems.
- */
-
-#define MAX_MALLOCS 256
-
-static size_t DetectAllocatableMemory (void)
-{
-  void *buffers[MAX_MALLOCS];
-  size_t s = 1024*1024*1024;
-  size_t all = 0;
-  int i = 0;
-
-  do {
-    buffers[i] =(void *) malloc(s);
-    if (buffers[i]==NULL)
-    {
-      /* couldnt get memory of size s, try with half size */
-      s = s/2;
-    }
-    else
-    {
-      /* could allocate mem, continue */
-      all += s;
-      i++;
-    }
-  } while (i<MAX_MALLOCS && s>32);
-
-  /* free memory */
-  while (i>0)
-  {
-    i--;
-    free(buffers[i]);
-  };
-
-  return(all);
-}
-
-
-/****************************************************************************/
 /*
    memmgr_Init -
 
@@ -932,15 +873,6 @@ void memmgr_Init (void)
 
     myheap = NewHeap(GENERAL_HEAP,HEAP_SIZE,buffer);
   }
-
-        #else
-
-  /* detect size of allocatable memory */
-                #ifdef DETECT_MEMORY_SIZE
-  printf("%4d: MemMgr. detecting size of allocatable memory ...\n", me);
-  printf("%4d: MemMgr. size of allocatable memory: %ld\n", me,
-         (unsigned long)DetectAllocatableMemory());
-                #endif
         #endif
 
 

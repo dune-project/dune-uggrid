@@ -514,7 +514,7 @@ typedef struct
 #define OTE_TYPE(objmem,ote)   OBJ_TYPE(OTE_HDR(objmem,ote))
 #define OTE_ATTR(objmem,ote)   OBJ_ATTR(OTE_HDR(objmem,ote))
 
-
+#define OTE_GID_FMT OBJ_GID_FMT
 
 
 

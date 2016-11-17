@@ -138,7 +138,7 @@ else
     if (DDD_GetOption(OPT_WARNING_PRIOCHANGE)==OPT_ON)
     {
       sprintf(cBuffer,
-              "creating inconsistency for gid=%08x in DDD_PrioritySet",
+              "creating inconsistency for gid=" OBJ_GID_FMT " in DDD_PrioritySet",
               OBJ_GID(hdr));
       DDD_PrintError('W', 2300, cBuffer);
     }

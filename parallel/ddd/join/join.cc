@@ -127,7 +127,7 @@ int Method(Compare) (ClassPtr item1, ClassPtr item2)
 
 void Method(Print) (ParamThis _PRINTPARAMS)
 {
-  fprintf(fp, "JIJoin local_gid=%08x dest=%d new_gid=%08x\n",
+  fprintf(fp, "JIJoin local_gid=" OBJ_GID_FMT " dest=%d new_gid=" DDD_GID_FMT "\n",
           OBJ_GID(This->hdr), This->dest, This->new_gid);
 }
 
@@ -165,7 +165,7 @@ int Method(Compare) (ClassPtr item1, ClassPtr item2)
 
 void Method(Print) (ParamThis _PRINTPARAMS)
 {
-  fprintf(fp, "JIAddCpl gid=%08x dest=%d proc=%d prio=%d\n",
+  fprintf(fp, "JIAddCpl gid=" DDD_GID_FMT " dest=%d proc=%d prio=%d\n",
           This->te.gid, This->dest, This->te.proc, This->te.prio);
 }
 

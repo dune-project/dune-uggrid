@@ -263,7 +263,7 @@ static int ConsCheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
     {
       if (OBJ_PRIO(locObjs[j])!=theCplBuf[i].prio)
       {
-        sprintf(cBuffer, "    DDD-GCC Warning: obj %08x type %d on %d"
+        sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " type %d on %d"
                 " has prio %d, cpl from %d has prio %d!\n",
                 OBJ_GID(locObjs[j]), OBJ_TYPE(locObjs[j]), me, OBJ_PRIO(locObjs[j]),
                 LC_MsgGetProc(xm), theCplBuf[i].prio);
@@ -274,7 +274,7 @@ static int ConsCheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
     }
     else
     {
-      sprintf(cBuffer, "    DDD-GCC Warning: obj %08x type %d on %d for cpl"
+      sprintf(cBuffer, "    DDD-GCC Warning: obj " DDD_GID_FMT " type %d on %d for cpl"
               " from %3d missing!\n",
               theCplBuf[i].gid, theCplBuf[i].typ, me, LC_MsgGetProc(xm));
       DDD_PrintLine(cBuffer);
@@ -342,7 +342,7 @@ static int ConsCheckGlobalCpl (void)
       if ((DDD_PROC)CPL_PROC(cpl) >= procs)
       {
         error_cnt++;
-        sprintf(cBuffer, "%4d: DDD-GCC Warning: invalid proc=%d (%08x/%08x)\n",
+        sprintf(cBuffer, "%4d: DDD-GCC Warning: invalid proc=%d (" OBJ_GID_FMT "/" OBJ_GID_FMT ")\n",
                 me, CPL_PROC(cpl), OBJ_GID(cpl->obj),
                 OBJ_GID(ddd_ObjTable[i])
                 );
@@ -461,7 +461,7 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
       {
         if (OBJ_PRIO(locObjs[j])!=theCplBuf[i].prio)
         {
-          sprintf(cBuffer, "    DDD-GCC Warning: obj %08x type %d on %d"
+          sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " type %d on %d"
                   " has prio %d, cpl from %d has prio %d!\n",
                   OBJ_GID(locObjs[j]), OBJ_TYPE(locObjs[j]), me, OBJ_PRIO(locObjs[j]),
                   LC_MsgGetProc(xm), theCplBuf[i].prio);
@@ -491,7 +491,7 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
 
           if (ifound==-1)
           {
-            sprintf(cBuffer, "    DDD-GCC Warning: obj %08x type %d on %d has cpl"
+            sprintf(cBuffer, "    DDD-GCC Warning: obj " DDD_GID_FMT " type %d on %d has cpl"
                     " from%4d, but %d hasn't!\n",
                     theCplBuf[i].gid, theCplBuf[i].typ, me,
                     CPL_PROC(j2), LC_MsgGetProc(xm));
@@ -700,7 +700,7 @@ static int ConsCheckDoubleObj (void)
     if (OBJ_GID(locObjs[i-1])==OBJ_GID(locObjs[i]))
     {
       error_cnt++;
-      sprintf(cBuffer, "    DDD-GCC Warning: obj %08x on %d doubled\n",
+      sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " on %d doubled\n",
               OBJ_GID(locObjs[i]), me);
       DDD_PrintLine(cBuffer);
     }
