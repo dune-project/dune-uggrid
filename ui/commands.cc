@@ -860,7 +860,7 @@ static INT OpenProto (char *name, INT mode)
       }
       else if (mode==RENAME_PROTO)
       {
-        PrintErrorMessageF('E',"OpenProto","could't find a new name for '%s'",fullname);
+        PrintErrorMessageF('E',"OpenProto","could not find a new name for '%s'",fullname);
         return (1);
       }
       else
@@ -4634,7 +4634,7 @@ static INT OrderVectorsCommand (INT argc, char **argv)
 
   if (dep==NULL)
   {
-    UserWrite("WARNING: no depency specified\n");
+    UserWrite("WARNING: no dependency specified\n");
     if (dep_opt!=NULL)
     {
       UserWrite("WARNING: ignore specified options for dependency\n");
