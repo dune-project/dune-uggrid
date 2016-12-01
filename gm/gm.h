@@ -3453,7 +3453,6 @@ INT             ClearMarksOnLevel               (GRID *theGrid, INT ClearType);
 NODE            *GetFineNodeOnEdge              (const ELEMENT *theElement, INT side);
 
 /* moving nodes */
-INT         GetMidNodeParam         (NODE * theNode, DOUBLE *lambda);
 #ifdef __THREEDIM__
 INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theNode);
 #endif
