@@ -3467,9 +3467,6 @@ INT         MoveNode                (MULTIGRID *theMG, NODE *theNode, DOUBLE *ne
 INT                     MoveFreeBoundaryVertex  (MULTIGRID *theMG, VERTEX *vert, const DOUBLE *newPos);
 INT                     SetVertexGlobalAndLocal (VERTEX *vert, const DOUBLE *global, const DOUBLE *local);
 INT                     FinishMovingFreeBoundaryVertices        (MULTIGRID *theMG);
-INT             SmoothMultiGrid                 (MULTIGRID *theMG, INT niter, INT bdryFlag);
-INT         SmoothGrid              (MULTIGRID *theMG, INT fl, INT tl, const DOUBLE LimitLocDis, const INT bnd_num, const INT *bnd, const INT option);
-INT         SmoothGridReset         (MULTIGRID *theMG, INT fl, INT tl);
 
 /* handling struct blockvector_description_format (BV_DESC_FORMAT) */
 INT InitBVDF                                            ( BV_DESC_FORMAT *bvdf, BLOCKNUMBER max_blocks );

@@ -1,6 +1,6 @@
 set(SOURCES  algebra.cc enrol.cc evm.cc mgio.cc
   ugio.cc ugm.cc cw.cc initgm.cc elements.cc
-  shapes.cc evalproc.cc rm.cc refine.cc smooth.cc
+  shapes.cc evalproc.cc rm.cc refine.cc
   dlmgr.cc gmcheck.cc er.cc mgheapmgr.cc)
 # put this "template" into distribution-tarball as well
 set(EXTRA_DIST  dlmgr.t)
