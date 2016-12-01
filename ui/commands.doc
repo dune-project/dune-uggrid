@@ -1069,51 +1069,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  smooth smooth - Invoke hierarchical multigrid smoother
-
- \section Description
-   This command invokes hierarchical multigrid smoother, 
-   calling the function 'SmoothMultiGrid'.
-
-\section Syntax
-   'smooth \<nIt\> [$b] [$nc]'
-
-  <li>   \<nIt>   - number of iterations
-  <li>   $b      - also smooth boundary nodes
-  <li>   $nc     - improvement for nonconvex domains
-   
- \section Keywords
-   multigrid
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  smoothgrid  smoothgrid - Resize quadrilaterals and triangles on surface levels according to 
-              the element sizes on level l-1
-
- \section Description
-
-
-\section Syntax
-   'smoothgrid [$limit \<value>] [$reset] [$f \<value>]  [$b] [($ortho0 || $ortho1) \<val0> \<val1> ... \<valN>]'
-
-. $limit~\<value>       - give maximum displacement of the vertices in local coordinates
-                      	 of the father element (0 \< value \< 0.5, default: 0.3)
-. $reset               - reset elements to default size 
-. $f \<value>           - apply smoothgrid for all elements between level \<value> and current level (default: current level)
-. $ortho0 \<b0> \<b1> ...- generate 'orthogonal' elements on boundaries \<b0> ... \<bN> (N\<=20)
-. $ortho1 \<b0> \<b1> ...- generate 'orthogonal' elements on boundaries \<b0> ... \<bN> (N\<=20) for all sons
-                         of the boundary elements on level 0
-. $b                   - move only boundary mid nodes
-. $spline              - additionaly smooth elements using spline functions
-. $spline0             - smooth elements using spline functions only 
-   
- \section Keywords
-   multigrid, anisotropy
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  ordernodes  ordernodes - Order the nodes lexicographically according to the specified directions
 
 
