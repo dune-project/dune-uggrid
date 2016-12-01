@@ -3454,9 +3454,7 @@ NODE            *GetFineNodeOnEdge              (const ELEMENT *theElement, INT 
 
 /* moving nodes */
 INT         GetMidNodeParam         (NODE * theNode, DOUBLE *lambda);
-INT         GetCenterNodeParam      (NODE * theNode, DOUBLE *lambda);
 #ifdef __THREEDIM__
-NODE            GetSideNodeParam        (NODE * theNode, DOUBLE *lambda);
 INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theNode);
 #endif
 INT         MoveMidNode             (MULTIGRID *theMG, NODE *theNode, DOUBLE lambda, INT update);
