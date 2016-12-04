@@ -48,6 +48,7 @@
 
 /* for size_t */
 #include <cstddef>
+#include <cinttypes>
 
 #include "namespace.h"
 
@@ -243,7 +244,7 @@ enum TMemRequests {
 #ifdef DDD_GID_DEBUG
 struct ddd_gid_debug
 {
-  unsigned int val;
+  std::uint_least64_t val;
   /* ddd_gid_debug(unsigned int v) : val(v) {} */
   /* ddd_gid_debug() : val(0) {} */
   bool operator < (const ddd_gid_debug & other) { return val < other.val; }
@@ -268,10 +269,10 @@ typedef ddd_gid_debug DDD_GID;
 #ifdef DDD_GID_T
 typedef DDD_GID_T DDD_GID;
 #else
-typedef unsigned long DDD_GID;
-#define DDD_GID_FMT "%08lx"
+typedef std::uint_least64_t DDD_GID;
+#define DDD_GID_FMT "%08" PRIxLEAST64
 #endif
-#define DDD_GID_TO_INT(A) (unsigned int) A
+#define DDD_GID_TO_INT(A) (A)
 #endif
 typedef unsigned int DDD_TYPE;
 typedef unsigned int DDD_IF;
