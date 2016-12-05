@@ -1213,7 +1213,7 @@ void DDD_XferAddData (int cnt, DDD_TYPE typ)
   {
     /* stream of bytes, since V1.2 */
     /* many streams, since V1.7.8 */
-    xa->addLen       = cnt;
+    xa->addLen       = CEIL(cnt);
     xa->addNPointers = 0;
   }
 
@@ -1273,7 +1273,7 @@ void DDD_XferAddDataX (int cnt, DDD_TYPE typ, size_t *sizes)
   {
     /* stream of bytes, since V1.2 */
     /* many streams, since V1.7.8 */
-    xa->addLen       = cnt;
+    xa->addLen       = CEIL(cnt);
     xa->addNPointers = 0;
   }
 
