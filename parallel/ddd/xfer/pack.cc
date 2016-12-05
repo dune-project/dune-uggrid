@@ -30,6 +30,7 @@
 
 /* standard C library */
 #include <config.h>
+#include <cinttypes>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -392,7 +393,6 @@ static void XferPackSingleMsg (XFERMSG *msg)
   TEOldCpl     *theOldCpl;
   char         *theObjects, *currObj;
   int i, actSym, actNewCpl, actOldCpl, actObj, recvProc;
-  INT mi;
 
 
   /* recipient of this message */
@@ -539,7 +539,7 @@ static void XferPackSingleMsg (XFERMSG *msg)
 
 
   /* substitute all pointers by index into SymTab */
-  for(mi=0; mi<actSym; mi++)
+  for(std::uintptr_t mi=0; mi<actSym; mi++)
   {
     /* patch SymTab index into reference location inside message */
     *(theSymTab[mi].adr.ref) = (DDD_OBJ)(mi+1);

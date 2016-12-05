@@ -29,6 +29,7 @@
 
 /* standard C library */
 #include <config.h>
+#include <cinttypes>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -206,7 +207,7 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
 
 
         /* reference had been replaced by SymTab-index */
-        stIdx = (*(INT *)(msgrefarray+l)) - 1;
+        stIdx = (*(std::uintptr_t *)(msgrefarray+l)) - 1;
         /* test for Localize execution in merge_mode */
         if (merge_mode && (*ref!=NULL))
         {
