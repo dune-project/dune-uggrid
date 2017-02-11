@@ -290,10 +290,12 @@ enum RefinementRule
 {NO_REFINEMENT = 0,
  COPY = 1,
  RED =  2,
- BLUE = 3,    /* Does not actually do anything in 3d.
-                 Consider removing it from the list of 3d rules. */
+#ifdef __TWODIM__
+ BLUE = 3,   // For quadrilaterals
+#endif
  COARSE = 4,
 #ifdef __TWODIM__
+ // The BISECTION* rules are all triangle rules
  BISECTION_1 = 5,
  BISECTION_2_Q = 6,
  BISECTION_2_T1 = 7,

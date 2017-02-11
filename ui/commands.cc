@@ -216,7 +216,9 @@ static FILE     *protocolFile=NULL;     /*!< For protocol commands			*/
 /** \brief Name and ID of available rules	*/
 static MARKRULE myMR[NO_OF_RULES]=     {{"red",        RED},
                                         {"no",         NO_REFINEMENT},
+#ifdef __TWODIM__
                                         {"blue",       BLUE},
+#endif
                                         {"copy",       COPY},
                                          #ifdef __TWODIM__
                                         {"bi_1",       BISECTION_1},
