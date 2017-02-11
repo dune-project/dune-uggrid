@@ -294,27 +294,11 @@ static INT backBoundary (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitHexahedron (void)
 {
-  INT point[CORNERS_OF_BND_SEG],i,j;
-  DOUBLE radius,MidPoint[3], alpha[DIM_OF_BND], beta[DIM_OF_BND];
+  INT point[CORNERS_OF_BND_SEG];
+  DOUBLE alpha[DIM_OF_BND], beta[DIM_OF_BND];
 
   /* allocate new domain structure */
-  MidPoint[0] = 0.0;
-  MidPoint[1] = 0.0;
-  MidPoint[2] = 0.0;
-  for (i=0; i<8; i++) {
-    MidPoint[0] += x_hex[i][0];
-    MidPoint[1] += x_hex[i][1];
-    MidPoint[2] += x_hex[i][2];
-  }
-  MidPoint[0] /= 8;
-  MidPoint[1] /= 8;
-  MidPoint[2] /= 8;
-  radius = 0.0;
-  for (i=0; i<8; i++)
-    for (j=0; j<3; j++)
-      radius = MAX(radius,ABS(MidPoint[j]-x_hex[i][j]));
-
-  if (CreateDomain("Hexahedron",MidPoint,radius,6,8,YES)==NULL) return(1);
+  if (CreateDomain("Hexahedron",6,8)==NULL) return(1);
 
   /* allocate the boundary segments */
   alpha[0]=0.0; alpha[1]=0.0;
@@ -467,14 +451,10 @@ static INT backboundary (void *data, DOUBLE *param, DOUBLE *result)
 static INT InitBall (void)
 {
   INT point[CORNERS_OF_BND_SEG];
-  DOUBLE radius,MidPoint[3], alpha[DIM_OF_BND], beta[DIM_OF_BND];
+  DOUBLE alpha[DIM_OF_BND], beta[DIM_OF_BND];
 
   /* allocate new domain structure */
-  MidPoint[0] = 0.5;
-  MidPoint[1] = 0.5;
-  MidPoint[2] = 0.5;
-  radius = 1.0;
-  if (CreateDomain("Ball",MidPoint,radius,6,8,YES)==NULL) return(1);
+  if (CreateDomain("Ball",6,8)==NULL) return(1);
 
   /* allocate the boundary segments */
   alpha[0]=0.0; alpha[1]=0.0;
@@ -872,14 +852,10 @@ static INT Bnd_44 (void *data, DOUBLE *param, DOUBLE *result)
 static INT InitTorus (void)
 {
   INT point[CORNERS_OF_BND_SEG];
-  DOUBLE radius,MidPoint[3], alpha[DIM_OF_BND], beta[DIM_OF_BND];
+  DOUBLE alpha[DIM_OF_BND], beta[DIM_OF_BND];
 
   /* allocate new domain structure */
-  MidPoint[0] = 0.0;
-  MidPoint[1] = 0.0;
-  MidPoint[2] = 0.0;
-  radius = (R0+R1) * 1.1;
-  if (CreateDomain("Torus",MidPoint,radius,16,16,NO)==NULL) return(1);
+  if (CreateDomain("Torus",16,16)==NULL) return(1);
 
   /* allocate the boundary segments */
   alpha[0]=0.0; alpha[1]=0.0;
@@ -2230,14 +2206,10 @@ static INT Zyl8 (void *data, DOUBLE *param, DOUBLE *result)
 static INT InitCylinder (void)
 {
   INT point[CORNERS_OF_BND_SEG];
-  DOUBLE radius,MidPoint[3], alpha[DIM_OF_BND], beta[DIM_OF_BND];
+  DOUBLE alpha[DIM_OF_BND], beta[DIM_OF_BND];
 
   /* allocate new domain structure */
-  MidPoint[0] = 1.25;
-  MidPoint[1] = 0.205;
-  MidPoint[2] = 0.205;
-  radius = 1.6;
-  if (CreateDomain("Cylinder",MidPoint,radius,64,64,NO)==NULL) REP_ERR_RETURN(1);
+  if (CreateDomain("Cylinder",64,64)==NULL) REP_ERR_RETURN(1);
 
   /* allocate the boundary segments */
   alpha[0]=0.0; alpha[1]=0.0;
@@ -3171,14 +3143,10 @@ static INT west3Boundary (void *data, DOUBLE *param, DOUBLE *result)
 static INT InitBenchmark (void)
 {
   INT point[CORNERS_OF_BND_SEG];
-  DOUBLE radius,MidPoint[3], alpha[DIM_OF_BND], beta[DIM_OF_BND];
+  DOUBLE alpha[DIM_OF_BND], beta[DIM_OF_BND];
 
   /* allocate new domain structure */
-  MidPoint[0] = 5.0;
-  MidPoint[1] = 5.0;
-  MidPoint[2] = 5.0;
-  radius = 10.0;
-  if (CreateDomain("Benchmark",MidPoint,radius,28,30,NO)==NULL) return(1);
+  if (CreateDomain("Benchmark",28,30)==NULL) return(1);
 
   /* allocate the boundary segments */
   alpha[0]=0.0; alpha[1]=0.0;
@@ -3566,14 +3534,10 @@ static INT back_Boundary1 (void *data, DOUBLE *param, DOUBLE *result)
 static INT InitHole (void)
 {
   INT point[CORNERS_OF_BND_SEG];
-  DOUBLE radius,MidPoint[3], alpha[DIM_OF_BND], beta[DIM_OF_BND];
+  DOUBLE alpha[DIM_OF_BND], beta[DIM_OF_BND];
 
   /* allocate new domain structure */
-  MidPoint[0] = 0.5;
-  MidPoint[1] = 0.5;
-  MidPoint[2] = 0.5;
-  radius = 1.0;
-  if (CreateDomain("Hole",MidPoint,radius,12,16,NO)==NULL) return(1);
+  if (CreateDomain("Hole",12,16)==NULL) return(1);
 
   /* allocate the boundary segments */
   alpha[0]=0.0; alpha[1]=0.0;
@@ -4193,15 +4157,10 @@ static INT SQCyl_CylBottomBnd (void *data, DOUBLE *param, DOUBLE *result)
 static INT InitSQcylinder (void)
 {
   INT point[CORNERS_OF_BND_SEG];
-  DOUBLE radius,MidPoint[3], alpha[DIM_OF_BND], beta[DIM_OF_BND];
+  DOUBLE alpha[DIM_OF_BND], beta[DIM_OF_BND];
 
   /* allocate new domain structure */
-  MidPoint[0] = 0.5*(SQCYL_Lout - SQCYL_Lin);
-  MidPoint[1] = 0.5*(SQCYL_ht - SQCYL_hb);
-  MidPoint[2] = 0.0;
-  radius = 0.5*sqrt(SQCYL_B*SQCYL_B+(SQCYL_d + SQCYL_Lin + SQCYL_Lout)*(SQCYL_d + SQCYL_Lin + SQCYL_Lout) + (SQCYL_ht+SQCYL_hb+SQCYL_d)*(SQCYL_ht+SQCYL_hb+SQCYL_d));
-
-  if (CreateDomain("SQcylinder",MidPoint,radius,32,32,NO)==NULL) return(1);
+  if (CreateDomain("SQcylinder",32,32)==NULL) return(1);
 
   /* allocate the boundary segments */
   alpha[0]=0.0; alpha[1]=0.0;
