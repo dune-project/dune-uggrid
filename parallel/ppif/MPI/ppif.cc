@@ -227,8 +227,6 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
   DimZ = 1;
   Factor(procs, &DimX, &DimY);
 
-  if (me==master) printf("DimX=%d, DimY=%d, DimZ=%d\n", DimX, DimY, DimZ);
-
   /* tree configuration */
 
   degree = 0;
