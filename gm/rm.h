@@ -281,7 +281,7 @@ typedef struct {
   /** \brief Fields for environment list variable */
   NS_PREFIX ENVVAR v;
 
-  /* full ref rule spezific stuff */
+  /* full ref rule specific stuff */
   FULLREFRULEPTR theFullRefRule;               /* the best full refrule                    */
 
 } FULLREFRULE;
