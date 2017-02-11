@@ -130,37 +130,6 @@ static INT identlevel = 0;
 
 /****************************************************************************/
 /*
-   compare_gid -
-
-   SYNOPSIS:
-   INT compare_gid (const void *e0, const void *e1);
-
-   PARAMETERS:
-   .  e0
-   .  e1
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   INT
- */
-/****************************************************************************/
-
-static INT compare_gid (const void *e0, const void *e1)
-{
-  DDD_GID num0, num1;
-
-  num0 = DDD_InfoGlobalId(*(DDD_HDR *)e0);
-  num1 = DDD_InfoGlobalId(*(DDD_HDR *)e1);
-
-  if (num0 < num1) return(1);
-  if (num0 > num1) return(-1);
-  return(0);
-}
-
-
-/****************************************************************************/
-/*
    ResetIdentFlags -
 
    SYNOPSIS:
