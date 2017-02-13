@@ -4621,7 +4621,10 @@ INT NS_DIM_PREFIX LexOrderVectorsInGrid (GRID *theGrid, INT mode, const INT *ord
 #ifdef ModelP
   nn=UG_GlobalSumINT(nn);
 #endif
-  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(nn,1.0/DIM) / BVPD_RADIUS(theBVPDesc);
+  // The following method wants the domain radius, which has been removed.
+  // Dune has been setting this radius to 1.0 for years now, so I don't think it matters.
+  DOUBLE BVPD_RADIUS = 1.0;
+  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(nn,1.0/DIM) / BVPD_RADIUS;
   assert(InvMeshSize>0.0);
 
   /* allocate memory for the node list */
@@ -6432,7 +6435,10 @@ static INT LexAlgDep (GRID *theGrid, const char *data)
   /* find an approximate measure for the mesh size */
   theBVP = MG_BVP(theMG);
   theBVPDesc = MG_BVPD(theMG);
-  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM) / BVPD_RADIUS(theBVPDesc);
+  // The following method wants the domain radius, which has been removed.
+  // Dune has been setting this radius to 1.0 for years now, so I don't think it matters.
+  DOUBLE BVPD_RADIUS = 1.0;
+  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM) / BVPD_RADIUS;
 
   for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
   {
@@ -6605,7 +6611,10 @@ static INT StrongLexAlgDep (GRID *theGrid, const char *data)
   /* find an approximate measure for the mesh size */
   theBVP = MG_BVP(theMG);
   theBVPDesc = MG_BVPD(theMG);
-  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM) / BVPD_RADIUS(theBVPDesc);
+  // The following method wants the domain radius, which has been removed.
+  // Dune has been setting this radius to 1.0 for years now, so I don't think it matters.
+  DOUBLE BVPD_RADIUS = 1.0;
+  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM);
 
   for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
   {

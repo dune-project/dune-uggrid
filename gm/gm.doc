@@ -17,15 +17,10 @@ Domains are created with the function CreateDomain.
 . d - Makes the DOMAIN an environment directory. d stores also the name of
 the domain.
 
-. MidPoint,radius -  Defines a ball which should contain the domain. This information
-is used in the graphics module to initialize the view with a reasonable transformation.
-
 . numOfSegments -  Gives the number of BOUNDARY_SEGMENT structures that
 will define the domain. 
 
 . numOfCorners - Number of corners defined by the domain.
-
-. domConvex - True, if the domain is convex.
 
 MACROS:
 
@@ -90,17 +85,11 @@ a domain and the list of boundary segments for that domain.
 \verbatim
 static INT InitUnitCircle (void)
 {
-    DOUBLE radius,MidPoint[2];
-
     // allocate new domain structure 
-    MidPoint[0] = MidPoint[1] = 0.0;
-    radius = 1.05;
     if (CreateDomain(
             "circle",               // name of the new domain               
-            MidPoint,radius,        // circle containing the domain         
             2,                      // number of boundary segments          
-            2,                      // number of corners                    
-            YES                     // true if domain is convex             
+            2                       // number of corners
        )==NULL) return(1);
 
     // allocate the boundary segments, segment allocation must              

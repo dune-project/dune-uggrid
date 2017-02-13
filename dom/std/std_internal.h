@@ -49,9 +49,6 @@ enum PatchType {POINT_PATCH_TYPE,
 
 /** @name Macros for DOMAIN */
 /*@{*/
-#define DOMAIN_MIDPOINT(p)                              ((p)->MidPoint)
-#define DOMAIN_RADIUS(p)                                ((p)->radius)
-#define DOMAIN_CONVEX(p)                                ((p)->domConvex)
 #define DOMAIN_NSEGMENT(p)                              ((p)->numOfSegments)
 #define DOMAIN_NCORNER(p)                               ((p)->numOfCorners)
 #define DOMAIN_NPARTS(p)                                ((p)->nParts)
@@ -64,10 +61,6 @@ enum PatchType {POINT_PATCH_TYPE,
 
 #define STD_BVP_DOMAIN(p)                               ((p)->Domain)
 #define STD_BVP_PROBLEM(p)                              ((p)->Problem)
-
-#define STD_BVP_MIDPOINT(p)                             ((p)->MidPoint)
-#define STD_BVP_RADIUS(p)                               ((p)->radius)
-#define STD_BVP_CONVEX(p)                               ((p)->domConvex)
 
 #define STD_BVP_NCORNER(p)                              ((p)->ncorners)
 #define STD_BVP_NSIDES(p)                               ((p)->nsides)
@@ -188,20 +181,11 @@ struct domain {
   /** \brief Fields for environment directory */
   NS_PREFIX ENVDIR d;
 
-  /** \brief A point in the middle of the domain */
-  DOUBLE MidPoint[DIM];
-
-  /** \brief Defines sphere around MidPoint containing the domain */
-  DOUBLE radius;
-
   /** \brief Number of boundary segments */
   INT numOfSegments;
 
   /** \brief Number of corner points */
   INT numOfCorners;
-
-  /** \brief Is the domain convex? */
-  INT domConvex;
 
   /** @name Description of domain parts */
   /*@{*/
@@ -386,15 +370,6 @@ struct std_BoundaryValueProblem
 
   /** @name Domain part */
   /*@{*/
-  /** \brief Center of a sphere containing the domain */
-  DOUBLE MidPoint[DIM];
-
-  /** \brief Radius of a sphere containing the domain */
-  DOUBLE radius;
-
-  /** \brief 1 if domain is convex, 0 if not     */
-  INT domConvex;
-
   /** \brief Number of subdomains, exterior not counted                */
   INT numOfSubdomains;
 

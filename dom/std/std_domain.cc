@@ -356,12 +356,11 @@ GetFirstBoundaryCondition (PROBLEM * theProblem)
 /****************************************************************************/
 
 void * NS_DIM_PREFIX
-CreateDomainWithParts (const char *name, const DOUBLE* MidPoint, DOUBLE radius,
-                       INT segments, INT corners, INT Convex, INT nParts,
+CreateDomainWithParts (const char *name,
+                       INT segments, INT corners, INT nParts,
                        const DOMAIN_PART_INFO * dpi)
 {
   DOMAIN *newDomain;
-  INT i;
 
   /* change to /domains directory */
   if (ChangeEnvDir ("/Domains") == NULL)
@@ -373,12 +372,8 @@ CreateDomainWithParts (const char *name, const DOUBLE* MidPoint, DOUBLE radius,
     return (NULL);
 
   /* fill in data */
-  for (i = 0; i < DIM; i++)
-    DOMAIN_MIDPOINT (newDomain)[i] = MidPoint[i];
-  DOMAIN_RADIUS (newDomain) = radius;
   DOMAIN_NSEGMENT (newDomain) = segments;
   DOMAIN_NCORNER (newDomain) = corners;
-  DOMAIN_CONVEX (newDomain) = Convex;
   DOMAIN_NPARTS (newDomain) = nParts;
   DOMAIN_PARTINFO (newDomain) = dpi;
 
@@ -412,11 +407,11 @@ CreateDomainWithParts (const char *name, const DOUBLE* MidPoint, DOUBLE radius,
 /****************************************************************************/
 
 void *NS_DIM_PREFIX
-CreateDomain (const char *name, const DOUBLE* MidPoint, DOUBLE radius, INT segments,
-              INT corners, INT Convex)
+CreateDomain (const char *name, INT segments,
+              INT corners)
 {
   return (CreateDomainWithParts
-            (name, MidPoint, radius, segments, corners, Convex, 1, NULL));
+            (name, segments, corners, 1, NULL));
 }
 
 /****************************************************************************/
@@ -1245,7 +1240,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   INT i, j, n, m, maxSubDomains, ncorners, nlines, nsides;
 #       ifdef __THREEDIM__
   PATCH **lines;
-  INT k, err;
+  INT err;
   INT nn;
 #       endif
 
@@ -1260,11 +1255,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   theProblem = theBVP->Problem;
 
   /* fill in data of domain */
-  for (i = 0; i < DIM; i++)
-    theBVP->MidPoint[i] = theDomain->MidPoint[i];
-  theBVP->radius = theDomain->radius;
-  theBVP->domConvex = theDomain->domConvex;
-
   ncorners = theDomain->numOfCorners;
   nsides = theDomain->numOfSegments;
 
@@ -1724,7 +1714,6 @@ INT NS_DIM_PREFIX
 BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
 {
   STD_BVP *theBVP;
-  INT i;
 
   if (aBVP == NULL)
     return (1);
@@ -1736,10 +1725,6 @@ BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
   strcpy (BVPD_NAME (theBVPDesc), ENVITEM_NAME (theBVP));
 
   /* the domain part */
-  for (i = 0; i < DIM; i++)
-    BVPD_MIDPOINT (theBVPDesc)[i] = theBVP->MidPoint[i];
-  BVPD_RADIUS (theBVPDesc) = theBVP->radius;
-  BVPD_CONVEX (theBVPDesc) = theBVP->domConvex;
   BVPD_NSUBDOM (theBVPDesc) = theBVP->numOfSubdomains;
   BVPD_NPARTS (theBVPDesc) = theBVP->nDomainParts;
   BVPD_S2P_PTR (theBVPDesc) = STD_BVP_S2P_PTR (theBVP);

@@ -4456,7 +4456,10 @@ INT NS_DIM_PREFIX OrderNodesInGrid (GRID *theGrid, const INT *order, const INT *
   theBVPDesc = MG_BVPD(theMG);
 
   /* calculate the diameter of the bounding rectangle of the domain */
-  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM) / BVPD_RADIUS(theBVPDesc);
+  // The following method wants the domain radius, which has been removed.
+  // Dune has been setting this radius to 1.0 for years now, so I don't think it matters.
+  DOUBLE BVPD_RADIUS = 1.0;
+  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM) / BVPD_RADIUS;
 
   /* allocate memory for the node list */
   theHeap = MGHEAP(theMG);

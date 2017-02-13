@@ -693,20 +693,7 @@ static INT westBoundary (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitQuadrilateral (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = 0.25*(x_quad[0][0]+x_quad[1][0]+x_quad[2][0]+x_quad[3][0]);
-  MidPoint[1] = 0.25*(x_quad[0][1]+x_quad[1][1]+x_quad[2][1]+x_quad[3][1]);
-  radius =            ABS(x_quad[0][0]-MidPoint[0]);
-  radius = MAX(radius,ABS(x_quad[1][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[2][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[3][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[0][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[1][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[2][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[3][1]-MidPoint[1]));
-  radius *= 1.42;
-  if (CreateDomain("Quadrilateral",MidPoint,radius,4,4,YES)==NULL) return(1);
+  if (CreateDomain("Quadrilateral",4,4)==NULL) return(1);
   if (CreateBoundarySegment2D("south",1,0,0,0,1,1,0.0,1.0,
                               southBoundary,NULL)==NULL) return(1);
   if (CreateBoundarySegment2D("east", 1,0,1,1,2,1,0.0,1.0,
@@ -768,28 +755,7 @@ static const DOMAIN_PART_INFO two_dpi = {two_sd2p,two_sg2p,two_pt2p};
 
 static INT InitTwo (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = 0.16666666666*(x_quad[0][0]+x_quad[1][0]
-                               +x_quad[2][0]+x_quad[3][0]
-                               +x_quad[4][0]+x_quad[5][0]);
-  MidPoint[1] = 0.16666666666*(x_quad[0][1]+x_quad[1][1]
-                               +x_quad[2][1]+x_quad[3][1]
-                               +x_quad[4][1]+x_quad[5][1]);
-  radius =            ABS(x_quad[0][0]-MidPoint[0]);
-  radius = MAX(radius,ABS(x_quad[1][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[2][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[3][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[4][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[5][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[0][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[1][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[2][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[3][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[4][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[5][1]-MidPoint[1]));
-
-  if (CreateDomainWithParts("Two",MidPoint,radius,8,8,YES,3,&two_dpi)
+  if (CreateDomainWithParts("Two",8,8,3,&two_dpi)
       ==NULL)
     return(1);
 
@@ -833,17 +799,7 @@ static INT diagonal (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitTriangle (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = 0.333333*(x_quad[0][0]+x_quad[1][0]+x_quad[2][0]);
-  MidPoint[1] = 0.333333*(x_quad[0][1]+x_quad[1][1]+x_quad[2][1]);
-  radius =            ABS(x_quad[0][0]-MidPoint[0]);
-  radius = MAX(radius,ABS(x_quad[1][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[2][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[0][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[1][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[2][1]-MidPoint[1]));
-  if (CreateDomain("Triangle",MidPoint,radius,3,3,YES)==NULL) return(1);
+  if (CreateDomain("Triangle",3,3)==NULL) return(1);
   if (CreateBoundarySegment2D("south",   1,0,0,0,1,1,0.0,1.0,
                               southBoundary,NULL)==NULL) return(1);
   if (CreateBoundarySegment2D("east",    1,0,1,1,2,1,0.0,1.0,
@@ -936,13 +892,9 @@ static INT LeftBoundary (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitPuncturedDisc (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = MidPoint[1] = 5.0;
-  radius = 7.5;
   if (CreateDomain("Punctured Disc",
-                   MidPoint,radius,5,5,NO)==NULL) return(1);
+                   5,5)==NULL) return(1);
 
   /* allocate the boundary segments */
   if (CreateBoundarySegment2D("bottom",1,0,
@@ -1056,14 +1008,9 @@ static INT BVar5Boundary (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitVDisc (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 0.5*top;
-  MidPoint[1] = 0.5*left;
-  radius = 0.5*sqrt((top*top)+(left*left)) + 0.1;
   if (CreateDomain("Variable Disc",
-                   MidPoint,radius,6,6,NO)==NULL) return(1);
+                   6,6)==NULL) return(1);
 
   /* allocate the boundary segments */
   if (CreateBoundarySegment2D("bvar1",1,0,
@@ -1199,12 +1146,8 @@ static INT CircleLowerBoundary (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitCTDisc (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = 10; MidPoint[1] = 6.0;
-  radius = 10;
   if (CreateDomain("CT Disc",
-                   MidPoint,radius,8,8,NO)==NULL) return(1);
+                   8,8)==NULL) return(1);
   if (CreateBoundarySegment2D("bottom1",1,0,
                               0,0,1,1,
                               0.0,10.0,
@@ -1314,17 +1257,11 @@ static INT circleBoundaryVertical (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitSegment (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
   if (CreateDomain(
         "Segment",                              /* name of the new domain                               */
-        MidPoint,radius,                /* circle containing the domain			*/
         3,                                                              /* number of boundary segments                  */
-        3,                                                              /* number of corners					*/
-        NO                                                              /* true if domain is convex				*/
+        3                                                               /* number of corners					*/
         )==NULL) return(1);
 
   /* allocate the boundary segments, segment allocation must                            */
@@ -1409,12 +1346,7 @@ static INT circleBoundaryLower (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitCircle (void)
 {
-  DOUBLE_VECTOR MidPoint;
-  DOUBLE radius;
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
-  if (CreateDomain("Circle",MidPoint,radius,2,2,YES)==NULL)
+  if (CreateDomain("Circle",2,2)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("circle bnd upper",
@@ -1467,12 +1399,7 @@ static INT circleBoundaryLower1 (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitRing (void)
 {
-  DOUBLE_VECTOR MidPoint;
-  DOUBLE radius;
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
-  if (CreateDomain("Ring",MidPoint,radius,4,4,YES)==NULL)
+  if (CreateDomain("Ring",4,4)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("ring bnd upper",
@@ -1603,13 +1530,8 @@ static INT west2 (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitHexagon (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 0.5;
-  MidPoint[1] = sqrt(3.0)/2.0;
-  radius = 1.0;
-  if (CreateDomain("Hexagon",MidPoint,radius,6,6,YES)==NULL) return(1);
+  if (CreateDomain("Hexagon",6,6)==NULL) return(1);
 
   /* allocate the boundary segments */
   if (CreateBoundarySegment2D("south", 1,0,0,0,1,1,0.0,1.0,
@@ -1707,18 +1629,11 @@ static INT oberesWolfgangseeUfer (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitWolfgangsee (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] =115.0;
-  MidPoint[1] =70.0;
-  radius =150.0;
   if (CreateDomain(
         "Wolfgangsee",                                          /* name of the new domain           */
-        MidPoint,radius,                                        /* circle containing the domain	*/
         3,                                                                              /* number of boundary segments  */
-        3,                                                                              /* number of corners			*/
-        NO                                                                              /* true if domain is convex	    */
+        3                                                                               /* number of corners			*/
         )==NULL)
     return(1);
 
@@ -1804,13 +1719,8 @@ static INT kiel_left (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitKiel (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] =0.5;
-  MidPoint[1] =0.5;
-  radius =1;
-  if (CreateDomain("Kiel",MidPoint,radius,4,4,NO)==NULL)
+  if (CreateDomain("Kiel",4,4)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("kiel_lower",1,0,0,0,1,20,0.0,20.0,
@@ -1897,13 +1807,8 @@ static INT bodensee_left (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitBodensee (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] =7;
-  MidPoint[1] =10;
-  radius =70;
-  if (CreateDomain("Bodensee",MidPoint,radius,4,4,NO)==NULL)
+  if (CreateDomain("Bodensee",4,4)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("bodensee_lower",1,0,0,0,1,100,0.0,100.0,
@@ -2556,14 +2461,10 @@ static const DOMAIN_PART_INFO h_dpi = {h_sd2p,h_sg2p,h_pt2p};
 
 static INT InitHoles (void)
 {
-  DOUBLE radius,MidPoint[2];
   INT vert[52],i;
 
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomainWithParts("Holes",MidPoint,radius,52,52,NO,2,&h_dpi)
+  if (CreateDomainWithParts("Holes",52,52,2,&h_dpi)
       ==NULL)
     return(1);
 
@@ -2679,13 +2580,8 @@ static INT InitHoles (void)
 
 static INT InitHoles2 ()
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomain("Holes2",MidPoint,radius,24,24,NO)==NULL)
+  if (CreateDomain("Holes2",24,24)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("start2_1" ,1,0,0,0,1,1,0.0,1.0,
@@ -2741,13 +2637,8 @@ static INT InitHoles2 ()
 
 static INT InitHoles3 ()
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomain("Holes3",MidPoint,radius,24,24,NO)==NULL)
+  if (CreateDomain("Holes3",24,24)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("start2_1" ,1,0,0,0,1,1,0.0,1.0,
@@ -2804,13 +2695,8 @@ static INT InitHoles3 ()
 
 static INT InitHoles4 ()
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomain("Holes4",MidPoint,radius,24,24,NO)==NULL)
+  if (CreateDomain("Holes4",24,24)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("start2_1" ,1,0,0,0,1,1,0.0,1.0,
@@ -2868,13 +2754,8 @@ static INT InitHoles4 ()
 
 static INT InitHoles5 ()
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomain("Holes5",MidPoint,radius,20,20,NO)==NULL)
+  if (CreateDomain("Holes5",20,20)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("start5_1" ,1,0,0,0,1,1,0.0,1.0,
@@ -2924,13 +2805,8 @@ static INT InitHoles5 ()
 
 static INT InitHoles6 ()
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomain("Holes6",MidPoint,radius,16,16,NO)==NULL)
+  if (CreateDomain("Holes6",16,16)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("start5_3" ,1,0,2,2,3,1,0.0,1.0,
@@ -3163,12 +3039,7 @@ static const DOMAIN_PART_INFO ring1_dpi = {ring1_sd2p,ring1_sg2p,ring1_pt2p};
 
 static INT InitRings1 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
-
-  if (CreateDomainWithParts("Rings1",MidPoint,radius,8,8,NO,3,&ring1_dpi)
+  if (CreateDomainWithParts("Rings1",8,8,3,&ring1_dpi)
       ==NULL) return(1);
 
   if (CreateBoundarySegment2D("ring2 bnd upper",
@@ -3214,12 +3085,7 @@ static const DOMAIN_PART_INFO ring_dpi = {ring_sd2p,ring_sg2p,ring_pt2p};
 
 static INT InitRings (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
-
-  if (CreateDomainWithParts("Rings",MidPoint,radius,6,6,YES,3,&ring_dpi)
+  if (CreateDomainWithParts("Rings",6,6,3,&ring_dpi)
       ==NULL) return(1);
 
   if (CreateBoundarySegment2D("ring2 bnd upper",
@@ -3252,12 +3118,7 @@ static INT InitRings (void)
 
 static INT InitRings2 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
-
-  if (CreateDomain("Rings2",MidPoint,radius,4,4,YES)
+  if (CreateDomain("Rings2",4,4)
       ==NULL) return(1);
 
   if (CreateBoundarySegment2D("ring2 bnd upper",
@@ -3282,12 +3143,7 @@ static INT InitRings2 (void)
 
 static INT InitRings3 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
-
-  if (CreateDomain("Rings3",MidPoint,radius,6,6,YES)
+  if (CreateDomain("Rings3",6,6)
       ==NULL) return(1);
 
   if (CreateBoundarySegment2D("ring2 bnd upper",
@@ -3320,11 +3176,6 @@ static INT InitRings3 (void)
 
 static INT InitRings4 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 2;
-
   posx = 0.1;
   posx = 0.2;
   rad1 = 0.4;
@@ -3337,7 +3188,7 @@ static INT InitRings4 (void)
   x_quad[3][0] = -1.0;
   x_quad[3][1] =  1.0;
 
-  if (CreateDomain("Rings4",MidPoint,radius,6,6,YES)
+  if (CreateDomain("Rings4",6,6)
       ==NULL) return(1);
 
   if (CreateBoundarySegment2D("south",1,0,0,0,1,1,0.0,1.0,
@@ -3362,12 +3213,7 @@ static INT InitRings4 (void)
 
 static INT InitRings5 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
-
-  if (CreateDomain("Rings5",MidPoint,radius,6,6,YES)
+  if (CreateDomain("Rings5",6,6)
       ==NULL) return(1);
 
   if (CreateBoundarySegment2D("ring2 bnd upper",
@@ -3400,12 +3246,7 @@ static INT InitRings5 (void)
 
 static INT InitRings6 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = MidPoint[1] = 0.0;
-  radius = 1.05;
-
-  if (CreateDomain("Rings6",MidPoint,radius,4,4,YES)
+  if (CreateDomain("Rings6",4,4)
       ==NULL) return(1);
 
   if (CreateBoundarySegment2D("ring2 bnd upper",
@@ -3501,38 +3342,7 @@ static const DOMAIN_PART_INFO four_dpi = {four_sd2p,four_sg2p,four_pt2p};
 
 static INT InitFour (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = (1.0/9.0)*(x_quad[0][0]+x_quad[1][0]
-                           +x_quad[2][0]+x_quad[3][0]
-                           +x_quad[4][0]+x_quad[5][0]
-                           +x_quad[6][0]+x_quad[7][0]
-                           +x_quad[8][0]);
-  MidPoint[1] = (1.0/9.0)*(x_quad[0][1]+x_quad[1][1]
-                           +x_quad[2][1]+x_quad[3][1]
-                           +x_quad[4][1]+x_quad[5][1]
-                           +x_quad[6][1]+x_quad[7][1]
-                           +x_quad[8][1]);
-  radius =            ABS(x_quad[0][0]-MidPoint[0]);
-  radius = MAX(radius,ABS(x_quad[1][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[2][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[3][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[4][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[5][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[6][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[7][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[8][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[0][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[1][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[2][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[3][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[4][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[5][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[6][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[7][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[8][1]-MidPoint[1]));
-
-  if (CreateDomainWithParts("Four",MidPoint,radius,16,16,YES,3,&four_dpi)
+  if (CreateDomainWithParts("Four",16,16,3,&four_dpi)
       ==NULL)
     return(1);
 
@@ -3583,38 +3393,7 @@ static const DOMAIN_PART_INFO fourp1cr_dpi =
 
 static INT InitFour_cr (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = (1.0/9.0)*(x_quad[0][0]+x_quad[1][0]
-                           +x_quad[2][0]+x_quad[3][0]
-                           +x_quad[4][0]+x_quad[5][0]
-                           +x_quad[6][0]+x_quad[7][0]
-                           +x_quad[8][0]);
-  MidPoint[1] = (1.0/9.0)*(x_quad[0][1]+x_quad[1][1]
-                           +x_quad[2][1]+x_quad[3][1]
-                           +x_quad[4][1]+x_quad[5][1]
-                           +x_quad[6][1]+x_quad[7][1]
-                           +x_quad[8][1]);
-  radius =            ABS(x_quad[0][0]-MidPoint[0]);
-  radius = MAX(radius,ABS(x_quad[1][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[2][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[3][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[4][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[5][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[6][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[7][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[8][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[0][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[1][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[2][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[3][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[4][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[5][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[6][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[7][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[8][1]-MidPoint[1]));
-
-  if (CreateDomainWithParts("Four_cr",MidPoint,radius,16,16,YES,3,
+  if (CreateDomainWithParts("Four_cr",16,16,3,
                             &fourp1cr_dpi)
       ==NULL)
     return(1);
@@ -4190,13 +3969,7 @@ static const DOMAIN_PART_INFO skin_dpi = {skin_sd2p,skin_sg2p,skin_pt2p};
 
 static INT InitSkin (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = L*0.75 + glob_h*0.5 ;
-  MidPoint[1] = glob_h + D ;
-  radius = sqrt(MidPoint[0] * MidPoint[0] + MidPoint[1] * MidPoint[1]) ;
-
-  if (CreateDomainWithParts("Skin",MidPoint,radius,52,52,YES,3,&skin_dpi)
+  if (CreateDomainWithParts("Skin",52,52,3,&skin_dpi)
       ==NULL)
     return(1);
 
@@ -4337,13 +4110,7 @@ static const DOMAIN_PART_INFO skin1_dpi = {skin1_sd2p,skin1_sg2p,skin1_pt2p};
 
 static INT InitSkin1 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = L*0.75 + glob_h*0.5 ;
-  MidPoint[1] = glob_h + D ;
-  radius = sqrt(MidPoint[0] * MidPoint[0] + MidPoint[1] * MidPoint[1]) ;
-
-  if (CreateDomainWithParts("Skin1",MidPoint,radius,52,52,YES,3,&skin1_dpi)
+  if (CreateDomainWithParts("Skin1",52,52,3,&skin1_dpi)
       ==NULL)
     return(1);
 
@@ -4489,13 +4256,8 @@ static const DOMAIN_PART_INFO c1_dpi = {c1_sd2p,c1_sg2p,c1_pt2p};
 
 static INT InitComposed1 ()
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomainWithParts("Composed1",MidPoint,radius,24,24,NO,2,&c1_dpi)
+  if (CreateDomainWithParts("Composed1",24,24,2,&c1_dpi)
       ==NULL)
     return(1);
 
@@ -4555,13 +4317,8 @@ static INT InitComposed1 ()
 
 static INT InitComposed1a ()
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomain("Composed1a",MidPoint,radius,18,18,NO)==NULL)
+  if (CreateDomain("Composed1a",18,18)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("left1"  ,1,0, 0, 0,1, 1,0.0,1.0,
@@ -4629,13 +4386,8 @@ static const DOMAIN_PART_INFO c2_dpi = {c2_sd2p,c2_sg2p,c2_pt2p};
 
 static INT InitComposed2 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomainWithParts("Composed2",MidPoint,radius,20,20,NO,2,&c2_dpi)
+  if (CreateDomainWithParts("Composed2",20,20,2,&c2_dpi)
       ==NULL)
     return(1);
 
@@ -4687,13 +4439,8 @@ static INT InitComposed2 (void)
 
 static INT InitComposed2a (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomain("Composed2a",MidPoint,radius,16,16,NO)==NULL)
+  if (CreateDomain("Composed2a",16,16)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("left1"  ,1,0, 0, 0,1, 1,0.0,1.0,
@@ -4756,13 +4503,8 @@ static const DOMAIN_PART_INFO c3_dpi = {c3_sd2p,c3_sg2p,c3_pt2p};
 
 static INT InitComposed3 (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomainWithParts("Composed3",MidPoint,radius,16,16,NO,2,&c3_dpi)
+  if (CreateDomainWithParts("Composed3",16,16,2,&c3_dpi)
       ==NULL)
     return(1);
 
@@ -4806,13 +4548,8 @@ static INT InitComposed3 (void)
 
 static INT InitComposed3a (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = 2.5;
-  MidPoint[1] = 1.5;
-  radius = 3.0;
-  if (CreateDomain("Composed3a",MidPoint,radius,14,14,NO)==NULL)
+  if (CreateDomain("Composed3a",14,14)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("left1"  ,1,0, 0, 0,1, 1,0.0,1.0,
@@ -4959,33 +4696,7 @@ static INT T_Beam2_7 (void *data, DOUBLE *param, DOUBLE *result)
 
 static INT InitBeam (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = 0.125*(x_quad[0][0]+x_quad[1][0]+x_quad[2][0]+
-                       x_quad[3][0]+x_quad[4][0]+x_quad[5][0]+
-                       x_quad[6][0]+x_quad[7][0]) ;
-  MidPoint[1] = 0.125*(x_quad[0][1]+x_quad[1][1]+x_quad[2][1]+
-                       x_quad[3][1]+x_quad[4][1]+x_quad[5][1]+
-                       x_quad[6][1]+x_quad[7][1]) ;
-
-  radius =            ABS(x_quad[0][0]-MidPoint[0]);
-  radius = MAX(radius,ABS(x_quad[1][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[2][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[3][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[4][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[5][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[6][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[7][0]-MidPoint[0]));
-  radius = MAX(radius,ABS(x_quad[0][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[1][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[2][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[3][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[4][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[5][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[6][1]-MidPoint[1]));
-  radius = MAX(radius,ABS(x_quad[7][1]-MidPoint[1]));
-
-  if (CreateDomain("Beam",MidPoint,radius,8,8,YES)==NULL)
+  if (CreateDomain("Beam",8,8)==NULL)
     return(1);
 
   if (CreateBoundarySegment2D("T_Beam_2_0",1,0,0,0,1, 1,0.0,1.0,
@@ -5164,12 +4875,7 @@ static const DOMAIN_PART_INFO channelp1cr_dpi =
 
 static INT InitChannel (void)
 {
-  DOUBLE radius,MidPoint[2];
-
-  MidPoint[0] = MidPoint[1] = 0.5;
-  radius = 1;
-
-  if (CreateDomainWithParts("Channel",MidPoint,radius,49,49,NO,3,
+  if (CreateDomainWithParts("Channel",49,49,3,
                             &channelp1cr_dpi)==NULL)
     return(1);
   if (CreateBoundarySegment2D(QUOTE(NAME(0)),1,0, 0,0,1,
@@ -5347,18 +5053,11 @@ static INT InitChannel (void)
 
 static INT InitChannelNoParts (void)
 {
-  DOUBLE radius,MidPoint[2];
-
   /* allocate new domain structure */
-  MidPoint[0] = MidPoint[1] = 0.5;
-  radius = 1.05;
-
   if (CreateDomain(
         "ChannelNoParts",               /* name of the new domain                               */
-        MidPoint,radius,                /* circle containing the domain			*/
         NO_OF_SEG+3,                            /* number of boundary segments                  */
-        NO_OF_SEG,                              /* number of corners					*/
-        NO                                                      /* true if domain is convex				*/
+        NO_OF_SEG                               /* number of corners					*/
         )==NULL) return(1);
   if (CreateBoundarySegment2D(
         QUOTE(NAME(0)),                         /* name of the boundary segment                 */

@@ -132,15 +132,6 @@ struct BVP_Descriptor
 
   /** @name Domain part */
   /*@{*/
-  /** \brief Midpoint of a sphere in which the domain lies     */
-  DOUBLE midpoint[3];
-
-  /** \brief Radius of a sphere in which the domain lies     */
-  DOUBLE radius;
-
-  /** \brief 1 if domain is convex, 0 if not */
-  INT convex;
-
   /** \brief Number of subdomains, exterior not counted                */
   INT nSubDomains;
 
