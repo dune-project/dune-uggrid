@@ -2951,12 +2951,14 @@ INT NS_DIM_PREFIX GetRefinementMark (ELEMENT *theElement, INT *rule, void *data)
   case RED :
     *rule=RED;
     break;
+#ifdef __TWODIM__
   case Q_BLUE_0 :
     *rule = BLUE;
     break;
   case Q_BLUE_1 :
     *rule = BLUE;
     break;
+#endif
   case NO_REFINEMENT :
     *rule=NO_REFINEMENT;
     if (COARSEN(theElement)) *rule = COARSE;
@@ -3002,7 +3004,9 @@ INT NS_DIM_PREFIX GetRefinementMarkType (ELEMENT *theElement)
   switch (rule)
   {
   case RED :
+#ifdef __TWODIM__
   case BLUE :
+#endif
     return(1);
   case COPY :
   case NO_REFINEMENT :     return(0);
