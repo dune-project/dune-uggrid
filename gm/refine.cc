@@ -4332,10 +4332,8 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   /* set neighborship relations */
   if (ioflag)
   {
-    INT nbson;
     COMPARE_RECORD *Entry, *NbEntry;
 
-    nbson = 0;
     for (i=0; i<Sons_of_Side; i++)
     {
       Entry = ElemSortTable[i];
@@ -4498,7 +4496,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   GREENSONDATA sons[MAX_GREEN_SONS];
 
-  NODE *theNode, *theNode0, *theNode1;
+  NODE *theNode, *theNode1;
   NODE *theSideNodes[8];
   NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
   int i,j,k,l,m,n,s;
@@ -4507,7 +4505,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   int edge, sides[4], side0, side1;
   int tetNode0, tetNode1, tetNode2, tetEdge0, tetEdge1, tetEdge2,
       tetSideNode0Node1, tetSideNode0Node2, tetSideNode1Node2,
-      pyrSide, pyrNode0, pyrNode1, pyrNode2, pyrNode3,
+      pyrNode0, pyrNode1, pyrNode2, pyrNode3,
       pyrEdge0, pyrEdge1, pyrEdge2, pyrEdge3,
       pyrSideNode0Node1, pyrSideNode1Node2, pyrSideNode2Node3,
       pyrSideNode0Node3;
@@ -4575,7 +4573,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   for (i=0; i<SIDES_OF_TAG(PYRAMID); i++)
     if (CORNERS_OF_SIDE_TAG(PYRAMID,i) == 4)
       break;
-  pyrSide = i;
   pyrNode0 = CORNER_OF_SIDE_TAG(PYRAMID,i,0);
   pyrNode1 = CORNER_OF_SIDE_TAG(PYRAMID,i,1);
   pyrNode2 = CORNER_OF_SIDE_TAG(PYRAMID,i,2);
@@ -5218,7 +5215,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       ASSERT(l==2);
 
       /* determine neighboring elements */
-      theNode0 = theContext[CORNERS_OF_ELEM(theElement)+i];
       for (j=0; j<CORNERS_OF_EDGE; j++)
       {
         theNode1 = theContext[CORNER_OF_EDGE(theElement,i,j)];
