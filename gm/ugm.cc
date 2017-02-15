@@ -2713,7 +2713,7 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
   n = CORNERS_OF_SIDE(theSon,son_side);
   for (i=0; i<n; i++)
   {
-    /* check if vertices of Son ly on boundary */
+    /* check if vertices of Son lie on boundary */
     if (OBJT(MYVERTEX(CORNER(theSon,CORNER_OF_SIDE(theSon,son_side,i))))!=BVOBJ)
     {
       NODE *theNode,*NFather;

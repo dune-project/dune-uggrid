@@ -15,7 +15,7 @@
 /* History:   08.08.95 begin serial algorithm, ug version 3.0               */
 /*                                                                          */
 /* Remarks:   - level 0 grid consists of red elements only                  */
-/*            - the only restriction in the element hierarchie is that      */
+/*            - the only restriction in the element hierarchy is that       */
 /*              green or yellow elements might not have sons of class       */
 /*              green or red                                                */
 /*            - the rule set for refinement consists of regular (red)       */
