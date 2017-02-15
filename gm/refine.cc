@@ -4395,7 +4395,7 @@ static INT RefineElementYellow (GRID *theGrid, ELEMENT *theElement, NODE **theCo
 {
   INT i;
   ELEMENT *theSon;
-  INT boundaryelement = 0;
+  bool boundaryelement = false;
 
   /* check for boundary */
   if (OBJT(theElement) == BEOBJ)
@@ -4404,7 +4404,7 @@ static INT RefineElementYellow (GRID *theGrid, ELEMENT *theElement, NODE **theCo
       /* at the boundary */
       if (SIDE_ON_BND(theElement,i))
       {
-        boundaryelement = 1;
+        boundaryelement = true;
         break;
       }
     }
@@ -5488,7 +5488,6 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
   ELEMENT *theSon;
   ELEMENT *SonList[MAX_SONS],*SonList2[MAX_SONS];
   NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
-  INT boundaryelement;
   REFRULE *rule;
   SONDATA *sdata;
 #       ifdef __THREEDIM__
@@ -5505,7 +5504,7 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
   /* create elements */
   for (s=0; s<NSONS_OF_RULE(rule); s++)
   {
-    boundaryelement = 0;
+    bool boundaryelement = false;
     /** \todo how can boundary detection be generalized */
     if (OBJT(theElement) == BEOBJ)
       for (i=0; i<SIDES_OF_TAG(SON_TAG_OF_RULE(rule,s)); i++)
@@ -5517,7 +5516,7 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
           /* at the boundary */
           if (SIDE_ON_BND(theElement,side-FATHER_SIDE_OFFSET))
           {
-            boundaryelement = 1;
+            boundaryelement = true;
             break;
           }
         }
