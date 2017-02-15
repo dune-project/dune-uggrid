@@ -4394,7 +4394,6 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
 static INT RefineElementYellow (GRID *theGrid, ELEMENT *theElement, NODE **theContext)
 {
   INT i;
-  ELEMENT *theSon;
   bool boundaryelement = false;
 
   /* check for boundary */
@@ -4419,12 +4418,9 @@ static INT RefineElementYellow (GRID *theGrid, ELEMENT *theElement, NODE **theCo
         #endif
 
   /* create son */
-  if (boundaryelement)
-    theSon = CreateElement(theGrid,TAG(theElement),BEOBJ,
-                           theContext,theElement,1);
-  else
-    theSon = CreateElement(theGrid,TAG(theElement),IEOBJ,
-                           theContext,theElement,1);
+  const INT theSonType = boundaryelement ? BEOBJ : IEOBJ;
+  ELEMENT* theSon = CreateElement(theGrid,TAG(theElement), theSonType,
+                                  theContext,theElement,1);
   if (theSon==NULL) RETURN(GM_ERROR);
   SETECLASS(theSon,MARKCLASS(theElement));
 
@@ -5485,7 +5481,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theElementContext)
 {
   INT i,s,p,side;
-  ELEMENT *theSon;
   ELEMENT *SonList[MAX_SONS],*SonList2[MAX_SONS];
   NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
   REFRULE *rule;
@@ -5528,12 +5523,9 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
       ElementNodes[i] = theElementContext[SON_CORNER_OF_RULE(rule,s,i)];
     }
 
-    if (boundaryelement)
-      theSon = CreateElement(theGrid,SON_TAG_OF_RULE(rule,s),BEOBJ,
-                             ElementNodes,theElement,1);
-    else
-      theSon = CreateElement(theGrid,SON_TAG_OF_RULE(rule,s),IEOBJ,
-                             ElementNodes,theElement,1);
+    const INT theSonType = boundaryelement ? BEOBJ : IEOBJ;
+    ELEMENT* theSon = CreateElement(theGrid,SON_TAG_OF_RULE(rule,s),theSonType,
+                                    ElementNodes,theElement,1);
     if (theSon==NULL) RETURN(GM_ERROR);
 
     /* fill in son data */
