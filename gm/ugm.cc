@@ -699,27 +699,24 @@ NODE *NS_DIM_PREFIX CreateSonNode (GRID *theGrid, NODE *FatherNode)
 
 NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex, INT edge)
 {
-  NODE *theNode;
-  EDGE *theEdge;
-  VERTEX *v0,*v1;
   BNDP *bndp;
   DOUBLE *local,*x[MAX_CORNERS_OF_ELEM];
   DOUBLE_VECTOR bnd_global,global;
   DOUBLE diff;
-  INT n,co0,co1,move,part,vertex_null;
+  INT n,move,part;
 
-  co0 = CORNER_OF_EDGE(theElement,edge,0);
-  co1 = CORNER_OF_EDGE(theElement,edge,1);
-  v0 = MYVERTEX(CORNER(theElement,co0));
-  v1 = MYVERTEX(CORNER(theElement,co1));
+  const INT co0 = CORNER_OF_EDGE(theElement,edge,0);
+  const INT co1 = CORNER_OF_EDGE(theElement,edge,1);
+  VERTEX* v0 = MYVERTEX(CORNER(theElement,co0));
+  VERTEX* v1 = MYVERTEX(CORNER(theElement,co1));
   V_DIM_LINCOMB(0.5, CVECT(v0), 0.5, CVECT(v1), global);
 
   /* set MIDNODE pointer */
-  theEdge = GetEdge(CORNER(theElement,co0),CORNER(theElement,co1));
+  EDGE* theEdge = GetEdge(CORNER(theElement,co0),CORNER(theElement,co1));
   ASSERT(theEdge!=NULL);
 
   /* allocate vertex */
-  vertex_null = (theVertex==NULL);
+  const bool vertex_null = (theVertex==NULL);
   if (theVertex==NULL)
   {
     if ((OBJT(v0) == BVOBJ) && (OBJT(v1) == BVOBJ))
@@ -772,7 +769,7 @@ NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *t
     SETONEDGE(theVertex,edge);
   }
   /* allocate node */
-  theNode = CreateNode(theGrid,theVertex,(GEOM_OBJECT *)theEdge,MID_NODE,1);
+  NODE* theNode = CreateNode(theGrid,theVertex,(GEOM_OBJECT *)theEdge,MID_NODE,1);
   if (theNode==NULL && vertex_null)
   {
     DisposeVertex(theGrid,theVertex);

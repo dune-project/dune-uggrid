@@ -3097,33 +3097,26 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
 
 static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementContext)
 {
-  NODE *theNode, **CenterNode;
-  EDGE *theEdge;                                        /* temporary storage for an edge		*/
-  INT i,Corner0, Corner1;                       /* some integer variables				*/
-  NODE **MidNodes;                                      /* nodes on refined edges				*/
-  NODE *Node0, *Node1;
-  INT Mark;
-  bool toBisect,toCreate;
+  bool toCreate;
         #ifdef __THREEDIM__
   ELEMENT *theNeighbor;                         /* neighbor and a son of current elem.	*/
-  NODE **SideNodes;                                     /* nodes on refined sides				*/
   EDGE *fatherEdge;
   INT j;
         #endif
 
   /* reset context to NULL */
-  for(i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
+  for(INT i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
     theElementContext[i] = NULL;
 
   /* is element to refine */
   if (!MARKED(theElement)) return(GM_OK);
 
-  Mark = MARK(theElement);
+  const INT Mark = MARK(theElement);
 
   /* allocate corner nodes if necessary */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
-    theNode = CORNER(theElement,i);
+    NODE* theNode = CORNER(theElement,i);
     if (SONNODE(theNode)==NULL)
     {
       SONNODE(theNode) = CreateSonNode(theGrid,theNode);
@@ -3137,17 +3130,18 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
   }
 
   /* allocate edge midpoint nodes */
-  MidNodes = theElementContext+CORNERS_OF_ELEM(theElement);
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+  /* nodes on refined edges */
+  NODE** MidNodes = theElementContext+CORNERS_OF_ELEM(theElement);
+  for (INT i=0; i<EDGES_OF_ELEM(theElement); i++)
   {
-    Corner0 = CORNER_OF_EDGE(theElement,i,0);
-    Corner1 = CORNER_OF_EDGE(theElement,i,1);
+    const INT Corner0 = CORNER_OF_EDGE(theElement,i,0);
+    const INT Corner1 = CORNER_OF_EDGE(theElement,i,1);
 
-    toBisect = false;
+    bool toBisect = false;
 
     if (MARKED_NEW_GREEN(theElement))
     {
-      theEdge = GetEdge(CORNER(theElement,Corner0),
+      EDGE* theEdge = GetEdge(CORNER(theElement,Corner0),
                         CORNER(theElement,Corner1));
       ASSERT(theEdge != NULL);
 
@@ -3182,9 +3176,10 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
     {
       /* we need a midpoint node */
       if (MidNodes[i]!=NULL) continue;
-      Node0 = CORNER(theElement,Corner0);
-      Node1 = CORNER(theElement,Corner1);
-      if ((theEdge = GetEdge(Node0,Node1))==NULL)
+      NODE* Node0 = CORNER(theElement,Corner0);
+      NODE* Node1 = CORNER(theElement,Corner1);
+      EDGE* theEdge = GetEdge(Node0,Node1);
+      if (theEdge == nullptr)
         RETURN(GM_FATAL);
       MidNodes[i] = MIDNODE(theEdge);
       /*			MidNodes[i] = GetMidNode(theElement,i); */
@@ -3209,9 +3204,10 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
   ENDDEBUG
 
         #ifdef __THREEDIM__
-  SideNodes = theElementContext+CORNERS_OF_ELEM(theElement)+
+  /* nodes on refined sides */
+  NODE** SideNodes = theElementContext+CORNERS_OF_ELEM(theElement)+
               EDGES_OF_ELEM(theElement);
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+  for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
     /* no side nodes for triangular sides yet */
 #ifdef TET_RULESET
@@ -3326,7 +3322,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
         fatherEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),0),
                              CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),1));
 
-        Node0 = MIDNODE(fatherEdge);
+        NODE* Node0 = MIDNODE(fatherEdge);
 
         /* if side node exists all mid nodes must exist */
         ASSERT(Node0 != NULL);
@@ -3344,7 +3340,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
         #endif
 
   /* allocate center node */
-  CenterNode = MidNodes+CENTER_NODE_INDEX(theElement);
+  NODE** CenterNode = MidNodes+CENTER_NODE_INDEX(theElement);
   CenterNode[0] = NULL;
 
   toCreate = false;
@@ -3380,7 +3376,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
 
 #ifdef ModelP
   /* mark nodes as needed */
-  for(i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
+  for(INT i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
   {
     if (theElementContext[i] != NULL) SETUSED(theElementContext[i],1);
   }
@@ -5480,33 +5476,27 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 /****************************************************************************/
 static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theElementContext)
 {
-  INT i,s,p,side;
-  ELEMENT *SonList[MAX_SONS],*SonList2[MAX_SONS];
-  NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
-  REFRULE *rule;
-  SONDATA *sdata;
-#       ifdef __THREEDIM__
-  INT l;
-#       endif
 
   /* is something to do ? */
   if (!MARKED(theElement)) return(GM_OK);
 
-  for (i=0; i<MAX_SONS; i++) SonList[i] = SonList2[i] = NULL;
+  ELEMENT *SonList[MAX_SONS];
+  for (INT i=0; i<MAX_SONS; i++) SonList[i] = NULL;
 
-  rule = MARK2RULEADR(theElement,MARK(theElement));
+  REFRULE const* rule = MARK2RULEADR(theElement,MARK(theElement));
 
   /* create elements */
-  for (s=0; s<NSONS_OF_RULE(rule); s++)
+  for (INT s=0; s<NSONS_OF_RULE(rule); s++)
   {
     bool boundaryelement = false;
     /** \todo how can boundary detection be generalized */
     if (OBJT(theElement) == BEOBJ)
-      for (i=0; i<SIDES_OF_TAG(SON_TAG_OF_RULE(rule,s)); i++)
+    {
+      for (INT i=0; i<SIDES_OF_TAG(SON_TAG_OF_RULE(rule,s)); i++)
       {
+        const INT side = SON_NB_OF_RULE(rule,s,i);
         /* exterior side */
-        if ( (side = SON_NB_OF_RULE(rule,s,i)) >=
-             FATHER_SIDE_OFFSET )
+        if (side >= FATHER_SIDE_OFFSET)
         {
           /* at the boundary */
           if (SIDE_ON_BND(theElement,side-FATHER_SIDE_OFFSET))
@@ -5516,8 +5506,10 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
           }
         }
       }
+    }
 
-    for (i=0; i<CORNERS_OF_TAG(SON_TAG_OF_RULE(rule,s)); i++)
+    NODE* ElementNodes[MAX_CORNERS_OF_ELEM];
+    for (INT i=0; i<CORNERS_OF_TAG(SON_TAG_OF_RULE(rule,s)); i++)
     {
       ASSERT(theElementContext[SON_CORNER_OF_RULE(rule,s,i)]!=NULL);
       ElementNodes[i] = theElementContext[SON_CORNER_OF_RULE(rule,s,i)];
@@ -5534,21 +5526,22 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
   }
 
   /* connect elements */
-  for (s=0; s<NSONS_OF_RULE(rule); s++)
+  for (INT s=0; s<NSONS_OF_RULE(rule); s++)
   {
-    sdata = SON_OF_RULE(rule,s);
-    for (i=0; i<SIDES_OF_ELEM(SonList[s]); i++)
+    SONDATA const* sdata = SON_OF_RULE(rule,s);
+    for (INT i=0; i<SIDES_OF_ELEM(SonList[s]); i++)
     {
       SET_NBELEM(SonList[s],i,NULL);
 
+      const INT side = SON_NB(sdata,i);
       /* an interior face */
-      if ( (side = SON_NB(sdata,i)) < FATHER_SIDE_OFFSET )
+      if (side < FATHER_SIDE_OFFSET)
       {
         SET_NBELEM(SonList[s],i,SonList[side]);
 
         IFDEBUG(gm,3)
         UserWriteF("elid=%3d: side:",ID(SonList[s]));
-        for (p=0; p<CORNERS_OF_SIDE(SonList[s],i); p++)
+        for (INT p=0; p<CORNERS_OF_SIDE(SonList[s],i); p++)
           UserWriteF(" %2d",ID(CORNER_OF_SIDE_PTR(SonList[s],i,p)));
         UserWriteF(" INSIDE of father");
         UserWriteF("\nnbid=%3d: side:",ID(SonList[side]));
@@ -5602,6 +5595,7 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
                                 #ifdef __THREEDIM__
         if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
         {
+          INT l;
           for (l=0; l<SIDES_OF_ELEM(SonList[side]); l++)
             if (NBELEM(SonList[side],l)==SonList[s])
               break;
@@ -5626,9 +5620,9 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
   IFDEBUG(gm,2)
   UserWriteF(PFMT "CONNECTING elem=" EID_FMTX "\n",me,EID_PRTX(theElement));
   ENDDEBUG
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+  for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
-    INT j,Sons_of_Side;
+    INT Sons_of_Side;
     ELEMENT *Sons_of_Side_List[MAX_SONS];
     INT SonSides[MAX_SIDE_NODES];
 
@@ -5636,10 +5630,10 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
     UserWriteF(PFMT "  CONNECT side=%i of elem=" EID_FMTX "\n",me,i,EID_PRTX(theElement));
     ENDDEBUG
 
-    for (j=0; j<MAX_SONS; j++)
+    for (INT j=0; j<MAX_SONS; j++)
       Sons_of_Side_List[j] = NULL;
 
-    for (j=0; j<NSONS_OF_RULE(rule); j++)
+    for (INT j=0; j<NSONS_OF_RULE(rule); j++)
       Sons_of_Side_List[j] = SonList[j];
 
     if (Get_Sons_of_ElementSide(theElement,i,&Sons_of_Side,
