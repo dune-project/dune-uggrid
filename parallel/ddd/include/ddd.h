@@ -440,7 +440,6 @@ void     DDD_TypeDefine (DDD_TYPE _FPTR, ...);
 void     DDD_TypeDisplay (DDD_TYPE _FPTR);
 
 /* oldstyle setting of DDD-handlers, will be removed in later versions */
-void     DDD_HandlerRegister (DDD_TYPE _FPTR, ...);
 int      DDD_InfoTypes (void);
 
 
