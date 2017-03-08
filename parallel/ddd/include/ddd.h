@@ -379,9 +379,6 @@ typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 
 /*
         external access of elements in DDD_HEADER
-
-        C++ users should implement these access functions
-        as inline functions.
  */
 #define DDD_InfoPriority(ddd_hdr)    ((ddd_hdr)->prio)
 #define DDD_InfoGlobalId(ddd_hdr)    ((ddd_hdr)->gid)
