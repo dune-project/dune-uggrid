@@ -439,7 +439,6 @@ int      DDD_InfoHdrOffset (DDD_TYPE);
 void     DDD_TypeDefine (DDD_TYPE _FPTR, ...);
 void     DDD_TypeDisplay (DDD_TYPE _FPTR);
 
-/* oldstyle setting of DDD-handlers, will be removed in later versions */
 int      DDD_InfoTypes (void);
 
 

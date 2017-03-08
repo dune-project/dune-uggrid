@@ -92,15 +92,11 @@ char       *cBuffer;        /* general bufferspace, integer */
 int theOptions[OPT_END];
 
 
-#define ddd_SetOption(o,v)      theOptions[o]=(v)
-
-
 /****************************************************************************/
 /*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
-
 
 static void *LowComm_DefaultAlloc (size_t s)
 {
@@ -214,22 +210,22 @@ void DDD_Init (int *argcp, char ***argvp)
   nCplItems  = 0;
 
   /* set options on default values */
-  ddd_SetOption(OPT_WARNING_VARSIZE_OBJ,   OPT_ON);
-  ddd_SetOption(OPT_WARNING_SMALLSIZE,     OPT_ON);
-  ddd_SetOption(OPT_WARNING_PRIOCHANGE,    OPT_ON);
-  ddd_SetOption(OPT_WARNING_DESTRUCT_HDR,  OPT_ON);
-  ddd_SetOption(OPT_DEBUG_XFERMESGS,       OPT_OFF);
-  ddd_SetOption(OPT_QUIET_CONSCHECK,       OPT_OFF);
-  ddd_SetOption(OPT_IDENTIFY_MODE,         IDMODE_LISTS);
-  ddd_SetOption(OPT_WARNING_REF_COLLISION, OPT_ON);
-  ddd_SetOption(OPT_INFO_XFER,             XFER_SHOW_NONE);
-  ddd_SetOption(OPT_INFO_JOIN,             JOIN_SHOW_NONE);
-  ddd_SetOption(OPT_WARNING_OLDSTYLE,      OPT_ON);
-  ddd_SetOption(OPT_INFO_IF_WITH_ATTR,     OPT_OFF);
-  ddd_SetOption(OPT_XFER_PRUNE_DELETE,     OPT_OFF);
-  ddd_SetOption(OPT_IF_REUSE_BUFFERS,      OPT_OFF);
-  ddd_SetOption(OPT_IF_CREATE_EXPLICIT,    OPT_OFF);
-  ddd_SetOption(OPT_CPLMGR_USE_FREELIST,   OPT_ON);
+  DDD_SetOption(OPT_WARNING_VARSIZE_OBJ,   OPT_ON);
+  DDD_SetOption(OPT_WARNING_SMALLSIZE,     OPT_ON);
+  DDD_SetOption(OPT_WARNING_PRIOCHANGE,    OPT_ON);
+  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR,  OPT_ON);
+  DDD_SetOption(OPT_DEBUG_XFERMESGS,       OPT_OFF);
+  DDD_SetOption(OPT_QUIET_CONSCHECK,       OPT_OFF);
+  DDD_SetOption(OPT_IDENTIFY_MODE,         IDMODE_LISTS);
+  DDD_SetOption(OPT_WARNING_REF_COLLISION, OPT_ON);
+  DDD_SetOption(OPT_INFO_XFER,             XFER_SHOW_NONE);
+  DDD_SetOption(OPT_INFO_JOIN,             JOIN_SHOW_NONE);
+  DDD_SetOption(OPT_WARNING_OLDSTYLE,      OPT_ON);
+  DDD_SetOption(OPT_INFO_IF_WITH_ATTR,     OPT_OFF);
+  DDD_SetOption(OPT_XFER_PRUNE_DELETE,     OPT_OFF);
+  DDD_SetOption(OPT_IF_REUSE_BUFFERS,      OPT_OFF);
+  DDD_SetOption(OPT_IF_CREATE_EXPLICIT,    OPT_OFF);
+  DDD_SetOption(OPT_CPLMGR_USE_FREELIST,   OPT_ON);
 }
 
 
@@ -393,7 +389,7 @@ if (option>=OPT_END)
   return;
 }
 
-ddd_SetOption(option, value);
+  theOptions[option] = value;
 }
 
 
