@@ -56,9 +56,6 @@ START_UGDIM_NAMESPACE
 
 #define DDD_VERSION    "1.9"
 
-/* helpful macros for FRONTEND switching, will be #undef'd when ddd.h ends */
-#define _OBJREF   DDD_HDR
-
 /* F77SYM(lsym,usym) macro is defined in compiler.h. 961127 KB */
 
 /****************************************************************************/
@@ -483,9 +480,9 @@ size_t   DDD_InfoCplMemory (void);
 
 void     DDD_IdentifyBegin (void);
 DDD_RET  DDD_IdentifyEnd (void);
-void     DDD_IdentifyNumber (_OBJREF, DDD_PROC, int);
-void     DDD_IdentifyString (_OBJREF, DDD_PROC, char *);
-void     DDD_IdentifyObject (_OBJREF, DDD_PROC, _OBJREF);
+void     DDD_IdentifyNumber (DDD_HDR, DDD_PROC, int);
+void     DDD_IdentifyString (DDD_HDR, DDD_PROC, char *);
+void     DDD_IdentifyObject (DDD_HDR, DDD_PROC, DDD_HDR);
 
 
 /*
@@ -520,14 +517,14 @@ void     DDD_IFAExecLocalX(DDD_IF,DDD_ATTR,                   ExecProcXPtr);
 int      DDD_XferWithAddData (void);
 void     DDD_XferAddData (int, DDD_TYPE);
 void     DDD_XferAddDataX (int, DDD_TYPE, size_t sizes[]);
-int      DDD_XferIsPrunedDelete (_OBJREF);
-int      DDD_XferObjIsResent (_OBJREF);
+int      DDD_XferIsPrunedDelete (DDD_HDR);
+int      DDD_XferObjIsResent (DDD_HDR);
 void     DDD_XferBegin (void);
 DDD_RET  DDD_XferEnd (void);
-void     DDD_XferCopyObj (_OBJREF, DDD_PROC, DDD_PRIO);
-void     DDD_XferCopyObjX (_OBJREF, DDD_PROC, DDD_PRIO, size_t);
-void     DDD_XferDeleteObj (_OBJREF);
-void     DDD_XferPrioChange (_OBJREF, DDD_PRIO);
+void     DDD_XferCopyObj (DDD_HDR, DDD_PROC, DDD_PRIO);
+void     DDD_XferCopyObjX (DDD_HDR, DDD_PROC, DDD_PRIO, size_t);
+void     DDD_XferDeleteObj (DDD_HDR);
+void     DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
 
 
 /*
@@ -535,7 +532,7 @@ void     DDD_XferPrioChange (_OBJREF, DDD_PRIO);
  */
 void     DDD_PrioBegin (void);
 DDD_RET  DDD_PrioEnd (void);
-void     DDD_PrioChange (_OBJREF, DDD_PRIO);
+void     DDD_PrioChange (DDD_HDR, DDD_PRIO);
 
 
 
@@ -544,7 +541,7 @@ void     DDD_PrioChange (_OBJREF, DDD_PRIO);
  */
 void     DDD_JoinBegin (void);
 DDD_RET  DDD_JoinEnd (void);
-void     DDD_JoinObj (_OBJREF, DDD_PROC, DDD_GID);
+void     DDD_JoinObj (DDD_HDR, DDD_PROC, DDD_GID);
 
 
 /*
@@ -569,10 +566,6 @@ int      DDD_ConsCheck (void);  /* returns total #errors since V1.6.6 */
 void     DDD_ListLocalObjects (void);
 DDD_HDR  DDD_SearchHdr (DDD_GID);
 
-
-/****************************************************************************/
-
-#undef _OBJREF
 
 /****************************************************************************/
 
