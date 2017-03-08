@@ -378,18 +378,6 @@ typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 
 
 /*
-        temporary macro in order to access header
-
-        the application program should implement a
-        DDD_HEADER access function itself.
-
-        this will be removed in future versions.
- */
-/*#define DDD_OBJ(o)     (&((o)->ddd))*/
-
-
-
-/*
         external access of elements in DDD_HEADER
 
         C++ users should implement these access functions
