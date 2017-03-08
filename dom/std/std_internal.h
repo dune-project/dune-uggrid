@@ -99,7 +99,6 @@ enum PatchType {POINT_PATCH_TYPE,
 #define SEG_TYPE(p)                                             ((p)->segType)
 #define SEG_POINTS(p)                                   ((p)->points)
 #define SEG_POINT(p,i)                                  ((p)->points[i])
-#define SEG_RESOLUTION(p)                               ((p)->resolution)
 #define SEG_ALPHA(p)                                    ((p)->alpha)
 #define SEG_FROM(p,i)                                   ((p)->alpha[i])
 #define SEG_BETA(p)                                             ((p)->beta)
@@ -137,7 +136,6 @@ enum {PATCH_FIXED,
 #define PARAM_PATCH_LEFT(p)     (p)->pa.left
 #define PARAM_PATCH_RIGHT(p)    (p)->pa.right
 #define PARAM_PATCH_POINTS(p,i) (p)->pa.points[i]
-#define PARAM_PATCH_RES(p)              ((p)->pa.resolution)
 #define PARAM_PATCH_RANGE(p)    (p)->pa.range
 #define PARAM_PATCH_BS(p)       (p)->pa.BndSegFunc
 #define PARAM_PATCH_BSD(p)      (p)->pa.bs_data
@@ -219,9 +217,6 @@ struct boundary_segment {
 
   /** \brief Numbers of the vertices (ID) */
   INT points[CORNERS_OF_BND_SEG];
-
-  /** \brief Measure for the curvature */
-  INT resolution;
 
   /** \brief Parameter interval used*/
   DOUBLE alpha[DIM_OF_BND],beta[DIM_OF_BND];
@@ -544,9 +539,6 @@ struct parameter_patch {
 
   /** \brief Id of left and right subdomain */
   INT left,right;
-
-  /** \brief Measure for curvature */
-  INT resolution;
 
   /** \brief Ids of points */
   INT points[CORNERS_OF_BND_SEG];

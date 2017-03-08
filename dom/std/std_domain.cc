@@ -465,7 +465,6 @@ RemoveDomain (const char *name)
  * @param  right - id of right subdomain
  * @param  id - id of this boundary segment
  * @param  type - type of the boundary segment
- * @param  res  - resolution of the boundary segment
  * @param  point - the endpoints of the boundary segment
  * @param  alpha - list where the parameter interval begins
  * @param  beta - list where the parameter interval ends
@@ -484,7 +483,7 @@ RemoveDomain (const char *name)
 
 void *NS_DIM_PREFIX
 CreateBoundarySegment (const char *name,
-                       INT left, INT right, INT id, enum BoundaryType type, INT res,
+                       INT left, INT right, INT id, enum BoundaryType type,
                        const INT * point, const DOUBLE * alpha, const DOUBLE * beta,
                        BndSegFuncPtr BndSegFunc, void *data)
 {
@@ -505,7 +504,6 @@ CreateBoundarySegment (const char *name,
   newSegment->segType = type;
   for (i = 0; i < CORNERS_OF_BND_SEG; i++)
     newSegment->points[i] = point[i];
-  newSegment->resolution = res;
   for (i = 0; i < DIM_OF_BND; i++)
   {
     newSegment->alpha[i] = alpha[i];
@@ -613,7 +611,7 @@ CreateBoundarySegment2D (const char *name, int left, int right,
   bet[0] = beta;
 
   return (CreateBoundarySegment (name, left, right, id, NON_PERIODIC,
-                                 res, pt, alp, bet, BndSegFunc, data));
+                                 pt, alp, bet, BndSegFunc, data));
 }
 
 /****************************************************************************/
@@ -1287,7 +1285,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     PARAM_PATCH_BCD (thePatch) = NULL;
     for (i = 0; i < 2 * DIM_OF_BND; i++)
       PARAM_PATCH_POINTS (thePatch, i) = theSegment->points[i];
-    PARAM_PATCH_RES (thePatch) = SEG_RESOLUTION (theSegment);
     for (i = 0; i < DIM_OF_BND; i++)
     {
       PARAM_PATCH_RANGE (thePatch)[0][i] = theSegment->alpha[i];
