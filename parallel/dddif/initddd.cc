@@ -442,10 +442,6 @@ static void ddd_DefineTypes (void)
                  EL_LDATA,  ELDEF(v.block_descr),
                 #endif
 
-                #ifdef __INTERPOLATION_MATRIX__
-                 EL_LDATA,  ELDEF(v.istart),
-                #endif
-
                  /* TODO: value wird noch ausgelassen. feld variabler laenge? */
                  /* bei entscheidung 'value': kein weiteres feld
                          bei ent. 'userdata *': EL_GDATA-feld        */
