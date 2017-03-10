@@ -90,7 +90,6 @@
 #include "np.h"
 #include "ugblas.h"
 #include "disctools.h"
-#include "npcheck.h"
 #include "udm.h"
 
 /* user interface module */
@@ -5012,7 +5011,7 @@ static INT CheckCommand (INT argc, char **argv)
 {
   MULTIGRID *theMG;
   GRID *theGrid;
-  INT checkgeom,checkalgebra,checklists,checkbvp,checknp;
+  INT checkgeom,checkalgebra,checklists,checkbvp;
         #ifdef ModelP
   INT checkif;
         #endif
@@ -5027,7 +5026,7 @@ static INT CheckCommand (INT argc, char **argv)
 
   /* set default options */
   checkgeom = true;
-  checkalgebra = checklists = checkbvp = checknp = false;
+  checkalgebra = checklists = checkbvp = false;
         #ifdef ModelP
   checkif = false;
         #endif
@@ -5037,7 +5036,7 @@ static INT CheckCommand (INT argc, char **argv)
     switch (argv[i][0])
     {
     case 'a' :
-      checkgeom = checkalgebra = checklists = checknp = true;
+      checkgeom = checkalgebra = checklists = true;
                                 #ifdef ModelP
       checkif = true;
                                 #endif
@@ -5065,19 +5064,13 @@ static INT CheckCommand (INT argc, char **argv)
       checkbvp = true;
       break;
 
-    case 'n' :
-      checknp = true;
-      break;
-
     case 'w' :
       ListAllCWsOfAllObjectTypes(UserWriteF);
       break;
 
     default :
-      if (!checknp) {
-        PrintErrorMessageF('E', "CheckCommand", "Unknown option '%s'", argv[i]);
-        return (PARAMERRORCODE);
-      }
+      PrintErrorMessageF('E', "CheckCommand", "Unknown option '%s'", argv[i]);
+      return (PARAMERRORCODE);
     }
   err = 0;
 
@@ -5101,10 +5094,6 @@ static INT CheckCommand (INT argc, char **argv)
     UserWrite("]\n");
   }
   UserWrite("\n");
-
-  if (checknp)
-    if (CheckNP(theMG,argc,argv))
-      err++;
 
   if (err)
     return (CMDERRORCODE);

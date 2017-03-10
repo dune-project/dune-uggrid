@@ -3,7 +3,6 @@ set(SOURCES
   ugiter.cc
   transgrid.cc
   block.cc
-  npcheck.cc
   sm.cc
   blasm.cc
 )
