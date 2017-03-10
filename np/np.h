@@ -108,16 +108,6 @@ START_UGDIM_NAMESPACE
 #define DISPLAY_NP_FORMAT_SIII                  "%-16.13s = %-2d  %-2d  %-2d\n"
 #define DISPLAY_NP_FORMAT_FF                    "%-7.4g  %-7.4g\n"
 
-#define CLEAR_VECTOR_OF_MG(m)                                 \
-  { INT level;                                       \
-    for (level=0; level<=TOPLEVEL((m)); level++)     \
-      ClearIVector (GRID_ON_LEVEL((m),level));}
-
-#define SCALE_VECTOR_OF_MG(m,v)                               \
-  { INT level;                                       \
-    for (level=0; level<=TOPLEVEL((m)); level++)     \
-      ScaleIVector (GRID_ON_LEVEL((m),level),(v));}
-
 #define CLEAR_VECSKIP_OF_GRID(g)                                \
   { VECTOR *theVector;                                 \
     for (theVector=FIRSTVECTOR((g)); theVector!= NULL; \
@@ -131,8 +121,6 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 typedef INT (*SetFuncProcPtr)(const DOUBLE_VECTOR, INT, DOUBLE *);
-typedef INT (*TransGridProcPtr)(GRID *, const VECDATA_DESC *, const VECDATA_DESC *, const DOUBLE *);
-typedef INT (*InterpolateNewVectorsProcPtr)(GRID *, const VECDATA_DESC *);
 
 /****************************************************************************/
 /*                                                                          */
@@ -450,25 +438,6 @@ INT l_luiterB           (GRID *g, const BLOCKVECTOR *bv, const VECDATA_DESC *v, 
 INT l_lltiter           (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
 INT l_pgs           (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, INT depth, INT mode, DOUBLE vdamp);
 
-/* intergrid transfer */
-
-INT StandardRestrict (GRID *FineGrid, const VECDATA_DESC *to, const VECDATA_DESC *from, const DOUBLE *damp);
-INT StandardInterpolateCorrection (GRID *FineGrid, const VECDATA_DESC *to, const VECDATA_DESC *from, const DOUBLE *damp);
-INT StandardInterpolateNewVectors (GRID *FineGrid, const VECDATA_DESC *Sol);
-INT StandardProject (GRID *CoarseGrid, const VECDATA_DESC *to,
-                     const VECDATA_DESC *from);
-
-INT MatDepRestrict                              (GRID *FineGrid, const VECDATA_DESC *to, const VECDATA_DESC *from, const MATDATA_DESC *Mat, const DOUBLE *damp);
-INT MatDepInterpolateCorrection (GRID *FineGrid, const VECDATA_DESC *to, const VECDATA_DESC *from, const MATDATA_DESC *Mat, const DOUBLE *damp);
-INT MatDepGalerkin                              (GRID *FineGrid, const MATDATA_DESC *Mat, const VECDATA_DESC *temp1, const VECDATA_DESC *temp2);
-INT InstallInterpolationMatrix  (GRID *FineGrid, const MATDATA_DESC *Mat);
-INT CreateStandardNodeRestProl  (GRID *fineGrid, INT ncomp);
-
-INT ScaledMGRestrict                       (GRID *FineGrid, const VECDATA_DESC *to, const VECDATA_DESC *from, const DOUBLE *damp);
-INT InstallScaledRestrictionMatrix (GRID *FineGrid, const MATDATA_DESC *Mat, DOUBLE cut);
-INT DiagonalScaleSystem                    (GRID *FineGrid, const MATDATA_DESC *Mat, const MATDATA_DESC *ConsMat, const VECDATA_DESC *rhs);
-INT ClearGhostMatrix (GRID *g, MATDATA_DESC *Mat);
-
 /* miscellaneous */
 INT l_matflset (GRID *g, INT f);
 
@@ -495,33 +464,6 @@ INT                     SetNumProc                                      (NP_BASE
 INT             InitNum                                         (void);
 INT             GetVectorCompNames                      (VECDATA_DESC *theVDT, char *compNames, INT *nComp);
 INT             WriteVEC_SCALAR                         (const VECDATA_DESC *theVDT, const VEC_SCALAR Scalar, const char *structdir);
-
-#ifdef __INTERPOLATION_MATRIX__
-/* interpolation matrix functions */
-INT GetInterpolationMatrix (ELEMENT *theElement, ELEMENT *theFather,
-                            INT me, DOUBLE *IntMat, VECDATA_DESC *theVD);
-INT AddInterpolationMatrix (GRID *theGrid,
-                            ELEMENT *theElement, ELEMENT *theFather,
-                            INT me, DOUBLE *IntMat, VECDATA_DESC *theVD);
-INT ScaleIMatrix (GRID *g, VECDATA_DESC *theVD);
-INT ClearIMatrix (GRID *g, VECDATA_DESC *theVD);
-INT InterpolateCorrectionByMatrix (GRID *FineGrid, const VECDATA_DESC *to,
-                                   const VECDATA_DESC *from,
-                                   const DOUBLE *damp);
-INT InterpolateCorrectionByMatrix_NoSkip (GRID *FineGrid, const VECDATA_DESC *to,
-                                          const VECDATA_DESC *from,
-                                          const DOUBLE *damp);
-INT RestrictByMatrix              (GRID *FineGrid, const VECDATA_DESC *to,
-                                   const VECDATA_DESC *from,
-                                   const DOUBLE *damp);
-INT RestrictByMatrix_s                    (GRID *FineGrid, const VECDATA_DESC *to,
-                                           const VECDATA_DESC *from, const DOUBLE *damp);
-INT InterpolateNewVectorsByMatrix (GRID *FineGrid, const VECDATA_DESC *sol);
-INT AssembleGalerkinByMatrix (GRID *FineGrid, MATDATA_DESC *Mat, INT symmetric);
-#endif
-
-INT ScaleIVector (GRID *g, VECDATA_DESC *theVD);
-INT ClearIVector (GRID *g);
 
 END_UGDIM_NAMESPACE
 

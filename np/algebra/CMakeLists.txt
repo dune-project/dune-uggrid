@@ -1,7 +1,6 @@
 set(SOURCES
   ugblas.cc
   ugiter.cc
-  transgrid.cc
   block.cc
   sm.cc
   blasm.cc
