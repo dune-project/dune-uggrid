@@ -2817,10 +2817,6 @@ GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG, INT algebraic)
   NC(theGrid) = 0;
   /* other counters are init in INIT fcts below */
 
-#ifdef __INTERPOLATION_MATRIX__
-  NIMAT(theGrid) = 0;
-#endif
-
   GSTATUS(theGrid,0);
   GRID_INIT_ELEMENT_LIST(theGrid);
   GRID_INIT_NODE_LIST(theGrid);
@@ -2892,10 +2888,6 @@ GRID * NS_DIM_PREFIX CreateNewLevelAMG (MULTIGRID *theMG)
   NE(theGrid) = 0;
   theGrid->nCon = 0;
   /* other counters are init in INIT fcts below */
-
-#ifdef __INTERPOLATION_MATRIX__
-  theGrid->nIMat = 0;
-#endif
 
   theGrid->status       = 0;
   GRID_INIT_ELEMENT_LIST(theGrid);
@@ -4195,10 +4187,6 @@ static INT DisposeAMGLevel (MULTIGRID *theMG)
 
   assert((FIRSTELEMENT(theGrid)==NULL)&&(FIRSTVERTEX(theGrid)==NULL)
          &&(FIRSTNODE(theGrid)==NULL));
-
-  /* clear interpolation matrices from higher level!! */
-  if (DisposeIMatricesInGrid(fineGrid))
-    return(1);
 
   /* clear level */
   while (PFIRSTVECTOR(theGrid)!=NULL)
@@ -7998,9 +7986,6 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
   UserWriteF("grids of '%s':\n",ENVITEM_NAME(theMG));
 
   UserWrite("level maxlevel    #vert    #node    #edge    #elem    #side    #vect    #conn");
-#ifdef __INTERPOLATION_MATRIX__
-  UserWrite("    #imat");
-#endif
   UserWrite("  minedge  maxedge\n");
 
   for (l=0; l<=TOPLEVEL(theMG); l++)
@@ -8031,44 +8016,10 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
           if (SIDE_ON_BND(theElement,i))
             ns++;
 
-#ifdef __INTERPOLATION_MATRIX__
-    UserWriteF("%c %3d %8d %8ld %8ld %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",c,l,(int)TOPLEVEL(theMG),
-               (long)NV(theGrid),(long)NN(theGrid),(long)NE(theGrid),(long)NT(theGrid),
-               (long)ns,(long)NVEC(theGrid),(long)NC(theGrid),(long)NIMAT(theGrid),(float)hmin,(float)hmax);
-                #if defined(ModelP) && defined(Debug)
-    /* output also the object priority counters on each level */
-    if (0)
-    {
-      INT i;
-      for (i=1; i<MAX_PRIOS; i++)
-        UserWriteF("%c %3d %8d %8ld %8ld %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",c,l,(int)TOPLEVEL(theMG),
-                   (long)NV_PRIO(theGrid,i),(long)NN_PRIO(theGrid,i),(long)NE(theGrid),(long)NT_PRIO(theGrid,i),
-                   (long)ns,(long)NVEC_PRIO(theGrid,i),(long)NC(theGrid),(long)NIMAT(theGrid),(float)hmin,(float)hmax);
-    }
-                #endif
-#else
     UserWriteF("%c %3d %8d %8ld %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",c,l,(int)TOPLEVEL(theMG),
                (long)NV(theGrid),(long)NN(theGrid),(long)NE(theGrid),(long)NT(theGrid),
                (long)ns,(long)NVEC(theGrid),(long)NC(theGrid),(float)hmin,(float)hmax);
-#endif
   }
-
-#ifdef __INTERPOLATION_MATRIX__
-  if (BOTTOMLEVEL(theMG)<0)
-  {
-    UserWrite("AMG levels:\n");
-    for (l=-1; l>=BOTTOMLEVEL(theMG); l--)
-    {
-      theGrid = GRID_ON_LEVEL(theMG,l);
-
-      c = (l==cl) ? '*' : ' ';
-
-      UserWriteF("%c %3d %8d %8ld %8ld %8ld %8ld %8ld %8ld %8ld %8ld\n",c,l,(int)TOPLEVEL(theMG),
-                 (long)NV(theGrid),(long)NN(theGrid),(long)NE(theGrid),(long)NT(theGrid),
-                 (long)0,(long)NVEC(theGrid),(long)NC(theGrid),(long)NIMAT(theGrid));
-    }
-  }
-#endif
 
   /* surface grid up to current level */
   minl = cl;
@@ -8856,20 +8807,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
         UserWrite(buffer);
       }
     }
-  if (matrixopt < 0)
-    for (theMatrix = VISTART(theVector); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-    {
-      UserWrite("    DEST(MATRIX): ");
-      ListVector(theMG,MDEST(theMatrix),0,0,modifiers);
-
-      /* print matrix data if */
-      if (dataopt)
-      {
-        UserWriteF("  P = %8.6lf, ", MVALUE(theMatrix,0));
-        UserWriteF("  R = %8.6lf \n", MVALUE(theMatrix,1));
-      }
-    }
-  return;
 }
 
 /****************************************************************************/

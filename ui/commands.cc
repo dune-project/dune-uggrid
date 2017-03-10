@@ -2238,10 +2238,6 @@ static INT VMListCommand (INT argc, char **argv)
     if (theVD != NULL) {
       if (ReadArgvOption("S",argc,argv))
         PrintSVector(theMG,theVD);
-            #ifdef __INTERPOLATION_MATRIX__
-      else if (ReadArgvOption("I",argc,argv))
-        PrintIMatrix(theGrid,theVD,vclass,vnclass);
-            #endif
       else if (ReadArgvOption("s",argc,argv))
       {
         /* get selection list */

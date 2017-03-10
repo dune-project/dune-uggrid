@@ -268,11 +268,6 @@ FORMAT * NS_DIM_PREFIX CreateFormat (char *name, INT sVertex, INT sMultiGrid,
       FMT_T2O(fmt,type) |= (1<<obj);
     }
 
-#ifdef __INTERPOLATION_MATRIX__
-  for (i=0; i<MAXMATRICES; i++)
-    FMT_S_IMAT_TP(fmt,i) = 0;
-#endif
-
   /* set connection stuff */
   for (i=0; i<nmDesc; i++)
   {
@@ -328,12 +323,6 @@ FORMAT * NS_DIM_PREFIX CreateFormat (char *name, INT sVertex, INT sMultiGrid,
   }
   FMT_CONN_DEPTH_MAX(fmt) = MaxDepth;
   FMT_NB_DEPTH(fmt)           = NeighborhoodDepth;
-
-#ifdef __INTERPOLATION_MATRIX__
-  for (i=0; i<MAXVECTORS; i++)
-    for (j=0; j<MAXVECTORS; j++)
-      FMT_S_IMAT_TP(fmt,MATRIXTYPE(i,j)) = ImatTypes[i] * ImatTypes[j] * sizeof(DOUBLE);
-#endif
 
   /* derive additional information */
   for (i=0; i<MAXVOBJECTS; i++) FMT_USES_OBJ(fmt,i) = false;

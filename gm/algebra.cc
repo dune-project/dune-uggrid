@@ -713,10 +713,6 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
   VECSKIP(pv) = 0;
   VSTART(pv) = NULL;
 
-    #ifdef __INTERPOLATION_MATRIX__
-  VISTART(pv) = NULL;
-    #endif
-
   GRID_LINK_VECTOR(theGrid,pv,PrioMaster);
 
   *vHandle = pv;
@@ -1159,11 +1155,6 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
     if (DisposeConnection(theGrid,MMYCON(theMatrix)))
       RETURN (1);
   }
-
-#ifdef __INTERPOLATION_MATRIX__
-  if (DisposeIMatrices(theGrid,VISTART(theVector)))
-    RETURN (1);
-#endif
 
   /* now remove vector from vector list */
   GRID_UNLINK_VECTOR(theGrid,theVector);
@@ -3791,17 +3782,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
       }
                         #endif
     }
-                #ifdef __INTERPOLATION_MATRIX__
-    for (theMatrix=VISTART(theVector);
-         theMatrix!=NULL;
-         theMatrix = MNEXT(theMatrix))
-      if (MDEST(theMatrix) == NULL) {
-        errors++;
-        UserWriteF(PFMT "ERROR: interpolation matrix %x has no dest,"
-                   " start vec=" VINDEX_FMTX "\n",me,theMatrix,
-                   VINDEX_PRTX(theVector));
-      }
-        #endif
   }
 
   return(errors);
@@ -7490,172 +7470,6 @@ INT NS_DIM_PREFIX MoveVector (GRID *theGrid, VECTOR *moveVector, VECTOR *destVec
 
   return (0);
 }
-
-#ifdef __INTERPOLATION_MATRIX__
-
-/****************************************************************************/
-/** \brief Return pointer to a new interpolation matrix structure
-
- * @param theGrid - fine grid
- * @param fvec - fine grid vector
- * @param cvec - coarse grid vector
-
-   This function allocates a new 'MATRIX' structures in the
-   'imatrix' list of 'fvec'.
-
- * @return <ul>
- *   <li>   pointer to the new matrix </li>
- *   <li>   NULL if error occured. </li>
- * </ul>
- */
-/****************************************************************************/
-
-MATRIX *NS_DIM_PREFIX CreateIMatrix (GRID *theGrid, VECTOR *fvec, VECTOR *cvec)
-{
-  MULTIGRID *theMG;
-  HEAP *theHeap;
-  MATRIX *pm;
-  INT RootType, DestType, MType, ds, Size;
-
-  pm = GetIMatrix(fvec,cvec);
-  if (pm != NULL)
-    return(pm);
-
-  ASSERT(fvec != NULL);
-  ASSERT(cvec != NULL);
-
-  RootType = VTYPE(fvec);
-  DestType = VTYPE(cvec);
-  MType = MATRIXTYPE(RootType,DestType);
-
-  /* check expected size */
-  theMG = MYMG(theGrid);
-  theHeap = theMG->theHeap;
-  ds = FMT_S_IMAT_TP(MGFORMAT(theMG),MType);
-  if (ds == 0)
-    return (NULL);
-  Size = sizeof(MATRIX)-sizeof(DOUBLE)+ds;
-  if (MSIZEMAX<Size) return (NULL);
-  pm = (MATRIX *)GetMemoryForObject (theMG,Size,MAOBJ);
-  if (pm==NULL)
-    return (NULL);
-
-  SETOBJT(pm,MAOBJ);
-  SETMDIAG(pm,0);
-  SETMROOTTYPE(pm,RootType);
-  SETMDESTTYPE(pm,DestType);
-  SETMSIZE(pm,Size);
-  MDEST(pm) = cvec;
-  MNEXT(pm) = VISTART(fvec);
-  VISTART(fvec) = pm;
-
-  /* counters */
-  theGrid->nIMat++;
-  return(pm);
-}
-
-/****************************************************************************/
-/** \brief Remove interpolation matrix from the data structure
-
- * @param theGrid - the grid to remove from
- * @param theMatrix - start of matrix list to dispose
-
-   This function removes an interpolation  matrix list from the data
-   structure.
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
- * </ul>
- */
-/****************************************************************************/
-
-static INT DisposeIMatrices (GRID *theGrid, MATRIX *theMatrix)
-{
-  MATRIX *Matrix, *NextMatrix;
-
-  for (Matrix=theMatrix; Matrix!=NULL; )
-  {
-    NextMatrix = NEXT(Matrix);
-    PutFreeObject(theGrid->mg,Matrix,UG_MSIZE(Matrix),MAOBJ);
-    theGrid->nIMat--;
-    Matrix = NextMatrix;
-  }
-
-  return(0);
-}
-
-INT NS_DIM_PREFIX DisposeIMatrixList (GRID *theGrid, VECTOR *theVector)
-{
-  if (DisposeIMatrices(theGrid,VISTART(theVector)))
-    RETURN (1);
-  VISTART(theVector) = NULL;
-  return (0);
-}
-
-INT NS_DIM_PREFIX DisposeIMatricesInGrid (GRID *theGrid)
-{
-  VECTOR *theV;
-
-  for (theV=PFIRSTVECTOR(theGrid); theV!=NULL; theV=SUCCVC(theV))
-  {
-    if (DisposeIMatrices(theGrid,VISTART(theV))) RETURN (1);
-    VISTART(theV) = NULL;
-  }
-
-  return (0);
-}
-
-INT NS_DIM_PREFIX DisposeIMatricesInMultiGrid (MULTIGRID *theMG)
-{
-  INT i;
-  GRID *theGrid;
-
-  for (i=0; i<=TOPLEVEL(theMG); i++)
-  {
-    theGrid = GRID_ON_LEVEL(theMG,i);
-    /* It seems pointless to have this check here, but when calling newcommand
-       from Dune requesting more memory than there is we end up here
-       with TOPLEVEL == 0 and theGrid on level 0 inexistent */
-    if (theGrid==NULL)
-      REP_ERR_RETURN(1);
-    if (DisposeIMatricesInGrid(theGrid))
-      REP_ERR_RETURN(1);
-  }
-
-  return(0);
-}
-
-/****************************************************************************/
-/** \brief Return pointer to interpolation matrix if it exists
-
- * @param FineVector - fine grid vector
- * @param CoarseVector - coarse grid vector
-
-   This function returns pointer to interpolation matrix.
-   If it does not exist already, it returns NULL.
-
- * @return <ul>
- *   <li>      pointer to Matrix, </li>
- *   <li>      NULL if no Matrix exists. </li>
- * </ul>
- */
-/****************************************************************************/
-
-MATRIX *NS_DIM_PREFIX GetIMatrix (VECTOR *FineVector, VECTOR *CoarseVector)
-{
-  MATRIX *theMatrix;
-
-  for (theMatrix=VISTART(FineVector); theMatrix!=NULL;
-       theMatrix = MNEXT(theMatrix))
-    if (MDEST(theMatrix)==CoarseVector)
-      return (theMatrix);
-
-  return (NULL);
-}
-
-#endif
-/* __INTERPOLATION_MATRIX__ */
 
 /****************************************************************************/
 /** \brief Init algebra

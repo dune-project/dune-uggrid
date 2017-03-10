@@ -99,9 +99,6 @@ START_UGDIM_NAMESPACE
 /** \brief If pointer between element/centernode is stored */
 #undef __CENTERNODE__
 
-/** \brief If interpolation matrix is stored */
-#define __INTERPOLATION_MATRIX__
-
 /** \brief If block vector descriptors are used*/
 #define __BLOCK_VECTOR_DESC__
 
@@ -421,11 +418,6 @@ struct format {
   /** \brief number of doubles in matrices                */
   INT MatrixSizes[MAXCONNECTIONS];
 
-#ifdef __INTERPOLATION_MATRIX__
-  /** \brief number of doubles in matrices          */
-  INT IMatrixSizes[MAXMATRICES];
-#endif
-
   /** \brief depth of connection for matrices */
   INT ConnectionDepth[MAXCONNECTIONS];
 
@@ -611,11 +603,6 @@ struct vector {
 #ifdef __BLOCK_VECTOR_DESC__
   /** \brief membership to the blockvector levels */
   BV_DESC block_descr;
-#endif
-
-#ifdef __INTERPOLATION_MATRIX__
-  /** \brief implements interpolation matrix      */
-  struct matrix *istart;
 #endif
 
   /** \brief User data */
@@ -1566,10 +1553,6 @@ struct grid {
   /** \brief Number of connections on this grid level */
   INT nCon;
 
-#ifdef __INTERPOLATION_MATRIX__
-  /** \brief Number of interpolation matrices  */
-  INT nIMat;
-#endif
   DATA_STATUS data_status;          /* memory management for vectors|matrix */
                                     /* status for consistent and collect    */
   /* pointers */
@@ -2238,9 +2221,6 @@ enum LV_ID_TYPES {
 #define VECSKIPBIT(v,n)                         (((v)->skip) & (1<<n))
 #define SETVECSKIPBIT(v,n)                      (v)->skip = ((v)->skip & (~(1<<n))) | (1<<n)
 #define VSTART(v)                                       ((v)->start)
-#ifdef __INTERPOLATION_MATRIX__
-#define VISTART(v)                                      ((v)->istart)
-#endif
 #define VVALUE(v,n)                             ((v)->value[n])
 #define VVALUEPTR(v,n)                          (&((v)->value[n]))
 #define VMYNODE(v)                                      ((NODE*)((v)->object))
@@ -3494,13 +3474,6 @@ INT             DisposeConnectionsInGrid (GRID *theGrid);
 MATRIX          *GetMatrix                              (const VECTOR *FromVector, const VECTOR *ToVector);
 MATRIX      *GetOrderedMatrix       (const VECTOR *FromVector, const VECTOR *ToVector);
 CONNECTION      *GetConnection                  (const VECTOR *FromVector, const VECTOR *ToVector);
-#ifdef __INTERPOLATION_MATRIX__
-MATRIX      *GetIMatrix             (VECTOR *FineVector, VECTOR *CoarseVector);
-MATRIX      *CreateIMatrix          (GRID *theGrid, VECTOR *fvec, VECTOR *cvec);
-INT                     DisposeIMatrixList              (GRID *theGrid, VECTOR *theVector);
-INT             DisposeIMatricesInGrid  (GRID *theGrid);
-INT                     DisposeIMatricesInMultiGrid (MULTIGRID *theMG);
-#endif
 INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
                                      VECTOR **vec);
 

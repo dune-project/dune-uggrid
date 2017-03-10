@@ -703,9 +703,6 @@ static void VectorPriorityUpdate (DDD_OBJ obj, DDD_PRIO isnew)
         if (DisposeConnection(theGrid,MMYCON(theMatrix)))
           ASSERT(0);
       }
-                        #ifdef __INTERPOLATION_MATRIX__
-      if (DisposeIMatrixList(theGrid,pv)) assert(0);
-                        #endif
     }
 #endif
 
