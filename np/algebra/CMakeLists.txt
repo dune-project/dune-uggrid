@@ -1,9 +1,7 @@
 set(SOURCES
   ugblas.cc
   ugiter.cc
-  transgrid.cc
   block.cc
-  npcheck.cc
   sm.cc
   blasm.cc
 )

@@ -56,10 +56,6 @@ START_UGDIM_NAMESPACE
 
 #define DDD_VERSION    "1.9"
 
-/* helpful macros for FRONTEND switching, will be #undef'd when ddd.h ends */
-#define _FPTR
-#define _OBJREF   DDD_HDR
-
 /* F77SYM(lsym,usym) macro is defined in compiler.h. 961127 KB */
 
 /****************************************************************************/
@@ -342,31 +338,31 @@ enum Handlers {
 /* handler prototypes */
 
 /* handlers related to certain DDD_TYPE (i.e., member functions) */
-typedef void (*HandlerLDATACONSTRUCTOR)(DDD_OBJ _FPTR);
-typedef void (*HandlerDESTRUCTOR)(DDD_OBJ _FPTR);
-typedef void (*HandlerDELETE)(DDD_OBJ _FPTR);
-typedef void (*HandlerUPDATE)(DDD_OBJ _FPTR);
-typedef void (*HandlerOBJMKCONS)(DDD_OBJ _FPTR, int _FPTR);
-typedef void (*HandlerSETPRIORITY)(DDD_OBJ _FPTR, DDD_PRIO _FPTR);
-typedef void (*HandlerXFERCOPY)(DDD_OBJ _FPTR, DDD_PROC _FPTR, DDD_PRIO _FPTR);
-typedef void (*HandlerXFERDELETE)(DDD_OBJ _FPTR);
-typedef void (*HandlerXFERGATHER)(DDD_OBJ _FPTR, int _FPTR, DDD_TYPE _FPTR, void *);
-typedef void (*HandlerXFERSCATTER)(DDD_OBJ _FPTR, int _FPTR, DDD_TYPE _FPTR, void *, int _FPTR);
-typedef void (*HandlerXFERGATHERX)(DDD_OBJ _FPTR, int _FPTR, DDD_TYPE _FPTR, char **);
-typedef void (*HandlerXFERSCATTERX)(DDD_OBJ _FPTR, int _FPTR, DDD_TYPE _FPTR, char **, int _FPTR);
-typedef void (*HandlerXFERCOPYMANIP)(DDD_OBJ _FPTR);
+typedef void (*HandlerLDATACONSTRUCTOR)(DDD_OBJ);
+typedef void (*HandlerDESTRUCTOR)(DDD_OBJ);
+typedef void (*HandlerDELETE)(DDD_OBJ);
+typedef void (*HandlerUPDATE)(DDD_OBJ);
+typedef void (*HandlerOBJMKCONS)(DDD_OBJ, int);
+typedef void (*HandlerSETPRIORITY)(DDD_OBJ, DDD_PRIO);
+typedef void (*HandlerXFERCOPY)(DDD_OBJ, DDD_PROC, DDD_PRIO);
+typedef void (*HandlerXFERDELETE)(DDD_OBJ);
+typedef void (*HandlerXFERGATHER)(DDD_OBJ, int, DDD_TYPE, void *);
+typedef void (*HandlerXFERSCATTER)(DDD_OBJ, int, DDD_TYPE, void *, int);
+typedef void (*HandlerXFERGATHERX)(DDD_OBJ, int, DDD_TYPE, char **);
+typedef void (*HandlerXFERSCATTERX)(DDD_OBJ, int, DDD_TYPE, char **, int);
+typedef void (*HandlerXFERCOPYMANIP)(DDD_OBJ);
 
 
 
 /* handlers not related to DDD_TYPE (i.e., global functions) */
-typedef DDD_TYPE (*HandlerGetRefType)(DDD_OBJ _FPTR, DDD_OBJ _FPTR);
+typedef DDD_TYPE (*HandlerGetRefType)(DDD_OBJ, DDD_OBJ);
 
 
 
-typedef int (*ExecProcPtr)(DDD_OBJ _FPTR);
-typedef int (*ExecProcXPtr)(DDD_OBJ _FPTR, DDD_PROC _FPTR, DDD_PRIO _FPTR);
-typedef int (*ComProcPtr)(DDD_OBJ _FPTR, void *);
-typedef int (*ComProcXPtr)(DDD_OBJ _FPTR, void *, DDD_PROC _FPTR, DDD_PRIO _FPTR);
+typedef int (*ExecProcPtr)(DDD_OBJ);
+typedef int (*ExecProcXPtr)(DDD_OBJ, DDD_PROC, DDD_PRIO);
+typedef int (*ComProcPtr)(DDD_OBJ, void *);
+typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 
 
 
@@ -382,22 +378,7 @@ typedef int (*ComProcXPtr)(DDD_OBJ _FPTR, void *, DDD_PROC _FPTR, DDD_PRIO _FPTR
 
 
 /*
-        temporary macro in order to access header
-
-        the application program should implement a
-        DDD_HEADER access function itself.
-
-        this will be removed in future versions.
- */
-/*#define DDD_OBJ(o)     (&((o)->ddd))*/
-
-
-
-/*
         external access of elements in DDD_HEADER
-
-        C++ users should implement these access functions
-        as inline functions.
  */
 #define DDD_InfoPriority(ddd_hdr)    ((ddd_hdr)->prio)
 #define DDD_InfoGlobalId(ddd_hdr)    ((ddd_hdr)->gid)
@@ -417,7 +398,7 @@ typedef int (*ComProcXPtr)(DDD_OBJ _FPTR, void *, DDD_PROC _FPTR, DDD_PRIO _FPTR
 void     DDD_Init (int *argcp, char ***argvp);
 void     DDD_Exit (void);
 void     DDD_Status (void);
-void     DDD_SetOption (DDD_OPTION _FPTR, int _FPTR);
+void     DDD_SetOption (DDD_OPTION, int);
 
 DDD_PROC DDD_InfoMe (void);
 DDD_PROC DDD_InfoMaster (void);
@@ -436,28 +417,26 @@ void     DDD_LineOutRegister (void (*func)(const char *s));
 
 DDD_TYPE DDD_TypeDeclare (const char *name);
 int      DDD_InfoHdrOffset (DDD_TYPE);
-void     DDD_TypeDefine (DDD_TYPE _FPTR, ...);
-void     DDD_TypeDisplay (DDD_TYPE _FPTR);
+void     DDD_TypeDefine (DDD_TYPE, ...);
+void     DDD_TypeDisplay (DDD_TYPE);
 
-/* oldstyle setting of DDD-handlers, will be removed in later versions */
-void     DDD_HandlerRegister (DDD_TYPE _FPTR, ...);
 int      DDD_InfoTypes (void);
 
 
 /* newstyle, type-secure setting of handlers */
-void     DDD_SetHandlerLDATACONSTRUCTOR(DDD_TYPE _FPTR, HandlerLDATACONSTRUCTOR);
-void     DDD_SetHandlerDESTRUCTOR      (DDD_TYPE _FPTR, HandlerDESTRUCTOR);
-void     DDD_SetHandlerDELETE          (DDD_TYPE _FPTR, HandlerDELETE);
-void     DDD_SetHandlerUPDATE          (DDD_TYPE _FPTR, HandlerUPDATE);
-void     DDD_SetHandlerOBJMKCONS       (DDD_TYPE _FPTR, HandlerOBJMKCONS);
-void     DDD_SetHandlerSETPRIORITY     (DDD_TYPE _FPTR, HandlerSETPRIORITY);
-void     DDD_SetHandlerXFERCOPY        (DDD_TYPE _FPTR, HandlerXFERCOPY);
-void     DDD_SetHandlerXFERDELETE      (DDD_TYPE _FPTR, HandlerXFERDELETE);
-void     DDD_SetHandlerXFERGATHER      (DDD_TYPE _FPTR, HandlerXFERGATHER);
-void     DDD_SetHandlerXFERSCATTER     (DDD_TYPE _FPTR, HandlerXFERSCATTER);
-void     DDD_SetHandlerXFERGATHERX     (DDD_TYPE _FPTR, HandlerXFERGATHERX);
-void     DDD_SetHandlerXFERSCATTERX    (DDD_TYPE _FPTR, HandlerXFERSCATTERX);
-void     DDD_SetHandlerXFERCOPYMANIP   (DDD_TYPE _FPTR, HandlerXFERCOPYMANIP);
+void     DDD_SetHandlerLDATACONSTRUCTOR(DDD_TYPE, HandlerLDATACONSTRUCTOR);
+void     DDD_SetHandlerDESTRUCTOR      (DDD_TYPE, HandlerDESTRUCTOR);
+void     DDD_SetHandlerDELETE          (DDD_TYPE, HandlerDELETE);
+void     DDD_SetHandlerUPDATE          (DDD_TYPE, HandlerUPDATE);
+void     DDD_SetHandlerOBJMKCONS       (DDD_TYPE, HandlerOBJMKCONS);
+void     DDD_SetHandlerSETPRIORITY     (DDD_TYPE, HandlerSETPRIORITY);
+void     DDD_SetHandlerXFERCOPY        (DDD_TYPE, HandlerXFERCOPY);
+void     DDD_SetHandlerXFERDELETE      (DDD_TYPE, HandlerXFERDELETE);
+void     DDD_SetHandlerXFERGATHER      (DDD_TYPE, HandlerXFERGATHER);
+void     DDD_SetHandlerXFERSCATTER     (DDD_TYPE, HandlerXFERSCATTER);
+void     DDD_SetHandlerXFERGATHERX     (DDD_TYPE, HandlerXFERGATHERX);
+void     DDD_SetHandlerXFERSCATTERX    (DDD_TYPE, HandlerXFERSCATTERX);
+void     DDD_SetHandlerXFERCOPYMANIP   (DDD_TYPE, HandlerXFERCOPYMANIP);
 
 
 void     DDD_PrioMergeDefault (DDD_TYPE, int);
@@ -486,9 +465,9 @@ size_t   DDD_InfoCplMemory (void);
 
 void     DDD_IdentifyBegin (void);
 DDD_RET  DDD_IdentifyEnd (void);
-void     DDD_IdentifyNumber (_OBJREF, DDD_PROC _FPTR, int _FPTR);
-void     DDD_IdentifyString (_OBJREF, DDD_PROC _FPTR, char *);
-void     DDD_IdentifyObject (_OBJREF, DDD_PROC _FPTR, _OBJREF);
+void     DDD_IdentifyNumber (DDD_HDR, DDD_PROC, int);
+void     DDD_IdentifyString (DDD_HDR, DDD_PROC, char *);
+void     DDD_IdentifyObject (DDD_HDR, DDD_PROC, DDD_HDR);
 
 
 /*
@@ -499,39 +478,38 @@ DDD_IF   DDD_IFDefine (int, DDD_TYPE O[], int, DDD_PRIO A[], int, DDD_PRIO B[]);
 void     DDD_IFSetName (DDD_IF, const char *);
 
 void     DDD_IFDisplayAll (void);
-void     DDD_IFDisplay (DDD_IF _FPTR);
+void     DDD_IFDisplay (DDD_IF);
 size_t   DDD_IFInfoMemoryAll (void);
-size_t   DDD_IFInfoMemory (DDD_IF _FPTR);
+size_t   DDD_IFInfoMemory (DDD_IF);
 void     DDD_IFRefreshAll (void);
 
-void     DDD_IFExchange   (DDD_IF _FPTR,                                size_t _FPTR, ComProcPtr,ComProcPtr);
-void     DDD_IFOneway     (DDD_IF _FPTR,               DDD_IF_DIR _FPTR,size_t _FPTR, ComProcPtr,ComProcPtr);
-void     DDD_IFExecLocal  (DDD_IF _FPTR,                                              ExecProcPtr);
-void     DDD_IFAExchange  (DDD_IF _FPTR,DDD_ATTR _FPTR,                 size_t _FPTR, ComProcPtr,ComProcPtr);
-void     DDD_IFAOneway    (DDD_IF _FPTR,DDD_ATTR _FPTR,DDD_IF_DIR _FPTR,size_t _FPTR, ComProcPtr,ComProcPtr);
-void     DDD_IFAExecLocal (DDD_IF _FPTR,DDD_ATTR _FPTR,                               ExecProcPtr);
-void     DDD_IFExchangeX  (DDD_IF _FPTR,                                size_t _FPTR, ComProcXPtr,ComProcXPtr);
-void     DDD_IFOnewayX    (DDD_IF _FPTR,               DDD_IF_DIR _FPTR,size_t _FPTR, ComProcXPtr,ComProcXPtr);
-void     DDD_IFExecLocalX (DDD_IF _FPTR,                                              ExecProcXPtr);
-void     DDD_IFAExchangeX (DDD_IF _FPTR,DDD_ATTR _FPTR,                 size_t _FPTR, ComProcXPtr,ComProcXPtr);
-void     DDD_IFAOnewayX   (DDD_IF _FPTR,DDD_ATTR _FPTR,DDD_IF_DIR _FPTR,size_t _FPTR, ComProcXPtr,ComProcXPtr);
-void     DDD_IFAExecLocalX(DDD_IF _FPTR,DDD_ATTR _FPTR,                               ExecProcXPtr);
-
+void     DDD_IFExchange   (DDD_IF,                    size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFOneway     (DDD_IF,         DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFExecLocal  (DDD_IF,                            ExecProcPtr);
+void     DDD_IFAExchange  (DDD_IF,DDD_ATTR,           size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFAOneway    (DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFAExecLocal (DDD_IF,DDD_ATTR,                   ExecProcPtr);
+void     DDD_IFExchangeX  (DDD_IF,                    size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFOnewayX    (DDD_IF,         DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFExecLocalX (DDD_IF,                            ExecProcXPtr);
+void     DDD_IFAExchangeX (DDD_IF,DDD_ATTR,           size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFAOnewayX   (DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFAExecLocalX(DDD_IF,DDD_ATTR,                   ExecProcXPtr);
 
 /*
         Transfer Environment Module
  */
 int      DDD_XferWithAddData (void);
-void     DDD_XferAddData (int _FPTR, DDD_TYPE _FPTR);
-void     DDD_XferAddDataX (int _FPTR, DDD_TYPE _FPTR, size_t sizes[]);
-int      DDD_XferIsPrunedDelete (_OBJREF);
-int      DDD_XferObjIsResent (_OBJREF);
+void     DDD_XferAddData (int, DDD_TYPE);
+void     DDD_XferAddDataX (int, DDD_TYPE, size_t sizes[]);
+int      DDD_XferIsPrunedDelete (DDD_HDR);
+int      DDD_XferObjIsResent (DDD_HDR);
 void     DDD_XferBegin (void);
 DDD_RET  DDD_XferEnd (void);
-void     DDD_XferCopyObj (_OBJREF, DDD_PROC _FPTR, DDD_PRIO _FPTR);
-void     DDD_XferCopyObjX (_OBJREF, DDD_PROC _FPTR, DDD_PRIO _FPTR, size_t _FPTR);
-void     DDD_XferDeleteObj (_OBJREF);
-void     DDD_XferPrioChange (_OBJREF, DDD_PRIO _FPTR);
+void     DDD_XferCopyObj (DDD_HDR, DDD_PROC, DDD_PRIO);
+void     DDD_XferCopyObjX (DDD_HDR, DDD_PROC, DDD_PRIO, size_t);
+void     DDD_XferDeleteObj (DDD_HDR);
+void     DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
 
 
 /*
@@ -539,7 +517,7 @@ void     DDD_XferPrioChange (_OBJREF, DDD_PRIO _FPTR);
  */
 void     DDD_PrioBegin (void);
 DDD_RET  DDD_PrioEnd (void);
-void     DDD_PrioChange (_OBJREF, DDD_PRIO _FPTR);
+void     DDD_PrioChange (DDD_HDR, DDD_PRIO);
 
 
 
@@ -548,7 +526,7 @@ void     DDD_PrioChange (_OBJREF, DDD_PRIO _FPTR);
  */
 void     DDD_JoinBegin (void);
 DDD_RET  DDD_JoinEnd (void);
-void     DDD_JoinObj (_OBJREF, DDD_PROC _FPTR, DDD_GID _FPTR);
+void     DDD_JoinObj (DDD_HDR, DDD_PROC, DDD_GID);
 
 
 /*
@@ -571,13 +549,8 @@ void     DDD_ObjUnGet (DDD_HDR, size_t);
 
 int      DDD_ConsCheck (void);  /* returns total #errors since V1.6.6 */
 void     DDD_ListLocalObjects (void);
-DDD_HDR  DDD_SearchHdr (DDD_GID _FPTR);
+DDD_HDR  DDD_SearchHdr (DDD_GID);
 
-
-/****************************************************************************/
-
-#undef _FPTR
-#undef _OBJREF
 
 /****************************************************************************/
 

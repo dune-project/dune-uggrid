@@ -1003,22 +1003,6 @@ void DDD_TypeDisplay (DDD_TYPE id)
 
 
 
-/****************************************************************************/
-/*                                                                          */
-/* Function:  DDD_HandlerRegister                                           */
-/*                                                                          */
-/* Purpose:   register handlers for given DDD_TYPE                          */
-/*                                                                          */
-/* Input:     typeId, handler_name, func_ptr, ... (last two repeated)      */
-/*            with: typeId: DDD_TYPE for which handlers will be registered */
-/*                  handler_name:  one of HANDLER_xxx                       */
-/*                  func_ptr:      pointer to function implementing handler */
-/*            the argument list must be finished with HANDLER_END.          */
-/*                                                                          */
-/* Output:    -                                                             */
-/*                                                                          */
-/****************************************************************************/
-
 static void InitHandlers (TYPE_DESC *desc)
 {
   /* set all handler functions to default (=none) */
@@ -1076,114 +1060,6 @@ static void InitHandlers (TYPE_DESC *desc)
 
 #define HDLR_NAME XFERCOPYMANIP
 #include "handler.ct"
-
-
-/**
-        Registration of handler functions.
-
-        {\em This function is supported for downward compatibility only.
-        (Use new DDD\_SetHandlerXXX-functions instead. Advantage: static type
-        checking for handler functions).}
-
-        This function registers a list of handlers for a certain DDD
-        object type. The list may contain each handler type {\tt HANDLER\_}
-        as listed in this manual. Usually, \funk{HandlerRegister} will be called
-        once after initialization of the corresponding \cod{DDD\_TYPE}.
-
-        It is possible to define certain sets of handler functions and switch them
-        at runtime; \eg, a set for load migration and another set for distributed
-        grid refinement can be defined. Before executing the actual task, the
-        handler set must be registered.
-
-        variable argumentlist...
-
-   @param typeId  DDD type of object for which the handlers will be registered.
- */
-void DDD_HandlerRegister (DDD_TYPE typeId, ...)
-{
-TYPE_DESC *desc = &(theTypeDefs[typeId]);
-int idx;
-va_list ap;
-
-OLDSTYLE("DDD_HandlerRegister() supported for downward compatibility only.");
-OLDSTYLE("  (Use new DDD_SetHandlerXXX-functions instead.");
-OLDSTYLE("   Advantage: static type checking for handler functions)");
-
-if (desc->mode != DDD_TYPE_DEFINED)
-{
-  DDD_PrintError('E', 2429,
-                 "undefined DDD_TYPE in DDD_HandlerRegister()");
-  HARD_EXIT;               /*return;*/
-}
-
-/* read argument list, fill object structure definition */
-va_start(ap, typeId);
-
-while ((idx = va_arg(ap, int)) != HANDLER_END)
-{
-  switch(idx)
-  {
-  case HANDLER_LDATACONSTRUCTOR :
-    desc->handlerLDATACONSTRUCTOR =
-      va_arg(ap, HandlerLDATACONSTRUCTOR);
-    break;
-  case HANDLER_DESTRUCTOR :
-    desc->handlerDESTRUCTOR =
-      va_arg(ap, HandlerDESTRUCTOR);
-    break;
-  case HANDLER_DELETE :
-    desc->handlerDELETE =
-      va_arg(ap, HandlerDELETE);
-    break;
-  case HANDLER_UPDATE :
-    desc->handlerUPDATE =
-      va_arg(ap, HandlerUPDATE);
-    break;
-  case HANDLER_OBJMKCONS :
-    desc->handlerOBJMKCONS =
-      va_arg(ap, HandlerOBJMKCONS);
-    break;
-  case HANDLER_SETPRIORITY :
-    desc->handlerSETPRIORITY =
-      va_arg(ap, HandlerSETPRIORITY);
-    break;
-  case HANDLER_XFERCOPY :
-    desc->handlerXFERCOPY =
-      va_arg(ap, HandlerXFERCOPY);
-    break;
-  case HANDLER_XFERDELETE :
-    desc->handlerXFERDELETE =
-      va_arg(ap, HandlerXFERDELETE);
-    break;
-  case HANDLER_XFERGATHER :
-    desc->handlerXFERGATHER =
-      va_arg(ap, HandlerXFERGATHER);
-    break;
-  case HANDLER_XFERSCATTER :
-    desc->handlerXFERSCATTER =
-      va_arg(ap, HandlerXFERSCATTER);
-    break;
-  case HANDLER_XFERGATHERX :
-    desc->handlerXFERGATHERX =
-      va_arg(ap, HandlerXFERGATHERX);
-    break;
-  case HANDLER_XFERSCATTERX :
-    desc->handlerXFERSCATTERX =
-      va_arg(ap, HandlerXFERSCATTERX);
-    break;
-  case HANDLER_XFERCOPYMANIP :
-    desc->handlerXFERCOPYMANIP =
-      va_arg(ap, HandlerXFERCOPYMANIP);
-    break;
-  default :
-    DDD_PrintError('E', 2430,
-                   "undefined HandlerId in DDD_HandlerRegister()");
-    HARD_EXIT;
-  }
-}
-
-va_end(ap);
-}
 
 
 /****************************************************************************/

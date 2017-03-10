@@ -90,7 +90,6 @@
 #include "np.h"
 #include "ugblas.h"
 #include "disctools.h"
-#include "npcheck.h"
 #include "udm.h"
 
 /* user interface module */
@@ -5012,7 +5011,7 @@ static INT CheckCommand (INT argc, char **argv)
 {
   MULTIGRID *theMG;
   GRID *theGrid;
-  INT checkgeom,checkalgebra,checklists,checkbvp,checknp;
+  INT checkgeom,checkalgebra,checklists,checkbvp;
         #ifdef ModelP
   INT checkif;
         #endif
@@ -5027,7 +5026,7 @@ static INT CheckCommand (INT argc, char **argv)
 
   /* set default options */
   checkgeom = true;
-  checkalgebra = checklists = checkbvp = checknp = false;
+  checkalgebra = checklists = checkbvp = false;
         #ifdef ModelP
   checkif = false;
         #endif
@@ -5037,7 +5036,7 @@ static INT CheckCommand (INT argc, char **argv)
     switch (argv[i][0])
     {
     case 'a' :
-      checkgeom = checkalgebra = checklists = checknp = true;
+      checkgeom = checkalgebra = checklists = true;
                                 #ifdef ModelP
       checkif = true;
                                 #endif
@@ -5065,19 +5064,13 @@ static INT CheckCommand (INT argc, char **argv)
       checkbvp = true;
       break;
 
-    case 'n' :
-      checknp = true;
-      break;
-
     case 'w' :
       ListAllCWsOfAllObjectTypes(UserWriteF);
       break;
 
     default :
-      if (!checknp) {
-        PrintErrorMessageF('E', "CheckCommand", "Unknown option '%s'", argv[i]);
-        return (PARAMERRORCODE);
-      }
+      PrintErrorMessageF('E', "CheckCommand", "Unknown option '%s'", argv[i]);
+      return (PARAMERRORCODE);
     }
   err = 0;
 
@@ -5101,10 +5094,6 @@ static INT CheckCommand (INT argc, char **argv)
     UserWrite("]\n");
   }
   UserWrite("\n");
-
-  if (checknp)
-    if (CheckNP(theMG,argc,argv))
-      err++;
 
   if (err)
     return (CMDERRORCODE);
@@ -5823,38 +5812,6 @@ static INT HomotopyCommand (INT argc, char **argv)
                 x,EVERY_CLASS,v,y)!=NUM_OK)
       return (CMDERRORCODE);
   }
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref interpolate. */
-static INT InterpolateCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  VECDATA_DESC *theVD;
-  INT lev,currlev;
-
-  NO_OPTION_CHECK(argc,argv);
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"interpolate","no current multigrid");
-    return(CMDERRORCODE);
-  }
-
-  theVD = ReadArgvVecDescX(theMG,"interpolate",argc,argv,NO);
-
-  if (theVD == NULL) {
-    PrintErrorMessage('E',"interpolate","could not read symbol");
-    return (PARAMERRORCODE);
-  }
-
-  currlev = CURRENTLEVEL(theMG);
-  for (lev=1; lev<=currlev; lev++)
-    if (StandardInterpolateNewVectors(GRID_ON_LEVEL(theMG,lev),theVD)!=NUM_OK)
-      return (CMDERRORCODE);
 
   return (OKCODE);
 }
@@ -7017,7 +6974,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("add",                        AddCommand                                              )==NULL) return (__LINE__);
   if (CreateCommand("sub",                        SubCommand                                              )==NULL) return (__LINE__);
   if (CreateCommand("homotopy",       HomotopyCommand                 )==NULL) return(__LINE__);
-  if (CreateCommand("interpolate",        InterpolateCommand                              )==NULL) return (__LINE__);
 
   /* miscellaneous commands */
   if (CreateCommand("resetCEstat",        ResetCEstatCommand                              )==NULL) return (__LINE__);

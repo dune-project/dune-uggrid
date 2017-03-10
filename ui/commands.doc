@@ -1300,7 +1300,7 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    and 'CheckInterfaces'. Default check is 'CheckGeometry'.
 
 \section Syntax
-   'check {$a | $g | $c | $l | $i | $w}* [$n]'
+   'check {$a | $g | $c | $l | $i | $w}*'
 
   <li> $a - all possible checks are done
   <li> $g - check the geometric part of data structures (default)
@@ -1308,7 +1308,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
   <li> $l - also check the lists of objects and counters of a grid
   <li> $i - also check interfaces (only parallel version)
   <li> $b - also check boundary value problems
-  <li> $n - also check the numerical part of data structures
   <li> $w - print a list of all control words of object types with control entries to stdout
    
  \section Keywords
@@ -1616,28 +1615,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 
    SEE ALSO:
    'cv', 'cm', 'copy', 'clear'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  interpolate interpolate - Interpolate a vector symbol to new vectors on the current level
-
- \section Description
-   The data descriptor is created if it does not exist yet.
-
-\section Syntax
-   'interpolate \<vec sym>'
-
-. \<vec~sym>  - vector symbol to be interpolated
-
- \section Example
-   'interpolate sol;'
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, interpolate, prolongate
-
-   SEE ALSO:
-   'clear', 'cv'
 */
 /****************************************************************************/
 
