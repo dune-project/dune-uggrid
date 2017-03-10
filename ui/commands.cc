@@ -5817,38 +5817,6 @@ static INT HomotopyCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref interpolate. */
-static INT InterpolateCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  VECDATA_DESC *theVD;
-  INT lev,currlev;
-
-  NO_OPTION_CHECK(argc,argv);
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"interpolate","no current multigrid");
-    return(CMDERRORCODE);
-  }
-
-  theVD = ReadArgvVecDescX(theMG,"interpolate",argc,argv,NO);
-
-  if (theVD == NULL) {
-    PrintErrorMessage('E',"interpolate","could not read symbol");
-    return (PARAMERRORCODE);
-  }
-
-  currlev = CURRENTLEVEL(theMG);
-  for (lev=1; lev<=currlev; lev++)
-    if (StandardInterpolateNewVectors(GRID_ON_LEVEL(theMG,lev),theVD)!=NUM_OK)
-      return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref reinit. */
 static INT ReInitCommand (INT argc, char **argv)
 {
@@ -7006,7 +6974,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("add",                        AddCommand                                              )==NULL) return (__LINE__);
   if (CreateCommand("sub",                        SubCommand                                              )==NULL) return (__LINE__);
   if (CreateCommand("homotopy",       HomotopyCommand                 )==NULL) return(__LINE__);
-  if (CreateCommand("interpolate",        InterpolateCommand                              )==NULL) return (__LINE__);
 
   /* miscellaneous commands */
   if (CreateCommand("resetCEstat",        ResetCEstatCommand                              )==NULL) return (__LINE__);

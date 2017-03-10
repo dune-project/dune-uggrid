@@ -1619,28 +1619,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  interpolate interpolate - Interpolate a vector symbol to new vectors on the current level
-
- \section Description
-   The data descriptor is created if it does not exist yet.
-
-\section Syntax
-   'interpolate \<vec sym>'
-
-. \<vec~sym>  - vector symbol to be interpolated
-
- \section Example
-   'interpolate sol;'
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, interpolate, prolongate
-
-   SEE ALSO:
-   'clear', 'cv'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  reinit reinit - Reinitialize a boundary value problem
 
  \section Description
