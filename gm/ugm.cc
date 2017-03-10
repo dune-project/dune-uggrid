@@ -4188,10 +4188,6 @@ static INT DisposeAMGLevel (MULTIGRID *theMG)
   assert((FIRSTELEMENT(theGrid)==NULL)&&(FIRSTVERTEX(theGrid)==NULL)
          &&(FIRSTNODE(theGrid)==NULL));
 
-  /* clear interpolation matrices from higher level!! */
-  if (DisposeIMatricesInGrid(fineGrid))
-    return(1);
-
   /* clear level */
   while (PFIRSTVECTOR(theGrid)!=NULL)
   {
@@ -8811,20 +8807,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
         UserWrite(buffer);
       }
     }
-  if (matrixopt < 0)
-    for (theMatrix = VISTART(theVector); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-    {
-      UserWrite("    DEST(MATRIX): ");
-      ListVector(theMG,MDEST(theMatrix),0,0,modifiers);
-
-      /* print matrix data if */
-      if (dataopt)
-      {
-        UserWriteF("  P = %8.6lf, ", MVALUE(theMatrix,0));
-        UserWriteF("  R = %8.6lf \n", MVALUE(theMatrix,1));
-      }
-    }
-  return;
 }
 
 /****************************************************************************/

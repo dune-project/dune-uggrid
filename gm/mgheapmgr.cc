@@ -98,7 +98,6 @@ INT NS_DIM_PREFIX DisposeBottomHeapTmpMemory (MULTIGRID *theMG)
 {
 
   if (DisposeAMGLevels(theMG)) REP_ERR_RETURN(1);
-  if (DisposeIMatricesInMultiGrid(theMG)) REP_ERR_RETURN(1);
   if (DisposeConnectionsFromMultiGrid(theMG)) REP_ERR_RETURN(1);
 
   theMG->bottomtmpmem = 0;
