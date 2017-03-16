@@ -5395,19 +5395,6 @@ static INT SetCurrentMultigridCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref updateDoc. */
-static INT UpdateDocumentCommand (INT argc, char **argv)
-{
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref makevdsub. */
 static INT MakeVDsubCommand (INT argc, char **argv)
 {
@@ -6583,9 +6570,6 @@ INT NS_DIM_PREFIX InitCommands ()
 #ifdef __THREEDIM__
   if (CreateCommand("fiflel",                     FindFlippedElementsCommand              )==NULL) return (__LINE__);
 #endif
-
-  /* commands for window and picture management */
-  if (CreateCommand("updateDoc",          UpdateDocumentCommand                   )==NULL) return (__LINE__);
 
   /* commands for problem management */
   if (CreateCommand("reinit",             ReInitCommand                                   )==NULL) return (__LINE__);

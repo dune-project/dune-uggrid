@@ -1441,22 +1441,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  updateDoc updateDoc - Reset the windows and pictures of the current multigrid to invalid
-
- \section Description
-   This command runs 'InvalidatePicturesOfMG' and 
-   'InvalidateUgWindowsOfMG'.
-   If the refresh state is on, the pictures will be replotted.
-
-\section Syntax
-   'updateDoc'
-   
- \section Keywords
-   graphics, plot, window, picture, plotobject, invalidate
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  makevdsub makevdsub - Make a sub descriptor for a vector descriptor
 
  \section Description
