@@ -214,8 +214,6 @@ INT dm0addBS(const BLOCKVECTOR*, INT, const MATDATA_DESC*);
 
 /* blas level 2 (matrix operations) */
 
-INT dmatclear      (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M);
-
 INT dmatset        (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M,
                     DOUBLE a);
 INT dmatcopy       (MULTIGRID *mg, INT fl, INT tl, INT mode,

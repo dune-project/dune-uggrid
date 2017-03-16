@@ -3259,25 +3259,6 @@ static INT UG_GlobalSumNDOUBLE_X (INT ncomp, DOUBLE *a)
 
 /****************************************************************************/
 /** \brief
-   dmatclear - Initialize a matrix with zero.
-
-   SYNOPSIS:
-   INT dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M);
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M)
-{
-  if (MG_Matrix_Loop (mg, fl, tl,
-                      ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_M<<BLAS_LOOP_SHIFT) |
-                        (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_M_CLEAR<<BLAS_OP_SHIFT) ),
-                      M, NULL, NULL, NULL, 0, NULL, NULL)
-      < 0) REP_ERR_RETURN (-1);
-  return 0;
-}
-
-/****************************************************************************/
-/** \brief
    dmatset - initialize a matrix with a given value
 
    SYNOPSIS:
