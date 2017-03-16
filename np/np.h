@@ -135,11 +135,7 @@ typedef INT (*SetFuncProcPtr)(const DOUBLE_VECTOR, INT, DOUBLE *);
 /****************************************************************************/
 
 #ifdef ModelP
-INT l_vector_consistent (GRID *g, const VECDATA_DESC *x);
-INT a_vector_consistent (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x);
 int DDD_InfoPrioCopies (DDD_HDR hdr);
-INT l_vector_consistent_noskip (GRID *g, const VECDATA_DESC *x);
-INT a_vector_consistent_noskip (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x);
 INT l_vector_minimum_noskip (GRID *g, const VECDATA_DESC *x);
 INT l_vector_maximum_noskip (GRID *g, const VECDATA_DESC *x);
 #endif
