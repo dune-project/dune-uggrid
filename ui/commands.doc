@@ -1457,29 +1457,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  clear clear - Assign a value to a symbolic vector
-
- \section Description
-   This function sets the values of a grid function specified by a vec data descriptor.
-   The data descriptor is created if it does not exist yet.
-   It clears or assigns a constant value.
-
-\section Syntax
-   'clear \<symbol name> [$a] [$u] [$v \<value>] [$x] [$y] [$z]'
-
-  <li> $a         - from level 0 through current level (default: current level only)
-  <li> $s         - do not change skip (Dirichlet) values
-  <li> $v~\<value> - assign this value (instead of 0.0)
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, clear, set
-
-   SEE ALSO:
-   'cv', 'cm', 'copy'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  makevdsub makevdsub - Make a sub descriptor for a vector descriptor
 
  \section Description
