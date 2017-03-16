@@ -220,8 +220,6 @@ INT dmatmul_add    (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
                     const MATDATA_DESC *M, const VECDATA_DESC *y);
 INT dmatmul_minus  (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const MATDATA_DESC *M, const VECDATA_DESC *y);
-INT dmatscale      (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M,
-                    DOUBLE a);
 INT dm0add         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const MATDATA_DESC *A);
 
@@ -331,7 +329,6 @@ INT ddotBS                      (const BLOCKVECTOR *bv, INT xc, INT yc,   DOUBLE
 INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 
 /* blas level 2 (matrix (BLOCKVECTOR) operations) on one gridlevel */
-INT dmatscaleBS         (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
 INT dmatmulBS           (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
 INT dmatmul_addBS       (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
 INT dmatmul_minusBS     (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);

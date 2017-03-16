@@ -3257,37 +3257,6 @@ static INT UG_GlobalSumNDOUBLE_X (INT ncomp, DOUBLE *a)
 /****************************************************************************/
 
 
-#define T_FUNCNAME     NS_DIM_PREFIX dmatscale
-#define T_ARGS         ,const MATDATA_DESC *M,DOUBLE a
-#define T_PR_DBG                (" M=%s a=%e",ENVITEM_NAME(M),(double)a)
-#define T_ARGS_BV      ,INT mc,DOUBLE a
-#define T_MOD_SCAL     MVALUE(mat,mc)*=a;
-#define T_PREP_SWITCH  INT mcomp;
-#define T_MOD_11       MVALUE(mat,m00)*=a;
-#define T_MOD_12       MVALUE(mat,m00)*=a; MVALUE(mat,m01)*=a;
-#define T_MOD_13       MVALUE(mat,m00)*=a; MVALUE(mat,m01)*=a; MVALUE(mat,m02)*=a;
-#define T_MOD_21       MVALUE(mat,m00)*=a;                                      \
-  MVALUE(mat,m10)*=a;
-#define T_MOD_22       MVALUE(mat,m00)*=a; MVALUE(mat,m01)*=a;                   \
-  MVALUE(mat,m10)*=a; MVALUE(mat,m11)*=a;
-#define T_MOD_23       MVALUE(mat,m00)*=a; MVALUE(mat,m01)*=a; MVALUE(mat,m02)*=a;\
-  MVALUE(mat,m10)*=a; MVALUE(mat,m11)*=a; MVALUE(mat,m12)*=a;
-#define T_MOD_31       MVALUE(mat,m00)*=a;                                      \
-  MVALUE(mat,m10)*=a;                                      \
-  MVALUE(mat,m20)*=a;
-#define T_MOD_32       MVALUE(mat,m00)*=a; MVALUE(mat,m01)*=a;                   \
-  MVALUE(mat,m10)*=a; MVALUE(mat,m11)*=a;                   \
-  MVALUE(mat,m20)*=a; MVALUE(mat,m21)*=a;
-#define T_MOD_33       MVALUE(mat,m00)*=a; MVALUE(mat,m01)*=a; MVALUE(mat,m02)*=a;\
-  MVALUE(mat,m10)*=a; MVALUE(mat,m11)*=a; MVALUE(mat,m12)*=a;\
-  MVALUE(mat,m20)*=a; MVALUE(mat,m21)*=a; MVALUE(mat,m22)*=a;
-#define T_PREP_N       mcomp = nr * nc;
-#define T_MOD_N        for (i=0; i<mcomp; i++)                                 \
-    MVALUE(mat,MD_MCMP_OF_RT_CT(M,rtype,ctype,i)) *= a;
-
-#include "matfunc.ct"
-
-
 /****************************************************************************/
 /** \brief
    dmatmul - matrix vector product
