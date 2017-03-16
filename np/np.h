@@ -174,12 +174,6 @@ INT l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_DESC_FORMAT *bv
 
 INT dset           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     DOUBLE a);
-INT ddot           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VECDATA_DESC *y, DOUBLE *a);
-INT ddotx          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VECDATA_DESC *y, VEC_SCALAR a);
-INT ddotx_range    (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VECDATA_DESC *y, DOUBLE *ll, DOUBLE *ur, VEC_SCALAR a);
 INT dnrm2          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     DOUBLE *a);
 INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
@@ -192,10 +186,6 @@ INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
 #define a_dset(mg,fl,tl,x,xclass,a)        dset(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_dset(mg,fl,tl,x,a)               dset(mg,fl,tl,ON_SURFACE,x,a)
 
-#define l_ddot(g,x,xclass,y,a)             ddotx(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,y,a)
-#define a_ddot(mg,fl,tl,x,xclass,y,a)      ddotx(mg,fl,tl,ALL_VECTORS,x,y,a)
-#define s_ddot(mg,fl,tl,x,y,a)             ddotx(mg,fl,tl,ON_SURFACE,x,y,a)
-
 #define l_eunorm(g,x,xclass,a)             dnrm2x(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,a)
 #define a_eunorm(mg,fl,tl,x,xclass,a)      dnrm2x(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_eunorm(mg,fl,tl,x,a)             dnrm2x(mg,fl,tl,ON_SURFACE,x,a)
@@ -205,10 +195,6 @@ INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
    INT l_dset                      (GRID *g,                                               const VECDATA_DESC *x, INT xclass, DOUBLE a);
    INT a_dset                      (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, DOUBLE a);
    INT s_dset                      (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     DOUBLE a);
-
-   INT l_ddot                      (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *sp);
-   INT a_ddot                      (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *sp);
-   INT s_ddot                      (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const VECDATA_DESC *y, DOUBLE *sp);
 
    INT l_eunorm            (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, DOUBLE *eu);
    INT a_eunorm            (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, DOUBLE *eu);
@@ -230,7 +216,6 @@ INT l_mean                      (const GRID *g, const VECDATA_DESC *x, enum Vect
 
 /* blas level 1 (BLOCKVECTOR operations) on one gridlevel */
 INT dsetBS                      (const BLOCKVECTOR *bv, INT xc, DOUBLE a);
-INT ddotBS                      (const BLOCKVECTOR *bv, INT xc, INT yc,   DOUBLE *a);
 INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 
 /* iterative methods */
