@@ -280,9 +280,6 @@ INT s_dsetnonskip       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, D
 
 INT l_dsetskip          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
 
-INT l_dsetrandom        (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
-INT l_dsetrandom2       (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE from, DOUBLE to, INT skip);
-
 INT l_dsetfunc          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, SetFuncProcPtr SetFunc);
 
 INT l_mean                      (const GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE *sp);
