@@ -750,48 +750,6 @@ INT NS_DIM_PREFIX l_ghostvector_consistent (GRID *g, const VECDATA_DESC *x)
   return (NUM_OK);
 }
 
-/****************************************************************************/
-/** \brief Makes horizontal ghosts consistent
-
- * @param mg - pointer to multigrid
- * @param fl - from level
- * @param tl - from level
- * @param x - vector data descriptor
-
-
-   This function copies the vector values on the master vectors to the
-   horizontal ghosts.
-
-   \return <ul>
-   .n    NUM_OK      if ok
-   .n    NUM_ERROR   if error occurrs
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX a_outervector_consistent (MULTIGRID *mg, INT fl, INT tl,
-                                            const VECDATA_DESC *x)
-{
-  INT tp,m,level;
-
-  ConsVector = (VECDATA_DESC *)x;
-
-  m = 0;
-  for (tp=0; tp<NVECTYPES; tp++)
-    m = MAX(m,VD_NCMPS_IN_TYPE(ConsVector,tp));
-
-  if ((fl==BOTTOMLEVEL(mg)) && (tl==TOPLEVEL(mg)))
-    DDD_IFOneway(OuterVectorIF, IF_FORWARD, m * sizeof(DOUBLE),
-                 Gather_VectorComp, Scatter_GhostVectorComp);
-  else
-    for (level=fl; level<=tl; level++)
-      DDD_IFAOneway(OuterVectorIF,
-                    GRID_ATTR(GRID_ON_LEVEL(mg,level)), IF_FORWARD,
-                    m * sizeof(DOUBLE),
-                    Gather_VectorComp, Scatter_GhostVectorComp);
-
-  return (NUM_OK);
-}
-
 int NS_DIM_PREFIX DDD_InfoPrioCopies (DDD_HDR hdr)
 {
   INT i,n;
