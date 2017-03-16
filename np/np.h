@@ -214,8 +214,6 @@ INT dm0addBS(const BLOCKVECTOR*, INT, const MATDATA_DESC*);
 
 /* blas level 2 (matrix operations) */
 
-INT dmatset        (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M,
-                    DOUBLE a);
 INT dmatcopy       (MULTIGRID *mg, INT fl, INT tl, INT mode,
                     const MATDATA_DESC *M, const MATDATA_DESC *N);
 INT dmatadd        (MULTIGRID *mg, INT fl, INT tl, INT mode,
@@ -263,9 +261,6 @@ INT dmataddunit    (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC 
 #define a_eunorm(mg,fl,tl,x,xclass,a)      dnrm2x(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_eunorm(mg,fl,tl,x,a)             dnrm2x(mg,fl,tl,ON_SURFACE,x,a)
 
-#define l_dmatset(g,M,a)                   dmatset(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,M,a)
-#define s_dmatset(mg,fl,tl,M,a)            dmatset(mg,fl,tl,ON_SURFACE,M,a)
-
 #define l_dmatcopy(g,M,N)                  dmatcopy(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,M,N)
 #define s_dmatcopy(mg,fl,tl,M,N)           dmatcopy(mg,fl,tl,ON_SURFACE,M,N)
 
@@ -310,9 +305,6 @@ INT dmataddunit    (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC 
    INT l_ddot_sv           (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *weight, DOUBLE *sv);
    INT s_ddot_sv           (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const VECDATA_DESC *y, DOUBLE *weight, DOUBLE *sv);
 
-   INT l_dmatset           (GRID *g,                                               const MATDATA_DESC *M, DOUBLE a);
-   INT s_dmatset           (MULTIGRID *mg, INT fl, INT tl, const MATDATA_DESC *M, DOUBLE a);
-
    INT l_dmatcopy          (GRID *g,                                               const MATDATA_DESC *M1, const MATDATA_DESC *M2);
    INT s_dmatcopy          (MULTIGRID *mg, INT fl, INT tl, const MATDATA_DESC *M1, const MATDATA_DESC *M2);
 
@@ -356,7 +348,6 @@ INT ddotBS                      (const BLOCKVECTOR *bv, INT xc, INT yc,   DOUBLE
 INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 
 /* blas level 2 (matrix (BLOCKVECTOR) operations) on one gridlevel */
-INT dmatsetBS           (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
 INT dmatscaleBS         (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
 INT dmataddunitBS       (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
 INT dmatcopyBS          (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, INT nc);
@@ -382,7 +373,6 @@ INT s_dtpmatmul_set     (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,  
 INT l_dtpmatmul         (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
 
 /* blas level 2 (matrix (Simple BLOCKVECTOR) operations) on one gridlevel */
-INT l_dmatset_SB        (BLOCKVECTOR *dest, BLOCKVECTOR *source,const MATDATA_DESC *M, DOUBLE a);
 INT l_dmatmul_set_SB(BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
 INT l_dtpmatmul_set_SB(BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
 INT l_dmatmul_SB        (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
