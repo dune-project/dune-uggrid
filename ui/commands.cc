@@ -5434,13 +5434,6 @@ static INT ClearCommand (INT argc, char **argv)
       ClearVecskipFlags(GRID_ON_LEVEL(theMG,i),theVD);
     return (OKCODE);
   }
-  if (ReadArgvOption("r",argc,argv)) {
-    i = CURRENTLEVEL(theMG);
-    l_dsetrandom(GRID_ON_LEVEL(theMG,i),theVD,EVERY_CLASS,1.0);
-    if (ReadArgvOption("d",argc,argv))
-      ClearDirichletValues(GRID_ON_LEVEL(theMG,i),theVD);
-    return (OKCODE);
-  }
   /* check options */
   fl = tl = CURRENTLEVEL(theMG);
   skip = false;
