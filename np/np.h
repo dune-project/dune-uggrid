@@ -210,7 +210,6 @@ INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
 
 INT dpdotBS        (const BLOCKVECTOR*, INT, INT);
 INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
-INT dm0addBS(const BLOCKVECTOR*, INT, const MATDATA_DESC*);
 
 /* blas level 2 (matrix operations) */
 
@@ -220,8 +219,6 @@ INT dmatmul_add    (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
                     const MATDATA_DESC *M, const VECDATA_DESC *y);
 INT dmatmul_minus  (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const MATDATA_DESC *M, const VECDATA_DESC *y);
-INT dm0add         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const MATDATA_DESC *A);
 
 /* for compatibility only */
 
