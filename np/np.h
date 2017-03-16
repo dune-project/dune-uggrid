@@ -169,8 +169,6 @@ INT l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_DESC_FORMAT *bv
 #define ON_SURFACE      -1      /* class on surface                                     */
 #define ALL_VECTORS      0      /* all vectors                                          */
 
-INT l_dsetfunc          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, SetFuncProcPtr SetFunc);
-
 INT l_mean                      (const GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE *sp);
 
 /* iterative methods */
