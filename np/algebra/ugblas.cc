@@ -2302,23 +2302,6 @@ INT NS_DIM_PREFIX l_matrix_consistent (GRID *g, const MATDATA_DESC *M, INT mode)
 
 #include "vecfunc.ct"
 
-#define T_FUNCNAME      NS_DIM_PREFIX dpdot
-#define T_ARGS          ,const VECDATA_DESC *y
-#define T_PR_DBG                (" y=%s",ENVITEM_NAME(y))
-#define T_PR_IN                 {PRINTVEC(x); PRINTVEC(y)}
-#define T_PR_OUT                PRINTVEC(x)
-#define T_ARGS_BV       ,INT yc
-#define T_USE_Y
-#define T_MOD_SCAL      VVALUE(v,xc) *= VVALUE(v,yc);
-#define T_MOD_VECTOR_1  VVALUE(v,cx0) *= VVALUE(v,cy0);
-#define T_MOD_VECTOR_2  VVALUE(v,cx1) *= VVALUE(v,cy1);
-#define T_MOD_VECTOR_3  VVALUE(v,cx2) *= VVALUE(v,cy2);
-#define T_MOD_VECTOR_N  for (i=0; i<ncomp; i++)                                 \
-    VVALUE(v,VD_CMP_OF_TYPE(x,vtype,i))*=              \
-      VVALUE(v,VD_CMP_OF_TYPE(y,vtype,i));
-
-#include "vecfunc.ct"
-
 #define T_FUNCNAME      NS_DIM_PREFIX dm0dot
 #define T_ARGS          ,const VECDATA_DESC *y
 #define T_PR_DBG        (" y=%s",ENVITEM_NAME(y))
