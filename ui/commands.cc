@@ -5395,40 +5395,6 @@ static INT SetCurrentMultigridCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref makevdsub. */
-static INT MakeVDsubCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  VECDATA_DESC *theVD,*subVD;
-  VEC_TEMPLATE *vt;
-  INT sub;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"makevdsub","no current multigrid");
-    return(CMDERRORCODE);
-  }
-
-  theVD = ReadArgvVecDescX(theMG,"makevdsub",argc,argv,NO);
-
-  if (theVD == NULL) {
-    PrintErrorMessage('E',"makevdsub","could not read data descriptor");
-    return (PARAMERRORCODE);
-  }
-  vt = ReadArgvVecTemplateSub(MGFORMAT(theMG),"sub",argc,argv,&sub);
-  if (vt==NULL)
-    REP_ERR_RETURN(PARAMERRORCODE);
-
-  if (VDsubDescFromVT(theVD,vt,sub,&subVD))
-    REP_ERR_RETURN(CMDERRORCODE);
-
-  UserWriteF("sub descriptor '%s' for '%s' created\n",ENVITEM_NAME(subVD),ENVITEM_NAME(theVD));
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref reinit. */
 static INT ReInitCommand (INT argc, char **argv)
 {
@@ -6573,9 +6539,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* commands for problem management */
   if (CreateCommand("reinit",             ReInitCommand                                   )==NULL) return (__LINE__);
-
-  /* vectors and matrices */
-  if (CreateCommand("makevdsub",      MakeVDsubCommand                )==NULL) return (__LINE__);
 
   /* miscellaneous commands */
   if (CreateCommand("resetCEstat",        ResetCEstatCommand                              )==NULL) return (__LINE__);

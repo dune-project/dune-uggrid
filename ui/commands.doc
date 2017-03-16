@@ -1441,23 +1441,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  makevdsub makevdsub - Make a sub descriptor for a vector descriptor
-
- \section Description
-   This function makes a sub descriptor for a vector descriptor.
-
-\section Syntax
-   'makevdsub \<vd> $sub \<vt> \<sub>'
-
-  <li> \<vd>				- existing descriptor
-  <li> $sub~\<vt>~\<sub>	- template and name of sub of this template
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, descriptor
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  reinit reinit - Reinitialize a boundary value problem
 
  \section Description
