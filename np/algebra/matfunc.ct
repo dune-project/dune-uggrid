@@ -44,9 +44,6 @@
 
 INT T_FUNCNAME (MULTIGRID *mg, INT fl, INT tl, INT mode T_ARGS)
 {
-#ifdef _SPARSE_
-	T_SPARSE_CALL
-#else
 	VECTOR *v;
 	MATRIX *mat;
 	INT lev,rtype,ctype,nr,nc,i;
@@ -94,7 +91,6 @@ INT T_FUNCNAME (MULTIGRID *mg, INT fl, INT tl, INT mode T_ARGS)
 	#ifdef T_POST
 	T_POST;
     #endif
-#endif
 
 	return(NUM_OK);
 }
