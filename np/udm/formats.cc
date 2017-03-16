@@ -799,7 +799,6 @@ INT NS_DIM_PREFIX VDmatchesVT (const VECDATA_DESC *vd, const VEC_TEMPLATE *vt)
 
 INT NS_DIM_PREFIX VDsubDescFromVT (const VECDATA_DESC *vd, const VEC_TEMPLATE *vt, INT sub, VECDATA_DESC **subvd)
 {
-  FORMAT *fmt;
   SUBVEC *subv;
   SHORT SubComp[MAX_VEC_COMP];
   const SHORT *offset,*Comp;
@@ -823,8 +822,6 @@ INT NS_DIM_PREFIX VDsubDescFromVT (const VECDATA_DESC *vd, const VEC_TEMPLATE *v
       REP_ERR_RETURN(1);
     return(0);
   }
-
-  fmt = MGFORMAT(VD_MG(vd));
 
   offset = VD_OFFSETPTR(vd);
   Comp = VM_COMPPTR(vd);
@@ -881,7 +878,6 @@ INT NS_DIM_PREFIX VDsubDescFromVT (const VECDATA_DESC *vd, const VEC_TEMPLATE *v
 
 INT NS_DIM_PREFIX VDsubDescFromVS (const VECDATA_DESC *vd, const SUBVEC *subv, VECDATA_DESC **subvd)
 {
-  FORMAT *fmt;
   SHORT SubComp[MAX_VEC_COMP];
   const SHORT *offset,*Comp;
   INT i,k,l,type,nc,nn,cmp;
@@ -897,8 +893,6 @@ INT NS_DIM_PREFIX VDsubDescFromVS (const VECDATA_DESC *vd, const SUBVEC *subv, V
       REP_ERR_RETURN(1);
     return(0);
   }
-
-  fmt = MGFORMAT(VD_MG(vd));
 
   offset = VD_OFFSETPTR(vd);
   Comp = VM_COMPPTR(vd);
@@ -1084,7 +1078,6 @@ static INT MTmatchesVTxVT (const MAT_TEMPLATE *mt, const VEC_TEMPLATE *rvt, cons
 
 INT NS_DIM_PREFIX MDsubDescFromMT (const MATDATA_DESC *md, const MAT_TEMPLATE *mt, INT sub, MATDATA_DESC **submd)
 {
-  FORMAT *fmt;
   SUBMAT *subm;
   SHORT *CmpsInType[NMATTYPES],SubComp[MAX_MAT_COMP];
   INT i,k,l,type,nc,nn,cmp;
@@ -1107,7 +1100,6 @@ INT NS_DIM_PREFIX MDsubDescFromMT (const MATDATA_DESC *md, const MAT_TEMPLATE *m
       REP_ERR_RETURN(1);
     return(0);
   }
-  fmt = MGFORMAT(MD_MG(md));
 
   /* compute sub components */
   k = 0;
@@ -1158,7 +1150,6 @@ INT NS_DIM_PREFIX MDsubDescFromMT (const MATDATA_DESC *md, const MAT_TEMPLATE *m
 
 INT NS_DIM_PREFIX MDsubDescFromVT (const MATDATA_DESC *md, const VEC_TEMPLATE *vt, INT sub, MATDATA_DESC **submd)
 {
-  FORMAT *fmt;
   SUBVEC *subv;
   SHORT SubComp[MAX_MAT_COMP];
   SHORT RComp[NMATTYPES];
@@ -1168,8 +1159,6 @@ INT NS_DIM_PREFIX MDsubDescFromVT (const MATDATA_DESC *md, const VEC_TEMPLATE *v
 
   PrintErrorMessageF('E',"MDsubDescFromVT","not yet implemented");
   REP_ERR_RETURN (1);
-
-  fmt    = MGFORMAT(MD_MG(md));
 
   ASSERT(sub<VT_NSUB(vt));
 
@@ -1254,7 +1243,6 @@ INT NS_DIM_PREFIX MDsubDescFromVTxVT (const MATDATA_DESC *md, const VEC_TEMPLATE
                                       const VEC_TEMPLATE *cvt, INT csub,
                                       MATDATA_DESC **submd)
 {
-  FORMAT *fmt;
   const VEC_TEMPLATE *vt;
   SUBVEC *rsubv,*csubv,*subv;
   SHORT SubComp[MAX_MAT_COMP];
@@ -1266,8 +1254,6 @@ INT NS_DIM_PREFIX MDsubDescFromVTxVT (const MATDATA_DESC *md, const VEC_TEMPLATE
 
   PrintErrorMessageF('E',"MDsubDescFromVTxVT","not yet implemented");
   return (1);
-
-  fmt    = MGFORMAT(MD_MG(md));
 
   if (!MDmatchesVTxVT(md,rvt,cvt))
     REP_ERR_RETURN(1);

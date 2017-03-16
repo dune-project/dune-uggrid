@@ -5434,13 +5434,6 @@ static INT ClearCommand (INT argc, char **argv)
       ClearVecskipFlags(GRID_ON_LEVEL(theMG,i),theVD);
     return (OKCODE);
   }
-  if (ReadArgvOption("r",argc,argv)) {
-    i = CURRENTLEVEL(theMG);
-    l_dsetrandom(GRID_ON_LEVEL(theMG,i),theVD,EVERY_CLASS,1.0);
-    if (ReadArgvOption("d",argc,argv))
-      ClearDirichletValues(GRID_ON_LEVEL(theMG,i),theVD);
-    return (OKCODE);
-  }
   /* check options */
   fl = tl = CURRENTLEVEL(theMG);
   skip = false;
@@ -5557,77 +5550,6 @@ static INT MakeVDsubCommand (INT argc, char **argv)
     REP_ERR_RETURN(CMDERRORCODE);
 
   UserWriteF("sub descriptor '%s' for '%s' created\n",ENVITEM_NAME(subVD),ENVITEM_NAME(theVD));
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref rand. */
-static INT RandCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  GRID *g;
-  VECDATA_DESC *theVD;
-  INT i,fl,tl,skip;
-  double from_value,to_value;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"rand","no current multigrid");
-    return(CMDERRORCODE);
-  }
-
-  /* check options */
-  fl = tl = CURRENTLEVEL(theMG);
-  skip = 0;
-  from_value = 0.0;
-  to_value = 1.0;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'a' :
-      fl = 0;
-      break;
-
-    case 's' :
-      skip = 1;
-      break;
-
-    case 'f' :
-      if (sscanf(argv[i],"f %lf",&from_value)!=1)
-      {
-        PrintErrorMessage('E',"rand","could not read from value");
-        return(CMDERRORCODE);
-      }
-      break;
-
-    case 't' :
-      if (sscanf(argv[i],"t %lf",&to_value)!=1)
-      {
-        PrintErrorMessage('E',"rand","could not read to value");
-        return(CMDERRORCODE);
-      }
-      break;
-
-    default :
-      PrintErrorMessageF('E', "RandCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  theVD = ReadArgvVecDesc(theMG,"rand",argc,argv);
-
-  if (theVD == NULL)
-  {
-    PrintErrorMessage('E',"rand","could not read data descriptor");
-    return (PARAMERRORCODE);
-  }
-
-  for (i=fl; i<=tl; i++)
-  {
-    g = GRID_ON_LEVEL(theMG,i);
-    if (l_dsetrandom2(g,theVD,EVERY_CLASS,(DOUBLE)from_value,(DOUBLE)to_value,skip)) return (CMDERRORCODE);
-  }
 
   return (OKCODE);
 }
@@ -6965,7 +6887,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("clear",                      ClearCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("makevdsub",      MakeVDsubCommand                )==NULL) return (__LINE__);
 
-  if (CreateCommand("rand",                       RandCommand                                             )==NULL) return (__LINE__);
   if (CreateCommand("copy",                       CopyCommand                                             )==NULL) return (__LINE__);
   if (CreateCommand("add",                        AddCommand                                              )==NULL) return (__LINE__);
   if (CreateCommand("sub",                        SubCommand                                              )==NULL) return (__LINE__);

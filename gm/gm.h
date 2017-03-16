@@ -1648,9 +1648,6 @@ struct multigrid {
 
   /* pointers */
   /** \brief pointers to the grids                                */
-  struct grid *amggrids[MAXLEVEL];
-
-  /** \brief pointers to the grids                                */
   struct grid *grids[MAXLEVEL];
 
   /* NodeElementPointerArray used for an O(n) InsertElement               */

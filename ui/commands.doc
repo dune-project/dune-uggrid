@@ -1497,29 +1497,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  rand rand - Assign a value to a symbolic vector
-
- \section Description
-   This function sets the random values of a grid function specified by a vec data descriptor.
-   The data descriptor is created if it does not exist yet.
-
-\section Syntax
-   'rand \<symbol name> [$a] [$s] [$f \<value>] [$t \<value>]'
-
-  <li> $a         - from level 0 through current level (default: current level only)
-  <li> $s         - set skip (Dirichlet) values to zero, default is no skip
-  <li> $f~\<value> - low bound of random range, default is 0
-  <li> $t~\<value> - upper bound of random range, default is 1
-   
- \section Keywords
-   multigrid, numerics, userdata, vecdata, clear, set
-
-   SEE ALSO:
-   'cv', 'cm', 'copy'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  copy copy - Copy from one vector symbol to another one
 
  \section Description

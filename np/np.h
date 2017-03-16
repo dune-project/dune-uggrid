@@ -210,30 +210,6 @@ INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
 
 INT dpdotBS        (const BLOCKVECTOR*, INT, INT);
 INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
-INT dm0addBS(const BLOCKVECTOR*, INT, const MATDATA_DESC*);
-
-/* blas level 2 (matrix operations) */
-
-INT dmatclear      (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M);
-
-INT dmatset        (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M,
-                    DOUBLE a);
-INT dmatcopy       (MULTIGRID *mg, INT fl, INT tl, INT mode,
-                    const MATDATA_DESC *M, const MATDATA_DESC *N);
-INT dmatadd        (MULTIGRID *mg, INT fl, INT tl, INT mode,
-                    const MATDATA_DESC *M, const MATDATA_DESC *N);
-INT dmatmul        (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const MATDATA_DESC *M, const VECDATA_DESC *y);
-INT dmatmul_add    (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const MATDATA_DESC *M, const VECDATA_DESC *y);
-INT dmatmul_minus  (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const MATDATA_DESC *M, const VECDATA_DESC *y);
-INT dmatscale      (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M,
-                    DOUBLE a);
-INT dm0add         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const MATDATA_DESC *A);
-INT dmataddunit    (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC *M,
-                    DOUBLE a);
 
 /* for compatibility only */
 
@@ -265,24 +241,6 @@ INT dmataddunit    (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC 
 #define a_eunorm(mg,fl,tl,x,xclass,a)      dnrm2x(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_eunorm(mg,fl,tl,x,a)             dnrm2x(mg,fl,tl,ON_SURFACE,x,a)
 
-#define l_dmatset(g,M,a)                   dmatset(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,M,a)
-#define s_dmatset(mg,fl,tl,M,a)            dmatset(mg,fl,tl,ON_SURFACE,M,a)
-
-#define l_dmatcopy(g,M,N)                  dmatcopy(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,M,N)
-#define s_dmatcopy(mg,fl,tl,M,N)           dmatcopy(mg,fl,tl,ON_SURFACE,M,N)
-
-#define l_dmatadd(g,M,N)                   dmatadd(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,M,N)
-#define s_dmatadd(mg,fl,tl,M,N)            dmatadd(mg,fl,tl,ON_SURFACE,M,N)
-
-#define l_dmatmul_set(g,x,xc,M,y,yc)       dmatmul(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,M,y)
-#define s_dmatmul_set(mg,fl,tl,x,M,y,yc)   dmatmul(mg,fl,tl,ON_SURFACE,x,M,y)
-
-#define l_dmatmul(g,x,xc,M,y,yc)           dmatmul_add(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,M,y)
-#define s_dmatmul(mg,fl,tl,x,M,y,yc)       dmatmul_add(mg,fl,tl,ON_SURFACE,x,M,y)
-
-#define l_dmatmul_minus(g,x,xc,M,y,yc)     dmatmul_minus(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,M,y)
-#define s_dmatmul_minus(mg,fl,tl,x,M,y,yc) dmatmul_minus(mg,fl,tl,ON_SURFACE,x,M,y)
-
 /** \todo old style -- Should we throw it out? **********************
 
    INT l_dset                      (GRID *g,                                               const VECDATA_DESC *x, INT xclass, DOUBLE a);
@@ -312,23 +270,6 @@ INT dmataddunit    (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC 
    INT l_ddot_sv           (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *weight, DOUBLE *sv);
    INT s_ddot_sv           (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const VECDATA_DESC *y, DOUBLE *weight, DOUBLE *sv);
 
-   INT l_dmatset           (GRID *g,                                               const MATDATA_DESC *M, DOUBLE a);
-   INT s_dmatset           (MULTIGRID *mg, INT fl, INT tl, const MATDATA_DESC *M, DOUBLE a);
-
-   INT l_dmatcopy          (GRID *g,                                               const MATDATA_DESC *M1, const MATDATA_DESC *M2);
-   INT s_dmatcopy          (MULTIGRID *mg, INT fl, INT tl, const MATDATA_DESC *M1, const MATDATA_DESC *M2);
-
-   INT l_dmatadd           (GRID *g, const MATDATA_DESC *M1, const MATDATA_DESC *M2);
-
-   INT l_dmatmul           (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-   INT s_dmatmul           (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-
-   INT l_dmatmul_set       (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-   INT s_dmatmul_set       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-
-   INT l_dmatmul_minus     (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-   INT s_dmatmul_minus     (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-
  **************************** old style */
 
 
@@ -338,9 +279,6 @@ INT a_dsetnonskip       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, e
 INT s_dsetnonskip       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, DOUBLE a);
 
 INT l_dsetskip          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
-
-INT l_dsetrandom        (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
-INT l_dsetrandom2       (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE from, DOUBLE to, INT skip);
 
 INT l_dsetfunc          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, SetFuncProcPtr SetFunc);
 
@@ -357,86 +295,13 @@ INT daxpyBS             (const BLOCKVECTOR *bv, INT xc, DOUBLE a, INT yc);
 INT ddotBS                      (const BLOCKVECTOR *bv, INT xc, INT yc,   DOUBLE *a);
 INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 
-/* blas level 2 (matrix (BLOCKVECTOR) operations) on one gridlevel */
-INT dmatsetBS           (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
-INT dmatscaleBS         (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
-INT dmataddunitBS       (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
-INT dmatcopyBS          (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, INT nc);
-INT dmataddBS           (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, INT nc);
-INT dmatmulBS           (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
-INT dmatmul_addBS       (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
-INT dmatmul_minusBS     (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
-
-INT d2matmulBS          (const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_col1, const BV_DESC *bvd_col2, const BV_DESC_FORMAT *bvdf, INT M_res_comp, INT M1comp, INT M2comp, GRID *grid );
-INT d2matmul_minusBS(const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_col1, const BV_DESC *bvd_col2, const BV_DESC_FORMAT *bvdf, INT M_res_comp, INT M1comp, INT M2comp, GRID *grid );
-INT d3matmulBS          (const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_col1, const BV_DESC *bvd_col2, const BV_DESC *bvd_col3, const BV_DESC_FORMAT *bvdf, INT M_res_comp, INT M1comp, INT M2comp, INT M3comp, GRID *grid );
-DOUBLE CalculateDefectAndNormBS( const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT d_comp, INT f_comp, INT K_comp, INT u_comp );
-
 /* blas level 1 (Simple BLOCKVECTOR operations) on one gridlevel */
 INT l_dcopy_SB          (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClass xclass, const VECDATA_DESC *y);
 INT l_dscale_SB         (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a);
 INT l_daxpy_SB          (BLOCKVECTOR *theBV, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a, const VECDATA_DESC *y);
 
-/* blas level 2 (matrix (vector) operations) */
-INT l_dmattranspose (GRID *g,                                           const MATDATA_DESC *M1, const MATDATA_DESC *M2);
-INT s_dtpmatmul_set     (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-
-INT l_dtpmatmul         (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-
-/* blas level 2 (matrix (Simple BLOCKVECTOR) operations) on one gridlevel */
-INT l_dmatset_SB        (BLOCKVECTOR *dest, BLOCKVECTOR *source,const MATDATA_DESC *M, DOUBLE a);
-INT l_dmatmul_set_SB(BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
-INT l_dtpmatmul_set_SB(BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
-INT l_dmatmul_SB        (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
-INT l_dtpmatmul_SB      (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
-INT l_dmatmul_minus_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
-
 /* iterative methods */
-INT l_ordervtypes       (GRID *g, const SHORT TypeOrder[NVECTYPES]);
 INT l_setindex          (GRID *g);
-
-INT l_jac                       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT jacBS                       (const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT K_comp, INT u_comp, INT f_comp );
-
-INT l_lgs                       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, VECDATA_DESC *diag);
-INT l_ugs                       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-
-INT l_lgsB                      (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT gs_solveBS          (const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, DOUBLE eps, INT max_it, INT K_comp, INT u_comp, INT f_comp, INT aux_comp, INT verbose, INT eps_relative );
-
-INT l_lsor                      (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, const DOUBLE *damp, VECDATA_DESC *diag);
-INT l_usor (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
-            const VECDATA_DESC *d, const DOUBLE *omega, VECDATA_DESC *diag);
-INT l_lsor_ld       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, const VECDATA_DESC *damp, VECDATA_DESC *diag);
-INT l_usor_ld (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
-               const VECDATA_DESC *d, VECDATA_DESC *omega, VECDATA_DESC *diag);
-
-
-/* iterative methods for Simple BLOCKVECTOR */
-INT l_lgs_SB            (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_tplgs_SB          (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_ugs_SB            (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_luiter_SB         (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_tpluiter_SB       (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_ilubdecomp_SB     (BLOCKVECTOR *theBV, const MATDATA_DESC *M, const VEC_SCALAR beta);
-
-
-INT l_ilubthdecomp      (GRID *g, const MATDATA_DESC *M, const VEC_SCALAR beta, const VEC_SCALAR threshold, const VECDATA_DESC *rest, const VEC_SCALAR oldrestthresh);
-INT l_ilubthdecomp_fine (GRID *g, const MATDATA_DESC *M, const VEC_SCALAR beta, const VEC_SCALAR threshold, const VECDATA_DESC *rest, const VEC_SCALAR oldrestthresh);
-INT l_iluspbldecomp (GRID *g, const MATDATA_DESC *M, const VEC_SCALAR beta);
-INT l_iluspbliter (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_icdecomp      (GRID *g, const MATDATA_DESC *M);
-INT l_iluspdecomp       (GRID *g, const MATDATA_DESC *M, const VEC_SCALAR beta, const VECDATA_DESC *t, INT mode, const VEC_SCALAR oldrestthresh);
-INT l_lrdecomp          (GRID *g, const MATDATA_DESC *M);
-INT LUDecomposeDiagBS(const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT A_comp, GRID *grid );
-INT l_lrregularize      (GRID *theGrid, const MATDATA_DESC *M, INT restore);
-INT l_lrdecompB         (GRID *g, const MATDATA_DESC *M);
-INT l_luiter            (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT solveLUMatBS        (const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT dest_comp, INT LU_comp, INT source_comp );
-INT l_luiter_fine       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_luiterB           (GRID *g, const BLOCKVECTOR *bv, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_lltiter           (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_pgs           (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, INT depth, INT mode, DOUBLE vdamp);
 
 /* miscellaneous */
 INT l_matflset (GRID *g, INT f);
