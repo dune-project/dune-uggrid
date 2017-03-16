@@ -214,8 +214,6 @@ INT dm0addBS(const BLOCKVECTOR*, INT, const MATDATA_DESC*);
 
 /* blas level 2 (matrix operations) */
 
-INT dmatcopy       (MULTIGRID *mg, INT fl, INT tl, INT mode,
-                    const MATDATA_DESC *M, const MATDATA_DESC *N);
 INT dmatadd        (MULTIGRID *mg, INT fl, INT tl, INT mode,
                     const MATDATA_DESC *M, const MATDATA_DESC *N);
 INT dmatmul        (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
@@ -261,9 +259,6 @@ INT dmataddunit    (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC 
 #define a_eunorm(mg,fl,tl,x,xclass,a)      dnrm2x(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_eunorm(mg,fl,tl,x,a)             dnrm2x(mg,fl,tl,ON_SURFACE,x,a)
 
-#define l_dmatcopy(g,M,N)                  dmatcopy(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,M,N)
-#define s_dmatcopy(mg,fl,tl,M,N)           dmatcopy(mg,fl,tl,ON_SURFACE,M,N)
-
 #define l_dmatadd(g,M,N)                   dmatadd(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,M,N)
 #define s_dmatadd(mg,fl,tl,M,N)            dmatadd(mg,fl,tl,ON_SURFACE,M,N)
 
@@ -304,9 +299,6 @@ INT dmataddunit    (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATDATA_DESC 
 
    INT l_ddot_sv           (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *weight, DOUBLE *sv);
    INT s_ddot_sv           (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const VECDATA_DESC *y, DOUBLE *weight, DOUBLE *sv);
-
-   INT l_dmatcopy          (GRID *g,                                               const MATDATA_DESC *M1, const MATDATA_DESC *M2);
-   INT s_dmatcopy          (MULTIGRID *mg, INT fl, INT tl, const MATDATA_DESC *M1, const MATDATA_DESC *M2);
 
    INT l_dmatadd           (GRID *g, const MATDATA_DESC *M1, const MATDATA_DESC *M2);
 
@@ -350,7 +342,6 @@ INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 /* blas level 2 (matrix (BLOCKVECTOR) operations) on one gridlevel */
 INT dmatscaleBS         (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
 INT dmataddunitBS       (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, DOUBLE a);
-INT dmatcopyBS          (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, INT nc);
 INT dmataddBS           (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT mc, INT nc);
 INT dmatmulBS           (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
 INT dmatmul_addBS       (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
