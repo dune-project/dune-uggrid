@@ -174,8 +174,6 @@ INT l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_DESC_FORMAT *bv
 
 INT dset           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     DOUBLE a);
-INT dcopy          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VECDATA_DESC *y);
 INT dpdot          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const VECDATA_DESC *y);
 INT dm0dot         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
@@ -217,10 +215,6 @@ INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
 #define a_dset(mg,fl,tl,x,xclass,a)        dset(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_dset(mg,fl,tl,x,a)               dset(mg,fl,tl,ON_SURFACE,x,a)
 
-#define l_dcopy(g,x,xclass,y)              dcopy(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,y)
-#define a_dcopy(mg,fl,tl,x,xclass,y)       dcopy(mg,fl,tl,ALL_VECTORS,x,y)
-#define s_dcopy(mg,fl,tl,x,y)              dcopy(mg,fl,tl,ON_SURFACE,x,y)
-
 #define l_dscale(g,x,xclass,a)             dscalx(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,a)
 #define a_dscale(mg,fl,tl,x,xclass,a)      dscalx(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_dscale(mg,fl,tl,x,a)             dscalx(mg,fl,tl,ON_SURFACE,x,a)
@@ -255,10 +249,6 @@ INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
    INT a_ddot                      (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *sp);
    INT s_ddot                      (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const VECDATA_DESC *y, DOUBLE *sp);
 
-   INT l_dcopy             (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y);
-   INT a_dcopy             (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y);
-   INT s_dcopy             (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const VECDATA_DESC *y);
-
    INT l_daxpy             (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const DOUBLE *a, const VECDATA_DESC *y);
    INT a_daxpy             (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, const DOUBLE *a, const VECDATA_DESC *y);
    INT s_daxpy             (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const DOUBLE *a, const VECDATA_DESC *y);
@@ -286,7 +276,6 @@ INT l_mean                      (const GRID *g, const VECDATA_DESC *x, enum Vect
 
 /* blas level 1 (BLOCKVECTOR operations) on one gridlevel */
 INT dsetBS                      (const BLOCKVECTOR *bv, INT xc, DOUBLE a);
-INT dcopyBS             (const BLOCKVECTOR *bv, INT xc, INT yc);
 INT dscalBS             (const BLOCKVECTOR *bv, INT xc, DOUBLE a);
 INT daddBS                      (const BLOCKVECTOR *bv, INT xc, INT yc);
 INT dsubBS                      (const BLOCKVECTOR *bv, INT xc, INT yc);
@@ -296,7 +285,6 @@ INT ddotBS                      (const BLOCKVECTOR *bv, INT xc, INT yc,   DOUBLE
 INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 
 /* blas level 1 (Simple BLOCKVECTOR operations) on one gridlevel */
-INT l_dcopy_SB          (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClass xclass, const VECDATA_DESC *y);
 INT l_dscale_SB         (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a);
 INT l_daxpy_SB          (BLOCKVECTOR *theBV, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a, const VECDATA_DESC *y);
 
