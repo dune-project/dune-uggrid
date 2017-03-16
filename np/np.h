@@ -311,13 +311,6 @@ INT l_daxpy_SB          (BLOCKVECTOR *theBV, const VECDATA_DESC *x, enum VectorC
 
 /* blas level 2 (matrix (vector) operations) */
 INT l_dmattranspose (GRID *g,                                           const MATDATA_DESC *M1, const MATDATA_DESC *M2);
-INT s_dtpmatmul_set     (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-
-INT l_dtpmatmul         (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-
-/* blas level 2 (matrix (Simple BLOCKVECTOR) operations) on one gridlevel */
-INT l_dtpmatmul_set_SB(BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
-INT l_dtpmatmul_SB      (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
 
 /* iterative methods */
 INT l_setindex          (GRID *g);
