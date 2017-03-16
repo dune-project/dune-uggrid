@@ -184,8 +184,6 @@ INT dscalx         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
                     const VEC_SCALAR a);
 INT daxpy          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     DOUBLE a, const VECDATA_DESC *y);
-INT daxpyx         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VEC_SCALAR a, const VECDATA_DESC *y);
 INT ddot           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const VECDATA_DESC *y, DOUBLE *a);
 INT ddotx          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
@@ -213,10 +211,6 @@ INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
 #define a_dscale(mg,fl,tl,x,xclass,a)      dscalx(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_dscale(mg,fl,tl,x,a)             dscalx(mg,fl,tl,ON_SURFACE,x,a)
 
-#define l_daxpy(g,x,xclass,a,y)            daxpyx(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,a,y)
-#define a_daxpy(mg,fl,tl,x,xclass,a,y)     daxpyx(mg,fl,tl,ALL_VECTORS,x,a,y)
-#define s_daxpy(mg,fl,tl,x,a,y)            daxpyx(mg,fl,tl,ON_SURFACE,x,a,y)
-
 #define l_ddot(g,x,xclass,y,a)             ddotx(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,y,a)
 #define a_ddot(mg,fl,tl,x,xclass,y,a)      ddotx(mg,fl,tl,ALL_VECTORS,x,y,a)
 #define s_ddot(mg,fl,tl,x,y,a)             ddotx(mg,fl,tl,ON_SURFACE,x,y,a)
@@ -242,10 +236,6 @@ INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
    INT l_ddot                      (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *sp);
    INT a_ddot                      (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *sp);
    INT s_ddot                      (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const VECDATA_DESC *y, DOUBLE *sp);
-
-   INT l_daxpy             (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const DOUBLE *a, const VECDATA_DESC *y);
-   INT a_daxpy             (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, const DOUBLE *a, const VECDATA_DESC *y);
-   INT s_daxpy             (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const DOUBLE *a, const VECDATA_DESC *y);
 
    INT l_eunorm            (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, DOUBLE *eu);
    INT a_eunorm            (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, DOUBLE *eu);

@@ -2460,57 +2460,6 @@ INT NS_DIM_PREFIX l_matrix_consistent (GRID *g, const MATDATA_DESC *M, INT mode)
 
 /****************************************************************************/
 /** \brief
-   daxpyx - x plus a times y
-
-   SYNOPSIS:
-   INT daxpyx (MULTIGRID *mg, INT fl, INT tl, INT mode, VECDATA_DESC *x,
-   const VEC_SCALAR a, VECDATA_DESC *y);
-
-
- * @param mg - pointer to multigrid
- * @param fl - from level
- * @param tl - to level
- * @param mode - ALL_VECTORS or ON_SURFACE
- * @param x - vector data descriptor
- * @param a - DOUBLE value for every component of 'x'
- * @param y - vector data descriptor
-
-
-   This function calculates `x := x + ay`.
-
-   It runs from level fl to tl.
-
-   \return <ul>
-   INT
-   .n    NUM_OK if ok
-   .n    NUM_ERROR if error occured
-
-   SEE ALSO:
-   daxpyBS, daxpy
- */
-/****************************************************************************/
-
-#define T_FUNCNAME      NS_DIM_PREFIX daxpyx
-#define T_ARGS          ,const VEC_SCALAR a,const VECDATA_DESC *y
-#define T_PR_DBG                (" a=VS y=%s",ENVITEM_NAME(y))
-#define T_PR_IN                 {PRINTVEC(x); PRINTVEC(y)}
-#define T_PR_OUT                PRINTVEC(x)
-#define T_USE_Y
-#define T_CONFIG        const SHORT *aoff = VD_OFFSETPTR(x); const DOUBLE *value;
-#define T_MOD_SCAL      VVALUE(v,xc) += a[aoff[VTYPE(v)]] * VVALUE(v,yc);
-#define T_PREP_SWITCH   value = a+aoff[vtype];
-#define T_MOD_VECTOR_1  VVALUE(v,cx0) += value[0] * VVALUE(v,cy0);
-#define T_MOD_VECTOR_2  VVALUE(v,cx1) += value[1] * VVALUE(v,cy1);
-#define T_MOD_VECTOR_3  VVALUE(v,cx2) += value[2] * VVALUE(v,cy2);
-#define T_MOD_VECTOR_N  for (i=0; i<ncomp; i++)                               \
-    VVALUE(v,VD_CMP_OF_TYPE(x,vtype,i))               \
-      += value[i] * VVALUE(v,VD_CMP_OF_TYPE(y,vtype,i));
-#define T_NO_BV_FUNC
-
-#include "vecfunc.ct"
-
-/****************************************************************************/
-/** \brief
    daxpy - x plus a times y
 
    SYNOPSIS:
