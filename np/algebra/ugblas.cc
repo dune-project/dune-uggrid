@@ -4290,63 +4290,6 @@ INT NS_DIM_PREFIX l_dmattranspose (GRID *g, const MATDATA_DESC *M1, const MATDAT
   return (NUM_OK);
 }
 
-#ifdef __BLOCK_VECTOR_DESC__
-
-/****************************************************************************/
-/** \brief Calculates the defect of a blockmatrix d := f - K * u
-
- * @param bv_row - row-blockvector of the matrix
- * @param bvd_col - description of the column-blockvector
- * @param bvdf - format to interpret the 'bvd_col'
- * @param d_comp - position of the resultant defect in the VECTORs of the blockvector
- * @param f_comp - position of the right hand side in the VECTORs of the blockvector
- * @param K_comp - position of the matrix in the MATRIXs of the blockvector
- * @param u_comp - position of the solution in the VECTORs of the blockvector
-
-
-   This function subtracts scalar matrix times scalar vector
-   `d := f - K * u` for all
-   VECTORs d, f and u of the blockvectors, given by pointer 'bv_row'
-   resp. description 'bvd_col', and MATRIXs K coupling between d(f) and u.
-
-   d_comp == f_comp is allowed; then this function is equivalent to
-   'dmatmul_minusBS' and then 'eunormBS'.
-
-   \return <ul>
-   .n    NUM_OK if ok
-
-   SEE ALSO:
-   BLOCKVECTOR, blas_routines, dmatmul_minusBS
- */
-/****************************************************************************/
-
-DOUBLE NS_DIM_PREFIX CalculateDefectAndNormBS( const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT d_comp, INT f_comp, INT K_comp, INT u_comp )
-{
-  VECTOR *v, *end_v;
-  MATRIX *m;
-  DOUBLE sum, result;
-
-  ASSERT( (d_comp >= 0) && (f_comp >= 0) && (K_comp >= 0) && (u_comp >= 0) );
-
-  result = 0.0;
-
-  if( BV_IS_EMPTY(bv_row) ) return result;
-
-  end_v = BVENDVECTOR( bv_row );
-  for ( v = BVFIRSTVECTOR( bv_row ); v != end_v; v = SUCCVC( v ) )
-  {
-    sum = VVALUE( v, f_comp );
-    for ( m = VSTART( v ); m != NULL; m = MNEXT( m ) )
-      if ( VMATCH( MDEST(m), bvd_col, bvdf ) )
-        sum -= MVALUE( m, K_comp ) * VVALUE( MDEST( m ), u_comp );
-    VVALUE( v, d_comp ) = sum;
-    result += sum * sum;
-  }
-
-  return sqrt( result );
-}
-#endif /* __BLOCK_VECTOR_DESC__ */
-
 INT NS_DIM_PREFIX l_matflset (GRID *g, INT f)
 {
   VECTOR *v;

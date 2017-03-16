@@ -298,9 +298,6 @@ INT daxpyBS             (const BLOCKVECTOR *bv, INT xc, DOUBLE a, INT yc);
 INT ddotBS                      (const BLOCKVECTOR *bv, INT xc, INT yc,   DOUBLE *a);
 INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 
-/* blas level 2 (matrix (BLOCKVECTOR) operations) on one gridlevel */
-DOUBLE CalculateDefectAndNormBS( const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT d_comp, INT f_comp, INT K_comp, INT u_comp );
-
 /* blas level 1 (Simple BLOCKVECTOR operations) on one gridlevel */
 INT l_dcopy_SB          (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClass xclass, const VECDATA_DESC *y);
 INT l_dscale_SB         (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a);
