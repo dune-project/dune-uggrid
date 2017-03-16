@@ -848,63 +848,6 @@ INT NS_DIM_PREFIX a_elementdata_consistent (MULTIGRID *mg, INT fl, INT tl)
   return (NUM_OK);
 }
 
-
-
-static INT DataSizePerNode;
-
-static int Gather_NData (DDD_OBJ obj, void *data)
-{
-  NODE *pn = (NODE *)obj;
-
-  memcpy(data,NDATA(pn),DataSizePerNode);
-
-  return (0);
-}
-
-static int Scatter_NData (DDD_OBJ obj, void *data)
-{
-  NODE *pn = (NODE *)obj;
-
-  memcpy(NDATA(pn),data,DataSizePerNode);
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Makes node data  consistent
-
- * @param mg - pointer to multigrid
- * @param fl - from level
- * @param tl - from level
-
-
-   This function adds the node data field form all borders and masters.
-
-   \return <ul>
-   .n    NUM_OK      if ok
-   .n    NUM_ERROR   if error occurrs
- */
-/****************************************************************************/
-INT NS_DIM_PREFIX a_nodedata_consistent (MULTIGRID *mg, INT fl, INT tl)
-{
-  INT level;
-
-  DataSizePerNode = NDATA_DEF_IN_MG(mg);
-  if (DataSizePerNode <= 0) return(NUM_OK);
-
-  if ((fl==BOTTOMLEVEL(mg)) && (tl==TOPLEVEL(mg)))
-    DDD_IFExchange(BorderNodeSymmIF, DataSizePerNode,
-                   Gather_NData, Scatter_NData);
-  else
-    for (level=fl; level<=tl; level++)
-      DDD_IFAExchange(BorderNodeSymmIF,
-                      GRID_ATTR(GRID_ON_LEVEL(mg,level)), DataSizePerNode,
-                      Gather_NData, Scatter_NData);
-
-  return (NUM_OK);
-}
-
-
 int NS_DIM_PREFIX DDD_InfoPrioCopies (DDD_HDR hdr)
 {
   INT i,n;
