@@ -3116,62 +3116,6 @@ INT NS_DIM_PREFIX l_dsetfunc (GRID *g, const VECDATA_DESC *x, enum VectorClass x
   return (NUM_OK);
 }
 
-INT NS_DIM_PREFIX l_dscale_SB (BLOCKVECTOR *theBV, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a)
-{
-  VECTOR *first_v,*end_v;
-  const DOUBLE *value;
-  VECTOR *v;
-  SHORT i;
-  SHORT ncomp;
-  enum VectorType vtype;
-  const SHORT *aoff;
-  DEFINE_VS_CMPS(a);
-  DEFINE_VD_CMPS(cx);
-
-  aoff = VD_OFFSETPTR(x);
-  first_v = BVFIRSTVECTOR(theBV);
-  end_v = BVENDVECTOR(theBV);
-
-  for (vtype=(enum VectorType)0; vtype<NVECTYPES; vtype = (enum VectorType)(vtype+1))
-    if (VD_ISDEF_IN_TYPE(x,vtype))
-      switch (VD_NCMPS_IN_TYPE(x,vtype))
-      {
-      case 1 :
-        SET_VD_CMP_1(cx,x,vtype);
-        SET_VS_CMP_1(a,a,aoff,vtype);
-        L_VLOOP__TYPE_CLASS2(v,first_v,end_v,vtype,xclass)
-        VVALUE(v,cx0) *= a0;
-        break;
-
-      case 2 :
-        SET_VD_CMP_2(cx,x,vtype);
-        SET_VS_CMP_2(a,a,aoff,vtype);
-        L_VLOOP__TYPE_CLASS2(v,first_v,end_v,vtype,xclass)
-        {
-          VVALUE(v,cx0) *= a0; VVALUE(v,cx1) *= a1;
-        }
-        break;
-
-      case 3 :
-        SET_VD_CMP_3(cx,x,vtype);
-        SET_VS_CMP_3(a,a,aoff,vtype);
-        L_VLOOP__TYPE_CLASS2(v,first_v,end_v,vtype,xclass)
-        {
-          VVALUE(v,cx0) *= a0; VVALUE(v,cx1) *= a1; VVALUE(v,cx2) *= a2;
-        }
-        break;
-
-      default :
-        ncomp = VD_NCMPS_IN_TYPE(x,vtype);
-        value = a+aoff[vtype];
-        L_VLOOP__TYPE_CLASS2(v,first_v,end_v,vtype,xclass)
-        for (i=0; i<ncomp; i++)
-          VVALUE(v,VD_CMP_OF_TYPE(x,vtype,i)) *= value[i];
-      }
-
-  return (NUM_OK);
-}
-
 /****************************************************************************/
 /** \brief
    l_mean - mean of a vector

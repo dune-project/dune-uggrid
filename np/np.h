@@ -236,9 +236,6 @@ INT dscalBS             (const BLOCKVECTOR *bv, INT xc, DOUBLE a);
 INT ddotBS                      (const BLOCKVECTOR *bv, INT xc, INT yc,   DOUBLE *a);
 INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 
-/* blas level 1 (Simple BLOCKVECTOR operations) on one gridlevel */
-INT l_dscale_SB         (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a);
-
 /* iterative methods */
 INT l_setindex          (GRID *g);
 
