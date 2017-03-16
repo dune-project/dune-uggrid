@@ -205,8 +205,6 @@ INT MDmatchesVT (const MATDATA_DESC * md, const VEC_TEMPLATE * vt);
 INT MDmatchesVTxVT (const MATDATA_DESC * md, const VEC_TEMPLATE * rvt,
                     const VEC_TEMPLATE * cvt);
 
-INT VDsubDescFromVT (const VECDATA_DESC * vd, const VEC_TEMPLATE * vt,
-                     INT sub, VECDATA_DESC ** subvd);
 INT VDsubDescFromVS (const VECDATA_DESC * vd, const SUBVEC * subv,
                      VECDATA_DESC ** subvd);
 INT MDsubDescFromVT (const MATDATA_DESC * md, const VEC_TEMPLATE * vt,
