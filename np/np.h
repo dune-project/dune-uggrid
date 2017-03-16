@@ -182,8 +182,6 @@ INT ddotx          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
                     const VECDATA_DESC *y, VEC_SCALAR a);
 INT ddotx_range    (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const VECDATA_DESC *y, DOUBLE *ll, DOUBLE *ur, VEC_SCALAR a);
-INT ddotw          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VECDATA_DESC *y, const VEC_SCALAR w, DOUBLE *a);
 INT dnrm2          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     DOUBLE *a);
 INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
@@ -199,10 +197,6 @@ INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
 #define l_ddot(g,x,xclass,y,a)             ddotx(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,y,a)
 #define a_ddot(mg,fl,tl,x,xclass,y,a)      ddotx(mg,fl,tl,ALL_VECTORS,x,y,a)
 #define s_ddot(mg,fl,tl,x,y,a)             ddotx(mg,fl,tl,ON_SURFACE,x,y,a)
-
-#define l_ddot_sv(g,x,xclass,y,b,a)        ddotw(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,y,b,a)
-#define a_ddot_sv(mg,fl,tl,x,xclass,y,b,a) ddotw(mg,fl,tl,ALL_VECTORS,x,y,b,a)
-#define s_ddot_sv(mg,fl,tl,x,y,b,a)        ddotw(mg,fl,tl,ON_SURFACE,x,y,b,a)
 
 #define l_eunorm(g,x,xclass,a)             dnrm2x(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,a)
 #define a_eunorm(mg,fl,tl,x,xclass,a)      dnrm2x(mg,fl,tl,ALL_VECTORS,x,a)
@@ -221,9 +215,6 @@ INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
    INT l_eunorm            (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, DOUBLE *eu);
    INT a_eunorm            (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, DOUBLE *eu);
    INT s_eunorm            (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                      DOUBLE *eu);
-
-   INT l_ddot_sv           (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *weight, DOUBLE *sv);
-   INT s_ddot_sv           (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const VECDATA_DESC *y, DOUBLE *weight, DOUBLE *sv);
 
  **************************** old style */
 

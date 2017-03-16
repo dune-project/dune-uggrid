@@ -2472,62 +2472,6 @@ static INT UG_GlobalSumNDOUBLE_X (INT ncomp, DOUBLE *a)
 
 /****************************************************************************/
 /** \brief
-   ddotw - weighted scalar product of two vectors
-
-   SYNOPSIS:
-   INT ddotw (MULTIGRID *mg, INT fl, INT tl, INT mode,
-   VECDATA_DESC *x, VECDATA_DESC *y, const VEC_SCALAR w, DOUBLE *s);
-
-
- * @param mg - pointer to multigrid
- * @param fl - from level
- * @param tl - to level
- * @param mode - ALL_VECTORS or ON_SURFACE
- * @param x - vector data descriptor
- * @param y - vector data descriptor
- * @param w - weight factors
- * @param a - DOUBLE value for every component of 'x'
-
-
-   This function computes the weighted scalar product of two vectors.
-
-   It runs from level fl to tl.
-
-   \return <ul>
-   INT
-   .n    NUM_OK if ok
-   .n    NUM_ERROR if error occured
-
-   SEE ALSO:
-   ddotBS, dnrm2, ddot, ddotx
- */
-/****************************************************************************/
-
-#define T_FUNCNAME      NS_DIM_PREFIX ddotw
-#define T_ARGS          ,const VECDATA_DESC *y,const VEC_SCALAR w,DOUBLE *s
-#define T_PR_DBG                (" y=%s w=VS",ENVITEM_NAME(y))
-#define T_PR_IN                 {PRINTVEC(x); PRINTVEC(y)}
-#define T_USE_Y
-#define T_CONFIG        const SHORT *aoff = VD_OFFSETPTR(x); DOUBLE *value;   \
-  VEC_SCALAR a;                                                                             \
-  for (i=0; i<VD_NCOMP(x); i++) a[i] = 0.0;
-#define T_MOD_SCAL      a[aoff[VTYPE(v)]] += VVALUE(v,xc) * VVALUE(v,yc);
-#define T_PREP_SWITCH   value = a+aoff[vtype];
-#define T_MOD_VECTOR_1  value[0] += VVALUE(v,cx0) * VVALUE(v,cy0);
-#define T_MOD_VECTOR_2  value[1] += VVALUE(v,cx1) * VVALUE(v,cy1);
-#define T_MOD_VECTOR_3  value[2] += VVALUE(v,cx2) * VVALUE(v,cy2);
-#define T_MOD_VECTOR_N  for (i=0; i<ncomp; i++)                               \
-    value[i] += VVALUE(v,VD_CMP_OF_TYPE(x,vtype,i)) * \
-                VVALUE(v,VD_CMP_OF_TYPE(y,vtype,i));
-#define T_POST_PAR      if (UG_GlobalSumNDOUBLE_X(VD_NCOMP(x),a))             \
-    REP_ERR_RETURN(NUM_ERROR);
-#define T_POST          *s = 0.0; for (i=0; i<VD_NCOMP(x); i++) *s += w[i]*a[i];
-#define T_NO_BV_FUNC
-
-#include "vecfunc.ct"
-
-/****************************************************************************/
-/** \brief
    ddot - scalar product of two vectors
 
    SYNOPSIS:
