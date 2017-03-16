@@ -2302,28 +2302,6 @@ INT NS_DIM_PREFIX l_matrix_consistent (GRID *g, const MATDATA_DESC *M, INT mode)
 
 #include "vecfunc.ct"
 
-static INT UG_GlobalSumNDOUBLE_X (INT ncomp, DOUBLE *a)
-{
-        #ifdef ModelP
-        #ifdef Debug
-  INT i;
-  DOUBLE a1[MAX_VEC_COMP+1];
-
-  for (i=0; i<ncomp; i++)
-    a1[i] = a[i];
-  a1[ncomp] = (DOUBLE) rep_err_count;
-  UG_GlobalSumNDOUBLE(ncomp+1,a1);
-  if (a1[ncomp] > 0.0)
-    return(1);
-  for (i=0; i<ncomp; i++)
-    a[i] = a1[i];
-        #else
-  UG_GlobalSumNDOUBLE(ncomp,a);
-        #endif
-        #endif
-  return(0);
-}
-
 /****************************************************************************/
 /*																			*/
 /*		blas level 2 routines												*/
