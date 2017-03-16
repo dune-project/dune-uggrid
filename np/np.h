@@ -178,8 +178,6 @@ INT dm0dot         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
                     const VECDATA_DESC *y);
 INT dscal          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     DOUBLE a);
-INT dscalx         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VEC_SCALAR a);
 INT ddot           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const VECDATA_DESC *y, DOUBLE *a);
 INT ddotx          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
@@ -202,10 +200,6 @@ INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
 #define a_dset(mg,fl,tl,x,xclass,a)        dset(mg,fl,tl,ALL_VECTORS,x,a)
 #define s_dset(mg,fl,tl,x,a)               dset(mg,fl,tl,ON_SURFACE,x,a)
 
-#define l_dscale(g,x,xclass,a)             dscalx(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,a)
-#define a_dscale(mg,fl,tl,x,xclass,a)      dscalx(mg,fl,tl,ALL_VECTORS,x,a)
-#define s_dscale(mg,fl,tl,x,a)             dscalx(mg,fl,tl,ON_SURFACE,x,a)
-
 #define l_ddot(g,x,xclass,y,a)             ddotx(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,y,a)
 #define a_ddot(mg,fl,tl,x,xclass,y,a)      ddotx(mg,fl,tl,ALL_VECTORS,x,y,a)
 #define s_ddot(mg,fl,tl,x,y,a)             ddotx(mg,fl,tl,ON_SURFACE,x,y,a)
@@ -223,10 +217,6 @@ INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
    INT l_dset                      (GRID *g,                                               const VECDATA_DESC *x, INT xclass, DOUBLE a);
    INT a_dset                      (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, DOUBLE a);
    INT s_dset                      (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     DOUBLE a);
-
-   INT l_dscale            (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const DOUBLE *a);
-   INT a_dscale        (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, const DOUBLE *a);
-   INT s_dscale        (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, DOUBLE *a);
 
    INT l_ddot                      (const GRID *g,                                           const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *sp);
    INT a_ddot                      (const MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, const VECDATA_DESC *y, DOUBLE *sp);

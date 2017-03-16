@@ -2392,57 +2392,6 @@ INT NS_DIM_PREFIX l_matrix_consistent (GRID *g, const MATDATA_DESC *M, INT mode)
 
 /****************************************************************************/
 /** \brief
-   dscalx - scaling x with a
-
-   SYNOPSIS:
-   INT dscalx (MULTIGRID *mg, INT fl, INT tl, INT mode,
-   VECDATA_DESC *x, VEC_SCALAR *a);
-
-
- * @param mg - pointer to multigrid
- * @param fl - from level
- * @param tl - to level
- * @param mode - ALL_VECTORS or ON_SURFACE
- * @param x - destination vector data descriptor
- * @param a - DOUBLE value per component
-
-
-   This function calculates `x := a * x`.
-
-   It runs from level fl to tl.
-
-   \return <ul>
-   INT
-   .n    NUM_OK
-   .n    NUM_ERROR if error occured
-
-   SEE ALSO:
-   dscal, dscalBS
- */
-/****************************************************************************/
-
-#define T_FUNCNAME      NS_DIM_PREFIX dscalx
-#define T_ARGS          ,const VEC_SCALAR a
-#define T_PR_DBG                (" a=VS")
-#define T_PR_IN                 PRINTVEC(x)
-#define T_PR_OUT                PRINTVEC(x)
-#define T_CONFIG        const SHORT *aoff = VD_OFFSETPTR(x);                  \
-  DEFINE_VS_CMPS(a); const DOUBLE *value;
-#define T_PREP_1        SET_VS_CMP_1(a,a,aoff,vtype);
-#define T_MOD_VECTOR_1  VVALUE(v,cx0) *= a0;
-#define T_PREP_2        SET_VS_CMP_2(a,a,aoff,vtype);
-#define T_MOD_VECTOR_2  VVALUE(v,cx1) *= a1;
-#define T_PREP_3        SET_VS_CMP_3(a,a,aoff,vtype);
-#define T_MOD_VECTOR_3  VVALUE(v,cx2) *= a2;
-#define T_PREP_N        value = a+aoff[vtype];
-#define T_MOD_VECTOR_N  for (i=0; i<ncomp; i++)                              \
-    VVALUE(v,VD_CMP_OF_TYPE(x,vtype,i)) *= value[i];
-#define T_NO_BV_FUNC
-
-#include "vecfunc.ct"
-
-/****************************************************************************/
-/** \brief
    ddotx - scalar product of two vectors
 
    SYNOPSIS:
