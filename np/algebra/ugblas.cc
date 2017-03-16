@@ -2236,26 +2236,3 @@ INT NS_DIM_PREFIX l_matrix_consistent (GRID *g, const MATDATA_DESC *M, INT mode)
 /* end of parallel routines                                                 */
 /****************************************************************************/
 /****************************************************************************/
-
-/****************************************************************************/
-/*																			*/
-/*		blas level 2 routines												*/
-/*																			*/
-/****************************************************************************/
-
-INT NS_DIM_PREFIX l_matflset (GRID *g, INT f)
-{
-  VECTOR *v;
-  MATRIX *m;
-
-  if (f!=0 && f!=1) REP_ERR_RETURN (1);
-  for (v=FIRSTVECTOR(g); v!= NULL; v=SUCCVC(v))
-    if (VSTART(v) != NULL)
-      for (m=MNEXT(VSTART(v)); m!=NULL; m=MNEXT(m))
-      {
-        SETMUP(m,f);
-        SETMDOWN(m,f);
-      }
-
-  return (0);
-}

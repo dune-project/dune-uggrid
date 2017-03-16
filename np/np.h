@@ -172,9 +172,6 @@ INT l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_DESC_FORMAT *bv
 /* iterative methods */
 INT l_setindex          (GRID *g);
 
-/* miscellaneous */
-INT l_matflset (GRID *g, INT f);
-
 /****************************************************************************/
 /*                                                                                                                                                      */
 /* symbols and numprocs                                                                                                         */
