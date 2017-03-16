@@ -169,28 +169,6 @@ INT l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_DESC_FORMAT *bv
 #define ON_SURFACE      -1      /* class on surface                                     */
 #define ALL_VECTORS      0      /* all vectors                                          */
 
-/** \todo Shouldn't all this be in ugblas.h ? */
-/* blas level 1 (vector operations) */
-
-INT dset           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    DOUBLE a);
-
-/* for compatibility only */
-
-#define l_dset(g,x,xclass,a)               dset(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,a)
-#define a_dset(mg,fl,tl,x,xclass,a)        dset(mg,fl,tl,ALL_VECTORS,x,a)
-#define s_dset(mg,fl,tl,x,a)               dset(mg,fl,tl,ON_SURFACE,x,a)
-
-/** \todo old style -- Should we throw it out? **********************
-
-   INT l_dset                      (GRID *g,                                               const VECDATA_DESC *x, INT xclass, DOUBLE a);
-   INT a_dset                      (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, INT xclass, DOUBLE a);
-   INT s_dset                      (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     DOUBLE a);
-
- **************************** old style */
-
-
-
 INT l_dsetnonskip       (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
 INT a_dsetnonskip       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
 INT s_dsetnonskip       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, DOUBLE a);
@@ -200,9 +178,6 @@ INT l_dsetskip          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass
 INT l_dsetfunc          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, SetFuncProcPtr SetFunc);
 
 INT l_mean                      (const GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE *sp);
-
-/* blas level 1 (BLOCKVECTOR operations) on one gridlevel */
-INT dsetBS                      (const BLOCKVECTOR *bv, INT xc, DOUBLE a);
 
 /* iterative methods */
 INT l_setindex          (GRID *g);
