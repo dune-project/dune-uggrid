@@ -182,8 +182,6 @@ INT dscal          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
                     DOUBLE a);
 INT dscalx         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const VEC_SCALAR a);
-INT dsub           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VECDATA_DESC *y);
 INT dminusadd      (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const VECDATA_DESC *y);
 INT daxpy          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
@@ -275,7 +273,6 @@ INT l_mean                      (const GRID *g, const VECDATA_DESC *x, enum Vect
 /* blas level 1 (BLOCKVECTOR operations) on one gridlevel */
 INT dsetBS                      (const BLOCKVECTOR *bv, INT xc, DOUBLE a);
 INT dscalBS             (const BLOCKVECTOR *bv, INT xc, DOUBLE a);
-INT dsubBS                      (const BLOCKVECTOR *bv, INT xc, INT yc);
 INT dminusaddBS         (const BLOCKVECTOR *bv, INT xc, INT yc);
 INT daxpyBS             (const BLOCKVECTOR *bv, INT xc, DOUBLE a, INT yc);
 INT ddotBS                      (const BLOCKVECTOR *bv, INT xc, INT yc,   DOUBLE *a);
