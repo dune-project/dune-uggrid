@@ -303,9 +303,6 @@ INT l_dcopy_SB          (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClas
 INT l_dscale_SB         (BLOCKVECTOR *bv, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a);
 INT l_daxpy_SB          (BLOCKVECTOR *theBV, const VECDATA_DESC *x, enum VectorClass xclass, const DOUBLE *a, const VECDATA_DESC *y);
 
-/* blas level 2 (matrix (vector) operations) */
-INT l_dmattranspose (GRID *g,                                           const MATDATA_DESC *M1, const MATDATA_DESC *M2);
-
 /* iterative methods */
 INT l_setindex          (GRID *g);
 
