@@ -1253,39 +1253,6 @@ INT NS_DIM_PREFIX a_vector_vecskip (MULTIGRID *mg, INT fl, INT tl, const VECDATA
   return (NUM_OK);
 }
 
-/****************************************************************************/
-/** \brief Collects the vector values of all copies
-
- * @param g - pointer to grid
- * @param x - vector data descriptor
-
-
-   This function collects the sum of the vector values for all ghost vectors
-   to the master vector.
-
-   \return <ul>
-   .n    NUM_OK      if ok
-   .n    NUM_ERROR   if error occurrs
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX l_ghostvector_collect (GRID *g, const VECDATA_DESC *x)
-{
-  INT tp,m;
-
-  ConsVector = (VECDATA_DESC *)x;
-
-  m = 0;
-  for (tp=0; tp<NVECTYPES; tp++)
-    m = MAX(m,VD_NCMPS_IN_TYPE(ConsVector,tp));
-
-  DDD_IFAOneway(VectorVIF, GRID_ATTR(g), IF_BACKWARD, m * sizeof(DOUBLE),
-                Gather_VectorCompCollect, Scatter_VectorComp);
-
-  return (NUM_OK);
-}
-
-
 int NS_DIM_PREFIX DDD_InfoPrioCopies (DDD_HDR hdr)
 {
   INT i,n;
