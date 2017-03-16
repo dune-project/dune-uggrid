@@ -174,8 +174,6 @@ INT l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_DESC_FORMAT *bv
 
 INT dset           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     DOUBLE a);
-INT dm0dot         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const VECDATA_DESC *y);
 INT dscal          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     DOUBLE a);
 INT ddot           (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
@@ -191,8 +189,6 @@ INT dnrm2          (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
 INT dnrm2x         (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     VEC_SCALAR a);
 
-
-INT dm0dotBS(const BLOCKVECTOR*, INT, INT);
 
 /* for compatibility only */
 
