@@ -171,7 +171,6 @@ static MATRIX *MatArrayRemote[MATARRAYSIZE];
 static INT MaxBlockSize;
 static size_t DataSizePerVector;
 static size_t DataSizePerMatrix;
-static size_t DataSizePerElement;
 
 #ifdef __TWODIM__
 static INT max_vectors_of_type[NVECTYPES] =
@@ -789,61 +788,6 @@ INT NS_DIM_PREFIX a_outervector_consistent (MULTIGRID *mg, INT fl, INT tl,
                     GRID_ATTR(GRID_ON_LEVEL(mg,level)), IF_FORWARD,
                     m * sizeof(DOUBLE),
                     Gather_VectorComp, Scatter_GhostVectorComp);
-
-  return (NUM_OK);
-}
-
-
-
-static int Gather_EData (DDD_OBJ obj, void *data)
-{
-  ELEMENT *pe = (ELEMENT *)obj;
-
-  memcpy(data,EDATA(pe),DataSizePerElement);
-
-  return (0);
-}
-
-static int Scatter_EData (DDD_OBJ obj, void *data)
-{
-  ELEMENT *pe = (ELEMENT *)obj;
-
-  memcpy(EDATA(pe),data,DataSizePerElement);
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Makes element data  consistent
-
- * @param mg - pointer to multigrid
- * @param fl - from level
- * @param tl - from level
-
-
-   This function copies the element data field form all masters to the
-   copy elements.
-
-   \return <ul>
-   .n    NUM_OK      if ok
-   .n    NUM_ERROR   if error occurrs
- */
-/****************************************************************************/
-INT NS_DIM_PREFIX a_elementdata_consistent (MULTIGRID *mg, INT fl, INT tl)
-{
-  INT level;
-
-  DataSizePerElement = EDATA_DEF_IN_MG(mg);
-  if (DataSizePerElement <= 0) return(NUM_OK);
-
-  if ((fl==BOTTOMLEVEL(mg)) && (tl==TOPLEVEL(mg)))
-    DDD_IFOneway(ElementVHIF, IF_FORWARD, DataSizePerElement,
-                 Gather_EData, Scatter_EData);
-  else
-    for (level=fl; level<=tl; level++)
-      DDD_IFAOneway(ElementVHIF,GRID_ATTR(GRID_ON_LEVEL(mg,level)),
-                    IF_FORWARD, DataSizePerElement,
-                    Gather_EData, Scatter_EData);
 
   return (NUM_OK);
 }
