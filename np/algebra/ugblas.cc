@@ -698,58 +698,6 @@ INT NS_DIM_PREFIX l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_D
 #endif
 
 
-static int Scatter_GhostVectorComp (DDD_OBJ obj, void *data)
-{
-  VECTOR *pv = (VECTOR *)obj;
-  INT i,type;
-  const SHORT *Comp;
-
-  if (VD_IS_SCALAR(ConsVector)) {
-    if (VD_SCALTYPEMASK(ConsVector) & VDATATYPE(pv))
-      VVALUE(pv,VD_SCALCMP(ConsVector)) = *((DOUBLE *)data);
-
-    return (NUM_OK);
-  }
-
-  type = VTYPE(pv);
-  Comp = VD_CMPPTR_OF_TYPE(ConsVector,type);
-  for (i=0; i<VD_NCMPS_IN_TYPE(ConsVector,type); i++)
-    VVALUE(pv,Comp[i]) = ((DOUBLE *)data)[i];
-
-  return (NUM_OK);
-}
-
-/****************************************************************************/
-/** \brief Copy values of masters to ghosts
-
- * @param g - pointer to grid
- * @param x - vector data descriptor
-
-
-   This function copies the vector values of master vectors to ghost vectors.
-
-   \return <ul>
-   .n    NUM_OK      if ok
-   .n    NUM_ERROR   if error occurrs
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX l_ghostvector_consistent (GRID *g, const VECDATA_DESC *x)
-{
-  INT tp,m;
-
-  ConsVector = (VECDATA_DESC *)x;
-
-  m = 0;
-  for (tp=0; tp<NVECTYPES; tp++)
-    m = MAX(m,VD_NCMPS_IN_TYPE(ConsVector,tp));
-
-  DDD_IFAOneway(VectorVIF, GRID_ATTR(g), IF_FORWARD, m * sizeof(DOUBLE),
-                Gather_VectorComp, Scatter_GhostVectorComp);
-
-  return (NUM_OK);
-}
-
 int NS_DIM_PREFIX DDD_InfoPrioCopies (DDD_HDR hdr)
 {
   INT i,n;
