@@ -217,8 +217,6 @@ INT dmatmul        (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
                     const MATDATA_DESC *M, const VECDATA_DESC *y);
 INT dmatmul_add    (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
                     const MATDATA_DESC *M, const VECDATA_DESC *y);
-INT dmatmul_minus  (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC *x,
-                    const MATDATA_DESC *M, const VECDATA_DESC *y);
 
 /* for compatibility only */
 
@@ -256,9 +254,6 @@ INT dmatmul_minus  (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
 #define l_dmatmul(g,x,xc,M,y,yc)           dmatmul_add(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,M,y)
 #define s_dmatmul(mg,fl,tl,x,M,y,yc)       dmatmul_add(mg,fl,tl,ON_SURFACE,x,M,y)
 
-#define l_dmatmul_minus(g,x,xc,M,y,yc)     dmatmul_minus(MYMG(g),GLEVEL(g),GLEVEL(g),ALL_VECTORS,x,M,y)
-#define s_dmatmul_minus(mg,fl,tl,x,M,y,yc) dmatmul_minus(mg,fl,tl,ON_SURFACE,x,M,y)
-
 /** \todo old style -- Should we throw it out? **********************
 
    INT l_dset                      (GRID *g,                                               const VECDATA_DESC *x, INT xclass, DOUBLE a);
@@ -294,9 +289,6 @@ INT dmatmul_minus  (MULTIGRID *mg, INT fl, INT tl, INT mode, const VECDATA_DESC 
    INT l_dmatmul_set       (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
    INT s_dmatmul_set       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
 
-   INT l_dmatmul_minus     (GRID *g,                                               const VECDATA_DESC *x, INT xclass, const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-   INT s_dmatmul_minus     (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x,                     const MATDATA_DESC *M, const VECDATA_DESC *y, INT yclass);
-
  **************************** old style */
 
 
@@ -328,7 +320,6 @@ INT dnrm2BS             (const BLOCKVECTOR *bv, INT xc, DOUBLE *a);
 /* blas level 2 (matrix (BLOCKVECTOR) operations) on one gridlevel */
 INT dmatmulBS           (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
 INT dmatmul_addBS       (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
-INT dmatmul_minusBS     (const BLOCKVECTOR *bv_row, const BV_DESC *bvd_col, const BV_DESC_FORMAT *bvdf, INT xc, INT mc, INT yc);
 
 INT d2matmulBS          (const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_col1, const BV_DESC *bvd_col2, const BV_DESC_FORMAT *bvdf, INT M_res_comp, INT M1comp, INT M2comp, GRID *grid );
 INT d2matmul_minusBS(const BLOCKVECTOR *bv_row1, const BV_DESC *bvd_col1, const BV_DESC *bvd_col2, const BV_DESC_FORMAT *bvdf, INT M_res_comp, INT M1comp, INT M2comp, GRID *grid );
@@ -351,7 +342,6 @@ INT l_dmatmul_set_SB(BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClas
 INT l_dtpmatmul_set_SB(BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
 INT l_dmatmul_SB        (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
 INT l_dtpmatmul_SB      (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
-INT l_dmatmul_minus_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
 
 /* iterative methods */
 INT l_setindex          (GRID *g);
