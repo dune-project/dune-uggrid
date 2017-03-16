@@ -392,51 +392,7 @@ INT l_dtpmatmul_SB      (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum Vector
 INT l_dmatmul_minus_SB (BLOCKVECTOR *theBVX, const VECDATA_DESC *x, enum VectorClass xclass, const MATDATA_DESC *M, BLOCKVECTOR *theBVY, const VECDATA_DESC *y, enum VectorClass yclass);
 
 /* iterative methods */
-INT l_ordervtypes       (GRID *g, const SHORT TypeOrder[NVECTYPES]);
 INT l_setindex          (GRID *g);
-
-INT l_jac                       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT jacBS                       (const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT K_comp, INT u_comp, INT f_comp );
-
-INT l_lgs                       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, VECDATA_DESC *diag);
-INT l_ugs                       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-
-INT l_lgsB                      (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT gs_solveBS          (const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, DOUBLE eps, INT max_it, INT K_comp, INT u_comp, INT f_comp, INT aux_comp, INT verbose, INT eps_relative );
-
-INT l_lsor                      (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, const DOUBLE *damp, VECDATA_DESC *diag);
-INT l_usor (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
-            const VECDATA_DESC *d, const DOUBLE *omega, VECDATA_DESC *diag);
-INT l_lsor_ld       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, const VECDATA_DESC *damp, VECDATA_DESC *diag);
-INT l_usor_ld (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M,
-               const VECDATA_DESC *d, VECDATA_DESC *omega, VECDATA_DESC *diag);
-
-
-/* iterative methods for Simple BLOCKVECTOR */
-INT l_lgs_SB            (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_tplgs_SB          (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_ugs_SB            (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_luiter_SB         (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_tpluiter_SB       (BLOCKVECTOR *theBV, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_ilubdecomp_SB     (BLOCKVECTOR *theBV, const MATDATA_DESC *M, const VEC_SCALAR beta);
-
-
-INT l_ilubthdecomp      (GRID *g, const MATDATA_DESC *M, const VEC_SCALAR beta, const VEC_SCALAR threshold, const VECDATA_DESC *rest, const VEC_SCALAR oldrestthresh);
-INT l_ilubthdecomp_fine (GRID *g, const MATDATA_DESC *M, const VEC_SCALAR beta, const VEC_SCALAR threshold, const VECDATA_DESC *rest, const VEC_SCALAR oldrestthresh);
-INT l_iluspbldecomp (GRID *g, const MATDATA_DESC *M, const VEC_SCALAR beta);
-INT l_iluspbliter (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_icdecomp      (GRID *g, const MATDATA_DESC *M);
-INT l_iluspdecomp       (GRID *g, const MATDATA_DESC *M, const VEC_SCALAR beta, const VECDATA_DESC *t, INT mode, const VEC_SCALAR oldrestthresh);
-INT l_lrdecomp          (GRID *g, const MATDATA_DESC *M);
-INT LUDecomposeDiagBS(const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT A_comp, GRID *grid );
-INT l_lrregularize      (GRID *theGrid, const MATDATA_DESC *M, INT restore);
-INT l_lrdecompB         (GRID *g, const MATDATA_DESC *M);
-INT l_luiter            (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT solveLUMatBS        (const BLOCKVECTOR *bv, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT dest_comp, INT LU_comp, INT source_comp );
-INT l_luiter_fine       (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_luiterB           (GRID *g, const BLOCKVECTOR *bv, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_lltiter           (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d);
-INT l_pgs           (GRID *g, const VECDATA_DESC *v, const MATDATA_DESC *M, const VECDATA_DESC *d, INT depth, INT mode, DOUBLE vdamp);
 
 /* miscellaneous */
 INT l_matflset (GRID *g, INT f);
