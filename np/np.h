@@ -169,10 +169,6 @@ INT l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_DESC_FORMAT *bv
 #define ON_SURFACE      -1      /* class on surface                                     */
 #define ALL_VECTORS      0      /* all vectors                                          */
 
-INT l_dsetnonskip       (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
-INT a_dsetnonskip       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
-INT s_dsetnonskip       (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x, DOUBLE a);
-
 INT l_dsetskip          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, DOUBLE a);
 
 INT l_dsetfunc          (GRID *g, const VECDATA_DESC *x, enum VectorClass xclass, SetFuncProcPtr SetFunc);
