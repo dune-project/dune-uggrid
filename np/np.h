@@ -134,11 +134,6 @@ typedef INT (*SetFuncProcPtr)(const DOUBLE_VECTOR, INT, DOUBLE *);
 /*                                                                                                                                                      */
 /****************************************************************************/
 
-#ifdef ModelP
-int DDD_InfoPrioCopies (DDD_HDR hdr);
-#endif
-
-
 /* modus for blas routines                                                  */
 #define ON_SURFACE      -1      /* class on surface                                     */
 #define ALL_VECTORS      0      /* all vectors                                          */
