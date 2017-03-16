@@ -136,8 +136,6 @@ typedef INT (*SetFuncProcPtr)(const DOUBLE_VECTOR, INT, DOUBLE *);
 
 #ifdef ModelP
 int DDD_InfoPrioCopies (DDD_HDR hdr);
-INT l_vector_minimum_noskip (GRID *g, const VECDATA_DESC *x);
-INT l_vector_maximum_noskip (GRID *g, const VECDATA_DESC *x);
 #endif
 
 
