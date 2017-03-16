@@ -144,7 +144,6 @@ INT l_vector_collect (GRID *g, const VECDATA_DESC *x);
 INT a_vector_collect (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x);
 INT a_vector_collect_noskip (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x);
 INT l_ghostvector_collect (GRID *g, const VECDATA_DESC *x);
-INT l_ghostmatrix_collect (GRID *g, const MATDATA_DESC *A);
 INT a_vector_vecskip (MULTIGRID *mg, INT fl, INT tl, const VECDATA_DESC *x);
 int DDD_InfoPrioCopies (DDD_HDR hdr);
 INT a_elementdata_consistent (MULTIGRID *mg, INT fl, INT tl);
