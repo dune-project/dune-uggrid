@@ -638,66 +638,6 @@ INT NS_DIM_PREFIX a_vector_consistent_noskip (MULTIGRID *mg, INT fl, INT tl, con
 }
 
 
-#ifdef __BLOCK_VECTOR_DESC__
-static int Gather_VectorCompBS (DDD_OBJ obj, void *data)
-{
-  VECTOR *pv = (VECTOR *)obj;
-
-  if( VMATCH(pv,ConsBvd, ConsBvdf) )
-    /*{printf(PFMT"Gather_VectorCompBS: v[%d][%d] = %g\n",me,VINDEX(pv),ConsComp,VVALUE(pv,ConsComp));*/
-    *((DOUBLE *)data) = VVALUE(pv,ConsComp);
-  /*}*/
-  return (NUM_OK);
-}
-
-static int Scatter_VectorCompBS (DDD_OBJ obj, void *data)
-{
-  VECTOR *pv = (VECTOR *)obj;
-
-  if( VMATCH(pv,ConsBvd, ConsBvdf) )
-    /*{*/
-    VVALUE(pv,ConsComp) += *((DOUBLE *)data);
-  /*printf(PFMT"Scatter_VectorCompBS: v[%d][%d] = %g\n",me,VINDEX(pv),ConsComp,VVALUE(pv,ConsComp));}*/
-
-  return (NUM_OK);
-}
-
-/****************************************************************************/
-/** \brief Builds the sum of the vector values within the blockvector on all copies
-
- * @param g - pointer to grid
- * @param bvd - description of the blockvector
- * @param bvdf - format to interpret bvd
- * @param x - vector data
-
-
-   This function builds the sum of the vector values within the specified
-   blockvector for all master and border vectors; the result is stored in all
-   master and border vectors.
-
-   \return <ul>
-   .n    NUM_OK      if ok
-   .n    NUM_ERROR   if error occurrs
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX l_vector_consistentBS (GRID *g, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf, INT x)
-{
-  ConsBvd = bvd;
-  ConsBvdf = bvdf;
-  ConsComp = x;
-
-  ASSERT(g!=NULL);
-  ASSERT(bvd!=NULL);
-  ASSERT(bvdf!=NULL);
-
-  DDD_IFAExchange(BorderVectorSymmIF, GRID_ATTR(g), sizeof(DOUBLE),
-                  Gather_VectorCompBS, Scatter_VectorCompBS);
-  return (NUM_OK);
-}
-#endif
-
-
 int NS_DIM_PREFIX DDD_InfoPrioCopies (DDD_HDR hdr)
 {
   INT i,n;
