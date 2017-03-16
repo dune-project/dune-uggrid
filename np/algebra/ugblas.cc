@@ -3363,20 +3363,6 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_MOD_N        for (i=0; i<mcomp; i++)                                 \
     MVALUE(mat,MD_MCMP_OF_RT_CT(M,rtype,ctype,i)) = a;
 
-#define T_SPARSE_CALL \
-  int i, size = 0;\
-  DOUBLE value[MAX_MAT_COMP];\
-  SPARSE_MATRIX *sm;\
-  for (i=0; i<NMATTYPES; i++)\
-    if ((sm=MD_SM(M,i))!=NULL)\
-      size += SM_Compute_Reduced_Size(sm);\
-  for (i=0; i<size; i++) value[i]=a;\
-  if (MG_Matrix_Loop(mg, fl, tl,\
-                     ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_M<<BLAS_LOOP_SHIFT) |\
-                       (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_M_SET<<BLAS_OP_SHIFT) ),\
-                     M, NULL, NULL, NULL, size, value, NULL)\
-      < 0) REP_ERR_RETURN (-1);
-
 #include "matfunc.ct"
 
 
@@ -3408,20 +3394,6 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_MOD_N        for (i=0; i<mcomp; i++)                                 \
     MVALUE(mat,MD_MCMP_OF_RT_CT(M,rtype,ctype,i)) *= a;
 
-#define T_SPARSE_CALL \
-  int i, size = 0;\
-  DOUBLE value[MAX_MAT_COMP];\
-  SPARSE_MATRIX *sm;\
-  for (i=0; i<NMATTYPES; i++)\
-    if ((sm=MD_SM(M,i))!=NULL)\
-      size += SM_Compute_Reduced_Size(sm);\
-  for (i=0; i<size; i++) value[i]=a;\
-  if (MG_Matrix_Loop(mg, fl, tl,\
-                     ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_M<<BLAS_LOOP_SHIFT) |\
-                       (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_M_SET<<BLAS_OP_SHIFT) ),\
-                     M, NULL, NULL, NULL, size, value, NULL)\
-      < 0) REP_ERR_RETURN (-1);
-
 #include "matfunc.ct"
 
 
@@ -3442,20 +3414,6 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_MOD_33       MVALUE(mat,m00)+=a; MVALUE(mat,m11)+=a; MVALUE(mat,m22)+=a;
 #define T_PREP_N       mcomp = nr * nc;
 #define T_MOD_N        if (nr==nc) for (i=0; i<nr; i++) MVALUE(mat,MD_MCMP_OF_RT_CT(M,rtype,ctype,i*i)) += a;
-
-#define T_SPARSE_CALL \
-  int i, size = 0;\
-  DOUBLE value[MAX_MAT_COMP];\
-  SPARSE_MATRIX *sm;\
-  for (i=0; i<NMATTYPES; i++)\
-    if ((sm=MD_SM(M,i))!=NULL)\
-      size += SM_Compute_Reduced_Size(sm);\
-  for (i=0; i<size; i++) value[i]=a;\
-  if (MG_Matrix_Loop(mg, fl, tl,\
-                     ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_M<<BLAS_LOOP_SHIFT) |\
-                       (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_M_SET<<BLAS_OP_SHIFT) ),\
-                     M, NULL, NULL, NULL, size, value, NULL)\
-      < 0) REP_ERR_RETURN (-1);
 
 #include "matfunc.ct"
 
@@ -3577,12 +3535,6 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
     MVALUE(mat,MD_MCMP_OF_RT_CT(M,rtype,ctype,i)) =     \
       MVALUE(mat,MD_MCMP_OF_RT_CT(N,rtype,ctype,i));
 
-#define T_SPARSE_CALL if (MG_Matrix_Loop(mg, fl, tl,\
-                                         ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_MN<<BLAS_LOOP_SHIFT) |\
-                                           (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_M_COPY<<BLAS_OP_SHIFT) ),\
-                                         M, N, NULL, NULL, 0, NULL, NULL)\
-                          < 0) REP_ERR_RETURN (-1);
-
 #include "matfunc.ct"
 
 /****************************************************************************/
@@ -3701,11 +3653,6 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_MOD_N        for (i=0; i<mcomp; i++)                                 \
     MVALUE(mat,MD_MCMP_OF_RT_CT(M,rtype,ctype,i)) +=    \
       MVALUE(mat,MD_MCMP_OF_RT_CT(N,rtype,ctype,i));
-#define T_SPARSE_CALL if (MG_Matrix_Loop(mg, fl, tl,\
-                                         ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_MN<<BLAS_LOOP_SHIFT) |\
-                                           (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_M_ADD1<<BLAS_OP_SHIFT) ),\
-                                         M, N, NULL, NULL, 0, NULL, NULL)\
-                          < 0) REP_ERR_RETURN (-1);
 
 #include "matfunc.ct"
 
@@ -3817,11 +3764,6 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
               VVALUE(w,VD_CMP_OF_TYPE(y,ctype,j));
 #define T_POST_N           for (i=0; i<nr; i++)                                   \
     VVALUE(v,VD_CMP_OF_TYPE(x,rtype,i)) += s[i];
-#define T_SPARSE_CALL if (MG_Matrix_Loop(mg, fl, tl,\
-                                         ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_Mxy<<BLAS_LOOP_SHIFT) |\
-                                           (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_MV_MUL<<BLAS_OP_SHIFT) ),\
-                                         M, NULL, x, y, 0, NULL, NULL)\
-                          < 0) REP_ERR_RETURN (-1);
 
 #include "matfunc.ct"
 
@@ -3924,13 +3866,6 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
 #define T_POST_N           for (i=0; i<nr; i++)                                   \
     VVALUE(v,VD_CMP_OF_TYPE(x,rtype,i)) += s[i];
 
-#define T_SPARSE_CALL \
-  if (MG_Matrix_Loop(mg, fl, tl,\
-                     ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_Mxy<<BLAS_LOOP_SHIFT) |\
-                       (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_MV_MULADD<<BLAS_OP_SHIFT) ),\
-                     M, NULL, x, y, 0, NULL, NULL)\
-      < 0) REP_ERR_RETURN (-1);
-
 #include "matfunc.ct"
 
 /****************************************************************************/
@@ -4031,13 +3966,6 @@ INT NS_DIM_PREFIX dmatclear (MULTIGRID *mg, INT fl, INT tl, INT mode, const MATD
               VVALUE(w,VD_CMP_OF_TYPE(y,ctype,j));
 #define T_POST_N           for (i=0; i<nr; i++)                                   \
     VVALUE(v,VD_CMP_OF_TYPE(x,rtype,i)) -= s[i];
-
-#define T_SPARSE_CALL \
-  if (MG_Matrix_Loop(mg, fl, tl,\
-                     ( ( (mode&1)<<BLAS_MODE_SHIFT) | (BLAS_LOOP_Mxy<<BLAS_LOOP_SHIFT) |\
-                       (MBLAS_ALL<<MBLAS_MTYPE_SHIFT) | (BLAS_MV_MULMINUS<<BLAS_OP_SHIFT) ),\
-                     M, NULL, x, y, 0, NULL, NULL)\
-      < 0) REP_ERR_RETURN (-1);
 
 #include "matfunc.ct"
 
