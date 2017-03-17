@@ -265,29 +265,11 @@ extern const DOUBLE unit_vec[DIM][DIM];
 /****************************************************************************/
 
 /* general routines */
-INT             ClipRectangleAgainstRectangle           (const DOUBLE *r1min, const DOUBLE *r1max, DOUBLE *r2min, DOUBLE *r2max);
-INT             CheckRectagleIntersection                       (const DOUBLE *r1min, const DOUBLE *r1max, const DOUBLE *r2min, const DOUBLE *r2max);
-INT             CheckRectangle                                          (const DOUBLE *rmin, const DOUBLE *rmax, const DOUBLE minsize);
-INT             PointInTriangle                                         (const COORD_POINT *Points, const COORD_POINT Point);
 INT             PointInPolygon                                          (const COORD_POINT *Points, INT n, COORD_POINT Point);
-INT             PointInPolygonC                                         (const DOUBLE_VECTOR_2D *Points, INT n, const DOUBLE_VECTOR_2D Point);
-INT             PolyArea                                                        (INT n, DOUBLE_VECTOR_2D *Polygon, DOUBLE *Area);
-INT             QuadraticFittedMin                                      (DOUBLE *x, DOUBLE *y, INT n, DOUBLE *minx);
-INT             EXDecomposeMatrixFLOAT                          (FLOAT *Mat, INT bw, INT n);
-INT             EXDecomposeMatrixDOUBLE                         (DOUBLE *Mat, INT bw, INT n);
-INT             EXApplyLUFLOAT                                          (FLOAT *Mat, INT bw, INT n, DOUBLE *Vec);
-INT             EXApplyLUDOUBLE                                         (DOUBLE *Mat, INT bw, INT n, DOUBLE *Vec);
-INT             LineISTriangle3D                                        (const DOUBLE *c1, const DOUBLE *c2, const DOUBLE *c3, const DOUBLE *p1, const DOUBLE *p2, DOUBLE *lambda);
-INT             Yams                                                            (INT n, DOUBLE *sol, DOUBLE *mat, DOUBLE *rhs);
-
 
 /* 2D routines */
-INT             M2_Invert                                                       (DOUBLE *Inverse, const DOUBLE *Matrix);
 DOUBLE          vp                                                                      (const DOUBLE x1, const DOUBLE y1, const DOUBLE x2, const DOUBLE y2);
 INT             V2_Normalize                                            (DOUBLE *a);
-INT             V2_Rotate                                                       (DOUBLE *vector, DOUBLE alpha);
-INT             V2_IntersectLineSegments                        (const DOUBLE_VECTOR a0, const DOUBLE_VECTOR a1, const DOUBLE_VECTOR b0, const DOUBLE_VECTOR b1, DOUBLE *lambda);
-INT             V2_apbmin2c                                             (const DOUBLE *a, const DOUBLE *b, const DOUBLE *c, DOUBLE *d, DOUBLE *r);
 DOUBLE          c_tarea                                                         (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2);
 DOUBLE          c_qarea                                                         (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2, const DOUBLE *x3);
 DOUBLE          V_te                                                            (const DOUBLE *x0, const DOUBLE *x1,
@@ -303,10 +285,6 @@ DOUBLE          V_he                                                            
 /* 3D routines */
 INT             M3_Invert                                                       (DOUBLE *Inverse, const DOUBLE *Matrix);
 INT             V3_Normalize                                            (DOUBLE *a);
-INT             V3_NormVectorProduct                            (const DOUBLE *a, const DOUBLE *b, DOUBLE *result);
-INT             V3_Rotate                                                       (DOUBLE *vector, const DOUBLE *axis, DOUBLE alpha);
-INT             V3_Angle                                                        (const DOUBLE *a, const DOUBLE *b, DOUBLE *result);
-INT             V3_Orthogonalize                                        (const DOUBLE *a, const DOUBLE *b, DOUBLE *r);
 INT             V3_Project                                                      (const DOUBLE *a, const DOUBLE *b, DOUBLE *r);
 
 
