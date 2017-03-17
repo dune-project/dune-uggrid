@@ -690,55 +690,6 @@ DOUBLE NS_DIM_PREFIX vp (const DOUBLE x1, const DOUBLE y1, const DOUBLE x2, cons
 
 /****************************************************************************/
 /*D
-   tarea - Compute area of a triangle
-
-   SYNOPSIS:
-   DOUBLE tarea (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2);
-
-   PARAMETERS:
-   .  x0,y0 - coordinates of first point
-   .  x1,y1 - coordinates of second point
-   .  x2,y2 - coordinates of third point
-
-   DESCRIPTION:
-   This function computes the area of a triangle.
-
-   RETURN VALUE:
-   DOUBLE  area
-   D*/
-/****************************************************************************/
-
-DOUBLE NS_DIM_PREFIX tarea (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2)
-{
-  return(0.5*fabs((y1-y0)*(x2-x0)-(x1-x0)*(y2-y0)));
-}
-/****************************************************************************/
-/*D
-   qarea - Compute area of a convex quadrilateral
-
-   SYNOPSIS:
-   DOUBLE qarea (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2,
-   DOUBLE x3,DOUBLE y3);
-
-   PARAMETERS:
-   .  x0,y0 - coordinates of first point
-   .  x1,y1 - coordinates of second point
-   .  x2,y2 - coordinates of third point
-   .  x3,y3 - coordinates of fourth point
-
-   DESCRIPTION:
-   This function computes the area of a convex quadrilateral.
-
-   RETURN VALUE:
-   DOUBLE area
-   D*/
-/****************************************************************************/
-DOUBLE NS_DIM_PREFIX qarea (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2,DOUBLE x3,DOUBLE y3)
-{
-  return( 0.5*fabs( (y3-y1)*(x2-x0)-(x3-x1)*(y2-y0) ) );
-}
-/****************************************************************************/
-/*D
    c_tarea - Compute area of triangle
 
    SYNOPSIS:
@@ -783,59 +734,6 @@ DOUBLE NS_DIM_PREFIX  c_tarea (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE 
 DOUBLE NS_DIM_PREFIX c_qarea (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2, const DOUBLE *x3)
 {
   return( 0.5*fabs( (x3[_Y_]-x1[_Y_])*(x2[_X_]-x0[_X_])-(x3[_X_]-x1[_X_])*(x2[_Y_]-x0[_Y_]) ) );
-}
-
-/****************************************************************************/
-/*D
-   ctarea - Compute area of element wrt cylinder metric
-
-   SYNOPSIS:
-   DOUBLE ctarea (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2)
-
-   PARAMETERS:
-   .  x0,y0 - coordinates of first point
-   .  x1,y1 - coordinates of second point
-   .  x2,y2 - coordinates of third point
-
-   DESCRIPTION:
-   This function computes area of element wrt cylinder metric.
-
-   RETURN VALUE:
-   DOUBLE
-   D*/
-/****************************************************************************/
-
-DOUBLE NS_DIM_PREFIX ctarea (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2)
-{
-  return((y0+y1+y2) * fabs((y1-y0)*(x2-x0)-(x1-x0)*(y2-y0)) / 6);
-}
-/****************************************************************************/
-/*D
-   cqarea - Compute area of element wrt cylinder metric
-
-   SYNOPSIS:
-   DOUBLE cqarea (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2,
-   DOUBLE x3,DOUBLE y3);
-
-   PARAMETERS:
-   .  x0,y0 - coordinates of first point
-   .  x1,y1 - coordinates of second point
-   .  x2,y2 - coordinates of third point
-   .  x3,y3 - coordinates of fourth point
-
-   DESCRIPTION:
-   This function computes area of element wrt cylinder metric.
-
-   RETURN VALUE:
-   DOUBLE
-   D*/
-/****************************************************************************/
-DOUBLE NS_DIM_PREFIX cqarea (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2,DOUBLE x3,DOUBLE y3)
-{
-  return(
-           ((y0+y1+y2) * fabs((y1-y0)*(x2-x0)-(x1-x0)*(y2-y0)) +
-            (y0+y2+y3) * fabs((y2-y0)*(x3-x0)-(x2-x0)*(y3-y0))) / 6
-           );
 }
 
 /****************************************************************************/
