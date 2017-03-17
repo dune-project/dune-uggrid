@@ -2,7 +2,6 @@ set(SOURCES
   ugblas.cc
   ugiter.cc
   sm.cc
-  blasm.cc
 )
 
 set(npinclude_HEADERS
