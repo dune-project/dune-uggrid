@@ -6803,23 +6803,20 @@ ELEMENT * NS_DIM_PREFIX FindElementFromId (GRID *theGrid, INT id)
    is contained in an element.
 
    @return <ul>
-   <li>   0 an error occurred </li>
-   <li>   1 point is contained in the element </li>
-   <li>   2 point is nearly on one side of the the element </li>
-   <li>   3 point is nearly on one edge of the the element </li>
-   <li>   4 point is nearly one of the corners of the the element </li>
-   <li>   5 point is not contained in the element </li>
+   <li>   false: point is not in the element</li>
+   <li>   true: point is in the element</li>
    </ul> */
 /****************************************************************************/
 
 #ifdef __TWODIM__
-INT NS_DIM_PREFIX PointInElement (const DOUBLE *x, const ELEMENT *theElement)  /* 2D version */
+bool NS_DIM_PREFIX PointInElement (const DOUBLE *x, const ELEMENT *theElement)  /* 2D version */
 {
   COORD_POINT point[MAX_CORNERS_OF_ELEM],thePoint;
   int n,i;
 
   /* check element */
-  if (theElement==NULL) return(0);
+  if (theElement==NULL)
+    return false;
 
   /* load geometrical data of the corners */
   n = CORNERS_OF_ELEM(theElement);
@@ -6831,12 +6828,12 @@ INT NS_DIM_PREFIX PointInElement (const DOUBLE *x, const ELEMENT *theElement)  /
   thePoint.x = (DOUBLE)x[0];
   thePoint.y = (DOUBLE)x[1];
 
-  return(PointInPolygon(point,n,thePoint));
+  return PointInPolygon(point,n,thePoint);
 }
 #endif
 
 #ifdef __THREEDIM__
-INT NS_DIM_PREFIX PointInElement (const DOUBLE *global, const ELEMENT *theElement)
+bool NS_DIM_PREFIX PointInElement (const DOUBLE *global, const ELEMENT *theElement)
 {
   DOUBLE *x[MAX_CORNERS_OF_ELEM];
   DOUBLE_VECTOR a,b,rot;
@@ -6844,7 +6841,8 @@ INT NS_DIM_PREFIX PointInElement (const DOUBLE *global, const ELEMENT *theElemen
   INT n,i;
 
   /* check element */
-  if (theElement==NULL) return(0);
+  if (theElement==NULL)
+    return false;
 
   CORNER_COORDINATES(theElement,n,x);
 
@@ -6858,10 +6856,10 @@ INT NS_DIM_PREFIX PointInElement (const DOUBLE *global, const ELEMENT *theElemen
     V3_SUBTRACT(global,x[CORNER_OF_SIDE(theElement,i,0)],b);
     V3_SCALAR_PRODUCT(rot,b,det);
     if (det > SMALL_C)
-      return(0);
+      return false;
   }
 
-  return(1);
+  return true;
 }
 
 #endif
@@ -7104,7 +7102,7 @@ ELEMENT * NS_DIM_PREFIX FindElementFromPosition (GRID *theGrid, DOUBLE *pos)
   if (GLEVEL(theGrid) == 0) {
     for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
          theElement=SUCCE(theElement))
-      if (PointInElement(pos,theElement) == 1)
+      if (PointInElement(pos,theElement))
         return(theElement);
     return(NULL);
   }
@@ -7112,7 +7110,7 @@ ELEMENT * NS_DIM_PREFIX FindElementFromPosition (GRID *theGrid, DOUBLE *pos)
   if (theFather == NULL) {
     for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
          theElement=SUCCE(theElement))
-      if (PointInElement(pos,theElement) == 1)
+      if (PointInElement(pos,theElement))
         return(theElement);
     return(NULL);
   }
@@ -7121,7 +7119,7 @@ ELEMENT * NS_DIM_PREFIX FindElementFromPosition (GRID *theGrid, DOUBLE *pos)
     return(NULL);
   }
   for (i=0; Sons[i]!=NULL; i++)
-    if (PointInElement(pos,Sons[i]) == 1)
+    if (PointInElement(pos,Sons[i]))
       return(Sons[i]);
 
   return(NULL);

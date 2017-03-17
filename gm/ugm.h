@@ -125,7 +125,7 @@ INT              DisposeNode                    (GRID *theGrid, NODE *theNode);
 /* miscellaneous */
 ELEMENT     *FindFather             (VERTEX *vptr);
 INT              FindNeighborElement    (const ELEMENT *theElement, INT Side, ELEMENT **theNeighbor, INT *NeighborSide);
-INT              PointInElement                 (const DOUBLE*, const ELEMENT *theElement);
+bool             PointInElement                 (const DOUBLE*, const ELEMENT *theElement);
 INT          PointOnSide            (const DOUBLE *global, const ELEMENT *theElement, INT side);
 DOUBLE       DistanceFromSide       (const DOUBLE *global, const ELEMENT *theElement, INT side);
 INT FindFlippedElements                         (const MULTIGRID *theMG, INT verbose);
