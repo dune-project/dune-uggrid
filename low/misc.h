@@ -166,7 +166,6 @@ INT                     CenterInPattern         (char *str, INT PatLen, const ch
 char       *expandfmt           (const char *fmt);
 char       *ExpandCShellVars    (char *string);
 const char *strntok             (const char *str, const char *sep, int n, char *token);
-char            *ExpandCShellVars       (char *string);
 
 INT             ReadMemSizeFromString   (const char *s, MEM *mem_size);
 INT                     WriteMemSizeToString    (MEM mem_size, char *s);
