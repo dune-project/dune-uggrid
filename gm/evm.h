@@ -265,7 +265,7 @@ extern const DOUBLE unit_vec[DIM][DIM];
 /****************************************************************************/
 
 /* general routines */
-INT             PointInPolygon                                          (const COORD_POINT *Points, INT n, COORD_POINT Point);
+bool            PointInPolygon                                          (const COORD_POINT *Points, INT n, COORD_POINT Point);
 
 /* 2D routines */
 DOUBLE          vp                                                                      (const DOUBLE x1, const DOUBLE y1, const DOUBLE x2, const DOUBLE y2);

@@ -135,21 +135,21 @@ REP_ERR_FILE
    than 4 in the current implementation!
 
    RETURN VALUE:
-   INT
-   .n     0 when lies not in the polygon
-   .n     1 when lies in the polygon.
+   bool
+   .n     false when lies not in the polygon
+   .n     true  when lies in the polygon.
    D*/
 /****************************************************************************/
 
 #define POLYMAX         8
 
-INT NS_DIM_PREFIX PointInPolygon (const COORD_POINT *Points, INT n, COORD_POINT Point)
+bool NS_DIM_PREFIX PointInPolygon (const COORD_POINT *Points, INT n, COORD_POINT Point)
 {
   DOUBLE D[POLYMAX] ,tau[POLYMAX],xa,ya,xe,ye;
   int i, left, right;
 
   assert (n<=POLYMAX);
-  if (n<=2) return (0);
+  if (n<=2) return false;
 
   xa = Points[0].x;
   ya = Points[0].y;
@@ -171,8 +171,8 @@ INT NS_DIM_PREFIX PointInPolygon (const COORD_POINT *Points, INT n, COORD_POINT 
             if (tau[i]<=-D[i]*SMALL_C) right++;		*/
   }
   if (left==n || right==n)
-    return(1);
-  return(0);
+    return true;
+  return false;
 }
 
 /****************************************************************************/
