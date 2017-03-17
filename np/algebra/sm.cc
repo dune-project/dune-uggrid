@@ -25,20 +25,6 @@
 #include <cmath>
 #include <cstddef>
 
-#ifdef UG_DIM_2
-#define __UG__
-#endif
-
-#ifdef UG_DIM_3
-#define __UG__
-#endif
-
-#ifndef __UG__
-   #include "sm.h"
-   #define ERR_FILE_ID 6
-#define NS_DIM_PREFIX
-#else /* __UG__ */
-
 #include "sm.h"
 #include "debug.h"
 
@@ -241,8 +227,6 @@ NS_PREFIX INT NS_DIM_PREFIX String2SMArray (SHORT n, char *str, SHORT *comps)
 
   return(0);
 }
-
-#endif /* __UG__ */
 
 /****************************************************************************/
 /** \brief Computes the reduced size of a sparse matrix

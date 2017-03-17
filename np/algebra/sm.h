@@ -22,32 +22,12 @@
 #ifndef __SM__
 #define __SM__
 
-#ifdef UG_DIM_2
-#define __UG__
-#endif
-
-#ifdef UG_DIM_3
-#define __UG__
-#endif
-
-#ifdef __UG__
-
-    #include "ugtypes.h"
-
-    #include <cstddef>
-
-#else /* not __UG__ */
-
-    #ifndef __GENERAL__
-        #include "general.h"
-    #endif
-
-#endif /* not __UG__ */
-
-#ifdef __UG__
 #include "namespace.h"
+#include "ugtypes.h"
+
+#include <cstddef>
+
 START_UGDIM_NAMESPACE
-#endif
 
 /****************************************************************************/
 /*																			*/
@@ -76,18 +56,14 @@ typedef struct {
 /*																			*/
 /****************************************************************************/
 
-#ifdef __UG__
 INT ComputeSMSizeOfArray (SHORT nr, SHORT nc, const SHORT *comps,
                           SHORT *NPtr, SHORT *NredPtr);
 INT Array2SM             (SHORT nr, SHORT nc, const SHORT *comps,
                           SPARSE_MATRIX *sm);
 INT String2SMArray       (SHORT n, char *str, SHORT *comps);
-#endif
 
 INT SM_Compute_Reduced_Size    (SPARSE_MATRIX *sm);
 
-#ifdef __UG__
 END_UGDIM_NAMESPACE
-#endif
 
 #endif /* __SM__ */
