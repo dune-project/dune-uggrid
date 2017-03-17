@@ -50,61 +50,12 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 #ifdef __TWODIM__
-#define DNDS(n,i,s,t,r)                 if (n==3)\
-                                                                {\
-                                                                        switch (i)\
-                                                                        {\
-                                                                                case 0 : r=-1.0; break;\
-                                                                                case 1 : r=1.0; break;\
-                                                                                case 2 : r=0.0; break;\
-                                                                        }\
-                                                                }\
-                                                                else if (n==4)\
-                                                                {\
-                                                                        switch (i)\
-                                                                        {\
-                                                                                case 0 : r=t-1; break;\
-                                                                                case 1 : r=1-t; break;\
-                                                                                case 2 : r=t;   break;\
-                                                                                case 3 : r=-t;  break;\
-                                                                        }\
-                                                                }
-
-#define DNDT(n,i,s,t,r)             if (n==3)\
-                                                                {\
-                                                                        switch (i)\
-                                                                        {\
-                                                                                case 0 : r=-1; break;\
-                                                                                case 1 : r=0; break;\
-                                                                                case 2 : r=1; break;\
-                                                                        }\
-                                                                }\
-                                                                else if (n==4)\
-                                                                {\
-                                                                        switch (i)\
-                                                                        {\
-                                                                                case 0 : r=s-1; break;\
-                                                                                case 1 : r=-s;  break;\
-                                                                                case 2 : r=s;   break;\
-                                                                                case 3 : r=1-s; break;\
-                                                                        }\
-                                                                }
 
 #define CORNER_COORDINATES_TRIANGLE(e,n,x)                                \
                                    {(n)=3;                                \
                                                                    (x)[0]=CVECT(MYVERTEX(CORNER((e),0))); \
                                                                    (x)[1]=CVECT(MYVERTEX(CORNER((e),1))); \
                                                                    (x)[2]=CVECT(MYVERTEX(CORNER((e),2)));}
-
-#define COPY_COORDINATES_TRIANGLE(e,n,x)                                     \
-                                  {DOUBLE *cvect;                             \
-                                   (n) = 3;                                  \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),0)));     \
-                                   V_DIM_COPY(cvect,x[0]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),1)));     \
-                                   V_DIM_COPY(cvect,x[1]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),2)));     \
-                                                                   V_DIM_COPY(cvect,x[2]); }
 
 #define CORNER_COORDINATES_QUADRILATERAL(e,n,x)                           \
                                    {(n)=4;                                \
@@ -113,28 +64,10 @@ START_UGDIM_NAMESPACE
                                                                    (x)[2]=CVECT(MYVERTEX(CORNER((e),2))); \
                                                                    (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));}
 
-#define COPY_COORDINATES_QUADRILATERAL(e,n,x)                                \
-                                  {DOUBLE *cvect;                             \
-                                   (n) = 4;                                  \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),0)));     \
-                                   V_DIM_COPY(cvect,x[0]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),1)));     \
-                                   V_DIM_COPY(cvect,x[1]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),2)));     \
-                                   V_DIM_COPY(cvect,x[2]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),3)));     \
-                                                       V_DIM_COPY(cvect,x[3]); }
-
 #define CORNER_COORDINATES(e,n,x)                               \
  {if (TAG((e))==TRIANGLE)                                       \
                  CORNER_COORDINATES_TRIANGLE((e),(n),(x))       \
   else           CORNER_COORDINATES_QUADRILATERAL((e),(n),(x))}
-
-#define COPY_CORNER_COORDINATES(e,n,x)                          \
- {if (TAG((e))==TRIANGLE)                                       \
-                 COPY_COORDINATES_TRIANGLE((e),(n),(x))         \
-  else if (TAG((e))==QUADRILATERAL)                             \
-                 COPY_COORDINATES_QUADRILATERAL((e),(n),(x))}
 
 #endif /* __TWODIM__ */
 
@@ -178,9 +111,6 @@ START_UGDIM_NAMESPACE
  {if ((n) == 3)      AREA_OF_TRIANGLE((x),(area))       \
   else if ((n) == 4) AREA_OF_QUADRILATERAL((x),(area)) }
 
-#define AREA_OF_REF_2D(n,area)       { if ( (n) == 3) (area) = 0.5;     \
-                                                                        else if ( (n) == 4) (area) = 1.0; }
-
 #define TRANSFORMATION_OF_TRIANGLE(x,M)     \
     { V2_SUBTRACT((x)[1],(x)[0],(M)[0]);    \
           V2_SUBTRACT((x)[2],(x)[0],(M)[1]); }
@@ -198,18 +128,6 @@ START_UGDIM_NAMESPACE
  {if ((n) == 3)      {TRANSFORMATION_OF_TRIANGLE((x),(M));}              \
   else TRANSFORMATION_OF_QUADRILATERAL((x),(local),(M)); }
 
-#define SIDE_NORMAL_2D(n,i,x,normal)                 \
-   { DOUBLE s; DOUBLE_VECTOR y;                   \
-         V2_SUBTRACT(x[(i+1)%n],x[i],y);              \
-         V2_EUKLIDNORM(y,s);                          \
-         V2_SCALE(1.0/s,y);                           \
-         V2_SUBTRACT(x[(i+1)%n],x[(i+2)%n],normal);   \
-         V2_SCALAR_PRODUCT(normal,y,s);               \
-         V2_LINCOMB(1.0,normal,-s,y,normal);          \
-         V2_EUKLIDNORM(normal,s);                     \
-         V2_SCALE(1.0/s,normal);}
-
-
 
 #ifdef __THREEDIM__
 #define CORNER_COORDINATES_TETRAHEDRON(e,n,x)                              \
@@ -219,18 +137,6 @@ START_UGDIM_NAMESPACE
                                                                    (x)[2]=CVECT(MYVERTEX(CORNER((e),2)));  \
                                                    (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));}
 
-#define COPY_COORDINATES_TETRAHEDRON(e,n,x)                                  \
-                                  {DOUBLE *cvect;                             \
-                                   (n) = 4;                                  \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),0)));     \
-                                   V_DIM_COPY(cvect,x[0]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),1)));     \
-                                   V_DIM_COPY(cvect,x[1]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),2)));     \
-                                   V_DIM_COPY(cvect,x[2]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),3)));     \
-                                                       V_DIM_COPY(cvect,x[3]); }
-
 #define CORNER_COORDINATES_PYRAMID(e,n,x)                                  \
                                   {(n) = 5;                                \
                                                                    (x)[0]=CVECT(MYVERTEX(CORNER((e),0)));  \
@@ -238,20 +144,6 @@ START_UGDIM_NAMESPACE
                                                                    (x)[2]=CVECT(MYVERTEX(CORNER((e),2)));  \
                                    (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));  \
                                    (x)[4]=CVECT(MYVERTEX(CORNER((e),4)));}
-
-#define COPY_COORDINATES_PYRAMID(e,n,x)                                      \
-                                  {DOUBLE *cvect;                             \
-                                   (n) = 5;                                  \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),0)));     \
-                                   V_DIM_COPY(cvect,x[0]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),1)));     \
-                                   V_DIM_COPY(cvect,x[1]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),2)));     \
-                                   V_DIM_COPY(cvect,x[2]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),3)));     \
-                                   V_DIM_COPY(cvect,x[3]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),4)));     \
-                                                       V_DIM_COPY(cvect,x[4]); }
 
 #define CORNER_COORDINATES_PRISM(e,n,x)                                    \
                                   {(n) = 6;                                \
@@ -261,22 +153,6 @@ START_UGDIM_NAMESPACE
                                    (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));  \
                                    (x)[4]=CVECT(MYVERTEX(CORNER((e),4)));  \
                                    (x)[5]=CVECT(MYVERTEX(CORNER((e),5)));}
-
-#define COPY_COORDINATES_PRISM(e,n,x)                                        \
-                                  {DOUBLE *cvect;                             \
-                                   (n) = 6;                                  \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),0)));     \
-                                   V_DIM_COPY(cvect,x[0]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),1)));     \
-                                   V_DIM_COPY(cvect,x[1]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),2)));     \
-                                   V_DIM_COPY(cvect,x[2]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),3)));     \
-                                   V_DIM_COPY(cvect,x[3]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),4)));     \
-                                   V_DIM_COPY(cvect,x[4]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),5)));     \
-                                                       V_DIM_COPY(cvect,x[5]); }
 
 #define CORNER_COORDINATES_HEXAHEDRON(e,n,x)                               \
                                   {(n) = 8;                                \
@@ -289,37 +165,11 @@ START_UGDIM_NAMESPACE
                                                                    (x)[6]=CVECT(MYVERTEX(CORNER((e),6)));  \
                                                                    (x)[7]=CVECT(MYVERTEX(CORNER((e),7)));}
 
-#define COPY_COORDINATES_HEXAHEDRON(e,n,x)                                   \
-                                  {DOUBLE *cvect;                             \
-                                   (n) = 8;                                  \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),0)));     \
-                                   V_DIM_COPY(cvect,x[0]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),1)));     \
-                                   V_DIM_COPY(cvect,x[1]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),2)));     \
-                                   V_DIM_COPY(cvect,x[2]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),3)));     \
-                                   V_DIM_COPY(cvect,x[3]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),4)));     \
-                                   V_DIM_COPY(cvect,x[4]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),5)));     \
-                                   V_DIM_COPY(cvect,x[5]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),6)));     \
-                                   V_DIM_COPY(cvect,x[6]);                   \
-                                                                   cvect=CVECT(MYVERTEX(CORNER((e),7)));     \
-                                                       V_DIM_COPY(cvect,x[7]); }
-
 #define CORNER_COORDINATES(e,n,x)                                            \
   {if (TAG((e))==TETRAHEDRON)     CORNER_COORDINATES_TETRAHEDRON((e),(n),(x))\
    else if (TAG((e))==PYRAMID)    CORNER_COORDINATES_PYRAMID((e),(n),(x))    \
    else if (TAG((e))==PRISM)      CORNER_COORDINATES_PRISM((e),(n),(x))      \
    else CORNER_COORDINATES_HEXAHEDRON((e),(n),(x))}
-
-#define COPY_CORNER_COORDINATES(e,n,x)                                     \
-  {if (TAG((e))==TETRAHEDRON)     COPY_COORDINATES_TETRAHEDRON((e),(n),(x))\
-   else if (TAG((e))==PYRAMID)    COPY_COORDINATES_PYRAMID((e),(n),(x))    \
-   else if (TAG((e))==PRISM)      COPY_COORDINATES_PRISM((e),(n),(x))      \
-   else if (TAG((e))==HEXAHEDRON) COPY_COORDINATES_HEXAHEDRON((e),(n),(x))}
 
 #endif /* __THREEDIM__ */
 
@@ -492,15 +342,6 @@ START_UGDIM_NAMESPACE
   else if ((n) == 6) {AREA_OF_PRISM((x),(area));}        \
   else if ((n) == 8) {AREA_OF_HEXAHEDRON((x),(area));}}
 
-#define AREA_OF_REF_3D(n,area)          { if ( (n) == 4)                   \
-                                          (area) = 0.16666666666666666; \
-                                       else if ( (n) == 5)              \
-                                                                                  (area) = 0.33333333333333333; \
-                                                                           else if ( (n) == 6)              \
-                                          (area) = 0.5;                 \
-                                                                           else if ( (n) == 8)              \
-                                          (area) = 1.0; }
-
 #define TRANSFORMATION_OF_TETRAHEDRON(x,M)   \
         { V3_SUBTRACT((x)[1],(x)[0],(M)[0]);     \
           V3_SUBTRACT((x)[2],(x)[0],(M)[1]);     \
@@ -592,23 +433,11 @@ START_UGDIM_NAMESPACE
   else if ((n) == 6) {TRANSFORMATION_OF_PRISM((x),(local),(M));}        \
   else TRANSFORMATION_OF_HEXAHEDRON((x),(local),(M));}
 
-#define SIDE_NORMAL_3D(n,i,x,normal)                                \
-  { DOUBLE s; DOUBLE_VECTOR a,b;                                 \
-        V3_SUBTRACT(x[CORNER_OF_SIDE_REF((n),(i),1)],                \
-                x[CORNER_OF_SIDE_REF((n),(i),0)],a);             \
-        V3_SUBTRACT(x[CORNER_OF_SIDE_REF((n),(i),2)],                \
-                                x[CORNER_OF_SIDE_REF((n),(i),0)],b);             \
-        V3_VECTOR_PRODUCT(a,b,(normal));                             \
-        V3_EUKLIDNORM((normal),s);                                   \
-        V3_SCALE(1.0/s,(normal));}
-
 
 #ifdef __TWODIM__
 #define LOCAL_TO_GLOBAL(n,x,local,global)                       LOCAL_TO_GLOBAL_2D(n,x,local,global)
 #define AREA_OF_ELEMENT(n,x,area)                                       AREA_OF_ELEMENT_2D(n,x,area)
-#define AREA_OF_REF(n,area)                                                     AREA_OF_REF_2D(n,area)
 #define TRANSFORMATION(n,x,local,M)                                     TRANSFORMATION_2D(n,x,local,M)
-#define SIDE_NORMAL(n,i,x,normal)                                       SIDE_NORMAL_2D(n,i,x,normal)
 #endif /* __TWODIM__ */
 
 #ifdef __THREEDIM__
@@ -619,9 +448,7 @@ START_UGDIM_NAMESPACE
 
 #define LOCAL_TO_GLOBAL(n,x,local,global)                       LOCAL_TO_GLOBAL_3D(n,x,local,global)
 #define AREA_OF_ELEMENT(n,x,area)                                       AREA_OF_ELEMENT_3D(n,x,area)
-#define AREA_OF_REF(n,area)                                                     AREA_OF_REF_3D(n,area)
 #define TRANSFORMATION(n,x,local,M)                                     TRANSFORMATION_3D(n,x,local,M)
-#define SIDE_NORMAL(n,i,x,normal)                                       SIDE_NORMAL_3D(n,i,x,normal)
 #endif /* __THREEDIM__ */
 
 #define INVERSE_TRANSFORMATION(n,x,local,Jinv,Jdet)   \
@@ -647,111 +474,14 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-DOUBLE   GN                   (INT n, INT i, const DOUBLE *ip_local);
-INT      GNs                  (INT n, const DOUBLE *ip_local, DOUBLE *result);
-INT      DimGNs               (INT dim, INT n, const DOUBLE *ip_local, DOUBLE *result);
-INT      D_GN                 (INT n, INT i, const DOUBLE *ip_local, DOUBLE *derivative);
 DOUBLE  *LMP                  (INT n);
 INT      UG_GlobalToLocal     (INT n, const DOUBLE **Corners, const DOUBLE *EvalPoint, DOUBLE *LocalCoord);
-INT      UG_GlobalToLocalBnd  (INT n, const DOUBLE **Corners,
-                               const DOUBLE *EvalPoint, DOUBLE *LocalCoord);
-
-INT LocalCornerCoordinates (INT dim, INT tag, INT corner, DOUBLE *result);
-/*****************************************************************************
- * This function delivers the coordinates of the corners in the refernence
- * element.
- * Parameters are:
- * dim          space dimension, 2D can be called in 3D
- * tag                  identifies element type, i.e. 3=TRIANGLE, 4=QUADRILATERAL here
- * corner               number of the corner
- * result               array to place result
- */
-
-INT InterpolateFEFunction (INT dim, INT tag, DOUBLE ip_local[DIM],
-                DOUBLE nodal_values[MAX_CORNERS_OF_ELEM], DOUBLE *result);
-/*****************************************************************************
- * This function interpolates  a finite element function given by
- * nodal values at some point in the interior of the element. The coordinates
- * of this point must be given in local coordinates.
- * Parameters are:
- * dim          space dimension, 2D can be called in 3D
- * tag                  identifies element type, i.e. 3=TRIANGLE, 4=QUADRILATERAL here
- * ip_local             local coordinates of interpolation point
- * nodal_values array of nodal values of function to interpolate
- * result               pointer where to place result (one DOUBLE value)
- */
-
-
-INT LinearTrafo (INT dim, INT tag);
-/*****************************************************************************
- * This function returns true if transformation from reference element
- * to an arbitrary element is linear. This can be used to avoid
- * recomputation of the Jacobian of the transformation.
- * Parameters are:
- * dim          space dimension, 2D can be called in 3D
- * tag                  identifies element type, i.e. 3=TRIANGLE, 4=QUADRILATERAL here
- */
-
-
-INT JacobianInverse (INT dim, INT tag, DOUBLE co_global[MAX_CORNERS_OF_ELEM][DIM],
-                DOUBLE ip_local[DIM], DOUBLE Jinv[DIM][DIM], DOUBLE *detJ);
-/*****************************************************************************
- * Compute inverse of the jacobian of transformation of reference element
- * to some element given by global coordinates of corners. The determinant
- * of the jacobian (no its inverse!) is also provided as a result.
- * Parameters are:
- * dim          space dimension, 2D can be called in 3D
- * tag                  identifies element type, i.e. 3=TRIANGLE, 4=QUADRILATERAL here
- * co_global    global coordinates of the corners of the element
- * ip_local             local coordinates of interpolation point
- * Jinv                 place to store the inverse of jacobian
- * detJ                 place to store determinant
- */
-
-
-INT GradientFEFunction (INT dim, INT tag, DOUBLE ip_local[DIM], DOUBLE Jinv[DIM][DIM],
-                DOUBLE nodal_values[MAX_CORNERS_OF_ELEM], DOUBLE result[DIM]);
-/*****************************************************************************
- * Compute gradient in global coordinates of some finite element function
- * given by nodal values at some point within the element.
- * Parameters are:
- * dim          space dimension, 2D can be called in 3D
- * tag                  identifies element type, i.e. 3=TRIANGLE, 4=QUADRILATERAL here
- * ip_local             local coordinates of interpolation point
- * Jinv                 inverse of jacobian of transformation computed by fct above
- * nodal_values array of nodal values of function to interpolate
- * result               pointer where to place result (a vector)
- */
-
-INT SurfaceElement (INT dim, INT nc,
-                    const DOUBLE co_global[MAX_CORNERS_OF_ELEM][DIM],
-                    const DOUBLE ip_local[DIM], DOUBLE *result);
-
-#ifdef __TWODIM__
-DOUBLE  dNds (INT n, INT i, DOUBLE s, DOUBLE t);
-DOUBLE  dNdt (INT n, INT i, DOUBLE s, DOUBLE t);
-
-INT Derivatives     (INT n, const DOUBLE *px, const DOUBLE *py, DOUBLE ips, DOUBLE ipt, DOUBLE *dNdx, DOUBLE *dNdy, DOUBLE *detJ);
-INT Gradients       (INT n, const DOUBLE **theCorners, DOUBLE ips, DOUBLE ipt, DOUBLE_VECTOR Gradient[MAX_CORNERS_OF_ELEM], DOUBLE *DetJ);
-
-INT L2GDerivative2d (INT n, const DOUBLE **Corners, const DOUBLE_VECTOR EvalPoint, DOUBLE *Derivative);
-#endif
 
 #ifdef __THREEDIM__
-INT GetSkewedUIP (const DOUBLE_VECTOR *theCorners, const DOUBLE_VECTOR LIP[MAX_EDGES_OF_ELEM], const DOUBLE_VECTOR conv[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR LUIP[MAX_EDGES_OF_ELEM]);
 DOUBLE  N                   (const INT i, const DOUBLE *LocalCoord);
-INT     TetraDerivative     (ELEMENT *theElement, const DOUBLE **theCorners, DOUBLE_VECTOR theGradient[MAX_CORNERS_OF_ELEM]);
-INT     TetraVolume         (const DOUBLE **theCorners, DOUBLE *volume);
-INT     FV_TetInfo          (const DOUBLE **theCorners, DOUBLE_VECTOR Area[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR GIP[MAX_EDGES_OF_ELEM]);
-INT     Side_TetInfo            (DOUBLE **theCorners, INT side, DOUBLE_VECTOR Area, DOUBLE_VECTOR GIP[3]);
 INT     TetraSideNormals    (ELEMENT *theElement, DOUBLE **theCorners, DOUBLE_VECTOR theNormals[MAX_SIDES_OF_ELEM]);
 INT     TetMaxSideAngle     (ELEMENT *theElement, const DOUBLE **theCorners, DOUBLE *MaxAngle);
 INT     TetAngleAndLength   (ELEMENT *theElement, const DOUBLE **theCorners, DOUBLE *Angle, DOUBLE *Length);
-INT     FV_AliTetInfo       (const DOUBLE **CornerPoints, DOUBLE_VECTOR Area[6], DOUBLE_VECTOR conv, DOUBLE_VECTOR GIP[6], DOUBLE_VECTOR LIP[6]);
-INT     FV_TetInfo_for_conv (ELEMENT *theElement, const DOUBLE **CornerPoints, DOUBLE_VECTOR Area[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR GIP[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR LUIP[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR conv);
-INT     GFUIP               (const DOUBLE **theCorners, const DOUBLE_VECTOR LIP[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR conv[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR LUIP[MAX_EDGES_OF_ELEM]);
-INT     GCUIP               (const DOUBLE **theCorners, const DOUBLE_VECTOR LIP[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR conv[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR LUIP[MAX_EDGES_OF_ELEM]);
-INT     COPYIP              (const DOUBLE **theCorners, const DOUBLE_VECTOR LIP[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR conv[MAX_EDGES_OF_ELEM], DOUBLE_VECTOR LUIP[MAX_EDGES_OF_ELEM]);
 #endif
 
 END_UGDIM_NAMESPACE

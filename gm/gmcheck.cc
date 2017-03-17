@@ -1120,35 +1120,6 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
           if (theFather != NULL)
             UserWriteF(PFMT "ELEM(" EID_FMTX ") has no fatherpointer but father="
                        EID_FMTX "\n",me,EID_PRTX(theElement),EID_PRTX(theFather));
-
-          if (0)
-            for (theFather = PFIRSTELEMENT(downGrid);
-                 theFather != NULL; theFather = SUCCE(theFather))
-            {
-              k = PointInElement(center,theFather);
-              switch (k)
-              {
-                case 0:
-                UserWriteF(PFMT "ELEM(" EID_FMTX ") PointInElement() returned"
-                           " error",me,EID_PRTX(theElement));
-                break;
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                /* point (nearly) in father */
-                UserWriteF(PFMT "ELEM(" EID_FMTX ") has no fatherpointer but father="
-                           EID_FMTX "\n",me,EID_PRTX(theElement),EID_PRTX(theFather));
-                break;
-                case 5:
-                /* point not in father */
-                break;
-                default:
-                UserWriteF(PFMT "ELEM(" EID_FMTX ") PointInElement() unexpected"
-                           " Returncode=%d",me,EID_PRTX(theElement),k);
-                break;
-              }
-            }
         }
     }
   }
