@@ -96,7 +96,7 @@ INT NS_PREFIX GetLocalizedDefaultValue (const char *filename, const char *name, 
     if (filename==NULL)
       return(1);
 
-    buffered_filename = StrDup(filename);
+    buffered_filename = strdup(filename);
 
     /* get filesize and broadcast it */
     if (me==master) fsize = filesize(filename);

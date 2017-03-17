@@ -357,37 +357,6 @@ START_UGDIM_NAMESPACE
     (IM)[2][1] = (-(M)[0][0]*(M)[2][1] + (M)[0][1]*(M)[2][0]) * invdet;  \
     (IM)[2][2] = ( (M)[0][0]*(M)[1][1] - (M)[0][1]*(M)[1][0]) * invdet;}
 
-#ifdef __MPW32__
-#define M4_TIMES_M4(A,B,C)                              {int i,j,k; for (i=0; i<4; i++) for (j=0; j<4; j++) for (k=0; k<4; k++) \
-                                                               (C)[i+4*j] = (A)[i+4*k] * (B)[k+4*j];}
-#else
-#define M4_TIMES_M4(A,B,C)                         {(C)[0]      = (A)[ 0]*(B)[ 0]+(A)[ 4]*(B)[ 1]+(A)[ 8]*(B)[ 2]+(A)[12]*(B)[ 3];\
-                                                    (C)[1]  = (A)[ 1]*(B)[ 0]+(A)[ 5]*(B)[ 1]+(A)[ 9]*(B)[ 2]+(A)[13]*(B)[ 3];\
-                                                    (C)[2]  = (A)[ 2]*(B)[ 0]+(A)[ 6]*(B)[ 1]+(A)[10]*(B)[ 2]+(A)[14]*(B)[ 3];\
-                                                    (C)[3]  = (A)[ 3]*(B)[ 0]+(A)[ 7]*(B)[ 1]+(A)[11]*(B)[ 2]+(A)[15]*(B)[ 3];\
-                                                    (C)[4]  = (A)[ 0]*(B)[ 4]+(A)[ 4]*(B)[ 5]+(A)[ 8]*(B)[ 6]+(A)[12]*(B)[ 7];\
-                                                    (C)[5]  = (A)[ 1]*(B)[ 4]+(A)[ 5]*(B)[ 5]+(A)[ 9]*(B)[ 6]+(A)[13]*(B)[ 7];\
-                                                    (C)[6]  = (A)[ 2]*(B)[ 4]+(A)[ 6]*(B)[ 5]+(A)[10]*(B)[ 6]+(A)[14]*(B)[ 7];\
-                                                    (C)[7]  = (A)[ 3]*(B)[ 4]+(A)[ 7]*(B)[ 5]+(A)[11]*(B)[ 6]+(A)[15]*(B)[ 7];\
-                                                    (C)[8]  = (A)[ 0]*(B)[ 8]+(A)[ 4]*(B)[ 9]+(A)[ 8]*(B)[10]+(A)[12]*(B)[11];\
-                                                    (C)[9]  = (A)[ 1]*(B)[ 8]+(A)[ 5]*(B)[ 9]+(A)[ 9]*(B)[10]+(A)[13]*(B)[11];\
-                                                    (C)[10] = (A)[ 2]*(B)[ 8]+(A)[ 6]*(B)[ 9]+(A)[10]*(B)[10]+(A)[14]*(B)[11];\
-                                                    (C)[11] = (A)[ 3]*(B)[ 8]+(A)[ 7]*(B)[ 9]+(A)[11]*(B)[10]+(A)[15]*(B)[11];\
-                                                    (C)[12] = (A)[ 0]*(B)[12]+(A)[ 4]*(B)[13]+(A)[ 8]*(B)[14]+(A)[12]*(B)[15];\
-                                                    (C)[13] = (A)[ 1]*(B)[12]+(A)[ 5]*(B)[13]+(A)[ 9]*(B)[14]+(A)[13]*(B)[15];\
-                                                    (C)[14] = (A)[ 2]*(B)[12]+(A)[ 6]*(B)[13]+(A)[10]*(B)[14]+(A)[14]*(B)[15];\
-                                                    (C)[15] = (A)[ 3]*(B)[12]+(A)[ 7]*(B)[13]+(A)[11]*(B)[14]+(A)[15]*(B)[15];}
-#endif
-#define M4_COPY(A,B)                                    {(B)[0] = (A)[0]; (B)[1] = (A)[1]; (B)[2] = (A)[2]; (B)[3] = (A)[3]; \
-                                                         (B)[4] = (A)[4]; (B)[5] = (A)[5]; (B)[6] = (A)[6]; (B)[7] = (A)[7]; \
-                                                         (B)[8] = (A)[8]; (B)[9] = (A)[9]; (B)[10] = (A)[10]; (B)[11] = (A)[11]; \
-                                                         (B)[12] = (A)[12]; (B)[13] = (A)[13]; (B)[14] = (A)[14]; (B)[15] = (A)[15];}
-
-#define M4_CLEAR(B)                                             {(B)[0] = 0.0; (B)[1] = 0.0; (B)[2] = 0.0; (B)[3] = 0.0; \
-                                                                 (B)[4] = 0.0; (B)[5] = 0.0; (B)[6] = 0.0; (B)[7] = 0.0; \
-                                                                 (B)[8] = 0.0; (B)[9] = 0.0; (B)[10] = 0.0; (B)[11] = 0.0; \
-                                                                 (B)[12] = 0.0; (B)[13] = 0.0; (B)[14] = 0.0; (B)[15] = 0.0;}
-
 /* macros for exact solver (EX) */
 #define EX_MAT(m,b,i,j)                 ((m)[2*(b)*(i) + (j)])
 
@@ -586,12 +555,8 @@ INT             V2_Normalize                                            (DOUBLE 
 INT             V2_Rotate                                                       (DOUBLE *vector, DOUBLE alpha);
 INT             V2_IntersectLineSegments                        (const DOUBLE_VECTOR a0, const DOUBLE_VECTOR a1, const DOUBLE_VECTOR b0, const DOUBLE_VECTOR b1, DOUBLE *lambda);
 INT             V2_apbmin2c                                             (const DOUBLE *a, const DOUBLE *b, const DOUBLE *c, DOUBLE *d, DOUBLE *r);
-DOUBLE          tarea                                                           (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2);
-DOUBLE          qarea                                                           (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2,DOUBLE x3,DOUBLE y3);
 DOUBLE          c_tarea                                                         (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2);
 DOUBLE          c_qarea                                                         (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2, const DOUBLE *x3);
-DOUBLE          ctarea                                                          (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2);
-DOUBLE          cqarea                                                          (DOUBLE x0,DOUBLE y0,DOUBLE x1,DOUBLE y1,DOUBLE x2,DOUBLE y2,DOUBLE x3,DOUBLE y3);
 DOUBLE          V_te                                                            (const DOUBLE *x0, const DOUBLE *x1,
                                                                                  const DOUBLE *x2, const DOUBLE *x3);
 DOUBLE          V_py                                                            (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2,
@@ -611,9 +576,6 @@ INT             V3_Angle                                                        
 INT             V3_Orthogonalize                                        (const DOUBLE *a, const DOUBLE *b, DOUBLE *r);
 INT             V3_Project                                                      (const DOUBLE *a, const DOUBLE *b, DOUBLE *r);
 
-
-/* 4D routines */
-INT             M4_Invert                                                       (DOUBLE *Inverse, const DOUBLE *Matrix);
 
 /* volume calculations*/
 DOUBLE GeneralElementVolume                            (INT tag, DOUBLE *x_co[]);

@@ -38,16 +38,6 @@
 #include <climits>
 #include <float.h>
 
-#ifdef __NECSX4__
-#include <sys/types.h>
-#include <sys/syssx.h>
-#endif
-
-#ifdef __AIX__
-#include <sys/time.h>
-#include <sys/timeb.h>
-#endif
-
 #include "ugtypes.h"
 #include "architecture.h"
 #include "general.h"
@@ -335,7 +325,7 @@ char * NS_PREFIX ExpandCShellVars (char *string)
   if (strstr(string,CSHELL_VAR_BEGIN)!=NULL)
   {
     /* shell var reference contained: copy string and expand vars */
-    char *copy = StrDup(string);
+    char *copy = strdup(string);
     char *p0  = copy;                           /* current pos  */
     char *p1;                                           /* end of token */
 
@@ -383,55 +373,6 @@ char * NS_PREFIX ExpandCShellVars (char *string)
 }
 
 /****************************************************************************/
-/** \brief Copy a token out of a string (ANSI-C)
-
-   \param s -  pointer to char
-   \param ct - pointer to char (const)
-
-   This function copies a token out of a string.
-
-   See also ANSI-C for description of this function.
-
-   \return
-   .n    pointer to char, modified string
- */
-/****************************************************************************/
-
-char * NS_PREFIX StrTok (char *s, const char *ct)
-{
-  static char *e;
-  char *b;
-  UINT i;
-  INT flag;
-
-  if (s != NULL)
-    b = s-1;
-  else
-    b = e+1;
-
-  flag = 0;
-  while (flag == 0)
-  {
-    b += 1;
-    for (i=0; i<strlen(ct); i++)
-      if ((*(ct+i)) == (*b))
-        flag = 1;
-  }
-  e = b;
-  flag = 0;
-  while (flag == 0)
-  {
-    e += 1;
-    for (i=0; i<strlen(ct); i++)
-      if ((*(ct+i)) == (*e))
-        flag = 1;
-  }
-  *e = '\0';
-
-  return (b);
-}
-
-/****************************************************************************/
 /** \brief Split a string into tokens each of maximal length 'n+1'
 
    \param str -   pointer to char (const)
@@ -472,163 +413,6 @@ const char * NS_PREFIX strntok (const char *str, const char *sep, int n, char *t
 
   return (str);
 }
-
-/****************************************************************************/
-/** \brief Duplicate string to memory allocated with malloc
-
-   \param s - string to duplicate
-
-   This function duplicates a string to memory allocated with malloc.
-
-   \return
-   .n        pointer to new string
- */
-/****************************************************************************/
-
-char * NS_PREFIX StrDup (const char *s)
-{
-  char *p;
-
-  p = (char*) malloc(strlen(s)+1);
-  if (p!=NULL)
-    strcpy(p,s);
-
-  return(p);
-}
-
-/****************************************************************************/
-
-static void Copy (char *a, const char *b, INT size)
-{
-  INT i;
-
-  for (i=0; i<size; i++)
-    a[i] = b[i];
-}
-
-/****************************************************************************/
-/** \brief Sorting routine (standard function)
-
-   \param base - pointer to void, field to be sorted
-   \param n -    integer, length of string
-   \param size - integer, number of characters to be sorted
-   \param cmp -  pointer to function with two arguments
-
-   This function sorts the values returned by a function given as argument.
-
-   See also standard description of 'QSort'.
- */
-/****************************************************************************/
-void NS_PREFIX QSort (void *base, INT n, INT size, int (*cmp)(const void *, const void *))
-{
-  INT i, j;
-  char *Base, v[4], t[4];
-  INT cmp1, cmp2, compare,flag;
-
-  if (n<2) return;
-  flag=0;
-  Base = (char*)base;
-  Copy(v,Base+(n-1)*size,size);
-  for (i=-1, j=n-1;;)
-  {
-    while (++i<n-1)
-      if ((cmp1=cmp( (void *)v, (void *)(Base+i*size))) <= 0)
-        break;
-    while ( --j>0)
-      if ((cmp2=cmp( (void *)v, (void *)(Base+j*size))) >= 0)
-        break;
-    if (i>=j)
-      break;
-    compare  = (cmp1<0);
-    compare |= ((cmp2>0)<<1);
-    switch (compare)
-    {
-    case (0) :
-      QSort ( (void *)(Base+i*size), j-i+1, size, cmp);
-      i--;
-      while (++i<n-1)
-        if (cmp( (void *)v, (void *)(Base+i*size)) < 0)
-          break;
-      flag=1;
-      break;
-    case (1) :
-      Copy(t,Base+i*size,size);
-      Copy(Base+i*size,Base+j*size,size);
-      Copy(Base+j*size,t,size);
-      i--;
-      break;
-    case (2) :
-      Copy(t,Base+i*size,size);
-      Copy(Base+i*size,Base+j*size,size);
-      Copy(Base+j*size,t,size);
-      j++;
-      break;
-    case (3) :
-      Copy(t,Base+i*size,size);
-      Copy(Base+i*size,Base+j*size,size);
-      Copy(Base+j*size,t,size);
-      break;
-    }
-    if (flag) break;
-  }
-  Copy(t,Base+i*size,size);
-  Copy(Base+i*size,v,size);
-  Copy(Base+(n-1)*size,t,size);
-  QSort ( base, i, size, cmp);
-  QSort ( (void *)(Base+(i+1)*size), n-i-1, size, cmp);
-}
-
-/****************************************************************************/
-/** \brief Sorting routine (standard)
-
-   \param base - pointer to void, field to be sorted
-   \param n -    integer, length of string
-   \param size - integer, number of characters to be sorted
-   \param cmp -  pointer to function with two arguments
-
-   This function sorts the arguments of the function.
-
-   See also standard description of 'SelectionSort'.
- */
-/****************************************************************************/
-
-void NS_PREFIX SelectionSort (void *base, INT n, INT size, int (*cmp)(const void *, const void *))
-{
-  INT i,j,k1,k2,s;
-  char *Smallest,*Base;
-
-  if (n<2) return;
-
-  if ((Smallest=(char*)malloc(size))==NULL)
-    return;
-
-  Base = (char*)base;
-
-  for (i=0; i<n; i++)
-  {
-    Copy(Smallest,Base+i*size,size);
-    k1=i;
-    for (s=0; s<n-i; s++)
-    {
-      k2=k1;
-      for (j=i; j<n; j++)
-      {
-        if (j==k1) continue;
-        if (cmp( (void *)Smallest, (void *)(Base+j*size)) > 0)
-        {
-          Copy(Smallest,Base+j*size,size);
-          k1=j;
-        }
-      }
-      if (k1==k2) break;
-    }
-    Copy(Smallest,Base+i*size,size);
-    Copy(Base+i*size,Base+k1*size,size);
-    Copy(Base+k1*size,Smallest,size);
-  }
-  free(Smallest);
-}
-
 
 /****************************************************************************/
 /** \brief Convert a (memory)size specification from String to MEM (long int)

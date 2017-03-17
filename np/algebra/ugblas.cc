@@ -66,7 +66,6 @@
 #include "np.h"
 #include "disctools.h"
 #include "ugblas.h"
-#include "blasm.h"
 
 USING_UG_NAMESPACES
   using namespace PPIF;

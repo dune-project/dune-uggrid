@@ -1,13 +1,10 @@
 set(SOURCES
   ugblas.cc
   ugiter.cc
-  block.cc
   sm.cc
-  blasm.cc
 )
 
 set(npinclude_HEADERS
-  block.h
   sm.h)
 
 ug_add_dim_libs(algebra OBJECT SOURCES ${SOURCES})

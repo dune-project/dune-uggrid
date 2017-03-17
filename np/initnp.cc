@@ -36,7 +36,7 @@
 #include "udm.h"
 #include "formats.h"
 
-#include "initnp.h"
+#include "initnumerics.h"
 #include "numproc.h"
 
 USING_UG_NAMESPACES

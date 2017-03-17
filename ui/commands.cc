@@ -2775,7 +2775,7 @@ static INT InsertGlobalNodeCommand (INT argc, char **argv)
   my_argv = (char**)malloc(n*sizeof(char*));
   if (my_argv==NULL)
     return CMDERRORCODE;
-  my_argv[my_argc] = StrDup(argv[0]);
+  my_argv[my_argc] = strdup(argv[0]);
   if (my_argv[my_argc]==NULL)
   {
     err = CMDERRORCODE;
@@ -2784,7 +2784,7 @@ static INT InsertGlobalNodeCommand (INT argc, char **argv)
   my_argv[my_argc][0] = 'b';                    /* gn --> bn */
   my_argc++;
 
-  my_argv[my_argc] = StrDup("g");
+  my_argv[my_argc] = strdup("g");
   if (my_argv[my_argc]==NULL)
   {
     err = CMDERRORCODE;
@@ -2796,7 +2796,7 @@ static INT InsertGlobalNodeCommand (INT argc, char **argv)
   {
     char r_opt[64];
     sprintf(r_opt,"$r %g",resolution);
-    my_argv[my_argc] = StrDup(r_opt);
+    my_argv[my_argc] = strdup(r_opt);
     if (my_argv[my_argc]==NULL)
     {
       err = CMDERRORCODE;

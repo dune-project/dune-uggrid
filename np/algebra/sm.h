@@ -22,32 +22,12 @@
 #ifndef __SM__
 #define __SM__
 
-#ifdef UG_DIM_2
-#define __UG__
-#endif
-
-#ifdef UG_DIM_3
-#define __UG__
-#endif
-
-#ifdef __UG__
-
-    #include "ugtypes.h"
-
-    #include <cstddef>
-
-#else /* not __UG__ */
-
-    #ifndef __GENERAL__
-        #include "general.h"
-    #endif
-
-#endif /* not __UG__ */
-
-#ifdef __UG__
 #include "namespace.h"
+#include "ugtypes.h"
+
+#include <cstddef>
+
 START_UGDIM_NAMESPACE
-#endif
 
 /****************************************************************************/
 /*																			*/
@@ -76,32 +56,14 @@ typedef struct {
 /*																			*/
 /****************************************************************************/
 
-#ifdef __UG__
 INT ComputeSMSizeOfArray (SHORT nr, SHORT nc, const SHORT *comps,
                           SHORT *NPtr, SHORT *NredPtr);
-INT SM2Array             (const SPARSE_MATRIX *sm, SHORT *comps);
 INT Array2SM             (SHORT nr, SHORT nc, const SHORT *comps,
                           SPARSE_MATRIX *sm);
 INT String2SMArray       (SHORT n, char *str, SHORT *comps);
-#endif
 
 INT SM_Compute_Reduced_Size    (SPARSE_MATRIX *sm);
-INT SM_Compute_Reduced_Offsets (SPARSE_MATRIX *sm, SHORT *reduced_offsets);
-INT SM_Compare                 (SPARSE_MATRIX *sm1, SPARSE_MATRIX *sm2);
 
-/* for the sparse BLAS routines */
-INT SM_Compute_Diff_From_Offset  (INT N, SHORT *offset, ptrdiff_t *Diff);
-INT SM_Compute_yDiff_From_Offset (INT N, SHORT *col_ind, SHORT *cmp_off,
-                                  ptrdiff_t *Diff);
-
-INT Decompose_LR_pivot    (int n, DOUBLE *mat, int *pivot);
-INT Solve_LR              (int n, const DOUBLE *LR, const int *pivot,
-                           DOUBLE *x, const DOUBLE *b);
-INT SM_Decompose_LR_pivot (const SPARSE_MATRIX *sm, DOUBLE *values,
-                           DOUBLE *LR, int *pivot);
-
-#ifdef __UG__
 END_UGDIM_NAMESPACE
-#endif
 
 #endif /* __SM__ */
