@@ -335,7 +335,7 @@ char * NS_PREFIX ExpandCShellVars (char *string)
   if (strstr(string,CSHELL_VAR_BEGIN)!=NULL)
   {
     /* shell var reference contained: copy string and expand vars */
-    char *copy = StrDup(string);
+    char *copy = strdup(string);
     char *p0  = copy;                           /* current pos  */
     char *p1;                                           /* end of token */
 

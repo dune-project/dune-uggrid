@@ -35,6 +35,7 @@
 #ifdef Debug
 #define compile_debug
 
+#include <cstring>
 #include <cstdio>
 #include <stdarg.h>
 
@@ -188,7 +189,7 @@ int SetPrintDebugToFile (const char *fname)
   if ((debugfile=fileopen(fname,"w"))==NULL)
     return (1);
 
-  debugfilename = StrDup(fname);
+  debugfilename = strdup(fname);
   SetPrintDebugProc(PrintDebugToFile);
 
   return (0);
