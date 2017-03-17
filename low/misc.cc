@@ -38,16 +38,6 @@
 #include <climits>
 #include <float.h>
 
-#ifdef __NECSX4__
-#include <sys/types.h>
-#include <sys/syssx.h>
-#endif
-
-#ifdef __AIX__
-#include <sys/time.h>
-#include <sys/timeb.h>
-#endif
-
 #include "ugtypes.h"
 #include "architecture.h"
 #include "general.h"
