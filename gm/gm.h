@@ -2232,13 +2232,6 @@ enum LV_ID_TYPES {
 #define VMATCH(v,bvd,bvdf)                      BVD_IS_SUB_BLOCK( &(v)->block_descr, bvd, bvdf )
 #endif
 
-/* user for nodes, edges and elements */
-#define CAST_NVECTOR(p)                         NVECTOR(p)
-#define CAST_EDVECTOR(p)                        EDVECTOR(p)
-#define CAST_SVECTOR(p,i)                       SVECTOR(p,i)
-#define CAST_EVECTOR(p)                         EVECTOR(p)
-
-
 /****************************************************************************/
 /*                                                                                                                                                      */
 /* macros for MATRIXs                                                                                                           */

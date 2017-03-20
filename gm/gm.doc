@@ -1632,15 +1632,6 @@ INT VMATCH (VECTOR *v, BV_DESC *bvd, BV_DESC_FORMAT *bvdf);
 Returns true if the VECTOR belongs to the BLOCKVECTOR given in the
 blockvector description (BV_DESC).
 
-\verbatim
-CAST_NVECTOR (VECTOR *p);
-CAST_EDVECTOR (VECTOR *p);
-CAST_SVECTOR (VECTOR *p,INT i);
-CAST_EVECTOR (VECTOR *p);
-\endverbatim
-
-????
-
 CONTROL WORDS:
 
 `General macros in control word`
