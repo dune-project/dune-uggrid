@@ -1671,9 +1671,6 @@ struct multigrid {
   /** \brief user heap                                                    */
   NS_PREFIX HEAP *UserHeap;
 
-  /** \brief general purpose pointer                              */
-  void *genpurp;
-
   /* i/o handling */
   /** \brief 1 if multigrid saved                                 */
   INT saved;
@@ -3230,7 +3227,6 @@ START_UGDIM_NAMESPACE
 #define NELIST_DEF_IN_MG(p)     (MGFORMAT(p)->nodeelementlist)
 #define EDATA_DEF_IN_MG(p)      (MGFORMAT(p)->elementdata)
 #define NDATA_DEF_IN_MG(p)      (MGFORMAT(p)->nodedata)
-#define MG_GENPURP(p)                   ((p)->genpurp)
 #define MG_SAVED(p)                             ((p)->saved)
 #define MG_FILENAME(p)                  ((p)->filename)
 #define MG_COARSE_FIXED(p)              ((p)->CoarseGridFixed)

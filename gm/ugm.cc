@@ -3229,7 +3229,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   MG_BVP(theMG) = theBVP;
   MG_NPROPERTY(theMG) = BVPD_NSUBDOM(theBVPDesc);
   RESETMGSTATUS(theMG);
-  MG_GENPURP(theMG) = NULL;
 
   theMG->theHeap = theHeap;
   SELECTIONSIZE(theMG) = 0;
