@@ -815,29 +815,31 @@ static void BVertexGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data)
  * The first sizeof(int) bytes of the message_buffer is the length of
  * the message (without the size of the int).
  */
-static void DuneNodeGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data)
+template<typename Entity>
+static void DuneEntityGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data)
 {
   char* data = static_cast<char*>(Data);
-  const NODE* node = reinterpret_cast<NODE*>(obj);
-  const auto sizeOfSize = sizeof node->message_buffer_size;
+  const Entity* entity = reinterpret_cast<Entity*>(obj);
+  const auto sizeOfSize = sizeof entity->message_buffer_size;
 
-  std::memcpy(data, &node->message_buffer_size, sizeOfSize);
+  std::memcpy(data, &entity->message_buffer_size, sizeOfSize);
   data += sizeOfSize;
 
-  std::memcpy(data, node->message_buffer, node->message_buffer_size);
+  std::memcpy(data, entity->message_buffer, entity->message_buffer_size);
 }
 
-static void DuneNodeScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
+template<typename Entity>
+static void DuneEntityScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
 {
   const char* data = static_cast<const char*>(Data);
-  NODE* node = reinterpret_cast<NODE*>(obj);
-  const auto sizeOfSize = sizeof node->message_buffer_size;
+  Entity* entity = reinterpret_cast<Entity*>(obj);
+  const auto sizeOfSize = sizeof entity->message_buffer_size;
 
-  std::memcpy(&node->message_buffer_size, data, sizeOfSize);
+  std::memcpy(&entity->message_buffer_size, data, sizeOfSize);
   data += sizeOfSize;
 
-  node->message_buffer = static_cast<char*>(std::malloc(node->message_buffer_size));
-  std::memcpy(node->message_buffer, data, node->message_buffer_size);
+  entity->message_buffer = static_cast<char*>(std::malloc(entity->message_buffer_size));
+  std::memcpy(entity->message_buffer, data, entity->message_buffer_size);
 }
 
 static void BVertexScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
@@ -2241,8 +2243,8 @@ void NS_DIM_PREFIX ddd_HandlerInit (INT handlerSet)
   DDD_SetHandlerXFERSCATTER      (TypeBVertex, BVertexScatter);
   DDD_SetHandlerSETPRIORITY      (TypeBVertex, VertexPriorityUpdate);
 
-  DDD_SetHandlerXFERGATHER       (TypeNode, DuneNodeGather);
-  DDD_SetHandlerXFERSCATTER      (TypeNode, DuneNodeScatter);
+  DDD_SetHandlerXFERGATHER       (TypeNode, DuneEntityGather<NODE>);
+  DDD_SetHandlerXFERSCATTER      (TypeNode, DuneEntityScatter<NODE>);
 
   DDD_SetHandlerLDATACONSTRUCTOR (TypeNode, NodeObjInit);
   DDD_SetHandlerDESTRUCTOR       (TypeNode, NodeDestructor);
