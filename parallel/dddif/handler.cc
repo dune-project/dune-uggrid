@@ -1749,7 +1749,7 @@ static void ElementObjMkCons (DDD_OBJ obj, int newness)
           then you have eventually to unlink and link
           an element again to avoid
           decoupling of element and its father.
-          Sample cenario:
+          Sample scenario:
                   father=a  son=x are on proc p.
                   father is deleted and removes his reference in son,
                   but father and son are sent again to p. Son x gets
