@@ -1202,12 +1202,6 @@ static void ElementLDataConstructor (DDD_OBJ obj)
   /* TODO: delete
      ID(pe) = (theGrid->mg->elemIdCounter)++;
    */
-
-  if (EDATA_DEF_IN_GRID(theGrid)) {
-    q = (void *) GetMemoryForObject(theGrid->mg,EDATA_DEF_IN_GRID(theGrid),NOOBJ);
-    ASSERT(q != NULL);
-    SET_EDATA(pe,q);
-  }
 }
 
 /****************************************************************************/
@@ -1314,10 +1308,6 @@ static void ElementXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   }
 
   if (DDD_XferWithAddData()) {
-
-    if (EDATA_DEF_IN_MG(dddctrl.currMG))
-      DDD_XferAddData(EDATA_DEF_IN_MG(dddctrl.currMG), DDD_USER_DATA);
-
     /* add edges of element */
     /* must be done before any XferCopyObj-call! herein    */
     /* or directly after XferCopyObj-call for this element */
@@ -1412,23 +1402,6 @@ static void ElementXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 
 
 /****************************************************************************/
-
-static void ElemGatherEdata (ELEMENT *pe, int cnt, char *data)
-{
-  ASSERT(cnt == EDATA_DEF_IN_MG(dddctrl.currMG));
-
-  memcpy(data,(char*)EDATA(pe),cnt);
-  return;
-}
-
-static void ElemScatterEdata (ELEMENT *pe, int cnt, char *data)
-{
-  ASSERT(cnt == EDATA_DEF_IN_MG(dddctrl.currMG));
-
-  memcpy((char*)EDATA(pe),data,cnt);
-  return;
-}
-
 
 #ifdef __TWODIM__
 static void ElemGatherEdge (ELEMENT *pe, int cnt, char *data)
@@ -1608,7 +1581,6 @@ static void ElemGatherI (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *data)
 {
   if (type_id == DDD_USER_DATA)
   {
-    ElemGatherEdata((ELEMENT *)obj, cnt, (char *)data);
     return;
   }
 
@@ -1624,7 +1596,6 @@ static void ElemScatterI (DDD_OBJ obj, int cnt, DDD_TYPE type_id,
 {
   if (type_id == DDD_USER_DATA)
   {
-    ElemScatterEdata((ELEMENT *)obj, cnt, (char *)data);
     return;
   }
 
@@ -1650,7 +1621,6 @@ static void ElemGatherB (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *data)
   }
   if (type_id == DDD_USER_DATA)
   {
-    ElemGatherEdata((ELEMENT *)obj, cnt,(char *)data);
     return;
   }
 
@@ -1683,7 +1653,6 @@ static void ElemScatterB (DDD_OBJ obj, int cnt, DDD_TYPE type_id,
   }
   if (type_id == DDD_USER_DATA)
   {
-    ElemScatterEdata((ELEMENT *)obj, cnt,(char *)data);
     return;
   }
 

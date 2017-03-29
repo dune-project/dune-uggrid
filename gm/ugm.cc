@@ -2618,15 +2618,6 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
       SET_EVECTOR(pe,NULL);
   }
 
-  if (EDATA_DEF_IN_GRID(theGrid)) {
-    q = (void *) GetMemoryForObject(theGrid->mg,EDATA_DEF_IN_GRID(theGrid),-1);
-    if (q == NULL) {
-      DisposeElement(theGrid,pe,true);
-      return (NULL);
-    }
-    SET_EDATA(pe,q);
-  }
-
   /* create side vectors if */
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
@@ -3858,10 +3849,6 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
     if (DisposeVector (theGrid,EVECTOR(theElement)))
       RETURN(1);
-
-  if (EDATA_DEF_IN_GRID(theGrid))
-    PutFreeObject(theGrid->mg,EDATA(theElement),
-                  EDATA_DEF_IN_GRID(theGrid),-1);
 
   /* dispose element */
   /* give it a new tag ! (I know this is somewhat ugly) */

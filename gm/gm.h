@@ -422,8 +422,6 @@ struct format {
   INT ConnectionDepth[MAXCONNECTIONS];
 
   /** \todo Please doc me! */
-  INT elementdata;
-  /** \todo Please doc me! */
   INT nodeelementlist;
   /** \todo Please doc me! */
   INT nodedata;
@@ -2939,7 +2937,6 @@ START_UGDIM_NAMESPACE
 #define ELEM_BNDS(p,i)  ((BNDS *) (p)->ge.refs[side_offset[TAG(p)]+(i)])
 #define EVECTOR(p)              ((VECTOR *) (p)->ge.refs[evector_offset[TAG(p)]])
 #define SVECTOR(p,i)    ((VECTOR *) (p)->ge.refs[svector_offset[TAG(p)]+(i)])
-#define EDATA(p)            ((void *) (p)->ge.refs[data_offset[TAG(p)]])
 #define SIDE_ON_BND(p,i) (ELEM_BNDS(p,i) != NULL)
 #define INNER_SIDE(p,i)  (ELEM_BNDS(p,i) == NULL)
 #define INNER_BOUNDARY(p,i) (InnerBoundary(p,i))
@@ -2982,7 +2979,6 @@ START_UGDIM_NAMESPACE
 #define SET_BNDS(p,i,q)         ((p)->ge.refs[side_offset[TAG(p)]+(i)] = q)
 #define SET_EVECTOR(p,q)        ((p)->ge.refs[evector_offset[TAG(p)]] = q)
 #define SET_SVECTOR(p,i,q)      ((p)->ge.refs[svector_offset[TAG(p)]+(i)] = q)
-#define SET_EDATA(p,q)      ((p)->ge.refs[data_offset[TAG(p)]] = q)
 
 #define SideBndCond(t,side,l,v,type)  BNDS_BndCond(ELEM_BNDS(t,side),l,NULL,v,type)
 #define Vertex_BndCond(p,w,i,v,t)     BNDP_BndCond(V_BNDP(p),w,i,NULL,v,t)
@@ -3182,7 +3178,6 @@ START_UGDIM_NAMESPACE
 #define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (GFORMAT(p)->OTypeUsed[(tp)]>0)
 #define NIMAT(p)                        ((p)->nIMat)
 #define NELIST_DEF_IN_GRID(p)  (GFORMAT(p)->nodeelementlist)
-#define EDATA_DEF_IN_GRID(p)   (GFORMAT(p)->elementdata)
 #define NDATA_DEF_IN_GRID(p)   (GFORMAT(p)->nodedata)
 
 #define GRID_ATTR(g) ((unsigned char) (GLEVEL(g)+32))
@@ -3235,7 +3230,6 @@ START_UGDIM_NAMESPACE
 #define GEN_MGUD_ADR(p,o)               ((void *)(((char *)((p)->GenData))+(o)))
 #define VEC_DEF_IN_OBJ_OF_MG(p,tp)       (MGFORMAT(p)->OTypeUsed[(tp)]>0)
 #define NELIST_DEF_IN_MG(p)     (MGFORMAT(p)->nodeelementlist)
-#define EDATA_DEF_IN_MG(p)      (MGFORMAT(p)->elementdata)
 #define NDATA_DEF_IN_MG(p)      (MGFORMAT(p)->nodedata)
 #define MG_GENPURP(p)                   ((p)->genpurp)
 #define MG_SAVED(p)                             ((p)->saved)
@@ -3249,7 +3243,6 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-#define FMT_ELEM_DATA(f)                                ((f)->elementdata)
 #define FMT_NODE_DATA(f)                                ((f)->nodedata)
 #define FMT_NODE_ELEM_LIST(f)                   ((f)->nodeelementlist)
 #define FMT_S_VERTEX(f)                                 ((f)->sVertex)
@@ -3383,7 +3376,7 @@ FORMAT                   *CreateFormat (char *name, INT sVertex, INT sMultiGrid,
                                         INT nmDesc, MatrixDescriptor *mDesc,
                                         SHORT ImatTypes[],
                                         INT po2t[MAXDOMPARTS][MAXVOBJECTS],
-                                        INT nodeelementlist, INT edata, INT ndata);
+                                        INT nodeelementlist, INT ndata);
 
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
