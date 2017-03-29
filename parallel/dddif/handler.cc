@@ -817,19 +817,27 @@ static void BVertexGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data)
  */
 static void DuneNodeGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data)
 {
-  int dataSize = ((int*)(((NODE*)obj)->message_buffer))[0];
+  char* data = static_cast<char*>(Data);
+  const NODE* node = reinterpret_cast<NODE*>(obj);
+  const auto sizeOfSize = sizeof node->message_buffer_size;
 
-  for (int i=0; i<dataSize + sizeof(int); i++)
-    ((char*)Data)[i] = (((NODE*)obj)->message_buffer)[i];
+  std::memcpy(data, &node->message_buffer_size, sizeOfSize);
+  data += sizeOfSize;
+
+  std::memcpy(data, node->message_buffer, node->message_buffer_size);
 }
 
 static void DuneNodeScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
 {
-  int dataSize = ((int*)Data)[0];
-  ((NODE*)obj)->message_buffer = (char*)malloc(sizeof(int) + dataSize);
+  const char* data = static_cast<const char*>(Data);
+  NODE* node = reinterpret_cast<NODE*>(obj);
+  const auto sizeOfSize = sizeof node->message_buffer_size;
 
-  for (int i=0; i<dataSize + sizeof(int); i++)
-    (((NODE*)obj)->message_buffer)[i] = ((char*)Data)[i];
+  std::memcpy(&node->message_buffer_size, data, sizeOfSize);
+  data += sizeOfSize;
+
+  node->message_buffer = static_cast<char*>(std::malloc(node->message_buffer_size));
+  std::memcpy(node->message_buffer, data, node->message_buffer_size);
 }
 
 static void BVertexScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
@@ -1071,7 +1079,7 @@ static void NodeXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 
   if (DDD_XferWithAddData() && theNode->message_buffer) {
     /* Extra data for Dune */
-    DDD_XferAddData(sizeof(int) + *((INT*)theNode->message_buffer), DDD_USER_DATA);
+    DDD_XferAddData(sizeof(theNode->message_buffer_size) + theNode->message_buffer_size, DDD_USER_DATA);
   }
 
   DDD_XferCopyObj(PARHDRV(MYVERTEX(theNode)), proc, prio);

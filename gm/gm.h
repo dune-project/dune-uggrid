@@ -822,6 +822,9 @@ struct node {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -942,6 +945,9 @@ struct generic_element {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -996,6 +1002,9 @@ struct triangle {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1079,6 +1088,9 @@ struct quadrilateral {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1163,6 +1175,9 @@ struct tetrahedron {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1252,6 +1267,9 @@ struct pyramid {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1339,6 +1357,9 @@ struct prism {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1427,6 +1448,9 @@ struct hexahedron {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
