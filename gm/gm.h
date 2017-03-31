@@ -1509,6 +1509,30 @@ union element {
         #endif
 };
 
+template<typename Entity>
+inline auto& get_message_buffer(Entity& e)
+{
+  return e.message_buffer;
+}
+
+template<typename Entity>
+inline auto& get_message_buffer_size(Entity& e)
+{
+  return e.message_buffer_size;
+}
+
+template<>
+inline auto& get_message_buffer(union element& e)
+{
+  return e.ge.message_buffer;
+}
+
+template<>
+inline auto& get_message_buffer_size(union element& e)
+{
+  return e.ge.message_buffer_size;
+}
+
 /** \brief Objects that can hold a vector */
 union geom_object {
   struct node nd;
