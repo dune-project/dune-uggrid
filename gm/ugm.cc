@@ -585,8 +585,8 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
         #ifdef ModelP
   DDD_AttrSet(PARHDR(pn),GRID_ATTR(theGrid));
   /* SETPRIO(pn,PrioMaster); */
-  pn->message_buffer = nullptr;
-  pn->message_buffer_size = 0;
+  pn->message_buffer_ = nullptr;
+  pn->message_buffer_size_ = 0;
         #endif
   ID(pn) = (theGrid->mg->nodeIdCounter)++;
   START(pn) = NULL;
