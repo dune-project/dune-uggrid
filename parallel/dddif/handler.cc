@@ -817,12 +817,12 @@ static void DuneEntityGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data
 {
   char* data = static_cast<char*>(Data);
   const Entity* entity = reinterpret_cast<Entity*>(obj);
-  const auto sizeOfSize = sizeof entity->message_buffer_size;
+  const auto size = entity->message_buffer_size();
 
-  std::memcpy(data, &entity->message_buffer_size, sizeOfSize);
-  data += sizeOfSize;
+  std::memcpy(data, &size, sizeof size);
+  data += sizeof size;
 
-  std::memcpy(data, entity->message_buffer, entity->message_buffer_size);
+  std::memcpy(data, entity->message_buffer(), size);
 }
 
 template<typename Entity>
@@ -830,13 +830,14 @@ static void DuneEntityScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Dat
 {
   const char* data = static_cast<const char*>(Data);
   Entity* entity = reinterpret_cast<Entity*>(obj);
-  const auto sizeOfSize = sizeof entity->message_buffer_size;
 
-  std::memcpy(&entity->message_buffer_size, data, sizeOfSize);
-  data += sizeOfSize;
+  std::size_t size;
+  std::memcpy(&size, data, sizeof size);
+  data += sizeof size;
 
-  entity->message_buffer = static_cast<char*>(std::malloc(entity->message_buffer_size));
-  std::memcpy(entity->message_buffer, data, entity->message_buffer_size);
+  char* buffer = static_cast<char*>(std::malloc(size));
+  std::memcpy(buffer, data, size);
+  entity->message_buffer(buffer, size);
 }
 
 static void BVertexScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
@@ -1076,9 +1077,9 @@ static void NodeXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   }
         #endif
 
-  if (DDD_XferWithAddData() && theNode->message_buffer) {
+  if (DDD_XferWithAddData()) {
     /* Extra data for Dune */
-    DDD_XferAddData(sizeof(theNode->message_buffer_size) + theNode->message_buffer_size, DDD_USER_DATA);
+    DDD_XferAddData(sizeof(theNode->message_buffer_size()) + theNode->message_buffer_size(), DDD_USER_DATA);
   }
 
   DDD_XferCopyObj(PARHDRV(MYVERTEX(theNode)), proc, prio);
@@ -1318,8 +1319,7 @@ static void ElementXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   }
 
   if (DDD_XferWithAddData()) {
-    if (pe->ge.message_buffer)
-      DDD_XferAddData(pe->ge.message_buffer_size, DDD_USER_DATA);
+    DDD_XferAddData(sizeof(pe->message_buffer_size()) + pe->message_buffer_size(), DDD_USER_DATA);
 
     /* add edges of element */
     /* must be done before any XferCopyObj-call! herein    */
@@ -1594,7 +1594,7 @@ static void ElemGatherI (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *data)
 {
   if (type_id == DDD_USER_DATA)
   {
-    DuneEntityGather<struct generic_element>(obj, cnt, type_id, data);
+    DuneEntityGather<union element>(obj, cnt, type_id, data);
     return;
   }
 
@@ -1610,7 +1610,7 @@ static void ElemScatterI (DDD_OBJ obj, int cnt, DDD_TYPE type_id,
 {
   if (type_id == DDD_USER_DATA)
   {
-    DuneEntityScatter<struct generic_element>(obj, cnt, type_id, data, newness);
+    DuneEntityScatter<union element>(obj, cnt, type_id, data, newness);
     return;
   }
 
@@ -1636,7 +1636,7 @@ static void ElemGatherB (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *data)
   }
   if (type_id == DDD_USER_DATA)
   {
-    DuneEntityGather<struct generic_element>(obj, cnt, type_id, data);
+    DuneEntityGather<union element>(obj, cnt, type_id, data);
     return;
   }
 
@@ -1669,7 +1669,7 @@ static void ElemScatterB (DDD_OBJ obj, int cnt, DDD_TYPE type_id,
   }
   if (type_id == DDD_USER_DATA)
   {
-    DuneEntityScatter<struct generic_element>(obj, cnt, type_id, data, newness);
+    DuneEntityScatter<union element>(obj, cnt, type_id, data, newness);
     return;
   }
 
