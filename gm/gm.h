@@ -808,10 +808,10 @@ struct node {
 
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
-  char* message_buffer;
+  char* message_buffer_;
 
   /** \brief Size of the `message_buffer` */
-  std::size_t message_buffer_size;
+  std::size_t message_buffer_size_;
 #endif
 
 #ifdef ModelP
@@ -844,6 +844,18 @@ struct node {
    *
    * WARNING: The allocation of the data pointer depends on the format */
   void *data;
+
+  char*& message_buffer()
+    { return message_buffer_; }
+
+  const char* message_buffer() const
+    { return message_buffer_; }
+
+  std::size_t& message_buffer_size()
+    { return message_buffer_size_; }
+
+  const std::size_t message_buffer_size() const
+    { return message_buffer_size_; }
 };
 
 /** \todo Please doc me! */
@@ -1507,31 +1519,19 @@ union element {
   struct prism pr;
   struct hexahedron he;
         #endif
+
+  char*& message_buffer()
+    { return ge.message_buffer; }
+
+  const char* message_buffer() const
+    { return ge.message_buffer; }
+
+  std::size_t& message_buffer_size()
+    { return ge.message_buffer_size; }
+
+  const std::size_t message_buffer_size() const
+    { return ge.message_buffer_size; }
 };
-
-template<typename Entity>
-inline auto& get_message_buffer(Entity& e)
-{
-  return e.message_buffer;
-}
-
-template<typename Entity>
-inline auto& get_message_buffer_size(Entity& e)
-{
-  return e.message_buffer_size;
-}
-
-template<>
-inline auto& get_message_buffer(union element& e)
-{
-  return e.ge.message_buffer;
-}
-
-template<>
-inline auto& get_message_buffer_size(union element& e)
-{
-  return e.ge.message_buffer_size;
-}
 
 /** \brief Objects that can hold a vector */
 union geom_object {
