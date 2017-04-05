@@ -1993,82 +1993,6 @@ static INT EListCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref slist. */
-static INT SelectionListCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  INT i,dataopt,boundaryopt,neighbouropt,verboseopt;
-
-        #ifdef ModelP
-  if (!CONTEXT(me)) {
-    PRINTDEBUG(ui,0,("%2d: SelectionListCommand(): me not in Context,"\
-                     " no listing of selection\n",me))
-    return(OKCODE);
-  }
-        #endif
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"slist","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  if (SELECTIONSIZE(theMG)==0)
-  {
-    PrintErrorMessage('W',"slist","nothing selected");
-    return (OKCODE);
-  }
-
-  /* check options */
-  dataopt = boundaryopt = neighbouropt = verboseopt = false;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'd' :
-      dataopt = true;
-      break;
-
-    case 'b' :
-      boundaryopt = true;
-      break;
-
-    case 'n' :
-      neighbouropt = true;
-      break;
-
-    case 'v' :
-      verboseopt = true;
-      break;
-
-    default :
-      PrintErrorMessageF('E', "SelectionListCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  switch (SELECTIONMODE(theMG))
-  {
-  case elementSelection :
-    ListElementSelection(theMG,dataopt,boundaryopt,neighbouropt,verboseopt);
-    break;
-
-  case nodeSelection :
-    ListNodeSelection(theMG,dataopt,boundaryopt,neighbouropt,verboseopt);
-    break;
-
-  case vectorSelection :
-    UserWrite("sorry, this service is not available for vector selections\n");
-    break;
-
-  default :
-    PrintErrorMessage('W',"slist","selectionmode ???");
-    return (PARAMERRORCODE);
-  }
-
-  return(OKCODE);
-}
-
-
 /** \brief Implementation of \ref rlist. */
 static INT RuleListCommand (INT argc, char **argv)
 {
@@ -5853,7 +5777,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("glist",                      GListCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("nlist",                      NListCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("elist",                      EListCommand                                    )==NULL) return (__LINE__);
-  if (CreateCommand("slist",                      SelectionListCommand                    )==NULL) return (__LINE__);
   if (CreateCommand("rlist",                      RuleListCommand                                 )==NULL) return (__LINE__);
   if (CreateCommand("printvalue",         PrintValueCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("vmlist",             VMListCommand                                   )==NULL) return (__LINE__);

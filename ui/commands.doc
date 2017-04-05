@@ -760,30 +760,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  slist  slist - List information on all selected nodes or elements
-
- \section Description
-   This command lists information on selected nodes or elements, calling
-   the functions 'ListNodeSelection', 'ListElementSelection'.
-   (Listing of selected vectors is not implemented.)
-
-\section Syntax
-   'slist [$d] [$b] [$n] [$v]'
-
-  <li>  $d  - up to version 2.3 ONLY: list also user data space
-  <li>  $b  - print additional info for boundary nodes/elements
-  <li>  $n  - list also neighbours of each node/element
-  <li>  $v  - print extended info (verbose mode)
-   
- \section Keywords
-   multigrid, selection, list, display, show
-
-   SEE ALSO:
-   'select'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  rlist rlist - List rule records of element type for refinement
 
  \section Description
