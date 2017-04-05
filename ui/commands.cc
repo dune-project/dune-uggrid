@@ -4392,33 +4392,6 @@ static INT DumpAlgCommand(INT argc, char **argv)
 /****************************************************************************/
 
 #ifdef __PERIODIC_BOUNDARY__
-static INT ListPeriodicPosCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG = currMG;
-  DOUBLE_VECTOR pos;
-
-  if (theMG == NULL)
-  {
-    UserWrite("ListPeriodicPos: no open multigrid\n");
-    return(OKCODE);
-  }
-
-#ifdef __THREEDIM__
-  if (sscanf(argv[0],"lppos %lf %lf %lf",pos,pos+1,pos+2) != 3)
-#else
-  if (sscanf(argv[0],"lppos %lf %lf",pos,pos+1) != 2)
-#endif
-  {
-    if (me == master)
-      UserWriteF("ListPeriodicPos wrong number of coords\n");
-  }
-
-  if (MG_ListPeriodicPos(theMG,0,TOPLEVEL(theMG),pos))
-    REP_ERR_RETURN (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
 static INT MakePeriodicCommand (INT argc, char **argv)
 {
   MULTIGRID *theMG = currMG;
@@ -4459,7 +4432,6 @@ INT NS_DIM_PREFIX InitCommands ()
   /* quick hack */
 #ifdef __PERIODIC_BOUNDARY__
   if (CreateCommand("makeperiodic",       MakePeriodicCommand                             )==NULL) return (__LINE__);
-  if (CreateCommand("lppos",                      ListPeriodicPosCommand                  )==NULL) return (__LINE__);
 #endif
 
   /* general commands */
