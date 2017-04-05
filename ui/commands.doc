@@ -905,25 +905,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  ie ie - Insert an element
-
- \section Description
-   This command inserts an element into a multigrid with only level 0, 
-   calling the function 'InsertElement'.
-
-
-\section Syntax
-   'ie {\<Id>}+ | $s'
-
-  <li> {\<Id>}+  - specify at least three (2d) or four (3d) corner nodes, the corresponding (unique) element will be created
-  <li> $s 		- taking selected nodes 
-   
- \section Keywords
-   multigrid, insert, create, element, edit
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page adapt adapt - Adapt the current multigrid
 
  \section Description
