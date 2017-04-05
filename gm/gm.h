@@ -134,8 +134,6 @@ START_UGDIM_NAMESPACE
 #define MAXLEVEL                                32
 /** \brief  use 5 bits for object identification */
 #define MAXOBJECTS                              32
-/** \brief  max number of elements in selection  */
-#define MAXSELECTION               100
 /*@}*/
 
 /** @name Some size macros for allocation purposes */
@@ -275,12 +273,6 @@ enum {GSTATUS_BDF         = 1,
       GSTATUS_ASSEMBLED   = 4,
       GSTATUS_ORDERED     = 8};
 /*@}*/
-
-/** \brief Selection mode */
-enum {nodeSelection=1,     /**< Objects selected are nodes */
-      elementSelection=2,   /**< Objects selected are elements */
-      vectorSelection=3    /**< Objects selected are vectors */
-};
 
 /** \brief Possible values for rule in MarkForRefinement */
 enum RefinementRule
@@ -1494,13 +1486,6 @@ union geom_object {
   union element el;
 };
 
-/** \brief Objects that can be selected */
-union selection_object {
-  struct node nd;
-  union element el;
-  struct vector ve;
-};
-
 /** \brief Objects that can have a key */
 union object_with_key {
   struct node nd;
@@ -1654,16 +1639,6 @@ struct multigrid {
   /** \brief pointer to the node element blocks   */
   union element ***ndelemptrarray;
 
-  /* selection */
-  /** \brief number of selected objects                   */
-  INT NbOfSelections;
-
-  /** \brief selectionmode (see above)                    */
-  INT SelectionMode;
-
-  /** \brief pointer to selec obj*/
-  union selection_object *Selection[MAXSELECTION];
-
   /* user data */
   /** \brief general user data space                              */
   void *GenData;
@@ -1701,7 +1676,6 @@ typedef union  element ELEMENT;
 typedef struct link LINK;
 typedef struct edge EDGE;
 typedef union  geom_object GEOM_OBJECT;
-typedef union  selection_object SELECTION_OBJECT;
 typedef struct grid GRID;
 typedef struct multigrid MULTIGRID;
 typedef union object_with_key KEY_OBJECT;
@@ -3216,9 +3190,6 @@ START_UGDIM_NAMESPACE
 #define MGNDELEMOFFS(i,o)               (i*ELEMS_OF_NODE_MAX+o)
 #define MGNDELEMBLKENTRY(p,b,i) (*((*(((p)->ndelemptrarray)+b))+i))
 /* . . . macros for the NodeElementsBlockArray  */
-#define SELECTIONSIZE(p)                ((p)->NbOfSelections)
-#define SELECTIONMODE(p)                ((p)->SelectionMode)
-#define SELECTIONOBJECT(p,i)    ((p)->Selection[(((i)<MAXSELECTION) ? (i) : (MAXSELECTION-1))])
 #define MGNAME(p)                               ((p)->v.name)
 #define MG_USER_HEAP(p)                 ((p)->UserHeap)
 #define GEN_MGUD(p)                     ((p)->GenData)

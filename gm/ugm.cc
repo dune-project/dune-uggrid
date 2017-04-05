@@ -3227,7 +3227,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   RESETMGSTATUS(theMG);
 
   theMG->theHeap = theHeap;
-  SELECTIONSIZE(theMG) = 0;
   for (i=0; i<MAXLEVEL; i++)
   {
     GRID_ON_LEVEL(theMG,i) = NULL;
