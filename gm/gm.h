@@ -3518,18 +3518,6 @@ INT                     CheckGrid                               (GRID *theGrid, 
 INT                     CheckLists                              (GRID *theGrid);
 INT             CheckSubdomains                 (MULTIGRID *theMG);
 
-/* selection */
-void            ClearSelection                  (MULTIGRID *theMG);
-INT             AddNodeToSelection              (MULTIGRID *theMG, NODE *theNode);
-INT             IsNodeSelected                  (MULTIGRID *theMG, NODE *theNode);
-INT             AddElementToSelection   (MULTIGRID *theMG, ELEMENT *theElement);
-INT             IsElementSelected               (const MULTIGRID *theMG, const ELEMENT *theElement);
-INT             AddVectorToSelection    (MULTIGRID *theMG, VECTOR *theVector);
-INT             IsVectorSelected                (const MULTIGRID *theMG, const VECTOR *theVector);
-INT             RemoveNodeFromSelection (MULTIGRID *theMG, NODE *theNode);
-INT             RemoveElementFromSelection(MULTIGRID *theMG, ELEMENT *theElement);
-INT             RemoveVectorFromSelection(MULTIGRID *theMG, VECTOR *theVector);
-
 /* multigrid user data space management (using the heaps.c block heap management) */
 INT             AllocateControlEntry    (INT cw_id, INT length, INT *ce_id);
 INT             FreeControlEntry                (INT ce_id);
