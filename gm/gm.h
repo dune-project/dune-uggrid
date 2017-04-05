@@ -3453,11 +3453,8 @@ void            ListMultiGrid           (const MULTIGRID *theMG, const INT isCur
 INT         MultiGridStatus             (const MULTIGRID *theMG, INT gridflag, INT greenflag, INT lbflag, INT verbose);
 void            ListGrids                               (const MULTIGRID *theMG);
 void            ListNode                                (const MULTIGRID *theMG, const NODE *theNode, INT dataopt, INT bopt, INT nbopt, INT vopt);
-void            ListNodeRange                   (MULTIGRID *theMG, INT from, INT to,    INT idopt, INT dataopt, INT bopt, INT nbopt, INT vopt);
 void            ListElement                     (const MULTIGRID *theMG, const ELEMENT *theElement, INT dataopt, INT bopt, INT nbopt, INT vopt);
-void            ListElementRange                (const MULTIGRID *theMG, INT from, INT to,    INT idopt, INT dataopt, INT bopt, INT nbopt, INT vopt, INT lopt);
 void            ListVector                      (const MULTIGRID *theMG, const VECTOR *theVector, INT matrixopt, INT dataopt, INT modifiers);
-void            ListVectorRange                 (const MULTIGRID *theMG, INT fl, INT tl, INT from, INT to, INT idopt, INT matrixopt, INT dataopt, INT datatypes, INT modifiers);
 
 /* query */
 LINK            *GetLink                                (const NODE *from, const NODE *to);

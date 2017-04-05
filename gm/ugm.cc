@@ -8343,55 +8343,6 @@ void NS_DIM_PREFIX ListNode (const MULTIGRID *theMG, const NODE *theNode, INT da
 
 
 /****************************************************************************/
-/** \brief List information about nodes in given range of ids
-
- * @param   theMG - structure to list
- * @param   from - first id
- * @param   to - last id
- * @param   idopt - determines the meaning of from/to
- * @param   dataopt - list user data if true
- * @param   bopt - list boundary info if true
- * @param   nbopt - list info about neighbors if true
- * @param   vopt - list more information
-
-   This function list information about all nodes in a given range of ids.
-
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListNodeRange (MULTIGRID *theMG, INT from, INT to, INT idopt, INT dataopt, INT bopt, INT nbopt, INT vopt)
-{
-  int level;
-  NODE *theNode;
-
-  for (level=0; level<=TOPLEVEL(theMG); level++)
-    for (theNode=PFIRSTNODE(GRID_ON_LEVEL(theMG,level)); theNode!=NULL; theNode=SUCCN(theNode))
-    {
-      switch( idopt )
-      {
-      case 0 :                          /* $i option */
-        if ( (ID(theNode)>=from)&&(ID(theNode)<=to) )
-          ListNode(theMG,theNode,dataopt,bopt,nbopt,vopt);
-        break;
-#ifdef ModelP
-      case 1 :                          /* $g option */
-        if (GID(theNode) == from)
-          ListNode(theMG,theNode,dataopt,bopt,nbopt,vopt);
-        break;
-#endif
-      case 2 :                          /* $k option */
-        if ( KeyForObject((KEY_OBJECT *)theNode) == from)
-          ListNode(theMG,theNode,dataopt,bopt,nbopt,vopt);
-        break;
-
-      default : PrintErrorMessage( 'E', "ListNodeRange", "unrecognized idopt" );
-        assert(0);
-      }
-    }
-}
-
-
-/****************************************************************************/
 /** \brief
    ListElement - List information about element
 
@@ -8496,61 +8447,6 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
   }
 
   return;
-}
-
-
-/****************************************************************************/
-/** \brief List information about elements in range of ids
-
- * @param   theMG - multigrid structure to list
- * @param   from - first id
- * @param   to - last id
- * @param   idopt - determines the meaning of from/to
- * @param   dataopt - list user data if true
- * @param   vopt - list more information
-
-   This function lists information about all elements in a range of ids.
-
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListElementRange (const MULTIGRID *theMG, INT from, INT to, INT idopt, INT dataopt, INT bopt, INT nbopt, INT vopt, INT lopt)
-{
-  int level,fromlevel,tolevel;
-  ELEMENT *theElement;
-
-  if (lopt==false)
-  {
-    fromlevel = 0;
-    tolevel = TOPLEVEL(theMG);
-  }
-  else
-    fromlevel = tolevel = CURRENTLEVEL(theMG);
-
-  for (level=fromlevel; level<=tolevel; level++)
-    for (theElement=PFIRSTELEMENT(GRID_ON_LEVEL(theMG,level)); theElement!=NULL; theElement=SUCCE(theElement))
-    {
-      switch( idopt )
-      {
-      case 0 :                          /* $i option */
-        if ( (ID(theElement)>=from)&&(ID(theElement)<=to) )
-          ListElement(theMG,theElement,dataopt,bopt,nbopt,vopt);
-        break;
-#ifdef ModelP
-      case 1 :                          /* $g option */
-        if (EGID(theElement) == from)
-          ListElement(theMG,theElement,dataopt,bopt,nbopt,vopt);
-        break;
-#endif
-      case 2 :                          /* $k option */
-        if ( KeyForObject((KEY_OBJECT *)theElement) == from)
-          ListElement(theMG,theElement,dataopt,bopt,nbopt,vopt);
-        break;
-
-      default : PrintErrorMessage( 'E', "ListElementRange", "unrecognized idopt" );
-        assert(0);
-      }
-    }
 }
 
 
@@ -8683,55 +8579,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
         UserWrite(buffer);
       }
     }
-}
-
-/****************************************************************************/
-/** \brief List information about vectors in range of ids
-
- * @param   theMG - structure to list
- * @param   from - first index
- * @param   to - last index
- * @param   idopt - determines the meaning of from/to
- * @param   matrixopt - list line of matrix corresponding to theVector
- * @param   dataopt - list user data if true
- * @param   datatypes - list vectors with type in datatypes
- * @param   modifiers - flags modifying output style and verbose level
-
-   This function lists information about all vectors in a given range of indices.
-
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListVectorRange (const MULTIGRID *theMG, INT fl, INT tl, INT from, INT to, INT idopt, INT matrixopt, INT dataopt, INT datatypes, INT modifiers)
-{
-  int level;
-  VECTOR *theVector;
-
-  for (level=fl; level<=tl; level++)
-    for (theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,level)); theVector!=NULL; theVector=SUCCVC(theVector))
-      if (datatypes & VDATATYPE(theVector))
-      {
-        switch( idopt )
-        {
-        case LV_ID :                                            /* $i option */
-          if (VINDEX(theVector)>=from && VINDEX(theVector)<=to)
-            ListVector(theMG,theVector,matrixopt,dataopt,modifiers);
-          break;
-#ifdef ModelP
-        case LV_GID :                                   /* $g option */
-          if (GID(theVector) == from)
-            ListVector(theMG,theVector,matrixopt,dataopt,modifiers);
-          break;
-#endif
-        case LV_KEY :                                   /* $k option */
-          if ( KeyForObject((KEY_OBJECT *)theVector) == from)
-            ListVector(theMG,theVector,matrixopt,dataopt,modifiers);
-          break;
-
-        default : PrintErrorMessage( 'E', "ListVectorRange", "unrecognized idopt" );
-          assert(0);
-        }
-      }
 }
 
 /****************************************************************************/
