@@ -709,12 +709,11 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 
  \section Description
    This command lists information on specified nodes, calling
-   the functions 'ListNodeRange' and 'ListNodeSelection'.
+   the function 'ListNodeRange'.
 
 \section Syntax
-   'nlist {$s | $i \<fromID> [\<toID>] | $g \<global id> | $k \<key>} [$d] [$b] [$n] [$v] [$a]'
+   'nlist {$i \<fromID> [\<toID>] | $g \<global id> | $k \<key>} [$d] [$b] [$n] [$v] [$a]'
 
-  <li> $s  - list info for the selected nodes
   <li> $i  - list info for nodes with an ID in the range \<fromID> through \<toID>
          if \<fromID> is omitted only the node with \<fromID> is listed
   <li> $g \<glob. id>- list info for node with global id (only for ModelP)
@@ -736,12 +735,11 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 
  \section Description
    This command lists information on specified elements, calling
-   the functions 'ListElementRange' and 'ListElementSelection'.
+   the function 'ListElementRange'.
 
 \section Syntax
-   'elist $s | {$i \<fromID> [\<toID>]} [$d] [$b] [$n] [$v] [$a]'
+   'elist {$i \<fromID> [\<toID>]} [$d] [$b] [$n] [$v] [$a]'
 
-  <li> $s  - list info for the selected elements
   <li> $i  - list info for elements with an ID in the range \<fromID> through \<toID>
          if \<fromID> is omitted only the element with \<fromID> is listed
   <li> $g \<glob. id>- list info for element with global id (only for ModelP)
@@ -780,13 +778,12 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /** \page   vmlist vmlist - List information on specified vectors and matrices
 
    This command lists information on specified vectors and matrices, calling
-   the functions ListVectorRange() and ListVectorSelection().
+   the function ListVectorRange().
 
 \section Syntax
-   'vmlist {$s | $i \<fromID> [\<toID>] | $g \<global id> | $k \<key>} [$t \<dt-list>] [$m] [$d] [$a] [$l \<f> \<t>] [$pos 0|1] [$obj 0|1]'
+   'vmlist {$i \<fromID> [\<toID>] | $g \<global id> | $k \<key>} [$t \<dt-list>] [$m] [$d] [$a] [$l \<f> \<t>] [$pos 0|1] [$obj 0|1]'
 
   <ul>
-     <li> $s			- list info for the selected vectors  </li>
      <li> $i			- list info for vectors with an ID in the range \<fromID> through \<toID>
        			  if \<fromID> is omitted only the vector with \<fromID> is listed </li>
      <li> $g \<glob. id>- list info for vector with global id (only for ModelP) </li>

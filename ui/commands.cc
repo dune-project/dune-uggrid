@@ -140,7 +140,6 @@ using namespace PPIF;
 /** @name For the .list commands */
 /*@{*/
 #define DO_ID                                   1
-#define DO_SELECTION                    2
 #define DO_ALL                                  3
 /*@}*/
 
@@ -1759,7 +1758,7 @@ static INT NListCommand (INT argc, char **argv)
     case 'i' :
       if (mode!=false)
       {
-        PrintErrorMessage('E',"nlist","specify either the a, s or i option");
+        PrintErrorMessage('E',"nlist","specify either the a or i option");
         return (PARAMERRORCODE);
       }
       mode = DO_ID;
@@ -1795,19 +1794,10 @@ static INT NListCommand (INT argc, char **argv)
       fromN = toN = (INT) strtol(buff, NULL, 0);
       break;
 
-    case 's' :
-      if (mode!=false)
-      {
-        PrintErrorMessage('E',"nlist","specify either the a, s or i option");
-        return (PARAMERRORCODE);
-      }
-      mode = DO_SELECTION;
-      break;
-
     case 'a' :
       if (mode!=false)
       {
-        PrintErrorMessage('E',"nlist","specify either the a, s or i option");
+        PrintErrorMessage('E',"nlist","specify either the a or i option");
         return (PARAMERRORCODE);
       }
       mode = DO_ALL;
@@ -1842,10 +1832,6 @@ static INT NListCommand (INT argc, char **argv)
 
   case DO_ALL :
     ListNodeRange(theMG,0,MAX_I,idopt,dataopt,boundaryopt,neighbouropt,verboseopt);
-    break;
-
-  case DO_SELECTION :
-    ListNodeSelection(theMG,dataopt,boundaryopt,neighbouropt,verboseopt);
     break;
 
   default :
@@ -1891,7 +1877,7 @@ static INT EListCommand (INT argc, char **argv)
     case 'i' :
       if (mode!=false)
       {
-        PrintErrorMessage('E',"elist","specify either the a, s or i option");
+        PrintErrorMessage('E',"elist","specify either the a or i option");
         return (PARAMERRORCODE);
       }
       mode = DO_ID;
@@ -1927,19 +1913,10 @@ static INT EListCommand (INT argc, char **argv)
       fromE = toE = (INT) strtol(buff, NULL, 0);
       break;
 
-    case 's' :
-      if (mode!=false)
-      {
-        PrintErrorMessage('E',"elist","specify either the a, s or i option");
-        return (PARAMERRORCODE);
-      }
-      mode = DO_SELECTION;
-      break;
-
     case 'a' :
       if (mode!=false)
       {
-        PrintErrorMessage('E',"elist","specify either the a, s or i option");
+        PrintErrorMessage('E',"elist","specify either the a or i option");
         return (PARAMERRORCODE);
       }
       mode = DO_ALL;
@@ -1978,10 +1955,6 @@ static INT EListCommand (INT argc, char **argv)
 
   case DO_ALL :
     ListElementRange(theMG,0,MAX_I,idopt,dataopt,boundaryopt,neighbouropt,verboseopt,levelopt);
-    break;
-
-  case DO_SELECTION :
-    ListElementSelection(theMG,dataopt,boundaryopt,neighbouropt,verboseopt);
     break;
 
   default :
@@ -2217,7 +2190,7 @@ static INT VMListCommand (INT argc, char **argv)
     case 'i' :
       if (mode!=false)
       {
-        PrintErrorMessage('E',"vmlist","specify either the a, s or i option");
+        PrintErrorMessage('E',"vmlist","specify either the a or i option");
         return (PARAMERRORCODE);
       }
       mode = DO_ID;
@@ -2253,22 +2226,10 @@ static INT VMListCommand (INT argc, char **argv)
       fromV = toV = (INT) strtol(buff, NULL, 0);
       break;
 
-    case 's' :
-      if (strncmp(argv[i],"skip",4)==0)
-        /* handled by ReadArgvINT */
-        break;
-      if (mode!=false)
-      {
-        PrintErrorMessage('E',"vmlist","specify either the a, s or i option");
-        return (PARAMERRORCODE);
-      }
-      mode = DO_SELECTION;
-      break;
-
     case 'a' :
       if (mode!=false)
       {
-        PrintErrorMessage('E',"vmlist","specify either the a, s or i option");
+        PrintErrorMessage('E',"vmlist","specify either the a or i option");
         return (PARAMERRORCODE);
       }
       mode = DO_ALL;
@@ -2331,13 +2292,6 @@ static INT VMListCommand (INT argc, char **argv)
 
   case DO_ALL :
     ListVectorRange(theMG,fl,tl,0,MAX_I,idopt,matrixopt,dataopt,datatypes,modifiers);
-    break;
-
-  case DO_SELECTION :
-    if (SELECTIONMODE(theMG)==elementSelection)
-      ListVectorOfElementSelection(theMG,matrixopt,dataopt,modifiers);
-    else
-      ListVectorSelection(theMG,matrixopt,dataopt,modifiers);
     break;
 
   default :
