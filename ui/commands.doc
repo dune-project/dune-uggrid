@@ -873,34 +873,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  mark  mark - Mark elements with refinement type 
-
- \section Description
-   This command marks elements with refinement type,
-   calling the function MarkForRefinement().
-
-\section Syntax
-   'mark [$h | {[\<rule> [\<side>]] [$a | $i \<Id>]} | $c] [$pos \<x y [z]>] [$x \<x>] [$y \<y>] [$z \<z>]'
-
-  <li> \<rule>     - specify a refinement rule ("red" is default)
-  <li> \<side>     - has to be specified if the corresponding rule can be applied in several orientations
-  <li> $a         - refine all (leave) elements
-  <li> $c		  - set all marks to no refinement
-  <li> $i \<Id>    - refine the element with \<Id>
-  <li> $h         - show available rules
-  <li> $x         - marks elements with corner[0] \< x
-  <li> $y         - marks elements with corner[1] \< y
-  <li> $z         - marks elements with corner[2] \< z
-   
- \section Keywords
-   multigrid, refine, adapt, rule, type, mark
-   
-   SEE ALSO:
-   'refine'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  ordernodes  ordernodes - Order the nodes lexicographically according to the specified directions
 
 
