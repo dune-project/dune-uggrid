@@ -705,59 +705,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  nlist nlist - List information on specified nodes
-
- \section Description
-   This command lists information on specified nodes, calling
-   the function 'ListNodeRange'.
-
-\section Syntax
-   'nlist {$i \<fromID> [\<toID>] | $g \<global id> | $k \<key>} [$d] [$b] [$n] [$v] [$a]'
-
-  <li> $i  - list info for nodes with an ID in the range \<fromID> through \<toID>
-         if \<fromID> is omitted only the node with \<fromID> is listed
-  <li> $g \<glob. id>- list info for node with global id (only for ModelP)
-  <li> $k \<key>     - list info for node with key
-
-  <li> $d  - up to version 2.3 ONLY: list also user data space
-  <li> $b  - print additional info for boundary nodes
-  <li> $n  - list also neighbours of each node
-  <li> $v  - print extended info (verbose mode)
-  <li> $a  - list all nodes
-   
- \section Keywords
-   multigrid, node, link, list, display, show
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   elist elist - List information on specified elements
-
- \section Description
-   This command lists information on specified elements, calling
-   the function 'ListElementRange'.
-
-\section Syntax
-   'elist {$i \<fromID> [\<toID>]} [$d] [$b] [$n] [$v] [$a]'
-
-  <li> $i  - list info for elements with an ID in the range \<fromID> through \<toID>
-         if \<fromID> is omitted only the element with \<fromID> is listed
-  <li> $g \<glob. id>- list info for element with global id (only for ModelP)
-  <li> $k \<key>     - list info for element with key
-
-  <li> $d  - up to version 2.3 ONLY: list also user data space
-  <li> $b  - print additional info for boundary elements
-  <li> $n  - list also neighbours of each element
-  <li> $v  - print extended info (verbose mode)
-  <li> $l  - list only elements of current level
-  <li> $a  - list all elements
-   
- \section Keywords
-   multigrid, element, list, display, show
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  rlist rlist - List rule records of element type for refinement
 
  \section Description
@@ -771,38 +718,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, element, rule, type, list, display, show
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   vmlist vmlist - List information on specified vectors and matrices
-
-   This command lists information on specified vectors and matrices, calling
-   the function ListVectorRange().
-
-\section Syntax
-   'vmlist {$i \<fromID> [\<toID>] | $g \<global id> | $k \<key>} [$t \<dt-list>] [$m] [$d] [$a] [$l \<f> \<t>] [$pos 0|1] [$obj 0|1]'
-
-  <ul>
-     <li> $i			- list info for vectors with an ID in the range \<fromID> through \<toID>
-       			  if \<fromID> is omitted only the vector with \<fromID> is listed </li>
-     <li> $g \<glob. id>- list info for vector with global id (only for ModelP) </li>
-     <li> $k \<key>     - list info for vector with key </li>
-     <li> $t~\<dt-list>	- list only vectors of specified data types (list of chars, no seperator) </li>
-
-     <li> $m			- list also the associated matrix entries </li>
-     <li> $d			- list also the user data </li>
-     <li> $skip~0|1	- show skip flags (default 0) </li>
-     <li> $a			- list all vectors </li>
-     <li> $l \<f> \<t>   - process levels f \<= l \<= t </li>
-     <li> $pos~0|1		- show vector positions (default 1) </li>
-     <li> $obj~0|1		- show vector object related info (default 1) </li>
-  </ul>   
-
- \section Keywords
-   multigrid, vector, matrix, userdata, list, display, show
-
-   Implemented in VMListCommand()
 */
 /****************************************************************************/
 
