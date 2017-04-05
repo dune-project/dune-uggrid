@@ -911,24 +911,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  deln  deln - Delete a node and vertex
-
- \section Description
-   This command deletes a node and the corresponding vertex
-   of the current multigrid, calling the function 'DeleteNode'.
-
-\section Syntax
-   'deln \<Id> | $s'
-
-  <li> \<Id>  - ID of the node to be deleted
-  <li> $s    - delete ALL nodes from the selection
-   
- \section Keywords
-   multigrid, delete, remove, node, edit
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  move move - Move a node and vertex
 
  \section Description
@@ -965,24 +947,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, insert, create, element, edit
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  dele  dele - Delete an element
-
- \section Description
-   This command deletes the specified  element of a multigrid 
-   with only level 0, calling the function 'DeleteElement'.
-
-\section Syntax
-   'dele \<Id> | $s'
-
-  <li> \<Id> - ID of the element to be deleted
-  <li> $s   - delete all elements from the selection
-   
- \section Keywords
-   multigrid, delete, remove, element, edit
 */
 /****************************************************************************/
 
@@ -1217,58 +1181,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, vector, index
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  find find - Find (and select) a node (element) from a given position 
-
- \section Description
-   This function finds (and selects) a node (element) from a given position,
-   where some tolerance can be specified.
-   It finds a node (element) on the current level of the current multigrid, 
-   using the functions
-   'FindNodeFromPosition', 'FindElementFromPosition'
-   'AddNodeToSelection', 'RemoveNodeFromSelection',
-   'AddElementToSelection' and 'RemoveElementFromSelection'
-
-\section Syntax
-   find \<x> \<y> \<z> {$n \<tol> | $v \<tol> | $e} [$s]
-
-  <li> \<x> \<y> \<z> - specify as much coordinates as the space has dimensions
-  <li> $n \<tol>    - find a node maching the position with tolerance \<tol>
-  <li> $v \<tol>    - find a vector maching the position with tolerance \<tol>
-  <li> $e          - find an element maching the position
-  <li> $s          - add the selected node (element) to the selection buffer
-               	 (if not specified the node is just listed)
-   
- \section Keywords
-   multigrid, node, element, position, find, select
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   select select - Select a node or element from a given position 
-
- \section Description
-   This function finds (and selects) a node (element) from a given position,
-   where some tolerance can be specified.
-   It adds/removes nodes/elements from the selection buffer of the current 
-   multigrid, using the functions
-   'FindNodeFromId', 'FindElementFromId'
-   'AddNodeToSelection', 'RemoveNodeFromSelection',
-   'AddElementToSelection' and 'RemoveElementFromSelection'
-
-\section Syntax
-   'select $i | $c | $n {+|-} \<Id> | $e {+|-} \<Id>'
-
-  <li> $i				- print type and number of list members
-  <li> $c               - clear the selection buffer
-  <li> $n~{+|-}~\<Id>    - add (+) or remove (-) the node with \<Id> to (from) the selection buffer
-  <li> $e~{+|-}~\<Id>    - add (+) or remove (-) the element with \<Id> to (from) the selection buffer
-   
- \section Keywords
-   multigrid, select, element, node
 */
 /****************************************************************************/
 
