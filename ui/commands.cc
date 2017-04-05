@@ -2026,63 +2026,6 @@ static INT RuleListCommand (INT argc, char **argv)
 }
 
 
-/** \todo Please doc me! */
-static INT PrintValueCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  VECDATA_DESC *theVD;
-  double val;
-  char name[NAMESIZE];
-  char value[VALUELEN];
-  int found = false;
-  int idx;
-  int n;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"printvalue","no open multigrid");
-    return (CMDERRORCODE);
-  }
-  if (sscanf(argv[0],"printvalue %s %d",name,&n)!=2)
-  {
-    PrintErrorMessage('E',"printvalue","could not scan vec desc and selection number");
-    return (PARAMERRORCODE);
-  }
-  theVD = GetVecDataDescByName(theMG,name);
-  if (theVD==NULL)
-  {
-    PrintErrorMessageF('E',"printvalue","vec desc '%s' not found",name);
-    return (PARAMERRORCODE);
-  }
-
-  if ((SELECTIONMODE(theMG)==vectorSelection) && (SELECTIONSIZE(theMG)>n))
-  {
-    VECTOR *vec = (VECTOR *)SELECTIONOBJECT(theMG,n);
-    if (VD_ISDEF_IN_TYPE(theVD,VTYPE(vec)))
-    {
-      val = VVALUE(vec,VD_CMP_OF_TYPE(theVD,VTYPE(vec),0));
-      idx = VINDEX(vec);
-      found = true;
-    }
-  }
-  if (found)
-    sprintf(buffer,"%.10e",val);
-  else
-    sprintf(buffer,"---");
-
-  UserWriteF("value 0 of %s in vec %d = %s\n",name,idx,buffer);
-  if (ReadArgvChar("s",value,argc,argv)==0)
-    if (SetStringVar(value,buffer))
-    {
-      PrintErrorMessageF('E',"printvalue","coul not write onto string var '%s'",value);
-      return (PARAMERRORCODE);
-    }
-
-  return OKCODE;
-}
-
-
 /** \brief Implementation of \ref vmlist. */
 static INT VMListCommand (INT argc, char **argv)
 {
@@ -5732,7 +5675,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("nlist",                      NListCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("elist",                      EListCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("rlist",                      RuleListCommand                                 )==NULL) return (__LINE__);
-  if (CreateCommand("printvalue",         PrintValueCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("vmlist",             VMListCommand                                   )==NULL) return (__LINE__);
   if (CreateCommand("convert",        ConvertCommand                  )==NULL) return(__LINE__);
   if (CreateCommand("status",                     StatusCommand                                   )==NULL) return (__LINE__);
