@@ -3471,7 +3471,6 @@ INT             GetAllSons                              (const ELEMENT *theEleme
 #endif
 INT             VectorPosition                  (const VECTOR *theVector, DOUBLE *position);
 INT             VectorInElement                 (ELEMENT *theElement, VECTOR *theVector);
-INT             MinMaxAngle                     (const ELEMENT *theElement, DOUBLE *amin, DOUBLE *amax);
 
 /* check */
 #ifndef ModelP
