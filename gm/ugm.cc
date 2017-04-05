@@ -8344,38 +8344,6 @@ void NS_DIM_PREFIX ListNode (const MULTIGRID *theMG, const NODE *theNode, INT da
 
 
 /****************************************************************************/
-/** \brief List information about all nodes in selection
-
- * @param   theMG - structure containing the nodes
- * @param   dataopt - list user data if true
- * @param   bopt - list boundary info if true
- * @param   nbopt - list info about neighbors if true
- * @param   vopt - list more information
-
-   This function lists information about all nodes in the selection.
-
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListNodeSelection (MULTIGRID *theMG, INT dataopt, INT bopt, INT nbopt, INT vopt)
-{
-  int j;
-  NODE *theNode;
-
-  if (SELECTIONMODE(theMG) != nodeSelection)
-  {
-    PrintErrorMessage('E',"ListNodeSelection","wrong selection type");
-    return;
-  }
-  for(j=0; j<SELECTIONSIZE(theMG); j++)
-  {
-    theNode = (NODE *) SELECTIONOBJECT(theMG,j);
-    ListNode(theMG,theNode,dataopt,bopt,nbopt,vopt);
-  }
-}
-
-
-/****************************************************************************/
 /** \brief List information about nodes in given range of ids
 
  * @param   theMG - structure to list
@@ -8529,37 +8497,6 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
   }
 
   return;
-}
-
-
-/****************************************************************************/
-/** \brief List information about elements in selection
-
- * @param  theMG multigrid structure to list
- * @param   dataopt - list user data if true
- * @param   vopt - list more information
-
-   This function lists information about all elements in the selection.
-
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListElementSelection (const MULTIGRID *theMG, INT dataopt, INT bopt, INT nbopt, INT vopt)
-{
-  int j;
-  ELEMENT *theElement;
-
-  if (SELECTIONSIZE(theMG) <= 0) return;
-  if (SELECTIONMODE(theMG) != elementSelection)
-  {
-    PrintErrorMessage('E',"ListElementSelection","wrong selection type");
-    return;
-  }
-  for(j=0; j<SELECTIONSIZE(theMG); j++)
-  {
-    theElement = (ELEMENT *) SELECTIONOBJECT(theMG,j);
-    ListElement(theMG,theElement,dataopt,bopt,nbopt,vopt);
-  }
 }
 
 
@@ -8747,92 +8684,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
         UserWrite(buffer);
       }
     }
-}
-
-/****************************************************************************/
-/** \brief List info about vectors of elements in selection
-
- * @param   theMG -  structure to list
- * @param   matrixopt - list line of matrix corresponding to theVector
- * @param   dataopt - list user data if true
- * @param   modifiers - flags modifying output style and verbose level
-
-   This function lists info about all vectors of elements in the selection.
-
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX  ListVectorOfElementSelection (const MULTIGRID *theMG, INT matrixopt, INT dataopt, INT modifiers)
-{
-  int i,j;
-  ELEMENT *theElement;
-  VECTOR *vList[20];
-  INT cnt;
-
-  if (SELECTIONMODE(theMG) != elementSelection)
-  {
-    PrintErrorMessage('E',"ListVectorOfElementSelection","wrong selection type");
-    return;
-  }
-  for (j=0; j<SELECTIONSIZE(theMG); j++)
-  {
-    theElement = (ELEMENT *) SELECTIONOBJECT(theMG,j);
-    UserWriteF("ELEM(ID=%d):\n",ID(theElement));
-
-    if (VEC_DEF_IN_OBJ_OF_MG(theMG,NODEVEC))
-    {
-      GetVectorsOfNodes(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++) ListVector(theMG,vList[i],matrixopt,dataopt,modifiers);
-    }
-    if (VEC_DEF_IN_OBJ_OF_MG(theMG,EDGEVEC))
-    {
-      GetVectorsOfEdges(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++) ListVector(theMG,vList[i],matrixopt,dataopt,modifiers);
-    }
-                #ifdef __THREEDIM__
-    if (VEC_DEF_IN_OBJ_OF_MG(theMG,SIDEVEC))
-    {
-      GetVectorsOfSides(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++) ListVector(theMG,vList[i],matrixopt,dataopt,modifiers);
-    }
-                #endif
-    if (VEC_DEF_IN_OBJ_OF_MG(theMG,ELEMVEC))
-    {
-      GetVectorsOfElement(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++) ListVector(theMG,vList[i],matrixopt,dataopt,modifiers);
-    }
-  }
-}
-
-/****************************************************************************/
-/** \brief List information about vectors in selection
-
- * @param   theMG: multigrid structure to list
- * @param   matrixopt - list matrices of this vector
- * @param   dataopt - list user data if true
- * @param   modifiers - flags modifying output style and verbose level
-
-   This function lists information about all elements in the selection.
-
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListVectorSelection (const MULTIGRID *theMG, INT matrixopt, INT dataopt, INT modifiers)
-{
-  int j;
-  VECTOR *theVector;
-
-  if (SELECTIONSIZE(theMG) <= 0) return;
-  if (SELECTIONMODE(theMG) != vectorSelection)
-  {
-    PrintErrorMessage('E',"ListVectorSelection","wrong selection type");
-    return;
-  }
-  for(j=0; j<SELECTIONSIZE(theMG); j++)
-  {
-    theVector = (VECTOR *) SELECTIONOBJECT(theMG,j);
-    ListVector(theMG,theVector,matrixopt,dataopt,modifiers);
-  }
 }
 
 /****************************************************************************/
