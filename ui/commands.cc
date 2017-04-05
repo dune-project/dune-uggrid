@@ -149,7 +149,6 @@ using namespace PPIF;
 #define AI_MARK_ALL             256
 #define MARK_COARSEN                    2
 #define MARK_ID                                 3
-#define MARK_SELECTION                  4
 #define NO_SIDE_SPECIFIED               -1
 #define NO_RULE_SPECIFIED               -1
 #define NO_OF_RULES                     64
@@ -2067,23 +2066,6 @@ static INT VMListCommand (INT argc, char **argv)
     if (theVD != NULL) {
       if (ReadArgvOption("S",argc,argv))
         PrintSVector(theMG,theVD);
-      else if (ReadArgvOption("s",argc,argv))
-      {
-        /* get selection list */
-        if ((SELECTIONMODE(theMG)==vectorSelection) && (SELECTIONSIZE(theMG)>=1))
-        {
-          VECTOR **vlist = (VECTOR**)malloc((SELECTIONSIZE(theMG)+1)*sizeof(VECTOR*));
-          if (vlist!=NULL)
-          {
-            int i;
-            for (i=0; i<SELECTIONSIZE(theMG); i++)
-              vlist[i] = (VECTOR *)SELECTIONOBJECT(theMG,i);
-            vlist[SELECTIONSIZE(theMG)] = NULL;
-            PrintVectorListX((const VECTOR **)vlist,theVD,vclass,vnclass,UserWriteF);
-            free(vlist);
-          }
-        }
-      }
       else
         PrintVector(theGrid,theVD,vclass,vnclass);
       return(OKCODE);
@@ -2702,20 +2684,6 @@ static INT MoveNodeCommand (INT argc, char **argv)
   for (i=1; i<argc; i++)
     switch (argv[i][0])
     {
-    case 's' :
-      if (SELECTIONMODE(theMG)==nodeSelection)
-      {
-        PrintErrorMessage('E',"move","there is no node in the selection");
-        return (PARAMERRORCODE);
-      }
-      if (SELECTIONSIZE(theMG)!=1)
-      {
-        PrintErrorMessage('E',"move","there is more than one node in the selection");
-        return (PARAMERRORCODE);
-      }
-      theNode = (NODE *)SELECTIONOBJECT(theMG,0);
-      break;
-
     case 'i' :
       if (OBJT(MYVERTEX(theNode))!=IVOBJ)
       {
@@ -3288,7 +3256,7 @@ static INT MarkCommand (INT argc, char **argv)
     case 'a' :
       if (mode!=false)
       {
-        PrintErrorMessage('E',"mark","specify only one option of a, b, i, s");
+        PrintErrorMessage('E',"mark","specify only one option of a, b, i");
         return (PARAMERRORCODE);
       }
       mode = MARK_ALL;
@@ -3297,7 +3265,7 @@ static INT MarkCommand (INT argc, char **argv)
     case 'i' :
       if (mode!=false)
       {
-        PrintErrorMessage('E',"mark","specify only one option of a, b, i, s");
+        PrintErrorMessage('E',"mark","specify only one option of a, b, i");
         return (PARAMERRORCODE);
       }
       mode = MARK_ID;
@@ -3310,15 +3278,6 @@ static INT MarkCommand (INT argc, char **argv)
       if (j == 1) idto = idfrom;
       break;
 
-    case 's' :
-      if (mode!=false)
-      {
-        PrintErrorMessage('E',"mark","specify only one option of a, b, i, s");
-        return (PARAMERRORCODE);
-      }
-      mode = MARK_SELECTION;
-      break;
-
     default :
       PrintErrorMessageF('E', "MarkCommand", "Unknown option '%s'", argv[i]);
       return (PARAMERRORCODE);
@@ -3326,7 +3285,7 @@ static INT MarkCommand (INT argc, char **argv)
 
   if (mode==false)
   {
-    PrintErrorMessage('E',"mark","specify exactly one option of a, b, i, s");
+    PrintErrorMessage('E',"mark","specify exactly one option of a, b, i");
     return (PARAMERRORCODE);
   }
 
@@ -3378,22 +3337,6 @@ static INT MarkCommand (INT argc, char **argv)
           nmarked++;
       }
     }
-    break;
-
-  case MARK_SELECTION :
-    if (SELECTIONMODE(theMG)==elementSelection)
-      for (i=0; i<SELECTIONSIZE(theMG); i++)
-      {
-        theElement = (ELEMENT *)SELECTIONOBJECT(theMG,i);
-        if (EstimateHere(theElement))
-        {
-          if ((rv = MarkForRefinement(theElement,
-                                      Rule,Side))!=0)
-            break;
-          else
-            nmarked++;
-        }
-      }
     break;
   }
 
@@ -3755,7 +3698,7 @@ static INT ShellOrderVectorsCommand (INT argc, char **argv)
 
   if (sscanf(argv[0],"shellorderv %c",&option)!=1)
   {
-    PrintErrorMessage('E',"shellorderv","specify f, l or s");
+    PrintErrorMessage('E',"shellorderv","specify f or l");
     return (CMDERRORCODE);
   }
 
@@ -3766,19 +3709,6 @@ static INT ShellOrderVectorsCommand (INT argc, char **argv)
     break;
   case 'l' :
     seed = LASTVECTOR(theGrid);
-    break;
-  case 's' :
-    if (SELECTIONMODE(theMG)!=vectorSelection)
-    {
-      PrintErrorMessage('E',"shellorderv","no vector selection");
-      return (CMDERRORCODE);
-    }
-    if (SELECTIONSIZE(theMG)!=1)
-    {
-      PrintErrorMessage('E',"shellorderv","select ONE vector");
-      return (CMDERRORCODE);
-    }
-    seed = (VECTOR *)SELECTIONOBJECT(theMG,0);
     break;
   default :
     PrintErrorMessage('E',"shellorderv","specify f, l or s");

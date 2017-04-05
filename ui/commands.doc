@@ -892,7 +892,7 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    calling the functions 'MoveInnerNode' and 'MoveBoundaryNode'.
 
 \section Syntax
-   'move {\<Id> | $s} {$i \<x> \<y> [\<z>] | $b \<SegId> \<s> [\<t>]}'
+   'move \<Id> {$i \<x> \<y> [\<z>] | $b \<SegId> \<s> [\<t>]}'
 
   <li> \<Id>                - Id of the node to be moved
   <li> $i~\<x>~\<y>~[\<z>]    - specify as much coordinates as the space has dimensions
@@ -965,14 +965,13 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    calling the function MarkForRefinement().
 
 \section Syntax
-   'mark [$h | {[\<rule> [\<side>]] [$a | $i \<Id> | $s]} | $c] [$pos \<x y [z]>] [$x \<x>] [$y \<y>] [$z \<z>]'
+   'mark [$h | {[\<rule> [\<side>]] [$a | $i \<Id>]} | $c] [$pos \<x y [z]>] [$x \<x>] [$y \<y>] [$z \<z>]'
 
   <li> \<rule>     - specify a refinement rule ("red" is default)
   <li> \<side>     - has to be specified if the corresponding rule can be applied in several orientations
   <li> $a         - refine all (leave) elements
   <li> $c		  - set all marks to no refinement
   <li> $i \<Id>    - refine the element with \<Id>
-  <li> $s         - refine all elements from the current selection
   <li> $h         - show available rules
   <li> $x         - marks elements with corner[0] \< x
   <li> $y         - marks elements with corner[1] \< y
@@ -1048,11 +1047,10 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    multigrid in shells starting from a seed.
 
 \section Syntax
-   'shellorderv f | l | s'
+   'shellorderv f | l'
 
   <li> f - take first vector as seed
   <li> l - take last vector as seed
-  <li> s - take selected vector as seed
 
  \section Keywords
    multigrid, order, shell
