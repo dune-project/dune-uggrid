@@ -1228,33 +1228,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  quality quality - Calculate minimal and maximal angle of specified elements
-
- \section Description
-   This command calculates the minimal and maximal angle
-   between sides of the specified elements
-   and lists elements with angle \< or \> given angles.
-   It calls the functions 'QualityElement'.
-
-\section Syntax
-   'quality $a | $s | {$i \<fromID> [\<toID>]} [$\< \<angle>] [$> \<angle>]'
-
-  <li>   $a          - check angles of all elements in the multigrid
-  <li>   $s          - check angles of the selected elements
-  <li>   $i          - check angles of elements with an ID in the range \<fromID> through \<toID>
-.n                 if \<fromID> is omitted only the element with \<fromID> is listed
-
-  <li>   $\<~\<angle>  - print info for all elements the minangle of which is \< \<angle>
-  <li>   $>~\<angle>  - print info for all elements the maxangle of which is > \<angle>
-
-     (angles in degree 0-360)
-   
- \section Keywords
-   multigrid, element, quality, angles, find
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  makegrid  makegrid - Generate grid
    
    2D advancing front generator:
