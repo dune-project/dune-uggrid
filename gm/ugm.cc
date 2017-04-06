@@ -3470,6 +3470,9 @@ INT NS_DIM_PREFIX DisposeNode (GRID *theGrid, NODE *theNode)
   else
     DECNOOFNODE(theVertex);
 
+  /* free message buffer */
+  theNode->message_buffer_free();
+
   /* dispose vector and its matrices from node-vector */
   size = sizeof(NODE);
   if (NDATA_DEF_IN_GRID(theGrid)) {
@@ -3850,6 +3853,9 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
     if (DisposeVector (theGrid,EVECTOR(theElement)))
       RETURN(1);
+
+  /* free message buffer */
+  theElement->message_buffer_free();
 
   /* dispose element */
   /* give it a new tag ! (I know this is somewhat ugly) */
