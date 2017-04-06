@@ -6671,71 +6671,6 @@ NODE * NS_DIM_PREFIX FindNodeFromId (const GRID *theGrid, INT id)
   return(NULL);
 }
 
-
-/****************************************************************************/
-/** \brief Find node from position
-
- * @param   theGrid - grid level to search
- * @param   pos - given position
- * @param   tol - tolerance to accept
-
-   This function finds the first node within `tol` from `pos` in 1-norm.
-
-   @return <ul>
-   <li>   pointer to NODE  </li>
-   <li>   NULL if not found. </li>
-   </ul> */
-/****************************************************************************/
-
-NODE * NS_DIM_PREFIX FindNodeFromPosition (const GRID *theGrid, const DOUBLE *pos, const DOUBLE *tol)
-{
-  NODE *theNode;
-  int i,found;
-
-  for (theNode=FIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode))
-  {
-    found = 1;
-    for (i=0; i<DIM; i++)
-      if (fabs(pos[i]-CVECT(MYVERTEX(theNode))[i])>=tol[i]) {found=0; break;}
-    if (found) return(theNode);
-  }
-
-  return(NULL);
-}
-
-/****************************************************************************/
-/** \brief Find vector from position
-
- * @param   theGrid - grid level to search
- * @param   pos - given position
- * @param   tol - tolerance to accept
-
-   This function finds the first vector within `tol` from `pos` in 1-norm.
-
-   @return <ul>
-   <li>   pointer to NODE  </li>
-   <li>   NULL if not found. </li>
-   </ul> */
-/****************************************************************************/
-
-VECTOR * NS_DIM_PREFIX FindVectorFromPosition (GRID *theGrid, DOUBLE *pos, DOUBLE *tol)
-{
-  VECTOR *theVector;
-  DOUBLE_VECTOR vpos;
-  int i,found;
-
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-  {
-    VectorPosition(theVector,vpos);
-    found = 1;
-    for (i=0; i<DIM; i++)
-      if (fabs(pos[i]-vpos[i])>=tol[i]) {found=0; break;}
-    if (found) return(theVector);
-  }
-
-  return(NULL);
-}
-
 /****************************************************************************/
 /** \brief Find vector from Index
 
@@ -7079,53 +7014,6 @@ INT NS_DIM_PREFIX FindFlippedElements(const MULTIGRID *theMG, INT verbose)
 
  * @param   theGrid - grid level to search
  * @param   pos - given position
-
-   This function finds the first element containing the position `pos`.
-
-   @return <ul>
-   <li>   pointer to ELEMENT </li>
-   <li>   NULL if not found. </li>
-   </ul> */
-/****************************************************************************/
-
-ELEMENT * NS_DIM_PREFIX FindElementFromPosition (GRID *theGrid, DOUBLE *pos)
-{
-  ELEMENT *theElement,*theFather,*Sons[MAX_SONS];
-  INT i;
-
-  if (GLEVEL(theGrid) == 0) {
-    for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
-         theElement=SUCCE(theElement))
-      if (PointInElement(pos,theElement))
-        return(theElement);
-    return(NULL);
-  }
-  theFather = FindElementFromPosition(DOWNGRID(theGrid),pos);
-  if (theFather == NULL) {
-    for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
-         theElement=SUCCE(theElement))
-      if (PointInElement(pos,theElement))
-        return(theElement);
-    return(NULL);
-  }
-  if (GetSons(theFather,Sons)) {
-    ASSERT(0);
-    return(NULL);
-  }
-  for (i=0; Sons[i]!=NULL; i++)
-    if (PointInElement(pos,Sons[i]))
-      return(Sons[i]);
-
-  return(NULL);
-}
-
-
-/****************************************************************************/
-/** \brief
-   FindElementFromPosition - Find element containing position
-
- * @param   theMG - multigrid level to search
- * @param   global - given position
 
    This function finds the first element containing the position `pos`.
 
