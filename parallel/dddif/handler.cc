@@ -896,6 +896,8 @@ static void NodeDestructor(DDD_OBJ obj)
 {
   NODE *node      = (NODE *) obj;
 
+  node->message_buffer_free();
+
   PRINTDEBUG(dddif,2,(PFMT " NodeDestructor(): n=" ID_FMTX " NDOBJ=%d\n",
                       me,ID_PRTX(node),OBJT(node)))
 }
@@ -903,6 +905,8 @@ static void NodeDestructor(DDD_OBJ obj)
 static void NodeObjInit(DDD_OBJ obj)
 {
   NODE *node      = (NODE *) obj;
+
+  node->message_buffer(nullptr, 0);
 
   PRINTDEBUG(dddif,2,(PFMT " NodeObjInit(): n=" ID_FMTX " NDOBJ=%d\n",
                       me,ID_PRTX(node),OBJT(node)))
@@ -1199,6 +1203,8 @@ static void ElementLDataConstructor (DDD_OBJ obj)
   GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
   INT prio            = EPRIO(pe);
   void    *q;
+
+  pe->message_buffer(nullptr, 0);
 
   PRINTDEBUG(dddif,2,(PFMT " ElementLDataConsX(): pe=" EID_FMTX
                       " EOBJ=%d l=%d\n",me,EID_PRTX(pe),OBJT(pe),level))
