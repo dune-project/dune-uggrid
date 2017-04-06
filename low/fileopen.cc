@@ -411,15 +411,22 @@ int NS_PREFIX mkdir_r (const char *fname, mode_t mode, int do_rename)
   {
     if (rename_if_necessary( converted_name, do_rename)!=0)
       return (1);
-
+#ifdef __MINGW32__
+    return mkdir(converted_name);
+#else
     return mkdir(converted_name,mode);
+#endif
   }
   else
   {
     switch (filetype(fname))                    /* filetype needs an NOT BasedConvertedFilename'ed filename */
     {
     case FT_UNKNOWN :                           /* file doesn't exist, thus create it */
+#ifdef __MINGW32__
+      return mkdir(converted_name);
+#else
       return mkdir(converted_name,mode);
+#endif
 
     case FT_DIR :
       return 0;                                         /* OK, directory exists already */

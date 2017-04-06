@@ -31,6 +31,8 @@
 #include <cstdio>
 #include <fcntl.h>
 
+#include <sys/stat.h>
+
 #include "ugtypes.h"
 #include "namespace.h"
 
