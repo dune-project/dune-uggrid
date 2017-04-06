@@ -23,6 +23,9 @@ else()
   set(UG_DEFINITIONS "ENABLE_UG=1")
 endif()
 
+include(CheckIncludeFile)
+check_include_file ("rpc/rpc.h" HAVE_RPC_RPC_H)
+
 # Check whether dune-uggrid is installed
 # to work around includes not relative to dune-uggrid's root directory
 if((NOT dune-uggrid_INSTALLED) AND (NOT PROJECT_NAME STREQUAL dune-uggrid))
