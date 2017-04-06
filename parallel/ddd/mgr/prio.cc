@@ -175,7 +175,7 @@ else
 enum PrioMergeVals PriorityMerge (TYPE_DESC *desc, DDD_PRIO p1, DDD_PRIO p2, DDD_PRIO *pres)
 {
   /* check if matrix is available */
-  if (desc->prioMatrix == NULL)
+  if (desc->prioMatrix == nullptr)
   {
     PM_GETDEFAULT(desc->prioDefault, p1, p2, *pres);
     if (*pres==MAX_PRIO) return PRIO_ERROR;
@@ -209,11 +209,10 @@ static int SetPrioMatrix (TYPE_DESC *desc, int priomerge_mode)
 {
   int r, c;
 
-  if (desc->prioMatrix==NULL)
+  if (desc->prioMatrix==nullptr)
   {
     /* prioMatrix has not been allocated before */
-    desc->prioMatrix = (DDD_PRIO *)
-                       AllocFix(sizeof(DDD_PRIO)*PM_SIZE);
+    desc->prioMatrix = std::make_unique<DDD_PRIO[]>(PM_SIZE);
   }
 
   for(r=0; r<MAX_PRIO; r++)
@@ -246,7 +245,7 @@ static int CheckPrioMatrix (TYPE_DESC *desc)
 {
   int r, c;
 
-  if (desc->prioMatrix==NULL)
+  if (desc->prioMatrix==nullptr)
     /* no prioMatrix defined, ok */
     return true;
 
@@ -298,7 +297,6 @@ void DDD_PrioMergeDefine (DDD_TYPE type_id,
                           DDD_PRIO p1, DDD_PRIO p2, DDD_PRIO pres)
 {
   TYPE_DESC *desc = &(theTypeDefs[type_id]);
-  DDD_PRIO *pm = desc->prioMatrix;
 
   /* check for correct type */
   if (! ddd_TypeDefined(desc))
@@ -309,7 +307,7 @@ void DDD_PrioMergeDefine (DDD_TYPE type_id,
 
 
   /* create prioMatrix on demand */
-  if (pm==NULL)
+  if (desc->prioMatrix == nullptr)
   {
     if (! SetPrioMatrix(desc, PRIOMERGE_DEFAULT))
     {
@@ -419,7 +417,6 @@ DDD_PRIO DDD_PrioMerge (DDD_TYPE type_id, DDD_PRIO p1, DDD_PRIO p2)
 void DDD_PrioMergeDisplay (DDD_TYPE type_id)
 {
   TYPE_DESC *desc = &(theTypeDefs[type_id]);
-  DDD_PRIO *pm = desc->prioMatrix;
   int r, c, changed_rows[MAX_PRIO];
   char buf[20];
 
@@ -446,7 +443,7 @@ void DDD_PrioMergeDisplay (DDD_TYPE type_id)
   strcat(cBuffer, "\n");
   DDD_PrintLine(cBuffer);
 
-  if (pm==NULL)
+  if (desc->prioMatrix == nullptr)
   {
     sprintf(cBuffer, "\\ \t(no special cases defined)\n");
     DDD_PrintLine(cBuffer);

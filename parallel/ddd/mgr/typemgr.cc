@@ -859,7 +859,7 @@ DDD_TYPE DDD_TypeDeclare(const char *name)
   desc->mode = DDD_TYPE_DECLARED;
   desc->name = name;
 
-  desc->prioMatrix  = NULL;
+  desc->prioMatrix  = nullptr;
   desc->prioDefault = PRIOMERGE_DEFAULT;
 
   /* increase #DDD_TYPEs, but return previously defined one */

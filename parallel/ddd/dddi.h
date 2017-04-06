@@ -253,7 +253,7 @@ typedef struct _TYPE_DESC
   HandlerXFERCOPYMANIP handlerXFERCOPYMANIP;
 
 
-  DDD_PRIO *prioMatrix;                 /* 2D matrix for comparing priorities   */
+  std::unique_ptr<DDD_PRIO[]> prioMatrix; /* 2D matrix for comparing priorities   */
   int prioDefault;                      /* default mode for PrioMerge           */
 
   /* redundancy for efficiency */
