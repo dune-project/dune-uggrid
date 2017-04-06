@@ -316,7 +316,7 @@ static void ConstructDesc (TYPE_DESC *desc)
 
   desc->nPointers = 0;
   desc->nElements = 0;
-  desc->cmask     = NULL;
+  desc->cmask     = nullptr;
   desc->hasHeader = false;
   desc->offsetHeader = 0;
 
@@ -426,8 +426,8 @@ static void AttachMask (TYPE_DESC *desc)
   unsigned char mask;
 
   /* get storage for mask */
-  desc->cmask = (unsigned char *)AllocFix(desc->size);
-  if (desc->cmask==0)
+  desc->cmask = std::make_unique<unsigned char[]>(desc->size);
+  if (desc->cmask==nullptr)
   {
     DDD_PrintError('E', 2413,
                    RegisterError(desc,0, STR_NOMEM));
@@ -444,7 +444,7 @@ static void AttachMask (TYPE_DESC *desc)
   for(i=0; i<desc->nElements; i++)
   {
     e = &desc->element[i];
-    mp = desc->cmask + e->offset;
+    mp = desc->cmask.get() + e->offset;
 
     switch (e->type)
     {
@@ -1173,10 +1173,7 @@ void ddd_TypeMgrExit (void)
   /* free memory */
   for(i=0; i<nDescr; i++)
   {
-    if (theTypeDefs[i].cmask!=NULL) {
-      FreeFix(theTypeDefs[i].cmask);
-      theTypeDefs[i].cmask = NULL;
-    }
+    theTypeDefs[i].cmask = nullptr;
   }
 }
 

@@ -800,7 +800,6 @@ void DDD_HdrConstructorMove (DDD_HDR newhdr, DDD_HDR oldhdr)
 
 static void CopyByMask (TYPE_DESC *desc, DDD_OBJ target, DDD_OBJ source)
 {
-  unsigned char *maskp;
   unsigned char *s=(unsigned char *)source, *t=(unsigned char *)target;
   int i;
 
@@ -810,7 +809,7 @@ static void CopyByMask (TYPE_DESC *desc, DDD_OBJ target, DDD_OBJ source)
   DDD_PrintDebug(cBuffer);
 #       endif
 
-  maskp = desc->cmask;
+  unsigned char* maskp = desc->cmask.get();
 
   /* copy all bits set in cmask from source to target */
   for(i=0; i<desc->size; i++)

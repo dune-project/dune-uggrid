@@ -43,7 +43,7 @@
 #define __DDDI_H__
 
 #include <climits>
-
+#include <memory>
 
 #include <cassert>
 
@@ -258,7 +258,7 @@ typedef struct _TYPE_DESC
 
   /* redundancy for efficiency */
   int nPointers;                        /* number of outside references         */
-  unsigned char  *cmask;                /* mask for fast type-dependent copy    */
+  std::unique_ptr<unsigned char[]> cmask; /* mask for fast type-dependent copy    */
 } TYPE_DESC;
 
 
