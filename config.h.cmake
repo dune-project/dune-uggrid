@@ -27,7 +27,9 @@
 #cmakedefine TIME_WITH_SYS_TIME 1
 
 /* Define to 1 if rpc/rpc.h is found (needed for xdr). */
+#ifndef HAVE_RPC_RPC_H
 #cmakedefine HAVE_RPC_RPC_H 1
+#endif
 
 /* end private section */
 
