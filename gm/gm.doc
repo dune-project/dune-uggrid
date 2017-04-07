@@ -1632,15 +1632,6 @@ INT VMATCH (VECTOR *v, BV_DESC *bvd, BV_DESC_FORMAT *bvdf);
 Returns true if the VECTOR belongs to the BLOCKVECTOR given in the
 blockvector description (BV_DESC).
 
-\verbatim
-CAST_NVECTOR (VECTOR *p);
-CAST_EDVECTOR (VECTOR *p);
-CAST_SVECTOR (VECTOR *p,INT i);
-CAST_EVECTOR (VECTOR *p);
-\endverbatim
-
-????
-
 CONTROL WORDS:
 
 `General macros in control word`
@@ -2625,14 +2616,6 @@ inserted in the appropriate list of free objects.
 . freeVectors,freeConnections - List of free VECTOR and CONNECTION
 objects sorted by type. Same comment as for freeObjects applies.
 
-. Selection - Array of pointers to selection objects (VECTORs, NODEs or ELEMENTs)
-that have been selected with the mouse in the graphical user interface or by the select command.
-
-. NbOfSelections - Number of objects in the selection buffer (Selection).
-
-. SelectionMode - Indicates type of objects in the selection buffer. Currently
-nodeSelection, elementSelection and vectorSelection is possible.
-
 . GenData - Management of general user data space in multigrid. At initialisation time
 different modules can (pre)allocate storage which will (actually) be allocated in
 each multigrid when it is opened. Storage is allocated and addressed by calls of
@@ -2706,17 +2689,6 @@ Returns a pointer to the multigrids HEAP.
 GRID *GRID_ON_LEVEL (MULTIGRID *mg,INT i);
 \endverbatim
 Returns a pointer to the ith grid level of the MULTIGRID.
-
-\verbatim
-INT SELECTIONSIZE (MULTIGRID *mg);
-INT SELECTIONMODE (MULTIGRID *mg);
-\endverbatim
-Returns number of objects in the selection buffer and type of these objects.
-
-\verbatim
-GEOM_OBJECT *SELECTIONOBJECT (MULTIGRID *mg,INT i);
-\endverbatim
-Returns a pointer to the ith object in the selection buffer.
 
 \verbatim
 char *MGNAME (MULTIGRID *mg);

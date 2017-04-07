@@ -705,85 +705,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  nlist nlist - List information on specified nodes
-
- \section Description
-   This command lists information on specified nodes, calling
-   the functions 'ListNodeRange' and 'ListNodeSelection'.
-
-\section Syntax
-   'nlist {$s | $i \<fromID> [\<toID>] | $g \<global id> | $k \<key>} [$d] [$b] [$n] [$v] [$a]'
-
-  <li> $s  - list info for the selected nodes
-  <li> $i  - list info for nodes with an ID in the range \<fromID> through \<toID>
-         if \<fromID> is omitted only the node with \<fromID> is listed
-  <li> $g \<glob. id>- list info for node with global id (only for ModelP)
-  <li> $k \<key>     - list info for node with key
-
-  <li> $d  - up to version 2.3 ONLY: list also user data space
-  <li> $b  - print additional info for boundary nodes
-  <li> $n  - list also neighbours of each node
-  <li> $v  - print extended info (verbose mode)
-  <li> $a  - list all nodes
-   
- \section Keywords
-   multigrid, node, link, list, display, show
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   elist elist - List information on specified elements
-
- \section Description
-   This command lists information on specified elements, calling
-   the functions 'ListElementRange' and 'ListElementSelection'.
-
-\section Syntax
-   'elist $s | {$i \<fromID> [\<toID>]} [$d] [$b] [$n] [$v] [$a]'
-
-  <li> $s  - list info for the selected elements
-  <li> $i  - list info for elements with an ID in the range \<fromID> through \<toID>
-         if \<fromID> is omitted only the element with \<fromID> is listed
-  <li> $g \<glob. id>- list info for element with global id (only for ModelP)
-  <li> $k \<key>     - list info for element with key
-
-  <li> $d  - up to version 2.3 ONLY: list also user data space
-  <li> $b  - print additional info for boundary elements
-  <li> $n  - list also neighbours of each element
-  <li> $v  - print extended info (verbose mode)
-  <li> $l  - list only elements of current level
-  <li> $a  - list all elements
-   
- \section Keywords
-   multigrid, element, list, display, show
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  slist  slist - List information on all selected nodes or elements
-
- \section Description
-   This command lists information on selected nodes or elements, calling
-   the functions 'ListNodeSelection', 'ListElementSelection'.
-   (Listing of selected vectors is not implemented.)
-
-\section Syntax
-   'slist [$d] [$b] [$n] [$v]'
-
-  <li>  $d  - up to version 2.3 ONLY: list also user data space
-  <li>  $b  - print additional info for boundary nodes/elements
-  <li>  $n  - list also neighbours of each node/element
-  <li>  $v  - print extended info (verbose mode)
-   
- \section Keywords
-   multigrid, selection, list, display, show
-
-   SEE ALSO:
-   'select'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  rlist rlist - List rule records of element type for refinement
 
  \section Description
@@ -797,39 +718,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, element, rule, type, list, display, show
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   vmlist vmlist - List information on specified vectors and matrices
-
-   This command lists information on specified vectors and matrices, calling
-   the functions ListVectorRange() and ListVectorSelection().
-
-\section Syntax
-   'vmlist {$s | $i \<fromID> [\<toID>] | $g \<global id> | $k \<key>} [$t \<dt-list>] [$m] [$d] [$a] [$l \<f> \<t>] [$pos 0|1] [$obj 0|1]'
-
-  <ul>
-     <li> $s			- list info for the selected vectors  </li>
-     <li> $i			- list info for vectors with an ID in the range \<fromID> through \<toID>
-       			  if \<fromID> is omitted only the vector with \<fromID> is listed </li>
-     <li> $g \<glob. id>- list info for vector with global id (only for ModelP) </li>
-     <li> $k \<key>     - list info for vector with key </li>
-     <li> $t~\<dt-list>	- list only vectors of specified data types (list of chars, no seperator) </li>
-
-     <li> $m			- list also the associated matrix entries </li>
-     <li> $d			- list also the user data </li>
-     <li> $skip~0|1	- show skip flags (default 0) </li>
-     <li> $a			- list all vectors </li>
-     <li> $l \<f> \<t>   - process levels f \<= l \<= t </li>
-     <li> $pos~0|1		- show vector positions (default 1) </li>
-     <li> $obj~0|1		- show vector object related info (default 1) </li>
-  </ul>   
-
- \section Keywords
-   multigrid, vector, matrix, userdata, list, display, show
-
-   Implemented in VMListCommand()
 */
 /****************************************************************************/
 
@@ -911,24 +799,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  deln  deln - Delete a node and vertex
-
- \section Description
-   This command deletes a node and the corresponding vertex
-   of the current multigrid, calling the function 'DeleteNode'.
-
-\section Syntax
-   'deln \<Id> | $s'
-
-  <li> \<Id>  - ID of the node to be deleted
-  <li> $s    - delete ALL nodes from the selection
-   
- \section Keywords
-   multigrid, delete, remove, node, edit
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  move move - Move a node and vertex
 
  \section Description
@@ -937,7 +807,7 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    calling the functions 'MoveInnerNode' and 'MoveBoundaryNode'.
 
 \section Syntax
-   'move {\<Id> | $s} {$i \<x> \<y> [\<z>] | $b \<SegId> \<s> [\<t>]}'
+   'move \<Id> {$i \<x> \<y> [\<z>] | $b \<SegId> \<s> [\<t>]}'
 
   <li> \<Id>                - Id of the node to be moved
   <li> $i~\<x>~\<y>~[\<z>]    - specify as much coordinates as the space has dimensions
@@ -946,43 +816,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, move, node, edit
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  ie ie - Insert an element
-
- \section Description
-   This command inserts an element into a multigrid with only level 0, 
-   calling the function 'InsertElement'.
-
-
-\section Syntax
-   'ie {\<Id>}+ | $s'
-
-  <li> {\<Id>}+  - specify at least three (2d) or four (3d) corner nodes, the corresponding (unique) element will be created
-  <li> $s 		- taking selected nodes 
-   
- \section Keywords
-   multigrid, insert, create, element, edit
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  dele  dele - Delete an element
-
- \section Description
-   This command deletes the specified  element of a multigrid 
-   with only level 0, calling the function 'DeleteElement'.
-
-\section Syntax
-   'dele \<Id> | $s'
-
-  <li> \<Id> - ID of the element to be deleted
-  <li> $s   - delete all elements from the selection
-   
- \section Keywords
-   multigrid, delete, remove, element, edit
 */
 /****************************************************************************/
 
@@ -1036,35 +869,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 
 \section Syntax
    'collapse'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  mark  mark - Mark elements with refinement type 
-
- \section Description
-   This command marks elements with refinement type,
-   calling the function MarkForRefinement().
-
-\section Syntax
-   'mark [$h | {[\<rule> [\<side>]] [$a | $i \<Id> | $s]} | $c] [$pos \<x y [z]>] [$x \<x>] [$y \<y>] [$z \<z>]'
-
-  <li> \<rule>     - specify a refinement rule ("red" is default)
-  <li> \<side>     - has to be specified if the corresponding rule can be applied in several orientations
-  <li> $a         - refine all (leave) elements
-  <li> $c		  - set all marks to no refinement
-  <li> $i \<Id>    - refine the element with \<Id>
-  <li> $s         - refine all elements from the current selection
-  <li> $h         - show available rules
-  <li> $x         - marks elements with corner[0] \< x
-  <li> $y         - marks elements with corner[1] \< y
-  <li> $z         - marks elements with corner[2] \< z
-   
- \section Keywords
-   multigrid, refine, adapt, rule, type, mark
-   
-   SEE ALSO:
-   'refine'
 */
 /****************************************************************************/
 
@@ -1130,11 +934,10 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    multigrid in shells starting from a seed.
 
 \section Syntax
-   'shellorderv f | l | s'
+   'shellorderv f | l'
 
   <li> f - take first vector as seed
   <li> l - take last vector as seed
-  <li> s - take selected vector as seed
 
  \section Keywords
    multigrid, order, shell
@@ -1221,58 +1024,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  find find - Find (and select) a node (element) from a given position 
-
- \section Description
-   This function finds (and selects) a node (element) from a given position,
-   where some tolerance can be specified.
-   It finds a node (element) on the current level of the current multigrid, 
-   using the functions
-   'FindNodeFromPosition', 'FindElementFromPosition'
-   'AddNodeToSelection', 'RemoveNodeFromSelection',
-   'AddElementToSelection' and 'RemoveElementFromSelection'
-
-\section Syntax
-   find \<x> \<y> \<z> {$n \<tol> | $v \<tol> | $e} [$s]
-
-  <li> \<x> \<y> \<z> - specify as much coordinates as the space has dimensions
-  <li> $n \<tol>    - find a node maching the position with tolerance \<tol>
-  <li> $v \<tol>    - find a vector maching the position with tolerance \<tol>
-  <li> $e          - find an element maching the position
-  <li> $s          - add the selected node (element) to the selection buffer
-               	 (if not specified the node is just listed)
-   
- \section Keywords
-   multigrid, node, element, position, find, select
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page   select select - Select a node or element from a given position 
-
- \section Description
-   This function finds (and selects) a node (element) from a given position,
-   where some tolerance can be specified.
-   It adds/removes nodes/elements from the selection buffer of the current 
-   multigrid, using the functions
-   'FindNodeFromId', 'FindElementFromId'
-   'AddNodeToSelection', 'RemoveNodeFromSelection',
-   'AddElementToSelection' and 'RemoveElementFromSelection'
-
-\section Syntax
-   'select $i | $c | $n {+|-} \<Id> | $e {+|-} \<Id>'
-
-  <li> $i				- print type and number of list members
-  <li> $c               - clear the selection buffer
-  <li> $n~{+|-}~\<Id>    - add (+) or remove (-) the node with \<Id> to (from) the selection buffer
-  <li> $e~{+|-}~\<Id>    - add (+) or remove (-) the element with \<Id> to (from) the selection buffer
-   
- \section Keywords
-   multigrid, select, element, node
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page   extracon extracon - Display number of (and delete) extra connections
 
  \section Description
@@ -1312,33 +1063,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, check, consistency, data structure, algebra, counters, interfaces
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  quality quality - Calculate minimal and maximal angle of specified elements
-
- \section Description
-   This command calculates the minimal and maximal angle
-   between sides of the specified elements
-   and lists elements with angle \< or \> given angles.
-   It calls the functions 'QualityElement'.
-
-\section Syntax
-   'quality $a | $s | {$i \<fromID> [\<toID>]} [$\< \<angle>] [$> \<angle>]'
-
-  <li>   $a          - check angles of all elements in the multigrid
-  <li>   $s          - check angles of the selected elements
-  <li>   $i          - check angles of elements with an ID in the range \<fromID> through \<toID>
-.n                 if \<fromID> is omitted only the element with \<fromID> is listed
-
-  <li>   $\<~\<angle>  - print info for all elements the minangle of which is \< \<angle>
-  <li>   $>~\<angle>  - print info for all elements the maxangle of which is > \<angle>
-
-     (angles in degree 0-360)
-   
- \section Keywords
-   multigrid, element, quality, angles, find
 */
 /****************************************************************************/
 

@@ -105,9 +105,6 @@ some node `a` to node `b`. The LINK from node `b` to node `a` must always exist
 since the neighbor relation is symmetric and therefore the two LINK objects
 are combined to form an (undirected) EDGE object.
 
-. SELECTION_OBJECT - This is an union of ELEMENT, NODE and VECTOR, the
-objects that can be selected by mouse or by the select command.
-
 . GEOM_OBJECT - This is an union of ELEMENT, NODE and EDGE, the basic
 geometric objects.
 
@@ -172,8 +169,6 @@ provided with UG.
 . MAXLEVEL - Maximum number of grid levels allowed in MULTIGRID.
 
 . MAXOBJECTS - Maximum number of different objects in free list.
-
-. MAXSELECTION - Size of the selection buffer in MULTIGRID.
 
 . MAX_SIDES_OF_ELEM - Maximum number of sides of an element (of any type).
 

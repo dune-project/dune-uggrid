@@ -1098,32 +1098,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
                    me,EID_PRTX(theElement));
         nerrors++;
       }
-      else
-      {
-        CORNER_COORDINATES(theElement,n,x);
-        V_DIM_CLEAR(center);
-        for (i=0; i<n; i++)
-          V_DIM_ADD(center,x[i],center)
-        V_DIM_SCALE(1.0/(DOUBLE)n,center)
-
-        /* search in element list of grid level below */
-        {
-          GRID		*downGrid;
-          MULTIGRID	*theMG;
-          INT			downlevel;
-
-          theMG		= MYMG(theGrid);
-          downlevel	= GLEVEL(theGrid)-1;
-          downGrid	= GRID_ON_LEVEL(theMG,downlevel);
-
-          theFather = FindElementFromPosition(downGrid,center);
-          if (theFather != NULL)
-            UserWriteF(PFMT "ELEM(" EID_FMTX ") has no fatherpointer but father="
-                       EID_FMTX "\n",me,EID_PRTX(theElement),EID_PRTX(theFather));
-        }
     }
   }
-}
 #endif
 
   /* check son information */

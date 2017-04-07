@@ -134,8 +134,6 @@ START_UGDIM_NAMESPACE
 #define MAXLEVEL                                32
 /** \brief  use 5 bits for object identification */
 #define MAXOBJECTS                              32
-/** \brief  max number of elements in selection  */
-#define MAXSELECTION               100
 /*@}*/
 
 /** @name Some size macros for allocation purposes */
@@ -275,12 +273,6 @@ enum {GSTATUS_BDF         = 1,
       GSTATUS_ASSEMBLED   = 4,
       GSTATUS_ORDERED     = 8};
 /*@}*/
-
-/** \brief Selection mode */
-enum {nodeSelection=1,     /**< Objects selected are nodes */
-      elementSelection=2,   /**< Objects selected are elements */
-      vectorSelection=3    /**< Objects selected are vectors */
-};
 
 /** \brief Possible values for rule in MarkForRefinement */
 enum RefinementRule
@@ -1494,13 +1486,6 @@ union geom_object {
   union element el;
 };
 
-/** \brief Objects that can be selected */
-union selection_object {
-  struct node nd;
-  union element el;
-  struct vector ve;
-};
-
 /** \brief Objects that can have a key */
 union object_with_key {
   struct node nd;
@@ -1654,25 +1639,12 @@ struct multigrid {
   /** \brief pointer to the node element blocks   */
   union element ***ndelemptrarray;
 
-  /* selection */
-  /** \brief number of selected objects                   */
-  INT NbOfSelections;
-
-  /** \brief selectionmode (see above)                    */
-  INT SelectionMode;
-
-  /** \brief pointer to selec obj*/
-  union selection_object *Selection[MAXSELECTION];
-
   /* user data */
   /** \brief general user data space                              */
   void *GenData;
 
   /** \brief user heap                                                    */
   NS_PREFIX HEAP *UserHeap;
-
-  /** \brief general purpose pointer                              */
-  void *genpurp;
 
   /* i/o handling */
   /** \brief 1 if multigrid saved                                 */
@@ -1704,7 +1676,6 @@ typedef union  element ELEMENT;
 typedef struct link LINK;
 typedef struct edge EDGE;
 typedef union  geom_object GEOM_OBJECT;
-typedef union  selection_object SELECTION_OBJECT;
 typedef struct grid GRID;
 typedef struct multigrid MULTIGRID;
 typedef union object_with_key KEY_OBJECT;
@@ -2231,13 +2202,6 @@ enum LV_ID_TYPES {
 #define VBVD(v)                                         ((v)->block_descr)
 #define VMATCH(v,bvd,bvdf)                      BVD_IS_SUB_BLOCK( &(v)->block_descr, bvd, bvdf )
 #endif
-
-/* user for nodes, edges and elements */
-#define CAST_NVECTOR(p)                         NVECTOR(p)
-#define CAST_EDVECTOR(p)                        EDVECTOR(p)
-#define CAST_SVECTOR(p,i)                       SVECTOR(p,i)
-#define CAST_EVECTOR(p)                         EVECTOR(p)
-
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -3226,9 +3190,6 @@ START_UGDIM_NAMESPACE
 #define MGNDELEMOFFS(i,o)               (i*ELEMS_OF_NODE_MAX+o)
 #define MGNDELEMBLKENTRY(p,b,i) (*((*(((p)->ndelemptrarray)+b))+i))
 /* . . . macros for the NodeElementsBlockArray  */
-#define SELECTIONSIZE(p)                ((p)->NbOfSelections)
-#define SELECTIONMODE(p)                ((p)->SelectionMode)
-#define SELECTIONOBJECT(p,i)    ((p)->Selection[(((i)<MAXSELECTION) ? (i) : (MAXSELECTION-1))])
 #define MGNAME(p)                               ((p)->v.name)
 #define MG_USER_HEAP(p)                 ((p)->UserHeap)
 #define GEN_MGUD(p)                     ((p)->GenData)
@@ -3237,7 +3198,6 @@ START_UGDIM_NAMESPACE
 #define NELIST_DEF_IN_MG(p)     (MGFORMAT(p)->nodeelementlist)
 #define EDATA_DEF_IN_MG(p)      (MGFORMAT(p)->elementdata)
 #define NDATA_DEF_IN_MG(p)      (MGFORMAT(p)->nodedata)
-#define MG_GENPURP(p)                   ((p)->genpurp)
 #define MG_SAVED(p)                             ((p)->saved)
 #define MG_FILENAME(p)                  ((p)->filename)
 #define MG_COARSE_FIXED(p)              ((p)->CoarseGridFixed)
@@ -3476,11 +3436,8 @@ INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
 
 /* searching */
 NODE            *FindNodeFromId                 (const GRID *theGrid, INT id);
-NODE            *FindNodeFromPosition   (const GRID *theGrid, const DOUBLE *pos, const DOUBLE *tol);
-VECTOR          *FindVectorFromPosition (GRID *theGrid, DOUBLE *pos, DOUBLE *tol);
 VECTOR      *FindVectorFromIndex    (GRID *theGrid, INT index);
 ELEMENT         *FindElementFromId              (GRID *theGrid, INT id);
-ELEMENT         *FindElementFromPosition(GRID *theGrid, DOUBLE *pos);
 ELEMENT     *FindElementOnSurface   (MULTIGRID *theMG, DOUBLE *global);
 ELEMENT     *FindElementOnSurfaceCached (MULTIGRID *theMG, DOUBLE *global);
 ELEMENT     *NeighbourElement       (ELEMENT *t, INT side);
@@ -3493,15 +3450,8 @@ void            ListMultiGrid           (const MULTIGRID *theMG, const INT isCur
 INT         MultiGridStatus             (const MULTIGRID *theMG, INT gridflag, INT greenflag, INT lbflag, INT verbose);
 void            ListGrids                               (const MULTIGRID *theMG);
 void            ListNode                                (const MULTIGRID *theMG, const NODE *theNode, INT dataopt, INT bopt, INT nbopt, INT vopt);
-void            ListNodeSelection               (MULTIGRID *theMG,                                              INT dataopt, INT bopt, INT nbopt, INT vopt);
-void            ListNodeRange                   (MULTIGRID *theMG, INT from, INT to,    INT idopt, INT dataopt, INT bopt, INT nbopt, INT vopt);
 void            ListElement                     (const MULTIGRID *theMG, const ELEMENT *theElement, INT dataopt, INT bopt, INT nbopt, INT vopt);
-void            ListElementSelection    (const MULTIGRID *theMG, INT dataopt, INT bopt, INT nbopt, INT vopt);
-void            ListElementRange                (const MULTIGRID *theMG, INT from, INT to,    INT idopt, INT dataopt, INT bopt, INT nbopt, INT vopt, INT lopt);
 void            ListVector                      (const MULTIGRID *theMG, const VECTOR *theVector, INT matrixopt, INT dataopt, INT modifiers);
-void            ListVectorSelection     (const MULTIGRID *theMG, INT matrixopt, INT dataopt, INT modifiers);
-void            ListVectorOfElementSelection(const MULTIGRID *theMG, INT matrixopt, INT dataopt, INT modifiers);
-void            ListVectorRange                 (const MULTIGRID *theMG, INT fl, INT tl, INT from, INT to, INT idopt, INT matrixopt, INT dataopt, INT datatypes, INT modifiers);
 
 /* query */
 LINK            *GetLink                                (const NODE *from, const NODE *to);
@@ -3518,7 +3468,6 @@ INT             GetAllSons                              (const ELEMENT *theEleme
 #endif
 INT             VectorPosition                  (const VECTOR *theVector, DOUBLE *position);
 INT             VectorInElement                 (ELEMENT *theElement, VECTOR *theVector);
-INT             MinMaxAngle                     (const ELEMENT *theElement, DOUBLE *amin, DOUBLE *amax);
 
 /* check */
 #ifndef ModelP
@@ -3528,18 +3477,6 @@ INT                     CheckGrid                               (GRID *theGrid, 
 #endif
 INT                     CheckLists                              (GRID *theGrid);
 INT             CheckSubdomains                 (MULTIGRID *theMG);
-
-/* selection */
-void            ClearSelection                  (MULTIGRID *theMG);
-INT             AddNodeToSelection              (MULTIGRID *theMG, NODE *theNode);
-INT             IsNodeSelected                  (MULTIGRID *theMG, NODE *theNode);
-INT             AddElementToSelection   (MULTIGRID *theMG, ELEMENT *theElement);
-INT             IsElementSelected               (const MULTIGRID *theMG, const ELEMENT *theElement);
-INT             AddVectorToSelection    (MULTIGRID *theMG, VECTOR *theVector);
-INT             IsVectorSelected                (const MULTIGRID *theMG, const VECTOR *theVector);
-INT             RemoveNodeFromSelection (MULTIGRID *theMG, NODE *theNode);
-INT             RemoveElementFromSelection(MULTIGRID *theMG, ELEMENT *theElement);
-INT             RemoveVectorFromSelection(MULTIGRID *theMG, VECTOR *theVector);
 
 /* multigrid user data space management (using the heaps.c block heap management) */
 INT             AllocateControlEntry    (INT cw_id, INT length, INT *ce_id);
