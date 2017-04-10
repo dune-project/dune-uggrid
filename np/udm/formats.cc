@@ -2723,7 +2723,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   VectorDescriptor vd[MAXVECTORS];
   MatrixDescriptor md[MAXMATRICES*MAXVECTORS];
   INT opt,i,j,size,type,type2,rtype,ctype,nvec,nmat,nvd,nmd;
-  INT edata,ndata,nodeelementlist;
+  INT ndata,nodeelementlist;
   INT po2t[MAXDOMPARTS][MAXVOBJECTS],MaxTypes,TypeUsed[MAXVECTORS];
   SHORT ConnDepth[NMATTYPES],ImatTypes[NVECTYPES];
   SHORT VecStorageNeeded[NVECTYPES],MatStorageNeeded[NMATTYPES];
@@ -2759,7 +2759,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
     MatStorageNeeded[type] = ConnDepth[type] = 0;
   for (type=0; type<NMATTYPES; type++) ConnDepth[type] = 0;
   nvec = nmat = 0;
-  edata = ndata = nodeelementlist = 0;
+  ndata = nodeelementlist = 0;
 
   /* scan type option or set default po2t */
   if (ScanTypeOptions(argc,argv,po2t,&MaxTypes,TypeNames)) {
@@ -2801,11 +2801,6 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
         CleanupTempDir();
         REP_ERR_RETURN(1);
       }
-      break;
-
-    case 'e' :
-      if (sscanf(argv[opt],"e %d",&n) == 1)
-        edata = n;
       break;
 
     case 'n' :
@@ -2916,7 +2911,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   newFormat = CreateFormat(formatname,0,0,
                            (ConversionProcPtr)NULL,(ConversionProcPtr)NULL,(ConversionProcPtr)NULL,
                            PrintTypeVectorData,PrintTypeMatrixData,
-                           nvd,vd,nmd,md,ImatTypes,po2t,nodeelementlist,edata,ndata);
+                           nvd,vd,nmd,md,ImatTypes,po2t,nodeelementlist,ndata);
   if (newFormat==NULL)
   {
     PrintErrorMessage('E',"newformat","failed creating the format");

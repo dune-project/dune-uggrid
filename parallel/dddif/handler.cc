@@ -812,21 +812,32 @@ static void BVertexGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data)
  * The first sizeof(int) bytes of the message_buffer is the length of
  * the message (without the size of the int).
  */
-static void DuneNodeGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data)
+template<typename Entity>
+static void DuneEntityGather (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data)
 {
-  int dataSize = ((int*)(((NODE*)obj)->message_buffer))[0];
+  char* data = static_cast<char*>(Data);
+  const Entity* entity = reinterpret_cast<Entity*>(obj);
+  const auto size = entity->message_buffer_size();
 
-  for (int i=0; i<dataSize + sizeof(int); i++)
-    ((char*)Data)[i] = (((NODE*)obj)->message_buffer)[i];
+  std::memcpy(data, &size, sizeof size);
+  data += sizeof size;
+
+  std::memcpy(data, entity->message_buffer(), size);
 }
 
-static void DuneNodeScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
+template<typename Entity>
+static void DuneEntityScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
 {
-  int dataSize = ((int*)Data)[0];
-  ((NODE*)obj)->message_buffer = (char*)malloc(sizeof(int) + dataSize);
+  const char* data = static_cast<const char*>(Data);
+  Entity* entity = reinterpret_cast<Entity*>(obj);
 
-  for (int i=0; i<dataSize + sizeof(int); i++)
-    (((NODE*)obj)->message_buffer)[i] = ((char*)Data)[i];
+  std::size_t size;
+  std::memcpy(&size, data, sizeof size);
+  data += sizeof size;
+
+  char* buffer = static_cast<char*>(std::malloc(size));
+  std::memcpy(buffer, data, size);
+  entity->message_buffer(buffer, size);
 }
 
 static void BVertexScatter (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
@@ -882,6 +893,8 @@ static void NodeDestructor(DDD_OBJ obj)
 {
   NODE *node      = (NODE *) obj;
 
+  node->message_buffer_free();
+
   PRINTDEBUG(dddif,2,(PFMT " NodeDestructor(): n=" ID_FMTX " NDOBJ=%d\n",
                       me,ID_PRTX(node),OBJT(node)))
 }
@@ -889,6 +902,8 @@ static void NodeDestructor(DDD_OBJ obj)
 static void NodeObjInit(DDD_OBJ obj)
 {
   NODE *node      = (NODE *) obj;
+
+  node->message_buffer(nullptr, 0);
 
   PRINTDEBUG(dddif,2,(PFMT " NodeObjInit(): n=" ID_FMTX " NDOBJ=%d\n",
                       me,ID_PRTX(node),OBJT(node)))
@@ -1066,9 +1081,9 @@ static void NodeXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   }
         #endif
 
-  if (DDD_XferWithAddData() && theNode->message_buffer) {
+  if (DDD_XferWithAddData()) {
     /* Extra data for Dune */
-    DDD_XferAddData(sizeof(int) + *((INT*)theNode->message_buffer), DDD_USER_DATA);
+    DDD_XferAddData(sizeof(theNode->message_buffer_size()) + theNode->message_buffer_size(), DDD_USER_DATA);
   }
 
   DDD_XferCopyObj(PARHDRV(MYVERTEX(theNode)), proc, prio);
@@ -1186,6 +1201,8 @@ static void ElementLDataConstructor (DDD_OBJ obj)
   INT prio            = EPRIO(pe);
   void    *q;
 
+  pe->message_buffer(nullptr, 0);
+
   PRINTDEBUG(dddif,2,(PFMT " ElementLDataConsX(): pe=" EID_FMTX
                       " EOBJ=%d l=%d\n",me,EID_PRTX(pe),OBJT(pe),level))
 
@@ -1202,12 +1219,6 @@ static void ElementLDataConstructor (DDD_OBJ obj)
   /* TODO: delete
      ID(pe) = (theGrid->mg->elemIdCounter)++;
    */
-
-  if (EDATA_DEF_IN_GRID(theGrid)) {
-    q = (void *) GetMemoryForObject(theGrid->mg,EDATA_DEF_IN_GRID(theGrid),NOOBJ);
-    ASSERT(q != NULL);
-    SET_EDATA(pe,q);
-  }
 }
 
 /****************************************************************************/
@@ -1314,9 +1325,7 @@ static void ElementXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   }
 
   if (DDD_XferWithAddData()) {
-
-    if (EDATA_DEF_IN_MG(dddctrl.currMG))
-      DDD_XferAddData(EDATA_DEF_IN_MG(dddctrl.currMG), DDD_USER_DATA);
+    DDD_XferAddData(sizeof(pe->message_buffer_size()) + pe->message_buffer_size(), DDD_USER_DATA);
 
     /* add edges of element */
     /* must be done before any XferCopyObj-call! herein    */
@@ -1412,23 +1421,6 @@ static void ElementXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 
 
 /****************************************************************************/
-
-static void ElemGatherEdata (ELEMENT *pe, int cnt, char *data)
-{
-  ASSERT(cnt == EDATA_DEF_IN_MG(dddctrl.currMG));
-
-  memcpy(data,(char*)EDATA(pe),cnt);
-  return;
-}
-
-static void ElemScatterEdata (ELEMENT *pe, int cnt, char *data)
-{
-  ASSERT(cnt == EDATA_DEF_IN_MG(dddctrl.currMG));
-
-  memcpy((char*)EDATA(pe),data,cnt);
-  return;
-}
-
 
 #ifdef __TWODIM__
 static void ElemGatherEdge (ELEMENT *pe, int cnt, char *data)
@@ -1608,7 +1600,7 @@ static void ElemGatherI (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *data)
 {
   if (type_id == DDD_USER_DATA)
   {
-    ElemGatherEdata((ELEMENT *)obj, cnt, (char *)data);
+    DuneEntityGather<union element>(obj, cnt, type_id, data);
     return;
   }
 
@@ -1624,7 +1616,7 @@ static void ElemScatterI (DDD_OBJ obj, int cnt, DDD_TYPE type_id,
 {
   if (type_id == DDD_USER_DATA)
   {
-    ElemScatterEdata((ELEMENT *)obj, cnt, (char *)data);
+    DuneEntityScatter<union element>(obj, cnt, type_id, data, newness);
     return;
   }
 
@@ -1650,7 +1642,7 @@ static void ElemGatherB (DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *data)
   }
   if (type_id == DDD_USER_DATA)
   {
-    ElemGatherEdata((ELEMENT *)obj, cnt,(char *)data);
+    DuneEntityGather<union element>(obj, cnt, type_id, data);
     return;
   }
 
@@ -1683,7 +1675,7 @@ static void ElemScatterB (DDD_OBJ obj, int cnt, DDD_TYPE type_id,
   }
   if (type_id == DDD_USER_DATA)
   {
-    ElemScatterEdata((ELEMENT *)obj, cnt,(char *)data);
+    DuneEntityScatter<union element>(obj, cnt, type_id, data, newness);
     return;
   }
 
@@ -2230,8 +2222,8 @@ void NS_DIM_PREFIX ddd_HandlerInit (INT handlerSet)
   DDD_SetHandlerXFERSCATTER      (TypeBVertex, BVertexScatter);
   DDD_SetHandlerSETPRIORITY      (TypeBVertex, VertexPriorityUpdate);
 
-  DDD_SetHandlerXFERGATHER       (TypeNode, DuneNodeGather);
-  DDD_SetHandlerXFERSCATTER      (TypeNode, DuneNodeScatter);
+  DDD_SetHandlerXFERGATHER       (TypeNode, DuneEntityGather<NODE>);
+  DDD_SetHandlerXFERSCATTER      (TypeNode, DuneEntityScatter<NODE>);
 
   DDD_SetHandlerLDATACONSTRUCTOR (TypeNode, NodeObjInit);
   DDD_SetHandlerDESTRUCTOR       (TypeNode, NodeDestructor);

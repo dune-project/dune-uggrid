@@ -47,7 +47,6 @@ extern INT nb_offset[TAGS];
 extern INT evector_offset[TAGS];
 extern INT svector_offset[TAGS];
 extern INT side_offset[TAGS];
-extern INT data_offset[TAGS];
 
 /* the element descriptions are also globally available, these are pointers ! */
 extern GENERAL_ELEMENT *element_descriptors[TAGS];

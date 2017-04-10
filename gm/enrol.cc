@@ -197,7 +197,7 @@ FORMAT * NS_DIM_PREFIX CreateFormat (char *name, INT sVertex, INT sMultiGrid,
                                      TaggedConversionProcPtr PrintVector, TaggedConversionProcPtr PrintMatrix,
                                      INT nvDesc, VectorDescriptor *vDesc, INT nmDesc, MatrixDescriptor *mDesc,
                                      SHORT ImatTypes[], INT po2t[MAXDOMPARTS][MAXVOBJECTS],
-                                     INT nodeelementlist, INT edata, INT ndata)
+                                     INT nodeelementlist, INT ndata)
 {
   FORMAT *fmt;
   INT i, j, type, type2, part, obj, MaxDepth, NeighborhoodDepth, MaxType;
@@ -221,7 +221,6 @@ FORMAT * NS_DIM_PREFIX CreateFormat (char *name, INT sVertex, INT sMultiGrid,
   FMT_PR_MAT(fmt)                 = PrintMatrix;
 
   FMT_NODE_ELEM_LIST(fmt) = nodeelementlist;
-  FMT_ELEM_DATA(fmt)              = edata;
   FMT_NODE_DATA(fmt)              = ndata;
 
   /* initialize with zero */
