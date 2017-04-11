@@ -1,3 +1,23 @@
+# dune-uggrid 2.6 (unreleased)
+
+* Transfer of element data during load balancing is supported.
+  See [!55][] and [dune-grid!172][]
+* Many now unused parts of UG have been removed from the source.
+
+See the list of all [dune-uggrid 2.6 merge requests][] for minor
+changes not mentioned here.
+
+  [!55]: https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/55
+  [dune-grid!172]: https://gitlab.dune-project.org/core/dune-grid/merge_requests/172
+  [dune-uggrid 2.6 merge requests]: https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests?milestone_title=Dune+2.6.0&scope=all&state=all
+
+# dune-uggrid 2.5.0 (2017-12-18)
+
+* dune-uggrid is now a DUNE module that will only contain UG's grid
+  manager in the future.
+* Switch to CMake build system.
+
+
 # UG Release 3.13.0 (01-03-2016)
 
 * Rename macros `_2` and `_3` to `UG_DIM_2` and `UG_DIM_3` respectively,
