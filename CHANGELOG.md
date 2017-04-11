@@ -1,20 +1,20 @@
-Release 3.13.0 (01-03-2016)
----------------------------
+# UG Release 3.13.0 (01-03-2016)
 
-* Rename macros _2 and _3 to UG_DIM_2 and UG_DIM_3 respectively, to avoid clashes
-  with symbols of the same name in libc++.
-* Add file .gitlab-ci.yml to drive the Gitlab continuous integration features
+* Rename macros `_2` and `_3` to `UG_DIM_2` and `UG_DIM_3` respectively,
+  to avoid clashes with symbols of the same name in libc++.
+* Add file `.gitlab-ci.yml` to drive the Gitlab continuous integration features
 * Remove an obsolete XCode project file, and an obsolete mystery file 'conf.h'
 * Fix an out-of-bounds array access reported by the gcc sanitizer
 
 
-Release 3.12.1 (11-05-2015)
--------------------------
+
+# UG Release 3.12.1 (11-05-2015)
 
 * Fix bug in Makefile.am which prevented building of tarballs.
 
-Release 3.12.0 (11-05-2015)
--------------------------
+
+
+# UG Release 3.12.0 (11-05-2015)
 
 The major change is this release is the official transformation of the
 entire code base to C++.  While pretty much everybody (read: all Dune users)
@@ -32,31 +32,29 @@ Thanks to Christoph Grüninger.
 
 
 
-Release 3.11.1 (2-12-2014)
--------------------------
+# UG Release 3.11.1 (2-12-2014)
 
 This is mainly a bugfix release.  As the only behavioral change, memory
 management now defaults to the operating system heap, rather than the
 built-in heap.  This eases debugging and appears to speed up the code.
 
-* Make method CreateLine return void instead of INT.
+* Make method `CreateLine` return `void` instead of `INT`.
   This fixes a segfault when compiling with clang.
   Thanks to Carsten Gräser.
 * More build system and other cleanup
 
 
 
-Release 3.11.0 (12-06-2014)
--------------------------
+# UG Release 3.11.0 (12-06-2014)
 
 This release contains several bugfixes related to dynamic load balancing.
 It also contains many important cleanup patches (kudos to Ansgar Burchardt).
 
-* Properly set SideVector VCOUNT fields after load balancing
+* Properly set `SideVector` `VCOUNT` fields after load balancing
   (Dune FlySpray 810: https://dune-project.org/flyspray/index.php?do=details&task_id=810 )
 * Bugfix: Alway identify MIDNODEs to the proclist of the father edge
 * Bugfix: Initialize EDIDENT for edges for 3d _and 2d_ before refinement
-* Bugfix: Call the RestrictPartitioning method more often before adaptive refinement
+* Bugfix: Call the `RestrictPartitioning` method more often before adaptive refinement
 * Remove the Fortran interface to the DDD library
 * Remove left-overs from the Chaco load balancer which used to be contained
   in the UG source tree
@@ -64,6 +62,3 @@ It also contains many important cleanup patches (kudos to Ansgar Burchardt).
 * Remove old, non-free version of netgen
 * Constification in the DDD subsystem
 * Various build-system improvements
-
-
-
