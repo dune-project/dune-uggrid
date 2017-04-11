@@ -287,7 +287,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
   NODE    *theNode;
   EDGE    *theEdge;
   VECTOR  *theVector;
-  INT i,prio,*proclist,hghost,vghost;
+  INT i,prio,hghost,vghost;
 
   /* reset USED flag for objects of ghostelements */
   for (theElement=PFIRSTELEMENT(theGrid);

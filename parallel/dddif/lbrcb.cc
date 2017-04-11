@@ -412,7 +412,7 @@ int NS_DIM_PREFIX BalanceGridRCB (MULTIGRID *theMG, int level)
   GRID *theGrid = GRID_ON_LEVEL(theMG,level);       /* balance grid of level */
   LB_INFO *lbinfo;
   ELEMENT *e;
-  int i, son;
+  int i;
   INT MarkKey;
 
   /* distributed grids cannot be redistributed by this function */

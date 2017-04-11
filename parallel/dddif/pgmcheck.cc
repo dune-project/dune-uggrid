@@ -767,7 +767,6 @@ INT NS_DIM_PREFIX CheckInterfaces (GRID *theGrid)
   ELEMENT *theElement;
   NODE    *theNode;
   EDGE    *theEdge;
-  VECTOR  *theVector;
   int nerrors = 0;
 
   /* reset USED flag of all grid objects  */
