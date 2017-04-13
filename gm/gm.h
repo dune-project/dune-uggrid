@@ -837,6 +837,7 @@ struct node {
    * WARNING: The allocation of the data pointer depends on the format */
   void *data;
 
+#ifdef ModelP
   const char* message_buffer() const
     { return message_buffer_; }
 
@@ -854,6 +855,7 @@ struct node {
     std::free(message_buffer_);
     message_buffer(nullptr, 0);
   }
+#endif
 };
 
 /** \todo Please doc me! */
@@ -1518,6 +1520,7 @@ union element {
   struct hexahedron he;
         #endif
 
+#ifdef ModelP
   const char* message_buffer() const
     { return ge.message_buffer; }
 
@@ -1535,6 +1538,7 @@ union element {
     std::free(ge.message_buffer);
     message_buffer(nullptr, 0);
   }
+#endif
 };
 
 /** \brief Objects that can hold a vector */
