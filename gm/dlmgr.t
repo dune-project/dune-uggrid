@@ -599,7 +599,7 @@ PRINT_LIST(OTYPE)
 {
 	if (prios==2)
 	{
-		printf (PFMT "  fg=%x fg=%x fm=%x lm=%x\n",me,
+		printf (PFMT "  fg=%p fg=%p fm=%p lm=%p\n",me,
 			CAT(LISTPART_FIRST,OTYPE(Grid,0)),
 			CAT(LISTPART_LAST,OTYPE(Grid,0)),
 			CAT(LISTPART_FIRST,OTYPE(Grid,1)),
@@ -607,7 +607,7 @@ PRINT_LIST(OTYPE)
 	}
 	else
 	{
-		printf (PFMT "  fg=%x fg=%x fb=%x lb=%x fm=%x lm=%x\n",me,
+		printf (PFMT "  fg=%p fg=%p fb=%p lb=%p fm=%p lm=%p\n",me,
 			CAT(LISTPART_FIRST,OTYPE(Grid,0)),
 			CAT(LISTPART_LAST,OTYPE(Grid,0)),
 			CAT(LISTPART_FIRST,OTYPE(Grid,1)),
