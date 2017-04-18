@@ -493,14 +493,22 @@ int NS_DIM_PREFIX Read_GE_Elements (int n, MGIO_GE_ELEMENT *ge_element)
   pge = ge_element;
   for (i=0; i<n; i++)
   {
-    if (Bio_Read_mint(4,intList)) return (1);s=0;
+    if (Bio_Read_mint(4,intList))
+      return 1;
+
+    s=0;
+
     pge->tag                = lge[i].tag            = intList[s++];
     pge->nCorner    = lge[i].nCorner        = intList[s++];
     pge->nEdge              = lge[i].nEdge          = intList[s++];
     pge->nSide              = lge[i].nSide          = intList[s++];
     if (pge->nEdge>0 || pge->nSide>0)
     {
-      if (Bio_Read_mint(2*pge->nEdge+4*pge->nSide,intList)) return (1);s=0;
+      if (Bio_Read_mint(2*pge->nEdge+4*pge->nSide,intList))
+        return 1;
+
+      s=0;
+
       for (j=0; j<pge->nEdge; j++)
       {
         pge->CornerOfEdge[j][0] = lge[i].CornerOfEdge[j][0] = intList[s++];
@@ -517,7 +525,7 @@ int NS_DIM_PREFIX Read_GE_Elements (int n, MGIO_GE_ELEMENT *ge_element)
     pge++;
   }
 
-  return (0);
+  return 0;
 }
 
 /****************************************************************************/
