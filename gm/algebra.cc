@@ -949,7 +949,6 @@ static INT CutBlockvector_l0 (GRID *theGrid, BLOCKVECTOR *theBV, INT makeVC)
 CONNECTION * NS_DIM_PREFIX CreateConnection (GRID *theGrid, VECTOR *from, VECTOR *to)
 {
   MULTIGRID *theMG;
-  HEAP *theHeap;
   CONNECTION *pc;
   MATRIX *pm;
   INT RootType, DestType, MType, ds, Diag, Size;
@@ -965,7 +964,6 @@ CONNECTION * NS_DIM_PREFIX CreateConnection (GRID *theGrid, VECTOR *from, VECTOR
 
   /* check expected size */
   theMG = MYMG(theGrid);
-  theHeap = theMG->theHeap;
   ds = FMT_S_MAT_TP(MGFORMAT(theMG),MType);
   if (ds == 0)
     return (NULL);
@@ -1426,7 +1424,6 @@ INT NS_DIM_PREFIX DisposeConnection (GRID *theGrid, CONNECTION *theConnection)
 INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT Side0, ELEMENT *Elem1, INT Side1)
 {
   VECTOR *Vector0, *Vector1;
-  int vc0,vc1;
 
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
@@ -1440,8 +1437,6 @@ INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT S
          the part not using vectors in SIDEs will not need a pointer
          to the side vector */
       return (0);
-    vc0=VCOUNT(Vector0);
-    vc1=VCOUNT(Vector1);
     assert(VCOUNT(Vector0)==1 && VCOUNT(Vector1)==1);
     assert(VSTART(Vector0)==NULL || VSTART(Vector1)==NULL);
     if (VSTART(Vector0)==NULL)
@@ -4584,8 +4579,6 @@ INT NS_DIM_PREFIX LexOrderVectorsInGrid (GRID *theGrid, INT mode, const INT *ord
   MULTIGRID *theMG;
   VECTOR **table,*theVec;
   MATRIX *theMat,**MatTable;
-  BVP *theBVP;
-  BVP_DESC *theBVPDesc;
   INT i,entries,nm;
   HEAP *theHeap;
   INT takeSkip, takeNonSkip;
@@ -4595,8 +4588,6 @@ INT NS_DIM_PREFIX LexOrderVectorsInGrid (GRID *theGrid, INT mode, const INT *ord
   entries = NVEC(theGrid);
 
   /* calculate the diameter of the bounding rectangle of the domain */
-  theBVP = MG_BVP(theMG);
-  theBVPDesc = MG_BVPD(MYMG(theGrid));
   nn=NN(GRID_ON_LEVEL(theMG,0));
 #ifdef ModelP
   nn=UG_GlobalSumINT(nn);
@@ -5684,7 +5675,7 @@ static INT LineOrderVectorsAlgebraic (GRID *theGrid, INT verboselevel)
   VECTOR FIRST_handle,LAST_handle;
   VECTOR *FIRST_next_out,*FIRST_last_in;
   VECTOR *FIRST_line_start,*FIRST_line_end;
-  VECTOR *LAST_line_start,*LAST_line_end;
+  VECTOR *LAST_line_end;
   VECTOR *LAST_next_out,*LAST_last_in;
   VECTOR *theVector,*theNbVector,*succVector,*predVector;
   MATRIX *theMatrix;
@@ -5925,7 +5916,6 @@ static INT LineOrderVectorsAlgebraic (GRID *theGrid, INT verboselevel)
     line = 0;
     do
     {
-      LAST_line_start = PREDVC(LAST_next_out);
       LAST_line_end   = LAST_last_in;
       for (LAST_next_out=PREDVC(LAST_next_out); LAST_next_out!=NULL; LAST_next_out=PREDVC(LAST_next_out))
       {
@@ -5996,7 +5986,6 @@ static INT LineOrderVectorsAlgebraic (GRID *theGrid, INT verboselevel)
           BVFIRSTVECTOR(theLastBV)        = LAST_line_end;                                      /* end because order is reverted below */
 
           line++;
-          LAST_line_start = PREDVC(LAST_next_out);
           LAST_line_end   = LAST_last_in;
         }
       }
@@ -6332,8 +6321,6 @@ static INT LexAlgDep (GRID *theGrid, const char *data)
   INT i,order,res;
   INT Sign[DIM],Order[DIM],xused,yused,zused,error,SpecialTreatSkipVecs;
   char ord[3];
-  BVP *theBVP;
-  BVP_DESC *theBVPDesc;
 
   /* read ordering directions */
         #ifdef __TWODIM__
@@ -6413,8 +6400,6 @@ static INT LexAlgDep (GRID *theGrid, const char *data)
   theMG   = MYMG(theGrid);
 
   /* find an approximate measure for the mesh size */
-  theBVP = MG_BVP(theMG);
-  theBVPDesc = MG_BVPD(theMG);
   // The following method wants the domain radius, which has been removed.
   // Dune has been setting this radius to 1.0 for years now, so I don't think it matters.
   DOUBLE BVPD_RADIUS = 1.0;
@@ -6506,10 +6491,8 @@ static INT StrongLexAlgDep (GRID *theGrid, const char *data)
   DOUBLE_VECTOR pos,nbpos;
   DOUBLE diff[DIM];
   INT i,order,res;
-  INT Sign[DIM],Order[DIM],xused,yused,zused,error,SpecialTreatSkipVecs;
+  INT Sign[DIM],Order[DIM],xused,yused,zused,error;
   char ord[3];
-  BVP *theBVP;
-  BVP_DESC *theBVPDesc;
 
   /* read ordering directions */
         #ifdef __TWODIM__
@@ -6579,18 +6562,9 @@ static INT StrongLexAlgDep (GRID *theGrid, const char *data)
     return(1);
   }
 
-  /* treat vectors with skipflag set specially? */
-  SpecialTreatSkipVecs = false;
-  if              (strchr(data,'<')!=NULL)
-    SpecialTreatSkipVecs = GM_PUT_AT_BEGIN;
-  else if (strchr(data,'>')!=NULL)
-    SpecialTreatSkipVecs = GM_PUT_AT_END;
-
   theMG   = MYMG(theGrid);
 
   /* find an approximate measure for the mesh size */
-  theBVP = MG_BVP(theMG);
-  theBVPDesc = MG_BVPD(theMG);
   // The following method wants the domain radius, which has been removed.
   // Dune has been setting this radius to 1.0 for years now, so I don't think it matters.
   DOUBLE BVPD_RADIUS = 1.0;
