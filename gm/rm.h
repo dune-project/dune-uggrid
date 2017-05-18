@@ -33,6 +33,8 @@
 #ifndef __RULEMANAGER__
 #define __RULEMANAGER__
 
+#include <memory>
+
 #include "gm.h"
 #include "refine.h"
 
@@ -322,7 +324,7 @@ extern INT MaxNewCorners[TAGS];
 extern INT MaxNewEdges[TAGS];
 extern INT CenterNodeIndex[TAGS];
 extern REFRULE                  *RefRules[TAGS];
-extern SHORT                    *Pattern2Rule[TAGS];
+extern std::unique_ptr<SHORT[]> Pattern2Rule[TAGS];
 extern FULLREFRULEPTR theFullRefRule;
 
 

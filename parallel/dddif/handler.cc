@@ -237,7 +237,6 @@ static void VectorXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   MATRIX  *mat;
   VECTOR  *pv             = (VECTOR *)obj;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(pv)));
-  GRID            *theGrid        = GRID_ON_LEVEL(dddctrl.currMG,level);
   /* TODO: define this static global                    */
   /* TODO: take size as maximum of possible connections */
   size_t sizeArray[256];
@@ -269,6 +268,7 @@ static void VectorXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   /*
           else
           {
+                  GRID *theGrid = GRID_ON_LEVEL(dddctrl.currMG,level);
                   MATRIX *theMatrix,*next;
 
                   for (theMatrix=VSTART(pv); theMatrix!=NULL; theMatrix = next) {
@@ -625,8 +625,6 @@ static void VectorObjMkCons (DDD_OBJ obj, int newness)
 
     if (MDEST(theAdjoint) == NULL)
     {
-      CONNECTION *con = MMYCON(theMatrix);
-
       PRINTDEBUG(dddif,4,(PFMT " VectorObjMkCons(): v=" VINDEX_FMTX
                           " mat=%x vectoID=%d, KILLING incomplete connection\n",
                           me,VINDEX_PRTX(vec),theMatrix,ID(MDEST(theMatrix))))
@@ -1043,8 +1041,6 @@ static void NodeUpdate (DDD_OBJ obj)
 
 static void NodeXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT nlink           = 0;
-  INT Size,i          = 0;
   NODE    *theNode        = (NODE *)obj;
   VECTOR  *vec            = NULL;
 
@@ -1093,7 +1089,7 @@ static void NodeXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   {
     vec = NVECTOR(theNode);
     if (vec != NULL) {
-      Size = sizeof(VECTOR)-sizeof(DOUBLE)
+      INT Size = sizeof(VECTOR)-sizeof(DOUBLE)
              +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
 
       PRINTDEBUG(dddif,2,(PFMT " NodeXferCopy(): n=" ID_FMTX
@@ -1199,7 +1195,6 @@ static void ElementLDataConstructor (DDD_OBJ obj)
   INT level           = LEVEL(pe);
   GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
   INT prio            = EPRIO(pe);
-  void    *q;
 
   pe->message_buffer(nullptr, 0);
 
@@ -1236,7 +1231,6 @@ static void ElementLDataConstructor (DDD_OBJ obj)
 
 static void ElementUpdate (DDD_OBJ obj)
 {
-  INT i;
   ELEMENT *pe                     = (ELEMENT *)obj;
 
   PRINTDEBUG(dddif,1,(PFMT " ElementUpdate(): pe=" EID_FMTX
@@ -1350,11 +1344,7 @@ static void ElementXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
   /* send edge and edge vectors */
   for (i=0; i<EDGES_OF_ELEM(pe); i++)
   {
-    int Size;
-    EDGE    *edge;
-    VECTOR  *vec;
-
-    edge = GetEdge(CORNER(pe,CORNER_OF_EDGE(pe,i,0)),
+    EDGE* edge = GetEdge(CORNER(pe,CORNER_OF_EDGE(pe,i,0)),
                    CORNER(pe,CORNER_OF_EDGE(pe,i,1)));
     ASSERT(edge != NULL);
     ASSERT(OBJT(edge) == EDOBJ);
@@ -1370,7 +1360,7 @@ static void ElementXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
       VECTOR *vec = EDVECTOR(edge);
 
       if (vec != NULL) {
-        Size = sizeof(VECTOR)-sizeof(DOUBLE)
+        int Size = sizeof(VECTOR)-sizeof(DOUBLE)
                +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
         PRINTDEBUG(dddif,3,(PFMT " ElementXferCopy():  e=" EID_FMTX
                             " EDGEVEC=" VINDEX_FMTX " size=%d\n",
@@ -2020,8 +2010,6 @@ static void ElementPriorityUpdate (DDD_OBJ obj, DDD_PRIO new_)
 static void EdgeUpdate (DDD_OBJ obj)
 {
   EDGE    *pe                     = (EDGE *)obj;
-  LINK    *link0,
-  *link1;
   INT level           = LEVEL(NBNODE(LINK0(pe)));
   GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
 
@@ -2030,20 +2018,17 @@ static void EdgeUpdate (DDD_OBJ obj)
                       me,pe,DDD_InfoGlobalId(PARHDR(pe)),OBJT(pe),NO_OF_ELEM(pe)))
 
   {
-    LINK *link0,*link1;
-    NODE *node0,*node1;
-
     /* insert in link lists of nodes */
-    link0 = LINK0(pe);
-    link1 = LINK1(pe);
+    LINK* link0 = LINK0(pe);
+    LINK* link1 = LINK1(pe);
 
     PRINTDEBUG(dddif,2,(PFMT " EdgeUpdate(): edge=%x/%08x node0="
                         ID_FMTX " node1=" ID_FMTX "\n",
                         me,pe,DDD_InfoGlobalId(PARHDR(pe)),
                         ID_PRTX(NBNODE(link1)),ID_PRTX(NBNODE(link0))))
 
-    node0 = NBNODE(link1);
-    node1 = NBNODE(link0);
+    NODE* node0 = NBNODE(link1);
+    NODE* node1 = NBNODE(link0);
 
     NEXT(link0) = START(node0);
     START(node0) = link0;
@@ -2072,8 +2057,9 @@ static void EdgePriorityUpdate (DDD_OBJ obj, DDD_PRIO new_)
 {
   EDGE    *theEdge        = (EDGE *)obj;
   INT level           = LEVEL(theEdge);
-  GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
   INT old                     = PRIO(theEdge);
+
+  GetGridOnDemand(dddctrl.currMG,level);
 
   PRINTDEBUG(dddif,2,(PFMT " EdgePriorityUpdate(): n=" ID_FMTX " old=%d new_=%d "
                       "level=%d\n",me,ID_PRTX(theEdge),old,new_,level))

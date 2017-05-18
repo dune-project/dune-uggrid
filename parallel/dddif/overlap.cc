@@ -421,7 +421,6 @@ INT ConnectGridOverlap (GRID *theGrid)
         if (!EHGHOST(theSon)) continue;
         for (j=0; j<SIDES_OF_ELEM(theSon); j++)
         {
-          INT k;
           ELEMENT *NbSon = NBELEM(theSon,j);
 
           if (NbSon == NULL) continue;
@@ -434,6 +433,7 @@ INT ConnectGridOverlap (GRID *theGrid)
           /* TODO: delete this is done in ElementObjMkCons()
                                                   else
                                                   {
+                                                          INT k;
                                                           for (k=0; k<SIDES_OF_ELEM(NbSon); k++)
                                                           {
                                                                   if (NBELEM(NbSon,k)==theSon) break;

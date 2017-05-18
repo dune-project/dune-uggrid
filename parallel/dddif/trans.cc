@@ -450,7 +450,6 @@ static int Scatter_VHGhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   ELEMENT *SonList[MAX_SONS];
-  INT i,j;
 
   /* if element is needed after transfer here */
   if ((*(int *)data) == GC_Keep) return(0);
@@ -460,7 +459,7 @@ static int Scatter_VHGhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
 
   /* if a son resides as master keep element as vghost */
   if (GetAllSons(theElement,SonList) != GM_OK) return(0);
-  i = 0;
+  INT i = 0;
   while (SonList[i] != NULL)
   {
     if (PARTITION(SonList[i]) == me) return(0);

@@ -43,7 +43,7 @@
 #define __DDDI_H__
 
 #include <climits>
-
+#include <memory>
 
 #include <cassert>
 
@@ -253,12 +253,12 @@ typedef struct _TYPE_DESC
   HandlerXFERCOPYMANIP handlerXFERCOPYMANIP;
 
 
-  DDD_PRIO *prioMatrix;                 /* 2D matrix for comparing priorities   */
+  std::unique_ptr<DDD_PRIO[]> prioMatrix; /* 2D matrix for comparing priorities   */
   int prioDefault;                      /* default mode for PrioMerge           */
 
   /* redundancy for efficiency */
   int nPointers;                        /* number of outside references         */
-  unsigned char  *cmask;                /* mask for fast type-dependent copy    */
+  std::unique_ptr<unsigned char[]> cmask; /* mask for fast type-dependent copy    */
 } TYPE_DESC;
 
 

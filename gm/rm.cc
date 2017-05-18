@@ -112,7 +112,7 @@ INT NS_DIM_PREFIX MaxNewCorners[TAGS] = {0,0,0,0,0,0,0,0};
 INT NS_DIM_PREFIX MaxNewEdges[TAGS] = {0,0,0,0,0,0,0,0};
 INT NS_DIM_PREFIX CenterNodeIndex[TAGS] = {0,0,0,0,0,0,0,0};
 REFRULE * NS_DIM_PREFIX RefRules[TAGS] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-SHORT   * NS_DIM_PREFIX Pattern2Rule[TAGS] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+std::unique_ptr<SHORT[]> NS_DIM_PREFIX Pattern2Rule[TAGS];
 
 #ifdef __THREEDIM__
 /* define the standard regular rules for tetrahedrons */
@@ -3713,8 +3713,8 @@ static INT InitRuleManager3D (void)
   }
 
   /* get storage for Pattern2Rule */
-  Pattern2Rule[TETRAHEDRON] = (SHORT *) malloc(nPatterns*sizeof(SHORT));
-  if (Pattern2Rule[TETRAHEDRON]==NULL)
+  Pattern2Rule[TETRAHEDRON] = std::make_unique<SHORT[]>(nPatterns);
+  if (Pattern2Rule[TETRAHEDRON]==nullptr)
   {
     UserWrite("ERROR: no storage for Pattern2Rule\n");
     fclose(stream);
@@ -3972,8 +3972,8 @@ static INT InitRuleManager2D (void)
   /* get storage for Pattern2Rule */
   nPatterns = 17;       /* there are 2^3 different patterns */
   /** \todo delete all concerning Pattern2Rule */
-  Pattern2Rule[TRIANGLE] = (SHORT *) malloc(nPatterns*sizeof(SHORT));
-  if (Pattern2Rule[TRIANGLE]==NULL)
+  Pattern2Rule[TRIANGLE] = std::make_unique<SHORT[]>(nPatterns);
+  if (Pattern2Rule[TRIANGLE] == nullptr)
   {
     UserWrite("ERROR: no storage for Pattern2Rule\n");
     return (__LINE__);
@@ -4006,8 +4006,8 @@ static INT InitRuleManager2D (void)
   /* get storage for Pattern2Rule */
   nPatterns = 32;       /* there are 2^5 different patterns */
   /** \todo delete all concerning Pattern2Rule */
-  Pattern2Rule[QUADRILATERAL] = (SHORT *) malloc(nPatterns*sizeof(SHORT));
-  if (Pattern2Rule[QUADRILATERAL]==NULL)
+  Pattern2Rule[QUADRILATERAL] = std::make_unique<SHORT[]>(nPatterns);
+  if (Pattern2Rule[QUADRILATERAL] == nullptr)
   {
     UserWrite("ERROR: no storage for Pattern2Rule\n");
     return (__LINE__);

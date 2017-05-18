@@ -1302,7 +1302,7 @@ static int Scatter_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 /* callback functions for edge identification */
 static int Gather_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT nedges, ident_needed;
+  INT ident_needed;
   EDGE *theEdge   = (EDGE *)obj;
   EDGE *SonEdges[MAX_SON_EDGES];
   NODE *MidNode   = MIDNODE(theEdge);
@@ -1312,7 +1312,7 @@ static int Gather_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
   *((int *)data) = 0;
 
-  nedges = GetSonEdges(theEdge,SonEdges);
+  GetSonEdges(theEdge,SonEdges);
 
   /* identification is done if one objects of MidNode and the one */
   /* or two sonedge have NEW_XXIDENT flags set.                   */
@@ -1334,7 +1334,6 @@ static int Gather_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
 static int Scatter_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT nedges;
   int newsonobjects   = *((int *)data);
   EDGE    *theEdge                = (EDGE *)obj;
   EDGE    *SonEdges[MAX_SON_EDGES];
@@ -1343,7 +1342,7 @@ static int Scatter_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
   /* identification is only done between master objects */
   ASSERT(identlevel-1 == LEVEL(theEdge));
 
-  nedges = GetSonEdges(theEdge,SonEdges);
+  GetSonEdges(theEdge,SonEdges);
 
   if (newsonobjects)
   {
@@ -1373,8 +1372,6 @@ static int Scatter_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
 static int Gather_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
-  NODE *theNode0 = NBNODE(LINK0(theEdge));
-  NODE *theNode1 = NBNODE(LINK1(theEdge));
 
   ASSERT(identlevel == LEVEL(theEdge));
 
@@ -1471,7 +1468,6 @@ static int Gather_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
 
 static int Scatter_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT nedges;
   EDGE    *theEdge        = (EDGE *)obj;
   EDGE    *SonEdge;
   int sonedge         = ((int *)data)[0];
@@ -1521,7 +1517,7 @@ static int Scatter_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
 static int Gather_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT nedges, ident_needed;
+  INT ident_needed;
   EDGE *theEdge   = (EDGE *)obj;
   EDGE *SonEdges[2];
   NODE *MidNode   = MIDNODE(theEdge);
@@ -1531,7 +1527,7 @@ static int Gather_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
 
   ((int *)data)[0] = 0;
 
-  nedges = GetSonEdges(theEdge,SonEdges);
+  GetSonEdges(theEdge, SonEdges);
 
   /* identification is done if one objects of MidNode and the one */
   /* or two sonedge have NEW_XXIDENT flags set.                   */
