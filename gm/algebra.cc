@@ -5120,7 +5120,7 @@ static INT OrderVectorAlgebraic (GRID *theGrid, INT mode, INT putSkipFirst, INT 
   theFirstBV = theLastBV = theCutBV = NULL;
   for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
   {
-    if (((putSkipFirst) && (VECSKIP(theVector) & skipPat == skipPat)) ||
+    if (((putSkipFirst) && (VECSKIP(theVector) & skipPat) == skipPat) ||
         (VUP(theVector)==0))
     {
       /* append to FIRST list */
