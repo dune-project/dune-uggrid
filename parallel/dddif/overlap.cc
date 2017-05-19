@@ -649,7 +649,7 @@ INT ConnectVerticalOverlap (MULTIGRID *theMG)
 
 static INT ConnectOverlapVerticalGrid (GRID *theGrid)
 {
-  INT i,j,k,found,edgenode0,edgenode1,edgenum;
+  INT i,j,k,found,edgenode0,edgenode1;
   ELEMENT *theElement,*theSon,*SonList[MAX_SONS];
   NODE    *theNode,*SonNode,*FatherNode,*EdgeNode0,*EdgeNode1;
   EDGE    *theEdge,*FatherEdge;
@@ -742,7 +742,6 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
               SETNFATHER(SonNode,(GEOM_OBJECT *)theEdge);
               MIDNODE(theEdge) = SonNode;
               found ++;
-              edgenum = k;
 
               /* reconstruct vertex information */
               theVertex = MYVERTEX(SonNode);

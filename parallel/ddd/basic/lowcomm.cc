@@ -1344,11 +1344,14 @@ void LC_Cleanup (void)
 /****************************************************************************/
 
 #define LC_COLWIDTH   10
-#define LC_DFLTNAME   "<?>"
+
+static const char* LC_DefaultName = "<?>";
 
 /* construct name or default name */
-#define LC_NAME(n)   (((n)!=NULL) ? (n) : LC_DFLTNAME)
-
+static const char* LC_Name(const char* name)
+{
+  return name ? name : LC_DefaultName;
+}
 
 static void LC_PrintMsgList (MSG_DESC *list)
 {
@@ -1383,11 +1386,11 @@ static void LC_PrintMsgList (MSG_DESC *list)
       }
 
       /* then, construct header */
-      sprintf(cBuffer, "%4d:%9.9s |", me, LC_NAME(mt->name));
+      sprintf(cBuffer, "%4d:%9.9s |", me, LC_Name(mt->name));
       for(i=0; i<mt->nComps; i++)
       {
         if (mt->comp[i].name!=NULL)
-          sprintf(buf, "%9.9s", LC_NAME(mt->comp[i].name));
+          sprintf(buf, "%9.9s", LC_Name(mt->comp[i].name));
         else
           sprintf(buf, "%9d", i);
         strcat(cBuffer, buf);

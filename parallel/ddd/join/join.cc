@@ -111,8 +111,6 @@ JOIN_GLOBALS joinGlobals;
  */
 int Method(Compare) (ClassPtr item1, ClassPtr item2)
 {
-  int ret;
-
   if (item1->dest < item2->dest) return(-1);
   if (item1->dest > item2->dest) return(1);
 
@@ -146,8 +144,6 @@ void Method(Print) (ParamThis _PRINTPARAMS)
  */
 int Method(Compare) (ClassPtr item1, ClassPtr item2)
 {
-  int ret;
-
   if (item1->dest < item2->dest) return(-1);
   if (item1->dest > item2->dest) return(1);
 

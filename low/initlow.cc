@@ -85,7 +85,6 @@ USING_UG_NAMESPACE
 INT NS_PREFIX InitLow ()
 {
   INT err;
-  char buffer[BUFFSIZE];
 
   /* init heaps.c */
   if ((err=InitHeaps())!=0)

@@ -1952,17 +1952,13 @@ static INT MaxPerpendicular (ELEMENT *theElement)
 static INT MaxRightAngle (ELEMENT *theElement)
 {
   DOUBLE *Corners[MAX_CORNERS_OF_ELEM];
-  DOUBLE_VECTOR MidPoints[MAX_EDGES_OF_ELEM],a,b;
+  DOUBLE_VECTOR a,b;
   INT i,j,imin,TBFR,refrule;
   DOUBLE sprd,Min;
 
   /* get physical position of the corners */
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
     Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
-
-  /* get physical position of the midpoints of the edges */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
-    V3_LINCOMB(0.5, Corners[CORNER_OF_EDGE(theElement,i,0)], 0.5, Corners[CORNER_OF_EDGE(theElement,i,1)], MidPoints[i]);
 
   /* try possebilities */
   Min = MAX_C; imin = -1;
@@ -2031,17 +2027,13 @@ static INT MaxRightAngle (ELEMENT *theElement)
 static INT MaxArea (ELEMENT *theElement)
 {
   DOUBLE *Corners[MAX_CORNERS_OF_ELEM];
-  DOUBLE_VECTOR MidPoints[MAX_EDGES_OF_ELEM],a,b,c;
+  DOUBLE_VECTOR a,b,c;
   INT i,j,imin,TBFR,refrule;
   DOUBLE norm,Max;
 
   /* get physical position of the corners */
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
     Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
-
-  /* get physical position of the midpoints of the edges */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
-    V3_LINCOMB(0.5, Corners[CORNER_OF_EDGE(theElement,i,0)], 0.5, Corners[CORNER_OF_EDGE(theElement,i,1)], MidPoints[i]);
 
   /* try possebilities */
   Max = -MAX_C; imin = -1;
