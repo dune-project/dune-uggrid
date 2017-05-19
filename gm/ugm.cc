@@ -7226,7 +7226,7 @@ static void CalculateCenterOfMassOfSide(const ELEMENT *theElement, int side, DOU
     corner   = CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,side,i))));
     l_corner = LCVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,side,i))));
     V_DIM_ADD(global,corner,global);
-    V_DIM_ADD(local,corner,local);
+    V_DIM_ADD(local,l_corner,local);
   }
 
   V_DIM_SCALE(1.0/nr_corners,global);
