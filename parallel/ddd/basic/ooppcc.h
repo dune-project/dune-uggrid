@@ -926,8 +926,6 @@ void Method(Iterate) (ParamThis, Iterate_Method iter_method)
 
 CPtrArray *Method(GetArray) (ParamThis)
 {
-  CBTreeNode *node;
-  int i;
   CPtrArray  *array;
   CN(BTreeOf) **ptr;
 

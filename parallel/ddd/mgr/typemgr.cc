@@ -905,7 +905,7 @@ void DDD_TypeDisplay (DDD_TYPE id)
     }
 
     /* print header */
-    sprintf(cBuffer, "/ Structure of %s--object '%s', id %d, %d byte\n",
+    sprintf(cBuffer, "/ Structure of %s--object '%s', id %d, %zd byte\n",
             desc->hasHeader ? "DDD" : "data",
             desc->name, id, desc->size);
     DDD_PrintLine(cBuffer);
@@ -935,7 +935,7 @@ void DDD_TypeDisplay (DDD_TYPE id)
           e->offset < desc->offsetHeader ||
           e->offset >= desc->offsetHeader+theTypeDefs[EL_DDDHDR].size)
       {
-        sprintf(cBuffer, "|%5d %5d    ", e->offset, e->size);
+        sprintf(cBuffer, "|%5d %5zd    ", e->offset, e->size);
 
 
         /* print one line according to type */
@@ -988,7 +988,7 @@ void DDD_TypeDisplay (DDD_TYPE id)
         /* handle included DDD_HDR */
         if (e->offset == desc->offsetHeader)
         {
-          sprintf(cBuffer, "|%5d %5d    ddd-header\n",
+          sprintf(cBuffer, "|%5d %5zd    ddd-header\n",
                   e->offset, theTypeDefs[EL_DDDHDR].size);
           DDD_PrintLine(cBuffer);
         }

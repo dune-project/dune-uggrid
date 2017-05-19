@@ -1079,7 +1079,6 @@ static void idcons_CheckPairs (void)
 DDD_RET DDD_IdentifyEnd (void)
 {
   ID_PLIST        *plist, *pnext=NULL;
-  IdEntry *id;
   int cnt, j;
 
   /* REMARK: dont use the id->msg.msg.prio fields until they

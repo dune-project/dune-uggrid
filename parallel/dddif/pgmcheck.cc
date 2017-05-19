@@ -548,18 +548,17 @@ static INT CheckElementPrio (ELEMENT *theElement)
 
 static int Gather_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT i,j;
   ELEMENT *theElement = (ELEMENT *)obj;
 
   /* copy node gids into buffer */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
     ((DDD_GID *)data)[i] = GID(CORNER(theElement,i));
   }
 
         #ifdef __THREEDIM__
   /* copy edge gids into buffer */
-  for (i=CORNERS_OF_ELEM(theElement),j=0; i<EDGES_OF_ELEM(theElement); i++,j++)
+  for (INT i=CORNERS_OF_ELEM(theElement),j=0; i<EDGES_OF_ELEM(theElement); i++,j++)
   {
     EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
                             CORNER_OF_EDGE_PTR(theElement,j,1));
@@ -573,15 +572,12 @@ static int Gather_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
 
 static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT i,j;
   ELEMENT *theElement = (ELEMENT *)obj;
-  NODE    *theNode;
-  EDGE    *theEdge;
 
   /* compare node gids with buffer gids */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
-    theNode = CORNER(theElement,i);
+    NODE* theNode = CORNER(theElement,i);
     if (((DDD_GID *)data)[i] != GID(theNode))
     {
       UserWriteF(PFMT "ELEM=" EID_FMTX " #ERROR#: NODE=" ID_FMTX " gids don't match "
@@ -594,10 +590,10 @@ static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
 
         #ifdef __THREEDIM__
   /* compare edge gids with buffer gids */
-  for (i=CORNERS_OF_ELEM(theElement),j=0; i<EDGES_OF_ELEM(theElement); i++,j++)
+  for (INT i=CORNERS_OF_ELEM(theElement),j=0; i<EDGES_OF_ELEM(theElement); i++,j++)
   {
-    theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
-                      CORNER_OF_EDGE_PTR(theElement,j,1));
+    EDGE* theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
+                            CORNER_OF_EDGE_PTR(theElement,j,1));
     assert(theEdge!=NULL);
     if (((DDD_GID *)data)[i] != GID(theEdge))
     {

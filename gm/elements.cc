@@ -940,14 +940,14 @@ INT NS_DIM_PREFIX PreInitElementTypes (void)
 
 INT NS_DIM_PREFIX InitElementTypes (MULTIGRID *theMG)
 {
-  INT i,err;
+  INT err;
 
   if (theMG==NULL)
     return(GM_ERROR);
 
 #ifndef ModelP
   /* release allocated OBJTs */
-  for (i=0; i<nOBJT; i++)
+  for (INT i=0; i<nOBJT; i++)
     if (ReleaseOBJT (OBJT4Elements[i]))
       return (GM_ERROR);
   nOBJT=0;
