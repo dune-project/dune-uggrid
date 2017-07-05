@@ -11,10 +11,6 @@
 /* Define to the revision of dune-common */
 #define DUNE_UGGRID_VERSION_REVISION ${DUNE_UGGRID_VERSION_REVISION}
 
-/* If this is set, the operating system heap is used instead of UG's own heap
-   data structure. */
-#cmakedefine UG_USE_SYSTEM_HEAP 1
-
 /* begin private section */
 
 /* UG memory allocation model */
