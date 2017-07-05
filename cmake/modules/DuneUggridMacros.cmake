@@ -1,5 +1,4 @@
 # Compatibility against previous UG versions.
-set(UG_USE_SYSTEM_HEAP ${UG_ENABLE_SYSTEM_HEAP})
 set(UG_FOUND True)
 set(HAVE_UG True)
 set(UG_VERSION "${DUNE_UGGRID_VERSION}")
