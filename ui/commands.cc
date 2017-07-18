@@ -1766,7 +1766,7 @@ static INT RuleListCommand (INT argc, char **argv)
     return (CMDERRORCODE);
   }
 
-  if (rn==-1 && allopt==false || rn>=0 && allopt==true)
+  if ((rn==-1 && allopt==false) || (rn>=0 && allopt==true))
   {
     PrintErrorMessage('E',"rlist","specify rulenumber OR $a option!");
     return (CMDERRORCODE);
