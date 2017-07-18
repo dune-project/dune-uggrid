@@ -114,13 +114,13 @@ NS_PREFIX INT NS_DIM_PREFIX ComputeSMSizeOfArray (SHORT nr, SHORT nc, const SHOR
 
 NS_PREFIX INT NS_DIM_PREFIX Array2SM (SHORT nr, SHORT nc, const SHORT *comps, SPARSE_MATRIX *sm)
 {
-  INT error;
   SHORT off,posc,N,Nred;
   SHORT flag[MAX_NDOF];
   int i,j;
 
-  if (error=ComputeSMSizeOfArray(nr, nc, comps, &N, &Nred))
-    return (error);
+  INT error = ComputeSMSizeOfArray(nr, nc, comps, &N, &Nred);
+  if (error)
+    return error;
 
   /* reset flag field */
   for (i=0; i<MAX_NDOF; i++)
