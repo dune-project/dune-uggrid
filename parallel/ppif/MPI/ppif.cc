@@ -580,9 +580,3 @@ void PPIF::PrintHostMessage (const char *s)
 {
   printf ("%s", s);
 }
-
-double PPIF::CurrentTime ()
-
-{
-  return(((float)(clock())/((float)CLOCKS_PER_SEC)));
-}
