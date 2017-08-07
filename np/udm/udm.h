@@ -538,7 +538,6 @@ INT DisposeMD     (MATDATA_DESC *md);
 INT VDinterfaceDesc                             (const VECDATA_DESC *vd, const VECDATA_DESC *vds, VECDATA_DESC **vdi);
 INT VDinterfaceCoDesc                   (const VECDATA_DESC *vd, const VECDATA_DESC *vds, VECDATA_DESC **vdi);
 INT VDCoDesc                                    (const VECDATA_DESC *vd, const VECDATA_DESC *vds, VECDATA_DESC **vdi);
-INT MDinterfaceCoCoupleDesc             (const MATDATA_DESC *md, const MATDATA_DESC *mds, MATDATA_DESC **mdi);
 /*@}*/
 
 INT ConstructVecOffsets         (const SHORT *NCmpInType, SHORT *offset);
