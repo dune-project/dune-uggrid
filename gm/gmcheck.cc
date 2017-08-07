@@ -107,7 +107,6 @@ using namespace PPIF;
 /*																			*/
 /****************************************************************************/
 
-static char buffer[4*256];                      /* general purpose text buffer			*/
 static DOUBLE hghost_overlap = 1.0;
 
 REP_ERR_FILE;

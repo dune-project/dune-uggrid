@@ -28,12 +28,6 @@
 #ifndef __PPIF__
 #define __PPIF__
 
-#ifdef CurrentTime
-#undef CurrentTime
-/* #error ****    CurrentTime defined before **** */
-#endif
-
-
 /****************************************************************************/
 /*                                                                          */
 /* data structures exported by the corresponding source file                */
@@ -112,7 +106,6 @@ int         InfoARecv        (VChannelPtr vc, msgid m);
 
 /* miscellaneous */
 void        PrintHostMessage (const char *s);
-double      CurrentTime      (void);
 
 }  // end namespace PPIF
 

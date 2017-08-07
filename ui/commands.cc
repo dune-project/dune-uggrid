@@ -206,48 +206,6 @@ static char buffer[BUFFERSIZE];         /*!< General purpose text buffer		*/
 
 static FILE     *protocolFile=NULL;     /*!< For protocol commands			*/
 
-/** \brief Name and ID of available rules	*/
-static MARKRULE myMR[NO_OF_RULES]=     {{"red",        RED},
-                                        {"no",         NO_REFINEMENT},
-#ifdef __TWODIM__
-                                        {"blue",       BLUE},
-#endif
-                                        {"copy",       COPY},
-                                         #ifdef __TWODIM__
-                                        {"bi_1",       BISECTION_1},
-                                        {"bi_2q",      BISECTION_2_Q},
-                                        {"bi_2t1", BISECTION_2_T1},
-                                        {"bi_2t2", BISECTION_2_T2},
-                                        {"bi_3",       BISECTION_3},
-                                         #endif
-                                         #ifdef __THREEDIM__
-                                        /* rules for tetrahedra */
-                                         #ifndef TET_RULESET
-                                        {"tet2hex",TETRA_RED_HEX},
-                                        {"pri2hex",PRISM_RED_HEX},
-                                         #endif
-                                        /* rules for prisms */
-                                        {"pri_quadsect",PRISM_QUADSECT},
-                                        {"pri_bisect_hex0",PRISM_BISECT_HEX0},
-                                        {"pri_bisect_hex1",PRISM_BISECT_HEX1},
-                                        {"pri_bisect_hex2",PRISM_BISECT_HEX2},
-                                        {"pri_rot_l",PRISM_ROTATE_LEFT},
-                                        {"pri_rot_r",PRISM_ROTATE_RGHT},
-                                        {"pri_quadsect_eins",PRISM_QUADSECT_HEXPRI0},
-                                        /* rules for tetrahedra */
-                                        {"hex_bisect_eins",HEX_BISECT_0_1},
-                                        {"hex_bisect_zwei",HEX_BISECT_0_2},
-                                        {"hex_bisect_drei",HEX_BISECT_0_3},
-                                        {"hex_trisect_eins",HEX_TRISECT_0},
-                                        {"hex_trisect_fuenf",HEX_TRISECT_5},
-                                        {"hex_quadsect_null",HEX_QUADSECT_0},
-                                        {"hex_quadsect_eins",HEX_QUADSECT_1},
-                                        {"hex_quadsect_zwei",HEX_QUADSECT_2},
-                                        {"hex_bisect_vier",HEX_BISECT_HEXPRI0},
-                                        {"hex_bisect_fuenf",HEX_BISECT_HEXPRI1},
-                                         #endif
-                                        {"coarse", COARSE}};
-
 static char userPath[1024];             /*!< Environment path for ls,cd		*/
 
 static INT untitledCounter=0;   /*!< Counter for untitled multigrids	*/
@@ -1766,7 +1724,7 @@ static INT RuleListCommand (INT argc, char **argv)
     return (CMDERRORCODE);
   }
 
-  if (rn==-1 && allopt==false || rn>=0 && allopt==true)
+  if ((rn==-1 && allopt==false) || (rn>=0 && allopt==true))
   {
     PrintErrorMessage('E',"rlist","specify rulenumber OR $a option!");
     return (CMDERRORCODE);

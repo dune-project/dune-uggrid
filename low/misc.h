@@ -137,8 +137,6 @@ START_UG_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-extern int UG_math_error;
-
 #ifndef ModelP
 
 END_UG_NAMESPACE

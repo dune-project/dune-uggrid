@@ -115,12 +115,8 @@ REP_ERR_FILE
 
 static void ConstructConsistentGridLevel (GRID *theGrid)
 {
-  INT i,j,k,l,m,o;
-  DOUBLE fac,*local;
-  ELEMENT *theElement,*theFather,*theNb;
-  NODE    *theNode;
+  INT j;
   EDGE    *theEdge;
-  VERTEX  *theVertex;
 
 #ifdef __PERIODIC_BOUNDARY__
   SetPerVecVOBJECT(theGrid);
@@ -132,7 +128,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
   /* A more complicated fix would be to set the    */
   /* priorities of the vertices correctly.         */
   /* (980126 s.l.)                                 */
-  for (theVertex = PFIRSTVERTEX(theGrid); theVertex != NULL;
+  for (VERTEX* theVertex = PFIRSTVERTEX(theGrid); theVertex != NULL;
        theVertex = SUCCV(theVertex)) {
     VFATHER(theVertex) = NULL;
     /*
@@ -144,7 +140,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
                                 INT n;
                                     DOUBLE *x[MAX_CORNERS_OF_ELEM];
 
-                                    theElement = VFATHER(theVertex);
+                                    ELEMENT* theElement = VFATHER(theVertex);
                                     if (theElement == NULL) continue;
                                     HEAPFAULT(theElement);
                                     CORNER_COORDINATES(theElement,n,x);
@@ -161,12 +157,12 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
    * of elements that reference a given SideVector).  This information has been transferred as-is
    * during load balancing, but may be wrong on new ghost elements.
    */
-  for (theElement = PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
+  for (ELEMENT* theElement = PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
   {
     /* This is the SideVector part */
 #ifdef __THREEDIM__
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-      for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+      for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
         SETVCOUNT(SVECTOR(theElement,i), (NBELEM(theElement,i) ? 2 : 1));
 #endif
 
@@ -178,7 +174,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
                     {
                             ELEMENT *NbElement;
 
-                            for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+                            for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
                             {
                                     NbElement = NBELEM(theElement,i);
                                     for (j=0; j<SIDES_OF_ELEM(NbElement); j++)
@@ -192,17 +188,17 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
        #endif
      */
 
-    theFather = EFATHER(theElement);
+    ELEMENT* theFather = EFATHER(theElement);
 
     /* no reconstruction of VFATHER possible */
     if (theFather == NULL) continue;
 
-    for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+    for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
     {
-      theNode = CORNER(theElement,i);
+      NODE* theNode = CORNER(theElement,i);
       if (CORNERTYPE(theNode)) continue;
 
-      theVertex = MYVERTEX(theNode);
+      VERTEX* theVertex = MYVERTEX(theNode);
 
       /* this is too few for arbitrary load balancing, since
               VFATHER pointer may have changed (970828 s.l.)
@@ -279,7 +275,9 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
 
                                         #ifdef __THREEDIM__
         case (SIDE_NODE) :
+        {
           /* always compute new coords for this case! */
+          INT k;
           if (TAG(theFather) == PYRAMID) k=0;
           else
             k =  GetSideIDFromScratch(theElement,theNode);
@@ -287,19 +285,19 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
 
           SETONSIDE(theVertex,k);
 
-          m = CORNERS_OF_SIDE(theFather,k);
-          local = LCVECT(theVertex);
-          fac = 1.0 / m;
+          INT m = CORNERS_OF_SIDE(theFather,k);
+          DOUBLE* local = LCVECT(theVertex);
+          DOUBLE fac = 1.0 / m;
           V_DIM_CLEAR(local);
-          for (o=0; o<m; o++)
+          for (INT o=0; o<m; o++)
           {
-            l = CORNER_OF_SIDE(theFather,k,o);
+            INT l = CORNER_OF_SIDE(theFather,k,o);
             V_DIM_LINCOMB(1.0,local,1.0,
                           LOCAL_COORD_OF_ELEM(theFather,l),local);
           }
           V_DIM_SCALE(fac,local);
 
-          theNb = NBELEM(theFather,k);
+          ELEMENT* theNb = NBELEM(theFather,k);
           if (theNb != NULL)
           {
             for (j=0; j<SIDES_OF_ELEM(theNb); j++)
@@ -311,7 +309,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
           }
           else SETONNBSIDE(theVertex,MAX_SIDES_OF_ELEM);
           break;
-
+        }
                                         #endif
         case (CENTER_NODE) :
         case (LEVEL_0_NODE) :
