@@ -1481,7 +1481,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
      set in order to save memory.
    */
   typedef std::set<std::pair<long,long> > set;
-  typedef std::set<std::pair<long,long> >::iterator iterator;
   set bnd_edges;
 
   for (int s=0; s<nsides; s++) {
