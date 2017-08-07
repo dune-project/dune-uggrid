@@ -242,7 +242,7 @@ void NS_PREFIX  GetPathName (char *s)
 
 ENVITEM * NS_PREFIX MakeEnvItem (const char *name, const INT type, const INT size)
 {
-  ENVITEM *newItem,*anItem,*lastItem;
+  ENVITEM *newItem,*lastItem;
   ENVDIR *currentDir;
 
   /* check if name too long */
@@ -251,10 +251,10 @@ ENVITEM * NS_PREFIX MakeEnvItem (const char *name, const INT type, const INT siz
 
   /* check if name not already used in this directory */
   currentDir = path[pathIndex];
-  anItem = lastItem = currentDir->down;
+  lastItem = currentDir->down;
 
 #ifdef Debug
-  while (anItem!=NULL)
+  for (ENVITEM* anItem = lastItem; anItem != nullptr; anItem = anItem->v.next)
   {
     if ((anItem->v.type==type)&&(strcmp(anItem->v.name,name)==0))
     {
@@ -262,7 +262,6 @@ ENVITEM * NS_PREFIX MakeEnvItem (const char *name, const INT type, const INT siz
       return(NULL);
     }
     lastItem = anItem;
-    anItem = anItem->v.next;
   }
 #endif
 
