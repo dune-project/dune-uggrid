@@ -2485,7 +2485,7 @@ GenerateBnodes_h (HEAP * Heap, STD_BVP * theBVP, BNDP ** bndp,
 {
   INT i, j, m, n, nside, left, right;
   DOUBLE length, plength, step;
-  DOUBLE lambda[DIM_OF_BND], lambda1;
+  DOUBLE lambda[DIM_OF_BND];
   PATCH *p;
   BND_PS *ps;
 
@@ -2504,8 +2504,6 @@ GenerateBnodes_h (HEAP * Heap, STD_BVP * theBVP, BNDP ** bndp,
                    - PARAM_PATCH_RANGE (p)[0][0]);
     lambda[0] = MIN (PARAM_PATCH_RANGE (p)[0][0],
                      PARAM_PATCH_RANGE (p)[1][0]);
-    lambda1 = MAX (PARAM_PATCH_RANGE (p)[0][0],
-                   PARAM_PATCH_RANGE (p)[1][0]);
 
 
     PRINTDEBUG (dom, 1,
