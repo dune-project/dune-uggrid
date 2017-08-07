@@ -71,7 +71,6 @@ USING_UG_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-int NS_PREFIX UG_math_error = 0; /* This will be non zero after a math error occured  */
 #ifndef ModelP
 int PPIF::me = 0;              /* to have in the serial case this variable as a dummy */
 int PPIF::master = 0;          /* to have in the serial case this variable as a dummy */
@@ -176,24 +175,6 @@ INT NS_PREFIX CenterInPattern (char *str, INT PatLen, const char *text, char p, 
     strcat(str,end);
 
   return (0);
-}
-
-
-
-/* install a user math error handler */
-static int UG_matherr(
-            #if defined(__HP__)
-  struct _exception *x
-                        #elif defined(__LINUXPPC__)
-  struct __exception *x
-                        #else
-  struct exception *x
-                        #endif
-  )
-{
-  /* your math error handling here */
-  UG_math_error = 1;       /* lets be more specific later ... */
-  return(0);   /* proceed with standard messages */
 }
 
 #define FMTBUFFSIZE         1031
