@@ -821,7 +821,10 @@ struct node {
 
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
-  char* message_buffer;
+  char* message_buffer_;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size_;
 #endif
 
 #ifdef ModelP
@@ -854,6 +857,26 @@ struct node {
    *
    * WARNING: The allocation of the data pointer depends on the format */
   void *data;
+
+#ifdef ModelP
+  const char* message_buffer() const
+    { return message_buffer_; }
+
+  const std::size_t message_buffer_size() const
+    { return message_buffer_size_; }
+
+  void message_buffer(char* p, std::size_t size)
+  {
+    message_buffer_ = p;
+    message_buffer_size_ = size;
+  }
+
+  void message_buffer_free()
+  {
+    std::free(message_buffer_);
+    message_buffer(nullptr, 0);
+  }
+#endif
 };
 
 /** \todo Please doc me! */
@@ -942,6 +965,9 @@ struct generic_element {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -996,6 +1022,9 @@ struct triangle {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1079,6 +1108,9 @@ struct quadrilateral {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1163,6 +1195,9 @@ struct tetrahedron {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1252,6 +1287,9 @@ struct pyramid {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1339,6 +1377,9 @@ struct prism {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1427,6 +1468,9 @@ struct hexahedron {
 #ifdef ModelP
   /** \brief Per-node message buffer used by Dune for dynamic load-balancing */
   char* message_buffer;
+
+  /** \brief Size of the `message_buffer` */
+  std::size_t message_buffer_size;
 #endif
 
 #ifdef ModelP
@@ -1496,6 +1540,26 @@ union element {
   struct prism pr;
   struct hexahedron he;
         #endif
+
+#ifdef ModelP
+  const char* message_buffer() const
+    { return ge.message_buffer; }
+
+  const std::size_t message_buffer_size() const
+    { return ge.message_buffer_size; }
+
+  void message_buffer(char* p, std::size_t size)
+  {
+    ge.message_buffer = p;
+    ge.message_buffer_size = size;
+  }
+
+  void message_buffer_free()
+  {
+    std::free(ge.message_buffer);
+    message_buffer(nullptr, 0);
+  }
+#endif
 };
 
 /** \brief Objects that can hold a vector */

@@ -585,7 +585,8 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
         #ifdef ModelP
   DDD_AttrSet(PARHDR(pn),GRID_ATTR(theGrid));
   /* SETPRIO(pn,PrioMaster); */
-  pn->message_buffer = 0;
+  pn->message_buffer_ = nullptr;
+  pn->message_buffer_size_ = 0;
         #endif
   ID(pn) = (theGrid->mg->nodeIdCounter)++;
   START(pn) = NULL;
@@ -3492,6 +3493,11 @@ INT NS_DIM_PREFIX DisposeNode (GRID *theGrid, NODE *theNode)
   else
     DECNOOFNODE(theVertex);
 
+#ifdef ModelP
+  /* free message buffer */
+  theNode->message_buffer_free();
+#endif
+
   /* dispose vector and its matrices from node-vector */
   size = sizeof(NODE);
   if (NDATA_DEF_IN_GRID(theGrid)) {
@@ -3873,9 +3879,10 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
     if (DisposeVector (theGrid,EVECTOR(theElement)))
       RETURN(1);
 
-  if (EDATA_DEF_IN_GRID(theGrid))
-    PutFreeObject(theGrid->mg,EDATA(theElement),
-                  EDATA_DEF_IN_GRID(theGrid),-1);
+#ifdef ModelP
+  /* free message buffer */
+  theElement->message_buffer_free();
+#endif
 
   /* dispose element */
   /* give it a new tag ! (I know this is somewhat ugly) */
