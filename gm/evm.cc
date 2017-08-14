@@ -421,7 +421,7 @@ INT NS_DIM_PREFIX V3_Project (const DOUBLE *a, const DOUBLE *b, DOUBLE *r)
 DOUBLE NS_DIM_PREFIX V_te (const DOUBLE *x0, const DOUBLE *x1,
                            const DOUBLE *x2, const DOUBLE *x3)
 {
-  DOUBLE_VECTOR a, b, h, n;
+  DOUBLE_VECTOR_3D a, b, h, n;
 
   V3_SUBTRACT(x1,x0,a);
   V3_SUBTRACT(x2,x0,b);
@@ -437,7 +437,7 @@ DOUBLE NS_DIM_PREFIX V_te (const DOUBLE *x0, const DOUBLE *x1,
 DOUBLE NS_DIM_PREFIX V_py (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2,
                            const DOUBLE *x3, const DOUBLE *x4)
 {
-  DOUBLE_VECTOR a,b,h,n;
+  DOUBLE_VECTOR_3D a,b,h,n;
 
   V3_SUBTRACT(x2,x0,a);
   V3_SUBTRACT(x3,x1,b);
@@ -457,7 +457,7 @@ DOUBLE NS_DIM_PREFIX V_py (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2,
 DOUBLE NS_DIM_PREFIX V_pr (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2,
                            const DOUBLE *x3, const DOUBLE *x4, const DOUBLE *x5)
 {
-  DOUBLE_VECTOR a,b,c,d,e,m,n;
+  DOUBLE_VECTOR_3D a,b,c,d,e,m,n;
 
   V3_SUBTRACT(x4,x0,a);
   V3_SUBTRACT(x1,x3,b);
