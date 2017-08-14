@@ -1180,7 +1180,7 @@ INT CheckSubdomains (MULTIGRID *theMG)
 
 static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *NodeError, INT *EdgeError, INT *NbError, INT *FatherError, INT *errors)
 {
-  INT side,found,i,j,k,bserror,nerrors,sdid,sc;
+  INT side,found,i,j,k,nerrors,sdid,sc;
   NODE    *theNode,*n1,*n2,*nbn1,*nbn2,*nbn3,*nbn4;
   EDGE    *theEdge,*father_edge;
   ELEMENT *theFather;
@@ -1191,8 +1191,6 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
   *NbError = 0;
   *FatherError = 0;
   nerrors    = 0;
-
-  bserror = 0;
 
   /* check side information */
   for (i=0; i<SIDES_OF_ELEM(theElement); i++)

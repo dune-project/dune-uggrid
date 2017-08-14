@@ -1364,7 +1364,7 @@ static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *t
 
 static INT CorrectElementSidePattern (ELEMENT *theElement, ELEMENT *theNeighbor, INT i)
 {
-  INT j,NbSidePattern;
+  INT j;
 
 #ifdef ModelP
   /* this case should not occur */
@@ -1413,8 +1413,6 @@ static INT CorrectElementSidePattern (ELEMENT *theElement, ELEMENT *theNeighbor,
   case 4 :
     /* if side of one of the neighboring elements has a */
     /* sidenode, then both need a sidenode              */
-    NbSidePattern = SIDEPATTERN(theNeighbor);
-
     if (SIDE_IN_PAT(SIDEPATTERN(theElement),i))
     {
       SETSIDEPATTERN(theNeighbor,

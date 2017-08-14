@@ -2800,7 +2800,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   char FormatName[NAMESIZE], BndValName[NAMESIZE], MGName[NAMESIZE], filename[NAMESIZE];
   INT i,j,*Element_corner_uniq_subdom, *Ecusdp[2],**Enusdp[2],**Ecidusdp[2],
   **Element_corner_ids_uniq_subdom,*Element_corner_ids,max,**Element_nb_uniq_subdom,
-  *Element_nb_ids,id,level;
+  *Element_nb_ids,level;
   INT *Element_SideOnBnd_uniq_subdom,*ESoBusdp[2];
   char buf[64],itype[10];
   int *vidlist;
@@ -3340,7 +3340,6 @@ nparfiles = UG_GlobalMinINT(nparfiles);
 
   /* list: node-id --> node */
   nid_n = (NODE**)GetTmpMem(theHeap,non*sizeof(NODE*),MarkKey);
-  id = foid;
   for (i=0; i<=TOPLEVEL(theMG); i++)
     for (theNode=PFIRSTNODE(GRID_ON_LEVEL(theMG,i)); theNode!=NULL; theNode=SUCCN(theNode))
     {

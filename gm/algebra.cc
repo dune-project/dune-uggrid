@@ -294,37 +294,6 @@ REP_ERR_FILE
 
 static INT CreateBVPlane( BLOCKVECTOR **bv_plane, const BV_DESC *bvd_plane, const BV_DESC_FORMAT *bvdf, VECTOR **v, INT stripes, INT vectors_per_stripe, GRID *grid );
 static INT BlockHalfening( GRID *grid, BLOCKVECTOR *bv, INT left, INT bottom, INT width, INT height, INT side, INT orientation, INT leaf_size );
-static INT DisposeIMatrices (GRID *theGrid, MATRIX *theMatrix);
-
-/****************************************************************************/
-/** \brief Check matrix list
- *
- * @param theVector - pointer to a vector list
- *
-   This function checks matrix list and prints an error message
-   if the list is inconsistent.
- *
- */
-/****************************************************************************/
-
-static void CheckMatrixList (VECTOR *theVector)
-{
-  MATRIX *theMatrix;
-
-  for (theMatrix=VSTART(theVector); theMatrix!= NULL; theMatrix=MNEXT(theMatrix))
-  {
-    if (MDIAG(theMatrix))
-    {
-      if (theVector != MDEST(theMatrix))
-        UserWriteF("matrix ??? should be diagonal matrix but dest. ptr does not point back\n");
-      if (VSTART(theVector) != theMatrix)
-        UserWriteF("matrix ??? is diagonal matrix but is not at first place in the list\n");
-    }
-    else
-    if (MDEST(MADJ(theMatrix)) != theVector)
-      UserWriteF("adj of matrix ??? does not point back\n");
-  }
-}
 
 /****************************************************************************/
 /** \brief Initialize a blockvector description format
@@ -4977,91 +4946,6 @@ INT NS_DIM_PREFIX ShellOrderVectors (GRID *theGrid, VECTOR *seed)
  *   <li>   1 if error occured.
  */
 /****************************************************************************/
-
-static INT CheckConsistence (GRID *theGrid, char *location)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix;
-  INT up, down, nfound;
-
-  /* check USED, N_INFLOW and N_OUTFLOW */
-  nfound = 0;
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-  {
-    if (VCUSED(theVector)) continue;
-
-    /* count upward and downward matrices */
-    up = down = 0;
-    for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-    {
-      if (VCUSED(MDEST(theMatrix))) continue;
-      if (MUP(theMatrix)) up++;
-      if (MDOWN(theMatrix)) down++;
-    }
-    if (VUP(theVector)!=up || VDOWN(theVector)!=down)
-    {
-      nfound++;
-      if (nfound==1 && location!=NULL)
-        UserWriteF("Failed in %s\n",location);
-      UserWriteF("vector = %d: up: %d %d   down: %d %d\n",(int)VINDEX(theVector),(int)VUP(theVector),(int)up,
-                 (int)VDOWN(theVector),(int)down);
-    }
-  }
-  return (nfound);
-}
-
-static INT CheckVectorList (GRID *theGrid)
-{
-  INT i;
-  VECTOR *theVector;
-
-  /* check # members of succ list */
-  i=0;
-  for (theVector=FIRSTVECTOR(theGrid); theVector!= NULL; theVector=SUCCVC(theVector)) i++;
-  if (NVEC(theGrid) != i)
-    RETURN (1);
-
-  /* check # members of pred list */
-  i=0;
-  for (theVector=LASTVECTOR(theGrid); theVector!= NULL; theVector=PREDVC(theVector)) i++;
-  if (NVEC(theGrid) != i)
-    RETURN (1);
-
-  return (0);
-}
-
-static INT CheckBVList (GRID *theGrid)
-{
-  BLOCKVECTOR *theBV;
-
-  /* check # members of succ list */
-  for (theBV=GFIRSTBV(theGrid); BVSUCC(theBV)!= NULL; theBV=BVSUCC(theBV))
-    if (BVENDVECTOR(theBV)!=BVFIRSTVECTOR(BVSUCC(theBV)))
-      RETURN (1);
-
-  return (0);
-}
-
-static void GetBVNumberInGrid (GRID *theGrid, INT *nb)
-{
-  VECTOR *theVector;
-
-  nb[0]=0;
-  for (theVector=FIRSTVECTOR(theGrid); theVector!= NULL; theVector=SUCCVC(theVector)) nb[0]++;
-  nb[1]=0;
-  for (theVector=LASTVECTOR(theGrid); theVector!= NULL; theVector=PREDVC(theVector)) nb[1]++;
-  return;
-}
-
-static void GetBVNumber (BLOCKVECTOR *theBV, INT *nb)
-{
-  VECTOR *theVector;
-
-  nb[0]=nb[1]=0;
-  for (theVector=BVFIRSTVECTOR(theBV); theVector!= BVENDVECTOR(theBV); theVector=SUCCVC(theVector)) nb[0]++;
-  for (theVector=BVLASTVECTOR(theBV); theVector!= PREDVC(BVFIRSTVECTOR(theBV)); theVector=PREDVC(theVector)) nb[1]++;
-  return;
-}
 
 static INT OrderVectorAlgebraic (GRID *theGrid, INT mode, INT putSkipFirst, INT skipPat)
 {

@@ -2537,7 +2537,6 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
   ELEMENT *pe;
   INT i,s_id;
   VECTOR *pv;
-  void *q;
 
   if (objtype == IEOBJ)
     pe = (ELEMENT*)GetMemoryForObject(MYMG(theGrid),INNER_SIZE_TAG(tag),
@@ -2704,7 +2703,7 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
     /* check if vertices of Son lie on boundary */
     if (OBJT(MYVERTEX(CORNER(theSon,CORNER_OF_SIDE(theSon,son_side,i))))!=BVOBJ)
     {
-      NODE *theNode,*NFather;
+      NODE *theNode;
       EDGE *theFatherEdge;
       INT t1,t2;
 
@@ -2714,7 +2713,6 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
       {
       case CORNER_NODE :
         printf("NTYPE = CORNER_NODE");
-        NFather = NFATHER(theNode);
         break;
       case MID_NODE :
         printf(PFMT "el " EID_FMTX " son " EID_FMTX " vertex " VID_FMTX "\n",me,EID_PRTX(theElement),EID_PRTX(theSon),VID_PRTX(MYVERTEX(CORNER(theSon,CORNER_OF_SIDE(theSon,son_side,i)))));
@@ -4169,13 +4167,11 @@ static INT DisposeAMGLevel (MULTIGRID *theMG)
 {
   int l;
   GRID *theGrid;
-  GRID *fineGrid;
 
   /* level 0 can not be deleted */
   l = theMG->bottomLevel;
   if (l>=0) return(2);
   theGrid = theMG->grids[l];
-  fineGrid = theMG->grids[l+1];
 
   assert((FIRSTELEMENT(theGrid)==NULL)&&(FIRSTVERTEX(theGrid)==NULL)
          &&(FIRSTNODE(theGrid)==NULL));
@@ -4421,16 +4417,12 @@ INT NS_DIM_PREFIX OrderNodesInGrid (GRID *theGrid, const INT *order, const INT *
   LINK *theLink,*LinkTable[LINKTABLESIZE];
   INT i,entries,firstID,nl;
   HEAP *theHeap;
-  BVP *theBVP;
-  BVP_DESC *theBVPDesc;
   INT MarkKey;
 
   theMG   = MYMG(theGrid);
   entries = NN(theGrid);
   if (entries == 0) return (0);
   firstID = ID(FIRSTNODE(theGrid));
-  theBVP = MG_BVP(theMG);
-  theBVPDesc = MG_BVPD(theMG);
 
   /* calculate the diameter of the bounding rectangle of the domain */
   // The following method wants the domain radius, which has been removed.
@@ -5790,7 +5782,7 @@ static INT NeighborSearch_O_n(INT n, NODE **Node, MULTIGRID *theMG, INT *NbrS, E
 
 static INT NdElPtrArray_evalIndexes(INT n, INT *cornerID, MULTIGRID *theMG, INT *MIndex, INT *MBlock, NODE **Node, GRID *theGrid, INT* NbrS, ELEMENT** Nbr)
 {
-  INT retval, j, IndexOfDivPart, IndexOfModPart, Index, merkeIndex, helpIndex;
+  INT j, IndexOfDivPart, IndexOfModPart, Index, merkeIndex, helpIndex;
 
   /*CA*/
   /*evaluate indexes for "Insert in NodeElementMatrix"*/
@@ -7197,43 +7189,6 @@ void NS_DIM_PREFIX CalculateCenterOfMass(ELEMENT *theElement, DOUBLE_VECTOR cent
 }
 
 /****************************************************************************/
-/** \brief Calculate the center of mass for an element side
- *
- * @param theElement the element
- * @param side index of element side
- * @param center_of_mass center of mass as the result
- *
- * This function calculates the center of mass for an arbitrary element
- * side. DOUBLE_VECTOR is an array for a 2D resp. 3D coordinate.
- * The function calculates the center of mass in global and local coordinats.
- *
- * \sa DOUBLE_VECTOR, ELEMENT
- */
-/****************************************************************************/
-
-static void CalculateCenterOfMassOfSide(const ELEMENT *theElement, int side, DOUBLE_VECTOR global, DOUBLE_VECTOR local)
-{
-  DOUBLE *corner;
-  DOUBLE *l_corner;
-  INT i, nr_corners;
-
-  nr_corners = CORNERS_OF_SIDE(theElement,side);
-  V_DIM_CLEAR(global);
-  V_DIM_CLEAR(local);
-
-  for (i=0; i<nr_corners; i++)
-  {
-    corner   = CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,side,i))));
-    l_corner = LCVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,side,i))));
-    V_DIM_ADD(global,corner,global);
-    V_DIM_ADD(local,l_corner,local);
-  }
-
-  V_DIM_SCALE(1.0/nr_corners,global);
-  V_DIM_SCALE(1.0/nr_corners,local);
-}
-
-/****************************************************************************/
 /** \brief Calculate an (hopefully) unique key for the geometric object
 
  * @param   obj - geometric object which from the key is needed (can be one of VERTEX, ELEMENT, NODE or VECTOR)
@@ -7344,11 +7299,9 @@ void NS_DIM_PREFIX ListMultiGridHeader (const INT longformat)
 void NS_DIM_PREFIX ListMultiGrid (const MULTIGRID *theMG, const INT isCurrent, const INT longformat)
 {
   char c;
-  BVP *theBVP;
   const BVP_DESC *theBVPDesc;
 
   /* get BVP description */
-  theBVP = MG_BVP(theMG);
   theBVPDesc = MG_BVPD(theMG);
 
   c = isCurrent ? '*' : ' ';
