@@ -1733,7 +1733,7 @@ INT NS_DIM_PREFIX SaveMultiGrid (MULTIGRID *theMG, const char *name, const char 
 
 static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pinfo)
 {
-  INT i,j,s,prio,where,oldwhere,old;
+  INT i,j,s,prio,where,oldwhere;
   INT evec,nvec,edvec,svec;
   GRID            *vgrid;
   ELEMENT         *theFather,*After,*Next,*Succe;
@@ -1758,8 +1758,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
   s = 0;
   if ((prio = pinfo->prio_elem) != PrioMaster)
   {
-    old = EPRIO(theElement);
-    oldwhere = PRIO2INDEX(old);
+    oldwhere = PRIO2INDEX(EPRIO(theElement));
     Succe = SUCCE(theElement);
     GRID_UNLINK_ELEMENT(theGrid,theElement);
     SETEPRIO(theElement,prio);
