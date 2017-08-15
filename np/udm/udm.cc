@@ -3926,7 +3926,7 @@ SHORT * NS_DIM_PREFIX MD_nr_nc_mcmpptr_of_ro_co_mod (const MATDATA_DESC *md, INT
 {
   FORMAT *fmt;
   SHORT *cptr;
-  INT rt,ct,off,rot,cot,nrow,ncol,ncmp,src_parts,dst_parts,i,j,n;
+  INT rt,ct,rot,cot,nrow,ncol,ncmp,src_parts,dst_parts,i,j,n;
 
   if (nr!=NULL) *nr = -1;
   if (nc!=NULL) *nc = -1;
@@ -3934,7 +3934,7 @@ SHORT * NS_DIM_PREFIX MD_nr_nc_mcmpptr_of_ro_co_mod (const MATDATA_DESC *md, INT
   fmt = MGFORMAT(MD_MG(md));
   rot = 1<<rowobj;
   cot = 1<<colobj;
-  off = nrow = ncol = src_parts = dst_parts = 0;
+  nrow = ncol = src_parts = dst_parts = 0;
   cptr = NULL;
   for (rt=0; rt<NVECTYPES; rt++)
     for (ct=0; ct<NVECTYPES; ct++)

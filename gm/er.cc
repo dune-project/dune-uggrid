@@ -1774,11 +1774,11 @@ static void WriteDebugInfo (void)
 
 INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NODE **NodeContext, ELEMENT **SonList, INT *nmax)
 {
-  INT i,j,k,l,nfound,found;
+  INT i,j,k,l,found;
   ELEMENT *NonorderedSonList[MAX_SONS];
   NODE *theNode;
 
-  nfound = *nmax = 0;
+  *nmax = 0;
 
   if (GetAllSons(theElement,NonorderedSonList)) REP_ERR_RETURN(1);
   for (i=0; i<theRule->nsons; i++)

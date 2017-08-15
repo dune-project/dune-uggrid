@@ -1733,7 +1733,7 @@ INT NS_DIM_PREFIX SaveMultiGrid (MULTIGRID *theMG, const char *name, const char 
 
 static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pinfo)
 {
-  INT i,j,s,prio,where,oldwhere,old;
+  INT i,j,s,prio,where,oldwhere;
   INT evec,nvec,edvec,svec;
   GRID            *vgrid;
   ELEMENT         *theFather,*After,*Next,*Succe;
@@ -1758,8 +1758,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
   s = 0;
   if ((prio = pinfo->prio_elem) != PrioMaster)
   {
-    old = EPRIO(theElement);
-    oldwhere = PRIO2INDEX(old);
+    oldwhere = PRIO2INDEX(EPRIO(theElement));
     Succe = SUCCE(theElement);
     GRID_UNLINK_ELEMENT(theGrid,theElement);
     SETEPRIO(theElement,prio);
@@ -2800,7 +2799,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   char FormatName[NAMESIZE], BndValName[NAMESIZE], MGName[NAMESIZE], filename[NAMESIZE];
   INT i,j,*Element_corner_uniq_subdom, *Ecusdp[2],**Enusdp[2],**Ecidusdp[2],
   **Element_corner_ids_uniq_subdom,*Element_corner_ids,max,**Element_nb_uniq_subdom,
-  *Element_nb_ids,id,level;
+  *Element_nb_ids,level;
   INT *Element_SideOnBnd_uniq_subdom,*ESoBusdp[2];
   char buf[64],itype[10];
   int *vidlist;
@@ -3340,7 +3339,6 @@ nparfiles = UG_GlobalMinINT(nparfiles);
 
   /* list: node-id --> node */
   nid_n = (NODE**)GetTmpMem(theHeap,non*sizeof(NODE*),MarkKey);
-  id = foid;
   for (i=0; i<=TOPLEVEL(theMG); i++)
     for (theNode=PFIRSTNODE(GRID_ON_LEVEL(theMG,i)); theNode!=NULL; theNode=SUCCN(theNode))
     {
