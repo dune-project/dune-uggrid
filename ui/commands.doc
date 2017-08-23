@@ -799,27 +799,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  move move - Move a node and vertex
-
- \section Description
-   This command moves a node and the corresponding vertex 
-   of the current multigrid to a new position, 
-   calling the functions 'MoveInnerNode' and 'MoveBoundaryNode'.
-
-\section Syntax
-   'move \<Id> {$i \<x> \<y> [\<z>] | $b \<SegId> \<s> [\<t>]}'
-
-  <li> \<Id>                - Id of the node to be moved
-  <li> $i~\<x>~\<y>~[\<z>]    - specify as much coordinates as the space has dimensions
-  <li> $b~\<Id>~\<s>~[\<t>]   - in the current implementation (domain module dependent)
-		 				 boundary nodes can not be moved
-   
- \section Keywords
-   multigrid, move, node, edit
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page adapt adapt - Adapt the current multigrid
 
  \section Description
