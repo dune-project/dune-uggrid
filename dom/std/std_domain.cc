@@ -714,6 +714,38 @@ GetFirstLinearSegment (DOMAIN * theDomain)
     return (GetNextLinearSegment ((LINEAR_SEGMENT *) theItem));
 }
 
+/* configuring a domain */
+static INT STD_BVP_Configure(INT argc, char **argv)
+{
+  STD_BVP *theBVP;
+  DOMAIN *theDomain;
+  char BVPName[NAMESIZE];
+  char DomainName[NAMESIZE];
+  INT i;
+
+  /* get BVP name */
+  if (sscanf(argv[0], expandfmt(" configure %" NAMELENSTR "[ -~]"), BVPName) != 1
+      || strlen(BVPName) == 0)
+    return 1;
+
+  theBVP = (STD_BVP *) BVP_GetByName(BVPName);
+  if (theBVP == nullptr)
+    return 1;
+
+  for (i=0; i<argc; i++)
+    if (argv[i][0] == 'd' && argv[i][1] == ' ')
+      if (sscanf(argv[i], expandfmt("d %" NAMELENSTR "[ -~]"), DomainName) != 1
+          || strlen(DomainName) == 0)
+        continue;
+
+  theDomain = GetDomain(DomainName);
+  if (theDomain == nullptr)
+    return 1;
+
+  theBVP->Domain = theDomain;
+
+  return 0;
+}
 
 BVP *NS_DIM_PREFIX
 CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,

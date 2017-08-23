@@ -591,9 +591,6 @@ typedef struct bnd_ps BND_PS;
 
 DOMAIN *GetDomain                           (const char *name);
 
-/* BVP definition */
-INT   STD_BVP_Configure           (INT argc, char **argv);
-
 /* scanning of coordinates */
 INT   ReadAndPrintArgvPosition    (const char *name, INT argc, char **argv, DOUBLE *pos);
 
