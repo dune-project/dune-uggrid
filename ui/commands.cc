@@ -1947,41 +1947,6 @@ static INT InsertInnerNodeCommand (INT argc, char **argv)
   return (OKCODE);
 }
 
-/** \todo Please doc me! */
-static INT NGInsertInnerNodeCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  DOUBLE xc[DIM];
-  static int n;
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"in","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  UserWriteF("# IPoint %d\n",n);
-  n++;
-  UserWriteF("# %s\n",argv[0]);
-  if (sscanf(argv[0],"ngin %lf %lf %lf",xc,xc+1,xc+2)!=DIM)
-  {
-    PrintErrorMessageF('E',"in","specify %d coordinates for an inner node",(int)DIM);
-    return (PARAMERRORCODE);
-  }
-
-  UserWriteF("I %lf %lf %lf;\n",xc[0],xc[1],xc[2]);
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref bn. */
 static INT InsertBoundaryNodeCommand (INT argc, char **argv)
 {
@@ -4244,7 +4209,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("extracon",           ExtraConnectionCommand                  )==NULL) return (__LINE__);
   if (CreateCommand("check",                      CheckCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("in",                         InsertInnerNodeCommand                  )==NULL) return (__LINE__);
-  if (CreateCommand("ngin",                       NGInsertInnerNodeCommand                )==NULL) return (__LINE__);
   if (CreateCommand("bn",                         InsertBoundaryNodeCommand               )==NULL) return (__LINE__);
   if (CreateCommand("ngbn",                       NGInsertBoundaryNodeCommand             )==NULL) return (__LINE__);
   if (CreateCommand("gn",                         InsertGlobalNodeCommand                 )==NULL) return (__LINE__);
