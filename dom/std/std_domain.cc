@@ -571,50 +571,6 @@ GetFirstBoundarySegment (DOMAIN * theDomain)
 }
 
 /****************************************************************************/
-/* \brief ???   (This function is here for upward compatibility)
- *
- * \todo Do we still need this?
- *
- * @param  name - name of the boundary segment
- * @param  left - id of the left subdomain
- * @param  right - id of the right subdomain
- * @param  id -
- * @param  from -
- * @param  to -
- * @param  res -
- * @param  alpha -
- * @param  beta -
- * @param  BndSegFunc -
- * @param  data -
- *
- *  This function defines CreateBoundarySegment2D for old style 2D definitions
- *  (they were not dimension independent)
- *
- * @return <ul>
- *   <li>     pointer to </li>
- *   <li>     NULL if object not available.	 </li>
- * </ul>
- */
-/****************************************************************************/
-
-void *NS_DIM_PREFIX
-CreateBoundarySegment2D (const char *name, int left, int right,
-                         int id, int from, int to, int res, DOUBLE alpha,
-                         DOUBLE beta, BndSegFuncPtr BndSegFunc, void *data)
-{
-  INT pt[3];
-  DOUBLE alp[3], bet[3];
-
-  pt[0] = from;
-  pt[1] = to;
-  alp[0] = alpha;
-  bet[0] = beta;
-
-  return (CreateBoundarySegment (name, left, right, id, NON_PERIODIC,
-                                 pt, alp, bet, BndSegFunc, data));
-}
-
-/****************************************************************************/
 /** \brief  Create a new LINEAR_SEGMENT
  *
  * @param  name - name of the boundary segment
