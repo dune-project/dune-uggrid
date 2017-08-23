@@ -1685,20 +1685,3 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    'array', 'dear', 'wrar', 'rear', 'saar', 'loar', 'clar', 'defaults'
 */
 /****************************************************************************/
-
-/****************************************************************************/
-/** \page  dumpalg dumpalg - Dumps the surface algebra to the interface
-
- \section Description
-   Dumps the surface algebra
-
- \section Syntax
-   'dumpalg \<name\>'
-
-  <li> \<name\> - file name
-   
- \section Keywords
-   data, io
-
-*/
-/****************************************************************************/

@@ -4269,82 +4269,6 @@ static INT InitArray (void)
 }
 
 
-
-/** \brief Implementation of \ref dumpalg. */
-static INT DumpAlgCommand(INT argc, char **argv)
-{
-  INT level, comp;
-  VECTOR *v;
-  MULTIGRID *theMG;
-  GRID *theGrid;
-  VECDATA_DESC *v_desc;
-  char buffer[1024];
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"dumpalg","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  v_desc = ReadArgvVecDesc(theMG,"v",argc,argv);
-  if (v_desc == NULL)
-  {
-    PrintErrorMessage('E',"dumpalg","wrong vector specification");
-    return (CMDERRORCODE);
-  }
-  UserWriteF(DISPLAY_NP_FORMAT_SS,"vector displayed",ENVITEM_NAME(v_desc));
-  DisplayVecDataDesc(v_desc,~0,buffer);
-
-  for (level=0; level<=TOPLEVEL(theMG); level++)
-  {
-    theGrid = GRID_ON_LEVEL(theMG,level);
-
-#ifdef ModelP
-    for( v=PFIRSTVECTOR(theGrid); v!=NULL; v=SUCCVC(v) )
-#else
-    for( v=FIRSTVECTOR(theGrid); v!=NULL; v=SUCCVC(v) )
-#endif
-    {
-      printf( "Vec key=%d level=%d type=%d pe=%d fine=%d new_def=%d ",
-              KeyForObject((KEY_OBJECT*)v),level,VTYPE(v),me,
-              FINE_GRID_DOF(v),NEW_DEFECT(v) );
-      for( comp=0; comp<VD_NCMPS_IN_TYPE(v_desc,VTYPE(v)); comp++ )
-        printf(" %g ",comp,VVALUE(v,VD_CMP_OF_TYPE(v_desc,VTYPE(v),comp)));
-      printf("\n");
-    }
-  }
-
-  /* aus nstools.c
-          {
-                  MATRIX *m;
-              DisplayMatDataDesc(m,buffer);
-              fprintf(fptr,"%s",buffer);
-
-              fprintf(fptr,"Matrix:\n");
-              for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-              {
-                  for (mat=VSTART(vec); mat!=NULL; mat=MNEXT(mat))
-                  {
-                      fprintf(fptr,"%d\t%d\n",(int)VINDEX(vec),(int)VINDEX(MDEST(mat)));
-                      fprintf(fptr,"f\tt");
-                      for (i=0; i<MD_ROWS_IN_RT_CT(m,VTYPE(vec),VTYPE(MDEST(mat))); i++)
-                      {
-                          for (j=0; j<MD_COLS_IN_RT_CT(m,VTYPE(vec),VTYPE(MDEST(mat))); j+
-     +)
-                              fprintf(fptr,"\t%.9e",(double)MVALUE(mat,MD_IJ_CMP_OF_RT_CT
-          (m,VTYPE(vec),VTYPE(MDEST(mat)),i,j)));
-                          fprintf(fptr,"\n\t");
-                      }
-                      fprintf(fptr,"\n");
-                  }
-              }
-          }
-   */
-
-  return(OKCODE);
-}
-
 /****************************************************************************/
 /* Quick Hack for periodic boundaries                                       */
 /****************************************************************************/
@@ -4492,8 +4416,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("wrar",               WriteArrayCommand                                       )==NULL) return (__LINE__);
   if (CreateCommand("rear",               ReadArrayCommand                                        )==NULL) return (__LINE__);
   if (CreateCommand("clar",               ClearArrayCommand                                       )==NULL) return (__LINE__);
-
-  if (CreateCommand("dumpalg",            DumpAlgCommand                                  )==NULL) return (__LINE__);
 
   if (InitFindRange()     !=0) return (__LINE__);
   if (InitArray()                 !=0) return (__LINE__);
