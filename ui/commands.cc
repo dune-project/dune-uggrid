@@ -1947,41 +1947,6 @@ static INT InsertInnerNodeCommand (INT argc, char **argv)
   return (OKCODE);
 }
 
-/** \todo Please doc me! */
-static INT NGInsertInnerNodeCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  DOUBLE xc[DIM];
-  static int n;
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  NO_OPTION_CHECK(argc,argv);
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"in","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  UserWriteF("# IPoint %d\n",n);
-  n++;
-  UserWriteF("# %s\n",argv[0]);
-  if (sscanf(argv[0],"ngin %lf %lf %lf",xc,xc+1,xc+2)!=DIM)
-  {
-    PrintErrorMessageF('E',"in","specify %d coordinates for an inner node",(int)DIM);
-    return (PARAMERRORCODE);
-  }
-
-  UserWriteF("I %lf %lf %lf;\n",xc[0],xc[1],xc[2]);
-
-  return (OKCODE);
-}
-
-
 /** \brief Implementation of \ref bn. */
 static INT InsertBoundaryNodeCommand (INT argc, char **argv)
 {
@@ -2152,125 +2117,6 @@ Exit_gn:
   free(my_argv);
 
   return err;
-}
-
-
-/** \brief Implementation of \ref move. */
-static INT MoveNodeCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  VERTEX *myVertex;
-  NODE *theNode;
-  DOUBLE xc[DIM];
-  INT type,i,j,level,relative;
-
-  /* following variables: keep type for sscanf */
-  double x[DIM_MAX];
-  int id,segid;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"move","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  theNode = NULL;
-
-  /* check parameters */
-  if (sscanf(argv[0],"move %d",&id)==1)
-  {
-    /* search node */
-    for (level=0; level<=TOPLEVEL(theMG); level++)
-      if ((theNode=FindNodeFromId(GRID_ON_LEVEL(theMG,level),id))!=NULL)
-        break;
-    if (theNode==NULL)
-    {
-      PrintErrorMessageF('E',"move","node with ID %ld not found",(long)id);
-      return (CMDERRORCODE);
-    }
-  }
-
-  /* check options */
-  relative = false;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'i' :
-      if (OBJT(MYVERTEX(theNode))!=IVOBJ)
-      {
-        PrintErrorMessageF('E',"move","node with ID %ld is no inner node",(long)id);
-        return (CMDERRORCODE);
-      }
-      type = IVOBJ;
-      if (sscanf(argv[i],"i %lf %lf %lf",x,x+1,x+2)!=DIM)
-      {
-        PrintErrorMessageF('E',"move","specify %d new coordinates for an inner node",(int)DIM);
-        return (PARAMERRORCODE);
-      }
-      for (j=0; j<DIM; j++)
-        xc[j] = x[j];
-      break;
-
-    case 'b' :
-      if (OBJT(MYVERTEX(theNode))!=BVOBJ)
-      {
-        PrintErrorMessageF('E',"move","node with ID %ld is no boundary node",(long)id);
-        return (CMDERRORCODE);
-      }
-      type = BVOBJ;
-      if (sscanf(argv[i],"b %d %lf %lf",&segid,x,x+1)!=1+DIM_OF_BND)
-      {
-        PrintErrorMessageF('E',"move","specify the segment if and %d new coordinates for a boundary node",(int)DIM_OF_BND);
-        return (PARAMERRORCODE);
-      }
-      for (j=0; j<DIM_OF_BND; j++)
-        xc[j] = x[j];
-      break;
-
-    case 'r' :
-      relative = true;
-      break;
-
-    default :
-      PrintErrorMessageF('E', "MoveNodeCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  if (theNode==NULL)
-  {
-    PrintErrorMessage('E',"move","you have to either specify\n"
-                      "the ID of the node to move or the s option");
-    return (PARAMERRORCODE);
-  }
-
-  myVertex = MYVERTEX(theNode);
-  if (type==IVOBJ)
-  {
-    if (relative)
-    {
-      /* move relative to old position */
-      for (j=0; j<DIM; j++)
-        xc[j] += CVECT(myVertex)[j];
-    }
-    if (MoveNode(theMG,theNode,xc,true)!=GM_OK)
-    {
-      PrintErrorMessage('E',"move","failed moving the node");
-      return (CMDERRORCODE);
-    }
-  }
-  else if (type==BVOBJ)
-  {
-    PrintErrorMessage('E',"move","moving boundary nodes not implemented yet");
-    return (CMDERRORCODE);
-  }
-  else
-  {
-    PrintErrorMessage('E', "MoveNodeCommand", "either i or b option is mandatory");
-    return (PARAMERRORCODE);
-  }
-
-  return (OKCODE);
 }
 
 
@@ -4269,82 +4115,6 @@ static INT InitArray (void)
 }
 
 
-
-/** \brief Implementation of \ref dumpalg. */
-static INT DumpAlgCommand(INT argc, char **argv)
-{
-  INT level, comp;
-  VECTOR *v;
-  MULTIGRID *theMG;
-  GRID *theGrid;
-  VECDATA_DESC *v_desc;
-  char buffer[1024];
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"dumpalg","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  v_desc = ReadArgvVecDesc(theMG,"v",argc,argv);
-  if (v_desc == NULL)
-  {
-    PrintErrorMessage('E',"dumpalg","wrong vector specification");
-    return (CMDERRORCODE);
-  }
-  UserWriteF(DISPLAY_NP_FORMAT_SS,"vector displayed",ENVITEM_NAME(v_desc));
-  DisplayVecDataDesc(v_desc,~0,buffer);
-
-  for (level=0; level<=TOPLEVEL(theMG); level++)
-  {
-    theGrid = GRID_ON_LEVEL(theMG,level);
-
-#ifdef ModelP
-    for( v=PFIRSTVECTOR(theGrid); v!=NULL; v=SUCCVC(v) )
-#else
-    for( v=FIRSTVECTOR(theGrid); v!=NULL; v=SUCCVC(v) )
-#endif
-    {
-      printf( "Vec key=%d level=%d type=%d pe=%d fine=%d new_def=%d ",
-              KeyForObject((KEY_OBJECT*)v),level,VTYPE(v),me,
-              FINE_GRID_DOF(v),NEW_DEFECT(v) );
-      for( comp=0; comp<VD_NCMPS_IN_TYPE(v_desc,VTYPE(v)); comp++ )
-        printf(" %g ",comp,VVALUE(v,VD_CMP_OF_TYPE(v_desc,VTYPE(v),comp)));
-      printf("\n");
-    }
-  }
-
-  /* aus nstools.c
-          {
-                  MATRIX *m;
-              DisplayMatDataDesc(m,buffer);
-              fprintf(fptr,"%s",buffer);
-
-              fprintf(fptr,"Matrix:\n");
-              for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-              {
-                  for (mat=VSTART(vec); mat!=NULL; mat=MNEXT(mat))
-                  {
-                      fprintf(fptr,"%d\t%d\n",(int)VINDEX(vec),(int)VINDEX(MDEST(mat)));
-                      fprintf(fptr,"f\tt");
-                      for (i=0; i<MD_ROWS_IN_RT_CT(m,VTYPE(vec),VTYPE(MDEST(mat))); i++)
-                      {
-                          for (j=0; j<MD_COLS_IN_RT_CT(m,VTYPE(vec),VTYPE(MDEST(mat))); j+
-     +)
-                              fprintf(fptr,"\t%.9e",(double)MVALUE(mat,MD_IJ_CMP_OF_RT_CT
-          (m,VTYPE(vec),VTYPE(MDEST(mat)),i,j)));
-                          fprintf(fptr,"\n\t");
-                      }
-                      fprintf(fptr,"\n");
-                  }
-              }
-          }
-   */
-
-  return(OKCODE);
-}
-
 /****************************************************************************/
 /* Quick Hack for periodic boundaries                                       */
 /****************************************************************************/
@@ -4439,11 +4209,9 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("extracon",           ExtraConnectionCommand                  )==NULL) return (__LINE__);
   if (CreateCommand("check",                      CheckCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("in",                         InsertInnerNodeCommand                  )==NULL) return (__LINE__);
-  if (CreateCommand("ngin",                       NGInsertInnerNodeCommand                )==NULL) return (__LINE__);
   if (CreateCommand("bn",                         InsertBoundaryNodeCommand               )==NULL) return (__LINE__);
   if (CreateCommand("ngbn",                       NGInsertBoundaryNodeCommand             )==NULL) return (__LINE__);
   if (CreateCommand("gn",                         InsertGlobalNodeCommand                 )==NULL) return (__LINE__);
-  if (CreateCommand("move",                       MoveNodeCommand                                 )==NULL) return (__LINE__);
   if (CreateCommand("refine",             AdaptCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("adapt",                      AdaptCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("fixcoarsegrid",      FixCoarseGridCommand                    )==NULL) return (__LINE__);
@@ -4492,8 +4260,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("wrar",               WriteArrayCommand                                       )==NULL) return (__LINE__);
   if (CreateCommand("rear",               ReadArrayCommand                                        )==NULL) return (__LINE__);
   if (CreateCommand("clar",               ClearArrayCommand                                       )==NULL) return (__LINE__);
-
-  if (CreateCommand("dumpalg",            DumpAlgCommand                                  )==NULL) return (__LINE__);
 
   if (InitFindRange()     !=0) return (__LINE__);
   if (InitArray()                 !=0) return (__LINE__);

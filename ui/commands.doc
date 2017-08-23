@@ -799,27 +799,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  move move - Move a node and vertex
-
- \section Description
-   This command moves a node and the corresponding vertex 
-   of the current multigrid to a new position, 
-   calling the functions 'MoveInnerNode' and 'MoveBoundaryNode'.
-
-\section Syntax
-   'move \<Id> {$i \<x> \<y> [\<z>] | $b \<SegId> \<s> [\<t>]}'
-
-  <li> \<Id>                - Id of the node to be moved
-  <li> $i~\<x>~\<y>~[\<z>]    - specify as much coordinates as the space has dimensions
-  <li> $b~\<Id>~\<s>~[\<t>]   - in the current implementation (domain module dependent)
-		 				 boundary nodes can not be moved
-   
- \section Keywords
-   multigrid, move, node, edit
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page adapt adapt - Adapt the current multigrid
 
  \section Description
@@ -1683,22 +1662,5 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 
    SEE ALSO:
    'array', 'dear', 'wrar', 'rear', 'saar', 'loar', 'clar', 'defaults'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  dumpalg dumpalg - Dumps the surface algebra to the interface
-
- \section Description
-   Dumps the surface algebra
-
- \section Syntax
-   'dumpalg \<name\>'
-
-  <li> \<name\> - file name
-   
- \section Keywords
-   data, io
-
 */
 /****************************************************************************/

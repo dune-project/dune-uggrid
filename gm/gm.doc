@@ -79,7 +79,7 @@ static INT circleBoundaryLower (void *data, DOUBLE *param, DOUBLE *result)
 \endverbatim
 
 The following function InitUnitCircle uses the functions
-CreateDomain and CreateBoundarySegment2D in order to create
+CreateDomain and CreateBoundarySegment in order to create
 a domain and the list of boundary segments for that domain.
 
 \verbatim
@@ -92,31 +92,38 @@ static INT InitUnitCircle (void)
             2                       // number of corners
        )==NULL) return(1);
 
+    INT pt[3];
+    DOUBLE alpha[3], beta[3];
+    alpha[0] = 0.0; beta[0] = 1.0;
+
+    pt[0] = 0; pt[1] = 1;
     // allocate the boundary segments, segment allocation must              
     // immediately follow the domain definition.                            
-    if (CreateBoundarySegment2D(
+    // WARNING! Updated example to use `CreateBoundarySegment` instead
+    // of `CreateBoundarySegment2D`, but updated version was not tested...
+    //  -- 2017-08-23
+    if (CreateBoundarySegment(
             "circle bnd upper",     // name of the boundary segment         
             1,                      // number of left subdomain             
             0,                      // number of right subdomain            
-            0,                      // number of segment, starting with 0   
-            0,                      // number of corner where segment starts
-            1,                      // number of corner where segment ends  
-            10,                     // resolution, use 1 for straight line  
-            0.0,                    // begin of parameter interval          
-            1.0,                    // end of parameter interval            
+            0,                      // number of segment, starting with 0
+            NON_PERIODIC,
+            pt,                     // number of corners
+            &alpha,                 // begin of parameter interval          
+            &beta,                  // end of parameter interval            
             circleBoundaryUpper,    // function mapping parameter to world  
             NULL                    // user defined pointer to be supplied  
        )==NULL) return(1);
-    if (CreateBoundarySegment2D(
+
+    pt[0] = 1; pt[1] = 0;
+    if (CreateBoundarySegment(
             "circle bnd lower",     // name of the boundary segment         
             1,                      // number of left subdomain             
             0,                      // number of right subdomain            
-            1,                      // number of segment, starting with 0   
-            1,                      // number of corner where segment starts
-            0,                      // number of corner where segment ends  
-            10,                     // resolution, use 1 for straight line  
-            0.0,                    // begin of parameter interval          
-            1.0,                    // end of parameter interval            
+            1,                      // number of segment, starting with 0
+            pt,                     // number of corners
+            &alpha,                 // begin of parameter interval          
+            &beta,                  // end of parameter interval            
             circleBoundaryLower,    // function mapping parameter to world  
             NULL                    // user defined pointer to be supplied  
        )==NULL) return(1);
@@ -128,7 +135,7 @@ static INT InitUnitCircle (void)
 
 For a 3D example see e.g. the application appl3d.
 
-\sa BOUNDARY_SEGMENT, CreateDomain, CreateBoundarySegment2D, CreateBoundarySegment
+\sa BOUNDARY_SEGMENT, CreateDomain, CreateBoundarySegment
 
 */
 
@@ -184,8 +191,7 @@ segments` can be defined in order to divide the domain into `subdomains`
 having different materials for example. The subdomains are numbered consecutively
 beginning with 1. By default the exterior of the domain has number 0.
 
-Boundary segments are created with the function CreateBoundarySegment2D
-and CreateBoundarySegment.
+Boundary segments are created with the function CreateBoundarySegment.
 
 . v - The BOUNDARY_SEGMENT structure is an environment variable (see ENVIRONMENT),
 therefore it has the ENVVAR v as its first component. v stores also the
@@ -244,7 +250,7 @@ EXAMPLES:
 
 For an example how a domain is defined see the DOMAIN page.
 
-\sa DOMAIN, CreateDomain, CreateBoundarySegment2D, CreateBoundarySegment.
+\sa DOMAIN, CreateDomain, CreateBoundarySegment.
 
 
 .p bndseg2d.eps

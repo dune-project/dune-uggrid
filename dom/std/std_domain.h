@@ -107,12 +107,6 @@ void   *CreateBoundarySegment       (const char *name, INT left, INT right,
                                      BndSegFuncPtr BndSegFunc,
                                      void *data);
 
-void   *CreateBoundarySegment2D     (const char *name, int left, int right,
-                                     int id, int from, int to, int res,
-                                     DOUBLE alpha, DOUBLE beta,
-                                     BndSegFuncPtr BndSegFunc,
-                                     void *data);
-
 void *CreateLinearSegment (const char *name,
                            INT left, INT right,INT id,
                            INT n, const INT *point,

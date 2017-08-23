@@ -57,54 +57,18 @@ enum PatchType {POINT_PATCH_TYPE,
 
 /** @name Macros for STD_BVP */
 /*@{*/
-#define STD_BVP_NAME(p)                                 ENVITEM_NAME(p)
-
 #define STD_BVP_DOMAIN(p)                               ((p)->Domain)
-#define STD_BVP_PROBLEM(p)                              ((p)->Problem)
 
-#define STD_BVP_NCORNER(p)                              ((p)->ncorners)
 #define STD_BVP_NSIDES(p)                               ((p)->nsides)
 #define STD_BVP_SIDEOFFSET(p)                   ((p)->sideoffset)
-#define STD_BVP_PATCHES(p)                              ((p)->patches)
 #define STD_BVP_PATCH(p,i)                              ((p)->patches[i])
-#define STD_BVP_CORNERPATCH(p,i)                ((p)->patches[i])
-#define STD_BVP_LINEPATCH(p,i)                  ((p)->patches[i+STD_BVP_NCORNER(p)])
-#define STD_BVP_SIDEPATCH(p,i)                  ((p)->patches[i+STD_BVP_SIDEOFFSET(p)])
 
 #define STD_BVP_NSUBDOM(p)                              ((p)->numOfSubdomains)
 #define STD_BVP_NDOMPART(p)                             ((p)->nDomainParts)
 #define STD_BVP_S2P_PTR(p)                              ((p)->s2p)
 #define STD_BVP_S2P(p,s)                                ((p)->s2p[s])
-#define STD_BVP_NPATCH(p)                               ((p)->nPatch)
-#define STD_BVP_NCOEFFPROC(p)                   ((p)->numOfCoeffFct)
-#define STD_BVP_NUSERPROC(p)                    ((p)->numOfUserFct)
-#define STD_BVP_CONFIGPROC(p)                   ((p)->ConfigProc)
-#define STD_BVP_COEFFPROC(p,i)                  ((CoeffProcPtr)((p)->CU_ProcPtr[i]))
-#define STD_BVP_USERPROC(p,i)                   ((UserProcPtr)((p)->CU_ProcPtr[i+STD_BVP_NCOEFFPROC(p)]))
 
 #define GetSTD_BVP(p)                           ((STD_BVP *)(p))
-/*@}*/
-
-/****************************************************************************/
-/*                                                                          */
-/* macros for boundary segments                                             */
-/*                                                                          */
-/****************************************************************************/
-
-/** @name Macros for boundary segments */
-/*@{*/
-#define SEG_LEFT(p)                                             ((p)->left)
-#define SEG_RIGHT(p)                                    ((p)->right)
-#define SEG_ID(p)                                               ((p)->id)
-#define SEG_TYPE(p)                                             ((p)->segType)
-#define SEG_POINTS(p)                                   ((p)->points)
-#define SEG_POINT(p,i)                                  ((p)->points[i])
-#define SEG_ALPHA(p)                                    ((p)->alpha)
-#define SEG_FROM(p,i)                                   ((p)->alpha[i])
-#define SEG_BETA(p)                                             ((p)->beta)
-#define SEG_TO(p,i)                                             ((p)->beta[i])
-#define SEG_FUNC(p)                                             ((p)->BndSegFunc)
-#define SEG_DATA(p)                                             ((p)->data)
 /*@}*/
 
 /****************************************************************************/
@@ -626,9 +590,6 @@ typedef struct bnd_ps BND_PS;
 /****************************************************************************/
 
 DOMAIN *GetDomain                           (const char *name);
-
-/* BVP definition */
-INT   STD_BVP_Configure           (INT argc, char **argv);
 
 /* scanning of coordinates */
 INT   ReadAndPrintArgvPosition    (const char *name, INT argc, char **argv, DOUBLE *pos);
