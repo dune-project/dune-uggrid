@@ -1248,124 +1248,6 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref open. */
-static INT OpenCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char Multigrid[NAMESIZE],File[NAMESIZE],BVPName[NAMESIZE],Format[NAMESIZE],type[NAMESIZE];
-  char *theBVP,*theFormat,*theMGName;
-  MEM heapSize;
-  INT i,force,IEopt,autosave,try_load,fqn,mgpathes_set_old;
-
-  /* get multigrid name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" open %",NAMELENSTR,"[ -~]")),File)!=1) || (strlen(File)==0))
-  {
-    PrintErrorMessage('E',"open","specify the name of the file to open");
-    return (PARAMERRORCODE);
-  }
-
-  /* get problem and format */
-  strcpy(type,"asc");
-  theBVP = theFormat = theMGName = NULL;
-  heapSize = force = autosave = fqn = 0;
-  try_load = false;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'a' :
-      autosave = 1;
-      break;
-
-    case 'b' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("b %",NAMELENSTR,"[ -~]")),BVPName)!=1)
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read BndValProblem specification");
-        return(PARAMERRORCODE);
-      }
-      theBVP = BVPName;
-      break;
-
-    case 'f' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("f %",NAMELENSTR,"[ -~]")),Format)!=1)
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read format specification");
-        return(PARAMERRORCODE);
-      }
-      theFormat = Format;
-      break;
-
-    case 'F' :
-      force = 1;
-      break;
-
-    case 'n' :
-      IEopt = false;
-      break;
-
-    case 'm' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("m %",NAMELENSTR,"[ -~]")),Multigrid)!=1)
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read multigrid specification");
-        return(PARAMERRORCODE);
-      }
-      theMGName = Multigrid;
-      break;
-
-    case 't' :
-      if (strncmp(argv[i],"try",3)==0)
-      {
-        try_load = true;
-        break;
-      }
-      if (sscanf(argv[i],expandfmt(CONCAT3("t %",NAMELENSTR,"[ -~]")),type)!=1)
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read type specification");
-        return(PARAMERRORCODE);
-      }
-      break;
-
-    case 'h' :
-      if (ReadMemSizeFromString(argv[i]+1,&heapSize)!=0)                           /* skip leading 'h' in argv */
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read heapsize specification");
-        return(PARAMERRORCODE);
-      }
-      break;
-
-    case 'z' :
-      fqn = 1;
-      break;
-
-    default :
-      PrintErrorMessageF('E', "OpenCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  if (fqn) {
-    mgpathes_set_old = mgpathes_set;
-    mgpathes_set = 0;
-  }
-
-  /* allocate the multigrid structure */
-  theMG = LoadMultiGrid(theMGName,File,type,theBVP,theFormat,
-                        heapSize,force,IEopt,autosave);
-
-  if (fqn) mgpathes_set = mgpathes_set_old;
-
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"open","could not open multigrid");
-    if (try_load)
-      return(CMDERRORCODE);
-    else
-      RETURN(CMDERRORCODE);
-  }
-  currMG = theMG;
-
-  return(OKCODE);
-}
-
-
 /** \brief Implementation of \ref level. */
 static INT LevelCommand (INT argc, char **argv)
 {
@@ -3485,7 +3367,6 @@ INT NS_DIM_PREFIX InitCommands ()
   /* commands for grid management */
   if (CreateCommand("configure",          ConfigureCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("new",                        NewCommand                                              )==NULL) return (__LINE__);
-  if (CreateCommand("open",                       OpenCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("close",                      CloseCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("level",                      LevelCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("renumber",           RenumberMGCommand                               )==NULL) return (__LINE__);
