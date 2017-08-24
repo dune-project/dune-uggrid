@@ -636,24 +636,6 @@ BNDP       *BNDP_LoadBndP_Ext     (void);
 INT         BNDS_Global           (BNDS *theBndS, DOUBLE *local, DOUBLE *global);
 
 /****************************************************************************/
-/** \brief Gets boundary conditions of local position on BNDS
- *
- * @param theBndS - BNDS structure
- * @param local - local coordinate on BNDS
- * @param in    - input vector (if !=NULL has to be allocated with >= DOM_N_IN_PARAMS DOUBLES)
- * @param type  - type of bnd cond
- * @param value - values
-
-   This function gets bnd conditions of local position on BNDS.
-
- * @return <ul>
- *   <li> 0 if ok
- *   <li> 1 if error.
- * </ul> */
-/****************************************************************************/
-INT         BNDS_BndCond          (BNDS *theBndS, DOUBLE *local, DOUBLE *in, DOUBLE *value, INT *type);
-
-/****************************************************************************/
 /** \brief Sets descriptor for BNDS
  *
  * @param theBndS - BNDS structure

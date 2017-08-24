@@ -474,12 +474,6 @@ INT BNDS_Global (BNDS *theBndS, DOUBLE *local, DOUBLE *global)
   return(0);
 }
 
-INT BNDS_BndCond (BNDS *theBndS, DOUBLE *local, DOUBLE *in, DOUBLE *value,
-                  INT *type)
-{
-  return(1);
-}
-
 INT BNDS_BndSDesc (BNDS *theBndS, INT *id, INT *nbid, INT *part)
 {
   BS *bs = (BS *) theBndS;
