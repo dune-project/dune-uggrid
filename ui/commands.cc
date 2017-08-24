@@ -3513,35 +3513,6 @@ static INT RepErrCommand (INT argc, char **argv)
 
 
 
-#ifdef Debug
-/** \brief Implementation of \ref timing. */
-static INT TimingCommand (INT argc, char **argv)
-{
-  INT i;
-
-  if (ReadArgvOption("r",argc,argv)) {
-    DEBUG_TIME_RESET;
-    return (OKCODE);
-  }
-  if (__debug_time_count==0)
-    UserWrite("no timing\n");
-  else
-  {
-    UserWrite("timing:\n\n");
-    for (i=0; i<__debug_time_count; i++) {
-      UserWriteF("%2d: File:%15s, Line:%5d elapsed time%10.4f",
-                 i,__debug_time_file[i],__debug_time_line[i],
-                 __debug_time[i]-__debug_time[0]);
-      if (i > 0) UserWriteF(" diff%8.4f",
-                            __debug_time[i]-__debug_time[i-1]);
-      UserWriteF("\n");
-    }
-  }
-  return (OKCODE);
-}
-#endif
-
-
 /** \brief Implementation of \ref showconfig. */
 static INT ShowConfigCommand (INT argc, char **argv)
 {
@@ -3702,7 +3673,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("debug",                      DebugCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("trace",                      TraceCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("reperr",             RepErrCommand                               )==NULL) return (__LINE__);
-  if (CreateCommand("timing",             TimingCommand                               )==NULL) return (__LINE__);
         #endif
   if (CreateCommand("showconfig",         ShowConfigCommand                           )==NULL) return (__LINE__);
 

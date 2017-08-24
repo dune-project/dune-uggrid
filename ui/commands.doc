@@ -1358,20 +1358,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page   timing timing - Prints time history
-
- \section Description
-   File, line and times are printed.
-
- \section Syntax
-   'timing'
-   
- \section Keywords
-   debug
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page   showconfig showconfig - Show the main configuration settings of this ug-program
 
  \section Description
