@@ -277,22 +277,6 @@ typedef struct mesh MESH;
 
 
 /****************************************************************************/
-/** \brief Return a pointer to the next BVP
-
- * @param theBVP - BVP structure
-
-   This function returns a pointer to the next BVP defined in the domain
-   subsystem.
-
- * @return <ul>
- *   <li> pointer to BVP </li>
- *   <li> NULL if not found. </li>
- * </ul>
- */
-/****************************************************************************/
-BVP        *BVP_GetNext           (BVP *theBVP);
-
-/****************************************************************************/
 /** \brief Save a BVP
  *
  * @param theBVP - BVP structure
@@ -470,8 +454,6 @@ BNDP* BVP_InsertBndP (NS_PREFIX HEAP *Heap, BVP *theBVP, INT argc, char **argv);
  * </ul> */
 /****************************************************************************/
 INT         BNDP_SaveInsertedBndP (BNDP *theBndP, char *data, INT max_data_size);
-
-MESH       *BVP_GenerateMesh (NS_PREFIX HEAP *Heap, BVP *aBVP, INT argc, char **argv, INT MarkKey);
 
 /****************************************************************************/
 /** \brief Return global coordinates of BNDP
@@ -704,19 +686,6 @@ INT         BNDS_BndSDesc         (BNDS *theBndS, INT *id, INT *nbid, INT *part)
  * </ul> */
 /****************************************************************************/
 BNDP*       BNDS_CreateBndP       (NS_PREFIX HEAP *Heap, BNDS *theBndS, DOUBLE *local);
-
-/****************************************************************************/
-/** \brief Return a pointer to the first BVP
- *
-   This function returns a pointer to the first BVP defined in the domain
-   subsystem..
-
- * @return <ul>
- *   <li> pointer to BVP </li>
- *   <li> NULL if not found. </li>
- * </ul> */
-/****************************************************************************/
-BVP        *BVP_GetFirst          (void);
 
 /****************************************************************************/
 /** \brief Dispose BNDS

@@ -106,11 +106,6 @@ static BndGeomProcPtr Geom;
 /*																			*/
 /****************************************************************************/
 
-BVP *BVP_GetNext (BVP *theBVP)
-{
-  return(NULL);
-}
-
 INT BVP_Save (BVP *theBVP, char *name,
               char *mgname, HEAP *theHeap, INT argc, char **argv)
 {
@@ -167,12 +162,6 @@ BNDP* BVP_InsertBndP (HEAP *Heap, BVP *theBVP, INT argc, char **argv)
 INT BNDP_SaveInsertedBndP (BNDP *theBndP, char *data, INT max_data_size)
 {
   return(1);
-}
-
-MESH *BVP_GenerateMesh (HEAP *Heap, BVP *aBVP, INT argc, char **argv,
-                        INT MarkKey)
-{
-  return(NULL);
 }
 
 INT BNDP_Global (BNDP *theBndP, DOUBLE *global)
@@ -516,11 +505,6 @@ BNDP* BNDS_CreateBndP (HEAP *Heap, BNDS *theBndS, DOUBLE *local)
   bp->property = bs->property;
 
   return((BNDP *)bp);
-}
-
-BVP *BVP_GetFirst (void)
-{
-  return(NULL);
 }
 
 INT BNDS_Dispose (HEAP *Heap, BNDS *theBndS)
