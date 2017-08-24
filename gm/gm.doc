@@ -351,7 +351,7 @@ EXAMPLES:
 For a detailed example see the diff2d and cd3d description.
 
 \sa
-BOUNDARY_CONDITION, CreateProblem, CreateBoundaryCondition.
+BOUNDARY_CONDITION, CreateProblem.
 
 */
 
@@ -387,8 +387,6 @@ segment. The same parametrization is used for the boundary segment function
 and the boundary condition function. The BOUNDARY_CONDITION data structure
 stores a pointer to that function and some additional information.
 
-Boundary conditions are created with the function CreateBoundaryCondition.
-
 . v - A BOUNDARY_CONDITION is an environment variable which is stored
 in the directory given by the corresponding PROBLEM object. v stores
 also the name of the boundary condition.
@@ -414,7 +412,7 @@ EXAMPLES:
 For detailed examples see the appl2d and appl3d description.
 
 \sa
-PROBLEM, CreateBoundaryCondition.
+PROBLEM.
 
 D*/
 

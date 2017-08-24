@@ -123,10 +123,6 @@ void                    *CreateProblem                       (const char *domain
                                                               int numOfUserFct,
                                                               UserProcPtr userfct[]);
 
-void *CreateBoundaryCondition (const char *name, INT id,
-                               BndCondProcPtr theBndCond,
-                               void *Data);
-
 BVP   *CreateBoundaryValueProblem (const char *BVPname, BndCondProcPtr theBndCond,
                                    int numOfCoeffFct, CoeffProcPtr coeffs[],
                                    int numOfUserFct, UserProcPtr userfct[]);

@@ -243,45 +243,6 @@ GetProblem (const char *domain, const char *name)
 /****************************************************************************/
 /** \brief Allocate a new BNDCOND structure
  *
- * @param  name - name of the boundary condition
- * @param  id - identification number of condition
- * @param  theBndCond - the boundary conditions
- * @param  Data - user defined data
- *
- * This function allocates and initializes a new BNDCOND structure in the previously allocated
- * PROBLEM structure
- *
- * @return <ul>
- *   <li>      pointer to </li>
- *   <li>      0 if  out of memory. </li>
- * </ul>
- */
-/****************************************************************************/
-
-void * NS_DIM_PREFIX
-CreateBoundaryCondition (const char *name, INT id, BndCondProcPtr theBndCond,
-                         void *Data)
-{
-  BOUNDARY_CONDITION *newBndCond;
-
-  /* allocate boundary condition */
-  newBndCond =
-    (BOUNDARY_CONDITION *) MakeEnvItem (name, theBdryCondVarID,
-                                        sizeof (BOUNDARY_CONDITION));
-  if (newBndCond == NULL)
-    return (NULL);
-
-  /* fill in data */
-  newBndCond->id = id;
-  newBndCond->BndCond = theBndCond;
-  newBndCond->data = Data;
-
-  return (newBndCond);
-}
-
-/****************************************************************************/
-/** \brief Allocate a new BNDCOND structure
- *
  * @param  theBCond - the boundary condition
  *
  * This function gets next BNDCOND structure
