@@ -156,9 +156,6 @@ using namespace PPIF;
 
 /* for anisotropic refinement */
 
-/* for save command */
-#define NO_COMMENT                               "no comment"
-
 /** @name For array commands */
 /*@{*/
 #define AR_NVAR_MAX                     10
@@ -210,13 +207,6 @@ static char userPath[1024];             /*!< Environment path for ls,cd		*/
 
 static INT untitledCounter=0;   /*!< Counter for untitled multigrids	*/
 
-/** @name Stuff for the array commands */
-/*@{*/
-static INT theArrayDirID;
-static INT theArrayVarID;
-static bool arraypathes_set = false;
-/*@}*/
-
 REP_ERR_FILE
 
 /****************************************************************************/
@@ -235,49 +225,6 @@ MULTIGRID * NS_DIM_PREFIX GetCurrentMultigrid (void)
 {
   return (currMG);
 }
-
-/****************************************************************************/
-/** \brief Set the current multigrid if it is valid
- *
- * @param theMG pointer to multigrid
- *
- * This function sets the current multigrid if it is valid, i. e.
- * the function checks whether 'theMG' acually points to a multigrid.
- * It can be NULL only if no multigrid is open.
- *
- * @result <ul>
- *    <li> 0 if ok </li>
- *    <li> 1 if theMG is not in the multigrid list </li>
- * </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX SetCurrentMultigrid (MULTIGRID *theMG)
-{
-  MULTIGRID *mg;
-
-  if (ResetPrintingFormat())
-    REP_ERR_RETURN(CMDERRORCODE);
-
-  mg = GetFirstMultigrid();
-  if (mg==theMG)
-  {
-    /* possibly NULL */
-    currMG = theMG;
-    return (0);
-  }
-
-  for (; mg!=NULL; mg=GetNextMultigrid(mg))
-    if (mg==theMG)
-    {
-      /* never NULL */
-      currMG = theMG;
-      return (0);
-    }
-
-  return (1);
-}
-
 
 /** \brief Implementation of \ref exitug. */
 static INT ExitUgCommand (INT argc, char **argv)
@@ -1301,232 +1248,6 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref open. */
-static INT OpenCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char Multigrid[NAMESIZE],File[NAMESIZE],BVPName[NAMESIZE],Format[NAMESIZE],type[NAMESIZE];
-  char *theBVP,*theFormat,*theMGName;
-  MEM heapSize;
-  INT i,force,IEopt,autosave,try_load,fqn,mgpathes_set_old;
-
-  /* get multigrid name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" open %",NAMELENSTR,"[ -~]")),File)!=1) || (strlen(File)==0))
-  {
-    PrintErrorMessage('E',"open","specify the name of the file to open");
-    return (PARAMERRORCODE);
-  }
-
-  /* get problem and format */
-  strcpy(type,"asc");
-  theBVP = theFormat = theMGName = NULL;
-  heapSize = force = autosave = fqn = 0;
-  try_load = false;
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'a' :
-      autosave = 1;
-      break;
-
-    case 'b' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("b %",NAMELENSTR,"[ -~]")),BVPName)!=1)
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read BndValProblem specification");
-        return(PARAMERRORCODE);
-      }
-      theBVP = BVPName;
-      break;
-
-    case 'f' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("f %",NAMELENSTR,"[ -~]")),Format)!=1)
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read format specification");
-        return(PARAMERRORCODE);
-      }
-      theFormat = Format;
-      break;
-
-    case 'F' :
-      force = 1;
-      break;
-
-    case 'n' :
-      IEopt = false;
-      break;
-
-    case 'm' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("m %",NAMELENSTR,"[ -~]")),Multigrid)!=1)
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read multigrid specification");
-        return(PARAMERRORCODE);
-      }
-      theMGName = Multigrid;
-      break;
-
-    case 't' :
-      if (strncmp(argv[i],"try",3)==0)
-      {
-        try_load = true;
-        break;
-      }
-      if (sscanf(argv[i],expandfmt(CONCAT3("t %",NAMELENSTR,"[ -~]")),type)!=1)
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read type specification");
-        return(PARAMERRORCODE);
-      }
-      break;
-
-    case 'h' :
-      if (ReadMemSizeFromString(argv[i]+1,&heapSize)!=0)                           /* skip leading 'h' in argv */
-      {
-        PrintErrorMessage('E', "OpenCommand", "cannot read heapsize specification");
-        return(PARAMERRORCODE);
-      }
-      break;
-
-    case 'z' :
-      fqn = 1;
-      break;
-
-    default :
-      PrintErrorMessageF('E', "OpenCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  if (fqn) {
-    mgpathes_set_old = mgpathes_set;
-    mgpathes_set = 0;
-  }
-
-  /* allocate the multigrid structure */
-  theMG = LoadMultiGrid(theMGName,File,type,theBVP,theFormat,
-                        heapSize,force,IEopt,autosave);
-
-  if (fqn) mgpathes_set = mgpathes_set_old;
-
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"open","could not open multigrid");
-    if (try_load)
-      return(CMDERRORCODE);
-    else
-      RETURN(CMDERRORCODE);
-  }
-  currMG = theMG;
-
-  return(OKCODE);
-}
-
-
-/** \brief Implementation of \ref save. */
-static INT SaveCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char Name[NAMESIZE],type[NAMESIZE],Comment[LONGSTRSIZE];
-  INT i,autosave,rename,res;
-  int ropt;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"save","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  /* scan name */
-  if (sscanf(argv[0],expandfmt(CONCAT3(" save %",NAMELENSTR,"[ -~]")),Name)!=1)
-    strcpy(Name,ENVITEM_NAME(theMG));
-
-  /* check options */
-  autosave=rename=0;
-  strcpy(Comment,NO_COMMENT);
-  strcpy(type,"asc");
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'c' :
-      if (sscanf(argv[i],expandfmt(CONCAT3(" c %",LONGSTRLENSTR,"[ -~]")),Comment)!=1)
-      {
-        PrintErrorMessage('E',"save","couldn't read the comment string");
-        return (PARAMERRORCODE);
-      }
-      break;
-
-    case 't' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("t %",NAMELENSTR,"[ -~]")),type)!=1)
-      {
-        PrintErrorMessage('E', "SaveCommand", "cannot read type specification");
-        return(PARAMERRORCODE);
-      }
-      break;
-
-    case 'a' :
-      autosave=1;
-      break;
-
-    case 'r' :
-      res = sscanf(argv[i]," r %d",&ropt);
-      if (res==0 || (res==1 && ropt==1)) rename = 1;
-      break;
-
-    default :
-      PrintErrorMessageF('E', "SaveCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  if (SaveMultiGrid(theMG,Name,type,Comment,autosave,rename)) return (CMDERRORCODE);
-
-  return(OKCODE);
-}
-
-
-/** \brief Implementation of \ref savedomain. */
-static INT SaveDomainCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char Name[NAMESIZE];
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"savedomain","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  /* scan name */
-  if (sscanf(argv[0],expandfmt(CONCAT3(" savedomain %",NAMELENSTR,"[ -~]")),Name)!=1)
-    strcpy(Name,BVPD_NAME(MG_BVPD(theMG)));
-
-  if (BVP_Save(MG_BVP(theMG),Name,ENVITEM_NAME(theMG),MGHEAP(theMG),argc,argv)) return (CMDERRORCODE);
-
-  return(OKCODE);
-}
-
-
-/** \brief Implementation of \ref changemc. */
-static INT ChangeMagicCookieCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  int iValue;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"changemc","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  if (sscanf(argv[0]," changemc %d",&iValue)!=1)
-  {
-    PrintErrorMessage('E',"changemc","cannot read magic-cookie");
-    return (CMDERRORCODE);
-  }
-  MG_MAGIC_COOKIE(theMG) = iValue;
-  return(OKCODE);
-}
-
-
 /** \brief Implementation of \ref level. */
 static INT LevelCommand (INT argc, char **argv)
 {
@@ -1978,36 +1699,6 @@ static INT InsertBoundaryNodeCommand (INT argc, char **argv)
   }
 
   return (OKCODE);
-}
-
-
-/** \todo Please doc me! */
-static INT NGInsertBoundaryNodeCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  BNDP *bndp;
-  static int i;
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"ngbn","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  UserWriteF("# BPoint %d \n",i);
-  /* this works only for LGM domain and does no real insertion !!! */
-  bndp = BVP_InsertBndP (MGHEAP(theMG),MG_BVP(theMG),argc,argv);
-  if (bndp == NULL)
-  {
-    i++;
-    return (OKCODE);
-  }
-  return (CMDERRORCODE);
 }
 
 
@@ -3096,30 +2787,6 @@ static INT CheckCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref fiflel. */
-#ifdef __THREEDIM__
-static INT FindFlippedElementsCommand(INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  INT verbose;
-
-  theMG = GetCurrentMultigrid();
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"fiflel","no current multigrid");
-    return (CMDERRORCODE);
-  }
-
-  /* verbose mode */
-  verbose = ReadArgvOption("v",argc,argv);
-
-  if(FindFlippedElements(theMG,verbose))
-    return (CMDERRORCODE);
-
-  return(OKCODE);
-}
-#endif
-
 /** \brief Implementation of \ref status. */
 static INT StatusCommand  (INT argc, char **argv)
 {
@@ -3169,36 +2836,6 @@ static INT StatusCommand  (INT argc, char **argv)
   }
 
   return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref setcurrmg. */
-static INT SetCurrentMultigridCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char mgname[NAMESIZE];
-
-  NO_OPTION_CHECK(argc,argv);
-
-  /* get multigrid name */
-  if (sscanf(argv[0],expandfmt(CONCAT3(" setcurrmg %",NAMELENSTR,"[ -~]")),mgname)!=1)
-  {
-    PrintErrorMessage('E', "SetCurrentMultigridCommand", "specify current multigrid name");
-    return(PARAMERRORCODE);
-  }
-
-  theMG = GetMultigrid(mgname);
-
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"setcurrmg","no multigrid with this name open");
-    return (CMDERRORCODE);
-  }
-
-  if (SetCurrentMultigrid(theMG)!=0)
-    return (CMDERRORCODE);
-
-  return(OKCODE);
 }
 
 
@@ -3616,35 +3253,6 @@ static INT RepErrCommand (INT argc, char **argv)
 
 
 
-#ifdef Debug
-/** \brief Implementation of \ref timing. */
-static INT TimingCommand (INT argc, char **argv)
-{
-  INT i;
-
-  if (ReadArgvOption("r",argc,argv)) {
-    DEBUG_TIME_RESET;
-    return (OKCODE);
-  }
-  if (__debug_time_count==0)
-    UserWrite("no timing\n");
-  else
-  {
-    UserWrite("timing:\n\n");
-    for (i=0; i<__debug_time_count; i++) {
-      UserWriteF("%2d: File:%15s, Line:%5d elapsed time%10.4f",
-                 i,__debug_time_file[i],__debug_time_line[i],
-                 __debug_time[i]-__debug_time[0]);
-      if (i > 0) UserWriteF(" diff%8.4f",
-                            __debug_time[i]-__debug_time[i-1]);
-      UserWriteF("\n");
-    }
-  }
-  return (OKCODE);
-}
-#endif
-
-
 /** \brief Implementation of \ref showconfig. */
 static INT ShowConfigCommand (INT argc, char **argv)
 {
@@ -3682,438 +3290,6 @@ static INT ShowConfigCommand (INT argc, char **argv)
 
   return (OKCODE);
 }
-
-
-
-static INT ClearArray (ARRAY *theAR)
-{
-  INT i, size;
-
-  size = 1;
-  for (i=0; i<AR_NVAR(theAR); i++)
-    size *= AR_VARDIM(theAR,i);
-  for (i=0; i<size; i++)
-    AR_DATA(theAR,i) = 0.0;
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Allocate a new array structure
-
-   .  name - name under which the array is allocated in '/Array'
-   .  nVar - number of dimensions of the data field
-   .  VarDim - extension of the data field in each dimension
-
-   Allocate a new array structure in the directory '/Array' and
-   allocate the data field. The maximum number of dimensions is
-   'AR_NVAR_MAX'.
-
-   RETURN VALUE:
-   .n     pointer to allocated array
-   .n     NULL on error.
- */
-/****************************************************************************/
-
-static ARRAY *CreateArray (char *name, INT nVar, INT *VarDim)
-{
-  INT i, size;
-  ARRAY *theAR;
-
-  if (nVar<1 || nVar>AR_NVAR_MAX) return (NULL);
-
-  /* change to directory */
-  if (ChangeEnvDir("/Array")==NULL)
-    return(NULL);
-
-  /* get size */
-  size = sizeof(DOUBLE);
-  for (i=0; i<nVar; i++)
-    size *= VarDim[i];
-  size += sizeof(ARRAY) - sizeof(DOUBLE);
-
-  /* allocate structure */
-  theAR = (ARRAY*)MakeEnvItem (name,theArrayVarID,size);
-  if (theAR==NULL) return (NULL);
-
-  /* init structure */
-  ENVITEM_LOCKED(theAR) = 0;
-  AR_NVAR(theAR) = nVar;
-  for (i=0; i<nVar; i++)
-    AR_VARDIM(theAR,i) = VarDim[i];
-
-  if (ClearArray(theAR)) return (NULL);
-
-  return (theAR);
-}
-
-/****************************************************************************/
-/** \brief Set one single entry of the data field of the array
-
-   .  theAR - array structure to work on
-   .  Point - specify the coordinate of the entry in each dimension
-   .  value - value to be stored
-
-   Set one single entry of the data field of the array to the given value.
-
-   RETURN VALUE:
-   .n    0 always
- */
-/****************************************************************************/
-
-static INT WriteArray (ARRAY *theAR, INT *Point, DOUBLE value)
-{
-  INT i, pos;
-
-  pos = Point[AR_NVAR(theAR)-1];
-  for (i=AR_NVAR(theAR)-2; i>=0; i--)
-    pos = Point[i] + AR_VARDIM(theAR,i)*pos;
-  AR_DATA(theAR,pos) = value;
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Read one single entry of the data field of the array
-
-   .  theAR - array structure to work on
-   .  Point - specify the coordinate of the entry in each dimension
-   .  value - read value
-
-   Read one single entry of the data field of the array.
-
-   RETURN VALUE:
-   .n    0 always
- */
-/****************************************************************************/
-
-static INT ReadArray (ARRAY *theAR, INT *Point, DOUBLE *value)
-{
-  INT i, pos;
-
-  pos = Point[AR_NVAR(theAR)-1];
-  for (i=AR_NVAR(theAR)-2; i>=0; i--)
-    pos = Point[i] + AR_VARDIM(theAR,i)*pos;
-  value[0] = AR_DATA(theAR,pos);
-
-  return (0);
-}
-
-
-/** \brief Implementation of \ref crar. */
-static INT CreateArrayCommand (INT argc, char **argv)
-{
-  INT i, nVar, VarDim[AR_NVAR_MAX];
-  int iValue;
-  char name[128];
-
-  nVar = argc-2;
-  if (nVar<1 || nVar>AR_NVAR_MAX)
-    return (CMDERRORCODE);
-  if (argv[1][0]=='n')
-  {
-    if (sscanf(argv[1],"n %s",name)!=1)
-      return (CMDERRORCODE);
-  }
-  for (i=0; i<nVar; i++)
-  {
-    if (sscanf(argv[i+2],"%d",&iValue)!=1)
-      return (CMDERRORCODE);
-    if (iValue<1)
-      return (CMDERRORCODE);
-    VarDim[i] = iValue;
-  }
-
-  /* create Array */
-  if (CreateArray(name,nVar,VarDim)==NULL)
-    return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref dear. */
-static INT DeleteArrayCommand (INT argc, char **argv)
-{
-  char name[128];
-  ARRAY *theAR;
-
-  if (argv[1][0]=='n')
-  {
-    if (sscanf(argv[1],"n %s",name)!=1)
-      return (CMDERRORCODE);
-  }
-
-  /* find array */
-  if (ChangeEnvDir("/Array")==NULL)
-  {
-    PrintErrorMessage('F',"DeleteArrayCommand","could not changedir to /Array");
-    return(CMDERRORCODE);
-  }
-  theAR = (ARRAY *)SearchEnv(name,".",theArrayVarID,SEARCHALL);
-  if (theAR==NULL)
-    return (CMDERRORCODE);
-
-  /* delete Array */
-  if (RemoveEnvItem((ENVITEM *)theAR))
-    return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref saar. */
-static INT SaveArrayCommand (INT argc, char **argv)
-{
-  INT i, size;
-  char name[128];
-  ARRAY *theAR;
-  FILE *stream;
-
-  if (argv[1][0]=='n')
-  {
-    if (sscanf(argv[1],"n %s",name)!=1)
-      return (CMDERRORCODE);
-  }
-
-  /* find array */
-  if (ChangeEnvDir("/Array")==NULL)
-  {
-    PrintErrorMessage('F',"SaveArrayCommand","could not changedir to /Array");
-    return(CMDERRORCODE);
-  }
-  theAR = (ARRAY *)SearchEnv(name,".",theArrayVarID,SEARCHALL);
-  if (theAR==NULL)
-    return (CMDERRORCODE);
-
-  /* save Array */
-  strcat(name,".array");
-  if (arraypathes_set)
-    stream = FileOpenUsingSearchPaths(name,"w","arraypathes");
-  else
-    stream = fileopen(name,"w");
-  if (stream==NULL)
-  {
-    PrintErrorMessage('E',"SaveArrayCommand","cannot open file");
-    return(CMDERRORCODE);
-  }
-
-  /* store */
-  if (fwrite((void*)(&(theAR->nVar)),sizeof(INT),1,stream)!=1) return(CMDERRORCODE);
-  if (fwrite((void*)theAR->VarDim,sizeof(INT),AR_NVAR(theAR),stream)!=AR_NVAR(theAR)) return(CMDERRORCODE);
-  size = 1;
-  for (i=0; i<AR_NVAR(theAR); i++)
-    size *= AR_VARDIM(theAR,i);
-  if (fwrite((void*)(theAR->data),sizeof(DOUBLE),size,stream)!=size) return(CMDERRORCODE);
-  if (fclose(stream)) return(CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref loar. */
-static INT LoadArrayCommand (INT argc, char **argv)
-{
-  INT i, size, nVar, VarDim[AR_NVAR_MAX];
-  char name[128], filename[128];
-  ARRAY *theAR;
-  FILE *stream;
-
-  if (argv[1][0]=='n')
-  {
-    if (sscanf(argv[1],"n %s",name)!=1)
-      return (CMDERRORCODE);
-  }
-
-  strcpy(filename,name);
-  strcat(filename,".array");
-  if (arraypathes_set)
-    stream = FileOpenUsingSearchPaths(filename,"r","arraypathes");
-  else
-    stream = fileopen(filename,"r");
-  if (stream==NULL)
-  {
-    PrintErrorMessage('E',"LoadArrayCommand","cannot open file");
-    return(CMDERRORCODE);
-  }
-  if (fread((void*)(&nVar),sizeof(INT),1,stream)!=1)
-    return(CMDERRORCODE);
-  if (nVar>AR_NVAR_MAX)
-    return (CMDERRORCODE);
-  if (fread((void*)VarDim,sizeof(INT),nVar,stream)!=nVar)
-    return(CMDERRORCODE);
-  theAR = CreateArray (name,nVar,VarDim);
-  if (theAR==NULL)
-    return(CMDERRORCODE);
-  size = 1;
-  for (i=0; i<AR_NVAR(theAR); i++)
-    size *= AR_VARDIM(theAR,i);
-  if (fread((void*)(theAR->data),sizeof(DOUBLE),size,stream)!=size)
-    return(CMDERRORCODE);
-  if (fclose(stream))
-    return(CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref wrar. */
-static INT WriteArrayCommand (INT argc, char **argv)
-{
-  INT i, Point[AR_NVAR_MAX];
-  int iValue;
-  double Value;
-  char name[128];
-  ARRAY *theAR;
-
-  if (argv[1][0]=='n')
-  {
-    if (sscanf(argv[1],"n %s",name)!=1)
-      return (CMDERRORCODE);
-  }
-  if (ChangeEnvDir("/Array")==NULL)
-  {
-    PrintErrorMessage('F',"WriteArrayCommand","could not changedir to /Array");
-    return(CMDERRORCODE);
-  }
-  theAR = (ARRAY *)SearchEnv(name,".",theArrayVarID,SEARCHALL);
-  if (theAR==NULL)
-    return (CMDERRORCODE);
-
-  if (AR_NVAR(theAR) != argc-3)
-    return (CMDERRORCODE);
-  for (i=0; i<AR_NVAR(theAR); i++)
-  {
-    if (sscanf(argv[i+2],"%d",&iValue)!=1)
-      return (CMDERRORCODE);
-    if (iValue<0 || iValue>=AR_VARDIM(theAR,i))
-    {
-      PrintErrorMessage( 'E', "WriteArrayCommand", "Index Range Error" );
-      return (CMDERRORCODE);
-    }
-    Point[i] = iValue;
-  }
-
-  /* write */
-  if (sscanf(argv[argc-1],"v %lf",&Value)!=1)
-    return (CMDERRORCODE);
-  if (WriteArray(theAR,Point,(DOUBLE)Value))
-    return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref rear. */
-static INT ReadArrayCommand (INT argc, char **argv)
-{
-  INT i, Point[AR_NVAR_MAX];
-  int iValue;
-  DOUBLE value;
-  char name[128];
-  ARRAY *theAR;
-
-  if (argv[1][0]=='n')
-  {
-    if (sscanf(argv[1],"n %s",name)!=1)
-      return (CMDERRORCODE);
-  }
-  if (ChangeEnvDir("/Array")==NULL)
-  {
-    PrintErrorMessage('F',"ReadArrayCommand","could not changedir to /Array");
-    return(CMDERRORCODE);
-  }
-  theAR = (ARRAY *)SearchEnv(name,".",theArrayVarID,SEARCHALL);
-  if (theAR==NULL)
-    return (CMDERRORCODE);
-
-  if (AR_NVAR(theAR) != argc-2)
-    return (CMDERRORCODE);
-  for (i=0; i<AR_NVAR(theAR); i++)
-  {
-    if (sscanf(argv[i+2],"%d",&iValue)!=1)
-      return (CMDERRORCODE);
-    if (iValue<0 || iValue>=AR_VARDIM(theAR,i))
-    {
-      PrintErrorMessage( 'E', "ReadArrayCommand", "Index Range Error" );
-      return (CMDERRORCODE);
-    }
-    Point[i] = iValue;
-  }
-
-  /* read */
-  if (ReadArray(theAR,Point,&value))
-    return (CMDERRORCODE);
-  if (SetStringValue(":ARRAY_VALUE",(double)value))
-    return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-
-/** \brief Implementation of \ref clar. */
-static INT ClearArrayCommand (INT argc, char **argv)
-{
-  char name[128];
-  ARRAY *theAR;
-
-  if (argv[1][0]=='n')
-  {
-    if (sscanf(argv[1],"n %s",name)!=1)
-      return (CMDERRORCODE);
-  }
-  if (ChangeEnvDir("/Array")==NULL)
-  {
-    PrintErrorMessage('F',"ClearArrayCommand","could not changedir to /Array");
-    return(CMDERRORCODE);
-  }
-  theAR = (ARRAY *)SearchEnv(name,".",theArrayVarID,SEARCHALL);
-  if (theAR==NULL)
-    return (CMDERRORCODE);
-
-  if (ClearArray(theAR))
-    return (CMDERRORCODE);
-
-  return (OKCODE);
-}
-
-/****************************************************************************/
-/** \brief Initialization of the array commands
-
-   This function does initialization of the ug-commands concerning arrays.
-
-   \sa   array, crar, dear, wrar, rear, saar, loar, clar
-
-   @return
-   .n    0 if ok
-   .n    __LINE__ if error occured.
- */
-/****************************************************************************/
-
-static INT InitArray (void)
-{
-  /* install the /Array directory */
-  if (ChangeEnvDir("/")==NULL)
-  {
-    PrintErrorMessage('F',"InitArray","could not changedir to root");
-    return(__LINE__);
-  }
-  theArrayDirID = GetNewEnvDirID();
-  if (MakeEnvItem("Array",theArrayDirID,sizeof(ENVDIR))==NULL)
-  {
-    PrintErrorMessage('F',"InitArray","could not install '/Array' dir");
-    return(__LINE__);
-  }
-  theArrayVarID = GetNewEnvVarID();
-
-  /* path to dir for 'array' files */
-  arraypathes_set = false;
-  if (ReadSearchingPaths(DEFAULTSFILENAME,"arraypathes")==0)
-    arraypathes_set = true;
-
-  return (0);
-}
-
 
 /****************************************************************************/
 /* Quick Hack for periodic boundaries                                       */
@@ -4190,13 +3366,8 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* commands for grid management */
   if (CreateCommand("configure",          ConfigureCommand                                )==NULL) return (__LINE__);
-  if (CreateCommand("setcurrmg",          SetCurrentMultigridCommand              )==NULL) return (__LINE__);
   if (CreateCommand("new",                        NewCommand                                              )==NULL) return (__LINE__);
-  if (CreateCommand("open",                       OpenCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("close",                      CloseCommand                                    )==NULL) return (__LINE__);
-  if (CreateCommand("save",                       SaveCommand                                     )==NULL) return (__LINE__);
-  if (CreateCommand("savedomain",         SaveDomainCommand                               )==NULL) return (__LINE__);
-  if (CreateCommand("changemc",           ChangeMagicCookieCommand                )==NULL) return (__LINE__);
   if (CreateCommand("level",                      LevelCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("renumber",           RenumberMGCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("ordernodes",         OrderNodesCommand                               )==NULL) return (__LINE__);
@@ -4210,7 +3381,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("check",                      CheckCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("in",                         InsertInnerNodeCommand                  )==NULL) return (__LINE__);
   if (CreateCommand("bn",                         InsertBoundaryNodeCommand               )==NULL) return (__LINE__);
-  if (CreateCommand("ngbn",                       NGInsertBoundaryNodeCommand             )==NULL) return (__LINE__);
   if (CreateCommand("gn",                         InsertGlobalNodeCommand                 )==NULL) return (__LINE__);
   if (CreateCommand("refine",             AdaptCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("adapt",                      AdaptCommand                                    )==NULL) return (__LINE__);
@@ -4221,9 +3391,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("rlist",                      RuleListCommand                                 )==NULL) return (__LINE__);
   if (CreateCommand("convert",        ConvertCommand                  )==NULL) return(__LINE__);
   if (CreateCommand("status",                     StatusCommand                                   )==NULL) return (__LINE__);
-#ifdef __THREEDIM__
-  if (CreateCommand("fiflel",                     FindFlippedElementsCommand              )==NULL) return (__LINE__);
-#endif
 
   /* commands for problem management */
   if (CreateCommand("reinit",             ReInitCommand                                   )==NULL) return (__LINE__);
@@ -4239,7 +3406,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("debug",                      DebugCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("trace",                      TraceCommand                                )==NULL) return (__LINE__);
   if (CreateCommand("reperr",             RepErrCommand                               )==NULL) return (__LINE__);
-  if (CreateCommand("timing",             TimingCommand                               )==NULL) return (__LINE__);
         #endif
   if (CreateCommand("showconfig",         ShowConfigCommand                           )==NULL) return (__LINE__);
 
@@ -4252,17 +3418,7 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("pstat",                      PStatCommand                                )==NULL) return (__LINE__);
 #endif /* ModelP */
 
-  /* array commands */
-  if (CreateCommand("crar",               CreateArrayCommand                                      )==NULL) return (__LINE__);
-  if (CreateCommand("dear",               DeleteArrayCommand                                      )==NULL) return (__LINE__);
-  if (CreateCommand("saar",               SaveArrayCommand                                        )==NULL) return (__LINE__);
-  if (CreateCommand("loar",               LoadArrayCommand                                        )==NULL) return (__LINE__);
-  if (CreateCommand("wrar",               WriteArrayCommand                                       )==NULL) return (__LINE__);
-  if (CreateCommand("rear",               ReadArrayCommand                                        )==NULL) return (__LINE__);
-  if (CreateCommand("clar",               ClearArrayCommand                                       )==NULL) return (__LINE__);
-
   if (InitFindRange()     !=0) return (__LINE__);
-  if (InitArray()                 !=0) return (__LINE__);
 
   return(0);
 }

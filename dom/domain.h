@@ -277,55 +277,6 @@ typedef struct mesh MESH;
 
 
 /****************************************************************************/
-/** \brief Return a pointer to the next BVP
-
- * @param theBVP - BVP structure
-
-   This function returns a pointer to the next BVP defined in the domain
-   subsystem.
-
- * @return <ul>
- *   <li> pointer to BVP </li>
- *   <li> NULL if not found. </li>
- * </ul>
- */
-/****************************************************************************/
-BVP        *BVP_GetNext           (BVP *theBVP);
-
-/****************************************************************************/
-/** \brief Save a BVP
- *
- * @param theBVP - BVP structure
- * @param name - name of file
- * @param argc, argv - command parameters
-
-   This function saves a BVP to file named \<name\>.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT BVP_Save (BVP *theBVP, const char *name, const char *mgname, NS_PREFIX HEAP *theHeap, INT argc, char **argv);
-
-/****************************************************************************/
-/** \brief Load a BVP
- *
- * @param name - name of file
- * @param argc, argv - command parameters
-
-   This function loads a BVP from file named \<name\>.
-
- * @return <ul>
- *   <li> pointer to BVP </li>
- *   <li> NULL if error. </li>
- * </ul>
- */
-/****************************************************************************/
-BVP        *BVP_Load              (const char *name, INT argc, char **argv);
-
-/****************************************************************************/
 /** \brief Get pointer to BVP by name
  *
  * @param name - name of BVP
@@ -471,8 +422,6 @@ BNDP* BVP_InsertBndP (NS_PREFIX HEAP *Heap, BVP *theBVP, INT argc, char **argv);
 /****************************************************************************/
 INT         BNDP_SaveInsertedBndP (BNDP *theBndP, char *data, INT max_data_size);
 
-MESH       *BVP_GenerateMesh (NS_PREFIX HEAP *Heap, BVP *aBVP, INT argc, char **argv, INT MarkKey);
-
 /****************************************************************************/
 /** \brief Return global coordinates of BNDP
  *
@@ -504,25 +453,6 @@ INT         BNDP_Global           (BNDP *theBndP, DOUBLE *global);
  * </ul> */
 /****************************************************************************/
 INT         BNDP_Move                         (BNDP *aBndP, const DOUBLE global[]);
-
-/****************************************************************************/
-/** \brief Gets boundary conditions for a BNDP
- *
- * @param theBndP - BNDP structure
- * @param i     - evaluate on patch i
- * @param n     - number of BNDS
- * @param in    - input vector (if !=NULL has to be allocated with >= DOM_N_IN_PARAMS DOUBLES)
- * @param type  - type of bnd cond
- * @param value - values
-
-   This function gets bnd conditions for a BNDP
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul> */
-/****************************************************************************/
-INT         BNDP_BndCond          (BNDP *theBndP, INT *n, INT i, DOUBLE *in, DOUBLE *value, INT *type);
 
 /****************************************************************************/
 /** \brief Sets descriptor for BNDP
@@ -654,24 +584,6 @@ BNDP       *BNDP_LoadBndP_Ext     (void);
 INT         BNDS_Global           (BNDS *theBndS, DOUBLE *local, DOUBLE *global);
 
 /****************************************************************************/
-/** \brief Gets boundary conditions of local position on BNDS
- *
- * @param theBndS - BNDS structure
- * @param local - local coordinate on BNDS
- * @param in    - input vector (if !=NULL has to be allocated with >= DOM_N_IN_PARAMS DOUBLES)
- * @param type  - type of bnd cond
- * @param value - values
-
-   This function gets bnd conditions of local position on BNDS.
-
- * @return <ul>
- *   <li> 0 if ok
- *   <li> 1 if error.
- * </ul> */
-/****************************************************************************/
-INT         BNDS_BndCond          (BNDS *theBndS, DOUBLE *local, DOUBLE *in, DOUBLE *value, INT *type);
-
-/****************************************************************************/
 /** \brief Sets descriptor for BNDS
  *
  * @param theBndS - BNDS structure
@@ -704,19 +616,6 @@ INT         BNDS_BndSDesc         (BNDS *theBndS, INT *id, INT *nbid, INT *part)
  * </ul> */
 /****************************************************************************/
 BNDP*       BNDS_CreateBndP       (NS_PREFIX HEAP *Heap, BNDS *theBndS, DOUBLE *local);
-
-/****************************************************************************/
-/** \brief Return a pointer to the first BVP
- *
-   This function returns a pointer to the first BVP defined in the domain
-   subsystem..
-
- * @return <ul>
- *   <li> pointer to BVP </li>
- *   <li> NULL if not found. </li>
- * </ul> */
-/****************************************************************************/
-BVP        *BVP_GetFirst          (void);
 
 /****************************************************************************/
 /** \brief Dispose BNDS

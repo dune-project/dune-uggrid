@@ -3008,9 +3008,6 @@ START_UGDIM_NAMESPACE
 #define SET_EVECTOR(p,q)        ((p)->ge.refs[evector_offset[TAG(p)]] = q)
 #define SET_SVECTOR(p,i,q)      ((p)->ge.refs[svector_offset[TAG(p)]+(i)] = q)
 
-#define SideBndCond(t,side,l,v,type)  BNDS_BndCond(ELEM_BNDS(t,side),l,NULL,v,type)
-#define Vertex_BndCond(p,w,i,v,t)     BNDP_BndCond(V_BNDP(p),w,i,NULL,v,t)
-
 /** @name Macros to access corner pointers directly */
 /*@{*/
 #define CORNER_OF_EDGE_PTR(e,i,j)               (CORNER(e,CORNER_OF_EDGE(e,i,j)))

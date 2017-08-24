@@ -106,22 +106,6 @@ static BndGeomProcPtr Geom;
 /*																			*/
 /****************************************************************************/
 
-BVP *BVP_GetNext (BVP *theBVP)
-{
-  return(NULL);
-}
-
-INT BVP_Save (BVP *theBVP, char *name,
-              char *mgname, HEAP *theHeap, INT argc, char **argv)
-{
-  return(1);
-}
-
-BVP *BVP_Load (char *name, INT argc, char **argv)
-{
-  return(NULL);
-}
-
 BVP *BVP_GetByName (char *name)
 {
   return(NULL);
@@ -169,12 +153,6 @@ INT BNDP_SaveInsertedBndP (BNDP *theBndP, char *data, INT max_data_size)
   return(1);
 }
 
-MESH *BVP_GenerateMesh (HEAP *Heap, BVP *aBVP, INT argc, char **argv,
-                        INT MarkKey)
-{
-  return(NULL);
-}
-
 INT BNDP_Global (BNDP *theBndP, DOUBLE *global)
 {
   BP *bp = (BP *)theBndP;
@@ -187,12 +165,6 @@ INT BNDP_Global (BNDP *theBndP, DOUBLE *global)
 }
 
 INT BNDP_Move (BNDP *aBndP, const DOUBLE global[])
-{
-  return(1);
-}
-
-INT BNDP_BndCond (BNDP *theBndP, INT *n, INT i, DOUBLE *in, DOUBLE *value,
-                  INT *type)
 {
   return(1);
 }
@@ -485,12 +457,6 @@ INT BNDS_Global (BNDS *theBndS, DOUBLE *local, DOUBLE *global)
   return(0);
 }
 
-INT BNDS_BndCond (BNDS *theBndS, DOUBLE *local, DOUBLE *in, DOUBLE *value,
-                  INT *type)
-{
-  return(1);
-}
-
 INT BNDS_BndSDesc (BNDS *theBndS, INT *id, INT *nbid, INT *part)
 {
   BS *bs = (BS *) theBndS;
@@ -516,11 +482,6 @@ BNDP* BNDS_CreateBndP (HEAP *Heap, BNDS *theBndS, DOUBLE *local)
   bp->property = bs->property;
 
   return((BNDP *)bp);
-}
-
-BVP *BVP_GetFirst (void)
-{
-  return(NULL);
 }
 
 INT BNDS_Dispose (HEAP *Heap, BNDS *theBndS)
