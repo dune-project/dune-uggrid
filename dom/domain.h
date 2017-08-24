@@ -488,25 +488,6 @@ INT         BNDP_Global           (BNDP *theBndP, DOUBLE *global);
 INT         BNDP_Move                         (BNDP *aBndP, const DOUBLE global[]);
 
 /****************************************************************************/
-/** \brief Gets boundary conditions for a BNDP
- *
- * @param theBndP - BNDP structure
- * @param i     - evaluate on patch i
- * @param n     - number of BNDS
- * @param in    - input vector (if !=NULL has to be allocated with >= DOM_N_IN_PARAMS DOUBLES)
- * @param type  - type of bnd cond
- * @param value - values
-
-   This function gets bnd conditions for a BNDP
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul> */
-/****************************************************************************/
-INT         BNDP_BndCond          (BNDP *theBndP, INT *n, INT i, DOUBLE *in, DOUBLE *value, INT *type);
-
-/****************************************************************************/
 /** \brief Sets descriptor for BNDP
  *
  * @param theBndP - BNDP structure

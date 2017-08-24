@@ -180,12 +180,6 @@ INT BNDP_Move (BNDP *aBndP, const DOUBLE global[])
   return(1);
 }
 
-INT BNDP_BndCond (BNDP *theBndP, INT *n, INT i, DOUBLE *in, DOUBLE *value,
-                  INT *type)
-{
-  return(1);
-}
-
 INT BNDP_BndPDesc (BNDP *theBndP, INT *move, INT *part)
 {
   *move = 0;
