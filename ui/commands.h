@@ -91,7 +91,6 @@ INT              InitCommands                   (void);
 FILE            *GetProtocolFile                (void);
 
 MULTIGRID       *GetCurrentMultigrid    (void);
-INT              SetCurrentMultigrid    (MULTIGRID *theMG);
 
 END_UGDIM_NAMESPACE
 

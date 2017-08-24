@@ -229,49 +229,6 @@ MULTIGRID * NS_DIM_PREFIX GetCurrentMultigrid (void)
   return (currMG);
 }
 
-/****************************************************************************/
-/** \brief Set the current multigrid if it is valid
- *
- * @param theMG pointer to multigrid
- *
- * This function sets the current multigrid if it is valid, i. e.
- * the function checks whether 'theMG' acually points to a multigrid.
- * It can be NULL only if no multigrid is open.
- *
- * @result <ul>
- *    <li> 0 if ok </li>
- *    <li> 1 if theMG is not in the multigrid list </li>
- * </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX SetCurrentMultigrid (MULTIGRID *theMG)
-{
-  MULTIGRID *mg;
-
-  if (ResetPrintingFormat())
-    REP_ERR_RETURN(CMDERRORCODE);
-
-  mg = GetFirstMultigrid();
-  if (mg==theMG)
-  {
-    /* possibly NULL */
-    currMG = theMG;
-    return (0);
-  }
-
-  for (; mg!=NULL; mg=GetNextMultigrid(mg))
-    if (mg==theMG)
-    {
-      /* never NULL */
-      currMG = theMG;
-      return (0);
-    }
-
-  return (1);
-}
-
-
 /** \brief Implementation of \ref exitug. */
 static INT ExitUgCommand (INT argc, char **argv)
 {
@@ -3142,36 +3099,6 @@ static INT StatusCommand  (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref setcurrmg. */
-static INT SetCurrentMultigridCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char mgname[NAMESIZE];
-
-  NO_OPTION_CHECK(argc,argv);
-
-  /* get multigrid name */
-  if (sscanf(argv[0],expandfmt(CONCAT3(" setcurrmg %",NAMELENSTR,"[ -~]")),mgname)!=1)
-  {
-    PrintErrorMessage('E', "SetCurrentMultigridCommand", "specify current multigrid name");
-    return(PARAMERRORCODE);
-  }
-
-  theMG = GetMultigrid(mgname);
-
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"setcurrmg","no multigrid with this name open");
-    return (CMDERRORCODE);
-  }
-
-  if (SetCurrentMultigrid(theMG)!=0)
-    return (CMDERRORCODE);
-
-  return(OKCODE);
-}
-
-
 /** \brief Implementation of \ref reinit. */
 static INT ReInitCommand (INT argc, char **argv)
 {
@@ -3728,7 +3655,6 @@ INT NS_DIM_PREFIX InitCommands ()
 
   /* commands for grid management */
   if (CreateCommand("configure",          ConfigureCommand                                )==NULL) return (__LINE__);
-  if (CreateCommand("setcurrmg",          SetCurrentMultigridCommand              )==NULL) return (__LINE__);
   if (CreateCommand("new",                        NewCommand                                              )==NULL) return (__LINE__);
   if (CreateCommand("open",                       OpenCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("close",                      CloseCommand                                    )==NULL) return (__LINE__);

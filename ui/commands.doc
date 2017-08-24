@@ -1107,25 +1107,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  setcurrmg setcurrmg - Change the current multigrid
-
- \section Description
-   This command sets the current multigrid.
-
-\section Syntax
-   'setcurrmg \<mgname>'
-
-  <li> \<mgname>  - name of the open multigrid which will be made the current one
-   
- \section Keywords
-   multigrid, current, active
-
-   SEE ALSO:
-   'open', 'new'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  reinit reinit - Reinitialize a boundary value problem
 
  \section Description
