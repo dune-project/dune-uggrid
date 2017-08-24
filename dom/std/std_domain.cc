@@ -3954,42 +3954,6 @@ BNDP_LoadBndP_Ext (void)
   return ((BNDP *) bp);
 }
 
-INT NS_DIM_PREFIX
-ReadAndPrintArgvPosition (const char *name, INT argc, char **argv, DOUBLE * pos)
-{
-  INT i;
-  char option[OPTIONLEN];
-  double x[DIM];
-
-  for (i = 0; i < argc; i++)
-    if (argv[i][0] == name[0])
-    {
-#ifdef __TWODIM__
-      if (sscanf (argv[i], "%s %lf %lf", option, x, x + 1) != 3)
-        continue;
-#endif
-#ifdef __THREEDIM__
-      if (sscanf (argv[i], "%s %lf %lf %lf", option, x, x + 1, x + 2) != 4)
-        continue;
-#endif
-      if (strcmp (option, name) == 0)
-      {
-        pos[0] = x[0];
-        pos[1] = x[1];
-#ifdef __TWODIM__
-        UserWriteF ("set %s to (%lf,%lf)\n", name, x[0], x[1]);
-#endif
-#ifdef __THREEDIM__
-        pos[2] = x[2];
-        UserWriteF ("set %s to (%lf,%lf,%lf)\n", name, x[0], x[1], x[2]);
-#endif
-        return (0);
-      }
-    }
-
-  return (1);
-}
-
 /****************************************************************************/
 /** \brief Create and initialize the std_domain
  *

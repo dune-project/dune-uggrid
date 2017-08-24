@@ -591,9 +591,6 @@ typedef struct bnd_ps BND_PS;
 
 DOMAIN *GetDomain                           (const char *name);
 
-/* scanning of coordinates */
-INT   ReadAndPrintArgvPosition    (const char *name, INT argc, char **argv, DOUBLE *pos);
-
 END_UGDIM_NAMESPACE
 
 #endif
