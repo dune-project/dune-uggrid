@@ -462,34 +462,7 @@ Then, the file 'exp.proto' will consist of the string
    multigrid, new, open, file
 
    \sa
-   'new', 'save'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
-/** \page  save save - Save a multigrid structure in a file
-
- \section Description
-   This command writes the current multigrid structure in a file. 
-
-\section Syntax
-   'save [\<name>] [$t \<type>] [$r [0|1]] [$c \<comment>]'
-
-  <ul>
-  <li> \<name>                  - name to save with (default is the mgname) </li>
-.n								if name is ending in .scr a script file is saved which
-								will generate the surface of the grid as level 0 on execution
-  <li> $t~\<type>			   - type can be asc (default> or bin. asc and bin can be opened with
-								the open command </li>
-  <li> $c~\<comment>            - optionally specify a comment string </li>
-  <li> $r~[0|1]                - 0: replace (default), 1: rename existing mg file (using modification date) </li>
-  </ul>   
-
- \section Keywords
-   multigrid, save, write, data, file, output
-
-   \sa
-   open
+   'new'
 */
 /****************************************************************************/
 
@@ -569,9 +542,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, save, write, data, file, output
-
-   SEE ALSO:
-   'save'
 */
 /****************************************************************************/
 
@@ -595,9 +565,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
    
  \section Keywords
    multigrid, load, read, file, data
-
-   SEE ALSO:
-   'save'
 */
 /****************************************************************************/
 

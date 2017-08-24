@@ -156,9 +156,6 @@ using namespace PPIF;
 
 /* for anisotropic refinement */
 
-/* for save command */
-#define NO_COMMENT                               "no comment"
-
 /** @name For array commands */
 /*@{*/
 #define AR_NVAR_MAX                     10
@@ -1364,68 +1361,6 @@ static INT OpenCommand (INT argc, char **argv)
       RETURN(CMDERRORCODE);
   }
   currMG = theMG;
-
-  return(OKCODE);
-}
-
-
-/** \brief Implementation of \ref save. */
-static INT SaveCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char Name[NAMESIZE],type[NAMESIZE],Comment[LONGSTRSIZE];
-  INT i,autosave,rename,res;
-  int ropt;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"save","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  /* scan name */
-  if (sscanf(argv[0],expandfmt(CONCAT3(" save %",NAMELENSTR,"[ -~]")),Name)!=1)
-    strcpy(Name,ENVITEM_NAME(theMG));
-
-  /* check options */
-  autosave=rename=0;
-  strcpy(Comment,NO_COMMENT);
-  strcpy(type,"asc");
-  for (i=1; i<argc; i++)
-    switch (argv[i][0])
-    {
-    case 'c' :
-      if (sscanf(argv[i],expandfmt(CONCAT3(" c %",LONGSTRLENSTR,"[ -~]")),Comment)!=1)
-      {
-        PrintErrorMessage('E',"save","couldn't read the comment string");
-        return (PARAMERRORCODE);
-      }
-      break;
-
-    case 't' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("t %",NAMELENSTR,"[ -~]")),type)!=1)
-      {
-        PrintErrorMessage('E', "SaveCommand", "cannot read type specification");
-        return(PARAMERRORCODE);
-      }
-      break;
-
-    case 'a' :
-      autosave=1;
-      break;
-
-    case 'r' :
-      res = sscanf(argv[i]," r %d",&ropt);
-      if (res==0 || (res==1 && ropt==1)) rename = 1;
-      break;
-
-    default :
-      PrintErrorMessageF('E', "SaveCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
-    }
-
-  if (SaveMultiGrid(theMG,Name,type,Comment,autosave,rename)) return (CMDERRORCODE);
 
   return(OKCODE);
 }
@@ -3552,7 +3487,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("new",                        NewCommand                                              )==NULL) return (__LINE__);
   if (CreateCommand("open",                       OpenCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("close",                      CloseCommand                                    )==NULL) return (__LINE__);
-  if (CreateCommand("save",                       SaveCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("level",                      LevelCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("renumber",           RenumberMGCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("ordernodes",         OrderNodesCommand                               )==NULL) return (__LINE__);
