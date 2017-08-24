@@ -114,12 +114,12 @@ static int sort_Gid (const void *e1, const void *e2)
 
  */
 
-static int PreparePhase1Msgs (JIJoinPtrArray *arrayJoin,
+static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
                               JOINMSG1 **theMsgs, size_t *memUsage)
 {
   int i, last_i, nMsgs;
-  JIJoin   **itemsJ = JIJoinPtrArray_GetData(arrayJoin);
-  int nJ       = JIJoinPtrArray_GetSize(arrayJoin);
+  JIJoin** itemsJ = arrayJoin.data();
+  const int nJ = arrayJoin.size();
 
 #       if DebugJoin<=3
   printf("%4d: PreparePhase1Msgs, nJoins=%d\n",
@@ -410,12 +410,12 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
  */
 
-static int PreparePhase2Msgs (JIAddCplPtrArray *arrayAddCpl,
+static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
                               JOINMSG2 **theMsgs, size_t *memUsage)
 {
   int i, last_i, nMsgs;
-  JIAddCpl **itemsAC = JIAddCplPtrArray_GetData(arrayAddCpl);
-  int nAC       = JIAddCplPtrArray_GetSize(arrayAddCpl);
+  JIAddCpl** itemsAC = arrayAddCpl.data();
+  const int nAC = arrayAddCpl.size();
 
 #       if DebugJoin<=3
   printf("%4d: PreparePhase2Msgs, nAddCpls=%d\n",
@@ -603,12 +603,12 @@ static void UnpackPhase2Msgs (LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
 
  */
 
-static int PreparePhase3Msgs (JIAddCplPtrArray *arrayAddCpl,
+static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
                               JOINMSG3 **theMsgs, size_t *memUsage)
 {
   int i, last_i, nMsgs;
-  JIAddCpl **itemsAC = JIAddCplPtrArray_GetData(arrayAddCpl);
-  int nAC       = JIAddCplPtrArray_GetSize(arrayAddCpl);
+  JIAddCpl** itemsAC = arrayAddCpl.data();
+  const int nAC = arrayAddCpl.size();
 
 #       if DebugJoin<=3
   printf("%4d: PreparePhase3Msgs, nAddCpls=%d\n",
@@ -727,10 +727,10 @@ static void PackPhase3Msgs (JOINMSG3 *theMsgs)
  */
 
 static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
-                              JIJoinPtrArray *arrayJoin)
+                              std::vector<JIJoin*>& arrayJoin)
 {
-  JIJoin   **itemsJ = JIJoinPtrArray_GetData(arrayJoin);
-  int nJ       = JIJoinPtrArray_GetSize(arrayJoin);
+  JIJoin** itemsJ = arrayJoin.data();
+  const int nJ = arrayJoin.size();
   int m;
 
 
@@ -786,9 +786,6 @@ static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
 DDD_RET DDD_JoinEnd (void)
 {
-  JIJoinPtrArray   *arrayJIJoin    = NULL;
-  JIAddCplPtrArray *arrayJIAddCpl2 = NULL;
-  JIAddCplPtrArray *arrayJIAddCpl3 = NULL;
   int obsolete, nRecvMsgs1, nRecvMsgs2, nRecvMsgs3;
   JOINMSG1    *sendMsgs1=NULL, *sm1=NULL;
   JOINMSG2    *sendMsgs2=NULL, *sm2=NULL;
@@ -822,7 +819,7 @@ DDD_RET DDD_JoinEnd (void)
           PREPARATION PHASE
    */
   /* get sorted array of JIJoin-items */
-  arrayJIJoin = JIJoinSet_GetArray(joinGlobals.setJIJoin);
+  std::vector<JIJoin*> arrayJIJoin = JIJoinSet_GetArray(joinGlobals.setJIJoin);
   obsolete = JIJoinSet_GetNDiscarded(joinGlobals.setJIJoin);
 
 
@@ -941,7 +938,7 @@ DDD_RET DDD_JoinEnd (void)
           for which Joins had been issued remotely.
    */
   /* get sorted array of JIAddCpl-items */
-  arrayJIAddCpl2 = JIAddCplSet_GetArray(joinGlobals.setJIAddCpl2);
+  std::vector<JIAddCpl*> arrayJIAddCpl2 = JIAddCplSet_GetArray(joinGlobals.setJIAddCpl2);
 
   STAT_RESET;
   /* prepare msgs for JIAddCpl-items */
@@ -963,11 +960,12 @@ DDD_RET DDD_JoinEnd (void)
 
   /* reorder Join-commands according to new_gid */
   /* this ordering is needed in UnpackPhase3 */
-  if (JIJoinPtrArray_GetSize(arrayJIJoin) > 1)
+  if (arrayJIJoin.size() > 1)
   {
+    // TODO: use std::sort
     qsort(
-      JIJoinPtrArray_GetData(arrayJIJoin),
-      JIJoinPtrArray_GetSize(arrayJIJoin),
+      arrayJIJoin.data(),
+      arrayJIJoin.size(),
       sizeof(JIJoin *), sort_NewGid);
   }
 
@@ -1049,7 +1047,7 @@ DDD_RET DDD_JoinEnd (void)
           on which the JoinObj-commands have been issued.
    */
   /* get sorted array of JIAddCpl-items */
-  arrayJIAddCpl3 = JIAddCplSet_GetArray(joinGlobals.setJIAddCpl3);
+  std::vector<JIAddCpl*> arrayJIAddCpl3 = JIAddCplSet_GetArray(joinGlobals.setJIAddCpl3);
 
   STAT_RESET;
   /* prepare msgs for JIAddCpl-items */
@@ -1137,13 +1135,10 @@ DDD_RET DDD_JoinEnd (void)
   /*
           free temporary storage
    */
-  JIJoinPtrArray_Free(arrayJIJoin);
   JIJoinSet_Reset(joinGlobals.setJIJoin);
 
-  JIAddCplPtrArray_Free(arrayJIAddCpl2);
   JIAddCplSet_Reset(joinGlobals.setJIAddCpl2);
 
-  JIAddCplPtrArray_Free(arrayJIAddCpl3);
   JIAddCplSet_Reset(joinGlobals.setJIAddCpl3);
 
   if (localCplObjs!=NULL) FreeTmp(localCplObjs, 0);
