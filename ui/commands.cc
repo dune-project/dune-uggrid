@@ -3000,30 +3000,6 @@ static INT CheckCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref fiflel. */
-#ifdef __THREEDIM__
-static INT FindFlippedElementsCommand(INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  INT verbose;
-
-  theMG = GetCurrentMultigrid();
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"fiflel","no current multigrid");
-    return (CMDERRORCODE);
-  }
-
-  /* verbose mode */
-  verbose = ReadArgvOption("v",argc,argv);
-
-  if(FindFlippedElements(theMG,verbose))
-    return (CMDERRORCODE);
-
-  return(OKCODE);
-}
-#endif
-
 /** \brief Implementation of \ref status. */
 static INT StatusCommand  (INT argc, char **argv)
 {
@@ -3631,9 +3607,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("rlist",                      RuleListCommand                                 )==NULL) return (__LINE__);
   if (CreateCommand("convert",        ConvertCommand                  )==NULL) return(__LINE__);
   if (CreateCommand("status",                     StatusCommand                                   )==NULL) return (__LINE__);
-#ifdef __THREEDIM__
-  if (CreateCommand("fiflel",                     FindFlippedElementsCommand              )==NULL) return (__LINE__);
-#endif
 
   /* commands for problem management */
   if (CreateCommand("reinit",             ReInitCommand                                   )==NULL) return (__LINE__);
