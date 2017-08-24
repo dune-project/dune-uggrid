@@ -602,25 +602,6 @@ freeaverage $nv uwTrans $s sol $nv unTrans $s sol;
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page changemc  changemc - Change magic cookie of multigrid
-
- \section Description
-   This function changes the magic cookie of multigrid.
-
-\section Syntax
-   'changemc \<mc>'
-   
-  <li> \<mc>				- new magic cookie
-   
- \section Keywords
-   multigrid, load, read, file, data
-
-   SEE ALSO:
-   'save'
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page  level level - Select another current level
 
  \section Description

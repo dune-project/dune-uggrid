@@ -1431,29 +1431,6 @@ static INT SaveCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref changemc. */
-static INT ChangeMagicCookieCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  int iValue;
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"changemc","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  if (sscanf(argv[0]," changemc %d",&iValue)!=1)
-  {
-    PrintErrorMessage('E',"changemc","cannot read magic-cookie");
-    return (CMDERRORCODE);
-  }
-  MG_MAGIC_COOKIE(theMG) = iValue;
-  return(OKCODE);
-}
-
-
 /** \brief Implementation of \ref level. */
 static INT LevelCommand (INT argc, char **argv)
 {
@@ -3630,7 +3607,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("open",                       OpenCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("close",                      CloseCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("save",                       SaveCommand                                     )==NULL) return (__LINE__);
-  if (CreateCommand("changemc",           ChangeMagicCookieCommand                )==NULL) return (__LINE__);
   if (CreateCommand("level",                      LevelCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("renumber",           RenumberMGCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("ordernodes",         OrderNodesCommand                               )==NULL) return (__LINE__);
