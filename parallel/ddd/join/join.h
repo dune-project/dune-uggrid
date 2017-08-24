@@ -32,6 +32,7 @@
 #ifndef __JOIN_H__
 #define __JOIN_H__
 
+#include <vector>
 
 #define DebugJoin     10   /* 0 is all, 10 is off */
 

@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#include <vector>
 
 /* some macros for customizing oopp */
 #define _NEWPARAMS
@@ -44,10 +45,6 @@ int  Method(Compare) (ClassPtr, ClassPtr);
 #define SetOf          TestTreeElement
 #define Set_SegmSize   256
 #define Set_BTreeOrder 32
-#ifdef XferMemFromHeap
-#define ArrayAllocate  xfer_AllocHeap
-#define NoArrayFree
-#endif
 #endif
 
 // Create method definitions, not just declarations

@@ -397,13 +397,12 @@ static void DisplayMemResources (void)
 DDD_RET DDD_XferEnd (void)
 {
   DDD_RET ret_code              = DDD_RET_OK;
-  XICopyObjPtrArray *arrayXICopyObj = NULL;
   XICopyObj   **arrayNewOwners      = NULL;
   int nNewOwners;
   XIDelCmd    **arrayXIDelCmd       = NULL;
   int remXIDelCmd, prunedXIDelCmd;
   XIDelObj    **arrayXIDelObj       = NULL;
-  XISetPrioPtrArray *arrayXISetPrio = NULL;
+  std::vector<XISetPrio*> arrayXISetPrio;
   XINewCpl    **arrayXINewCpl       = NULL;
   XIOldCpl    **arrayXIOldCpl       = NULL;
   XIDelCpl    **arrayXIDelCpl       = NULL;
@@ -434,14 +433,7 @@ DDD_RET DDD_XferEnd (void)
    */
   STAT_RESET;
   /* get sorted array of XICopyObj-items */
-  arrayXICopyObj = XICopyObjSet_GetArray(xferGlobals.setXICopyObj);
-  if (arrayXICopyObj==NULL)
-  {
-    DDD_PrintError('W', 6080, "out of memory in DDD_XferEnd(), giving up.");
-    ret_code = DDD_RET_ERROR_NOMEM;
-    LC_Abort(EXCEPTION_LOWCOMM_USER);
-    goto exit;
-  }
+  std::vector<XICopyObj*> arrayXICopyObj = XICopyObjSet_GetArray(xferGlobals.setXICopyObj);
   obsolete = XICopyObjSet_GetNDiscarded(xferGlobals.setXICopyObj);
 
   /* debugging output, write all XICopyObjs to file
@@ -605,13 +597,6 @@ DDD_RET DDD_XferEnd (void)
   /* create sorted array of XISetPrio-items, and unify it */
   STAT_RESET;
   arrayXISetPrio = XISetPrioSet_GetArray(xferGlobals.setXISetPrio);
-  if (arrayXISetPrio==NULL)
-  {
-    DDD_PrintError('W', 6087, "out of memory in DDD_XferEnd(), giving up.");
-    LC_Cleanup();
-    ret_code = DDD_RET_ERROR_NOMEM;
-    goto exit;
-  }
   obsolete += XISetPrioSet_GetNDiscarded(xferGlobals.setXISetPrio);
 
 
@@ -793,13 +778,11 @@ DDD_RET DDD_XferEnd (void)
 exit:
 
   /* free temporary storage */
-  XICopyObjPtrArray_Free(arrayXICopyObj);
   XICopyObjSet_Reset(xferGlobals.setXICopyObj);
 
   if (arrayNewOwners!=NULL) OO_Free (arrayNewOwners /*,0*/);
   FreeAllXIAddData();
 
-  XISetPrioPtrArray_Free(arrayXISetPrio);
   XISetPrioSet_Reset(xferGlobals.setXISetPrio);
 
   if (arrayXIDelCmd!=NULL) OO_Free (arrayXIDelCmd /*,0*/);
