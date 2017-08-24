@@ -1885,36 +1885,6 @@ static INT InsertBoundaryNodeCommand (INT argc, char **argv)
 }
 
 
-/** \todo Please doc me! */
-static INT NGInsertBoundaryNodeCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  BNDP *bndp;
-  static int i;
-
-        #ifdef ModelP
-  if (me!=master) return (OKCODE);
-        #endif
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"ngbn","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  UserWriteF("# BPoint %d \n",i);
-  /* this works only for LGM domain and does no real insertion !!! */
-  bndp = BVP_InsertBndP (MGHEAP(theMG),MG_BVP(theMG),argc,argv);
-  if (bndp == NULL)
-  {
-    i++;
-    return (OKCODE);
-  }
-  return (CMDERRORCODE);
-}
-
-
 /** \brief Implementation of \ref gn. */
 static INT InsertGlobalNodeCommand (INT argc, char **argv)
 {
@@ -3596,7 +3566,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("check",                      CheckCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("in",                         InsertInnerNodeCommand                  )==NULL) return (__LINE__);
   if (CreateCommand("bn",                         InsertBoundaryNodeCommand               )==NULL) return (__LINE__);
-  if (CreateCommand("ngbn",                       NGInsertBoundaryNodeCommand             )==NULL) return (__LINE__);
   if (CreateCommand("gn",                         InsertGlobalNodeCommand                 )==NULL) return (__LINE__);
   if (CreateCommand("refine",             AdaptCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("adapt",                      AdaptCommand                                    )==NULL) return (__LINE__);
