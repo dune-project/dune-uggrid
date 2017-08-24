@@ -106,17 +106,6 @@ static BndGeomProcPtr Geom;
 /*																			*/
 /****************************************************************************/
 
-INT BVP_Save (BVP *theBVP, char *name,
-              char *mgname, HEAP *theHeap, INT argc, char **argv)
-{
-  return(1);
-}
-
-BVP *BVP_Load (char *name, INT argc, char **argv)
-{
-  return(NULL);
-}
-
 BVP *BVP_GetByName (char *name)
 {
   return(NULL);

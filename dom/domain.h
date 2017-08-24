@@ -277,39 +277,6 @@ typedef struct mesh MESH;
 
 
 /****************************************************************************/
-/** \brief Save a BVP
- *
- * @param theBVP - BVP structure
- * @param name - name of file
- * @param argc, argv - command parameters
-
-   This function saves a BVP to file named \<name\>.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT BVP_Save (BVP *theBVP, const char *name, const char *mgname, NS_PREFIX HEAP *theHeap, INT argc, char **argv);
-
-/****************************************************************************/
-/** \brief Load a BVP
- *
- * @param name - name of file
- * @param argc, argv - command parameters
-
-   This function loads a BVP from file named \<name\>.
-
- * @return <ul>
- *   <li> pointer to BVP </li>
- *   <li> NULL if error. </li>
- * </ul>
- */
-/****************************************************************************/
-BVP        *BVP_Load              (const char *name, INT argc, char **argv);
-
-/****************************************************************************/
 /** \brief Get pointer to BVP by name
  *
  * @param name - name of BVP

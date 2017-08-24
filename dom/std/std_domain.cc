@@ -3808,21 +3808,6 @@ BNDS_Dispose (HEAP * Heap, BNDS * theBndS)
   return (PutFreelistMemory (Heap, ps, BND_SIZE (ps)));
 }
 
-/* the following interface functions are not available in std_domain.c */
-INT NS_DIM_PREFIX
-BVP_Save (BVP * theBVP, const char *name, const char *mgname, HEAP * theHeap, INT argc,
-          char **argv)
-{
-  UserWrite ("ERROR: std domain cannot be saved\n");
-  return (1);
-}
-
-BVP *NS_DIM_PREFIX
-BVP_Load (const char *name, INT argc, char **argv)
-{
-  return (NULL);
-}
-
 /* domain interface function: for description see domain.h */
 INT NS_DIM_PREFIX
 BNDP_SaveBndP (BNDP * BndP)

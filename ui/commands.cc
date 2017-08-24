@@ -1481,29 +1481,6 @@ static INT SaveCommand (INT argc, char **argv)
 }
 
 
-/** \brief Implementation of \ref savedomain. */
-static INT SaveDomainCommand (INT argc, char **argv)
-{
-  MULTIGRID *theMG;
-  char Name[NAMESIZE];
-
-  theMG = currMG;
-  if (theMG==NULL)
-  {
-    PrintErrorMessage('E',"savedomain","no open multigrid");
-    return (CMDERRORCODE);
-  }
-
-  /* scan name */
-  if (sscanf(argv[0],expandfmt(CONCAT3(" savedomain %",NAMELENSTR,"[ -~]")),Name)!=1)
-    strcpy(Name,BVPD_NAME(MG_BVPD(theMG)));
-
-  if (BVP_Save(MG_BVP(theMG),Name,ENVITEM_NAME(theMG),MGHEAP(theMG),argc,argv)) return (CMDERRORCODE);
-
-  return(OKCODE);
-}
-
-
 /** \brief Implementation of \ref changemc. */
 static INT ChangeMagicCookieCommand (INT argc, char **argv)
 {
@@ -4195,7 +4172,6 @@ INT NS_DIM_PREFIX InitCommands ()
   if (CreateCommand("open",                       OpenCommand                                     )==NULL) return (__LINE__);
   if (CreateCommand("close",                      CloseCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("save",                       SaveCommand                                     )==NULL) return (__LINE__);
-  if (CreateCommand("savedomain",         SaveDomainCommand                               )==NULL) return (__LINE__);
   if (CreateCommand("changemc",           ChangeMagicCookieCommand                )==NULL) return (__LINE__);
   if (CreateCommand("level",                      LevelCommand                                    )==NULL) return (__LINE__);
   if (CreateCommand("renumber",           RenumberMGCommand                               )==NULL) return (__LINE__);

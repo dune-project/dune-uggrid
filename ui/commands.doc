@@ -494,24 +494,6 @@ Then, the file 'exp.proto' will consist of the string
 /****************************************************************************/
 
 /****************************************************************************/
-/** \page  savedomain savedomain - Save domain structure in a file
-
- \section Description
-   This command saves the domain structure of the current multigrid in a file.
-   All arguments are passed to the current domain module interface function.
-
-\section Syntax
-   'savedomain ...'
-   
-   SEE ALSO:
-   'open'
-   
- \section Keywords
-   multigrid, domain, save, write, data, file, output
-*/
-/****************************************************************************/
-
-/****************************************************************************/
 /** \page average average - Average result of a plot proc to nodal vector
 
  \section Description
