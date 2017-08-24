@@ -112,12 +112,12 @@ static int sort_NewOwners (const void *e1, const void *e2)
         XFER-P and XFER-D).
  */
 
-XICopyObj **CplClosureEstimate (XICopyObjPtrArray *arrayItems, int *nRet)
+XICopyObj **CplClosureEstimate (std::vector<XICopyObj*>& arrayItems, int *nRet)
 {
   int i, nNewOwners;
   XICopyObj **arrayNewOwners = NULL;
-  XICopyObj **items = XICopyObjPtrArray_GetData(arrayItems);
-  int n       = XICopyObjPtrArray_GetSize(arrayItems);
+  XICopyObj** items = arrayItems.data();
+  const int n = arrayItems.size();
 
 
 
@@ -513,7 +513,7 @@ static XFERMSG *AccumXIOldCpl (XFERMSG *currxm, int *nMsgs, int *nItems,
         coupling closure from CplClosureEstimate().
  */
 
-int PrepareObjMsgs (XICopyObjPtrArray *arrayO,
+int PrepareObjMsgs (std::vector<XICopyObj*>& arrayO,
                     XINewCpl **itemsNC, int nNC,
                     XIOldCpl **itemsOC, int nOC,
                     XFERMSG **theMsgs, size_t *memUsage)
@@ -521,8 +521,8 @@ int PrepareObjMsgs (XICopyObjPtrArray *arrayO,
   XFERMSG    *xm=NULL;
   int iO, iNC, iOC, nMsgs=0;
 
-  XICopyObj  **itemsO = XICopyObjPtrArray_GetData(arrayO);
-  int nO       = XICopyObjPtrArray_GetSize(arrayO);
+  XICopyObj** itemsO = arrayO.data();
+  const int nO = arrayO.size();
 
 
 #       if DebugXfer<=3
@@ -622,13 +622,13 @@ int PrepareObjMsgs (XICopyObjPtrArray *arrayO,
         procs during first message phase.
  */
 void ExecLocalXISetPrio (
-  XISetPrioPtrArray *arrayP,
+  std::vector<XISetPrio*>& arrayP,
   XIDelObj  **itemsD, int nD,
   XICopyObj  **itemsNO, int nNO)
 {
   int iP, iD, iNO;
-  XISetPrio **itemsP = XISetPrioPtrArray_GetData(arrayP);
-  int nP       = XISetPrioPtrArray_GetSize(arrayP);
+  XISetPrio** itemsP = arrayP.data();
+  const int nP = arrayP.size();
 
   /*
           execute SetPrio only if no corresponding DelObj exists!

@@ -469,16 +469,15 @@ static void CmdMsgDisplay (const char *comment, LC_MSGHANDLE xm)
 
 int PruneXIDelCmd (
   XIDelCmd  **itemsDC, int nDC,
-  XICopyObjPtrArray *arrayCO)
+  std::vector<XICopyObj*>& arrayCO)
 {
   CMDMSG    *sendMsgs, *sm=0;
   LC_MSGHANDLE *recvMsgs;
   int i, nSendMsgs, nRecvMsgs;
   int nPruned;
 
-  XICopyObj **itemsCO = XICopyObjPtrArray_GetData(arrayCO);
-  int nCO       = XICopyObjPtrArray_GetSize(arrayCO);
-
+  XICopyObj** itemsCO = arrayCO.data();
+  const int nCO = arrayCO.size();
 
   /* accumulate messages (one for each partner) */
   nSendMsgs = PrepareCmdMsgs(itemsCO, nCO, &sendMsgs);

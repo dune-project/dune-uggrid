@@ -1515,17 +1515,17 @@ static int CompressNewCpl (TENewCpl *tabNC, int nNC)
 
 void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                  const DDD_HDR *localCplObjs, int nLocalCplObjs,
-                 XISetPrioPtrArray *theSP,
+                 std::vector<XISetPrio*>& theSP,
                  XIDelObj **arrayDO, int nDO,
-                 XICopyObjPtrArray *arrayCO,
+                 std::vector<XICopyObj*>& arrayCO,
                  XICopyObj **arrayNewOwners, int nNewOwners)
 {
   TENewCpl     *allNewCpl;
   OBJTAB_ENTRY **unionObjTab;
   int lenObjTab, lenSymTab, nNewCpl;
   int i, pos1, pos2, len;
-  XISetPrio    **arraySP = XISetPrioPtrArray_GetData(theSP);
-  int nSP       = XISetPrioPtrArray_GetSize(theSP);
+  XISetPrio** arraySP = theSP.data();
+  const int nSP = theSP.size();
 
 
 
