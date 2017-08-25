@@ -598,17 +598,17 @@ void CplMsgExit (void);
 
 
 /* cmdmsg.c */
-int  PruneXIDelCmd (XIDelCmd **, int, std::vector<XICopyObj*>&);
+int  PruneXIDelCmd (XIDelCmd **, int, const std::vector<XICopyObj*>&);
 void CmdMsgInit (void);
 void CmdMsgExit (void);
 
 
 /* xfer.c, used only by cmds.c */
-XICopyObj **CplClosureEstimate(std::vector<XICopyObj*>&, int *);
+XICopyObj **CplClosureEstimate(const std::vector<XICopyObj*>&, int *);
 int  PrepareObjMsgs(std::vector<XICopyObj*>&, XINewCpl **, int,
                     XIOldCpl **, int, XFERMSG **, size_t *);
 void ExecLocalXIDelCmd(XIDelCmd  **, int);
-void ExecLocalXISetPrio(std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
+void ExecLocalXISetPrio(const std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
 void ExecLocalXIDelObj(XIDelObj  **, int, XICopyObj **,int);
 void PropagateCplInfos(XISetPrio **, int, XIDelObj  **, int,
                        TENewCpl *, int);

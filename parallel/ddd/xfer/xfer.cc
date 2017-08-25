@@ -112,11 +112,11 @@ static int sort_NewOwners (const void *e1, const void *e2)
         XFER-P and XFER-D).
  */
 
-XICopyObj **CplClosureEstimate (std::vector<XICopyObj*>& arrayItems, int *nRet)
+XICopyObj **CplClosureEstimate (const std::vector<XICopyObj*>& arrayItems, int *nRet)
 {
   int i, nNewOwners;
   XICopyObj **arrayNewOwners = NULL;
-  XICopyObj** items = arrayItems.data();
+  XICopyObj* const* items = arrayItems.data();
   const int n = arrayItems.size();
 
 
@@ -622,12 +622,12 @@ int PrepareObjMsgs (std::vector<XICopyObj*>& arrayO,
         procs during first message phase.
  */
 void ExecLocalXISetPrio (
-  std::vector<XISetPrio*>& arrayP,
+  const std::vector<XISetPrio*>& arrayP,
   XIDelObj  **itemsD, int nD,
   XICopyObj  **itemsNO, int nNO)
 {
   int iP, iD, iNO;
-  XISetPrio** itemsP = arrayP.data();
+  XISetPrio* const* itemsP = arrayP.data();
   const int nP = arrayP.size();
 
   /*
