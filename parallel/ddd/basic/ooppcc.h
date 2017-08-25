@@ -403,10 +403,6 @@ typedef CN (CListItem) * ListIter (ListOf);
 #define CBTreeNode  CCAT(BTreeOf,BTreeNode)
 #define CBTree      CCAT(BTreeOf,BTree)
 
-/* this is the corresponding pointer-array class */
-#define CPtrArray   CCAT(CN(BTreeOf),PtrArray)
-
-
 /* method pointers */
 #define Iterate_Method         CCAT(BTreeOf,IterateMethod)
 typedef void (*Iterate_Method)(CN(BTreeOf) *);
@@ -854,7 +850,6 @@ void Method(GetResources) (ParamThis,
 
 
 /****************************************************************************/
-#undef CPtrArray
 #undef CBTreeNode
 #undef CBTree
 /*#undef Compare_Method*/
@@ -908,7 +903,6 @@ void Method(GetResources) (ParamThis,
 #define CSet       CCAT(SetOf,Set)
 #define CSegmList  CCAT(SetOf,SegmList)
 #define CBTree     CCAT(SetOf,BTree)
-#define CPtrArray  CCAT(CN(SetOf),PtrArray)
 
 
 /*** Set class ***/
@@ -1028,7 +1022,6 @@ void Method(GetResources) (ParamThis,
 /****************************************************************************/
 #undef CSegmList
 #undef CBTree
-#undef CPtrArray
 #undef CSet
 #undef SetOf
 #endif
