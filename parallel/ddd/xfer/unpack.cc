@@ -1517,7 +1517,7 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                  const DDD_HDR *localCplObjs, int nLocalCplObjs,
                  std::vector<XISetPrio*>& theSP,
                  XIDelObj **arrayDO, int nDO,
-                 std::vector<XICopyObj*>& arrayCO,
+                 const std::vector<XICopyObj*>& arrayCO,
                  XICopyObj **arrayNewOwners, int nNewOwners)
 {
   TENewCpl     *allNewCpl;

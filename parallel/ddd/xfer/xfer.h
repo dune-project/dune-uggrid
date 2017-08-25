@@ -623,7 +623,7 @@ RETCODE XferPackMsgs (XFERMSG *);
 /* unpack.c, used only by cmds.c */
 void XferUnpack (LC_MSGHANDLE *, int, const DDD_HDR *, int,
                  std::vector<XISetPrio*>&, XIDelObj  **, int,
-                 std::vector<XICopyObj*>&, XICopyObj **, int);
+                 const std::vector<XICopyObj*>&, XICopyObj **, int);
 
 
 /* ctrl.c */
