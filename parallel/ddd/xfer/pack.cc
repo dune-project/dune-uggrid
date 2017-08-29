@@ -392,11 +392,7 @@ static void XferPackSingleMsg (XFERMSG *msg)
   TENewCpl     *theNewCpl;
   TEOldCpl     *theOldCpl;
   char         *theObjects, *currObj;
-  int i, actSym, actNewCpl, actOldCpl, actObj, recvProc;
-
-
-  /* recipient of this message */
-  recvProc = msg->proc;
+  int i, actSym, actNewCpl, actOldCpl, actObj;
 
   /* get table addresses inside message */
   theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(msg->msg_h, xferGlobals.symtab_id);
@@ -423,7 +419,7 @@ static void XferPackSingleMsg (XFERMSG *msg)
     /*
                     for(cpl=THECOUPLING(hdr); cpl!=NULL; cpl=cpl->next)
                     {
-                            if (cpl->proc!=recvProc)
+                            if (cpl->proc!=msg->proc)
                             {
                                     theNewCpl[actNewCpl].gid  = OBJ_GID(hdr);
                                     theNewCpl[actNewCpl].proc = cpl->proc;
