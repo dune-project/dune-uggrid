@@ -348,10 +348,6 @@ enum NodeType {CORNER_NODE,
    #define TOPNODE(p)              ((p)->iv.topnode)
  */
 
-/** \brief Modes for LexOrderVectorsInGrid */
-enum {OV_CARTES,
-      OV_POLAR};
-
 /****************************************************************************/
 /*                                                                          */
 /* format definition data structure                                         */
@@ -3549,13 +3545,6 @@ NS_PREFIX BLOCK_DESC      *GetMGUDBlockDescriptor (NS_PREFIX BLOCK_ID id);
 /* ordering of degrees of freedom */
 ALG_DEP         *CreateAlgebraicDependency              (const char *name, DependencyProcPtr DependencyProc);
 FIND_CUT        *CreateFindCutProc                              (const char *name, FindCutProcPtr FindCutProc);
-INT                     LexOrderVectorsInGrid                   (GRID *theGrid, INT mode, const INT *order, const INT *sign, INT which, INT SpecSkipVecs, INT AlsoOrderMatrices);
-INT             OrderVectors                                    (MULTIGRID *theMG, INT levels, INT mode, INT PutSkipFirst, INT SkipPat, const char *dependency, const char *dep_options, const char *findcut);
-INT                     ShellOrderVectors                               (GRID *theGrid, VECTOR *seed);
-INT                     PrepareForLineorderVectors              (GRID *theGrid);
-INT                     MarkBeginEndForLineorderVectors (ELEMENT *elem, INT dt, INT ot, const INT *mark);
-INT                     LineOrderVectors                                (MULTIGRID *theMG, INT levels, const char *dependency, const char *dep_options, const char *findcut, INT verboselevel);
-INT                     RevertVecOrder                                  (GRID *theGrid);
 
 /* functions for evaluation-fct management */
 INT              InitEvalProc                                                           (void);
