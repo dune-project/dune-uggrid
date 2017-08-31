@@ -3474,7 +3474,6 @@ CONNECTION      *CreateExtraConnection  (GRID *theGrid, VECTOR *from, VECTOR *to
 INT             DisposeExtraConnections (GRID *theGrid);
 INT             DisposeConnectionsInGrid (GRID *theGrid);
 MATRIX          *GetMatrix                              (const VECTOR *FromVector, const VECTOR *ToVector);
-MATRIX      *GetOrderedMatrix       (const VECTOR *FromVector, const VECTOR *ToVector);
 CONNECTION      *GetConnection                  (const VECTOR *FromVector, const VECTOR *ToVector);
 INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
                                      VECTOR **vec);

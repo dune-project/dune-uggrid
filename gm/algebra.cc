@@ -1603,29 +1603,6 @@ MATRIX * NS_DIM_PREFIX GetMatrix (const VECTOR *FromVector, const VECTOR *ToVect
   return (NULL);
 }
 
-MATRIX *NS_DIM_PREFIX GetOrderedMatrix (const VECTOR *FromVector, const VECTOR *ToVector)
-{
-  MATRIX *theMatrix;
-
-  if (FromVector == ToVector)
-    return(VSTART(ToVector));
-  else if (VINDEX(FromVector) > VINDEX(ToVector)) {
-    for (theMatrix=MNEXT(VSTART(FromVector));
-         theMatrix!=NULL; theMatrix = MNEXT(theMatrix))
-      if (MDEST(theMatrix)==ToVector)
-        return (theMatrix);
-  }
-  else {
-    for (theMatrix=MNEXT(VSTART(ToVector));
-         theMatrix!=NULL; theMatrix = MNEXT(theMatrix))
-      if (MDEST(theMatrix)==FromVector)
-        return (MADJ(theMatrix));
-  }
-
-  /* return not found */
-  return (NULL);
-}
-
 /****************************************************************************/
 /** \brief Return pointer to connection if it exists
 
