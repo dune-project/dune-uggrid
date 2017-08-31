@@ -1659,21 +1659,8 @@ struct elementvector {
 
 };
 
-struct matrixvalues {
-
-  /** \brief Fields for enironment list variable */
-  NS_PREFIX ENVVAR v;
-
-  /** \brief Prepare eval values */
-  PreprocessingProcPtr PreprocessProc;
-
-  /** \brief Pointer to corresponding function */
-  MatrixEvalProcPtr EvalProc;
-};
-
 typedef struct elementvalues EVALUES ;
 typedef struct elementvector EVECTOR ;
-typedef struct matrixvalues MVALUES ;
 
 /****************************************************************************/
 /*                                                                                                                                                      */
