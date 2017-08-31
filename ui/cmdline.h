@@ -85,13 +85,7 @@ typedef struct {                                /* executable command variable  
 INT      InitCmdline            (void);
 
 /* command creation and execution */
-COMMAND *GetFirstCommand        (void);
-COMMAND *GetNextCommand         (const COMMAND *cmd);
-COMMAND *SearchUgCmd            (const char *cmdName);
 COMMAND *CreateCommand          (const char *name, CommandProcPtr cmdProc);
-COMMAND *GetCommand             (const char *name);
-COMMAND *ReplaceCommand         (const char *name, CommandProcPtr cmdProc);
-INT      ExecCommand            (char *cmdLine);
 
 END_UGDIM_NAMESPACE
 
