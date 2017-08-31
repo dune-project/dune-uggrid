@@ -3462,11 +3462,6 @@ INT InitBVDF                                            ( BV_DESC_FORMAT *bvdf, 
 /* handling struct blockvector_description (BV_DESC) */
 INT PushEntry                                           ( BV_DESC *bvd, BLOCKNUMBER bnr, const BV_DESC_FORMAT *bvdf );
 
-/* functions to create a BLOCKVECTOR structure for a regular rectangular grid */
-INT CreateBVStripe2D                            ( GRID *grid, INT vectors, INT vectors_per_stripe );
-INT CreateBVStripe3D                            ( GRID *grid, INT inner_vectors, INT stripes_per_plane, INT vectors_per_stripe );
-INT CreateBVDomainHalfening                     ( GRID *grid, INT side, INT leaf_size );
-
 /* general functions for BLOCKVECTOR */
 INT CreateBlockvector                           ( GRID *theGrid, BLOCKVECTOR **BVHandle );
 INT CreateBlockvector_l0                        ( GRID *theGrid, BLOCKVECTOR **BVHandle, BLOCKVECTOR *insertBV, INT after);

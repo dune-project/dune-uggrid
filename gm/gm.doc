@@ -2043,10 +2043,6 @@ RELATED~FUNCTIONS:
 
 . FindBV - Find the described blockvector in the grid.
 
-. CreateBVStripe - Creates a stripewise domain decomposition.
-
-. CreateBVDomainHalfening - Creates a recursive domain halfening decomposition.
-
 . blas~routines~for~BLOCKVECTOR - ~
 
 EXAMPLES:
@@ -2082,7 +2078,7 @@ The second variant uses a BV_DESC instead of the pointer:~
 
 \sa VECTOR, MATRIX, BV_DESC, BV_DESC_FORMAT, BLOCKNUMBER, BLOCKLEVEL,
 CreateBlockvector, DisposeBlockvector, FreeAllBV, FreeBVList, FindBV,
-CreateBVStripe, CreateBVDomainHalfening , blas_routines.
+blas_routines.
 
 */
 
