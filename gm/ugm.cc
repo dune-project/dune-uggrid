@@ -320,7 +320,6 @@ void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
     case MAOBJ :
     case VEOBJ :
     case GROBJ :
-    case BLOCKVOBJ :
       break;
     default : assert(0);
     }
@@ -416,7 +415,6 @@ INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT t
   case MAOBJ :
   case VEOBJ :
   case GROBJ :
-  case BLOCKVOBJ :
     break;
   default : assert(0);
   }
@@ -2808,8 +2806,6 @@ GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG, INT algebraic)
   GRID_INIT_NODE_LIST(theGrid);
   GRID_INIT_VERTEX_LIST(theGrid);
   GRID_INIT_VECTOR_LIST(theGrid);
-  GFIRSTBV(theGrid) = NULL;
-  GLASTBV(theGrid) = NULL;
   if (l>0)
   {
     DOWNGRID(theGrid) = GRID_ON_LEVEL(theMG,l-1);
@@ -2880,8 +2876,6 @@ GRID * NS_DIM_PREFIX CreateNewLevelAMG (MULTIGRID *theMG)
   GRID_INIT_NODE_LIST(theGrid);
   GRID_INIT_VERTEX_LIST(theGrid);
   GRID_INIT_VECTOR_LIST(theGrid);
-  GFIRSTBV(theGrid) = NULL;
-  GLASTBV(theGrid) = NULL;
 
   /* fill in further data */
   theGrid->mg = theMG;

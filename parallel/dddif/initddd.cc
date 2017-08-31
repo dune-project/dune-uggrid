@@ -437,11 +437,6 @@ static void ddd_DefineTypes (void)
                  EL_GDATA,  ELDEF(v.skip),
                  EL_LDATA,  ELDEF(v.start),
 
-                 /* TODO is this LDATA or GDATA? */
-                #ifdef __BLOCK_VECTOR_DESC__
-                 EL_LDATA,  ELDEF(v.block_descr),
-                #endif
-
                  /* TODO: value wird noch ausgelassen. feld variabler laenge? */
                  /* bei entscheidung 'value': kein weiteres feld
                          bei ent. 'userdata *': EL_GDATA-feld        */

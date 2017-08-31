@@ -58,8 +58,6 @@ USING_UGDIM_NAMESPACE
 #define CW_NDOBJ                BITWISE_TYPE(NDOBJ)
 #define CW_VEOBJ                BITWISE_TYPE(VEOBJ)
 #define CW_MAOBJ                (BITWISE_TYPE(MAOBJ) | BITWISE_TYPE(COOBJ))
-/* take both matrix and connection in one	*/
-#define CW_BVOBJ                BITWISE_TYPE(BLOCKVOBJ)
 
 #define CW_VXOBJS               (BITWISE_TYPE(IVOBJ) | BITWISE_TYPE(BVOBJ))
 #define CW_ELOBJS               (BITWISE_TYPE(IEOBJ) | BITWISE_TYPE(BEOBJ))
@@ -119,7 +117,6 @@ CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 static CONTROL_WORD_PREDEF cw_predefines[MAX_CONTROL_WORDS] = {
   CW_INIT(CW_USED,VECTOR_,                        CW_VEOBJ),
   CW_INIT(CW_USED,MATRIX_,                        CW_MAOBJ),
-  CW_INIT(CW_USED,BLOCKVECTOR_,           CW_BVOBJ),
   CW_INIT(CW_USED,VERTEX_,                        CW_VXOBJS),
   CW_INIT(CW_USED,NODE_,                          CW_NDOBJ),
   CW_INIT(CW_USED,LINK_,                          CW_EDOBJ),
@@ -130,6 +127,7 @@ static CONTROL_WORD_PREDEF cw_predefines[MAX_CONTROL_WORDS] = {
   CW_INIT(CW_USED,GRID_,                          CW_GROBJ),
   CW_INIT(CW_USED,GRID_STATUS_,           CW_GROBJ),
   CW_INIT(CW_USED,MULTIGRID_STATUS_,      CW_MGOBJ),
+  CW_INIT_UNUSED,
   CW_INIT_UNUSED,
   CW_INIT_UNUSED,
   CW_INIT_UNUSED,
@@ -168,12 +166,7 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
   CE_INIT(CE_LOCKED,      MATRIX_,                MUPPER_,                CW_MAOBJ),
   CE_INIT(CE_LOCKED,      MATRIX_,                MACTIVE_,               CW_MAOBJ),
 
-  CE_INIT(CE_USED,        BLOCKVECTOR_,   BVDOWNTYPE_,    CW_BVOBJ),
-  CE_INIT(CE_USED,        BLOCKVECTOR_,   BVLEVEL_,               CW_BVOBJ),
-  CE_INIT(CE_USED,        BLOCKVECTOR_,   BVTVTYPE_,              CW_BVOBJ),
-  CE_INIT(CE_USED,        BLOCKVECTOR_,   BVORIENTATION_, CW_BVOBJ),
-
-  CE_INIT(CE_LOCKED,      GENERAL_,               OBJ_,                   (CW_GEOMOBJS | CW_VEOBJ | CW_MAOBJ | CW_BVOBJ)),
+  CE_INIT(CE_LOCKED,      GENERAL_,               OBJ_,                   (CW_GEOMOBJS | CW_VEOBJ | CW_MAOBJ)),
   CE_INIT(CE_LOCKED,      GENERAL_,               USED_,                  (CW_GEOMOBJS | CW_VEOBJ | CW_MAOBJ)),
   CE_INIT(CE_LOCKED,      GENERAL_,               THEFLAG_,               (CW_GEOMOBJS | CW_VEOBJ)),
   CE_INIT(CE_LOCKED,      GENERAL_,               LEVEL_,                 CW_GEOMOBJS),
@@ -470,7 +463,6 @@ void NS_DIM_PREFIX ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf)
   ListAllCWsOfObjectType(NDOBJ,myprintf);
   ListAllCWsOfObjectType(VEOBJ,myprintf);
   ListAllCWsOfObjectType(MAOBJ,myprintf);
-  ListAllCWsOfObjectType(BLOCKVOBJ,myprintf);
   ListAllCWsOfObjectType(GROBJ,myprintf);
   ListAllCWsOfObjectType(MGOBJ,myprintf);
 }
