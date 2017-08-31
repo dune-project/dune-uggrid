@@ -1,9 +1,0 @@
-#!/bin/sh
-if test $UGROOT
-then
-	MANPATH=$UGROOT/man:$UGROOT/../diff2d/man:$UGROOT/../cd/man:$UGROOT/../fe/man:$UGROOT/../ns/man:$UGROOT/../sc/man
-    export MANPATH
-    man $*
-else
-    echo "ERROR: to get the man pages of ug set the environment variable UGROOT"
-fi
