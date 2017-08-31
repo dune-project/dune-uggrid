@@ -1223,7 +1223,6 @@ static void UnpackAddData (LC_MSGHANDLE xm, int required_newness)
   OBJTAB_ENTRY *theObjTab;
   char         *theObjects;
   int i;
-  int lenSymTab = (int) LC_GetTableLen(xm, xferGlobals.symtab_id);
   int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
 
 
@@ -1479,7 +1478,6 @@ static int CompressNewCpl (TENewCpl *tabNC, int nNC)
     /* TENewCpl.type component is needed here (for merging priorities)! */
     TYPE_DESC *desc  = &theTypeDefs[NewCpl_GetType(tabNC[iNC])];
     DDD_PRIO newprio;
-    int ret;
 
     newprio = NewCpl_GetPrio(tabNC[iNC]);
     while (iNC<nNC-1 && NewCpl_GetGid(tabNC[iNC+1])==NewCpl_GetGid(tabNC[iNC]) &&

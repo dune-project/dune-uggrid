@@ -46,28 +46,6 @@ INT NewCommand(INT argc, char **argv);
 /** This method is not static because it is needed in DUNE */
 INT ConfigureCommand (INT argc, char **argv);
 
-/** This method is not static because it is needed in DUNE */
-INT LBCommand (INT argc, char **argv);
-
-
-/****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*    compile time constants defining static data size (i.e. arrays)        */
-/*    other constants                                                       */
-/*    macros                                                                */
-/*                                                                          */
-/****************************************************************************/
-
-#define NO_OPTION_CHECK(argc,argv)      if (argc>1)                                                     \
-  {                                                                               \
-    UserWrite("don't specify arguments with "); \
-    UserWrite(argv[0]);                             \
-    UserWrite("\n");                                        \
-    return (CMDERRORCODE);                          \
-  }
-
 /****************************************************************************/
 /*                                                                          */
 /* data structures exported by the corresponding source file                */
@@ -87,8 +65,6 @@ INT LBCommand (INT argc, char **argv);
 /****************************************************************************/
 
 INT              InitCommands                   (void);
-
-FILE            *GetProtocolFile                (void);
 
 MULTIGRID       *GetCurrentMultigrid    (void);
 

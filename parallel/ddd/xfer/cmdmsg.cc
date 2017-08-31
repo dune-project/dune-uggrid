@@ -473,7 +473,7 @@ int PruneXIDelCmd (
 {
   CMDMSG    *sendMsgs, *sm=0;
   LC_MSGHANDLE *recvMsgs;
-  int i, nSendMsgs, nRecvMsgs;
+  int nSendMsgs, nRecvMsgs;
   int nPruned;
 
   XICopyObj **itemsCO = XICopyObjPtrArray_GetData(arrayCO);
@@ -507,7 +507,7 @@ int PruneXIDelCmd (
 
 
   /*
-          for(i=0; i<nRecvMsgs; i++)
+          for(int i=0; i<nRecvMsgs; i++)
           {
      #if DebugCmdMsg>=2
                   if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)

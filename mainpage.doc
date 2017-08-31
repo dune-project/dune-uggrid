@@ -123,13 +123,6 @@ The graph induced by the MATRIX-VECTOR
 structure is completely independent from the mesh graph represented by the
 LINK-NODE structure.
 
-. BLOCKVECTOR - Gives you the facility to structure a VECTOR-list. The
-VECTOR-list itself remains unchanged but additional data is inserted
-in the grid. The substructuring can be hierarchical. Each VECTOR sublist
-described by a BLOCKVECTOR can be processed by itself. Via the
-BLOCKVECTOR structure there is also a blockmatrix structure induced to
-the MATRIX structure but without any additional memory need.
-
 . CONNECTION - The two (or one, s.a.) MATRIX objects connecting two VECTOR objects
 are combined to a CONNECTION object. This is similar to the combination of two
 LINK objects in an EDGE.

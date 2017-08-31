@@ -204,7 +204,6 @@ INT             MaxNextVectorClass                              (GRID *theGrid, 
 /** @name Miscellaneous routines */
 /*@{*/
 INT             PrepareAlgebraModification              (MULTIGRID *theMG);
-INT             MoveVector                                              (GRID *theGrid, VECTOR *moveVector, VECTOR *destVector, INT after);
 /*@}*/
 
 /** \brief Initialization */
