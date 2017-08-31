@@ -2033,16 +2033,6 @@ SETBVDOWNTYPE ( BLOCKVECTOR *bv, INT n );     BVDOWNTYPEVECTOR if object is
 
 RELATED~FUNCTIONS:
 
-. CreateBlockvector - Allocates a new BLOCKVECTOR (from the multigrids memory).
-
-. DisposeBlockvector - Returns an unused BLOCKVECTOR to the multigrids memory.
-
-. FreeAllBV - Disposes all BLOCKVECTORs related to one grid.
-
-. FreeBVList - Disposes blockvector-list and all its sons.
-
-. FindBV - Find the described blockvector in the grid.
-
 . blas~routines~for~BLOCKVECTOR - ~
 
 EXAMPLES:
@@ -2077,7 +2067,6 @@ The second variant uses a BV_DESC instead of the pointer:~
 \endverbatim
 
 \sa VECTOR, MATRIX, BV_DESC, BV_DESC_FORMAT, BLOCKNUMBER, BLOCKLEVEL,
-CreateBlockvector, DisposeBlockvector, FreeAllBV, FreeBVList, FindBV,
 blas_routines.
 
 */

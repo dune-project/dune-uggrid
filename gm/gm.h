@@ -3462,13 +3462,6 @@ INT InitBVDF                                            ( BV_DESC_FORMAT *bvdf, 
 /* handling struct blockvector_description (BV_DESC) */
 INT PushEntry                                           ( BV_DESC *bvd, BLOCKNUMBER bnr, const BV_DESC_FORMAT *bvdf );
 
-/* general functions for BLOCKVECTOR */
-INT CreateBlockvector                           ( GRID *theGrid, BLOCKVECTOR **BVHandle );
-INT CreateBlockvector_l0                        ( GRID *theGrid, BLOCKVECTOR **BVHandle, BLOCKVECTOR *insertBV, INT after);
-INT DisposeBlockvector                          ( GRID *theGrid, BLOCKVECTOR *bv );
-void FreeAllBV                                          ( GRID *grid );
-void SetLevelnumberBV                           ( BLOCKVECTOR *bv, INT level );
-
 /* algebraic connections */
 CONNECTION      *CreateExtraConnection  (GRID *theGrid, VECTOR *from, VECTOR *to);
 INT             DisposeExtraConnections (GRID *theGrid);
@@ -3486,7 +3479,6 @@ ELEMENT     *FindElementOnSurface   (MULTIGRID *theMG, DOUBLE *global);
 ELEMENT     *FindElementOnSurfaceCached (MULTIGRID *theMG, DOUBLE *global);
 ELEMENT     *NeighbourElement       (ELEMENT *t, INT side);
 INT          InnerBoundary          (ELEMENT *t, INT side);
-BLOCKVECTOR *FindBV                                     (const GRID *grid, const BV_DESC *bvd, const BV_DESC_FORMAT *bvdf );
 
 /* list */
 void            ListMultiGridHeader     (const INT longformat);
