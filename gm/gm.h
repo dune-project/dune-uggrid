@@ -3214,16 +3214,6 @@ NODE            *GetFineNodeOnEdge              (const ELEMENT *theElement, INT 
 #ifdef __THREEDIM__
 INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theNode);
 #endif
-INT         MoveMidNode             (MULTIGRID *theMG, NODE *theNode, DOUBLE lambda, INT update);
-INT         MoveBndMidNode          (MULTIGRID *theMG, VERTEX *theVertex);
-INT         MoveCenterNode          (MULTIGRID *theMG, NODE *theNode, DOUBLE *lambda);
-#ifdef __THREEDIM__
-INT         MoveSideNode             (MULTIGRID *theMG, NODE *theNode, DOUBLE *lambda);
-#endif
-INT         MoveNode                (MULTIGRID *theMG, NODE *theNode, DOUBLE *newPos, INT update);
-INT                     MoveFreeBoundaryVertex  (MULTIGRID *theMG, VERTEX *vert, const DOUBLE *newPos);
-INT                     SetVertexGlobalAndLocal (VERTEX *vert, const DOUBLE *global, const DOUBLE *local);
-INT                     FinishMovingFreeBoundaryVertices        (MULTIGRID *theMG);
 
 /* algebraic connections */
 CONNECTION      *CreateExtraConnection  (GRID *theGrid, VECTOR *from, VECTOR *to);
