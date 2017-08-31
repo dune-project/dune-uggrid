@@ -4504,69 +4504,6 @@ INT NS_DIM_PREFIX OrderNodesInGrid (GRID *theGrid, const INT *order, const INT *
 }
 
 /****************************************************************************/
-/** \brief Reorder a given set of elements and put them first in the list
-
- * @param   theGrid - elements are part of that level (not checked)
- * @param   cnt - number of elements in list
- * @param   elemList - list of elements to reorder
-
-   This function reorders a given set of elements and put them last in the list.
-
-   @return <ul>
-   <li>   GM_OK if ok </li>
-   </ul> */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX PutAtEndOfList (GRID *theGrid, INT cnt, ELEMENT **elemList)
-{
-  ELEMENT *theElement,*After,*theFather;
-  INT i,prio;
-
-  if (cnt == 0) return (GM_OK);
-
-  theFather = EFATHER(elemList[0]);
-        #ifdef ModelP
-  prio            = EPRIO(elemList[0]);
-        #else
-  prio            = 0;
-        #endif
-
-        #ifdef Debug
-  /* check elements in list */
-  for (i=0; i<cnt; i++)
-  {
-    theElement = elemList[i];
-
-    ASSERT(theFather == EFATHER(theElement));
-                #ifdef ModelP
-    ASSERT(prio == EPRIO(theElement));
-                #endif
-  }
-        #endif
-
-  /* remove all elements from list */
-  for (i=0; i<cnt; i++)
-  {
-    theElement = elemList[i];
-    GRID_UNLINK_ELEMENT(theGrid,theElement);
-  }
-
-  /* and insert them at the end of the element list */
-  After = NULL;
-  for (i=0; i<cnt; i++)
-  {
-    GRID_LINKX_ELEMENT(theGrid,elemList[i],prio,After);
-    After = elemList[i];
-  }
-
-  /* set son pointer of father to first son in list */
-  if (EFATHER(elemList[0]) != NULL)
-    SET_SON(EFATHER(elemList[0]),PRIO2INDEX(prio),elemList[0]);
-
-  return(GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Determine neighbor and side of neighbor that goes back to element
  *
  * @param   theElement - considered element
