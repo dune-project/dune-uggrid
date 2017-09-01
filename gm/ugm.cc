@@ -4722,47 +4722,6 @@ INT NS_DIM_PREFIX DeleteNodeWithID (GRID *theGrid, INT id)
   return (DeleteNode(theGrid,theNode));
 }
 
-/****************************************************************************/
-/** \brief Find the new father element
-
- * @param   theVertex -
-
-   This function finds the new father element of the given vertex.
-   It assumes that the  new father is one of the neighbors of the
-   old father element.
-
-   @return <ul>
-   <li>     pointer to an element </li>
-   <li>     NULL if none or no correct father is found or vertex is level 0 </li>
-   </ul> */
-/****************************************************************************/
-
-ELEMENT * NS_DIM_PREFIX FindFather (VERTEX *theVertex)
-{
-  ELEMENT *theElement;
-  INT i;
-
-  theElement = VFATHER(theVertex);
-
-  if (theElement == NULL)
-    return(NULL);
-
-  if (OBJT(theElement)==BEOBJ && MOVED(theVertex)) return(theElement);
-
-  if (PointInElement(CVECT(theVertex),theElement))
-    return(theElement);
-
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
-    if (PointInElement(CVECT(theVertex),NBELEM(theElement,i)))
-      return(NBELEM(theElement,i));
-
-  if (i == SIDES_OF_ELEM(theElement))
-    if (OBJT(theVertex) == BVOBJ)
-      return(theElement);
-
-  return(NULL);
-}
-
 #ifdef __TWODIM__
 
 
