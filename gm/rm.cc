@@ -2581,19 +2581,6 @@ INT NS_DIM_PREFIX MarkForRefinement (ELEMENT *theElement, enum RefinementRule ru
   return(GM_OK);
 }
 
-INT NS_DIM_PREFIX MarkForRefinementX (ELEMENT *e, INT fl, INT tl, enum RefinementRule rule, INT data)
-{
-  ELEMENT *t = ELEMENT_TO_MARK(e);
-
-  assert(ECLASS(t)==RED_CLASS);
-
-  if (rule==RED && LEVEL(t)<tl) return(MarkForRefinement(e,rule,data));
-  if (rule==COARSE && LEVEL(t)>fl) return(MarkForRefinement(e,rule,data));
-
-  return(GM_ERROR);
-}
-
-
 /****************************************************************************/
 /** \brief Return true when element can be tagged for refinement
 
@@ -2614,39 +2601,6 @@ INT NS_DIM_PREFIX EstimateHere (const ELEMENT *theElement)
   if (EGHOST(theElement)) return(0);
         #endif
   return(LEAFELEM(theElement));
-}
-
-
-/****************************************************************************/
-/** \brief Clear refinement on level
-
-   \param theGrid - level
-   \param ClearType - 0: clear all, 1: clear refinements, -1: clear coarsenings
-
-   This function clears refinement on level
-
-   \return <ul>
-   <li> GM_OK - ok </li>
-   <li> GM_ERROR - error </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ClearMarksOnLevel (GRID *theGrid, INT ClearType)
-{
-  ELEMENT *theElement;
-  INT MarkType;
-
-  for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
-    if (EstimateHere(theElement))
-    {
-      MarkType = GetRefinementMarkType(theElement);
-      if (ClearType*MarkType>=0)
-        if (MarkForRefinement (theElement,NO_REFINEMENT,0)==GM_ERROR)
-          return(GM_ERROR);
-    }
-
-  return (GM_OK);
 }
 
 

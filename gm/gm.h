@@ -1659,21 +1659,8 @@ struct elementvector {
 
 };
 
-struct matrixvalues {
-
-  /** \brief Fields for enironment list variable */
-  NS_PREFIX ENVVAR v;
-
-  /** \brief Prepare eval values */
-  PreprocessingProcPtr PreprocessProc;
-
-  /** \brief Pointer to corresponding function */
-  MatrixEvalProcPtr EvalProc;
-};
-
 typedef struct elementvalues EVALUES ;
 typedef struct elementvector EVECTOR ;
-typedef struct matrixvalues MVALUES ;
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -3186,26 +3173,20 @@ INT                     SaveCnomGridAndValues (MULTIGRID *theMG, char *FileName,
 NODE        *InsertInnerNode            (GRID *theGrid, const DOUBLE *pos);
 NODE        *InsertBoundaryNode     (GRID *theGrid, BNDP *bndp);
 
-INT             DeleteNodeWithID                (GRID *theGrid, INT id);
 INT             DeleteNode                              (GRID *theGrid, NODE *theNode);
-ELEMENT     *InsertElementFromIDs       (GRID *theGrid, INT n, INT  *idList, INT *bnds_flag);
 ELEMENT     *InsertElement                      (GRID *theGrid, INT n, NODE **NodeList, ELEMENT **ElemList, INT *NbgSdList, INT *bnds_flag);
 INT         InsertMesh              (MULTIGRID *theMG, MESH *theMesh);
-INT             DeleteElementWithID     (MULTIGRID *theMG, INT id);
 INT             DeleteElement                   (MULTIGRID *theMG, ELEMENT *theElement);
 
 /* refinement */
 /** \todo !!! should be moved to rm.h [Thimo] */
 INT             EstimateHere                    (const ELEMENT *theElement);
 INT         MarkForRefinement       (ELEMENT *theElement, enum RefinementRule rule, INT data);
-INT         MarkForRefinementX      (ELEMENT *theElement,
-                                     INT fl, INT tl, enum RefinementRule rule, INT data);
 INT             GetRefinementMark               (ELEMENT *theElement, INT *rule, void *data);
 INT             GetRefinementMarkType   (ELEMENT *theElement);
 INT             AdaptMultiGrid                  (MULTIGRID *theMG, INT flag, INT seq, INT mgtest);
 INT         TestRefineInfo          (MULTIGRID *theMG);
 INT         SetRefineInfo           (MULTIGRID *theMG);
-INT             ClearMarksOnLevel               (GRID *theGrid, INT ClearType);
 
 
 NODE            *GetFineNodeOnEdge              (const ELEMENT *theElement, INT side);

@@ -31,13 +31,6 @@
 
 /****************************************************************************/
 /*                                                                          */
-/* defines to exclude functions                                             */
-/*                                                                          */
-/****************************************************************************/
-
-
-/****************************************************************************/
-/*                                                                          */
 /* include files                                                            */
 /* system include files                                                     */
 /* application include files                                                */
@@ -90,8 +83,6 @@
 
 /* user interface module */
 #include "ugstruct.h"
-#include "cmdint.h"
-#include "cmdline.h"
 
 #ifdef ModelP
 #include "parallel.h"
@@ -141,30 +132,30 @@ INT NS_DIM_PREFIX ConfigureCommand (INT argc, char **argv)
   char BVPName[NAMESIZE];
 
   /* get BVP name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" configure %",NAMELENSTR,"[ -~]")),BVPName)!=1) || (strlen(BVPName)==0))
+  if (sscanf(argv[0],expandfmt(" configure %" NAMELENSTR "[ -~]"),BVPName) != 1 || strlen(BVPName) == 0)
   {
     PrintErrorMessage('E', "ConfigureCommand", "cannot read BndValProblem specification");
-    return(PARAMERRORCODE);
+    return 1;
   }
 
   theBVP = BVP_GetByName(BVPName);
   if (theBVP == NULL)
   {
     PrintErrorMessage('E', "ConfigureCommand", "cannot read BndValProblem specification");
-    return(PARAMERRORCODE);
+    return 1;
   }
 
   if (BVP_SetBVPDesc(theBVP,&theBVPDesc))
-    return (CMDERRORCODE);
+    return 1;
 
   if (BVPD_CONFIG(&theBVPDesc)!=NULL)
     if ((*BVPD_CONFIG(&theBVPDesc))(argc,argv))
     {
       PrintErrorMessage('E',"configure"," (could not configure BVP)");
-      return(CMDERRORCODE);
+      return 1;
     }
 
-  return(OKCODE);
+  return 0;
 }
 
 
@@ -176,7 +167,7 @@ static INT CloseCommand (INT argc, char **argv)
   bool closeonlyfirst;
 
   if (ResetPrintingFormat())
-    REP_ERR_RETURN(CMDERRORCODE);
+    REP_ERR_RETURN(1);
 
   closeonlyfirst = true;
   for (i=1; i<argc; i++)
@@ -188,7 +179,7 @@ static INT CloseCommand (INT argc, char **argv)
 
     default :
       PrintErrorMessageF('E', "CloseCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
+      return 1;
     }
 
   i = 0;
@@ -201,7 +192,7 @@ static INT CloseCommand (INT argc, char **argv)
       if (i==0)
       {
         PrintErrorMessage('W',"close","no open multigrid");
-        return (OKCODE);
+        return 0;
       }
       closeonlyfirst = false;
       break;
@@ -210,7 +201,7 @@ static INT CloseCommand (INT argc, char **argv)
     if (DisposeMultiGrid(theMG)!=0)
     {
       PrintErrorMessage('E',"close","closing the mg failed");
-      return (CMDERRORCODE);
+      return 1;
     }
     i++;
 
@@ -218,7 +209,7 @@ static INT CloseCommand (INT argc, char **argv)
   }
   while (!closeonlyfirst);
 
-  return(OKCODE);
+  return 0;
 }
 
 
@@ -232,7 +223,7 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
   bool bopt, fopt, hopt, IEopt, emptyGrid;
 
   /* get multigrid name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" new %",NAMELENSTR,"[ -~]")),Multigrid)!=1) || (strlen(Multigrid)==0))
+  if (sscanf(argv[0],expandfmt(" new %" NAMELENSTR "[ -~]"),Multigrid) != 1 || strlen(Multigrid)==0)
     sprintf(Multigrid,"untitled-%d",(int)untitledCounter++);
 
   theMG = GetMultigrid(Multigrid);
@@ -247,19 +238,19 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
     switch (argv[i][0])
     {
     case 'b' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("b %",NAMELENSTR,"[ -~]")),BVPName)!=1)
+      if (sscanf(argv[i],expandfmt("b %" NAMELENSTR "[ -~]"),BVPName) != 1)
       {
         PrintErrorMessage('E', "NewCommand", "cannot read BndValProblem specification");
-        return(PARAMERRORCODE);
+        return 1;
       }
       bopt = true;
       break;
 
     case 'f' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("f %",NAMELENSTR,"[ -~]")),Format)!=1)
+      if (sscanf(argv[i],expandfmt("f %" NAMELENSTR "[ -~]"),Format) != 1)
       {
         PrintErrorMessage('E', "NewCommand", "cannot read format specification");
-        return(PARAMERRORCODE);
+        return 1;
       }
       fopt = true;
       break;
@@ -276,20 +267,20 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
       if (ReadMemSizeFromString(argv[i]+1,&heapSize)!=0)           /* skip leading 'h' in argv */
       {
         PrintErrorMessage('E', "NewCommand", "cannot read heapsize specification");
-        return(PARAMERRORCODE);
+        return 1;
       }
       hopt = true;
       break;
 
     default :
       PrintErrorMessageF('E', "NewCommand", "Unknown option '%s'", argv[i]);
-      return (PARAMERRORCODE);
+      return 1;
     }
 
   if (!(bopt && fopt && hopt))
   {
     PrintErrorMessage('E', "NewCommand", "the d, p, f and h arguments are mandatory");
-    return(PARAMERRORCODE);
+    return 1;
   }
 
   /* allocate the multigrid structure */
@@ -297,39 +288,12 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
   if (theMG==NULL)
   {
     PrintErrorMessage('E',"new","could not create multigrid");
-    return(CMDERRORCODE);
+    return 1;
   }
 
   currMG = theMG;
 
-  return(OKCODE);
-}
-
-/****************************************************************************/
-/** \brief Initialization of the commands
-
-   This function does initialization of all ug-commands, using
-   'CreateCommand'.
-   It initializes 'clock', 'findrange' and 'array'
-   commands.
-
-   SEE ALSO:
-   commands
-
-   RETURN VALUE:
-   .n    0 if ok
-   .n    __LINE__ if error occured.
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX InitCommands ()
-{
-  /* commands for grid management */
-  if (CreateCommand("configure",          ConfigureCommand                                )==NULL) return (__LINE__);
-  if (CreateCommand("new",                        NewCommand                                              )==NULL) return (__LINE__);
-  if (CreateCommand("close",                      CloseCommand                                    )==NULL) return (__LINE__);
-
-  return(0);
+  return 0;
 }
 
 /** @} */

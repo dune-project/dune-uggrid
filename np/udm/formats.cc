@@ -2497,7 +2497,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   int n,depth;
 
   /* scan name of format */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" newformat %",NAMELENSTR,"[ -~]")),formatname)!=1) || (strlen(formatname)==0)) {
+  if (sscanf(argv[0],expandfmt(" newformat %" NAMELENSTR "[ -~]"), formatname) != 1 || strlen(formatname) == 0) {
     PrintErrorMessage('E',"newformat","no format name specified");
     REP_ERR_RETURN (1);
   }
