@@ -2581,19 +2581,6 @@ INT NS_DIM_PREFIX MarkForRefinement (ELEMENT *theElement, enum RefinementRule ru
   return(GM_OK);
 }
 
-INT NS_DIM_PREFIX MarkForRefinementX (ELEMENT *e, INT fl, INT tl, enum RefinementRule rule, INT data)
-{
-  ELEMENT *t = ELEMENT_TO_MARK(e);
-
-  assert(ECLASS(t)==RED_CLASS);
-
-  if (rule==RED && LEVEL(t)<tl) return(MarkForRefinement(e,rule,data));
-  if (rule==COARSE && LEVEL(t)>fl) return(MarkForRefinement(e,rule,data));
-
-  return(GM_ERROR);
-}
-
-
 /****************************************************************************/
 /** \brief Return true when element can be tagged for refinement
 

@@ -3182,8 +3182,6 @@ INT             DeleteElement                   (MULTIGRID *theMG, ELEMENT *theE
 /** \todo !!! should be moved to rm.h [Thimo] */
 INT             EstimateHere                    (const ELEMENT *theElement);
 INT         MarkForRefinement       (ELEMENT *theElement, enum RefinementRule rule, INT data);
-INT         MarkForRefinementX      (ELEMENT *theElement,
-                                     INT fl, INT tl, enum RefinementRule rule, INT data);
 INT             GetRefinementMark               (ELEMENT *theElement, INT *rule, void *data);
 INT             GetRefinementMarkType   (ELEMENT *theElement);
 INT             AdaptMultiGrid                  (MULTIGRID *theMG, INT flag, INT seq, INT mgtest);
