@@ -2605,39 +2605,6 @@ INT NS_DIM_PREFIX EstimateHere (const ELEMENT *theElement)
 
 
 /****************************************************************************/
-/** \brief Clear refinement on level
-
-   \param theGrid - level
-   \param ClearType - 0: clear all, 1: clear refinements, -1: clear coarsenings
-
-   This function clears refinement on level
-
-   \return <ul>
-   <li> GM_OK - ok </li>
-   <li> GM_ERROR - error </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ClearMarksOnLevel (GRID *theGrid, INT ClearType)
-{
-  ELEMENT *theElement;
-  INT MarkType;
-
-  for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
-    if (EstimateHere(theElement))
-    {
-      MarkType = GetRefinementMarkType(theElement);
-      if (ClearType*MarkType>=0)
-        if (MarkForRefinement (theElement,NO_REFINEMENT,0)==GM_ERROR)
-          return(GM_ERROR);
-    }
-
-  return (GM_OK);
-}
-
-
-/****************************************************************************/
 /** \brief Return mark of rule for a specific pattern
 
    \param theElement - element rule is searched for

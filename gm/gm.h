@@ -3187,7 +3187,6 @@ INT             GetRefinementMarkType   (ELEMENT *theElement);
 INT             AdaptMultiGrid                  (MULTIGRID *theMG, INT flag, INT seq, INT mgtest);
 INT         TestRefineInfo          (MULTIGRID *theMG);
 INT         SetRefineInfo           (MULTIGRID *theMG);
-INT             ClearMarksOnLevel               (GRID *theGrid, INT ClearType);
 
 
 NODE            *GetFineNodeOnEdge              (const ELEMENT *theElement, INT side);
