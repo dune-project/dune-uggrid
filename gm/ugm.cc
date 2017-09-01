@@ -4693,35 +4693,6 @@ INT NS_DIM_PREFIX DeleteNode (GRID *theGrid, NODE *theNode)
   return(GM_OK);
 }
 
-/****************************************************************************/
-/** \brief Delete the node with id
-
- * @param   theGrid - grid structure
- * @param   id - id of node to delete
-
-   This function deletes the node with id `id`.
-
-   @return <ul>
-   <li>   GM_OK if ok </li>
-   <li>   GM_ERROR when error occured. </li>
-   </ul> */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DeleteNodeWithID (GRID *theGrid, INT id)
-{
-  NODE *theNode;
-
-  /* find node */
-  for (theNode=FIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode))
-    if (ID(theNode)==id) break;
-  if (theNode==NULL)
-  {
-    PrintErrorMessage('E',"DeleteNodeWithID","node not found");
-    RETURN(GM_ERROR);
-  }
-  return (DeleteNode(theGrid,theNode));
-}
-
 #ifdef __TWODIM__
 
 
@@ -5574,74 +5545,6 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
 }
 
 /****************************************************************************/
-/** \brief Insert element with node ids
-
- * @param   theGrid - grid structure
- * @param   n - number of nodes in node id list
- * @param   idList - ids of the nodes
-
-   This function inserts an element with nodes that have the ids
-   given in `idList`,  on level 0.
-
-   @return <ul>
-   <li>   pointer to an element if ok </li>
-   <li>   NULL when error occured. </li>
-   </ul> */
-/****************************************************************************/
-
-ELEMENT * NS_DIM_PREFIX InsertElementFromIDs (GRID *theGrid, INT n, INT *idList, INT *bnds_flag)
-{
-  MULTIGRID *theMG;
-  NODE *Node[MAX_CORNERS_OF_ELEM],*theNode;
-  INT i,j,found;
-
-  /* check level */
-  theMG = MYMG(theGrid);
-  if ((CURRENTLEVEL(theMG)!=0)||(TOPLEVEL(theMG)!=0))
-  {
-    PrintErrorMessage('E',"InsertElementFromIDs","only a multigrid with exactly one level can be edited");
-    return(NULL);
-  }
-
-  /* check data */
-  for (i=0; i<n; i++)
-    for (j=i+1; j<n; j++)
-      if (idList[i]==idList[j])
-      {
-        PrintErrorMessage('E',"InsertElementFromIDs",
-                          "nodes must be pairwise different");
-        return(NULL);
-      }
-
-  /* init data */
-  for (i=0; i<n; i++)
-    Node[i] = NULL;
-
-  /* find nodes */
-  found = 0;
-  for (theNode=FIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode))
-  {
-    for (i=0; i<n; i++)
-    {
-      if ((Node[i]==NULL)&&(ID(theNode)==idList[i]))
-      {
-        Node[i] = theNode;
-        found++;
-      }
-    }
-    if (found==n) break;
-  }
-  if (found!=n)
-  {
-    PrintErrorMessage('E',"InsertElementFromIDs",
-                      "could not find all nodes");
-    return(NULL);
-  }
-
-  return (InsertElement(GRID_ON_LEVEL(theMG,0),n,Node,NULL,NULL,bnds_flag));
-}
-
-/****************************************************************************/
 /** \brief Delete an element
 
  * @param   theMG - multigrid structure
@@ -5693,49 +5596,6 @@ INT NS_DIM_PREFIX DeleteElement (MULTIGRID *theMG, ELEMENT *theElement) /* 3D VE
   return(GM_OK);
 }
 
-
-/****************************************************************************/
-/** \todo Please doc me!
-   DeleteElementWithID -
-
-   SYNOPSIS:
-   INT DeleteElementWithID (MULTIGRID *theMG, INT id);
-
-
- * @param   theMG
- * @param   id
-
-   DESCRIPTION:
-
-   @return
-   INT
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DeleteElementWithID (MULTIGRID *theMG, INT id)
-{
-  GRID *theGrid;
-  ELEMENT *theElement;
-
-  /* check level */
-  if ((CURRENTLEVEL(theMG)!=0)||(TOPLEVEL(theMG)!=0))
-  {
-    PrintErrorMessage('E',"DeleteElementWithId","only a multigrid with exactly one level can be edited");
-    RETURN(GM_ERROR);
-  }
-  theGrid = GRID_ON_LEVEL(theMG,0);
-
-  /* find element */
-  for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
-    if (ID(theElement)==id) break;
-  if (theElement==NULL)
-  {
-    PrintErrorMessage('E',"DeleteElementWithId","element not found");
-    RETURN(GM_ERROR);
-  }
-
-  return (DeleteElement(theMG,theElement));
-}
 
 /****************************************************************************/
 /** \brief Insert a mesh described by the domain
