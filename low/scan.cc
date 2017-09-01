@@ -226,8 +226,8 @@ INT NS_PREFIX ReadArgvChar (const char *name, char *buffer, INT argc, char **arg
   for (i=0; i<argc; i++)
     if (argv[i][0]==name[0]) {
       if (sscanf(argv[i],
-                 expandfmt(CONCAT5("%",OPTIONLENSTR,"[a-zA-Z0-9_] %",
-                                   VALUELENSTR,"[ -~]")),option,value)!=2)
+                 expandfmt("%" OPTIONLENSTR "[a-zA-Z0-9_] %" VALUELENSTR "[ -~]"),
+                 option, value) != 2)
         continue;
       if (strcmp(option,name) == 0) {
         strcpy(buffer,value);

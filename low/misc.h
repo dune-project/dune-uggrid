@@ -92,14 +92,6 @@ START_UG_NAMESPACE
 #define SetHiWrd(aLong,n)        aLong = (((n)&0xFFFF)<<16)|((aLong)&0xFFFF)
 #define SetLoWrd(aLong,n)        aLong = ((n)&0xFFFF)|((aLong)&0xFFFF0000)
 
-/* concatenation macros with one level of indirection to allow argument expansion */
-#define CONCAT3(a,b,c)            CONCAT3_AUX(a,b,c)
-#define CONCAT3_AUX(a,b,c)        a b c
-#define CONCAT4(a,b,c,d)          CONCAT4_AUX(a,b,c,d)
-#define CONCAT4_AUX(a,b,c,d)      a b c d
-#define CONCAT5(a,b,c,d,e)        CONCAT5_AUX(a,b,c,d,e)
-#define CONCAT5_AUX(a,b,c,d,e)    a b c d e
-
 /* concatenation macros for preprocessor */
 #define XCAT(a,b)                       a ## b
 #define XCAT3(a,b,c)            a ## b ## c

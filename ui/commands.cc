@@ -132,7 +132,7 @@ INT NS_DIM_PREFIX ConfigureCommand (INT argc, char **argv)
   char BVPName[NAMESIZE];
 
   /* get BVP name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" configure %",NAMELENSTR,"[ -~]")),BVPName)!=1) || (strlen(BVPName)==0))
+  if (sscanf(argv[0],expandfmt(" configure %" NAMELENSTR "[ -~]"),BVPName) != 1 || strlen(BVPName) == 0)
   {
     PrintErrorMessage('E', "ConfigureCommand", "cannot read BndValProblem specification");
     return 1;
@@ -223,7 +223,7 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
   bool bopt, fopt, hopt, IEopt, emptyGrid;
 
   /* get multigrid name */
-  if ((sscanf(argv[0],expandfmt(CONCAT3(" new %",NAMELENSTR,"[ -~]")),Multigrid)!=1) || (strlen(Multigrid)==0))
+  if (sscanf(argv[0],expandfmt(" new %" NAMELENSTR "[ -~]"),Multigrid) != 1 || strlen(Multigrid)==0)
     sprintf(Multigrid,"untitled-%d",(int)untitledCounter++);
 
   theMG = GetMultigrid(Multigrid);
@@ -238,7 +238,7 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
     switch (argv[i][0])
     {
     case 'b' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("b %",NAMELENSTR,"[ -~]")),BVPName)!=1)
+      if (sscanf(argv[i],expandfmt("b %" NAMELENSTR "[ -~]"),BVPName) != 1)
       {
         PrintErrorMessage('E', "NewCommand", "cannot read BndValProblem specification");
         return 1;
@@ -247,7 +247,7 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv)
       break;
 
     case 'f' :
-      if (sscanf(argv[i],expandfmt(CONCAT3("f %",NAMELENSTR,"[ -~]")),Format)!=1)
+      if (sscanf(argv[i],expandfmt("f %" NAMELENSTR "[ -~]"),Format) != 1)
       {
         PrintErrorMessage('E', "NewCommand", "cannot read format specification");
         return 1;

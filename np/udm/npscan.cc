@@ -224,7 +224,7 @@ VECDATA_DESC * NS_DIM_PREFIX ReadArgvVecDescX (MULTIGRID *theMG, const char *nam
   if (ReadArgvChar(name,value,argc,argv))
     return(NULL);
 
-  res = sscanf(value,expandfmt(CONCAT5("%",NAMELENSTR,"[a-zA-Z0-9_] / %",NAMELENSTR,"[a-zA-Z0-9_]")),vdname,tname);
+  res = sscanf(value,expandfmt("%" NAMELENSTR "[a-zA-Z0-9_] / %" NAMELENSTR "[a-zA-Z0-9_]"),vdname,tname);
   vd = GetVecDataDescByName(theMG,vdname);
   if (vd == NULL && CreateIfNonExistent)
   {
@@ -363,7 +363,7 @@ VEC_TEMPLATE * NS_DIM_PREFIX ReadArgvVecTemplate (const FORMAT *fmt, const char 
   if (ReadArgvChar(name,value,argc,argv))
     return(NULL);
 
-  if (sscanf(value,expandfmt(CONCAT3("%",NAMELENSTR,"[a-zA-Z0-9_]")),vtname)!=1)
+  if (sscanf(value, expandfmt("%" NAMELENSTR "[a-zA-Z0-9_]"), vtname) != 1)
     return(NULL);
 
   return(GetVectorTemplate(fmt,vtname));
@@ -410,7 +410,7 @@ VEC_TEMPLATE * NS_DIM_PREFIX ReadArgvVecTemplateSub (const FORMAT *fmt, const ch
   if (ReadArgvChar(name,value,argc,argv))
     return(NULL);
 
-  res = sscanf(value,expandfmt(CONCAT5("%",NAMELENSTR,"[a-zA-Z0-9_] %",NAMELENSTR,"[a-zA-Z0-9_]")),vtname,subname);
+  res = sscanf(value,expandfmt("%" NAMELENSTR "[a-zA-Z0-9_] %" NAMELENSTR "[a-zA-Z0-9_]"),vtname,subname);
   if (res<1)
     return (NULL);
 
@@ -476,7 +476,7 @@ MAT_TEMPLATE * NS_DIM_PREFIX ReadArgvMatTemplateSub (const FORMAT *fmt, const ch
   if (ReadArgvChar(name,value,argc,argv))
     return (NULL);
 
-  res = sscanf(value,expandfmt(CONCAT5("%",NAMELENSTR,"[a-zA-Z0-9_] %",NAMELENSTR,"[a-zA-Z0-9_]")),mtname,subname);
+  res = sscanf(value,expandfmt("%" NAMELENSTR "[a-zA-Z0-9_] %" NAMELENSTR "[a-zA-Z0-9_]"),mtname,subname);
   if (res<1)
     return (NULL);
 
@@ -567,9 +567,8 @@ MATDATA_DESC * NS_DIM_PREFIX ReadArgvMatDescX (MULTIGRID *theMG, const char *nam
   if (ReadArgvChar(name,value,argc,argv))
     return (NULL);
 
-  res = sscanf(value,expandfmt(CONCAT5("%",NAMELENSTR,
-                                       "[a-zA-Z0-9_] / %",
-                                       NAMELENSTR,"[a-zA-Z0-9_]")),
+  res = sscanf(value,
+               expandfmt("%" NAMELENSTR "[a-zA-Z0-9_] / %" NAMELENSTR "[a-zA-Z0-9_]"),
                mdname,tname);
   md = GetMatDataDescByName(theMG,mdname);
   if (md==NULL && CreateIfNonExistent)
@@ -1182,7 +1181,7 @@ INT NS_DIM_PREFIX sc_read (VEC_SCALAR x, const FORMAT *fmt, const VECDATA_DESC *
   /* find input string */
   found = false;
   for (i=0; i<argc; i++)
-    if (sscanf(argv[i],expandfmt(CONCAT5("%",OPTIONLENSTR,"[a-zA-Z0-9_] %",VALUELENSTR,"[ -~]")),option,value)==2)
+    if (sscanf(argv[i],expandfmt("%" OPTIONLENSTR "[a-zA-Z0-9_] %" VALUELENSTR "[ -~]"),option,value)==2)
       if (strcmp(option,name) == 0)
       {
         found = true;

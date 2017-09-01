@@ -781,8 +781,8 @@ Problem_Configure (INT argc, char **argv)
 
   for (i = 0; i < argc; i++)
     if ((argv[i][0] == 'p') && (argv[i][1] == ' '))
-      if ((sscanf (argv[i], expandfmt (CONCAT3 ("p %", NAMELENSTR, "[ -~]")),
-                   ProblemName) != 1) || (strlen (ProblemName) == 0))
+      if (sscanf(argv[i], expandfmt ("p %" NAMELENSTR "[ -~]"), ProblemName) != 1
+          || strlen(ProblemName) == 0)
         continue;
 
   theDomain = currBVP->Domain;

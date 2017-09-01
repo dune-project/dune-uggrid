@@ -142,8 +142,8 @@ INT NS_PREFIX GetLocalizedDefaultValue (const char *filename, const char *name, 
   while (curr!=NULL && *curr!=0)
   {
     if (sscanf(curr,
-               expandfmt(CONCAT5(" %",NAMELENSTR,"[0-9a-zA-Z_] %",
-                                 BUFFLENSTR,"[ -~]")), Name,value) ==2)
+               expandfmt(" %" NAMELENSTR "[0-9a-zA-Z_] %" BUFFLENSTR "[ -~]"),
+               Name, value) == 2)
     {
       if (strcmp(Name,name)==0) return(0);
     }
@@ -167,8 +167,8 @@ INT NS_PREFIX GetLocalizedDefaultValue (const char *filename, const char *name, 
   while (fgets(buffer,255,defaultsFile)!=NULL)
   {
     if (sscanf(buffer,
-               expandfmt(CONCAT5(" %",NAMELENSTR,"[0-9a-zA-Z_] %",
-                                 BUFFLENSTR,"[ -~]")),Name,value) ==2)
+               expandfmt(" %" NAMELENSTR "[0-9a-zA-Z_] %" BUFFLENSTR "[ -~]"),
+               Name, value) == 2)
     {
       if (strcmp(Name,name)==0) {
         fclose(defaultsFile);
