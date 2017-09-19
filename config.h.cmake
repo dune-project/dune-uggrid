@@ -22,6 +22,9 @@
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #cmakedefine TIME_WITH_SYS_TIME 1
 
+/* Define to 1 if UGGrid should use the complete set of green refinement rules for tetrahedra */
+#cmakedefine TET_RULESET 1
+
 /* end private section */
 
 /* end dune-uggrid */
