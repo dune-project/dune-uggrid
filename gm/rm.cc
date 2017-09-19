@@ -3651,7 +3651,7 @@ static INT InitRuleManager3D (void)
 
         #ifdef ModelP
   Broadcast(Rules,nRules*sizeof(REFRULE));
-  Broadcast(Pattern2Rule[TETRAHEDRON],nPatterns*sizeof(SHORT));
+  Broadcast(Pattern2Rule[TETRAHEDRON].get(),nPatterns*sizeof(SHORT));
         #endif
 #else
   nRules = MAX_TET_RULES;
