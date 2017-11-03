@@ -2,6 +2,15 @@
 
 * Transfer of element data during load balancing is supported.
   See [!55][] and [dune-grid!172][]
+* `dune-uggrid` has gained a new build-time switch `TET_RULESET` (default is off).
+  When set, `UGGrid` will use a better algorithm to compute green closures for red--green
+  grid refinement.  This better algorithm, which involves a complete rule set
+  for tetrahedral elements, leads to refined grids with smaller closures.
+  It also fixes at least one [bug](https://gitlab.dune-project.org/core/dune-grid/issues/27).
+  *Beware:* when TET_RULESET is set, UG wants to read a table from the file `RefRule.data`
+  (in `uggrid/lib/ugdata`).  This file needs to be in the current directory, otherwise `UGGrid`
+  will abort. The long-term plan is to compile the data file into the binary, and make
+  the new closure algorithm the default.
 * Many now unused parts of UG have been removed from the source.
 
 See the list of all [dune-uggrid 2.6 merge requests][] for minor
