@@ -40,7 +40,9 @@
 #include <cstdio>
 #include <cstring>
 
+#if HAVE_RPC_RPC_H
 #include <rpc/rpc.h>    /* to include xdr.h in a portable way */
+#endif // #if HAVE_RPC_RPC_H
 
 #include "general.h"
 
@@ -88,7 +90,9 @@ typedef int (*W_string_proc)(const char *string);
 static FILE *stream;
 static int n_byte;
 static fpos_t pos;
+#if HAVE_RPC_RPC_H
 static XDR xdrs;
+#endif // #if HAVE_RPC_RPC_H
 
 /* low level read/write functions */
 static R_mint_proc Read_mint;
@@ -111,6 +115,7 @@ static W_string_proc Write_string;
 /*                                                                          */
 /****************************************************************************/
 
+#if HAVE_RPC_RPC_H
 static int XDR_Read_mint (int n, int *intList)
 {
   int i;
@@ -196,6 +201,7 @@ static int XDR_Write_string (const char *string)
 
   return (0);
 }
+#endif // #if HAVE_RPC_RPC_H
 
 /****************************************************************************/
 /*                                                                          */
@@ -367,6 +373,7 @@ int NS_PREFIX Bio_Initialize (FILE *file, int mode, char rw)
   switch (mode)
   {
   case BIO_XDR :
+#if HAVE_RPC_RPC_H
     if (rw=='r') xdrstdio_create(&xdrs,file,XDR_DECODE);
     else if (rw=='w') xdrstdio_create(&xdrs,file,XDR_ENCODE);
     else return (1);
@@ -376,6 +383,9 @@ int NS_PREFIX Bio_Initialize (FILE *file, int mode, char rw)
     Write_mint      = XDR_Write_mint;
     Write_mdouble = XDR_Write_mdouble;
     Write_string = XDR_Write_string;
+#else // #if HAVE_RPC_RPC_H
+    return (1);
+#endif // #else // #if HAVE_RPC_RPC_H
     break;
   case BIO_ASCII :
     Read_mint       = ASCII_Read_mint;
