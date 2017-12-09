@@ -34,6 +34,7 @@
 
 #include "general.h"
 #include "misc.h"
+#include "ugtypes.h"
 
 /****************************************************************************/
 /*																			*/
@@ -105,6 +106,8 @@
 
 #endif  /* Debug */
 
+START_UG_NAMESPACE
+
 /****************************************************************************/
 /*																			*/
 /* data structures exported by the corresponding source file				*/
@@ -156,5 +159,7 @@ int  SetPrintDebugToFile        (const char *fname);
 int  PostprocessDebugFile       (const char *newname);
 INT  PrintRepErrStack           (PrintfProcPtr print);
 #endif
+
+END_UG_NAMESPACE
 
 #endif
