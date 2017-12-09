@@ -51,6 +51,9 @@
 
 /* UG namespaces: */
 USING_UG_NAMESPACES
+#ifdef Debug
+using namespace PPIF;
+#endif
 
 /****************************************************************************/
 /*                                                                          */
