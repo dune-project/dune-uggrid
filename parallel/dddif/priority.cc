@@ -383,8 +383,6 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
       }
   }
 
-  DEBUG_TIME(0);
-
   /* set USED flag for objects of master elements */
   /* reset FLAG for objects of master elements  */
   for (theElement=PFIRSTELEMENT(theGrid);
@@ -417,8 +415,6 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
         }
       }
   }
-
-  DEBUG_TIME(0);
 
   /* set object priorities for ghostelements */
   for (theElement=PFIRSTELEMENT(theGrid);

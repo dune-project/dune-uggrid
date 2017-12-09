@@ -82,14 +82,6 @@
 #define REP_ERR_RESET                   rep_err_count = 0;
 #define REP_ERR_FILE                    static char *this_file=__FILE__;
 
-#define DEBUG_TIME_RESET        __debug_time_count = 0;
-#define DEBUG_TIME_INC                                        \
-  { __debug_time_line[__debug_time_count] = __LINE__;          \
-    __debug_time_file[__debug_time_count] = this_file;         \
-    __debug_time[__debug_time_count] = CURRENT_TIME;           \
-    __debug_time_count = (__debug_time_count+1)%DEBUG_TIME_MAX;}
-#define DEBUG_TIME(n)           if (Debugtime >= n) DEBUG_TIME_INC
-
 #else /* Debug */
 
 #define IFDEBUG(m,n)    if (1==0) {
@@ -108,9 +100,6 @@
 #define REP_ERR_INC
 #define REP_ERR_RESET
 #define REP_ERR_FILE
-#define DEBUG_TIME_RESET
-#define DEBUG_TIME_INC
-#define DEBUG_TIME(n)
 
 #define PrintDebug(...)
 
@@ -145,18 +134,11 @@ extern int Debugnp;
 extern int Debugui;
 extern int Debugappl;
 extern int Debugpclib;
-extern int Debugtime;
 
 /* for reporting of erros (using the REP_ERR_RETURN-macro) */
 extern int rep_err_count;
 extern int rep_err_line[REP_ERR_MAX];
 extern const char  *rep_err_file[REP_ERR_MAX];
-
-/* for timings */
-extern int __debug_time_count;
-extern double __debug_time[DEBUG_TIME_MAX];
-extern int __debug_time_line[DEBUG_TIME_MAX];
-extern const char  *__debug_time_file[DEBUG_TIME_MAX];
 
 #endif
 
