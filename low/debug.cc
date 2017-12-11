@@ -159,7 +159,7 @@ void SetPrintDebugProc (PrintfProcPtr print)
   printdebug = print;
 }
 
-int PrintDebugToFile (const char *format, ...)
+int UG::PrintDebugToFile (const char *format, ...)
 {
   va_list args;
 
@@ -175,7 +175,7 @@ int PrintDebugToFile (const char *format, ...)
   return (0);
 }
 
-int SetPrintDebugToFile (const char *fname)
+int UG::SetPrintDebugToFile (const char *fname)
 {
   if (debugfile!=NULL)
     return (1);
