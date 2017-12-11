@@ -44,7 +44,7 @@
 #include "debug.h"
 #include <dev/ugdevices.h>
 
-#if defined(DYNAMIC_MEMORY_ALLOCMODEL) && defined(Debug)
+#if defined(DYNAMIC_MEMORY_ALLOCMODEL) && defined(Debug) && ! UG_USE_SYSTEM_HEAP
 #include "gm.h"
 #include "commands.h"
 #include "mgheapmgr.h"

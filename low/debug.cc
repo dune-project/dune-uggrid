@@ -83,17 +83,10 @@ int Debugnp         =       0;
 int Debugui                 =       0;
 int Debugappl               =       0;
 int Debugpclib              =       0;
-int Debugtime               =       0;
 
 int rep_err_count;
 int rep_err_line[REP_ERR_MAX];
 const char  *rep_err_file[REP_ERR_MAX];
-
-/* for timings */
-int __debug_time_count;
-double __debug_time[DEBUG_TIME_MAX];
-int __debug_time_line[DEBUG_TIME_MAX];
-const char  *__debug_time_file[DEBUG_TIME_MAX];
 
 /* from dddif/ppif.h */
 extern int me, master;
@@ -166,7 +159,7 @@ void SetPrintDebugProc (PrintfProcPtr print)
   printdebug = print;
 }
 
-int PrintDebugToFile (const char *format, ...)
+int UG::PrintDebugToFile (const char *format, ...)
 {
   va_list args;
 
@@ -182,7 +175,7 @@ int PrintDebugToFile (const char *format, ...)
   return (0);
 }
 
-int SetPrintDebugToFile (const char *fname)
+int UG::SetPrintDebugToFile (const char *fname)
 {
   if (debugfile!=NULL)
     return (1);
