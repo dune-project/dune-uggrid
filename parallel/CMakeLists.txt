@@ -3,7 +3,7 @@ if(MPI_C_FOUND)
   # Maybe dune-common should export them?
   add_definitions(-DENABLE_MPI=1 -DMPICH_SKIP_MPICXX -DMPIPP_H)
   include_directories("${MPI_DUNE_INCLUDE_PATH}")
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MPI_DUNE_COMPILE_FLAGS})
+  set_property(DIRECTORY APPEND_STRING PROPERTY COMPILE_OPTIONS "${MPI_DUNE_COMPILE_FLAGS}")
  ug_add_dim_libs(parallel OBJECT initparallel.cc) # OBJECT_DIM_LIBS ddd dddif)
 endif()
 
