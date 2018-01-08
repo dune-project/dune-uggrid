@@ -97,6 +97,10 @@
 #include "debugger.h"
 #endif
 
+#ifdef Debug
+#include "architecture.h"
+#endif
+
 
 USING_UG_NAMESPACES
 using namespace PPIF;
@@ -2008,6 +2012,8 @@ static INT BuildGreenClosure (GRID *theGrid)
 }
 
 #if defined(ModelP) && defined(Debug)
+
+#define CEIL(n) ((n)+((ALIGNMENT-((n)&(ALIGNMENT-1)))&(ALIGNMENT-1)))
 
 /****************************************************************************/
 /*
