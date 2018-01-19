@@ -724,8 +724,8 @@ struct node {
   const char* message_buffer() const
     { return message_buffer_; }
 
-  const std::size_t message_buffer_size() const
-    { return message_buffer_size_; }
+  std::size_t message_buffer_size() const
+  { return message_buffer_size_; }
 
   void message_buffer(char* p, std::size_t size)
   {
@@ -1407,8 +1407,8 @@ union element {
   const char* message_buffer() const
     { return ge.message_buffer; }
 
-  const std::size_t message_buffer_size() const
-    { return ge.message_buffer_size; }
+  std::size_t message_buffer_size() const
+  { return ge.message_buffer_size; }
 
   void message_buffer(char* p, std::size_t size)
   {
