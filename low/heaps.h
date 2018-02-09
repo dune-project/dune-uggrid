@@ -200,8 +200,6 @@ extern INT check_of_putcallstack;
 /*                                                                          */
 /****************************************************************************/
 
-INT          InitHeaps                (void);
-
 /** @name Functions for the simple and general heap management */
 /* @{ */
 HEAP        *NewHeap                (enum HeapType type, MEM size, void *buffer);

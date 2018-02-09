@@ -151,26 +151,6 @@ void NS_PREFIX HeapStat (const HEAP *theHeap)
   UserWriteF("          usedfreelistent=%d\n",usedfreelistentries);
 }
 
-
-/****************************************************************************/
-/** \brief Initialize memory management module
-
-   This function initializes memory management module.
-   (Supposedly.  Currently it only contains a 'return 0'.
-
-   CAUTION: code may be machine dependent.
-
-   \return
-   0 if module initialized correctly
- */
-/****************************************************************************/
-
-INT NS_PREFIX InitHeaps ()
-{
-  return(0);
-}
-
-
 /****************************************************************************/
 /** \brief Install a new heap structure
 
