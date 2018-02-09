@@ -3127,7 +3127,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   /* When using the system heap: allocate just enough memory for the actual bookkeeping data structure */
   theHeap = NewHeap(SIMPLE_HEAP, sizeof(HEAP)+MIN_HEAP_SIZE, malloc(sizeof(HEAP)+MIN_HEAP_SIZE));
 #else
-  theHeap = NewHeap(SIMPLE_HEAP, heapSize, malloc(heapSize));
+  abort();
 #endif
   if (theHeap==NULL)
   {
