@@ -3177,6 +3177,8 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
     GEN_MGUD(theMG) = NULL;
 
   /* 2: user heap */
+  // As we are using this version only with DUNE, we will never need the user heap
+#if 0
   ds = FMT_S_MG(theFormat);
   if (ds!=0)
   {
@@ -3189,6 +3191,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
     MG_USER_HEAP(theMG) = theUserHeap;
   }
   else
+#endif
     MG_USER_HEAP(theMG) = NULL;
 
   /* fill multigrid structure */
