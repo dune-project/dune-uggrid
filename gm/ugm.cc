@@ -6592,7 +6592,7 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
       predmax0 = free_bytes/mg_sum_size_div_red;
     else
       predmax0 = free_bytes/
-#ifdef __TWODIMM__
+#ifdef __TWODIM__
                  sizeof(struct quadrilateral);
 #else
                  sizeof(struct hexahedron);
