@@ -207,6 +207,11 @@ HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
   new(theHeap->markedMemory) std::vector<void*>[MARK_STACK_SIZE];
 #endif
 
+  /* initialize data variables needed for bottom tmp memory management */
+  theHeap->usefreelistmemory = 1;
+  theHeap->freelist_end_mark = 0;
+
+
   /* return heap structure */
   return(theHeap);
 }

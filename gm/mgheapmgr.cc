@@ -58,15 +58,6 @@ USING_UG_NAMESPACES
 
 /****************************************************************************/
 /*																			*/
-/* definition of exported global variables									*/
-/*																			*/
-/****************************************************************************/
-
-INT NS_DIM_PREFIX usefreelistmemory = 1;
-INT NS_DIM_PREFIX freelist_end_mark = 0;
-
-/****************************************************************************/
-/*																			*/
 /* definition of variables global to this source file only (static!)		*/
 /*																			*/
 /****************************************************************************/
@@ -101,8 +92,9 @@ INT NS_DIM_PREFIX DisposeBottomHeapTmpMemory (MULTIGRID *theMG)
   if (DisposeConnectionsFromMultiGrid(theMG)) REP_ERR_RETURN(1);
 
   theMG->bottomtmpmem = 0;
-  if (Release(MGHEAP(theMG),FROM_BOTTOM,freelist_end_mark)) REP_ERR_RETURN(1);
-  usefreelistmemory = 1;
+  if (Release(MGHEAP(theMG),FROM_BOTTOM,MGHEAP(theMG)->freelist_end_mark))
+    REP_ERR_RETURN(1);
+  MGHEAP(theMG)->usefreelistmemory = 1;
 
   return(0);
 }
