@@ -2506,8 +2506,9 @@ INT NS_DIM_PREFIX MGCreateConnection (MULTIGRID *theMG)
 
         #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (theMG->bottomtmpmem) return(0);
-  usefreelistmemory = 0;
-  if (Mark(MGHEAP(theMG),FROM_BOTTOM,&freelist_end_mark)) REP_ERR_RETURN(1);
+  MGHEAP(theMG)->usefreelistmemory = 0;
+  if (Mark(MGHEAP(theMG),FROM_BOTTOM,&(MGHEAP(theMG)->freelist_end_mark)))
+    REP_ERR_RETURN(1);
   theMG->bottomtmpmem = 1;
         #endif
 

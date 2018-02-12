@@ -310,7 +310,7 @@ void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
   check_of_getcallstack = 1;
         #endif
 
-  if (usefreelistmemory == 1)
+  if (theHeap->usefreelistmemory == 1)
     obj = GetFreelistMemory(theHeap, size);
   else
   {
@@ -400,7 +400,7 @@ INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT t
   check_of_putcallstack = 1;
         #endif
 
-  if (usefreelistmemory == 1)
+  if (theHeap->usefreelistmemory == 1)
   {
     err = PutFreelistMemory(theHeap, object, size);
                 #ifdef Debug
