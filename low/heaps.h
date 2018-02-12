@@ -207,7 +207,7 @@ INT          InitHeaps                (void);
 HEAP        *NewHeap                (enum HeapType type, MEM size, void *buffer);
 void         DisposeHeap            (HEAP *theHeap);
 void        *GetMem                 (HEAP *theHeap, MEM n, enum HeapAllocMode mode);
-void            *GetMemUsingKey                 (HEAP *theHeap, MEM n, enum HeapAllocMode mode, INT key);
+void        *GetMemUsingKey         (HEAP *theHeap, MEM n, enum HeapAllocMode mode, INT key);
 void         DisposeMem             (HEAP *theHeap, void *buffer);
 
 void        *GetFreelistMemory      (HEAP *theHeap, INT size);
@@ -218,10 +218,10 @@ INT          Release                (HEAP *theHeap, INT mode, INT key);
 
 MEM          HeapSize               (const HEAP *theHeap);
 MEM          HeapUsed               (const HEAP *theHeap);
-MEM                      HeapFree                               (const HEAP *theHeap);
+MEM          HeapFree               (const HEAP *theHeap);
 MEM          HeapFreelistUsed       (const HEAP *theHeap);
-MEM                      HeapTotalFree                  (const HEAP *theHeap);
-void             HeapStat                               (const HEAP *theHeap);
+MEM          HeapTotalFree          (const HEAP *theHeap);
+void         HeapStat               (const HEAP *theHeap);
 /* @} */
 
 /** @name Functions for the virtual heap management */
