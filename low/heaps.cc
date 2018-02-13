@@ -69,7 +69,6 @@ USING_UG_NAMESPACE
 
 #define CALC_B_OFFSET(bhm,i)    (((i)==0) ? 0 : (B_OFFSET(theVHM,(i)-1)+B_SIZE(theVHM,(i)-1)))
 
-
 /****************************************************************************/
 /*                                                                          */
 /* definition of variables global to this source file only (static!)        */
@@ -110,7 +109,7 @@ HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
   theHeap = (HEAP *) buffer;
   theHeap->type = type;
   theHeap->size = size;
-  theHeap->topStackPtr = theHeap->bottomStackPtr = 0;
+  theHeap->markKey = 0;
   theHeap->heapptr = (BLOCK *) CEIL(((MEM)theHeap)+sizeof(HEAP));
 
   /* initialize first block */
@@ -121,7 +120,7 @@ HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
   /* No constructor is ever called for theHeap.  Consequently, no constructor
    * has been called for its member markedMemory, either.  Here we force this
    * constructor call using placement new. */
-  new(theHeap->markedMemory) std::vector<void*>[MARK_STACK_SIZE];
+  new(theHeap->markedMemory) std::vector<void*>[MARK_STACK_SIZE+1];
 
   /* initialize data variables needed for bottom tmp memory management */
   theHeap->usefreelistmemory = 1;
@@ -192,27 +191,7 @@ void *NS_PREFIX GetMemUsingKey (HEAP *theHeap, MEM n, enum HeapAllocMode mode, I
 {
   if (theHeap->type==SIMPLE_HEAP)
   {
-    /* and first some error checks */
-    ASSERT(
-      /* when allocating, we require, that the corresponding TOP or BOTTOM mark is set */
-      (mode==FROM_TOP && theHeap->topStackPtr>0)
-      ||
-      (mode==FROM_BOTTOM && theHeap->bottomStackPtr>0)
-      );
-    /* next we require that in the corresponding mode the key matches the stack-ptr.
-       otherwise one of the folloing errors has happened:
-         a) TOP:
-            key > topStackPtr: Mark/Release calls not balanced
-            key < topStackPtr: stack pos already released
-         b) BOTTOM:
-            key > bottomStackPtr: Mark/Release calls not balanced
-            key < bottomStackPtr: stack pos already released
-      */
-    ASSERT(
-      (mode==FROM_TOP && key == theHeap->topStackPtr)
-      ||
-      (mode==FROM_BOTTOM && key == theHeap->bottomStackPtr)
-      );
+    ASSERT(key == theHeap->markKey);
     /* we have to keep track of allocated memory, in order to do a proper rollback */
     void* ptr = GetMem(theHeap,n,mode);
     theHeap->markedMemory[key].push_back(ptr);
@@ -296,29 +275,14 @@ INT NS_PREFIX PutFreelistMemory (HEAP *theHeap, void *object, INT size)
 
 INT NS_PREFIX Mark (HEAP *theHeap, INT mode, INT *key)
 {
+  assert(theHeap->type==SIMPLE_HEAP);
   if (theHeap->type!=SIMPLE_HEAP) return(1);
 
-  if (mode==FROM_TOP)
-  {
-    if (theHeap->topStackPtr<MARK_STACK_SIZE)
-    {
-      theHeap->topStack[theHeap->topStackPtr++] =
-        ((MEM)theHeap->heapptr) + ((MEM)theHeap->heapptr->size);
-      *key = theHeap->topStackPtr;
-      return(0);
-    }
-  }
-  if (mode==FROM_BOTTOM)
-  {
-    if (theHeap->bottomStackPtr<MARK_STACK_SIZE)
-    {
-      theHeap->bottomStack[theHeap->bottomStackPtr++] =
-        ((MEM)theHeap->heapptr);
-      *key = theHeap->bottomStackPtr;
-      return(0);
-    }
-  }
-  return(1);
+  if(theHeap->markKey >= MARK_STACK_SIZE)
+    return 1;
+  theHeap->markKey++;
+  *key = theHeap->markKey;
+  return 0;
 }
 
 /****************************************************************************/
@@ -339,70 +303,22 @@ INT NS_PREFIX Mark (HEAP *theHeap, INT mode, INT *key)
 
 INT NS_PREFIX Release (HEAP *theHeap, INT mode, INT key)
 {
-  MEM oldsize;
-  MEM newsize;
+  if (theHeap->type!=SIMPLE_HEAP) return 1;
 
-  if (theHeap->type!=SIMPLE_HEAP) return(1);
+  printf("RELEASE: %i %i\n", key, theHeap->markKey);
+  if (theHeap->markKey == 0) return 0;
+  if (key > theHeap->markKey) return 1;
 
   /* Free all memory associated to 'key' */
-  for (size_t i=0; i<theHeap->markedMemory[key].size(); i++)
-    free(theHeap->markedMemory[key][i]);
+  for (void* ptr : theHeap->markedMemory[key])
+    free(ptr);
   theHeap->markedMemory[key].resize(0);
 
-#warning do we need all this TOP/BOTTOM magick, when using system heap? I do not think so...
-  if (mode==FROM_TOP)
-  {
-    if (theHeap->topStackPtr>0)
-    {
-      if (key>theHeap->topStackPtr)
-      {
-        /* Mark/Release calls not balanced */
-        ASSERT(false);
-        return(1);
-      }
-      if (key<theHeap->topStackPtr)
-      {
-        /* stack pos already released */
-        ASSERT(false);
-        return(2);
-      }
-      oldsize = theHeap->heapptr->size;
-      newsize = theHeap->topStack[--theHeap->topStackPtr]-((MEM)theHeap->heapptr);
-      theHeap->heapptr->size = newsize;
-      return(0);
-    }
-    if (theHeap->topStackPtr==0)
-      /* no memory in this heap ever allocated */
-      return(0);
-  }
-  if (mode==FROM_BOTTOM)
-  {
-    if (theHeap->bottomStackPtr>0)
-    {
-      if (key>theHeap->bottomStackPtr)
-      {
-        /* Mark/Release calls not balanced */
-        ASSERT(false);
-        return(3);
-      }
-      if (key<theHeap->bottomStackPtr)
-      {
-        /* stack pos already released */
-        ASSERT(false);
-        return(4);
-      }
-      oldsize = theHeap->heapptr->size;
-      newsize = (((MEM)theHeap->heapptr)+((MEM)theHeap->heapptr->size))
-                -theHeap->bottomStack[--theHeap->bottomStackPtr];
-      theHeap->heapptr = (BLOCK *) theHeap->bottomStack[theHeap->bottomStackPtr];
-      theHeap->heapptr->size = newsize;
-      return(0);
-    }
-    if (theHeap->bottomStackPtr==0)
-      /* no memory in this heap ever allocated */
-      return(0);
-  }
-  return(5);
+  if (key < theHeap->markKey) return 2;
+  while (theHeap->markKey > 0 && theHeap->markedMemory[theHeap->markKey].size() == 0)
+    theHeap->markKey--;
+
+  return 0;
 }
 
 /****************************************************************************/
