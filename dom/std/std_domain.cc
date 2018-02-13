@@ -1595,7 +1595,6 @@ BVP_Dispose (BVP * theBVP)
      The memory pointed to by theBVP->patches should also be freed when
      not using the system heap.  However the UG heap data structure is not
      available here, and for this I don't know how to do the proper deallocation. */
-#if UG_USE_SYSTEM_HEAP
   STD_BVP* stdBVP = (STD_BVP *) theBVP;
   /* npatches is the number of corners plus the number of lines plus the number of sides.
    * You apparently can't access nlines directly here, but sideoffset should be ncorners + nlines. */
@@ -1606,7 +1605,6 @@ BVP_Dispose (BVP * theBVP)
   free ( stdBVP->patches );
 
   free ( STD_BVP_S2P_PTR (stdBVP) );
-#endif
 
   /* Unlock the item so it can be deleted from the environment tree */
   ((ENVITEM*)theBVP)->d.locked = 0;

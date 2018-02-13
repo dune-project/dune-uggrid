@@ -3123,12 +3123,9 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   }
 
   /* allocate the heap */
-#if UG_USE_SYSTEM_HEAP
+  #warning actually we would like to get rid of all HEAP data structures...
   /* When using the system heap: allocate just enough memory for the actual bookkeeping data structure */
   theHeap = NewHeap(SIMPLE_HEAP, sizeof(HEAP)+MIN_HEAP_SIZE, malloc(sizeof(HEAP)+MIN_HEAP_SIZE));
-#else
-  abort();
-#endif
   if (theHeap==NULL)
   {
     UserWriteF("CreateMultiGrid: cannot allocate %ld bytes\n", heapSize);
