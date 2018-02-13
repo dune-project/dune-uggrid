@@ -73,7 +73,7 @@ void DDD_PrintLine (const char *s)
   }
   else
   {
-    PrintHostMessage(s);
+    printf("%s", s);
   }
 }
 

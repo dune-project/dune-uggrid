@@ -119,9 +119,6 @@ int         InfoADisc        (VChannelPtr vc);
 int         InfoASend        (VChannelPtr vc, msgid m);
 int         InfoARecv        (VChannelPtr vc, msgid m);
 
-/* miscellaneous */
-void        PrintHostMessage (const char *s);
-
 }  // end namespace PPIF
 
 

@@ -497,16 +497,3 @@ int PPIF::InfoARecv (VChannelPtr v, msgid m)
 
   return (-1);          /* return -1 for FAILURE */
 }
-
-
-/****************************************************************************/
-/*                                                                          */
-/* Miscellaneous                                                            */
-/*                                                                          */
-/****************************************************************************/
-
-void PPIF::PrintHostMessage (const char *s)
-
-{
-  printf ("%s", s);
-}
