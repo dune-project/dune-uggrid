@@ -212,13 +212,6 @@ INT          PutFreelistMemory      (HEAP *theHeap, void *object, INT size);
 
 INT          Mark                   (HEAP *theHeap, INT mode, INT *key);
 INT          Release                (HEAP *theHeap, INT mode, INT key);
-
-MEM          HeapSize               (const HEAP *theHeap);
-MEM          HeapUsed               (const HEAP *theHeap);
-MEM          HeapFree               (const HEAP *theHeap);
-MEM          HeapFreelistUsed       (const HEAP *theHeap);
-MEM          HeapTotalFree          (const HEAP *theHeap);
-void         HeapStat               (const HEAP *theHeap);
 /* @} */
 
 /** @name Functions for the virtual heap management */
