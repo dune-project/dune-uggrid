@@ -34,11 +34,26 @@
 /*                                                                          */
 /****************************************************************************/
 
-typedef void *VChannelPtr;   /* dummy definition, any pointer type is ok    */
-typedef void *msgid;         /* dummy definition, any pointer type is ok    */
 
-#define NO_MSGID ((msgid)-1L) /* a special value that should never be re-   */
-                              /* turned as a msgid, like NULL for pointers  */
+namespace PPIF {
+
+/**
+ * opaque type for communication channels
+ */
+struct VChannel;
+
+/**
+ * opaque type for messages
+ */
+struct Msg;
+
+} /* namespace PPIF */
+
+
+using VChannelPtr = PPIF::VChannel*;
+using msgid = PPIF::Msg*;
+
+constexpr static msgid NO_MSGID = nullptr;
 
 namespace PPIF {
 

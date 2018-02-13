@@ -93,13 +93,15 @@ using namespace PPIF;
 /*                                                                          */
 /****************************************************************************/
 
-typedef struct {
+namespace PPIF {
+
+struct VChannel
+{
   int p;
   int chanid;
-} MPIVChannel;
+};
 
-typedef MPIVChannel *MPIVChannelPtr;
-
+} /* namespace PPIF */
 
 /****************************************************************************/
 /*                                                                          */
@@ -147,19 +149,19 @@ int RecvSync (void* v, void *data, int size);
 static VChannelPtr NewVChan (int p, int id)
 
 {
-  MPIVChannelPtr myChan = (MPIVChannelPtr)malloc(sizeof(MPIVChannel));
+  VChannelPtr myChan = new PPIF::VChannel;
 
   myChan->p      = p;
   myChan->chanid = id;
 
-  return (myChan);
+  return myChan;
 }
 
 
 static void DeleteVChan (VChannelPtr myChan)
 
 {
-  free(myChan);
+  delete myChan;
 }
 
 
@@ -269,7 +271,7 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
   for(i=0; i<degree; i++)
   {
     MPI_Recv ((void *) &(slvcnt[i]), (int) sizeof(int), MPI_BYTE,
-              ((MPIVChannel*)downtree[i])->p, ID_TREE, COMM, &status);
+              downtree[i]->p, ID_TREE, COMM, &status);
     succ += slvcnt[i];
   }
   if (me>0)
@@ -377,33 +379,32 @@ VChannelPtr PPIF::ConnSync (int p, int id)
   return (NewVChan (p, id) );
 }
 
-int PPIF::DiscSync (void* v)
+int PPIF::DiscSync (VChannelPtr v)
 
 {
-  VChannelPtr vc = (VChannelPtr)v;
-  DeleteVChan (vc);
+  DeleteVChan(v);
 
   return (0);
 }
 
-int PPIF::SendSync (void* v, void *data, int size)
+int PPIF::SendSync (VChannelPtr v, void *data, int size)
 
 {
   if (MPI_SUCCESS == MPI_Ssend (data, size, MPI_BYTE,
-                                ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM) )
+                                v->p, v->chanid, COMM) )
     return (size);
   else
     return (-1);
 }
 
-int PPIF::RecvSync (void* v, void *data, int size)
+int PPIF::RecvSync (VChannelPtr v, void *data, int size)
 
 {
   int count = -1;
   MPI_Status status;
 
   if (MPI_SUCCESS == MPI_Recv (data, size, MPI_BYTE,
-                               ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, &status) )
+                               v->p, v->chanid, COMM, &status) )
     MPI_Get_count (&status, MPI_BYTE, &count);
 
   return (count);
@@ -422,21 +423,21 @@ VChannelPtr PPIF::ConnASync (int p, int id)
   return (NewVChan (p,id) );
 }
 
-int PPIF::InfoAConn (void* v)
+int PPIF::InfoAConn (VChannelPtr v)
 
 {
   return (v ? 1 : -1);
 }
 
 
-int PPIF::DiscASync (void* v)
+int PPIF::DiscASync (VChannelPtr v)
 
 {
-  DeleteVChan ((MPIVChannel*)v);
+  DeleteVChan (v);
   return (PPIF_SUCCESS);
 }
 
-int PPIF::InfoADisc (void* v)
+int PPIF::InfoADisc (VChannelPtr v)
 
 {
   return (true);
@@ -444,7 +445,7 @@ int PPIF::InfoADisc (void* v)
 
 #define REQUEST_HEAP
 
-msgid PPIF::SendASync (void* v, void *data, int size, int *error)
+msgid PPIF::SendASync (VChannelPtr v, void *data, int size, int *error)
 
 {
 #  ifdef REQUEST_HEAP
@@ -453,7 +454,7 @@ msgid PPIF::SendASync (void* v, void *data, int size, int *error)
   if (req = (MPI_Request*)malloc (sizeof (MPI_Request) ) )
   {
     if (MPI_SUCCESS == MPI_Isend (data, size, MPI_BYTE,
-                                  ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, req) )
+                                  v->p, v->chanid, COMM, req) )
     {
       *error = false;
       return ((msgid) req);
@@ -463,7 +464,7 @@ msgid PPIF::SendASync (void* v, void *data, int size, int *error)
 #  else
   MPI_Request Req;
   if (MPI_SUCCESS == MPI_Isend (data, size, MPI_BYTE,
-                                ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, &Req) )
+                                v->p, v->chanid, COMM, &Req) )
   {
     *error = false;
     return ((msgid) Req);
@@ -475,7 +476,7 @@ msgid PPIF::SendASync (void* v, void *data, int size, int *error)
 }
 
 
-msgid PPIF::RecvASync (void* v, void *data, int size, int *error)
+msgid PPIF::RecvASync (VChannelPtr v, void *data, int size, int *error)
 
 {
 #  ifdef REQUEST_HEAP
@@ -484,7 +485,7 @@ msgid PPIF::RecvASync (void* v, void *data, int size, int *error)
   if (req = (MPI_Request*)malloc (sizeof (MPI_Request) ) )
   {
     if (MPI_SUCCESS == MPI_Irecv (data, size, MPI_BYTE,
-                                  ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, req) )
+                                  v->p, v->chanid, COMM, req) )
     {
       *error = false;
       return ((msgid) req);
@@ -495,7 +496,7 @@ msgid PPIF::RecvASync (void* v, void *data, int size, int *error)
   MPI_Request Req;
 
   if (MPI_SUCCESS == MPI_Irecv (data, size, MPI_BYTE,
-                                ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, &Req) )
+                                v->p, v->chanid, COMM, &Req) )
   {
     *error = false;
     return ((msgid) Req);
@@ -508,7 +509,7 @@ msgid PPIF::RecvASync (void* v, void *data, int size, int *error)
 }
 
 
-int PPIF::InfoASend (void* v, msgid m)
+int PPIF::InfoASend (VChannelPtr v, msgid m)
 
 {
   MPI_Status status;
@@ -539,7 +540,7 @@ int PPIF::InfoASend (void* v, msgid m)
 }
 
 
-int PPIF::InfoARecv (void* v, msgid m)
+int PPIF::InfoARecv (VChannelPtr v, msgid m)
 {
   MPI_Status status;
   int complete;
