@@ -240,7 +240,7 @@ typedef struct
   int dddObj[MAXOBJECTS];
 
   /* status of DDDIF */
-  int allTypesDefined;
+  bool allTypesDefined;
 } DDD_CTRL;
 
 extern DDD_CTRL dddctrl;
