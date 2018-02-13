@@ -44,11 +44,6 @@
 #include "debug.h"
 #include <dev/ugdevices.h>
 
-#if defined(DYNAMIC_MEMORY_ALLOCMODEL) && defined(Debug) && ! UG_USE_SYSTEM_HEAP
-#include "gm.h"
-#include "commands.h"
-#include "mgheapmgr.h"
-#endif
 #include "namespace.h"
 USING_UG_NAMESPACE
 
@@ -198,12 +193,10 @@ HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
     theHeap->freeObjects[i] = NULL;
   }
 
-#if UG_USE_SYSTEM_HEAP
   /* No constructor is ever called for theHeap.  Consequently, no constructor
    * has been called for its member markedMemory, either.  Here we force this
    * constructor call using placement new. */
   new(theHeap->markedMemory) std::vector<void*>[MARK_STACK_SIZE];
-#endif
 
   /* initialize data variables needed for bottom tmp memory management */
   theHeap->usefreelistmemory = 1;
@@ -229,7 +222,6 @@ HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
 void NS_PREFIX DisposeHeap (HEAP *theHeap)
 {
   if (theHeap != NULL) {
-#if UG_USE_SYSTEM_HEAP
     /* When using the system heap, the HEAP data structure contains an array of
      * std::vectors, which have all be created using placement new.  Therefore,
      * before freeing the memory of a HEAP we have to call the destructors of
@@ -238,7 +230,6 @@ void NS_PREFIX DisposeHeap (HEAP *theHeap)
     using namespace std;
     for (INT i=0; i<MARK_STACK_SIZE; i++)
       theHeap->markedMemory[i].~vector<void*>();
-#endif
   }
 
   free(theHeap);
@@ -300,65 +291,38 @@ void NS_PREFIX DisposeHeap (HEAP *theHeap)
 
 void *NS_PREFIX GetMem (HEAP *theHeap, MEM n, enum HeapAllocMode mode)
 {
-#if UG_USE_SYSTEM_HEAP
   return malloc(n);
-#else
-  abort();
-#endif
 }
 
 void *NS_PREFIX GetMemUsingKey (HEAP *theHeap, MEM n, enum HeapAllocMode mode, INT key)
 {
   if (theHeap->type==SIMPLE_HEAP)
   {
-    if (mode==FROM_TOP)
-    {
-      if (theHeap->topStackPtr>0)
-      {
-        /* key > topStackPtr: Mark/Release calls not balanced
-         * key < topStackPtr: stack pos already released */
-        if (key != theHeap->topStackPtr)
-        {
-          ASSERT(false);
-          return(NULL);
-        }
-
-#if UG_USE_SYSTEM_HEAP
-        theHeap->markedMemory[key].push_back(GetMem(theHeap,n,mode));
-        return theHeap->markedMemory[key].back();
-#else
-        return(GetMem(theHeap,n,mode));
-#endif
-      }
-      /* not marked */
-      ASSERT(false);
-      return(NULL);
-    }
-    if (mode==FROM_BOTTOM)
-    {
-      if (theHeap->bottomStackPtr>0)
-      {
-        /* key > bottomStackPtr: Mark/Release calls not balanced
-         * key < bottomStackPtr: stack pos already released */
-        if (key != theHeap->bottomStackPtr)
-        {
-          ASSERT(false);
-          return(NULL);
-        }
-#if UG_USE_SYSTEM_HEAP
-        theHeap->markedMemory[key].push_back(GetMem(theHeap,n,mode));
-        return theHeap->markedMemory[key].back();
-#else
-        return(GetMem(theHeap,n,mode));
-#endif
-      }
-      /* not marked */
-      ASSERT(false);
-      return(NULL);
-    }
-    /* wrong mode */
-    ASSERT(false);
-    return(NULL);
+    /* and first some error checks */
+    ASSERT(
+      /* when allocating, we require, that the corresponding TOP or BOTTOM mark is set */
+      (mode==FROM_TOP && theHeap->topStackPtr>0)
+      ||
+      (mode==FROM_BOTTOM && theHeap->bottomStackPtr>0)
+      );
+    /* next we require that in the corresponding mode the key matches the stack-ptr.
+       otherwise one of the folloing errors has happened:
+         a) TOP:
+            key > topStackPtr: Mark/Release calls not balanced
+            key < topStackPtr: stack pos already released
+         b) BOTTOM:
+            key > bottomStackPtr: Mark/Release calls not balanced
+            key < bottomStackPtr: stack pos already released
+      */
+    ASSERT(
+      (mode==FROM_TOP && key == theHeap->topStackPtr)
+      ||
+      (mode==FROM_BOTTOM && key == theHeap->bottomStackPtr)
+      );
+    /* we have to keep track of allocated memory, in order to do a proper rollback */
+    void* ptr = GetMem(theHeap,n,mode);
+    theHeap->markedMemory[key].push_back(ptr);
+    return theHeap->markedMemory[key].back();
   }
   /* no key for GENERAL_HEAP */
   return (GetMem(theHeap,n,mode));
@@ -378,11 +342,7 @@ void *NS_PREFIX GetMemUsingKey (HEAP *theHeap, MEM n, enum HeapAllocMode mode, I
 
 void NS_PREFIX DisposeMem (HEAP *theHeap, void *buffer)
 {
-#if UG_USE_SYSTEM_HEAP
   free(buffer);
-#else
-  abort();
-#endif
 }
 
 /****************************************************************************/
@@ -403,11 +363,7 @@ void NS_PREFIX DisposeMem (HEAP *theHeap, void *buffer)
 
 void *NS_PREFIX GetFreelistMemory (HEAP *theHeap, INT size)
 {
-#if UG_USE_SYSTEM_HEAP
   void* obj = malloc(size);
-#else
-  abort();
-#endif
 
   if (obj != NULL)
     memset(obj,0,size);
@@ -433,12 +389,8 @@ void *NS_PREFIX GetFreelistMemory (HEAP *theHeap, INT size)
 
 INT NS_PREFIX PutFreelistMemory (HEAP *theHeap, void *object, INT size)
 {
-#if UG_USE_SYSTEM_HEAP
   free(object);
   return 0;
-#else
-  abort();
-#endif
 }
 
 /****************************************************************************/
@@ -507,13 +459,12 @@ INT NS_PREFIX Release (HEAP *theHeap, INT mode, INT key)
 
   if (theHeap->type!=SIMPLE_HEAP) return(1);
 
-#if UG_USE_SYSTEM_HEAP
   /* Free all memory associated to 'key' */
   for (size_t i=0; i<theHeap->markedMemory[key].size(); i++)
     free(theHeap->markedMemory[key][i]);
   theHeap->markedMemory[key].resize(0);
-#endif
 
+#warning do we need all this TOP/BOTTOM magick, when using system heap? I do not think so...
   if (mode==FROM_TOP)
   {
     if (theHeap->topStackPtr>0)
