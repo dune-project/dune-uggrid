@@ -202,7 +202,6 @@ static void Factor (int N, int *pn, int *pm)
 int PPIF::InitPPIF (int *, char ***)
 {
   int i, succ, sonr, sonl;
-  MPI_Status status;
 
   MPI_Comm_rank (COMM, &me);
   MPI_Comm_size (COMM, &procs);
@@ -254,7 +253,7 @@ int PPIF::InitPPIF (int *, char ***)
   for(i=0; i<degree; i++)
   {
     MPI_Recv ((void *) &(slvcnt[i]), (int) sizeof(int), MPI_BYTE,
-              downtree[i]->p, ID_TREE, COMM, &status);
+              downtree[i]->p, ID_TREE, COMM, MPI_STATUS_IGNORE);
     succ += slvcnt[i];
   }
   if (me>0)
@@ -486,13 +485,12 @@ msgid PPIF::RecvASync (VChannelPtr v, void *data, int size, int *error)
 int PPIF::InfoASend (VChannelPtr v, msgid m)
 
 {
-  MPI_Status status;
   int complete;
 
 #  ifdef REQUEST_HEAP
   if (m)
   {
-    if (MPI_SUCCESS == MPI_Test ((MPI_Request *) m, &complete, &status) )
+    if (MPI_SUCCESS == MPI_Test ((MPI_Request *) m, &complete, MPI_STATUS_IGNORE) )
     {
       if (complete) free (m);
 
@@ -503,7 +501,7 @@ int PPIF::InfoASend (VChannelPtr v, msgid m)
 #  else
   MPI_Request Req = (MPI_Request) m;
 
-  if (MPI_SUCCESS == MPI_Test (&Req, &complete, &status) )
+  if (MPI_SUCCESS == MPI_Test (&Req, &complete, MPI_STATUS_IGNORE) )
   {
     return (complete);          /* complete is true for completed send, false otherwise */
   }
@@ -516,13 +514,12 @@ int PPIF::InfoASend (VChannelPtr v, msgid m)
 
 int PPIF::InfoARecv (VChannelPtr v, msgid m)
 {
-  MPI_Status status;
   int complete;
 
 #  ifdef REQUEST_HEAP
   if (m)
   {
-    if (MPI_SUCCESS == MPI_Test ((MPI_Request *) m, &complete, &status) )
+    if (MPI_SUCCESS == MPI_Test ((MPI_Request *) m, &complete, MPI_STATUS_IGNORE) )
     {
       if (complete) free (m);
 
@@ -533,7 +530,7 @@ int PPIF::InfoARecv (VChannelPtr v, msgid m)
 #  else
   MPI_Request Req = (MPI_Request) m;
 
-  if (MPI_SUCCESS == MPI_Test (&Req, &complete, &status) )
+  if (MPI_SUCCESS == MPI_Test (&Req, &complete, MPI_STATUS_IGNORE) )
   {
     return (complete);          /* complete is true for completed receive, false otherwise */
   }
