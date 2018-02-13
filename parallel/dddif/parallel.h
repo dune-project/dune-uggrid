@@ -235,9 +235,6 @@ typedef struct
   int elemData;
   int sideData;
 
-  /* data for memmgr */
-  MULTIGRID *memmgrMG;
-
   INT ugtypes[MAXDDDTYPES];                  /* dddtype -> ugtype */
   DDD_TYPE types[MAXOBJECTS];                /* ugtype -> dddtype */
   int dddObj[MAXOBJECTS];
