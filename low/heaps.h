@@ -73,9 +73,6 @@ enum HeapAllocMode
  FROM_BOTTOM=2                       /**< Allocate from bottom of stack   */
 };
 
-/** \brief Number of free object pointers  */
-#define MAXFREEOBJECTS  128
-
 /* by convention, tempory memory on a simple heap should allocated FROM_TOP */
 /* the Freelist memory is allocated FROM_BOTTOM                             */
 
@@ -127,6 +124,7 @@ typedef unsigned long MEM;
 /* structs and typedefs for the simple and general heap management          */
 /****************************************************************************/
 
+#warning we should not need the block ... get rid of it
 struct block {
   MEM size;
   struct block *next,*previous;
@@ -135,16 +133,10 @@ struct block {
 typedef struct {
   enum HeapType type;
   MEM size;
-  MEM used;
   struct block *heapptr;
   INT topStackPtr,bottomStackPtr;
   MEM topStack[MARK_STACK_SIZE];
   MEM bottomStack[MARK_STACK_SIZE];
-  INT SizeOfFreeObjects[MAXFREEOBJECTS];
-  void *freeObjects[MAXFREEOBJECTS];
-        #ifdef Debug
-  INT objcount[MAXFREEOBJECTS];
-        #endif
 
   /* This is used only if UG_USE_SYSTEM_HEAP is set, but I don't want the
    * #ifdef in an installed header, hence the data member is there all the time. */

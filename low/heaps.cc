@@ -102,47 +102,9 @@ INT NS_PREFIX check_of_putcallstack = 0;
 
 void NS_PREFIX HeapStat (const HEAP *theHeap)
 {
-  INT i;
-  INT usedfreelistentries,size;
-#ifdef Debug
-  INT found;
-  void ** ptr;
-#endif
-
-  usedfreelistentries = 0;
-
+  ASSERT(false);
   UserWriteF("HeapStat: heap=%p type=%d\n",theHeap,theHeap->type);
-        #ifdef Debug
-  UserWriteF("FreelistInfo:\n");
-        #endif
-  for (i=0; i<MAXFREEOBJECTS; i++)
-  {
-    size = theHeap->SizeOfFreeObjects[i];
-    if (size != -1)
-    {
-                        #ifdef Debug
-      /* inspect linked list */
-      ptr = (void **) theHeap->freeObjects[i];
-      found = 0;
-      while (ptr != NULL)
-      {
-        ptr = (void **)ptr[0];
-        found++;
-      }
-      UserWriteF("Entry %4d: objsize=%d objcount=%d entrymem=%d found=%d\n",
-                 i,size,theHeap->objcount[i],size*theHeap->objcount[i],found);
-                        #endif
-      usedfreelistentries++;
-    }
-                #ifdef Debug
-    else
-      assert(theHeap->freeObjects[i] == NULL);
-                #endif
-  }
   UserWriteF("          size (bytes)   =%lu\n",theHeap->size);
-  UserWriteF("          used (bytes)   =%lu\n",theHeap->used);
-  UserWriteF("          MAXFREEOBJECTS =%d\n",MAXFREEOBJECTS);
-  UserWriteF("          usedfreelistent=%d\n",usedfreelistentries);
 }
 
 /****************************************************************************/
@@ -179,19 +141,11 @@ HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
   theHeap->size = size;
   theHeap->topStackPtr = theHeap->bottomStackPtr = 0;
   theHeap->heapptr = (BLOCK *) CEIL(((MEM)theHeap)+sizeof(HEAP));
-  theHeap->used = ((MEM)theHeap->heapptr)-((MEM)theHeap);
 
   /* initialize first block */
   theHeap->heapptr->size = ((MEM)theHeap)+size-((MEM)theHeap->heapptr);
   theHeap->heapptr->next = theHeap->heapptr;
   theHeap->heapptr->previous = theHeap->heapptr;
-
-  /* initialize free lists */
-  for (i=0; i<MAXFREEOBJECTS; i++)
-  {
-    theHeap->SizeOfFreeObjects[i] = -1;;
-    theHeap->freeObjects[i] = NULL;
-  }
 
   /* No constructor is ever called for theHeap.  Consequently, no constructor
    * has been called for its member markedMemory, either.  Here we force this
@@ -484,7 +438,6 @@ INT NS_PREFIX Release (HEAP *theHeap, INT mode, INT key)
       oldsize = theHeap->heapptr->size;
       newsize = theHeap->topStack[--theHeap->topStackPtr]-((MEM)theHeap->heapptr);
       theHeap->heapptr->size = newsize;
-      theHeap->used -= newsize-oldsize;
       return(0);
     }
     if (theHeap->topStackPtr==0)
@@ -512,7 +465,6 @@ INT NS_PREFIX Release (HEAP *theHeap, INT mode, INT key)
                 -theHeap->bottomStack[--theHeap->bottomStackPtr];
       theHeap->heapptr = (BLOCK *) theHeap->bottomStack[theHeap->bottomStackPtr];
       theHeap->heapptr->size = newsize;
-      theHeap->used -= newsize-oldsize;
       return(0);
     }
     if (theHeap->bottomStackPtr==0)
@@ -533,7 +485,7 @@ INT NS_PREFIX Release (HEAP *theHeap, INT mode, INT key)
 
 MEM NS_PREFIX HeapSize (const HEAP *theHeap)
 {
-  return(theHeap->size);
+  ASSERT(false);
 }
 
 /****************************************************************************/
@@ -548,7 +500,7 @@ MEM NS_PREFIX HeapSize (const HEAP *theHeap)
 
 MEM NS_PREFIX HeapUsed (const HEAP *theHeap)
 {
-  return(theHeap->used);
+  ASSERT(false);
 }
 
 /****************************************************************************/
@@ -566,7 +518,7 @@ MEM NS_PREFIX HeapUsed (const HEAP *theHeap)
 
 MEM NS_PREFIX HeapFree (const HEAP *theHeap)
 {
-  return(theHeap->size-theHeap->used);
+  ASSERT(false);
 }
 
 /****************************************************************************/
@@ -581,7 +533,7 @@ MEM NS_PREFIX HeapFree (const HEAP *theHeap)
 
 MEM NS_PREFIX HeapFreelistUsed (const HEAP *theHeap)
 {
-  return(0);
+  ASSERT(false);
 }
 
 /****************************************************************************/
@@ -596,7 +548,7 @@ MEM NS_PREFIX HeapFreelistUsed (const HEAP *theHeap)
 
 MEM NS_PREFIX HeapTotalFree (const HEAP *theHeap)
 {
-  return(theHeap->size-theHeap->used);
+  ASSERT(false);
 }
 
 /****************************************************************************/
