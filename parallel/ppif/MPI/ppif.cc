@@ -101,6 +101,11 @@ struct VChannel
   int chanid;
 };
 
+struct Msg
+{
+  MPI_Request req;
+};
+
 } /* namespace PPIF */
 
 /****************************************************************************/
@@ -416,33 +421,19 @@ int PPIF::InfoADisc (VChannelPtr v)
   return (true);
 }
 
-#define REQUEST_HEAP
-
 msgid PPIF::SendASync (VChannelPtr v, void *data, int size, int *error)
-
 {
-#  ifdef REQUEST_HEAP
-  MPI_Request *req;
+  msgid m = new PPIF::Msg;
 
-  if (req = (MPI_Request*)malloc (sizeof (MPI_Request) ) )
+  if (m)
   {
     if (MPI_SUCCESS == MPI_Isend (data, size, MPI_BYTE,
-                                  v->p, v->chanid, COMM, req) )
+                                  v->p, v->chanid, COMM, &m->req) )
     {
       *error = false;
-      return ((msgid) req);
+      return m;
     }
   }
-
-#  else
-  MPI_Request Req;
-  if (MPI_SUCCESS == MPI_Isend (data, size, MPI_BYTE,
-                                v->p, v->chanid, COMM, &Req) )
-  {
-    *error = false;
-    return ((msgid) Req);
-  }
-#  endif
 
   *error = true;
   return NULL;
@@ -452,30 +443,17 @@ msgid PPIF::SendASync (VChannelPtr v, void *data, int size, int *error)
 msgid PPIF::RecvASync (VChannelPtr v, void *data, int size, int *error)
 
 {
-#  ifdef REQUEST_HEAP
-  MPI_Request *req;
+  msgid m = new PPIF::Msg;
 
-  if (req = (MPI_Request*)malloc (sizeof (MPI_Request) ) )
+  if (m)
   {
     if (MPI_SUCCESS == MPI_Irecv (data, size, MPI_BYTE,
-                                  v->p, v->chanid, COMM, req) )
+                                  v->p, v->chanid, COMM, &m->req) )
     {
       *error = false;
-      return ((msgid) req);
+      return m;
     }
   }
-
-#  else
-  MPI_Request Req;
-
-  if (MPI_SUCCESS == MPI_Irecv (data, size, MPI_BYTE,
-                                v->p, v->chanid, COMM, &Req) )
-  {
-    *error = false;
-    return ((msgid) Req);
-  }
-
-#  endif
 
   *error = true;
   return (NULL);
@@ -487,26 +465,16 @@ int PPIF::InfoASend (VChannelPtr v, msgid m)
 {
   int complete;
 
-#  ifdef REQUEST_HEAP
   if (m)
   {
-    if (MPI_SUCCESS == MPI_Test ((MPI_Request *) m, &complete, MPI_STATUS_IGNORE) )
+    if (MPI_SUCCESS == MPI_Test (&m->req, &complete, MPI_STATUS_IGNORE) )
     {
-      if (complete) free (m);
+      if (complete)
+        delete m;
 
       return (complete);        /* complete is true for completed send, false otherwise */
     }
   }
-
-#  else
-  MPI_Request Req = (MPI_Request) m;
-
-  if (MPI_SUCCESS == MPI_Test (&Req, &complete, MPI_STATUS_IGNORE) )
-  {
-    return (complete);          /* complete is true for completed send, false otherwise */
-  }
-
-#  endif
 
   return (-1);          /* return -1 for FAILURE */
 }
@@ -516,26 +484,16 @@ int PPIF::InfoARecv (VChannelPtr v, msgid m)
 {
   int complete;
 
-#  ifdef REQUEST_HEAP
   if (m)
   {
-    if (MPI_SUCCESS == MPI_Test ((MPI_Request *) m, &complete, MPI_STATUS_IGNORE) )
+    if (MPI_SUCCESS == MPI_Test (&m->req, &complete, MPI_STATUS_IGNORE) )
     {
-      if (complete) free (m);
+      if (complete)
+        delete m;
 
       return (complete);        /* complete is true for completed receive, false otherwise */
     }
   }
-
-#  else
-  MPI_Request Req = (MPI_Request) m;
-
-  if (MPI_SUCCESS == MPI_Test (&Req, &complete, MPI_STATUS_IGNORE) )
-  {
-    return (complete);          /* complete is true for completed receive, false otherwise */
-  }
-
-#  endif
 
   return (-1);          /* return -1 for FAILURE */
 }
