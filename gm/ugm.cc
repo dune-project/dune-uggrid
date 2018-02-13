@@ -6522,8 +6522,7 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   /* compute heap info */
   if (gridflag)
   {
-    heap = HeapFreelistUsed(MGHEAP(theMG));
-    used = HeapUsed(MGHEAP(theMG))-heap;
+    used = HeapUsed(MGHEAP(theMG));
     free_bytes = (HeapSize(MGHEAP(theMG))-used)>>10;
     mg_sum_size = used>>10;
     if (mg_sum > 0)
@@ -6821,7 +6820,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
   char c;
   DOUBLE hmin,hmax,h;
   INT l,cl,minl,i,soe,eos,coe,side,e;
-  INT nn,ne,nt,ns,nvec,nc,free,used,heap;
+  INT nn,ne,nt,ns,nvec,nc,free,used;
 
   cl = CURRENTLEVEL(theMG);
 
@@ -7052,17 +7051,13 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
         #endif
 
   /* storage */
-  heap = HeapFreelistUsed(MGHEAP(theMG));
-  used = HeapUsed(MGHEAP(theMG)) - heap;
+  used = HeapUsed(MGHEAP(theMG));
   free = HeapSize(MGHEAP(theMG)) - used;
-  if (heap == 0)
-    UserWriteF("\n%lu bytes used out of %lu allocated\n",used,used+free);
-  else
-    UserWriteF("\n%lu ( %lu + %lu ) bytes used out of %lu allocated\n",
-               used+heap,used,heap,used+free);
+  UserWriteF("\n%lu bytes used out of %lu allocated\n",
+             used,used+free);
 
     #ifdef ModelP
-  used = used + heap;
+  used = used;
   used = UG_GlobalMaxINT(used);
   UserWriteF("%lu bytes used on some processor %lu bytes used on all\n",used,UG_GlobalSumINT(used));
     #endif
