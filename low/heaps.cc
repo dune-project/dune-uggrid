@@ -155,9 +155,9 @@ void NS_PREFIX DisposeHeap (HEAP *theHeap)
     using namespace std;
     for (INT i=0; i<MARK_STACK_SIZE; i++)
       theHeap->markedMemory[i].~vector<void*>();
-  }
 
-  free(theHeap);
+    free(theHeap);
+  }
 }
 
 /****************************************************************************/
