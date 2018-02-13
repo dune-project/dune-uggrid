@@ -110,12 +110,6 @@ HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
   theHeap->type = type;
   theHeap->size = size;
   theHeap->markKey = 0;
-  theHeap->heapptr = (BLOCK *) CEIL(((MEM)theHeap)+sizeof(HEAP));
-
-  /* initialize first block */
-  theHeap->heapptr->size = ((MEM)theHeap)+size-((MEM)theHeap->heapptr);
-  theHeap->heapptr->next = theHeap->heapptr;
-  theHeap->heapptr->previous = theHeap->heapptr;
 
   /* No constructor is ever called for theHeap.  Consequently, no constructor
    * has been called for its member markedMemory, either.  Here we force this
