@@ -91,23 +91,6 @@ INT NS_PREFIX check_of_putcallstack = 0;
 #endif
 
 /****************************************************************************/
-/** \brief Get information on heap
-
-   \param theHeap - heap to get information
-
-   This function gets information on heap (objects and memory in freelists).
-
- */
-/****************************************************************************/
-
-void NS_PREFIX HeapStat (const HEAP *theHeap)
-{
-  ASSERT(false);
-  UserWriteF("HeapStat: heap=%p type=%d\n",theHeap,theHeap->type);
-  UserWriteF("          size (bytes)   =%lu\n",theHeap->size);
-}
-
-/****************************************************************************/
 /** \brief Install a new heap structure
 
    \param type - type of heap
@@ -472,83 +455,6 @@ INT NS_PREFIX Release (HEAP *theHeap, INT mode, INT key)
       return(0);
   }
   return(5);
-}
-
-/****************************************************************************/
-/** \brief Get heap size
-
-   \param theHeap - heap to get heap size
-
-   This function gets the heap size.
- */
-/****************************************************************************/
-
-MEM NS_PREFIX HeapSize (const HEAP *theHeap)
-{
-  ASSERT(false);
-}
-
-/****************************************************************************/
-/** \brief Get used memory of heap
-
-   \param theHeap - heap to get used memory of heap
-
-   This function gets the used memory of heap.
-
- */
-/****************************************************************************/
-
-MEM NS_PREFIX HeapUsed (const HEAP *theHeap)
-{
-  ASSERT(false);
-}
-
-/****************************************************************************/
-/** \brief Get free memory of heap (without free lists)
-
-   \param theHeap - heap to get free memory of heap
-
-   This function gets the free memory of heap. The free momory in the free lists is
-   not taken into account
-
-   \return
-   theHeap->size-theHeap->used
- */
-/****************************************************************************/
-
-MEM NS_PREFIX HeapFree (const HEAP *theHeap)
-{
-  ASSERT(false);
-}
-
-/****************************************************************************/
-/** \brief Get memory of heap in freelists
-
-   \param theHeap - heap to get used memory of heap
-
-   This function gets the used memory of heap which is available in the freelists.
-
- */
-/****************************************************************************/
-
-MEM NS_PREFIX HeapFreelistUsed (const HEAP *theHeap)
-{
-  ASSERT(false);
-}
-
-/****************************************************************************/
-/** \brief Get memory of heap in freelists
-
-   \param theHeap - heap to get used memory of heap
-
-   This function gets the used memory of heap which is available in the freelists.
-
- */
-/****************************************************************************/
-
-MEM NS_PREFIX HeapTotalFree (const HEAP *theHeap)
-{
-  ASSERT(false);
 }
 
 /****************************************************************************/

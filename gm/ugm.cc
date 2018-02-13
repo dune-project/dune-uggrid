@@ -6315,8 +6315,8 @@ void NS_DIM_PREFIX ListMultiGrid (const MULTIGRID *theMG, const INT isCurrent, c
   c = isCurrent ? '*' : ' ';
 
   if (longformat)
-    UserWriteF(" %c %-20.20s %-20.20s %10lu %10lu\n",c,ENVITEM_NAME(theMG),
-               BVPD_NAME(theBVPDesc), HeapSize(theMG->theHeap),HeapUsed(theMG->theHeap));
+    UserWriteF(" %c %-20.20s %-20.20s\n",c,ENVITEM_NAME(theMG),
+               BVPD_NAME(theBVPDesc));
   else
     UserWriteF(" %c %-20.20s\n",c,ENVITEM_NAME(theMG));
 
@@ -6340,15 +6340,14 @@ void NS_DIM_PREFIX ListMultiGrid (const MULTIGRID *theMG, const INT isCurrent, c
 
 INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT greenflag, INT lbflag, INT verbose)
 {
-  INT i,j,sons,maxsons,heap,used,free_bytes;
+  INT i,j,sons,maxsons;
   INT red, green, yellow;
   INT mg_red,mg_green,mg_yellow;
   INT mg_greenrulesons[MAXLEVEL+1][MAX_SONS+1],mg_greenrules[MAXLEVEL+1];
   INT markcount[MAXLEVEL+1],closuresides[MAXLEVEL+1];
-  INT mg_red_size,mg_green_size,mg_yellow_size,mg_sum_size;
+  INT elem_max_size;
   FLOAT sum,sum_div_red,redplusgreen_div_red;
   FLOAT mg_sum,mg_sum_div_red,mg_redplusgreen_div_red;
-  FLOAT mg_sum_size_div_red,mg_redplusgreen_size_div_red;
   ELEMENT *theElement;
   GRID    *theGrid;
         #ifdef ModelP
@@ -6358,6 +6357,12 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   INT total_elements,sum_elements;
   INT master_elements,hghost_elements,vghost_elements,vhghost_elements;
         #endif
+
+#ifdef __TWODIM__
+  elem_max_size = sizeof(struct quadrilateral);
+#else
+  elem_max_size = sizeof(struct hexahedron);
+#endif
 
   mg_red = mg_green = mg_yellow = mg_sum = 0;
   mg_sum_div_red = mg_redplusgreen_div_red = 0.0;
@@ -6516,36 +6521,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
     UserWriteF("  ALL  %9d %9d %9d  %9.0f    %2.3f      %2.3f\n",
                mg_red,mg_green,mg_yellow,mg_sum,mg_sum_div_red,mg_redplusgreen_div_red);
 
-  /* compute heap info */
-  if (gridflag)
-  {
-    used = HeapUsed(MGHEAP(theMG));
-    free_bytes = (HeapSize(MGHEAP(theMG))-used)>>10;
-    mg_sum_size = used>>10;
-    if (mg_sum > 0)
-    {
-      mg_red_size = mg_sum_size*mg_red/mg_sum;
-      mg_green_size = mg_sum_size*mg_green/mg_sum;
-      mg_yellow_size = (float)mg_sum_size*mg_yellow/mg_sum;
-    }
-    else
-    {
-      mg_red_size = 0.0;
-      mg_green_size = 0.0;
-      mg_yellow_size = 0.0;
-    }
-    if (mg_red > 0)
-    {
-      mg_sum_size_div_red = ((float)mg_sum_size)/mg_red;
-      mg_redplusgreen_size_div_red = ((float)(mg_red_size+mg_green_size))/mg_red;
-    }
-    else
-    {
-      mg_sum_size_div_red = 0.0;
-      mg_redplusgreen_size_div_red = 0.0;
-    }
-  }
-
   /* set heap info in refine info */
   if (gridflag)
   {
@@ -6566,49 +6541,13 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
     SETPREDNEW1(REFINEINFO(theMG),New);
 
     SETREAL(REFINEINFO(theMG),mg_sum);
-    if (mg_sum_size_div_red > 0.0)
-      predmax = free_bytes/mg_sum_size_div_red;
-    else
-      predmax = free_bytes/
-#ifdef __TWODIM__
-                sizeof(struct quadrilateral);
-#else
-                sizeof(struct hexahedron);
-#endif
+    ASSERT(false && "predmax = free_bytes/elem_max_size");
     SETPREDMAX(REFINEINFO(theMG),predmax);
   }
 
   /* list heap info */
   if (verbose && gridflag)
   {
-    float predmax0,predmax1;
-
-    UserWriteF(" HEAP  %7dKB %7dKB %7dKB  %7dKB    %2.3fKB    %2.3fKB\n",
-               mg_red_size,mg_green_size,mg_yellow_size,mg_sum_size,
-               mg_sum_size_div_red,mg_redplusgreen_size_div_red);
-
-    if (mg_sum_size_div_red > 0.0)
-      predmax0 = free_bytes/mg_sum_size_div_red;
-    else
-      predmax0 = free_bytes/
-#ifdef __TWODIM__
-                 sizeof(struct quadrilateral);
-#else
-                 sizeof(struct hexahedron);
-#endif
-    if (mg_redplusgreen_size_div_red > 0.0)
-      predmax1 = free_bytes/mg_redplusgreen_size_div_red;
-    else
-      predmax1 = free_bytes/
-#ifdef __TWODIM__
-                 sizeof(struct quadrilateral);
-#else
-                 sizeof(struct hexahedron);
-#endif
-
-    UserWriteF(" EST  FREE=%7dKB  MAXNEWELEMENTS free_bytes/(SUM/RED)=%9.0f "
-               "FREE/((RED+GREEN)/RED)=%9.0f\n",
-               free_bytes,predmax0,predmax1);
     UserWriteF(" EST %2d  ELEMS=%9.0f MARKCOUNT=%9.0f PRED_NEW0=%9.0f PRED_NEW1=%9.0f PRED_MAX=%9.0f\n",
                REFINESTEP(REFINEINFO(theMG)),REAL(REFINEINFO(theMG)),MARKCOUNT(REFINEINFO(theMG)),
                PREDNEW0(REFINEINFO(theMG)),PREDNEW1(REFINEINFO(theMG)),PREDMAX(REFINEINFO(theMG)));
@@ -7046,18 +6985,6 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
              "---",(long)nn,"        ",(long)nt,
              (long)ns,(long)nvec,"        ",(float)hmin,(float)hmax);
         #endif
-
-  /* storage */
-  used = HeapUsed(MGHEAP(theMG));
-  free = HeapSize(MGHEAP(theMG)) - used;
-  UserWriteF("\n%lu bytes used out of %lu allocated\n",
-             used,used+free);
-
-    #ifdef ModelP
-  used = used;
-  used = UG_GlobalMaxINT(used);
-  UserWriteF("%lu bytes used on some processor %lu bytes used on all\n",used,UG_GlobalSumINT(used));
-    #endif
 }
 
 /****************************************************************************/
