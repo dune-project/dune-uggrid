@@ -161,63 +161,32 @@ void NS_PREFIX DisposeHeap (HEAP *theHeap)
 }
 
 /****************************************************************************/
-/** \brief Allocate memory from heap, depending on heap type
+/** \brief Allocate memory from heap
 
-   \param theHeap - heap to allocate from
+   \param theHeap - heap structure which manages memory allocation
    \param n - number of bytes to allocate
-   \param mode - allocation position for mark/release heap
+   \param mode - historic parameter, ignored nowadays
 
-   This function allocates memory from 'HEAP', depending on heap type.
+   this function now only forwards to `malloc`.
 
-   If the heap type (theHeap->type) is 'SIMPLE_HEAP' new blocks in the
-   allocated memory can be taken either from the top (mode = 'FROM_TOP')
-   or from the bottom (mode = 'FROM_BOTTOM') of this block. In other words
-   the total memory block to be provided for ug is used from both sides by
-   introducing recursively new, smaller blocks.
-
-   \verbatim
-      --------------------------------
- | 1 | 3 |  4  |           |  2 |   total allocated memory for ug
-      --------------------------------
-      used blocks are #1,#2,#3 and #4
-
-      -----
- ||5|6|   block #4 is separated also in block #5 and #6
-      -----
-   \endverbatim
-
-   If the heap type (theHeap->type) is 'GENERAL_HEAP' new blocks to be
-   introduced in the total allocated memory for ug are laid at the position
-   where enough memory is free. The search for this position is done by
-   running round the memory and looking for the equivalent space.
-
-   \verbatim
-      --------------------------------
- |   |  1  |               |  2 |   total allocated memory for ug
-      --------------------------------
-      used blocks are #1 and #2
-
-      block to be introduced #3:  |  3  |
-      start position at the beginning
-
-      --------------------------------
- |   |  1  |  3  |         |  2 |   total allocated memory for ug
-      --------------------------------
-   \endverbatim
-
-   \return <ul>
-   <li>      NULL pointer                   if error occurs </li>
-   <li>      'theBlock'                     if OK by type of 'SIMPLE_HEAP' </li>
-   <li>      '((char *)newBlock)+ALIGNMENT' or </li>
-   <li>      '((char *)theBlock)+ALIGNMENT' if OK by type of 'GENERAL_HEAP' </li>
-   </ul>
- */
 /****************************************************************************/
 
 void *NS_PREFIX GetMem (HEAP *theHeap, MEM n, enum HeapAllocMode mode)
 {
   return malloc(n);
 }
+
+/****************************************************************************/
+/** \brief Allocate memory and register it for rollback
+
+   \param theHeap - heap structure which manages memory allocation
+   \param n - number of bytes to allocate
+   \param mode - historic parameter, ignored nowadays
+   \param key - key with which we can identify the rollback record
+
+   this function allocates memory on the heap and tags it with the `key`.
+
+/****************************************************************************/
 
 void *NS_PREFIX GetMemUsingKey (HEAP *theHeap, MEM n, enum HeapAllocMode mode, INT key)
 {
@@ -256,12 +225,10 @@ void *NS_PREFIX GetMemUsingKey (HEAP *theHeap, MEM n, enum HeapAllocMode mode, I
 /****************************************************************************/
 /** \brief Free memory previously allocated from that heap
 
-   \param theHeap - heap from which memory has been allocated
+   \param theHeap - heap structure which manages memory allocation
    \param buffer - memory area previously allocated
 
    This function creates free memory previously allocated from that heap.
-   This function is only valid for a heap of type GENERAL_HEAP.
-
  */
 /****************************************************************************/
 
@@ -271,18 +238,14 @@ void NS_PREFIX DisposeMem (HEAP *theHeap, void *buffer)
 }
 
 /****************************************************************************/
-/** \brief Get an object from free list if possible
+/** \copydoc Allocate memory from heap
 
-   \param theHeap - pointer to Heap
-   \param size - size of the object
+   \param theHeap - heap structure which manages memory allocation
+   \param size - number of bytes to allocate
 
-   This function gets an object of type `type` from free list if possible,
-   otherwise it allocates memory from the heap using 'GetMem'.
+   \note the allocated memory is initialized to zero
 
-   \return <ul>
-   <li> pointer to an object of the requested type </li>
-   <li> NULL if object of requested type is not available </li>
-   </ul>
+   \return pointer to an object of the requested size
  */
 /****************************************************************************/
 
@@ -297,18 +260,15 @@ void *NS_PREFIX GetFreelistMemory (HEAP *theHeap, INT size)
 }
 
 /****************************************************************************/
-/** \brief Put an object in the free list
+/** \brief Deallocate an object
 
    \param theHeap - pointer to Heap
-   \param object - object to insert in free list
+   \param object - object to free
    \param size - size of the object
 
-   This function puts an object in the free list.
+   \note size is ignored and was only used in the old implementation of PutFreelistMemory.
 
-   \return <ul>
-   <li> 0 if ok </li>
-   <li> 1 when error occured. </li>
-   </ul>
+   \return always returns 0 to indicate that no error happened
  */
 /****************************************************************************/
 
