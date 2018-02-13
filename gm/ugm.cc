@@ -306,10 +306,6 @@ void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
 {
   void                    *obj;
 
-        #ifdef Debug
-  check_of_getcallstack = 1;
-        #endif
-
   if (theHeap->usefreelistmemory == 1)
     obj = GetFreelistMemory(theHeap, size);
   else
@@ -328,10 +324,6 @@ void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
     if (obj != NULL)
       memset(obj,0,size);
   }
-
-        #ifdef Debug
-  check_of_getcallstack = 0;
-        #endif
 
         #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
@@ -396,16 +388,9 @@ INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT t
     DestructDDDObject(object,type);
         #endif
 
-        #ifdef Debug
-  check_of_putcallstack = 1;
-        #endif
-
   if (theHeap->usefreelistmemory == 1)
   {
     err = PutFreelistMemory(theHeap, object, size);
-                #ifdef Debug
-    check_of_putcallstack = 0;
-                #endif
     return (err);
   }
 
@@ -418,10 +403,6 @@ INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT t
     break;
   default : assert(0);
   }
-        #endif
-
-        #ifdef Debug
-  check_of_putcallstack = 0;
         #endif
 
   /* memory is freed by release */

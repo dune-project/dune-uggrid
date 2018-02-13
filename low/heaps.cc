@@ -78,18 +78,6 @@ USING_UG_NAMESPACE
 
 REP_ERR_FILE
 
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined(DYNAMIC_MEMORY_ALLOCMODEL) && defined(Debug)
-INT NS_PREFIX check_of_getcallstack = 0;
-INT NS_PREFIX check_of_putcallstack = 0;
-#endif
-
 /****************************************************************************/
 /** \brief Install a new heap structure
 

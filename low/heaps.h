@@ -184,17 +184,6 @@ typedef struct block BLOCK;
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined(DYNAMIC_MEMORY_ALLOCMODEL) && defined(Debug)
-extern INT check_of_getcallstack;
-extern INT check_of_putcallstack;
-#endif
-
-/****************************************************************************/
-/*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
 /****************************************************************************/
