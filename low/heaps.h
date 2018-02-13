@@ -133,7 +133,6 @@ struct block {
 typedef struct {
   enum HeapType type;
   MEM size;
-  struct block *heapptr;
   INT markKey;
 
   /* This is used only if UG_USE_SYSTEM_HEAP is set, but I don't want the
