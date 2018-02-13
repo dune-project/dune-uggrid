@@ -59,8 +59,6 @@ namespace PPIF {
 
 enum directions {north,east,south,west,up,down};
 
-#define RAND_MSG_SIZE 128   /* max size of random messages                                      */
-
 #define PPIF_SUCCESS    0       /* Return value for success                     */
 #define PPIF_FAILURE    1       /* Return value for failure                     */
 

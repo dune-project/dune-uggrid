@@ -72,15 +72,10 @@ using namespace PPIF;
 /*                                                                          */
 /****************************************************************************/
 
-#define RAND_MSG_SIZE   128     /* max size of random messages              */
 #define MAXT            15      /* maximum number of downtree nodes max     */
                                 /* log2(P)                                  */
-#define PTYPE_ANY       -1L     /* process type: any process                */
 
-#define ID_ARRAY        100     /* channel id: array                        */
 #define ID_TREE         101     /* channel id: tree                         */
-#define ID_GLOBAL       102     /* channel id: global                       */
-#define ID_MAIL         103     /* channel id: mail                         */
 
 #define PPIF_SUCCESS    0       /* Return value for success                 */
 #define PPIF_FAILURE    1       /* Return value for failure                 */
@@ -135,15 +130,6 @@ int PPIF::degree;                      /* degree of downtree nodes              
 VChannelPtr PPIF::uptree = NULL;       /* channel uptree                           */
 VChannelPtr PPIF::downtree[MAXT] = {NULL};  /* channels downtree (may be empty)    */
 int PPIF::slvcnt[MAXT];                /* number of processors in subtree          */
-
-/****************************************************************************/
-/*                                                                          */
-/* forward declarations of functions used before they are defined           */
-/*                                                                          */
-/****************************************************************************/
-
-int SendSync (void* v, void *data, int size);
-int RecvSync (void* v, void *data, int size);
 
 /****************************************************************************/
 /*                                                                          */
