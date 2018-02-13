@@ -199,28 +199,11 @@ static void Factor (int N, int *pn, int *pm)
 }
 
 
-
-static int PPIFBeganMPI=0; /* remember that PPIF started MPI */
-
-
-int PPIF::InitPPIF (int *argcp, char ***argvp)
+int PPIF::InitPPIF (int *, char ***)
 {
   int i, succ, sonr, sonl;
   MPI_Status status;
-  int mpierror, mpiinitialized;
 
-  /* the following is due to Klaus-Dieter Oertel, 961016;
-         (original idea from the developers of the PetSc library)  */
-  /* ppif checks whether MPI has been started by another
-     library and starts it only if necessary. */
-  mpierror = MPI_Initialized(&mpiinitialized);
-  if (mpierror) MPI_Abort(MPI_COMM_WORLD, mpierror);
-  if (!mpiinitialized)
-  {
-    mpierror = MPI_Init (argcp, argvp);
-    if (mpierror) MPI_Abort( MPI_COMM_WORLD, mpierror);
-    PPIFBeganMPI = 1;
-  }
   MPI_Comm_rank (COMM, &me);
   MPI_Comm_size (COMM, &procs);
 
@@ -285,15 +268,6 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
 
 int PPIF::ExitPPIF ()
 {
-  int mpierror;
-
-  if (PPIFBeganMPI)
-  {
-    mpierror = MPI_Finalize();
-    if (mpierror) MPI_Abort(MPI_COMM_WORLD, mpierror);
-    PPIFBeganMPI = 0;
-  }
-
   /* Deallocate tree structure */
   DeleteVChan(uptree);
   uptree = NULL;
