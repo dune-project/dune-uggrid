@@ -124,12 +124,6 @@ typedef unsigned long MEM;
 /* structs and typedefs for the simple and general heap management          */
 /****************************************************************************/
 
-#warning we should not need the block ... get rid of it
-struct block {
-  MEM size;
-  struct block *next,*previous;
-};
-
 typedef struct {
   enum HeapType type;
   MEM size;
@@ -177,7 +171,6 @@ typedef struct {
 /****************************************************************************/
 
 typedef INT BLOCK_ID;
-typedef struct block BLOCK;
 
 /****************************************************************************/
 /*                                                                          */
