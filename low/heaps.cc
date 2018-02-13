@@ -146,7 +146,6 @@ void NS_PREFIX HeapStat (const HEAP *theHeap)
   }
   UserWriteF("          size (bytes)   =%lu\n",theHeap->size);
   UserWriteF("          used (bytes)   =%lu\n",theHeap->used);
-  UserWriteF("          freelistmem    =%lu\n",theHeap->freelistmem);
   UserWriteF("          MAXFREEOBJECTS =%d\n",MAXFREEOBJECTS);
   UserWriteF("          usedfreelistent=%d\n",usedfreelistentries);
 }
@@ -183,7 +182,6 @@ HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
   theHeap = (HEAP *) buffer;
   theHeap->type = type;
   theHeap->size = size;
-  theHeap->freelistmem = 0;
   theHeap->topStackPtr = theHeap->bottomStackPtr = 0;
   theHeap->heapptr = (BLOCK *) CEIL(((MEM)theHeap)+sizeof(HEAP));
   theHeap->used = ((MEM)theHeap->heapptr)-((MEM)theHeap);
@@ -632,7 +630,7 @@ MEM NS_PREFIX HeapFree (const HEAP *theHeap)
 
 MEM NS_PREFIX HeapFreelistUsed (const HEAP *theHeap)
 {
-  return(theHeap->freelistmem);
+  return(0);
 }
 
 /****************************************************************************/
@@ -647,7 +645,7 @@ MEM NS_PREFIX HeapFreelistUsed (const HEAP *theHeap)
 
 MEM NS_PREFIX HeapTotalFree (const HEAP *theHeap)
 {
-  return(theHeap->size-theHeap->used+theHeap->freelistmem);
+  return(theHeap->size-theHeap->used);
 }
 
 /****************************************************************************/

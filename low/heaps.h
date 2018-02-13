@@ -136,7 +136,6 @@ typedef struct {
   enum HeapType type;
   MEM size;
   MEM used;
-  MEM freelistmem;
   struct block *heapptr;
   INT topStackPtr,bottomStackPtr;
   MEM topStack[MARK_STACK_SIZE];
