@@ -2113,7 +2113,7 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
     REP_ERR_RETURN(1);
 
   global.heap = MGHEAP(mg);
-  if (Mark(global.heap,&BotMarkKey))
+  if (MarkTmpMem(global.heap,&BotMarkKey))
     REP_ERR_RETURN(1);
 
   /* init rule counters (continue with last rule IDs of rm) */
@@ -2174,7 +2174,7 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
   Write_RR_Rules(global.maxrules,*mrule_handle);
 
   /* free hrules and hrule table */
-  if (Release(global.heap,BotMarkKey))
+  if (ReleaseTmpMem(global.heap,BotMarkKey))
     REP_ERR_RETURN(1);
 
   IFDEBUG(gm,ER_DBG_GENERAL)

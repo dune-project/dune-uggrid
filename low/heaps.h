@@ -79,10 +79,6 @@ enum HeapAllocMode
  FROM_BOTTOM=2                       /**< Allocate from bottom of stack   */
 } DUNE_DEPRECATED;
 
-#define MarkTmpMem(p,kp)         Mark(p,kp)
-#define GetTmpMem(p,n,k)         GetMemUsingKey(p,n,k)
-#define ReleaseTmpMem(p,k)       Release(p,k)
-
 /****************************************************************************/
 /****************************************************************************/
 /** @name Defines and macros for the virtual heap management                 */
@@ -136,24 +132,25 @@ typedef struct {
 /* @{ */
 HEAP        *NewHeap                (enum HeapType type, MEM size, void *buffer);
 void         DisposeHeap            (HEAP *theHeap);
+
 void        *GetMem                 (HEAP *theHeap, MEM n);
-void        *GetMemUsingKey         (HEAP *theHeap, MEM n, INT key);
 void         DisposeMem             (HEAP *theHeap, void *buffer);
 
 void        *GetFreelistMemory      (HEAP *theHeap, INT size);
 INT          PutFreelistMemory      (HEAP *theHeap, void *object, INT size);
 
-INT          Mark                   (HEAP *theHeap, INT *key);
-INT          Release                (HEAP *theHeap, INT key);
+INT          MarkTmpMem             (HEAP *theHeap, INT *key);
+void        *GetTmpMem              (HEAP *theHeap, MEM n, INT key);
+INT          ReleaseTmpMem          (HEAP *theHeap, INT key);
 inline INT DUNE_DEPRECATED_MSG("Mark taking a mode is deprecated")
              Mark                   (HEAP *theHeap, INT mode, INT *key)
 {
-  return Mark(theHeap,key);
+  return MarkTmpMem(theHeap,key);
 }
 inline INT DUNE_DEPRECATED_MSG("Release taking a mode is deprecated")
              Release                (HEAP *theHeap, INT mode, INT key)
 {
-  return Release(theHeap,key);
+  return ReleaseTmpMem(theHeap,key);
 }
 /* @} */
 
