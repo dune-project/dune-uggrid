@@ -88,11 +88,5 @@ INT NS_DIM_PREFIX DisposeBottomHeapTmpMemory (MULTIGRID *theMG)
 
   if (DisposeAMGLevels(theMG)) REP_ERR_RETURN(1);
   if (DisposeConnectionsFromMultiGrid(theMG)) REP_ERR_RETURN(1);
-
-  theMG->bottomtmpmem = 0;
-  if (Release(MGHEAP(theMG),FROM_BOTTOM,MGHEAP(theMG)->freelist_end_mark))
-    REP_ERR_RETURN(1);
-  MGHEAP(theMG)->usefreelistmemory = 1;
-
   return(0);
 }
