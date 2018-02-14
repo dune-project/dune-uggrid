@@ -302,12 +302,6 @@ enum NodeType {CORNER_NODE,
                CENTER_NODE,
                LEVEL_0_NODE};
 
-/** @name Macros for the multigrid user data space management */
-/*@{*/
-#define OFFSET_IN_MGUD(id)              (GetMGUDBlockDescriptor(id)->offset)
-#define IS_MGUDBLOCK_DEF(id)    (GetMGUDBlockDescriptor(id)!=NULL)
-/*@}*/
-
 /* REMARK: TOPNODE no more available since 970411
    because of problems in parallelisation
    to use it in serial version uncomment define
@@ -1574,13 +1568,6 @@ struct multigrid {
   /* NodeElementPointerArray used for an O(n) InsertElement               */
   /** \brief pointer to the node element blocks   */
   union element ***ndelemptrarray;
-
-  /* user data */
-  /** \brief general user data space                              */
-  void *GenData;
-
-  /** \brief user heap                                                    */
-  NS_PREFIX HEAP *UserHeap;
 
   /* i/o handling */
   /** \brief 1 if multigrid saved                                 */
@@ -3005,9 +2992,6 @@ START_UGDIM_NAMESPACE
 #define MGNDELEMBLKENTRY(p,b,i) (*((*(((p)->ndelemptrarray)+b))+i))
 /* . . . macros for the NodeElementsBlockArray  */
 #define MGNAME(p)                               ((p)->v.name)
-#define MG_USER_HEAP(p)                 ((p)->UserHeap)
-#define GEN_MGUD(p)                     ((p)->GenData)
-#define GEN_MGUD_ADR(p,o)               ((void *)(((char *)((p)->GenData))+(o)))
 #define VEC_DEF_IN_OBJ_OF_MG(p,tp)       (MGFORMAT(p)->OTypeUsed[(tp)]>0)
 #define NELIST_DEF_IN_MG(p)     (MGFORMAT(p)->nodeelementlist)
 #define NDATA_DEF_IN_MG(p)      (MGFORMAT(p)->nodedata)
