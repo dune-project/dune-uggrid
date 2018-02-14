@@ -3256,11 +3256,6 @@ void            ListAllCWsOfObject              (const void *obj);
 void            ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf);
 UINT ReadCW                                     (const void *obj, INT ce);
 void            WriteCW                                 (void *obj, INT ce, INT n);
-void            ResetCEstatistics               (void);
-void            PrintCEstatistics               (void);
-INT             DefineMGUDBlock                 (NS_PREFIX BLOCK_ID id, NS_PREFIX MEM size);
-INT             FreeMGUDBlock                   (NS_PREFIX BLOCK_ID id);
-NS_PREFIX BLOCK_DESC      *GetMGUDBlockDescriptor (NS_PREFIX BLOCK_ID id);
 
 /* ordering of degrees of freedom */
 ALG_DEP         *CreateAlgebraicDependency              (const char *name, DependencyProcPtr DependencyProc);
