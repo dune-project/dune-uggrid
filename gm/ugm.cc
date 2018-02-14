@@ -127,9 +127,6 @@ INT ce_NO_DELETE_OVERLAP2 = -1;
 /** \brief General purpose text buffer */
 static char buffer[4*256];
 
-/** \brief General user data space management	*/
-static VIRT_HEAP_MGMT *theGenMGUDM;
-
 static INT theMGDirID;                          /* env var ID for the multigrids		*/
 static INT theMGRootDirID;                      /* env dir ID for the multigrids		*/
 
@@ -3075,7 +3072,7 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
 MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProblem,
                                            const char *format, MEM heapSize, INT optimizedIE, INT insertMesh)
 {
-  HEAP *theHeap,*theUserHeap;
+  HEAP *theHeap;
   MULTIGRID *theMG;
   INT i,ds;
   BVP *theBVP;
@@ -3136,41 +3133,9 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   theBVPDesc = MG_BVPD(theMG);
 
   /* 1: general user data space */
-  if (!theGenMGUDM->locked)
-    CalcAndFixTotalSize(theGenMGUDM);
-  ds = theGenMGUDM->TotalSize;
-  if (ds!=0)
-  {
-    GEN_MGUD(theMG) = GetMem(theHeap,ds,FROM_BOTTOM);
-    if (GEN_MGUD(theMG)==NULL)
-    {
-      DisposeMultiGrid(theMG);
-      return(NULL);
-    }
-    /* clearing this heap provides the possibility of checking the
-       initialization */
-    memset(GEN_MGUD(theMG),0,ds);
-  }
-  else
-    GEN_MGUD(theMG) = NULL;
-
+  // As we are using this version only with DUNE, we will never have UG user data
   /* 2: user heap */
   // As we are using this version only with DUNE, we will never need the user heap
-#if 0
-  ds = FMT_S_MG(theFormat);
-  if (ds!=0)
-  {
-    theUserHeap = NewHeap(SIMPLE_HEAP, ds, GetMem(theHeap,ds,FROM_BOTTOM));
-    if (theUserHeap==NULL)
-    {
-      DisposeMultiGrid(theMG);
-      return(NULL);
-    }
-    MG_USER_HEAP(theMG) = theUserHeap;
-  }
-  else
-#endif
-    MG_USER_HEAP(theMG) = NULL;
 
   /* fill multigrid structure */
   theMG->status = 0;
@@ -4270,9 +4235,6 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
      deleted without communication */
   DDD_IFRefreshAll();
         #endif
-
-  /* dispose user data */
-  DisposeMem(MGHEAP(theMG), GEN_MGUD(theMG));
 
   /** \todo Normally the MG-heap should be cleaned-up before freeing.
            DDD depends on storage in the heap, even if no DDD objects
@@ -9948,12 +9910,6 @@ INT NS_DIM_PREFIX InitUGManager ()
 {
   INT i;
 
-  theGenMGUDM = (VIRT_HEAP_MGMT*)malloc(SIZEOF_VHM);
-  if (theGenMGUDM==NULL)
-    return (__LINE__);
-
-  InitVirtualHeapManagement(theGenMGUDM,SIZE_UNKNOWN);
-
   /* install the /Multigrids directory */
   if (ChangeEnvDir("/")==NULL)
   {
@@ -9978,8 +9934,6 @@ INT NS_DIM_PREFIX InitUGManager ()
 
 INT NS_DIM_PREFIX ExitUGManager ()
 {
-  free(theGenMGUDM);
-
   return 0;
 }
 
