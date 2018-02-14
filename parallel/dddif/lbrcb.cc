@@ -430,13 +430,13 @@ int NS_DIM_PREFIX BalanceGridRCB (MULTIGRID *theMG, int level)
       return (1);
     }
 
-    Mark(theHeap,FROM_TOP,&MarkKey);
+    Mark(theHeap,&MarkKey);
     lbinfo = (LB_INFO *)
-             GetMemUsingKey(theHeap, NT(theGrid)*sizeof(LB_INFO), FROM_TOP, MarkKey);
+             GetMemUsingKey(theHeap, NT(theGrid)*sizeof(LB_INFO), MarkKey);
 
     if (lbinfo==NULL)
     {
-      Release(theHeap,FROM_TOP,MarkKey);
+      Release(theHeap,MarkKey);
       UserWrite("ERROR in BalanceGridRCB: could not allocate memory from the MGHeap\n");
       return (1);
     }
@@ -466,7 +466,7 @@ int NS_DIM_PREFIX BalanceGridRCB (MULTIGRID *theMG, int level)
       InheritPartition (e);
     }
 
-    Release(theHeap,FROM_TOP,MarkKey);
+    Release(theHeap,MarkKey);
   }
 
   return 0;

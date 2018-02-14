@@ -287,7 +287,7 @@ static void ConstructDDDObject (void *obj, INT size, INT type)
 
 void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
 {
-  void * obj = GetMem(theHeap,size,FROM_BOTTOM);
+  void * obj = GetMem(theHeap,size);
   if (obj != NULL)
     memset(obj,0,size);
 

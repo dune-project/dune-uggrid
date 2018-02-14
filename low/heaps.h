@@ -43,6 +43,12 @@
 #include "ugtypes.h"
 #include "namespace.h"
 
+// #include <dune/common/deprected.hh>
+#ifndef DUNE_DEPRECATED
+#define DUNE_DEPRECATED __attribute__ ((deprecated))
+#define DUNE_DEPRECATED_MSG(TXT) __attribute__ ((deprecated))
+#endif
+
 START_UG_NAMESPACE
 
 /****************************************************************************/
@@ -71,14 +77,11 @@ enum HeapType {GENERAL_HEAP,                  /**< Heap with alloc/free mechanis
 enum HeapAllocMode
 {FROM_TOP=1,                       /**< Allocate from top of stack      */
  FROM_BOTTOM=2                       /**< Allocate from bottom of stack   */
-};
+} DUNE_DEPRECATED;
 
-/* by convention, tempory memory on a simple heap should allocated FROM_TOP */
-/* the Freelist memory is allocated FROM_BOTTOM                             */
-
-#define MarkTmpMem(p,kp)     Mark(p,FROM_TOP,kp)
-#define GetTmpMem(p,n,k)         GetMemUsingKey(p,n,FROM_TOP,k)
-#define ReleaseTmpMem(p,k)       Release(p,FROM_TOP,k)
+#define MarkTmpMem(p,kp)         Mark(p,kp)
+#define GetTmpMem(p,n,k)         GetMemUsingKey(p,n,k)
+#define ReleaseTmpMem(p,k)       Release(p,k)
 
 /****************************************************************************/
 /****************************************************************************/
@@ -133,15 +136,25 @@ typedef struct {
 /* @{ */
 HEAP        *NewHeap                (enum HeapType type, MEM size, void *buffer);
 void         DisposeHeap            (HEAP *theHeap);
-void        *GetMem                 (HEAP *theHeap, MEM n, enum HeapAllocMode mode);
-void        *GetMemUsingKey         (HEAP *theHeap, MEM n, enum HeapAllocMode mode, INT key);
+void        *GetMem                 (HEAP *theHeap, MEM n);
+void        *GetMemUsingKey         (HEAP *theHeap, MEM n, INT key);
 void         DisposeMem             (HEAP *theHeap, void *buffer);
 
 void        *GetFreelistMemory      (HEAP *theHeap, INT size);
 INT          PutFreelistMemory      (HEAP *theHeap, void *object, INT size);
 
-INT          Mark                   (HEAP *theHeap, INT mode, INT *key);
-INT          Release                (HEAP *theHeap, INT mode, INT key);
+INT          Mark                   (HEAP *theHeap, INT *key);
+INT          Release                (HEAP *theHeap, INT key);
+inline INT DUNE_DEPRECATED_MSG("Mark taking a mode is deprecated")
+             Mark                   (HEAP *theHeap, INT mode, INT *key)
+{
+  return Mark(theHeap,key);
+}
+inline INT DUNE_DEPRECATED_MSG("Release taking a mode is deprecated")
+             Release                (HEAP *theHeap, INT mode, INT key)
+{
+  return Release(theHeap,key);
+}
 /* @} */
 
 END_UG_NAMESPACE
