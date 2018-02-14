@@ -174,7 +174,7 @@ void *NS_PREFIX GetMem (HEAP *theHeap, MEM n)
 
 /****************************************************************************/
 
-void *NS_PREFIX GetMemUsingKey (HEAP *theHeap, MEM n, INT key)
+void *NS_PREFIX GetTmpMem (HEAP *theHeap, MEM n, INT key)
 {
   if (theHeap->type==SIMPLE_HEAP)
   {
@@ -259,7 +259,7 @@ INT NS_PREFIX PutFreelistMemory (HEAP *theHeap, void *object, INT size)
  */
 /****************************************************************************/
 
-INT NS_PREFIX Mark (HEAP *theHeap, INT *key)
+INT NS_PREFIX MarkTmpMem (HEAP *theHeap, INT *key)
 {
   assert(theHeap->type==SIMPLE_HEAP);
   if (theHeap->type!=SIMPLE_HEAP) return(1);
@@ -286,7 +286,7 @@ INT NS_PREFIX Mark (HEAP *theHeap, INT *key)
  */
 /****************************************************************************/
 
-INT NS_PREFIX Release (HEAP *theHeap, INT key)
+INT NS_PREFIX ReleaseTmpMem (HEAP *theHeap, INT key)
 {
   if (theHeap->type!=SIMPLE_HEAP) return 1;
 
