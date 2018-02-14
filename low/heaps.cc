@@ -153,13 +153,12 @@ void NS_PREFIX DisposeHeap (HEAP *theHeap)
 
    \param theHeap - heap structure which manages memory allocation
    \param n - number of bytes to allocate
-   \param mode - historic parameter, ignored nowadays
 
    this function now only forwards to `malloc`.
 
 /****************************************************************************/
 
-void *NS_PREFIX GetMem (HEAP *theHeap, MEM n, enum HeapAllocMode mode)
+void *NS_PREFIX GetMem (HEAP *theHeap, MEM n)
 {
   return malloc(n);
 }
@@ -169,25 +168,24 @@ void *NS_PREFIX GetMem (HEAP *theHeap, MEM n, enum HeapAllocMode mode)
 
    \param theHeap - heap structure which manages memory allocation
    \param n - number of bytes to allocate
-   \param mode - historic parameter, ignored nowadays
    \param key - key with which we can identify the rollback record
 
    this function allocates memory on the heap and tags it with the `key`.
 
 /****************************************************************************/
 
-void *NS_PREFIX GetMemUsingKey (HEAP *theHeap, MEM n, enum HeapAllocMode mode, INT key)
+void *NS_PREFIX GetMemUsingKey (HEAP *theHeap, MEM n, INT key)
 {
   if (theHeap->type==SIMPLE_HEAP)
   {
     ASSERT(key == theHeap->markKey);
     /* we have to keep track of allocated memory, in order to do a proper rollback */
-    void* ptr = GetMem(theHeap,n,mode);
+    void* ptr = GetMem(theHeap,n);
     theHeap->markedMemory[key].push_back(ptr);
     return theHeap->markedMemory[key].back();
   }
   /* no key for GENERAL_HEAP */
-  return (GetMem(theHeap,n,mode));
+  return (GetMem(theHeap,n));
 }
 
 /****************************************************************************/
@@ -250,7 +248,6 @@ INT NS_PREFIX PutFreelistMemory (HEAP *theHeap, void *object, INT size)
 /** \brief Mark heap position for future release
 
    \param theHeap - heap to mark
-   \param mode - 'FROM_TOP' or 'FROM_BOTTOM' of the block
 
    This function marks heap position for future release. Only valid in
    the 'SIMPLE_HEAP' type.
@@ -262,7 +259,7 @@ INT NS_PREFIX PutFreelistMemory (HEAP *theHeap, void *object, INT size)
  */
 /****************************************************************************/
 
-INT NS_PREFIX Mark (HEAP *theHeap, INT mode, INT *key)
+INT NS_PREFIX Mark (HEAP *theHeap, INT *key)
 {
   assert(theHeap->type==SIMPLE_HEAP);
   if (theHeap->type!=SIMPLE_HEAP) return(1);
@@ -278,7 +275,6 @@ INT NS_PREFIX Mark (HEAP *theHeap, INT mode, INT *key)
 /** \brief Release to next stack position
 
    \param theHeap - heap to release
-   \param mode - 'FROM_TOP' or 'FROM_BOTTOM' of the block
 
    This function releases to the next stack position. Only valid in the
    'SIMPLE_HEAP' type.
@@ -290,7 +286,7 @@ INT NS_PREFIX Mark (HEAP *theHeap, INT mode, INT *key)
  */
 /****************************************************************************/
 
-INT NS_PREFIX Release (HEAP *theHeap, INT mode, INT key)
+INT NS_PREFIX Release (HEAP *theHeap, INT key)
 {
   if (theHeap->type!=SIMPLE_HEAP) return 1;
 
