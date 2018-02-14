@@ -120,17 +120,9 @@ typedef struct {
   enum HeapType type;
   MEM size;
   INT markKey;
-
   /* This is used only if UG_USE_SYSTEM_HEAP is set, but I don't want the
    * #ifdef in an installed header, hence the data member is there all the time. */
   std::vector<void*> markedMemory[MARK_STACK_SIZE+1];
-
-  /* These were global variables needed for DYNAMIC_MEMORY_ALLOCMODEL
-
-     we try to avoid global state, as it does not play well with multiple UG instances.
-   */
-  INT freelist_end_mark;
-
 } HEAP;
 
 /****************************************************************************/

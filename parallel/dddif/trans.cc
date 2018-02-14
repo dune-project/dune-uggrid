@@ -792,13 +792,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   }
 #endif
 
-  if (MGHEAP(theMG)->freelist_end_mark != 0)
-  {
-    if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
-    alreadydisposed = 0;
-  }
-  else
-    alreadydisposed = 1;
+  if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
 
   trans_begin = CURRENT_TIME;
 
@@ -854,7 +848,6 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   ConstructConsistentMultiGrid(theMG);
 
     #ifndef __EXCHANGE_CONNECTIONS__
-  if (alreadydisposed==0)
   MGCreateConnection(theMG);
         #endif
 
