@@ -42,10 +42,7 @@
 #include "parallel.h"
 #include "general.h"
 
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
 #include "ugm.h"
-#endif
-
 #include "memmgr.h"
 
 #include "namespace.h"
@@ -136,11 +133,7 @@ void * memmgr_AllocOMEM (size_t size, int ddd_type, int prio, int attr)
 {
   void   *buffer;
 
-        #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-  buffer = GetFreelistMemory(MGHEAP(dddctrl.currMG), size);
-        #else
   buffer = GetMemoryForObject(dddctrl.currMG,size,MAOBJ);
-        #endif
 
   /*
      printf("%4d: memmgr_AllocOMem: size=%05d ddd_type=%02d prio=%d attr=%d\n",
@@ -176,11 +169,7 @@ void memmgr_FreeOMEM (void *buffer, size_t size, int ddd_type)
      printf("%d: memmgr_FreeOMEM(): buffer=%x, ddd_type=%d\n", me, buffer, ddd_type);
    */
 
-        #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-  PutFreelistMemory(MGHEAP(dddctrl.currMG), buffer, size);
-        #else
   PutFreeObject(dddctrl.currMG,buffer,size,MAOBJ);
-        #endif
 }
 
 
@@ -317,11 +306,7 @@ void * memmgr_AllocTMEM (unsigned long size, int kind)
   {
     size_t real_size = size+sizeof(size_t);
 
-                #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-    buffer = GetFreelistMemory(MGHEAP(dddctrl.currMG), real_size);
-                #else
     buffer = GetMemoryForObject(dddctrl.currMG,real_size,MAOBJ);
-                #endif
     if (buffer!=NULL)
     {
       /* store size at the beginning of memory chunk */
@@ -387,11 +372,7 @@ void memmgr_FreeTMEM (void *buffer, int kind)
     buffer = (void *)(((char *)buffer) - sizeof(size_t));
     real_size = *(size_t *)buffer;
 
-                #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-    PutFreelistMemory(MGHEAP(dddctrl.currMG), buffer, real_size);
-                #else
     PutFreeObject(dddctrl.currMG,buffer,real_size,MAOBJ);
-                #endif
 
     /*
        mem_from_ug_freelists -= real_size;

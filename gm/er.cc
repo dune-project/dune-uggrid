@@ -496,11 +496,7 @@ static HRID Hash_InsertRule (INT etag, INT key, const ERULE *er, const DOUBLE oc
                 +sizeof(DOUBLE)*
                 (2*ER_NSONS(er)                                 /* #DOUBLEs needed			*/
                  -MAX_SONS);                                            /* #DOUBLEs at end of HRULE	*/
-    #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-  HRULE *hr       = (HRULE*) GetMem(global.heap,size,FROM_BOTTOM);
-    #else
   HRULE *hr       = (HRULE*) GetMemoryForObject(GetCurrentMultigrid(),size,MAOBJ);
-        #endif
   HRID id         = global.maxrule[etag]++;
 
 
@@ -1232,13 +1228,9 @@ static INT ExtractRules (MULTIGRID *mg)
     int max_list_len = 0;
 
     /* make tables of subsequent IDs */
-        #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-    global.hrule[0] = (HRULE**) GetMem(global.heap,global.maxrules*sizeof(HRULE*),FROM_BOTTOM);
-            #else
     global.hrule[0] = (HRULE**)
                       GetMemoryForObject(GetCurrentMultigrid(),
                                          global.maxrules*sizeof(HRULE*),MAOBJ);
-            #endif
     if (global.hrule[0]==NULL)
       REP_ERR_RETURN(1);
     for (tag=1; tag<TAGS; tag++)

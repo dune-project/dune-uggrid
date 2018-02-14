@@ -66,9 +66,7 @@
 #include "domain.h"
 #include "pargm.h"
 #include "ugstruct.h"
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
 #include "mgheapmgr.h"
-#endif
 
 #ifdef ModelP
 #include "identify.h"
@@ -286,19 +284,6 @@ static void ConstructDDDObject (void *obj, INT size, INT type)
 }
 #endif
 
-#ifndef DYNAMIC_MEMORY_ALLOCMODEL
-void * NS_DIM_PREFIX GetMemoryForObject_par (HEAP *theHeap, INT size, INT type)
-{
-  void *obj = GetFreelistMemory(theHeap, size);
-
-        #ifdef ModelP
-  if (type!=MAOBJ && type!=COOBJ)
-    ConstructDDDObject(obj,size,type);
-        #endif
-
-  return obj;
-}
-#else
 void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
 {
   void                    *obj;
@@ -329,7 +314,6 @@ void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
 
   return obj;
 }
-#endif
 
 /****************************************************************************/
 /** \brief  Put an object in the free list
@@ -365,17 +349,6 @@ static void DestructDDDObject(void *object, INT type)
 }
 #endif
 
-#ifndef DYNAMIC_MEMORY_ALLOCMODEL
-INT NS_DIM_PREFIX PutFreeObject_par (HEAP *theHeap, void *object, INT size, INT type)
-{
-        #ifdef ModelP
-  if (type!=MAOBJ && type!=COOBJ)
-    DestructDDDObject(object,type);
-        #endif
-
-  return (PutFreelistMemory(theHeap, object, size));
-}
-#else
 INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT type)
 {
   INT err;
@@ -405,7 +378,6 @@ INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT t
   /* memory is freed by release */
   return(0);
 }
-#endif
 
 /****************************************************************************/
 /** \brief Return pointer to a new boundary vertex structure
@@ -3140,9 +3112,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   /* fill multigrid structure */
   theMG->status = 0;
   MG_COARSE_FIXED(theMG) = 0;
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   theMG->bottomtmpmem = 0;
-        #endif
   theMG->vertIdCounter = 0;
   theMG->nodeIdCounter = 0;
   theMG->elemIdCounter = 0;
@@ -3846,11 +3816,9 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
   INT tl = TOPLEVEL(theMG);
   INT l,i;
 
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (MG_COARSE_FIXED(theMG))
     if (DisposeBottomHeapTmpMemory(theMG))
       REP_ERR_RETURN(1);
-        #endif
 
   if( DisposeAMGLevels(theMG) )
     REP_ERR_RETURN(1);
@@ -3970,11 +3938,9 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
   DDD_IFRefreshAll();
         #endif
 
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (MG_COARSE_FIXED(theMG))
     if (CreateAlgebra(theMG))
       REP_ERR_RETURN(1);
-        #endif
 
   return(0);
 }
@@ -4210,12 +4176,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 {
   INT level;
 
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
-        #else
-  if (DisposeAMGLevels(theMG))
-    RETURN(1);
-        #endif
 
         #ifdef ModelP
   /* tell DDD that we will 'inconsistently' delete objects.

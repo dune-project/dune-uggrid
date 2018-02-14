@@ -38,29 +38,11 @@
 
 START_UGDIM_NAMESPACE
 
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
-
 /****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*                compile time constants defining static data size (i.e. arrays)        */
-/*                other constants                                                                                                       */
-/*                macros                                                                                                                        */
-/*                                                                                                                                                      */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                                                                                                      */
-/* function declarations                                                                                                        */
-/*                                                                                                                                                      */
+/* function declarations                                                    */
 /****************************************************************************/
 
 INT DisposeBottomHeapTmpMemory (MULTIGRID *theMG);
-
-#endif
 
 END_UGDIM_NAMESPACE
 

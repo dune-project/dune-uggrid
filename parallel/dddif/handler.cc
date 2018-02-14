@@ -396,11 +396,7 @@ static void VectorScatterConnX (DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **D
         {
           /* matrix diagonal entry, no other vector is involved */
           CONNECTION *conn = (CONNECTION *)
-                                        #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-                             GetFreelistMemory(MGHEAP(dddctrl.currMG), UG_MSIZE(mcopy));
-                                        #else
                              GetMemoryForObject(dddctrl.currMG,UG_MSIZE(mcopy),MAOBJ);
-                                        #endif
 
           nconn++; newconn++;
 
@@ -447,12 +443,7 @@ static void VectorScatterConnX (DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **D
           {
             MATRIX *otherm;
             CONNECTION *conn = (CONNECTION *)
-                                                #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-                               GetFreelistMemory(dddctrl.currMG->theHeap,
-                                                 2 * UG_MSIZE(mcopy));
-                                                #else
                                GetMemoryForObject(dddctrl.currMG,2*UG_MSIZE(mcopy),MAOBJ);
-                                                #endif
 
             nconn++; newconn++;
 
@@ -633,14 +624,7 @@ static void VectorObjMkCons (DDD_OBJ obj, int newness)
 
       {
         INT size = ((MDIAG(theMatrix)) ? UG_MSIZE(theMatrix) : 2*UG_MSIZE(theMatrix));
-                        #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-        /*
-           DisposeMem(dddctrl.currMG->theHeap,MMYCON(theMatrix));
-         */
-        PutFreelistMemory(dddctrl.currMG->theHeap,MMYCON(theMatrix),size);
-                        #else
         PutFreeObject(dddctrl.currMG,MMYCON(theMatrix),size,MAOBJ);
-                        #endif
       }
 
 

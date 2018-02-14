@@ -2951,21 +2951,15 @@ nparfiles = UG_GlobalMinINT(nparfiles);
     /* no coarse mesh */
 
     if (CreateAlgebra (theMG))                                      {DisposeMultiGrid(theMG); return (NULL);}
-                #ifdef DYNAMIC_MEMORY_ALLOCMODEL
     if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #endif
     if (PrepareAlgebraModification(theMG))          {DisposeMultiGrid(theMG); return (NULL);}
 
         #ifdef ModelP
-                #ifdef DYNAMIC_MEMORY_ALLOCMODEL
     if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #endif
 
     DDD_IdentifyBegin();
     /* no elements to insert */
-                #ifdef DYNAMIC_MEMORY_ALLOCMODEL
     if (MGCreateConnection(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #endif
     DDD_IdentifyEnd();
 
     if (MGIO_PARFILE)
@@ -3031,22 +3025,16 @@ nparfiles = UG_GlobalMinINT(nparfiles);
     }
 
     if (CreateAlgebra (theMG))                                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #ifdef DYNAMIC_MEMORY_ALLOCMODEL
     if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #endif
     if (PrepareAlgebraModification(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
                 #ifdef ModelP
-                #ifdef DYNAMIC_MEMORY_ALLOCMODEL
     if (DisposeBottomHeapTmpMemory(theMG))      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #endif
                 #endif
 
     DDD_IdentifyBegin();
     /* no elements to insert */
-                 #ifdef DYNAMIC_MEMORY_ALLOCMODEL
     if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                 #endif
     DDD_IdentifyEnd();
 
     if (MGIO_PARFILE)
@@ -3261,14 +3249,10 @@ nparfiles = UG_GlobalMinINT(nparfiles);
 
   /* now CreateAlgebra  is necessary to have the coarse grid nodevectors for DDD identification in Evaluate_pinfo */
   if (CreateAlgebra (theMG))                                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-        #endif
   if (PrepareAlgebraModification(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
         #ifdef ModelP
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (DisposeBottomHeapTmpMemory(theMG))      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-        #endif
         #endif
 
 
@@ -3306,9 +3290,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
                    because mg_general.nLevel is a global quantity. */
 
     /* no fine grid elements */
-                 #ifdef DYNAMIC_MEMORY_ALLOCMODEL
     if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                 #endif
 
     /* close identification context */
     DDD_IdentifyEnd();
@@ -3440,11 +3422,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
           if (DisposeDoubledSideVector (theGrid,theElement,j,theNeighbor,k)) {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
         }
 #endif
-                #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-    if (GridCreateConnection(theGrid))                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #endif
   }
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (MGCreateConnection(theMG))                                  {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
   theGrid = GRID_ON_LEVEL(theMG,0);
   ClearNextNodeClasses(theGrid);
@@ -3475,23 +3453,6 @@ nparfiles = UG_GlobalMinINT(nparfiles);
     if (ECLASS(theElement)>=GREEN_CLASS)
       SeedNodeClasses(theElement);
   PropagateNodeClasses(theGrid);
-        #else
-  for (i=0; i<=TOPLEVEL(theMG); i++)
-  {
-    theGrid = GRID_ON_LEVEL(theMG,i);
-    ClearVectorClasses(theGrid);
-    ClearNextVectorClasses(theGrid);
-    for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
-    {
-      if (ECLASS(theElement)>=GREEN_CLASS)
-        SeedVectorClasses(theGrid,theElement);
-      if (REFINECLASS(theElement)>=GREEN_CLASS)
-        SeedNextVectorClasses(theGrid,theElement);
-    }
-    PropagateVectorClasses(theGrid);
-    PropagateNextVectorClasses(theGrid);
-  }
-        #endif
   if (PrepareAlgebraModification(theMG))                  {DisposeMultiGrid(theMG); return (NULL);}
 
   /* set DOFs on vectors */
