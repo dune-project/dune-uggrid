@@ -34,17 +34,30 @@
 /*                                                                          */
 /****************************************************************************/
 
-typedef void *VChannelPtr;   /* dummy definition, any pointer type is ok    */
-typedef void *msgid;         /* dummy definition, any pointer type is ok    */
 
-#define NO_MSGID ((msgid)-1L) /* a special value that should never be re-   */
-                              /* turned as a msgid, like NULL for pointers  */
+namespace PPIF {
+
+/**
+ * opaque type for communication channels
+ */
+struct VChannel;
+
+/**
+ * opaque type for messages
+ */
+struct Msg;
+
+} /* namespace PPIF */
+
+
+using VChannelPtr = PPIF::VChannel*;
+using msgid = PPIF::Msg*;
+
+constexpr static msgid NO_MSGID = nullptr;
 
 namespace PPIF {
 
 enum directions {north,east,south,west,up,down};
-
-#define RAND_MSG_SIZE 128   /* max size of random messages                                      */
 
 #define PPIF_SUCCESS    0       /* Return value for success                     */
 #define PPIF_FAILURE    1       /* Return value for failure                     */
@@ -103,9 +116,6 @@ int         InfoAConn        (VChannelPtr vc);
 int         InfoADisc        (VChannelPtr vc);
 int         InfoASend        (VChannelPtr vc, msgid m);
 int         InfoARecv        (VChannelPtr vc, msgid m);
-
-/* miscellaneous */
-void        PrintHostMessage (const char *s);
 
 }  // end namespace PPIF
 

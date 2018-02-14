@@ -313,28 +313,6 @@ typedef DDD_HEADER     * DDD_HDR;
 #define DDD_ATTR_NULL  0
 
 
-/* types of handlers for HandlerRegister */
-/* this is supported for downward compatibility only,
-   will be removed in further versions. kb 970212, ddd-1.7.8 */
-
-enum Handlers {
-  HANDLER_LDATACONSTRUCTOR = 0,
-  HANDLER_DESTRUCTOR,
-  HANDLER_DELETE,
-  HANDLER_UPDATE,
-  HANDLER_OBJMKCONS,
-  HANDLER_SETPRIORITY,
-  HANDLER_XFERCOPY,
-  HANDLER_XFERDELETE,
-  HANDLER_XFERGATHER,
-  HANDLER_XFERSCATTER,
-  HANDLER_XFERGATHERX,
-  HANDLER_XFERSCATTERX,
-  HANDLER_XFERCOPYMANIP,
-  HANDLER_END=999
-};
-
-
 /* handler prototypes */
 
 /* handlers related to certain DDD_TYPE (i.e., member functions) */

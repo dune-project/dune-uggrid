@@ -72,15 +72,10 @@ using namespace PPIF;
 /*                                                                          */
 /****************************************************************************/
 
-#define RAND_MSG_SIZE   128     /* max size of random messages              */
 #define MAXT            15      /* maximum number of downtree nodes max     */
                                 /* log2(P)                                  */
-#define PTYPE_ANY       -1L     /* process type: any process                */
 
-#define ID_ARRAY        100     /* channel id: array                        */
 #define ID_TREE         101     /* channel id: tree                         */
-#define ID_GLOBAL       102     /* channel id: global                       */
-#define ID_MAIL         103     /* channel id: mail                         */
 
 #define PPIF_SUCCESS    0       /* Return value for success                 */
 #define PPIF_FAILURE    1       /* Return value for failure                 */
@@ -93,13 +88,20 @@ using namespace PPIF;
 /*                                                                          */
 /****************************************************************************/
 
-typedef struct {
+namespace PPIF {
+
+struct VChannel
+{
   int p;
   int chanid;
-} MPIVChannel;
+};
 
-typedef MPIVChannel *MPIVChannelPtr;
+struct Msg
+{
+  MPI_Request req;
+};
 
+} /* namespace PPIF */
 
 /****************************************************************************/
 /*                                                                          */
@@ -131,15 +133,6 @@ int PPIF::slvcnt[MAXT];                /* number of processors in subtree       
 
 /****************************************************************************/
 /*                                                                          */
-/* forward declarations of functions used before they are defined           */
-/*                                                                          */
-/****************************************************************************/
-
-int SendSync (void* v, void *data, int size);
-int RecvSync (void* v, void *data, int size);
-
-/****************************************************************************/
-/*                                                                          */
 /* routines for handling virtual channels                                   */
 /*                                                                          */
 /****************************************************************************/
@@ -147,19 +140,19 @@ int RecvSync (void* v, void *data, int size);
 static VChannelPtr NewVChan (int p, int id)
 
 {
-  MPIVChannelPtr myChan = (MPIVChannelPtr)malloc(sizeof(MPIVChannel));
+  VChannelPtr myChan = new PPIF::VChannel;
 
   myChan->p      = p;
   myChan->chanid = id;
 
-  return (myChan);
+  return myChan;
 }
 
 
 static void DeleteVChan (VChannelPtr myChan)
 
 {
-  free(myChan);
+  delete myChan;
 }
 
 
@@ -197,28 +190,10 @@ static void Factor (int N, int *pn, int *pm)
 }
 
 
-
-static int PPIFBeganMPI=0; /* remember that PPIF started MPI */
-
-
-int PPIF::InitPPIF (int *argcp, char ***argvp)
+int PPIF::InitPPIF (int *, char ***)
 {
   int i, succ, sonr, sonl;
-  MPI_Status status;
-  int mpierror, mpiinitialized;
 
-  /* the following is due to Klaus-Dieter Oertel, 961016;
-         (original idea from the developers of the PetSc library)  */
-  /* ppif checks whether MPI has been started by another
-     library and starts it only if necessary. */
-  mpierror = MPI_Initialized(&mpiinitialized);
-  if (mpierror) MPI_Abort(MPI_COMM_WORLD, mpierror);
-  if (!mpiinitialized)
-  {
-    mpierror = MPI_Init (argcp, argvp);
-    if (mpierror) MPI_Abort( MPI_COMM_WORLD, mpierror);
-    PPIFBeganMPI = 1;
-  }
   MPI_Comm_rank (COMM, &me);
   MPI_Comm_size (COMM, &procs);
 
@@ -269,7 +244,7 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
   for(i=0; i<degree; i++)
   {
     MPI_Recv ((void *) &(slvcnt[i]), (int) sizeof(int), MPI_BYTE,
-              ((MPIVChannel*)downtree[i])->p, ID_TREE, COMM, &status);
+              downtree[i]->p, ID_TREE, COMM, MPI_STATUS_IGNORE);
     succ += slvcnt[i];
   }
   if (me>0)
@@ -283,15 +258,6 @@ int PPIF::InitPPIF (int *argcp, char ***argvp)
 
 int PPIF::ExitPPIF ()
 {
-  int mpierror;
-
-  if (PPIFBeganMPI)
-  {
-    mpierror = MPI_Finalize();
-    if (mpierror) MPI_Abort(MPI_COMM_WORLD, mpierror);
-    PPIFBeganMPI = 0;
-  }
-
   /* Deallocate tree structure */
   DeleteVChan(uptree);
   uptree = NULL;
@@ -377,33 +343,32 @@ VChannelPtr PPIF::ConnSync (int p, int id)
   return (NewVChan (p, id) );
 }
 
-int PPIF::DiscSync (void* v)
+int PPIF::DiscSync (VChannelPtr v)
 
 {
-  VChannelPtr vc = (VChannelPtr)v;
-  DeleteVChan (vc);
+  DeleteVChan(v);
 
   return (0);
 }
 
-int PPIF::SendSync (void* v, void *data, int size)
+int PPIF::SendSync (VChannelPtr v, void *data, int size)
 
 {
   if (MPI_SUCCESS == MPI_Ssend (data, size, MPI_BYTE,
-                                ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM) )
+                                v->p, v->chanid, COMM) )
     return (size);
   else
     return (-1);
 }
 
-int PPIF::RecvSync (void* v, void *data, int size)
+int PPIF::RecvSync (VChannelPtr v, void *data, int size)
 
 {
   int count = -1;
   MPI_Status status;
 
   if (MPI_SUCCESS == MPI_Recv (data, size, MPI_BYTE,
-                               ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, &status) )
+                               v->p, v->chanid, COMM, &status) )
     MPI_Get_count (&status, MPI_BYTE, &count);
 
   return (count);
@@ -422,161 +387,99 @@ VChannelPtr PPIF::ConnASync (int p, int id)
   return (NewVChan (p,id) );
 }
 
-int PPIF::InfoAConn (void* v)
+int PPIF::InfoAConn (VChannelPtr v)
 
 {
   return (v ? 1 : -1);
 }
 
 
-int PPIF::DiscASync (void* v)
+int PPIF::DiscASync (VChannelPtr v)
 
 {
-  DeleteVChan ((MPIVChannel*)v);
+  DeleteVChan (v);
   return (PPIF_SUCCESS);
 }
 
-int PPIF::InfoADisc (void* v)
+int PPIF::InfoADisc (VChannelPtr v)
 
 {
   return (true);
 }
 
-#define REQUEST_HEAP
-
-msgid PPIF::SendASync (void* v, void *data, int size, int *error)
-
+msgid PPIF::SendASync (VChannelPtr v, void *data, int size, int *error)
 {
-#  ifdef REQUEST_HEAP
-  MPI_Request *req;
+  msgid m = new PPIF::Msg;
 
-  if (req = (MPI_Request*)malloc (sizeof (MPI_Request) ) )
+  if (m)
   {
     if (MPI_SUCCESS == MPI_Isend (data, size, MPI_BYTE,
-                                  ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, req) )
+                                  v->p, v->chanid, COMM, &m->req) )
     {
       *error = false;
-      return ((msgid) req);
+      return m;
     }
   }
-
-#  else
-  MPI_Request Req;
-  if (MPI_SUCCESS == MPI_Isend (data, size, MPI_BYTE,
-                                ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, &Req) )
-  {
-    *error = false;
-    return ((msgid) Req);
-  }
-#  endif
 
   *error = true;
   return NULL;
 }
 
 
-msgid PPIF::RecvASync (void* v, void *data, int size, int *error)
+msgid PPIF::RecvASync (VChannelPtr v, void *data, int size, int *error)
 
 {
-#  ifdef REQUEST_HEAP
-  MPI_Request *req;
+  msgid m = new PPIF::Msg;
 
-  if (req = (MPI_Request*)malloc (sizeof (MPI_Request) ) )
+  if (m)
   {
     if (MPI_SUCCESS == MPI_Irecv (data, size, MPI_BYTE,
-                                  ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, req) )
+                                  v->p, v->chanid, COMM, &m->req) )
     {
       *error = false;
-      return ((msgid) req);
+      return m;
     }
   }
-
-#  else
-  MPI_Request Req;
-
-  if (MPI_SUCCESS == MPI_Irecv (data, size, MPI_BYTE,
-                                ((MPIVChannel*)v)->p, ((MPIVChannel*)v)->chanid, COMM, &Req) )
-  {
-    *error = false;
-    return ((msgid) Req);
-  }
-
-#  endif
 
   *error = true;
   return (NULL);
 }
 
 
-int PPIF::InfoASend (void* v, msgid m)
+int PPIF::InfoASend (VChannelPtr v, msgid m)
 
 {
-  MPI_Status status;
   int complete;
 
-#  ifdef REQUEST_HEAP
   if (m)
   {
-    if (MPI_SUCCESS == MPI_Test ((MPI_Request *) m, &complete, &status) )
+    if (MPI_SUCCESS == MPI_Test (&m->req, &complete, MPI_STATUS_IGNORE) )
     {
-      if (complete) free (m);
+      if (complete)
+        delete m;
 
       return (complete);        /* complete is true for completed send, false otherwise */
     }
   }
 
-#  else
-  MPI_Request Req = (MPI_Request) m;
-
-  if (MPI_SUCCESS == MPI_Test (&Req, &complete, &status) )
-  {
-    return (complete);          /* complete is true for completed send, false otherwise */
-  }
-
-#  endif
-
   return (-1);          /* return -1 for FAILURE */
 }
 
 
-int PPIF::InfoARecv (void* v, msgid m)
+int PPIF::InfoARecv (VChannelPtr v, msgid m)
 {
-  MPI_Status status;
   int complete;
 
-#  ifdef REQUEST_HEAP
   if (m)
   {
-    if (MPI_SUCCESS == MPI_Test ((MPI_Request *) m, &complete, &status) )
+    if (MPI_SUCCESS == MPI_Test (&m->req, &complete, MPI_STATUS_IGNORE) )
     {
-      if (complete) free (m);
+      if (complete)
+        delete m;
 
       return (complete);        /* complete is true for completed receive, false otherwise */
     }
   }
 
-#  else
-  MPI_Request Req = (MPI_Request) m;
-
-  if (MPI_SUCCESS == MPI_Test (&Req, &complete, &status) )
-  {
-    return (complete);          /* complete is true for completed receive, false otherwise */
-  }
-
-#  endif
-
   return (-1);          /* return -1 for FAILURE */
-}
-
-
-/****************************************************************************/
-/*                                                                          */
-/* Miscellaneous                                                            */
-/*                                                                          */
-/****************************************************************************/
-
-void PPIF::PrintHostMessage (const char *s)
-
-{
-  printf ("%s", s);
 }

@@ -1054,15 +1054,6 @@ int NS_DIM_PREFIX InitDDD (void)
   /* dont delete objects when another copy comes in during Xfer */
   DDD_SetOption(OPT_XFER_PRUNE_DELETE, OPT_ON);
 
-  /* initialize context */
-  /* TODO: malloc() should be replaced by HEAPs or ddd_memmgr */
-  dddctrl._context = (INT *)malloc(sizeof(INT)*procs);
-
-  /* initial context is all processors */
-  for(i=0; i<procs; i++)
-    dddctrl._context[i] = 1;
-
-
   /* initialize type mapping arrays */
   for(i=0; i<MAXOBJECTS; i++)
   {
@@ -1116,10 +1107,6 @@ int NS_DIM_PREFIX InitDDD (void)
 
 int NS_DIM_PREFIX ExitDDD (void)
 {
-  /* free memory allocated by InitParallel */
-  if (dddctrl._context!=NULL)
-    free(dddctrl._context);
-
   DDD_Exit();
 
   return 0;          /* no error */

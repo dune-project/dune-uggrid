@@ -26,40 +26,6 @@ using namespace PPIF;
 
 
 /****************************************************************************/
-
-void NS_DIM_PREFIX ddd_DisplayContext (void)
-{
-  int i, last=-1;
-  char sep[2] = "";
-  char buf[20];
-
-  /* only master should display context */
-  if (me!=master)
-    return;
-
-  UserWrite("current context: (");
-  for(i=0; i<procs+1; i++)
-  {
-    if (i>=procs || !CONTEXT(i))
-    {
-      if (last+1==i-1)
-      {
-        sprintf(buf, "%s%d", sep, last+1); UserWrite(buf);
-        sep[0] = ',';
-      }
-      if (last+1<i-1)
-      {
-        sprintf(buf, "%s%d-%d", sep, last+1, i-1); UserWrite(buf);
-        sep[0] = ',';
-      }
-      last = i;
-    }
-  }
-  UserWrite(")\n");
-}
-
-
-/****************************************************************************/
 /*
    dddif_DisplayMemoryUsage -
 
@@ -124,9 +90,7 @@ void NS_DIM_PREFIX ddd_pstat (char *arg)
     break;
 
   case 'm' :
-    SYNC_CONTEXT;
     dddif_DisplayMemoryUsage();
-    SYNC_END;
     break;
 
   case 'c' :
@@ -135,10 +99,8 @@ void NS_DIM_PREFIX ddd_pstat (char *arg)
     break;
 
   case 's' :
-    SYNC_CONTEXT;
     DDD_Status();
     UserWrite("\n");
-    SYNC_END;
     break;
 
   case 't' :
@@ -184,22 +146,18 @@ void NS_DIM_PREFIX ddd_pstat (char *arg)
   {
     DDD_IF ifId = atoi(arg+1);
 
-    SYNC_CONTEXT;
     if (ifId<=0)
       DDD_IFDisplayAll();
     else
       DDD_IFDisplay(ifId);
 
     UserWrite("\n");
-    SYNC_END;
   }
   break;
 
   case 'l' :
-    SYNC_CONTEXT;
     DDD_ListLocalObjects();
     UserWrite("\n");
-    SYNC_END;
     break;
 
   case 'b' :
@@ -683,7 +641,6 @@ void NS_DIM_PREFIX dddif_PrintGridRelations (MULTIGRID *theMG)
   GRID    *theGrid = GRID_ON_LEVEL(theMG,TOPLEVEL(theMG));
   INT j;
 
-  SYNC_CONTEXT;
   for(e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
   {
     printf(PREFIX "master(e" EGID_FMT ", p%02d).\n", EGID(e), me);
@@ -697,7 +654,6 @@ void NS_DIM_PREFIX dddif_PrintGridRelations (MULTIGRID *theMG)
       }
     }
   }
-  SYNC_END;
 
 }
 

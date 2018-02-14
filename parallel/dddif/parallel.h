@@ -85,18 +85,9 @@ enum HandlerSets
 #define DDD_PrioritySet(h,p) {ObjectPriorityUpdate((DDD_OBJ)h,p); DDD_PrioChange(h,p);}
 #endif
 
-/* macros for processor-synchronized output */
-#define SYNC_ALL   { int _p; for(_p=0; _p<procs; _p++) { \
-                       Synchronize(); if(_p==me) {
-#define SYNC_CONTEXT   { int _p; for(_p=0; _p<procs; _p++) { \
-                           Synchronize(); if((_p==me)&&CONTEXT(me)) {
-#define SYNC_END  }}}
-
-
 #define UGTYPE(t)          (dddctrl.ugtypes[(t)])
 #define DDDTYPE(t)         (dddctrl.types[(t)])
 #define HAS_DDDHDR(t)      (dddctrl.dddObj[(t)])
-#define CONTEXT(p)         (dddctrl._context[(p)])
 
 #define DDD_DOMAIN_DATA    DDD_USER_DATA+1
 #define DDD_EXTRA_DATA     DDD_USER_DATA+2
@@ -244,18 +235,12 @@ typedef struct
   int elemData;
   int sideData;
 
-  /* data for memmgr */
-  MULTIGRID *memmgrMG;
-
   INT ugtypes[MAXDDDTYPES];                  /* dddtype -> ugtype */
   DDD_TYPE types[MAXOBJECTS];                /* ugtype -> dddtype */
   int dddObj[MAXOBJECTS];
 
   /* status of DDDIF */
-  int allTypesDefined;
-
-  /* context information, will be allocated with size=procs */
-  INT  *_context;
+  bool allTypesDefined;
 } DDD_CTRL;
 
 extern DDD_CTRL dddctrl;
@@ -277,7 +262,6 @@ void    InitCurrMG              (MULTIGRID *);
 
 /* from debugger.c */
 void    ddd_pstat                       (char *);
-void    ddd_DisplayContext      (void);
 
 /* from lb.c */
 void lbs (const char *argv, MULTIGRID *theMG);
