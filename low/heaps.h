@@ -90,9 +90,6 @@ enum HeapAllocMode
 /** \brief Pass to init routine if no heap yet */
 #define SIZE_UNKNOWN        0
 
-/** \brief The memory sized neded for the vhm  */
-#define SIZEOF_VHM            sizeof(VIRT_HEAP_MGMT)
-
 /** \brief Ok return code for virtual heap mgmt*/
 #define BHM_OK              0
 
@@ -105,11 +102,6 @@ enum {HEAP_FULL =           1,           /**< Return code if storage exhausted  
 /* return codes of FreeBlock */
 /** \brief Return code if the block is not defined */
 #define BLOCK_NOT_DEFINED    1
-
-/* some useful macros */
-#define OFFSET_IN_HEAP(vhm,id)  (GetBlockDesc((VIRT_HEAP_MGMT*)vhm,id).offset)
-#define TOTUSED_IN_HEAP(vhm)    ((vhm).TotalUsed)
-#define IS_BLOCK_DEFINED(vhm,id) (GetBlockDesc((VIRT_HEAP_MGMT*)vhm,id)!=NULL)
 
 /* @} */
 /****************************************************************************/
@@ -143,36 +135,6 @@ typedef struct {
 } HEAP;
 
 /****************************************************************************/
-/* structs and typedefs for the block virtual management                    */
-/****************************************************************************/
-
-typedef struct {
-
-  INT id;                           /*!< Id for this block                    */
-  MEM offset;                       /*!< Offset of the data in the heap       */
-  MEM size;                         /*!< Size of the data in the heap         */
-
-} BLOCK_DESC;
-
-typedef struct {
-
-  INT locked;                       /**< If true the TotalSize is fixed        */
-  MEM TotalSize;                    /**< Total size of the associated heap     */
-  MEM TotalUsed;                    /**< Total size used                       */
-  INT UsedBlocks;                   /**< Number of blocks initialized          */
-  INT nGaps;                        /**< true if a gap between exist. blocks   */
-  MEM LargestGap;                   /**< Largest free gap between blocks       */
-  BLOCK_DESC BlockDesc[MAXNBLOCKS];
-  /**< The different block descriptors       */
-} VIRT_HEAP_MGMT;
-
-/****************************************************************************/
-/* typedefs for the block virtual management                                */
-/****************************************************************************/
-
-typedef INT BLOCK_ID;
-
-/****************************************************************************/
 /*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
@@ -191,16 +153,6 @@ INT          PutFreelistMemory      (HEAP *theHeap, void *object, INT size);
 
 INT          Mark                   (HEAP *theHeap, INT mode, INT *key);
 INT          Release                (HEAP *theHeap, INT mode, INT key);
-/* @} */
-
-/** @name Functions for the virtual heap management */
-/* @{ */
-INT          InitVirtualHeapManagement(VIRT_HEAP_MGMT *theVHM, MEM TotalSize);
-MEM          CalcAndFixTotalSize    (VIRT_HEAP_MGMT *theVHM);
-BLOCK_ID     GetNewBlockID            (void);
-BLOCK_DESC  *GetBlockDesc            (VIRT_HEAP_MGMT *theVHM, BLOCK_ID id);
-INT          DefineBlock            (VIRT_HEAP_MGMT *theVHM, BLOCK_ID id, MEM size);
-INT          FreeBlock                (VIRT_HEAP_MGMT *theVHM, BLOCK_ID id);
 /* @} */
 
 END_UG_NAMESPACE
