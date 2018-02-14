@@ -2472,7 +2472,6 @@ INT NS_DIM_PREFIX MGCreateConnection (MULTIGRID *theMG)
   }
   if (Mark(MGHEAP(theMG),FROM_BOTTOM,&(MGHEAP(theMG)->freelist_end_mark)))
     REP_ERR_RETURN(1);
-  theMG->bottomtmpmem = 1;
 
   for (i=0; i<=theMG->topLevel; i++)
   {

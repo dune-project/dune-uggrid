@@ -3078,7 +3078,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   /* fill multigrid structure */
   theMG->status = 0;
   MG_COARSE_FIXED(theMG) = 0;
-  theMG->bottomtmpmem = 0;
   theMG->vertIdCounter = 0;
   theMG->nodeIdCounter = 0;
   theMG->elemIdCounter = 0;

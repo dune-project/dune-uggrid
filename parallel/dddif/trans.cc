@@ -792,7 +792,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   }
 #endif
 
-  if (theMG->bottomtmpmem == 1)
+  if (MGHEAP(theMG)->freelist_end_mark != 0)
   {
     if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
     alreadydisposed = 0;
