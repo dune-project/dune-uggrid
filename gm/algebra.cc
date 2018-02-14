@@ -2466,8 +2466,10 @@ INT NS_DIM_PREFIX MGCreateConnection (MULTIGRID *theMG)
   if (!MG_COARSE_FIXED(theMG))
     RETURN (1);
 
-  if (theMG->bottomtmpmem) return(0);
-  MGHEAP(theMG)->usefreelistmemory = 0;
+  if (MGHEAP(theMG)->freelist_end_mark != 0)
+  {
+    return(0);
+  }
   if (Mark(MGHEAP(theMG),FROM_BOTTOM,&(MGHEAP(theMG)->freelist_end_mark)))
     REP_ERR_RETURN(1);
   theMG->bottomtmpmem = 1;

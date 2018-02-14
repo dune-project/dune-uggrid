@@ -129,7 +129,6 @@ typedef struct {
 
      we try to avoid global state, as it does not play well with multiple UG instances.
    */
-  INT usefreelistmemory;
   INT freelist_end_mark;
 
 } HEAP;

@@ -92,7 +92,7 @@ INT NS_DIM_PREFIX DisposeBottomHeapTmpMemory (MULTIGRID *theMG)
   theMG->bottomtmpmem = 0;
   if (Release(MGHEAP(theMG),FROM_BOTTOM,MGHEAP(theMG)->freelist_end_mark))
     REP_ERR_RETURN(1);
-  MGHEAP(theMG)->usefreelistmemory = 1;
+  MGHEAP(theMG)->freelist_end_mark = 0;
 
   return(0);
 }
