@@ -149,13 +149,6 @@ if(HAVE_TIME_H AND HAVE_SYS_TIME_H)
   set(TIME_WITH_SYS_TIME True)
 endif()
 
-# do everything in the subdirs (order matters because of library dependencies!)
-if(UG_ENABLE_PARALLEL)
-  set(SUBDIRS  parallel)
-else()
-  set(SUBDIRS "")
-endif()
-set(SUBDIRS  ${SUBDIRS} low dev gm dom np ui lib)
 set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
 
 # create and install pkg-config information and
@@ -176,10 +169,17 @@ configure_file(ug-config-version.cmake.in ug-config-version.cmake @ONLY)
 
 #install header
 install(FILES initug.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
-foreach(i ${SUBDIRS})
-  add_subdirectory(${i})
-endforeach(i ${SUBDIRS})
 
+if(UG_ENABLE_PARALLEL)
+  add_subdirectory(parallel)
+endif()
+add_subdirectory(low)
+add_subdirectory(dev)
+add_subdirectory(gm)
+add_subdirectory(dom)
+add_subdirectory(np)
+add_subdirectory(ui)
+add_subdirectory(lib)
 add_subdirectory(cmake/modules)
 # set variable names for config.h
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
