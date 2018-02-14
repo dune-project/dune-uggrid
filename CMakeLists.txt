@@ -41,10 +41,6 @@ set(UG_ENABLE_SYSTEM_HEAP ON CACHE BOOL "If ON/True then we are using the operat
 set(UG_DDD_MAX_MACROBITS "24" CACHE STRING
   "Set number of bits of an unsigned int used to store the process number,
        the remaining bits are used to store the local entity id")
-if(UG_ENABLE_SYSTEM_HEAP)
-  add_definitions("-DUG_USE_SYSTEM_HEAP=1")
-  set(UG_EXTRAFLAGS "-DUG_USE_SYSTEM_HEAP=1")
-endif()
 if(UG_ENABLE_DEBUGGING)
   add_definitions("-DDebug")
   set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DDebug")

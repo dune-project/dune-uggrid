@@ -389,10 +389,6 @@ void memmgr_FreeTMEM (void *buffer, int kind)
 
 void memmgr_MarkHMEM (long *theMarkKey)
 {
-#ifdef UG_USE_SYSTEM_HEAP
-  // actually we would like to use the system heap here, but this all goes via the Key magick...
-  // return;
-#endif
   INT myMarkKey;
   MarkTmpMem(MGHEAP(dddctrl.currMG), &myMarkKey);
   *theMarkKey = (long)myMarkKey;
@@ -401,25 +397,12 @@ void memmgr_MarkHMEM (long *theMarkKey)
 void* memmgr_AllocHMEM (size_t size, long theMarkKey)
 {
   void *buffer;
-#ifdef UG_USE_SYSTEM_HEAP
-  // actually we would like to use the system heap here, but this all goes via the Key magick...
-  // return malloc(size);
-#endif
   buffer = GetTmpMem(MGHEAP(dddctrl.currMG), size, (INT)theMarkKey);
-
-  /*
-     printf("%4d:    H MEMM adr=%08x           size=%ld\n", me, buffer, size);
-   */
-
   return(buffer);
 }
 
 void memmgr_ReleaseHMEM (long theMarkKey)
 {
-#ifdef UG_USE_SYSTEM_HEAP
-  // actually we would like to use the system heap here, but this all goes via the Key magick...
-  // free(ptr);
-#endif
   ReleaseTmpMem(MGHEAP(dddctrl.currMG), (INT)theMarkKey);
 }
 
