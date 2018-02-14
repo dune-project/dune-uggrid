@@ -47,8 +47,6 @@ USING_UG_NAMESPACES
 /*																			*/
 /****************************************************************************/
 
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
-
 /****************************************************************************/
 /*																			*/
 /* data structures used in this source file (exported data structures are	*/
@@ -98,4 +96,3 @@ INT NS_DIM_PREFIX DisposeBottomHeapTmpMemory (MULTIGRID *theMG)
 
   return(0);
 }
-#endif

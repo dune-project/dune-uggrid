@@ -56,18 +56,8 @@ START_UGDIM_NAMESPACE
 
 #define MAX_PAR_DIST    1.0E-6          /* max.dist between different parameter */
 
-#ifndef DYNAMIC_MEMORY_ALLOCMODEL
-        #ifdef ModelP
-        #define PutFreeObject(theMG,object,size,type) PutFreeObject_par(MGHEAP(theMG),(object),(size),(type))
-        #define GetMemoryForObject(theMG,size,type) GetMemoryForObject_par(MGHEAP(theMG),(size),(type))
-        #else
-        #define GetMemoryForObject(theMG,size,type) GetFreelistMemory(MGHEAP(theMG),(size))
-        #define PutFreeObject(theMG,object,size,type) PutFreelistMemory(MGHEAP(theMG),(object),(size))
-        #endif
-#else
-        #define GetMemoryForObject(theMG,size,type) GetMemoryForObjectNew(MGHEAP(theMG),(size),(type))
-        #define PutFreeObject(theMG,object,size,type) PutFreeObjectNew(MGHEAP(theMG),(object),(size),(type))
-#endif
+#define GetMemoryForObject(theMG,size,type) GetMemoryForObjectNew(MGHEAP(theMG),(size),(type))
+#define PutFreeObject(theMG,object,size,type) PutFreeObjectNew(MGHEAP(theMG),(object),(size),(type))
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -145,12 +135,6 @@ INT                     GetNodeContext                  (const ELEMENT *theEleme
 void            GetNbSideByNodes                (ELEMENT *theNeighbor, INT *nbside, ELEMENT *theElement, INT side);
 
 
-#if defined(ModelP) && !defined(DYNAMIC_MEMORY_ALLOCMODEL)
-void *GetMemoryForObject_par (NS_PREFIX HEAP *theHeap, INT size, INT type);
-INT PutFreeObject_par (NS_PREFIX HEAP *theHeap, void *object, INT size, INT type);
-#endif
-
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
 void *GetMemoryForObjectNew (NS_PREFIX HEAP *theHeap, INT size, INT type);
 INT PutFreeObjectNew (NS_PREFIX HEAP *theHeap, void *object, INT size, INT type);
 
@@ -164,7 +148,6 @@ INT             PropagateNextNodeClasses        (GRID *theGrid);
 INT             MaxNextNodeClass                        (const ELEMENT *theElement);
 INT             MinNodeClass                            (const ELEMENT *theElement);
 INT             MinNextNodeClass                        (const ELEMENT *theElement);
-#endif
 
 #ifdef __PERIODIC_BOUNDARY__
 INT             MG_GeometricToPeriodic          (MULTIGRID *mg, INT fl, INT tl);

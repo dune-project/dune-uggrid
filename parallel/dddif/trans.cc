@@ -45,9 +45,7 @@
 #include "algebra.h"
 #include "debug.h"
 #include <dev/ugdevices.h>
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
 #include "mgheapmgr.h"
-#endif
 #include "namespace.h"
 
 /* UG namespaces: */
@@ -794,7 +792,6 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   }
 #endif
 
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (theMG->bottomtmpmem == 1)
   {
     if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
@@ -802,7 +799,6 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   }
   else
     alreadydisposed = 1;
-        #endif
 
   trans_begin = CURRENT_TIME;
 
@@ -858,9 +854,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   ConstructConsistentMultiGrid(theMG);
 
     #ifndef __EXCHANGE_CONNECTIONS__
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (alreadydisposed==0)
-        #endif
   MGCreateConnection(theMG);
         #endif
 
