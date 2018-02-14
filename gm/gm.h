@@ -1504,14 +1504,6 @@ struct multigrid {
   /** \brief used for identification                          */
   INT magic_cookie;
 
-  /** \brief is bottom memory temp allocated?
-
-     This field is really only necessary when DYNAMIC_MEMORY_ALLOCMODEL is set.
-     However, as struct declarations should not depend on settings in config.h
-     we leave in the field anyways.  It's just four bytes per multigrid.
-   */
-  INT bottomtmpmem;
-
   /** \brief count objects in that multigrid              */
   INT vertIdCounter;
 

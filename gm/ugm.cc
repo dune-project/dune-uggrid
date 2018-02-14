@@ -286,31 +286,14 @@ static void ConstructDDDObject (void *obj, INT size, INT type)
 
 void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
 {
-  void                    *obj;
+  void * obj = GetMem(theHeap,size,FROM_BOTTOM);
+  if (obj != NULL)
+    memset(obj,0,size);
 
-  if (theHeap->usefreelistmemory == 1)
-    obj = GetFreelistMemory(theHeap, size);
-  else
-  {
-                #ifdef Debug
-    switch (type)
-    {
-    case MAOBJ :
-    case VEOBJ :
-    case GROBJ :
-      break;
-    default : assert(0);
-    }
-                #endif
-    obj = GetMem(theHeap,size,FROM_BOTTOM);
-    if (obj != NULL)
-      memset(obj,0,size);
-  }
-
-        #ifdef ModelP
+  #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
     ConstructDDDObject(obj,size,type);
-        #endif
+  #endif
 
   return obj;
 }
@@ -353,30 +336,13 @@ INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT t
 {
   INT err;
 
-        #ifdef ModelP
+  #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
     DestructDDDObject(object,type);
-        #endif
+  #endif
 
-  if (theHeap->usefreelistmemory == 1)
-  {
-    err = PutFreelistMemory(theHeap, object, size);
-    return (err);
-  }
-
-        #ifdef Debug
-  switch (type)
-  {
-  case MAOBJ :
-  case VEOBJ :
-  case GROBJ :
-    break;
-  default : assert(0);
-  }
-        #endif
-
-  /* memory is freed by release */
-  return(0);
+  DisposeMem(theHeap, object);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3112,7 +3078,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   /* fill multigrid structure */
   theMG->status = 0;
   MG_COARSE_FIXED(theMG) = 0;
-  theMG->bottomtmpmem = 0;
   theMG->vertIdCounter = 0;
   theMG->nodeIdCounter = 0;
   theMG->elemIdCounter = 0;

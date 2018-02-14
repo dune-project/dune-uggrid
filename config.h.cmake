@@ -13,9 +13,6 @@
 
 /* begin private section */
 
-/* UG memory allocation model */
-#define DYNAMIC_MEMORY_ALLOCMODEL 1
-
 /* see parallel/ddd/dddi.h */
 #cmakedefine DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MAX_MACROBITS}
 
