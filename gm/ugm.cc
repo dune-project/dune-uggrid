@@ -73,10 +73,12 @@
 
 #ifdef ModelP
 #include "identify.h"
+#include "parallel/ppif/ppif.h"
 #endif
 
 #include "cw.h"
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 USING_UG_NAMESPACE
 USING_UGDIM_NAMESPACE
@@ -2912,6 +2914,12 @@ MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
   theMG = (MULTIGRID *) MakeEnvItem(name,theMGDirID,sizeof(MULTIGRID));
   if (theMG == NULL) return(NULL);
 
+#if ModelP
+  theMG->ppifContext_ = PPIF::ppifContext();
+#else
+  theMG->ppifContext_ = std::make_shared<PPIF::PPIFContext>();
+#endif
+
   return (theMG);
 }
 
@@ -4304,6 +4312,8 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
   /* dispose BVP */
   if (MG_BVP(theMG)!=NULL)
     if (BVP_Dispose(MG_BVP(theMG))) return (GM_ERROR);
+
+  theMG->ppifContext_ = nullptr;
 
   /* first unlock the mg */
   ((ENVITEM*) theMG)->v.locked = false;
