@@ -271,7 +271,6 @@ INT NS_PREFIX ReleaseTmpMem (HEAP *theHeap, INT key)
 {
   if (theHeap->type!=SIMPLE_HEAP) return 1;
 
-  printf("RELEASE: %i %i\n", key, theHeap->markKey);
   if (theHeap->markKey == 0) return 0;
   if (key > theHeap->markKey) return 1;
 
