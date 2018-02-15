@@ -11,7 +11,9 @@ foreach(_l ${_parallel_libs})
   list(APPEND _parallel_objs $<TARGET_OBJECTS:${_l}>)
 endforeach()
 
-dune_add_library(ugL $<TARGET_OBJECTS:devices> $<TARGET_OBJECTS:low> ${_parallel_objs})
+dune_add_library(ugL $<TARGET_OBJECTS:devices> $<TARGET_OBJECTS:low> ${_parallel_objs}
+  SOURCES ../dune/uggrid/parallel/ppif/ppifcontext.cc
+  )
 ug_add_dim_libs(ugS APPEND DUNE SOURCES ../initug.cc
   OBJECT_DIM_LIBS ${_dim_libs} domS ${_parallel_dim_libs}
   ADD_LIBS ugL
