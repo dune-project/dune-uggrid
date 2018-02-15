@@ -134,10 +134,8 @@ HEAP        *NewHeap                (enum HeapType type, MEM size, void *buffer)
 void         DisposeHeap            (HEAP *theHeap);
 
 void        *GetMem                 (HEAP *theHeap, MEM n);
-void         DisposeMem             (HEAP *theHeap, void *buffer);
-
 void        *GetFreelistMemory      (HEAP *theHeap, INT size);
-INT          PutFreelistMemory      (HEAP *theHeap, void *object, INT size);
+void         DisposeMem             (HEAP *theHeap, void *buffer);
 
 INT          MarkTmpMem             (HEAP *theHeap, INT *key);
 void        *GetTmpMem              (HEAP *theHeap, MEM n, INT key);

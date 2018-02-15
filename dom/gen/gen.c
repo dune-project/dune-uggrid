@@ -294,7 +294,8 @@ BNDP* BNDP_CreateBndP (HEAP *Heap, BNDP *theBndP0, BNDP *theBndP1,
 
 INT BNDP_Dispose (HEAP *Heap, BNDP *theBndP)
 {
-  return(PutFreelistMemory(Heap,theBndP,sizeof(BP)));
+  DisposeMem(Heap,theBndP);
+  return 0;
 }
 
 INT BNDP_SaveBndP (BNDP *theBndP)
@@ -486,7 +487,8 @@ BNDP* BNDS_CreateBndP (HEAP *Heap, BNDS *theBndS, DOUBLE *local)
 
 INT BNDS_Dispose (HEAP *Heap, BNDS *theBndS)
 {
-  return(PutFreelistMemory(Heap,theBndS,sizeof(BS)));
+  DisposeMem(Heap,theBndS);
+  return 0;
 }
 
 #ifdef __TWODIM__

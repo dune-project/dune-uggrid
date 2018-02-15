@@ -226,25 +226,6 @@ void *NS_PREFIX GetFreelistMemory (HEAP *theHeap, INT size)
 }
 
 /****************************************************************************/
-/** \brief Deallocate an object
-
-   \param theHeap - pointer to Heap
-   \param object - object to free
-   \param size - size of the object
-
-   \note size is ignored and was only used in the old implementation of PutFreelistMemory.
-
-   \return always returns 0 to indicate that no error happened
- */
-/****************************************************************************/
-
-INT NS_PREFIX PutFreelistMemory (HEAP *theHeap, void *object, INT size)
-{
-  free(object);
-  return 0;
-}
-
-/****************************************************************************/
 /** \brief Mark heap position for future release
 
    \param theHeap - heap to mark
