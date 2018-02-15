@@ -46,6 +46,12 @@ public:
   { return master_; }
 
   /**
+   * returns `true` if local process is master
+   */
+  bool isMaster() const
+    { return me() == master(); }
+
+  /**
    * number of processes
    */
   int procs() const
