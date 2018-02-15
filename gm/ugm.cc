@@ -73,10 +73,12 @@
 
 #ifdef ModelP
 #include "identify.h"
+#include "parallel/ppif/ppif.h"
 #endif
 
 #include "cw.h"
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 USING_UG_NAMESPACE
 USING_UGDIM_NAMESPACE
@@ -2831,6 +2833,12 @@ MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
   if (theMG == NULL) return(NULL);
 
   new(theMG) multigrid;
+
+#if ModelP
+  theMG->ppifContext_ = PPIF::ppifContext();
+#else
+  theMG->ppifContext_ = std::make_shared<PPIF::PPIFContext>();
+#endif
 
   return (theMG);
 }
