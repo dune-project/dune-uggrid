@@ -101,6 +101,7 @@
 #include "architecture.h"
 #endif
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 USING_UG_NAMESPACES
 using namespace PPIF;
@@ -705,12 +706,12 @@ static INT UpdateClosureFIFO (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT ManageParallelFIFO (ELEMENT *firstElement)
+static INT ManageParallelFIFO (const PPIF::PPIFContext& context, ELEMENT *firstElement)
 {
 #if defined(FIFO) && defined(ModelP)
   ELEMENT *theElement;
 
-  if (procs == 1) return(0);
+  if (context.procs() == 1) return(0);
 
   do
   {
@@ -761,6 +762,8 @@ static INT PrintEdgeInfo (GRID *theGrid, char* string, INT level)
 {
   INT pat;
   ELEMENT *theElement;
+
+  const int me = theGrid->ppifContext().me();
 
   PRINTDEBUG(gm,level,(PFMT "%s:\n",me,string));
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
@@ -878,8 +881,8 @@ static int Gather_ElementClosureInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DD
   INT refinedata;
   ELEMENT *theElement = (ELEMENT *)obj;
 
-  PRINTDEBUG(gm,1,(PFMT "Gather_ElementClosureInfo(): e=" EID_FMTX "\n",
-                   me,EID_PRTX(theElement)))
+  PRINTDEBUG(gm,1,("Gather_ElementClosureInfo(): e=" EID_FMTX "\n",
+                   EID_PRTX(theElement)))
 
   refinedata = 0;
 
@@ -894,8 +897,8 @@ static int Gather_ElementClosureInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DD
   GETCOARSENDATA(theElement,&refinedata);
   ((INT *)data)[0] = refinedata;
 
-  PRINTDEBUG(gm,1,(PFMT "Gather_ElementClosureInfo(): refinedata=%08x "
-                   "sidepattern=%d markclass=%d mark=%d coarse=%d\n",me,refinedata,
+  PRINTDEBUG(gm,1,("Gather_ElementClosureInfo(): refinedata=%08x "
+                   "sidepattern=%d markclass=%d mark=%d coarse=%d\n",refinedata,
                    SIDEPATTERN(theElement),MARKCLASS(theElement),MARK(theElement),COARSEN(theElement)))
 
   return(GM_OK);
@@ -926,8 +929,8 @@ static int Scatter_ElementClosureInfo (DDD_OBJ obj, void *data, DDD_PROC proc, D
   INT refinedata;
   ELEMENT *theElement = (ELEMENT *)obj;
 
-  PRINTDEBUG(gm,1,(PFMT "Scatter_ElementClosureInfo(): e=" EID_FMTX "\n",
-                   me,EID_PRTX(theElement)))
+  PRINTDEBUG(gm,1,("Scatter_ElementClosureInfo(): e=" EID_FMTX "\n",
+                   EID_PRTX(theElement)))
 
   refinedata = ((INT *)data)[0];
 
@@ -945,8 +948,8 @@ static int Scatter_ElementClosureInfo (DDD_OBJ obj, void *data, DDD_PROC proc, D
   SETMARKCLASSDATA(theElement,refinedata);
   SETCOARSENDATA(theElement,refinedata);
 
-  PRINTDEBUG(gm,1,(PFMT "Scatter_ElementClosureInfo(): refinedata=%08x "
-                   "sidepattern=%d markclass=%d mark=%d coarse=%d\n",me,refinedata,
+  PRINTDEBUG(gm,1,("Scatter_ElementClosureInfo(): refinedata=%08x "
+                   "sidepattern=%d markclass=%d mark=%d coarse=%d\n",refinedata,
                    SIDEPATTERN(theElement),MARKCLASS(theElement),MARK(theElement),COARSEN(theElement)))
 
   return(GM_OK);
@@ -965,8 +968,8 @@ static int Gather_ElementRefine (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
-  PRINTDEBUG(gm,1,(PFMT "Gather_ElementRefine(): e=" EID_FMTX "\n",
-                   me,EID_PRTX(theElement)))
+  PRINTDEBUG(gm,1,("Gather_ElementRefine(): e=" EID_FMTX "\n",
+                   EID_PRTX(theElement)))
 
     ((INT *)data)[0] = MARKCLASS(theElement);
   ((INT *)data)[1] = MARK(theElement);
@@ -978,8 +981,8 @@ static int Scatter_ElementRefine (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
-  PRINTDEBUG(gm,1,(PFMT "Scatter_ElementClosureInfo(): e=" EID_FMTX "\n",
-                   me,EID_PRTX(theElement)))
+  PRINTDEBUG(gm,1,("Scatter_ElementClosureInfo(): e=" EID_FMTX "\n",
+                   EID_PRTX(theElement)))
 
   if (EMASTER(theElement)) return(GM_OK);
   if (EGHOST(theElement) && EGHOSTPRIO(prio)) return(GM_OK);
@@ -1024,8 +1027,8 @@ static int Gather_EdgeClosureInfo (DDD_OBJ obj, void *data)
   INT pattern;
   EDGE    *theEdge = (EDGE *)obj;
 
-  PRINTDEBUG(gm,1,(PFMT "Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
-                   me,ID_PRTX(theEdge),PATTERN(theEdge)))
+  PRINTDEBUG(gm,1,("Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
+                   ID_PRTX(theEdge),PATTERN(theEdge)))
 
   pattern = PATTERN(theEdge);
 
@@ -1061,8 +1064,8 @@ static int Scatter_EdgeClosureInfo (DDD_OBJ obj, void *data)
 
   pattern = MAX(PATTERN(theEdge),((INT *)data)[0]);
 
-  PRINTDEBUG(gm,1,(PFMT "Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
-                   me,ID_PRTX(theEdge),pattern))
+  PRINTDEBUG(gm,1,("Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
+                   ID_PRTX(theEdge),pattern))
 
   SETPATTERN(theEdge,pattern);
 
@@ -1304,8 +1307,8 @@ static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *t
       else
         NbSidePattern |= NbSideMask;
 
-      PRINTDEBUG(gm,1,(PFMT "CorrectTetrahedronSidePattern(): nb=" EID_FMTX
-                       " new nbsidepattern=%d\n",me,EID_PRTX(theNeighbor),NbSidePattern));
+      PRINTDEBUG(gm,1,("CorrectTetrahedronSidePattern(): nb=" EID_FMTX
+                       " new nbsidepattern=%d\n",EID_PRTX(theNeighbor),NbSidePattern));
       SETSIDEPATTERN(theNeighbor,NbSidePattern);
     }
     break;
@@ -1375,9 +1378,9 @@ static INT CorrectElementSidePattern (ELEMENT *theElement, ELEMENT *theNeighbor,
   if (theNeighbor == NULL)
   {
     ASSERT(EGHOST(theElement));
-    UserWriteF(PFMT "CorrectElementSidePattern(): error elem=" EID_FMTX " nb[%d]="
+    UserWriteF("CorrectElementSidePattern(): error elem=" EID_FMTX " nb[%d]="
                EID_FMTX " nb=" EID_FMTX
-               "\n", me,EID_PRTX(theElement),i,EID_PRTX(NBELEM(theElement,i)),
+               "\n", EID_PRTX(theElement),i,EID_PRTX(NBELEM(theElement,i)),
                EID_PRTX(theNeighbor));
     return(GM_OK);
   }
@@ -1392,9 +1395,9 @@ static INT CorrectElementSidePattern (ELEMENT *theElement, ELEMENT *theNeighbor,
   {
     if (!(EGHOST(theElement) && EGHOST(theNeighbor)))
     {
-      UserWriteF(PFMT "CorrectElementSidePattern(): ERROR nbelem not found elem=%08x/"
+      UserWriteF("CorrectElementSidePattern(): ERROR nbelem not found elem=%08x/"
                  EID_FMTX " nb=%08x/" EID_FMTX "\n",
-                 me,theElement,EID_PRTX(theElement),theNeighbor,EID_PRTX(theNeighbor));
+                 theElement,EID_PRTX(theElement),theNeighbor,EID_PRTX(theNeighbor));
     }
     ASSERT(EGHOST(theElement) && EGHOST(theNeighbor));
     return(GM_OK);
@@ -1523,6 +1526,8 @@ static INT SetElementRules (GRID *theGrid, ELEMENT *firstElement, INT *cnt)
   INT Mark,NewPattern;
   INT thePattern,theEdgePattern,theSidePattern=0;
   ELEMENT *theElement;
+
+  const int me = theGrid->ppifContext().me();
 
   /* set refinement rules from edge- and sidepattern */
   (*cnt) = 0;
@@ -1674,8 +1679,8 @@ static int Gather_AddEdgePattern (DDD_OBJ obj, void *data)
 
   ((INT *)data)[0] = pat;
 
-  PRINTDEBUG(gm,4,(PFMT "Gather_AddEdgePattern(): elem=" EID_FMTX "pat=%08x\n",
-                   me,EID_PRTX(theElement),pat));
+  PRINTDEBUG(gm,4,("Gather_AddEdgePattern(): elem=" EID_FMTX "pat=%08x\n",
+                   EID_PRTX(theElement),pat));
   return(GM_OK);
         #endif
 
@@ -1687,8 +1692,8 @@ static int Gather_AddEdgePattern (DDD_OBJ obj, void *data)
 
   ((INT *)data)[0] = addpattern;
 
-  PRINTDEBUG(gm,4,(PFMT "Gather_AddEdgePattern(): edge=" ID_FMTX "pat=%08x\n",
-                   me,ID_PRTX(theEdge),addpattern));
+  PRINTDEBUG(gm,4,("Gather_AddEdgePattern(): edge=" ID_FMTX "pat=%08x\n",
+                   ID_PRTX(theEdge),addpattern));
   return(GM_OK);
         #endif
 }
@@ -1719,8 +1724,8 @@ static int Scatter_AddEdgePattern (DDD_OBJ obj, void *data)
   ELEMENT *theElement = (ELEMENT *)obj;
 
   /** \todo (HRR 971207): output after SetEdgeInfo (pat not init)? */
-  PRINTDEBUG(gm,4,(PFMT "Scatter_AddEdgePattern(): elem=" EID_FMTX "pat=%08x\n",
-                   me,EID_PRTX(theElement),pat));
+  PRINTDEBUG(gm,4,("Scatter_AddEdgePattern(): elem=" EID_FMTX "pat=%08x\n",
+                   EID_PRTX(theElement),pat));
 
   pat = ((INT *)data)[0];
   SetEdgeInfo(theElement,pat,ADDPATTERN,&);
@@ -1734,8 +1739,8 @@ static int Scatter_AddEdgePattern (DDD_OBJ obj, void *data)
 
   addpattern = MIN(ADDPATTERN(theEdge),((INT *)data)[0]);
 
-  PRINTDEBUG(gm,4,(PFMT "Gather_AddEdgePattern(): edge=" ID_FMTX "pat=%08x\n",
-                   me,ID_PRTX(theEdge),addpattern));
+  PRINTDEBUG(gm,4,("Gather_AddEdgePattern(): edge=" ID_FMTX "pat=%08x\n",
+                   ID_PRTX(theEdge),addpattern));
 
   SETADDPATTERN(theEdge,addpattern);
 
@@ -2039,8 +2044,8 @@ static int Gather_ElementInfo (DDD_OBJ obj, void *Data)
   ELEMENT *theElement = (ELEMENT *)obj;
   char    *data = (char *)Data;
 
-  PRINTDEBUG(gm,4,(PFMT "Gather_ElementInfo(): elem=" EID_FMTX "\n",
-                   me,EID_PRTX(theElement)));
+  PRINTDEBUG(gm,4,("Gather_ElementInfo(): elem=" EID_FMTX "\n",
+                   EID_PRTX(theElement)));
 
   memcpy(data,theElement,sizeof(struct generic_element));
   data += CEIL(sizeof(struct generic_element));
@@ -2120,8 +2125,8 @@ static int Scatter_ElementInfo (DDD_OBJ obj, void *Data)
   memcpy(theMaster,data,sizeof(struct generic_element));
   data += CEIL(sizeof(struct generic_element));
 
-  PRINTDEBUG(gm,4,(PFMT "Scatter_ElementInfo(): Comparing elem="
-                   EID_FMTX " master=" EID_FMTX "\n",me,EID_PRTX(theElement),
+  PRINTDEBUG(gm,4,("Scatter_ElementInfo(): Comparing elem="
+                   EID_FMTX " master=" EID_FMTX "\n",EID_PRTX(theElement),
                    EID_PRTX(theMaster)));
 
   /* now compare the control entries of master with it local copy */
@@ -2241,7 +2246,7 @@ static int GridClosure (GRID *theGrid)
   /* exit only if fifo not active or fifo queue   */
   /* empty or all processor have finished closure */
   while (fifoFlag && UpdateClosureFIFO(theGrid) &&
-         ManageParallelFIFO(firstElement));
+         ManageParallelFIFO(theGrid->ppifContext(), firstElement));
 
   /* set patterns on all edges of red elements */
   if (SetAddPatterns(theGrid) != GM_OK) RETURN(GM_ERROR);
@@ -2783,7 +2788,7 @@ static INT RestrictMarks (GRID *theGrid)
   }
 #ifdef __PERIODIC_BOUNDARY__
         #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "exchange USED flag for restrict marks\n",me));
+  PRINTDEBUG(gm,1,("\nexchange USED flag for restrict marks\n"));
   /* exchange USED flag of periodic vectors to indicate marked elements */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),Gather_USEDflag, Scatter_USEDflag);
         #endif
@@ -2803,6 +2808,8 @@ static int ComputePeriodicCopies(GRID *grid)
   ELEMENT *elem;
   PeriodicBoundaryInfoProcPtr IsPeriodicBnd;
   int npercopies;
+
+  const int me = grid->ppifContext().me();
 
   GetPeriodicBoundaryInfoProcPtr(&IsPeriodicBnd);
   if (IsPeriodicBnd==NULL)
@@ -2874,6 +2881,8 @@ static int ComputeCopies (GRID *theGrid)
   int npercopies;
 #endif
   PRINTDEBUG(gm,1,("ComputeCopies on level %d\n",GLEVEL(theGrid)));
+
+  const int me = theGrid->ppifContext().me();
 
   /* set class of all dofs on next level to 0 */
     #ifdef DYNAMIC_MEMORY_ALLOCMODEL
@@ -3422,6 +3431,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
 {
   int s;
   ELEMENT *theSon,*SonList[MAX_SONS];
+  const int me = theGrid->ppifContext().me();
 
   /* something to do ? */
   if ((REFINE(theElement)==NO_REFINEMENT)||(theGrid==NULL)) return(GM_OK);
@@ -3663,7 +3673,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
              REFINE(theElement),MARK(theElement),COARSEN(theElement),
              USED(theElement),NSONS(theElement),side,NeedSons);
   for (i=0; SonList[i]!=NULL; i++)
-    UserWriteF(PFMT "   son[%d]=" EID_FMTX "\n",me,i,EID_PRTX(SonList[i]));
+    UserWriteF("   son[%d]=" EID_FMTX "\n",i,EID_PRTX(SonList[i]));
   ENDDEBUG
 
         #ifdef __TWODIM__
@@ -4176,8 +4186,8 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
 
     REFINE_ELEMENT_LIST(0,theElement,"theElement:");
     REFINE_ELEMENT_LIST(0,theNeighbor,"theNeighbor:");
-    UserWriteF(PFMT "elem=" EID_FMTX " nb=" EID_FMTX
-               "Sons_of_Side=%d Sons_of_NbSide=%d\n",me,EID_PRTX(theElement),
+    UserWriteF("elem=" EID_FMTX " nb=" EID_FMTX
+               "Sons_of_Side=%d Sons_of_NbSide=%d\n",EID_PRTX(theElement),
                EID_PRTX(theNeighbor),Sons_of_Side,Sons_of_NbSide);
     fflush(stdout);
     GetAllSons(theElement,SonList);
@@ -4395,6 +4405,7 @@ static INT RefineElementYellow (GRID *theGrid, ELEMENT *theElement, NODE **theCo
 {
   INT i;
   bool boundaryelement = false;
+  const int me = theGrid->ppifContext().me();
 
   /* check for boundary */
   if (OBJT(theElement) == BEOBJ)
@@ -5480,6 +5491,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 /****************************************************************************/
 static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theElementContext)
 {
+  const int me = theGrid->ppifContext().me();
 
   /* is something to do ? */
   if (!MARKED(theElement)) return(GM_OK);
@@ -5750,6 +5762,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
   ELEMENT *NextElement;
   ELEMENTCONTEXT theContext;
   GRID *UpGrid;
+  const int me = theGrid->ppifContext().me();
 
   UpGrid = UPGRID(theGrid);
   if (UpGrid==NULL)
@@ -6132,7 +6145,7 @@ static void CheckConsistency (MULTIGRID *theMG, INT level ,INT debugstart, INT g
   GRID *theGrid = GRID_ON_LEVEL(theMG,level);
 
   IFDEBUG(gm,debugstart)
-  printf(PFMT "AdaptMultiGrid(): %d. ConsCheck() on level=%d\n",me,(*check)++,level);
+  printf(PFMT "AdaptMultiGrid(): %d. ConsCheck() on level=%d\n",theMG->ppifContext().me(),(*check)++,level);
                 #ifdef Debug
   Debuggm = GHOSTS;
                 #endif
