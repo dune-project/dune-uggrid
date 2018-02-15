@@ -285,9 +285,9 @@ static void ConstructDDDObject (void *obj, INT size, INT type)
 }
 #endif
 
-void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
+void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
 {
-  void * obj = GetMem(theHeap,size);
+  void * obj = GetMem(MGHEAP(theMG),size);
   if (obj != NULL)
     memset(obj,0,size);
 
@@ -333,7 +333,7 @@ static void DestructDDDObject(void *object, INT type)
 }
 #endif
 
-INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT type)
+INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, INT type)
 {
   INT err;
 
@@ -342,7 +342,7 @@ INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT t
     DestructDDDObject(object,type);
   #endif
 
-  DisposeMem(theHeap, object);
+  DisposeMem(MGHEAP(theMG), object);
   return 0;
 }
 
