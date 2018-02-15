@@ -58,6 +58,8 @@
 
 #include "../ppif.h"
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
 /*#include "ugtypes.h"*/
 
 using namespace PPIF;
@@ -79,8 +81,6 @@ using namespace PPIF;
 
 #define PPIF_SUCCESS    0       /* Return value for success                 */
 #define PPIF_FAILURE    1       /* Return value for failure                 */
-
-#define COMM MPI_COMM_WORLD
 
 /****************************************************************************/
 /*                                                                          */
@@ -127,9 +127,9 @@ int PPIF::DimX, PPIF::DimY, PPIF::DimZ;
 
 /* Tree structure */
 int PPIF::degree;                      /* degree of downtree nodes                 */
-VChannelPtr PPIF::uptree = NULL;       /* channel uptree                           */
-VChannelPtr PPIF::downtree[MAXT] = {NULL};  /* channels downtree (may be empty)    */
-int PPIF::slvcnt[MAXT];                /* number of processors in subtree          */
+VChannelPtr PPIF::uptree = nullptr;    /* channel uptree                           */
+VChannelPtr const* PPIF::downtree = nullptr; /* channels downtree (may be empty)   */
+int const* PPIF::slvcnt;                     /* number of processors in subtree    */
 
 /****************************************************************************/
 /*                                                                          */
@@ -155,6 +155,48 @@ static void DeleteVChan (VChannelPtr myChan)
   delete myChan;
 }
 
+static std::shared_ptr<PPIF::PPIFContext> ppifContext_;
+
+void PPIF::ppifContext(const std::shared_ptr<PPIFContext>& context)
+{
+  ppifContext_ = context;
+
+  me = context->me();
+  master = context->master();
+  procs = context->procs();
+
+  DimX = context->dimX();
+  DimY = context->dimY();
+  DimZ = context->dimZ();
+
+  degree = context->degree();
+  uptree = context->uptree();
+  downtree = context->downtree().data();
+  slvcnt = context->slvcnt().data();
+}
+
+void PPIF::ppifContext(std::nullptr_t)
+{
+  ppifContext_ = nullptr;
+
+  me = 0;
+  master = 0;
+  procs = 1;
+
+  DimX = 1;
+  DimY = 1;
+  DimZ = 1;
+
+  degree = 0;
+  uptree = nullptr;
+  downtree = nullptr;
+  slvcnt = nullptr;
+}
+
+const std::shared_ptr<PPIF::PPIFContext>& PPIF::ppifContext()
+{
+  return ppifContext_;
+}
 
 /****************************************************************************/
 /*                                                                          */
@@ -190,23 +232,23 @@ static void Factor (int N, int *pn, int *pm)
 }
 
 
-int PPIF::InitPPIF (int *, char ***)
+void PPIF::InitPPIF(PPIFContext& context)
 {
-  int i, succ, sonr, sonl;
+  const auto me = context.me();
+  const auto procs = context.procs();
 
-  MPI_Comm_rank (COMM, &me);
-  MPI_Comm_size (COMM, &procs);
-
-  master = 0;
-
-  DimZ = 1;
-  Factor(procs, &DimX, &DimY);
+  context.dims_[2] = 1;
+  Factor(procs, &context.dims_[0], &context.dims_[1]);
 
   /* tree configuration */
 
+  auto& degree = context.degree_;
+  auto& uptree = context.uptree_;
+  auto& downtree = context.downtree_;
+
   degree = 0;
-  sonl = 2*me + 1;
-  sonr = 2*me + 2;
+  const int sonl = 2*me + 1;
+  const int sonr = 2*me + 2;
 
   if (sonl<procs)
   {
@@ -240,36 +282,53 @@ int PPIF::InitPPIF (int *, char ***)
     uptree = NULL;
   }
 
-  succ=1;
-  for(i=0; i<degree; i++)
+  auto& slvcnt = context.slvcnt_;
+
+  int succ=1;
+  for(int i=0; i<degree; i++)
   {
     MPI_Recv ((void *) &(slvcnt[i]), (int) sizeof(int), MPI_BYTE,
-              downtree[i]->p, ID_TREE, COMM, MPI_STATUS_IGNORE);
+              downtree[i]->p, ID_TREE, context.comm(), MPI_STATUS_IGNORE);
     succ += slvcnt[i];
   }
   if (me>0)
   {
-    MPI_Send ((void *) &succ, (int) sizeof(int), MPI_BYTE, (int)(me-1)/2, ID_TREE, COMM);
+    MPI_Send ((void *) &succ, (int) sizeof(int), MPI_BYTE, (int)(me-1)/2, ID_TREE, context.comm());
   }
-
-  return (PPIF_SUCCESS);
 }
 
-
-int PPIF::ExitPPIF ()
+int PPIF::InitPPIF (int *, char ***)
 {
-  /* Deallocate tree structure */
-  DeleteVChan(uptree);
-  uptree = NULL;
-  /* I currently think that only the first two entries of downtree can contain
-   * valied entries, but I am not entirely sure. */
-  DeleteVChan(downtree[0]);
-  DeleteVChan(downtree[1]);
-  downtree[0] = downtree[1] = NULL;
+  auto context = ppifContext();
+  if (not context)
+    context = std::make_shared<PPIFContext>();
+  InitPPIF(*context);
+  ppifContext(context);
 
   return PPIF_SUCCESS;
 }
 
+void PPIF::ExitPPIF(PPIF::PPIFContext& context)
+{
+  /* Deallocate tree structure */
+  DeleteVChan(context.uptree_);
+  context.uptree_ = nullptr;
+  /* I currently think that only the first two entries of downtree can contain
+   * valied entries, but I am not entirely sure. */
+  DeleteVChan(context.downtree_[0]);
+  DeleteVChan(context.downtree_[1]);
+  context.downtree_[0] = context.downtree_[1] = nullptr;
+}
+
+int PPIF::ExitPPIF ()
+{
+  if (ppifContext()) {
+    ExitPPIF(*ppifContext());
+    ppifContext(nullptr);
+  }
+
+  return PPIF_SUCCESS;
+}
 
 /****************************************************************************/
 /*                                                                          */
@@ -277,59 +336,82 @@ int PPIF::ExitPPIF ()
 /*                                                                          */
 /****************************************************************************/
 
-int PPIF::Broadcast (void *data, int size)
-
+int PPIF::Broadcast (const PPIFContext& context, void *data, int size)
 {
-  if (MPI_SUCCESS != MPI_Bcast (data, size, MPI_BYTE, master, COMM) )
+  if (MPI_SUCCESS != MPI_Bcast (data, size, MPI_BYTE, context.master(), context.comm()) )
     return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
 }
 
+int PPIF::Broadcast (void *data, int size)
+{
+  return Broadcast(*ppifContext(), data, size);
+}
+
+int PPIF::Concentrate (const PPIFContext& context, void *data, int size)
+{
+  if (context.me() != context.master())
+    if (SendSync (context, context.uptree(), data, size) < 0) return (PPIF_FAILURE);
+
+  return (PPIF_SUCCESS);
+}
+
 int PPIF::Concentrate (void *data, int size)
-
 {
-  if (me != master)
-    if (SendSync (uptree, data, size) < 0) return (PPIF_FAILURE);
+  return Concentrate(*ppifContext(), data, size);
+}
+
+int PPIF::GetConcentrate(const PPIFContext& context, int slave, void *data, int size)
+{
+  if (slave < context.degree())
+    if (RecvSync (context, context.downtree()[slave], data, size) < 0) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
 }
 
-int PPIF::GetConcentrate (int slave, void *data, int size)
-
+int PPIF::GetConcentrate(int slave, void *data, int size)
 {
-  if (slave < degree)
-    if (RecvSync (downtree[slave], data, size) < 0) return (PPIF_FAILURE);
+  return GetConcentrate(*ppifContext(), slave, data, size);
+}
+
+int PPIF::Spread(const PPIFContext& context, int slave, void *data, int size)
+{
+  if (slave < context.degree())
+    if (SendSync(context, context.downtree()[slave], data, size) < 0) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
 }
 
-int PPIF::Spread (int slave, void *data, int size)
-
+int PPIF::Spread(int slave, void *data, int size)
 {
-  if (slave < degree)
-    if (SendSync (downtree[slave], data, size) < 0) return (PPIF_FAILURE);
+  return Spread(*ppifContext(), slave, data, size);
+}
+
+int PPIF::GetSpread(const PPIFContext& context, void *data, int size)
+{
+  if (context.me() != context.master())
+    if (RecvSync(context, context.uptree(), data, size) < 0) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
 }
 
-int PPIF::GetSpread (void *data, int size)
-
+int PPIF::GetSpread(void *data, int size)
 {
-  if (me!=master)
-    if (RecvSync (uptree, data, size) < 0) return (PPIF_FAILURE);
+  return GetSpread(*ppifContext(), data, size);
+}
+
+int PPIF::Synchronize(const PPIFContext& context)
+{
+  if (MPI_SUCCESS != MPI_Barrier (context.comm()) ) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
 }
 
-int PPIF::Synchronize ()
-
+int PPIF::Synchronize()
 {
-  if (MPI_SUCCESS != MPI_Barrier (COMM) ) return (PPIF_FAILURE);
-
-  return (PPIF_SUCCESS);
+  return Synchronize(*ppifContext());
 }
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -337,43 +419,58 @@ int PPIF::Synchronize ()
 /*                                                                          */
 /****************************************************************************/
 
-VChannelPtr PPIF::ConnSync (int p, int id)
-
+VChannelPtr PPIF::ConnSync(const PPIFContext&, int p, int id)
 {
-  return (NewVChan (p, id) );
+  return NewVChan(p, id);
 }
 
-int PPIF::DiscSync (VChannelPtr v)
+VChannelPtr PPIF::ConnSync(int p, int id)
+{
+  return ConnSync(*ppifContext(), p, id);
+}
 
+int PPIF::DiscSync(const PPIFContext&, VChannelPtr v)
 {
   DeleteVChan(v);
 
   return (0);
 }
 
-int PPIF::SendSync (VChannelPtr v, void *data, int size)
+int PPIF::DiscSync(VChannelPtr v)
+{
+  return DiscSync(*ppifContext(), v);
+}
 
+int PPIF::SendSync(const PPIFContext& context, VChannelPtr v, void *data, int size)
 {
   if (MPI_SUCCESS == MPI_Ssend (data, size, MPI_BYTE,
-                                v->p, v->chanid, COMM) )
+                                v->p, v->chanid, context.comm()) )
     return (size);
   else
     return (-1);
 }
 
-int PPIF::RecvSync (VChannelPtr v, void *data, int size)
+int PPIF::SendSync(VChannelPtr v, void *data, int size)
+{
+  return SendSync(*ppifContext(), v, data, size);
+}
 
+int PPIF::RecvSync(const PPIFContext& context, VChannelPtr v, void *data, int size)
 {
   int count = -1;
   MPI_Status status;
 
   if (MPI_SUCCESS == MPI_Recv (data, size, MPI_BYTE,
-                               v->p, v->chanid, COMM, &status) )
+                               v->p, v->chanid, context.comm(), &status) )
     MPI_Get_count (&status, MPI_BYTE, &count);
 
   return (count);
 }
 
+int PPIF::RecvSync(VChannelPtr v, void *data, int size)
+{
+  return RecvSync(*ppifContext(), v, data, size);
+}
 
 /****************************************************************************/
 /*                                                                          */
@@ -381,40 +478,55 @@ int PPIF::RecvSync (VChannelPtr v, void *data, int size)
 /*                                                                          */
 /****************************************************************************/
 
-VChannelPtr PPIF::ConnASync (int p, int id)
-
+VChannelPtr PPIF::ConnASync(const PPIFContext&, int p, int id)
 {
-  return (NewVChan (p,id) );
+  return NewVChan(p, id);
 }
 
-int PPIF::InfoAConn (VChannelPtr v)
+VChannelPtr PPIF::ConnASync(int p, int id)
+{
+  return ConnASync(*ppifContext(), p, id);
+}
 
+int PPIF::InfoAConn(const PPIFContext&, VChannelPtr v)
 {
   return (v ? 1 : -1);
 }
 
+int PPIF::InfoAConn(VChannelPtr v)
+{
+  return InfoAConn(*ppifContext(), v);
+}
 
-int PPIF::DiscASync (VChannelPtr v)
-
+int PPIF::DiscASync(const PPIFContext&, VChannelPtr v)
 {
   DeleteVChan (v);
   return (PPIF_SUCCESS);
 }
 
-int PPIF::InfoADisc (VChannelPtr v)
+int PPIF::DiscASync(VChannelPtr v)
+{
+  return DiscASync(*ppifContext(), v);
+}
 
+int PPIF::InfoADisc(const PPIFContext&, VChannelPtr v)
 {
   return (true);
 }
 
-msgid PPIF::SendASync (VChannelPtr v, void *data, int size, int *error)
+int PPIF::InfoADisc(VChannelPtr v)
+{
+  return InfoADisc(*ppifContext(), v);
+}
+
+msgid PPIF::SendASync(const PPIFContext& context, VChannelPtr v, void *data, int size, int *error)
 {
   msgid m = new PPIF::Msg;
 
   if (m)
   {
     if (MPI_SUCCESS == MPI_Isend (data, size, MPI_BYTE,
-                                  v->p, v->chanid, COMM, &m->req) )
+                                  v->p, v->chanid, context.comm(), &m->req) )
     {
       *error = false;
       return m;
@@ -425,16 +537,19 @@ msgid PPIF::SendASync (VChannelPtr v, void *data, int size, int *error)
   return NULL;
 }
 
+msgid PPIF::SendASync(VChannelPtr v, void *data, int size, int *error)
+{
+  return SendASync(*ppifContext(), v, data, size, error);
+}
 
-msgid PPIF::RecvASync (VChannelPtr v, void *data, int size, int *error)
-
+msgid PPIF::RecvASync(const PPIFContext& context, VChannelPtr v, void *data, int size, int *error)
 {
   msgid m = new PPIF::Msg;
 
   if (m)
   {
     if (MPI_SUCCESS == MPI_Irecv (data, size, MPI_BYTE,
-                                  v->p, v->chanid, COMM, &m->req) )
+                                  v->p, v->chanid, context.comm(), &m->req) )
     {
       *error = false;
       return m;
@@ -445,9 +560,12 @@ msgid PPIF::RecvASync (VChannelPtr v, void *data, int size, int *error)
   return (NULL);
 }
 
+msgid PPIF::RecvASync(VChannelPtr v, void *data, int size, int *error)
+{
+  return RecvASync(*ppifContext(), v, data, size, error);
+}
 
-int PPIF::InfoASend (VChannelPtr v, msgid m)
-
+int PPIF::InfoASend(const PPIFContext&, VChannelPtr v, msgid m)
 {
   int complete;
 
@@ -465,8 +583,12 @@ int PPIF::InfoASend (VChannelPtr v, msgid m)
   return (-1);          /* return -1 for FAILURE */
 }
 
+int PPIF::InfoASend(VChannelPtr v, msgid m)
+{
+  return InfoASend(*ppifContext(), v, m);
+}
 
-int PPIF::InfoARecv (VChannelPtr v, msgid m)
+int PPIF::InfoARecv(const PPIFContext&, VChannelPtr v, msgid m)
 {
   int complete;
 
@@ -482,4 +604,9 @@ int PPIF::InfoARecv (VChannelPtr v, msgid m)
   }
 
   return (-1);          /* return -1 for FAILURE */
+}
+
+int PPIF::InfoARecv(VChannelPtr v, msgid m)
+{
+  return InfoARecv(*ppifContext(), v, m);
 }
