@@ -49,6 +49,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <memory>
 
 #include <unordered_map>
 #include <array>
@@ -64,6 +65,8 @@
 #include "cw.h"
 #include "namespace.h"
 #include "dimension.h"
+
+#include <dune/uggrid/parallel/ppif/ppiftypes.hh>
 
 /****************************************************************************/
 /*                                                                          */
@@ -1495,6 +1498,8 @@ struct grid {
 
   struct grid *coarser, *finer;         /* coarser and finer grids                              */
   struct multigrid *mg;                         /* corresponding multigrid structure    */
+
+  const PPIF::PPIFContext& ppifContext() const;
 };
 
 struct multigrid {
@@ -1599,6 +1604,11 @@ struct multigrid {
 
   /** \brief coarse grid MarkKey for SIMPLE_HEAP Mark/Release     */
   INT MarkKey;
+
+  const PPIF::PPIFContext& ppifContext() const
+    { return *ppifContext_; }
+
+  std::shared_ptr<PPIF::PPIFContext> ppifContext_;
 };
 
 /****************************************************************************/
@@ -2952,6 +2962,12 @@ START_UGDIM_NAMESPACE
 
 #define GRID_ATTR(g) ((unsigned char) (GLEVEL(g)+32))
 #define ATTR_TO_GLEVEL(i) (i-32)
+
+inline const PPIF::PPIFContext&
+grid::ppifContext() const
+{
+  return mg->ppifContext();
+}
 
 /****************************************************************************/
 /*                                                                          */
