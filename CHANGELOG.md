@@ -12,6 +12,17 @@
   will abort. The long-term plan is to compile the data file into the binary, and make
   the new closure algorithm the default.
 * Many now unused parts of UG have been removed from the source.
+* The memory management of UG got a major overhault:
+  - As malloc/free memory management was used for a long time, we removed
+    the manual heap management of UG.
+  - DYNAMIC_MEMORY_ALLOCMODEL was used by default, now we removed the
+    switch and cleanupup all #ifdef's
+  - The FROM_BOOTOM/FROM_TOP flags during memory allocation didn't have
+    any influence, as we use the system heap. The enums and deprecated
+    and the interface updated.
+  - unified the different memory allocation methods
+  - removed user data from the MULTIGRID structure
+  - removed virtual heap management
 
 See the list of all [dune-uggrid 2.6 merge requests][] for minor
 changes not mentioned here.
