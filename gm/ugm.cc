@@ -42,6 +42,7 @@
 #include <cmath>
 #include <cassert>
 #include <errno.h>
+#include <vector>
 
 #include "ugtypes.h"
 #include "architecture.h"
@@ -6672,9 +6673,7 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
     /* now collect lb info on master */
     if (me == master)
     {
-      VChannelPtr     *mych;
-
-      mych = (VChannelPtr*)malloc(procs*sizeof(VChannelPtr));
+      std::vector<VChannelPtr> mych(procs, nullptr);
 
       for (i=1; i<procs; i++)
       {
@@ -6686,7 +6685,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
       {
         DiscSync(mych[i]);
       }
-      free(mych);
     }
     else
     {
@@ -9222,21 +9220,13 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
 
   /* communicate IDTPLs */
   {
-    VChannelPtr *mych;
-    msgid *recv_msg, *send_msg;
-    char *com_stat;
     int nc,rc,error;
 
     /* establish channels */
-    mych = (VChannelPtr *)GetTmpMem(MGHEAP(MYMG(g)),procs*sizeof(VChannelPtr),MarkKey);
-    assert(mych!=NULL);
-    recv_msg = (msgid *)GetTmpMem(MGHEAP(MYMG(g)),procs*sizeof(msgid),MarkKey);
-    assert(recv_msg!=NULL);
-    send_msg = (msgid *)GetTmpMem(MGHEAP(MYMG(g)),procs*sizeof(msgid),MarkKey);
-    assert(send_msg!=NULL);
-    com_stat = (char *)GetTmpMem(MGHEAP(MYMG(g)),procs*sizeof(char),MarkKey);
-    assert(com_stat!=NULL);
-    memset(com_stat,0,procs*sizeof(char));
+    std::vector<VChannelPtr> mych(procs, nullptr);
+    std::vector<msgid> recv_msg(procs, PPIF::NO_MSGID);
+    std::vector<msgid> send_msg(procs, PPIF::NO_MSGID);
+    std::vector<char> com_stat(procs, 0);
 
     nc = 0;
     for (i=0; i<procs; i++)
