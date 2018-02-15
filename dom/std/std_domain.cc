@@ -3313,9 +3313,9 @@ BNDP_Dispose (HEAP * Heap, BNDP * theBndP)
 
   ps = (BND_PS *) theBndP;
   if (!PATCH_IS_FIXED (currBVP->patches[ps->patch_id]))
-    if (PutFreelistMemory (Heap, BND_DATA (ps), DIM * sizeof (DOUBLE)))
-      return (1);
-  return (PutFreelistMemory (Heap, ps, BND_SIZE (ps)));
+    DisposeMem(Heap, BND_DATA (ps));
+  DisposeMem(Heap, ps);
+  return 0;
 }
 
 /* domain interface function: for description see domain.h */
@@ -3329,9 +3329,9 @@ BNDS_Dispose (HEAP * Heap, BNDS * theBndS)
 
   ps = (BND_PS *) theBndS;
   if (!PATCH_IS_FIXED (currBVP->patches[ps->patch_id]))
-    if (PutFreelistMemory (Heap, BND_DATA (ps), BND_N (ps) * sizeof (BNDP *)))
-      return (1);
-  return (PutFreelistMemory (Heap, ps, BND_SIZE (ps)));
+    DisposeMem(Heap, BND_DATA (ps));
+  DisposeMem(Heap, ps);
+  return 0;
 }
 
 /* domain interface function: for description see domain.h */
