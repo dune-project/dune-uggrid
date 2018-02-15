@@ -2176,8 +2176,8 @@ INT NS_DIM_PREFIX MarkForRefinement (ELEMENT *theElement, enum RefinementRule ru
     theElement = ELEMENT_TO_MARK(theElement);
   ASSERT(theElement!=NULL);
 
-  PRINTDEBUG(gm,4,(PFMT "MarkForRefinement() e=" EID_FMTX "rule=%d\n",
-                   me,EID_PRTX(theElement),rule))
+  PRINTDEBUG(gm,4,("MarkForRefinement() e=" EID_FMTX "rule=%d\n",
+                   EID_PRTX(theElement),rule))
 
   /* choose dimension */
   switch (DIM)
@@ -2632,13 +2632,13 @@ INT NS_DIM_PREFIX Patterns2Rules(ELEMENT *theElement, INT pattern)
     IFDEBUG(gm,0)
     int tetrarule;
     if (pattern<0 || pattern>1023)
-      PRINTDEBUG(gm,0,(PFMT "Pattern2Rule(): ERROR elem=" EID_FMTX
-                       " pattern=%d\n",me,EID_PRTX(theElement),pattern))
+      PRINTDEBUG(gm,0,("Pattern2Rule(): ERROR elem=" EID_FMTX
+                       " pattern=%d\n",EID_PRTX(theElement),pattern))
       assert(pattern>=0 && pattern<=1023);
     tetrarule = Pattern2Rule[TAG(theElement)][pattern];
     if (tetrarule<0 || tetrarule>MaxRules[TETRAHEDRON])
-      PRINTDEBUG(gm,0,(PFMT "Pattern2Rule(): ERROR elem=" EID_FMTX
-                       " pattern=%d rule=%d\n",me,EID_PRTX(theElement),pattern,tetrarule))
+      PRINTDEBUG(gm,0,("Pattern2Rule(): ERROR elem=" EID_FMTX
+                       " pattern=%d rule=%d\n",EID_PRTX(theElement),pattern,tetrarule))
       assert(tetrarule>=0 && tetrarule<=MaxRules[TETRAHEDRON]);
     ENDDEBUG
 
@@ -2770,8 +2770,8 @@ ELEMENT * NS_DIM_PREFIX ELEMENT_TO_MARK (ELEMENT *theElement)
 {
   if (IS_REFINED(theElement)) return(NULL);
 
-  PRINTDEBUG(gm,4,(PFMT "ELEMENT_TO_MARK() called for e=" EID_FMTX "\n",
-                   me,EID_PRTX(theElement)))
+  PRINTDEBUG(gm,4,("ELEMENT_TO_MARK() called for e=" EID_FMTX "\n",
+                   EID_PRTX(theElement)))
 
   while (ECLASS(theElement) != RED_CLASS)
   {

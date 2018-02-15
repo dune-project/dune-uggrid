@@ -137,10 +137,10 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
       Node = (NODE*) NFATHER(Node);
     }
     if (cnt != 1) {
-      UserWriteF(PFMT "elem=" EID_FMTX " node=" ID_FMTX
+      UserWriteF("elem=" EID_FMTX " node=" ID_FMTX
                  " vertex=" VID_FMTX
                  " NOOFNODE %d wrong\n",
-                 me,EID_PRTX(theElement),ID_PRTX(theNode),
+                 EID_PRTX(theElement),ID_PRTX(theNode),
                  VID_PRTX(theVertex), NOOFNODE(theVertex));
       nerrors = 1;
     }
@@ -158,16 +158,16 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
     }
     if (nerrors == 0) return(nerrors);
         #endif
-    UserWriteF(PFMT "elem=" EID_FMTX " node=" ID_FMTX " vertex=" VID_FMTX
-               " VFATHER=NULL vertex needs VFATHER\n",me,EID_PRTX(theElement),ID_PRTX(theNode),
+    UserWriteF("elem=" EID_FMTX " node=" ID_FMTX " vertex=" VID_FMTX
+               " VFATHER=NULL vertex needs VFATHER\n",EID_PRTX(theElement),ID_PRTX(theNode),
                VID_PRTX(theVertex));
     return(nerrors++);
   }
 
   if (theFather!=NULL && HEAPCHECK(theFather))
   {
-    UserWriteF(PFMT "elem=" EID_FMTX " node=" ID_FMTX " vertex=" VID_FMTX
-               " VFATHER=%x is pointer to ZOMBIE\n",me,EID_PRTX(theElement),ID_PRTX(theNode),
+    UserWriteF("elem=" EID_FMTX " node=" ID_FMTX " vertex=" VID_FMTX
+               " VFATHER=%x is pointer to ZOMBIE\n",EID_PRTX(theElement),ID_PRTX(theNode),
                VID_PRTX(theVertex),theFather);
     return(nerrors++);
   }
@@ -185,9 +185,9 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
     }
         #endif
     if (nerrors == 0) return(nerrors);
-    UserWriteF(PFMT "elem=" EID_FMTX " node=" ID_FMTX " vertex=" VID_FMTX
+    UserWriteF("elem=" EID_FMTX " node=" ID_FMTX " vertex=" VID_FMTX
                " VFATHER=" EID_FMTX " vertex needs VFATHER with prio master or vghost\n",
-               me,EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex),EID_PRTX(theFather));
+               EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex),EID_PRTX(theFather));
     return(nerrors++);
   }
 
@@ -210,9 +210,9 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
                         #endif
       if (nerrors >= 1)
       {
-        UserWriteF(PFMT "elem=" EID_FMTX " node=" ID_FMTX "/%d vertex=" VID_FMTX
+        UserWriteF("elem=" EID_FMTX " node=" ID_FMTX "/%d vertex=" VID_FMTX
                    " WARNING VFATHER=%x WARNING diff %f local and global coordinates don't match\n",
-                   me,EID_PRTX(theElement),ID_PRTX(theNode),
+                   EID_PRTX(theElement),ID_PRTX(theNode),
                    NTYPE(theNode),VID_PRTX(theVertex),theFather,diff);
       }
     }
@@ -223,9 +223,9 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
   case (CORNER_NODE) :
     if (LEVEL(theVertex)==0 && theFather != NULL)
     {
-      UserWriteF(PFMT "EID=" EID_FMTX " NID=" ID_FMTX
+      UserWriteF("EID=" EID_FMTX " NID=" ID_FMTX
                  " VID=" VID_FMTX " CORNER_NODE has VFATHER\n",
-                 me,EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
+                 EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
     }
 
                         #ifdef ModelP
@@ -237,9 +237,9 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
 
     if (LEVEL(theVertex)>0 && theFather == NULL)
     {
-      UserWriteF(PFMT "EID=" EID_FMTX " NID=" ID_FMTX
+      UserWriteF("EID=" EID_FMTX " NID=" ID_FMTX
                  " VID=" VID_FMTX " CORNER_NODE has no VFATHER\n",
-                 me,EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
+                 EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
     }
     break;
 
@@ -254,9 +254,9 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
       ENDDEBUG
                                 #endif
 
-      UserWriteF(PFMT "EID=" EID_FMTX " NID=" ID_FMTX
+      UserWriteF("EID=" EID_FMTX " NID=" ID_FMTX
                  " VID=" VID_FMTX " MID_NODE VFATHER=NULL\n",
-                 me,EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
+                 EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
       nerrors++;
       break;
     }
@@ -276,9 +276,9 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
       }
                 #endif
       if (nerrors == 0) break;
-      UserWriteF(PFMT "EID=" EID_FMTX " NID=" ID_FMTX " VID=" VID_FMTX
+      UserWriteF("EID=" EID_FMTX " NID=" ID_FMTX " VID=" VID_FMTX
                  " ONEDGE and VFATHER incompatible edgeptr=%08x\n",
-                 me,EID_PRTX(theElement),ID_PRTX(theNode),
+                 EID_PRTX(theElement),ID_PRTX(theNode),
                  VID_PRTX(theVertex),theEdge);
     }
     break;
@@ -297,17 +297,17 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
       }
                 #endif
       if (nerrors == 0) break;
-      UserWriteF(PFMT "EID=" EID_FMTX " NID=" ID_FMTX
+      UserWriteF("EID=" EID_FMTX " NID=" ID_FMTX
                  " VID=" VID_FMTX " SIDE_NODE VFATHER=NULL\n",
-                 me,EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
+                 EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
       break;
     }
     else {
       if (GetSideNode(theFather,ONSIDE(theVertex)) != theNode) {
         nerrors = 1;
-        UserWriteF(PFMT "EID=" EID_FMTX " NID=" ID_FMTX
+        UserWriteF("EID=" EID_FMTX " NID=" ID_FMTX
                    " VID=" VID_FMTX " inconsistent ONSIDE entry\n",
-                   me,EID_PRTX(theElement),ID_PRTX(theNode),
+                   EID_PRTX(theElement),ID_PRTX(theNode),
                    VID_PRTX(theVertex));
       }
     }
@@ -327,9 +327,9 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
       }
                 #endif
       if (nerrors == 0) break;
-      UserWriteF(PFMT "EID=" EID_FMTX " NID=" ID_FMTX
+      UserWriteF("EID=" EID_FMTX " NID=" ID_FMTX
                  " VID=" VID_FMTX " CENTER_NODE VFATHER=NULL\n",
-                 me,EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
+                 EID_PRTX(theElement),ID_PRTX(theNode),VID_PRTX(theVertex));
       break;
     }
     break;
@@ -349,15 +349,15 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
 
   if (OBJT(theNode) != NDOBJ)
   {
-    UserWriteF(PFMT " node=" ID_FMTX " has wrong OBJ=%d\n",
-               me,ID_PRTX(theNode),OBJT(theNode));
+    UserWriteF(" node=" ID_FMTX " has wrong OBJ=%d\n",
+               ID_PRTX(theNode),OBJT(theNode));
     return(nerrors++);
   }
 
   if (NVECTOR(theNode)!=NULL && VOBJECT(NVECTOR(theNode)) == NULL)
   {
-    UserWriteF(PFMT " node=" ID_FMTX " has vector" ID_FMTX "  with VOBJ=NULL\n",
-               me,ID_PRTX(theNode),ID_PRTX(NVECTOR(theNode)));
+    UserWriteF(" node=" ID_FMTX " has vector" ID_FMTX "  with VOBJ=NULL\n",
+               ID_PRTX(theNode),ID_PRTX(NVECTOR(theNode)));
     return(nerrors++);
   }
 
@@ -365,9 +365,9 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
   {
   case (LEVEL_0_NODE) :
     if (LEVEL(theNode) > 0) {
-      UserWriteF(PFMT " node=" ID_FMTX " has NTYPE=LEVEL_0_NODE"
+      UserWriteF(" node=" ID_FMTX " has NTYPE=LEVEL_0_NODE"
                  " but is on level=%d\n",
-                 me,ID_PRTX(theNode),LEVEL(theNode));
+                 ID_PRTX(theNode),LEVEL(theNode));
       return(nerrors++);
     }
     break;
@@ -377,8 +377,8 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
     if (0) /* this code is for special debugging (980204 s.l.) */
       if (GID(theNode)==0x11011 && FatherNode!=NULL)
       {
-        UserWriteF(PFMT " cornernode=" ID_FMTX " has father=" ID_FMTX "\n",
-                   me,ID_PRTX(theNode),ID_PRTX(FatherNode));
+        UserWriteF(" cornernode=" ID_FMTX " has father=" ID_FMTX "\n",
+                   ID_PRTX(theNode),ID_PRTX(FatherNode));
       }
 
     if (FatherNode == NULL)
@@ -387,9 +387,9 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
       if (MASTER(theNode))
       {
                                         #endif
-      UserWriteF(PFMT " ERROR cornernode=" ID_FMTX " has no father level=%d\n",
-                 me,ID_PRTX(theNode),LEVEL(theNode));
-      UserWriteF(PFMT " elem=" EID_FMTX ,me,EID_PRTX(theElement));
+      UserWriteF(" ERROR cornernode=" ID_FMTX " has no father level=%d\n",
+                 ID_PRTX(theNode),LEVEL(theNode));
+      UserWriteF(" elem=" EID_FMTX, EID_PRTX(theElement));
       if (EFATHER(theElement) != NULL)
       {
         INT i;
@@ -414,8 +414,8 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
       print = 1;
       ENDDEBUG
       if (print)
-        UserWriteF(PFMT " WARN cornernode=" ID_FMTX " has no father level=%d\n",
-                   me,ID_PRTX(theNode),LEVEL(theNode));
+        UserWriteF(" WARN cornernode=" ID_FMTX " has no father level=%d\n",
+                   ID_PRTX(theNode),LEVEL(theNode));
     }
                                         #endif
     }
@@ -423,26 +423,26 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
     {
       if (HEAPCHECK(FatherNode))
       {
-        UserWriteF(PFMT "elem=" EID_FMTX " cornernode=%d NID=" ID_FMTX
-                   " has father pointer to ZOMBIE\n",me,EID_PRTX(theElement),ID_PRTX(theNode));
+        UserWriteF("elem=" EID_FMTX " cornernode=%d NID=" ID_FMTX
+                   " has father pointer to ZOMBIE\n",EID_PRTX(theElement),ID_PRTX(theNode));
         nerrors++;
         break;
       }
 
       if (OBJT(FatherNode) != NDOBJ)
       {
-        UserWriteF(PFMT " cornernode=" ID_FMTX
+        UserWriteF(" cornernode=" ID_FMTX
                    " has father of wrong type=%d\n",
-                   me,ID_PRTX(theNode),OBJT(FatherNode));
+                   ID_PRTX(theNode),OBJT(FatherNode));
         nerrors++;
       }
       else
       {
         if (SONNODE(FatherNode) != theNode)
         {
-          UserWriteF(PFMT " cornernode=" ID_FMTX
+          UserWriteF(" cornernode=" ID_FMTX
                      " has node father=" ID_FMTX " with wrong backptr=%x\n",
-                     me,ID_PRTX(theNode),ID_PRTX(FatherNode),SONNODE(FatherNode));
+                     ID_PRTX(theNode),ID_PRTX(FatherNode),SONNODE(FatherNode));
           /* TODO: this should be deleted */
           if (0) SONNODE(FatherNode) = theNode;
           else nerrors++;
@@ -462,9 +462,9 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
         if (MASTER(theNode))
         {
                                         #endif
-        UserWriteF(PFMT " ERROR midnode=" ID_FMTX " has no father level=%d\n",
-                   me,ID_PRTX(theNode),LEVEL(theNode));
-        UserWriteF(PFMT " elem=" EID_FMTX ,me,EID_PRTX(theElement));
+        UserWriteF(" ERROR midnode=" ID_FMTX " has no father level=%d\n",
+                   ID_PRTX(theNode),LEVEL(theNode));
+        UserWriteF(" elem=" EID_FMTX, EID_PRTX(theElement));
         if (EFATHER(theElement) != NULL)
           UserWriteF(" father=" EID_FMTX "\n",EID_PRTX(EFATHER(theElement)));
         else
@@ -475,8 +475,8 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
       else
       {
         IFDEBUG(gm,1)
-        UserWriteF(PFMT " WARN midnode=" ID_FMTX " has no father level=%d\n",
-                   me,ID_PRTX(theNode),LEVEL(theNode));
+        UserWriteF(" WARN midnode=" ID_FMTX " has no father level=%d\n",
+                   ID_PRTX(theNode),LEVEL(theNode));
         ENDDEBUG
       }
                                         #endif
@@ -485,8 +485,8 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
       {
         if (HEAPCHECK(FatherEdge))
         {
-          UserWriteF(PFMT "elem=" EID_FMTX " edge=%d/%x midnode NID=" ID_FMTX
-                     " fatherpointer to edge=%d/%x is ZOMBIE\n",me,EID_PRTX(theElement),
+          UserWriteF("elem=" EID_FMTX " edge=%d/%x midnode NID=" ID_FMTX
+                     " fatherpointer to edge=%d/%x is ZOMBIE\n",EID_PRTX(theElement),
                      ID_PRTX(theNode),i,FatherEdge);
           nerrors++;
           break;
@@ -494,9 +494,9 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
 
         if (OBJT(FatherEdge) != EDOBJ)
         {
-          UserWriteF(PFMT " midnode=" ID_FMTX
+          UserWriteF(" midnode=" ID_FMTX
                      " has father of wrong type=%d obj=\n",
-                     me,ID_PRTX(theNode),OBJT(FatherEdge));
+                     ID_PRTX(theNode),OBJT(FatherEdge));
           nerrors++;
         }
         else
@@ -504,9 +504,9 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
 
           if (MIDNODE(FatherEdge) != theNode)
           {
-            UserWriteF(PFMT " midnode=" ID_FMTX
+            UserWriteF(" midnode=" ID_FMTX
                        " has edge  father=" ID_FMTX " with wrong backptr=%x\n",
-                       me,ID_PRTX(theNode),ID_PRTX(FatherEdge),MIDNODE(FatherEdge));
+                       ID_PRTX(theNode),ID_PRTX(FatherEdge),MIDNODE(FatherEdge));
             /* TODO: this should be deleted */
             if (0) MIDNODE(FatherEdge) = theNode;
             else nerrors++;
@@ -517,8 +517,8 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
     }
     else
     {
-      UserWriteF(PFMT " node=" ID_FMTX " is midnode BUT on level=%d\n",
-                 me,ID_PRTX(theNode),LEVEL(theNode));
+      UserWriteF(" node=" ID_FMTX " is midnode BUT on level=%d\n",
+                 ID_PRTX(theNode),LEVEL(theNode));
       nerrors++;
     }
     break;
@@ -530,8 +530,8 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
     break;
 
   default :
-    UserWriteF(PFMT " node=" ID_FMTX " has unrecognized NTYPE=%d\n",
-               me,ID_PRTX(theNode),NTYPE(theNode));
+    UserWriteF(" node=" ID_FMTX " has unrecognized NTYPE=%d\n",
+               ID_PRTX(theNode),NTYPE(theNode));
     break;
   }
 
@@ -541,8 +541,8 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
   }
   else
   {
-    UserWriteF(PFMT "elem=" EID_FMTX " node[%d]=" ID_FMTX " vertex=NULL\n",
-               me,EID_PRTX(theElement),i,ID_PRTX(theNode));
+    UserWriteF("elem=" EID_FMTX " node[%d]=" ID_FMTX " vertex=NULL\n",
+               EID_PRTX(theElement),i,ID_PRTX(theNode));
     nerrors++;
   }
 
@@ -593,18 +593,18 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
 
     if (no_of_elem==0 || No_Of_Elem!=no_of_elem)
     {
-      UserWriteF(PFMT "elem=" EID_FMTX " edge%d=" EDID_FMTX " NO_OF_ELEM wrong"
+      UserWriteF("elem=" EID_FMTX " edge%d=" EDID_FMTX " NO_OF_ELEM wrong"
                  "NO_OF_ELEM=%d no_of_elem=%d\n",
-                 me,EID_PRTX(theElement),i,EDID_PRTX(theEdge),No_Of_Elem,no_of_elem);
+                 EID_PRTX(theElement),i,EDID_PRTX(theEdge),No_Of_Elem,no_of_elem);
     }
 
     if (elemlink == 0)
     {
       if (e0 != theElement)
       {
-        UserWriteF(PFMT "elem=" EID_FMTX " edge%d=" EDID_FMTX " LELEM0 wrong"
+        UserWriteF("elem=" EID_FMTX " edge%d=" EDID_FMTX " LELEM0 wrong"
                    "elemlink=%d LELEM0=%08x\n",
-                   me,EID_PRTX(theElement),i,EDID_PRTX(theEdge),elemlink,
+                   EID_PRTX(theElement),i,EDID_PRTX(theEdge),elemlink,
                    (e0!=NULL) ? EGID(e0) : 0);
         nerrors++;
       }
@@ -613,9 +613,9 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
     {
       if (e1 != theElement)
       {
-        UserWriteF(PFMT "elem=" EID_FMTX " edge%d=" EDID_FMTX " LELEM0 wrong"
+        UserWriteF("elem=" EID_FMTX " edge%d=" EDID_FMTX " LELEM0 wrong"
                    "elemlink=%d LELEM0=%08x\n",
-                   me,EID_PRTX(theElement),i,EDID_PRTX(theEdge),elemlink,
+                   EID_PRTX(theElement),i,EDID_PRTX(theEdge),elemlink,
                    (e1!=NULL) ? EGID(e1) : 0);
         nerrors++;
       }
@@ -638,8 +638,8 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
         #ifdef ModelP
       IFDEBUG(gm,1)
             #endif
-      UserWriteF(PFMT "elem=" EID_FMTX " edge%d=" EDID_FMTX " midnode NID=NULL"
-                 " BUT REFINE(elem)=RED\n",me,EID_PRTX(theElement),i,EDID_PRTX(theEdge));
+      UserWriteF("elem=" EID_FMTX " edge%d=" EDID_FMTX " midnode NID=NULL"
+                 " BUT REFINE(elem)=RED\n",EID_PRTX(theElement),i,EDID_PRTX(theEdge));
       nerrors++;
                 #ifdef ModelP
       ENDDEBUG
@@ -652,16 +652,16 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
 
   if (HEAPCHECK(theNode))
   {
-    UserWriteF(PFMT "elem=" EID_FMTX " edge=%d/%x midnode NID=" ID_FMTX
-               " is pointer to ZOMBIE\n",me,EID_PRTX(theElement),i,theEdge,ID_PRTX(theNode));
+    UserWriteF("elem=" EID_FMTX " edge=%d/%x midnode NID=" ID_FMTX
+               " is pointer to ZOMBIE\n",EID_PRTX(theElement),i,theEdge,ID_PRTX(theNode));
     return(nerrors++);
   }
 
   theVertex = MYVERTEX(theNode);
   if (theVertex == NULL)
   {
-    UserWriteF(PFMT "elem=" EID_FMTX " edge=%d/%x midnode NID=" ID_FMTX " vertex=NULL\n",
-               me,EID_PRTX(theElement),i,theEdge,ID_PRTX(theNode));
+    UserWriteF("elem=" EID_FMTX " edge=%d/%x midnode NID=" ID_FMTX " vertex=NULL\n",
+               EID_PRTX(theElement),i,theEdge,ID_PRTX(theNode));
     return(nerrors++);
   }
 
@@ -673,16 +673,16 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
     if (EGHOST(theElement))
     {
       IFDEBUG(gm,1)
-      UserWriteF(PFMT "EID=" EID_FMTX " VID=" VID_FMTX
+      UserWriteF("EID=" EID_FMTX " VID=" VID_FMTX
                  " WARNING edgenumber of vertex wrong\n",
-                 me,EID_PRTX(theElement),VID_PRTX(theVertex));
+                 EID_PRTX(theElement),VID_PRTX(theVertex));
       ENDDEBUG
     }
     else
     {
-      UserWriteF(PFMT "EID=" EID_FMTX " VID=" VID_FMTX
+      UserWriteF("EID=" EID_FMTX " VID=" VID_FMTX
                  " ERROR edgenumber of vertex wrong\n",
-                 me,EID_PRTX(theElement),VID_PRTX(theVertex));
+                 EID_PRTX(theElement),VID_PRTX(theVertex));
       /*nerrors++;  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     }
     return(nerrors);
@@ -708,9 +708,9 @@ int EdgeHasTMasterCopy (ELEMENT *e, int i)
 
   if (nall > 2)
   {
-    UserWriteF(PFMT "EID=" EID_FMTX " EDID=" EDID_FMTX
+    UserWriteF("EID=" EID_FMTX " EDID=" EDID_FMTX
                " ERROR edge%d has mastertype prios=%d\n",
-               me,EID_PRTX(e),EDID_PRTX(edge),i,nall);
+               EID_PRTX(e),EDID_PRTX(edge),i,nall);
   }
 
   return(nall-1);
@@ -743,8 +743,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   /* check level */
   if (GLEVEL(theGrid) != LEVEL(theElement))
   {
-    UserWriteF(PFMT "elem=" EID_FMTX " ERROR level=%2d but gridlevel=%2d\n",
-               me,EID_PRTX(theElement),LEVEL(theElement),GLEVEL(theGrid));
+    UserWriteF("elem=" EID_FMTX " ERROR level=%2d but gridlevel=%2d\n",
+               EID_PRTX(theElement),LEVEL(theElement),GLEVEL(theGrid));
     nerrors++;
   }
 
@@ -757,9 +757,9 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
           k = CORNER_OF_SIDE(theElement,i,j);
           theNode = CORNER(theElement,k);
           if (NSUBDOM(theNode) != 0) {
-            UserWriteF(PFMT "wrong subdomain id(%d) on boundary node,"
+            UserWriteF("wrong subdomain id(%d) on boundary node,"
                        "el =  " EID_FMTX ", side = %d, corner = %d, node = " ID_FMTX "\n",
-                       me,NSUBDOM(theNode),EID_PRTX(theElement),i,k,ID_PRTX(theNode));
+                       NSUBDOM(theNode),EID_PRTX(theElement),i,k,ID_PRTX(theNode));
             bserror |= (1<<i);
             nerrors++;
           }
@@ -772,9 +772,9 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
                                    CORNER_OF_EDGE(theElement,k,1)));
           ASSERT(theEdge != NULL);
           if (EDSUBDOM(theEdge) != 0) {
-            UserWriteF(PFMT "wrong subdomain id(%d) on boundary edge %d,"
+            UserWriteF("wrong subdomain id(%d) on boundary edge %d,"
                        "el =  " EID_FMTX ", side = %d, edge = %d, corner0 = " ID_FMTX ", corner1 = " ID_FMTX "\n",
-                       me,EDSUBDOM(theEdge),k,EID_PRTX(theElement), i, j,
+                       EDSUBDOM(theEdge),k,EID_PRTX(theElement), i, j,
                        ID_PRTX(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0))),
                        ID_PRTX(CORNER(theElement,CORNER_OF_EDGE(theElement,k,1))));
             bserror |= (1<<i);
@@ -791,8 +791,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
           if (EGHOST(theElement))
           {
             SET_NBELEM(theElement,i,NULL);
-            UserWriteF(PFMT "elem=" EID_FMTX " correcting nb error\n",
-                       me,EID_PRTX(theElement));
+            UserWriteF("elem=" EID_FMTX " correcting nb error\n",
+                       EID_PRTX(theElement));
           }
         }
 
@@ -808,8 +808,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
       if (j == SIDES_OF_ELEM(NbElement))
       {
         *SideError |= (1<<i);
-        UserWriteF(PFMT "elem=" EID_FMTX " has side error\n",
-                   me,EID_PRTX(theElement));
+        UserWriteF("elem=" EID_FMTX " has side error\n",
+                   EID_PRTX(theElement));
         nerrors++;
       }
       else
@@ -826,53 +826,53 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
             if (err)
             {
               bserror |= (1<<i);
-              UserWriteF(PFMT "elem=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned err=%d\n",
-                         me,EID_PRTX(theElement),i,err);
+              UserWriteF("elem=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned err=%d\n",
+                         EID_PRTX(theElement),i,err);
             }
             else
             {
               if ((id==0) || (nbid==0))
               {
                 /* no interior boundary */
-                UserWriteF(PFMT "elem=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned id=%d nbid=%d\n",
-                           me,EID_PRTX(theElement),i,id,nbid);
+                UserWriteF("elem=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned id=%d nbid=%d\n",
+                           EID_PRTX(theElement),i,id,nbid);
                 bserror |= (1<<i);
               }
               if (id==nbid)
               {
                 /* should be avoided */
-                UserWriteF(PFMT "elem=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned id=%d nbid=%d\n",
-                           me,EID_PRTX(theElement),i,id,nbid);
+                UserWriteF("elem=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned id=%d nbid=%d\n",
+                           EID_PRTX(theElement),i,id,nbid);
                 bserror |= (1<<i);
               }
 
               /* check neighbour */
               if (!SIDE_ON_BND(NbElement,j))
               {
-                UserWriteF(PFMT "elem=" EID_FMTX " ERROR nb=" EID_FMTX " nbside=%d not on boundary id=%d nbid=%d\n",
-                           me,EID_PRTX(theElement),EID_PRTX(theElement),j,id,nbid);
+                UserWriteF("elem=" EID_FMTX " ERROR nb=" EID_FMTX " nbside=%d not on boundary id=%d nbid=%d\n",
+                           EID_PRTX(theElement),EID_PRTX(theElement),j,id,nbid);
                 bserror |= (1<<i);
               }
               else
               {
                 if (BNDS_BndSDesc(ELEM_BNDS(NbElement,j),&id_nb,&nbid_nb,&part))
                 {
-                  UserWriteF(PFMT "nb=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned id=%d nbid=%d\n",
-                             me,EID_PRTX(NbElement),j,id,nbid);
+                  UserWriteF("nb=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned id=%d nbid=%d\n",
+                             EID_PRTX(NbElement),j,id,nbid);
                   bserror |= (1<<i);
                 }
                 else
                 {
                   if (id!=nbid_nb)
                   {
-                    UserWriteF(PFMT "nb=" EID_FMTX " ERROR nbside=%d id=%d unequal nbid_nb=%d\n",
-                               me,EID_PRTX(NbElement),j,id,nbid);
+                    UserWriteF("nb=" EID_FMTX " ERROR nbside=%d id=%d unequal nbid_nb=%d\n",
+                               EID_PRTX(NbElement),j,id,nbid);
                     bserror |= (1<<i);
                   }
                   if (nbid!=id_nb)
                   {
-                    UserWriteF(PFMT "nb=" EID_FMTX " ERROR nbside=%d nbid=%d unequal id_nb=%d\n",
-                               me,EID_PRTX(NbElement),j,id,nbid);
+                    UserWriteF("nb=" EID_FMTX " ERROR nbside=%d nbid=%d unequal id_nb=%d\n",
+                               EID_PRTX(NbElement),j,id,nbid);
                     bserror |= (1<<i);
                   }
                 }
@@ -880,9 +880,9 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
             }
             if (bserror)
             {
-              UserWriteF(PFMT "elem=" EID_FMTX " nb=" EID_FMTX
+              UserWriteF("elem=" EID_FMTX " nb=" EID_FMTX
                          " elemsubdom=%d nbsubdom=%d\n",
-                         me,EID_PRTX(theElement),EID_PRTX(NbElement),
+                         EID_PRTX(theElement),EID_PRTX(NbElement),
                          SUBDOMAIN(theElement),SUBDOMAIN(NbElement));
             }
           }
@@ -890,8 +890,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
 
       if( ECLASS(theElement)==NO_CLASS)
       {
-        UserWriteF(PFMT "Element has no ECLASS set, el =  " EID_FMTX "\n",
-                   me,EID_PRTX(theElement));
+        UserWriteF("Element has no ECLASS set, el =  " EID_FMTX "\n",
+                   EID_PRTX(theElement));
         nerrors++;
       }
 
@@ -905,8 +905,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
         if (k == n)
         {
           *SideError |= (1<<i);
-          UserWriteF(PFMT "no matching corner for CORNER_OF_SIDE(NbElement,j,0)=" ID_FMTX "\n",
-                     me, ID_PRTX(CORNER(NbElement,CORNER_OF_SIDE(NbElement,j,0))));
+          UserWriteF("no matching corner for CORNER_OF_SIDE(NbElement,j,0)=" ID_FMTX "\n",
+                     ID_PRTX(CORNER(NbElement,CORNER_OF_SIDE(NbElement,j,0))));
         }
         if (TAG(theElement)!=TETRAHEDRON
                                 #ifdef Debug
@@ -919,8 +919,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
                 != CORNER(NbElement,CORNER_OF_SIDE(NbElement,j,l)))
             {
               *SideError |= (1<<i);
-              UserWriteF(PFMT "corner mismatch side=%d cos=%d corner_el=" ID_FMTX " side=%d cos=%d corner_nb=" ID_FMTX " el = " EID_FMTX "\n",
-                         me,i,(n+k-l)%n,
+              UserWriteF("corner mismatch side=%d cos=%d corner_el=" ID_FMTX " side=%d cos=%d corner_nb=" ID_FMTX " el = " EID_FMTX "\n",
+                         i,(n+k-l)%n,
                          ID_PRTX(CORNER(theElement,CORNER_OF_SIDE(theElement,i,(n+k-l)%n))),
                          j,l,
                          ID_PRTX(CORNER(NbElement,CORNER_OF_SIDE(NbElement,j,l))),EID_PRTX(theElement));
@@ -951,8 +951,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
                                   #endif
           if (INNER_SIDE(theElement,i)) {
             *SideError |= (1<<(i+2*MAX_SIDES_OF_ELEM));
-            UserWriteF(PFMT "no nb Element for inner boundary, el =  " EID_FMTX "\n",
-                       me,EID_PRTX(theElement));
+            UserWriteF("no nb Element for inner boundary, el =  " EID_FMTX "\n",
+                       EID_PRTX(theElement));
             nerrors++;
           }
           for (j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
@@ -983,8 +983,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
       nerrors += CheckNode(theElement,theNode,i);
     else
     {
-      UserWriteF(PFMT "elem=" EID_FMTX " corner=%d nodeptr=NULL\n",
-                 me,EID_PRTX(theElement),i);
+      UserWriteF("elem=" EID_FMTX " corner=%d nodeptr=NULL\n",
+                 EID_PRTX(theElement),i);
       nerrors++;
     }
   }
@@ -997,8 +997,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
 
     if (theNode == NULL || theNode1 == NULL)
     {
-      UserWriteF(PFMT "elem=" EID_FMTX " edge=%d n0ptr=NULL or n1ptr=NULL\n",
-                 me,EID_PRTX(theElement),i,theNode,theNode1);
+      UserWriteF("elem=" EID_FMTX " edge=%d n0ptr=NULL or n1ptr=NULL\n",
+                 EID_PRTX(theElement),i,theNode,theNode1);
       nerrors++;
       continue;
     }
@@ -1010,9 +1010,9 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
       nerrors += CheckEdge(theElement,theEdge,i);
     else
     {
-      UserWriteF(PFMT "elem=" EID_FMTX " edge=%d n0=" ID_FMTX " n1="
+      UserWriteF("elem=" EID_FMTX " edge=%d n0=" ID_FMTX " n1="
                  ID_FMTX " edgeptr=NULL\n",
-                 me,EID_PRTX(theElement),i,ID_PRTX(theNode),ID_PRTX(theNode1));
+                 EID_PRTX(theElement),i,ID_PRTX(theNode),ID_PRTX(theNode1));
       nerrors++;
     }
   }
@@ -1023,7 +1023,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   if (0)
     if (!CheckOrientation(CORNERS_OF_ELEM(theElement),Vertices))
     {
-      UserWriteF(PFMT "elem=" EID_FMTX " wrong orientation",me,EID_PRTX(theElement));
+      UserWriteF("elem=" EID_FMTX " wrong orientation",EID_PRTX(theElement));
       nerrors++;
     }
 
@@ -1051,15 +1051,15 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
                                         #ifdef ModelP
           if (EMASTER(theFather)) {
             IFDEBUG(gm,1)
-            UserWriteF(PFMT "ELEM(" EID_FMTX ") WARNING MIDNODE=NULL"
+            UserWriteF("ELEM(" EID_FMTX ") WARNING MIDNODE=NULL"
                        " for mid node[%d]" ID_FMTX "\n",
-                       me,EID_PRTX(theFather),i,ID_PRTX(theNode));
+                       EID_PRTX(theFather),i,ID_PRTX(theNode));
             ENDDEBUG
           }
                                         #else
-          UserWriteF(PFMT "ELEM(" EID_FMTX ") ERROR MIDNODE=NULL"
+          UserWriteF("ELEM(" EID_FMTX ") ERROR MIDNODE=NULL"
                      " for mid node[%d]=" ID_FMTX "\n",
-                     me,EID_PRTX(theFather),i,ID_PRTX(theNode));
+                     EID_PRTX(theFather),i,ID_PRTX(theNode));
           nerrors++;
                                         #endif
         }
@@ -1078,9 +1078,9 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
     }
     if (i == NSONS(theFather))
     {
-      UserWriteF(PFMT "ELEM(" EID_FMTX ") FATHER(" EID_FMTX
+      UserWriteF("ELEM(" EID_FMTX ") FATHER(" EID_FMTX
                  ")element is not in SonList NSONS=%d\n",
-                 me,EID_PRTX(theElement),EID_PRTX(theFather),
+                 EID_PRTX(theElement),EID_PRTX(theFather),
                  NSONS(theFather));
       /** \todo activate if NSONS is consistent */
       if (0) nerrors++;
@@ -1093,8 +1093,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
     {
       if (EMASTER(theElement))
       {
-        UserWriteF(PFMT "ELEM(" EID_FMTX ") ERROR father=NULL\n",
-                   me,EID_PRTX(theElement));
+        UserWriteF("ELEM(" EID_FMTX ") ERROR father=NULL\n",
+                   EID_PRTX(theElement));
         nerrors++;
       }
     }
@@ -1116,15 +1116,15 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
       IFDEBUG(gm,1)
       if (REFINE(theElement)==0)
       {
-        UserWriteF(PFMT "ELEM(" EID_FMTX "): element is not refined "
-                   "but has NSONS=%d\n",me,EID_PRTX(theElement),nsons);
+        UserWriteF("ELEM(" EID_FMTX "): element is not refined "
+                   "but has NSONS=%d\n",EID_PRTX(theElement),nsons);
       }
       ENDDEBUG
 
       if (i >= nsons)
       {
-        UserWriteF(PFMT "ELEM(" EID_FMTX "): element has nsons=%d but "
-                   " son[%d]=" EID_FMTX " exists\n", me,EID_PRTX(theElement),
+        UserWriteF("ELEM(" EID_FMTX "): element has nsons=%d but "
+                   " son[%d]=" EID_FMTX " exists\n", EID_PRTX(theElement),
                    NSONS(theElement),i,EID_PRTX(SonList[i]));
         /* TODO: activate if NSONS is consistent */
         if (0) nerrors++;
@@ -1132,17 +1132,17 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
 
       if (SonList[i] == NULL)
       {
-        UserWriteF(PFMT "ELEM(" EID_FMTX "): element has nsons=%d but "
-                   " son[%d]=NULL\n", me,EID_PRTX(theElement),nsons,i);
+        UserWriteF("ELEM(" EID_FMTX "): element has nsons=%d but "
+                   " son[%d]=NULL\n", EID_PRTX(theElement),nsons,i);
         *ESonError |= (1<<i);
         nerrors++;
         continue;
       }
       if (EFATHER(SonList[i])!=theElement)
       {
-        UserWriteF(PFMT "i=%d theElement=" EID_FMTX
+        UserWriteF("i=%d theElement=" EID_FMTX
                    " SonList[i]=" EID_FMTX "\n",
-                   me,i,EID_PRTX(theElement),EID_PRTX(SonList[i]));
+                   i,EID_PRTX(theElement),EID_PRTX(SonList[i]));
         *ESonError |= (1<<i);
         nerrors++;
       }
@@ -1151,9 +1151,9 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
 
   if (bserror)
   {
-    UserWriteF(PFMT "theElement=" EID_FMTX
+    UserWriteF("theElement=" EID_FMTX
                " bserror=%d\n",
-               me,EID_PRTX(theElement),bserror);
+               EID_PRTX(theElement),bserror);
     nerrors++;
   }
   if (nerrors > 0)
@@ -1203,8 +1203,8 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
         theNode = CORNER(theElement,k);
         if (NSUBDOM(theNode)!=0)
         {
-          UserWriteF(PFMT "wrong subdomain id(%d) on boundary node," "el =  " EID_FMTX ", side = %d, corner = %d, node = " ID_FMTX "\n",
-                     me,NSUBDOM(theNode),EID_PRTX(theElement),i,k,ID_PRTX(theNode));
+          UserWriteF("wrong subdomain id(%d) on boundary node," "el =  " EID_FMTX ", side = %d, corner = %d, node = " ID_FMTX "\n",
+                     NSUBDOM(theNode),EID_PRTX(theElement),i,k,ID_PRTX(theNode));
           *NodeError |= (1<<k);
           nerrors++;
         }
@@ -1216,9 +1216,9 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
         ASSERT(theEdge!=NULL);
         if (EDSUBDOM(theEdge)!=0)
         {
-          UserWriteF(PFMT "wrong subdomain id(%d) on boundary edge %d,"
+          UserWriteF("wrong subdomain id(%d) on boundary edge %d,"
                      "el =  " EID_FMTX ", side = %d, edge = %d, corner0 = " ID_FMTX ", corner1 = " ID_FMTX "\n",
-                     me,EDSUBDOM(theEdge),k,EID_PRTX(theElement), i, j,
+                     EDSUBDOM(theEdge),k,EID_PRTX(theElement), i, j,
                      ID_PRTX(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0))),
                      ID_PRTX(CORNER(theElement,CORNER_OF_EDGE(theElement,k,1))));
           *EdgeError |= (1<<j);
@@ -1233,8 +1233,8 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
       {
         if (SUBDOMAIN(theElement)==SUBDOMAIN(NBELEM(theElement,i)))
         {
-          UserWriteF(PFMT "wrong subdomain id(%d)[==%d] of neighbor element," "el =  " EID_FMTX ", side = %d, nb = EID_FMTX\n",
-                     me,SUBDOMAIN(NBELEM(theElement,i)),SUBDOMAIN(theElement),EID_PRTX(theElement),i,EID_PRTX(NBELEM(theElement,i)));
+          UserWriteF("wrong subdomain id(%d)[==%d] of neighbor element," "el =  " EID_FMTX ", side = %d, nb = EID_FMTX\n",
+                     SUBDOMAIN(NBELEM(theElement,i)),SUBDOMAIN(theElement),EID_PRTX(theElement),i,EID_PRTX(NBELEM(theElement,i)));
           *NbError |= (1<<i);
           nerrors++;
         }
@@ -1243,8 +1243,8 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
       {
         if (SUBDOMAIN(theElement)!=SUBDOMAIN(NBELEM(theElement,i)))
         {
-          UserWriteF(PFMT "wrong subdomain id(%d)[!=%d] of neighbor element," "el =  " EID_FMTX ", side = %d, nb = EID_FMTX\n",
-                     me,SUBDOMAIN(NBELEM(theElement,i)),SUBDOMAIN(theElement),EID_PRTX(theElement),i,EID_PRTX(NBELEM(theElement,i)));
+          UserWriteF("wrong subdomain id(%d)[!=%d] of neighbor element," "el =  " EID_FMTX ", side = %d, nb = EID_FMTX\n",
+                     SUBDOMAIN(NBELEM(theElement,i)),SUBDOMAIN(theElement),EID_PRTX(theElement),i,EID_PRTX(NBELEM(theElement,i)));
           *NbError |= (1<<i);
           nerrors++;
         }
@@ -1257,8 +1257,8 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
     theNode = CORNER(theElement,i);
     if (OBJT(MYVERTEX(theNode))==BVOBJ) continue;
     if (NSUBDOM(theNode)==SUBDOMAIN(theElement)) continue;
-    UserWriteF(PFMT "wrong subdomain id(%d)[==%d] of node," "el =  " EID_FMTX ", nd = " ID_FMTX "\n",
-               me,NSUBDOM(theNode),SUBDOMAIN(theElement),EID_PRTX(theElement),ID_PRTX(theNode));
+    UserWriteF("wrong subdomain id(%d)[==%d] of node," "el =  " EID_FMTX ", nd = " ID_FMTX "\n",
+               NSUBDOM(theNode),SUBDOMAIN(theElement),EID_PRTX(theElement),ID_PRTX(theNode));
     *NodeError |= (1<<i);
     nerrors++;
   }
@@ -1266,8 +1266,8 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
   if (EFATHER(theElement)!=NULL)
     if (SUBDOMAIN(EFATHER(theElement))!=SUBDOMAIN(theElement))
     {
-      UserWriteF(PFMT "wrong subdomain id(%d)[==%d] of father," "el =  " EID_FMTX ", fa = " EID_FMTX "\n",
-                 me,SUBDOMAIN(EFATHER(theElement)),SUBDOMAIN(theElement),EID_PRTX(theElement),EID_PRTX(EFATHER(theElement)));
+      UserWriteF("wrong subdomain id(%d)[==%d] of father," "el =  " EID_FMTX ", fa = " EID_FMTX "\n",
+                 SUBDOMAIN(EFATHER(theElement)),SUBDOMAIN(theElement),EID_PRTX(theElement),EID_PRTX(EFATHER(theElement)));
       *FatherError = 1;
       nerrors++;
     }
@@ -1283,8 +1283,8 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
       {
         if (EDSUBDOM(theEdge)!=SUBDOMAIN(theElement))
         {
-          UserWriteF(PFMT "wrong subdomain id(%d)[!=%d] of edge," "el =  " EID_FMTX ", ed = %d \n",
-                     me,EDSUBDOM(theEdge),SUBDOMAIN(theElement),EID_PRTX(theElement),i);
+          UserWriteF("wrong subdomain id(%d)[!=%d] of edge," "el =  " EID_FMTX ", ed = %d \n",
+                     EDSUBDOM(theEdge),SUBDOMAIN(theElement),EID_PRTX(theElement),i);
           *EdgeError = (1<<i);
           nerrors++;
         }
@@ -1293,8 +1293,8 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
       {
         if (EDSUBDOM(theEdge)!=0)
         {
-          UserWriteF(PFMT "wrong subdomain id(%d)[!=0] of edge," "el =  " EID_FMTX ", ed = %d \n",
-                     me,EDSUBDOM(theEdge),EID_PRTX(theElement),i);
+          UserWriteF("wrong subdomain id(%d)[!=0] of edge," "el =  " EID_FMTX ", ed = %d \n",
+                     EDSUBDOM(theEdge),EID_PRTX(theElement),i);
           *EdgeError = (1<<i);
           nerrors++;
         }
@@ -1804,8 +1804,8 @@ static INT CheckElementList (GRID *theGrid)
 
     if (EMASTER(theElement) && Father==NULL)
     {
-      UserWriteF(PFMT "ERROR: element=" EID_FMTX " has no father\n",
-                 me,EID_PRTX(theElement));
+      UserWriteF("ERROR: element=" EID_FMTX " has no father\n",
+                 EID_PRTX(theElement));
     }
     if (Father == NULL) continue;
     if (theElement == SON(Father,PRIO2INDEX(prio)))
@@ -1814,9 +1814,9 @@ static INT CheckElementList (GRID *theGrid)
         if (EFATHER(PREDE(theElement))==Father
             PAR(                            && EPRIO(theElement)==EPRIO(PREDE(theElement)) ) ENDPAR )
         {
-          UserWriteF(PFMT " ERROR element=" EID_FMTX " is not first"
+          UserWriteF(" ERROR element=" EID_FMTX " is not first"
                      "son in list pred elem=" EID_FMTX " father=" EID_FMTX
-                     "\n",me,EID_PRTX(theElement),EID_PRTX(PREDE(theElement)),
+                     "\n", EID_PRTX(theElement),EID_PRTX(PREDE(theElement)),
                      EID_PRTX(Father));
         }
     }
@@ -1825,9 +1825,9 @@ static INT CheckElementList (GRID *theGrid)
       if (PREDE(theElement)==NULL ||
           EFATHER(PREDE(theElement))!=Father)
       {
-        UserWriteF(PFMT " ERROR element=" EID_FMTX " has no"
+        UserWriteF(" ERROR element=" EID_FMTX " has no"
                    "PREDE with same father=" EID_FMTX
-                   "\n",me,EID_PRTX(theElement),EID_PRTX(Father));
+                   "\n", EID_PRTX(theElement),EID_PRTX(Father));
       }
     }
   }

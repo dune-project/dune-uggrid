@@ -2163,7 +2163,7 @@ static void PrintSingleVectorX (const VECTOR *v, const VECDATA_DESC *X, INT vcla
 
         #ifdef Debug
   if (Printf!=PrintDebug)
-    PRINTDEBUG(np,1,("%d: %s",PPIF::me,buffer));
+    PRINTDEBUG(np,1,("%s",buffer));
         #endif
 
   return;
@@ -2378,7 +2378,7 @@ INT NS_DIM_PREFIX PrintDiagMatrix (GRID *g, MATDATA_DESC *Mat, INT vclass, INT v
     i += sprintf(buffer+i,"\n");
     UserWrite(buffer);
 
-    PRINTDEBUG(np,1,("%d: %s",PPIF::me,buffer));
+    PRINTDEBUG(np,1,("%s",buffer));
   }
 
 

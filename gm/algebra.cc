@@ -629,14 +629,14 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
   SETPVCOUNT(theVector,PVCOUNT(theVector)-1);
   if (((INT)PVCOUNT(theVector)) > 0)
   {
-    PRINTDEBUG(gm,1,(PFMT "DisposeVector: v=" VINDEX_FMTX
+    PRINTDEBUG(gm,1,("DisposeVector: v=" VINDEX_FMTX
                      " NOT disposed count=%d\n",
-                     me,VINDEX_PRTX(theVector),PVCOUNT(theVector)));
+                     VINDEX_PRTX(theVector),PVCOUNT(theVector)));
     return (0);
   }
-  PRINTDEBUG(gm,1,(PFMT "DisposeVector: v=" VINDEX_FMTX
+  PRINTDEBUG(gm,1,("DisposeVector: v=" VINDEX_FMTX
                    " disposed count=%d\n",
-                   me,VINDEX_PRTX(theVector),PVCOUNT(theVector)));
+                   VINDEX_PRTX(theVector),PVCOUNT(theVector)));
 #endif
 
   if (theVector == NULL)
@@ -2255,10 +2255,9 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
           NODE *theNode = (NODE *) VOBJECT(v);
 
           if (NCLASS(theNode) > VCLASS(v))
-            UserWriteF(PFMT " node=" ID_FMTX " c %d ncl %d vector="
+            UserWriteF(" node=" ID_FMTX " c %d ncl %d vector="
                        VINDEX_FMTX
                        " c %d vc %d level %d\n",
-                       me,
                        ID_PRTX(theNode),NCOPIES(theNode),NCLASS(theNode),
                        VINDEX_PRTX(v),NCOPIES(v),VCLASS(v),level);
 
@@ -2266,10 +2265,9 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
 
 
           if (NNCLASS(theNode) > VNCLASS(v))
-            UserWriteF(PFMT " node=" ID_FMTX " c %d ncl %d vector="
+            UserWriteF(" node=" ID_FMTX " c %d ncl %d vector="
                        VINDEX_FMTX
                        " c %d vc %d level %d\n",
-                       me,
                        ID_PRTX(theNode),NCOPIES(theNode),NNCLASS(theNode),
                        VINDEX_PRTX(v),NCOPIES(v),VNCLASS(v),level);
 
@@ -2578,8 +2576,8 @@ static INT ElementElementCheck (GRID *theGrid, ELEMENT *Elem0, ELEMENT *Elem1, I
   char msg[128];
   INT errors = 0;
 
-  sprintf(msg,PFMT " ERROR: missing connection between elem0=" EID_FMTX " elem1=" EID_FMTX,
-          me,EID_PRTX(Elem0),EID_PRTX(Elem1));
+  sprintf(msg, " ERROR: missing connection between elem0=" EID_FMTX " elem1=" EID_FMTX,
+          EID_PRTX(Elem0),EID_PRTX(Elem1));
 
   cnt0 = GetAllVectorsOfElement(theGrid,Elem0,vec0);
   if (Elem0 == Elem1)
@@ -2770,8 +2768,8 @@ static INT CheckConnections (GRID *theGrid)
   {
     if ((error=ElementCheckConnection(theGrid,theElement))!=0)
     {
-      UserWriteF(PFMT "%d: element=" EID_FMTX " has bad connections\n",
-                 me, EID_PRTX(theElement));
+      UserWriteF("element=" EID_FMTX " has bad connections\n",
+                 EID_PRTX(theElement));
       errors+=error;
     }
   }
@@ -2817,7 +2815,7 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
     if (ds>0)
     {
       errors++;
-      UserWriteF("%d: %s ID=%ld  has NO VECTOR",me, ObjectString,
+      UserWriteF("%s ID=%ld  has NO VECTOR", ObjectString,
                  ID(theObject));
                         #ifdef ModelP
                         #ifdef __THREEDIM__
@@ -2834,7 +2832,7 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
     if (ds==0)
     {
       errors++;
-      UserWriteF("%d: %s ID=%ld  exists but should not\n",me, ObjectString,
+      UserWriteF("%s ID=%ld  exists but should not\n", ObjectString,
                  ID(theObject));
     }
     SETVCUSED(theVector,1);
@@ -2843,8 +2841,8 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
     if (VecObject == NULL)
     {
       errors++;
-      UserWriteF("%d: vector=" VINDEX_FMTX " %s GID=" GID_FMT " has NO BACKPTR\n",
-                 me, VINDEX_PRTX(theVector), ObjectString,
+      UserWriteF("vector=" VINDEX_FMTX " %s GID=" GID_FMT " has NO BACKPTR\n",
+                 VINDEX_PRTX(theVector), ObjectString,
                  (OBJT(theObject)==BEOBJ || OBJT(theObject)==IEOBJ) ?
                  EGID(&(theObject->el)) : (OBJT(theObject)==NDOBJ) ?
                  GID(&(theObject->nd)) :
@@ -2856,9 +2854,9 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
       if (VOTYPE(theVector) != VectorObjType)
       {
         errors++;
-        UserWriteF("%d: %s vector=" VINDEX_FMTX " has incompatible type=%d, "
+        UserWriteF("%s vector=" VINDEX_FMTX " has incompatible type=%d, "
                    "should be type=%s\n",
-                   me, ObjectString, VINDEX_PRTX(theVector), VTYPE(theVector),
+                   ObjectString, VINDEX_PRTX(theVector), VTYPE(theVector),
                    ObjTypeName[VectorObjType]);
       }
 
@@ -2893,18 +2891,18 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
                                                 #endif
             if (error)
             {
-              UserWriteF("%d: vector=" VINDEX_FMTX " has type %s, but points "
+              UserWriteF("vector=" VINDEX_FMTX " has type %s, but points "
                          "to wrong vecobj=" EID_FMTX " NO NB of obj=" EID_FMTX "\n",
-                         me,VINDEX_PRTX(theVector),ObjectString,
+                         VINDEX_PRTX(theVector),ObjectString,
                          EID_PRTX(vecElement),EID_PRTX(theElement));
             }
           }
           else
           {
             errors++;
-            UserWriteF("%d: vector=" VINDEX_FMTX " has type %s, but points "
+            UserWriteF("vector=" VINDEX_FMTX " has type %s, but points "
                        "to wrong obj=%d type OBJT=%d\n",
-                       me,VINDEX_PRTX(theVector),ObjectString,ID(VecObject),
+                       VINDEX_PRTX(theVector),ObjectString,ID(VecObject),
                        OBJT(VecObject));
           }
         }
@@ -2920,14 +2918,14 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
                                         #ifndef __PERIODIC_BOUNDARY__
           {
             errors++;
-            UserWriteF("%d: %s vector=" VINDEX_FMTX " is referenced by "
+            UserWriteF("%s vector=" VINDEX_FMTX " is referenced by "
                        "obj0=%x, but points to wrong obj1=%x\n",
-                       me, ObjectString, VINDEX_PRTX(theVector),
+                       ObjectString, VINDEX_PRTX(theVector),
                        theObject, VecObject);
                                                 #ifdef ModelP
             if (strcmp(ObjectString,"EDGE")==0)
-              UserWriteF("%d: obj0: n0=%d n1=%d  obj1: "
-                         "n0=%d n1=%d\n",me,
+              UserWriteF("obj0: n0=%d n1=%d  obj1: "
+                         "n0=%d n1=%d\n",
                          GID(NBNODE(LINK0(&(theObject->ed)))),
                          GID(NBNODE(LINK1(&(theObject->ed)))),
                          GID(NBNODE(LINK0(&(VecObject->ed)))),
@@ -2937,9 +2935,9 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
                                         #else
           /* TODO: check whether reference to node is valid */
           if (HEAPCHECK(VecObject) || VecObject==NULL)
-            UserWriteF("%d: %s vector=" VINDEX_FMTX " is referenced by "
+            UserWriteF("%s vector=" VINDEX_FMTX " is referenced by "
                        "obj0=%x, but points to ZOMBIE obj1=%x\n",
-                       me, ObjectString, VINDEX_PRTX(theVector),
+                       ObjectString, VINDEX_PRTX(theVector),
                        theObject, VecObject);
                                         #endif
         }
@@ -2950,15 +2948,15 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
       if (MDEST(mat)==NULL)
       {
         errors++;
-        UserWriteF("%d: %s vector=" VINDEX_FMTX ": matrix dest==NULL\n",
-                   me, ObjectString, VINDEX_PRTX(theVector));
+        UserWriteF("%s vector=" VINDEX_FMTX ": matrix dest==NULL\n",
+                   ObjectString, VINDEX_PRTX(theVector));
       }
       else if (MDEST(MADJ(mat))!=theVector)
       {
         errors++;
-        UserWriteF("%d: %s vector=" VINDEX_FMTX ": adj matrix dest does not coincide"
+        UserWriteF("%s vector=" VINDEX_FMTX ": adj matrix dest does not coincide"
                    " with vector conn=%x mat=%x mdest=%x\n",
-                   me, ObjectString, VINDEX_PRTX(theVector),MMYCON(mat),MDEST(mat),MDEST(MADJ(mat)));
+                   ObjectString, VINDEX_PRTX(theVector),MMYCON(mat),MDEST(mat),MDEST(MADJ(mat)));
       }
 
   }
@@ -3078,9 +3076,9 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
     if (VCUSED(theVector) != 1)
     {
       errors++;
-      UserWriteF("%d: vector" VINDEX_FMTX " NOT referenced by an geom_object: "
+      UserWriteF("vector" VINDEX_FMTX " NOT referenced by an geom_object: "
                  "vtype=%d, objptr=%x",
-                 me, VINDEX_PRTX(theVector), VTYPE(theVector), VOBJECT(theVector));
+                 VINDEX_PRTX(theVector), VTYPE(theVector), VOBJECT(theVector));
       if (VOBJECT(theVector) != NULL)
         UserWriteF(" objtype=%d\n",OBJT(VOBJECT(theVector)));
       else
@@ -3135,16 +3133,16 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
       if (MDEST(theMatrix) == NULL)
       {
         errors++;
-        UserWriteF(PFMT "ERROR: matrix %x has no dest, start vec="
+        UserWriteF("ERROR: matrix %x has no dest, start vec="
                    VINDEX_FMTX "\n",
-                   me,theMatrix,VINDEX_PRTX(theVector));
+                   theMatrix,VINDEX_PRTX(theVector));
       }
       if (MDEST(Adj) != theVector)
       {
         errors++;
-        UserWriteF(PFMT "ERROR: dest=%x of adj matrix "
+        UserWriteF("ERROR: dest=%x of adj matrix "
                    " unequal vec=" VINDEX_FMTX "\n",
-                   me, MDEST(Adj),VINDEX_PRTX(theVector));
+                   MDEST(Adj),VINDEX_PRTX(theVector));
       }
 
                         #if defined ModelP && ! defined  __OVERLAP2__
@@ -3153,9 +3151,9 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
       if (MUSED(theMatrix)!=1 &&  !CEXTRA(MMYCON(theMatrix)))
       {
         errors++;
-        UserWriteF(PFMT "ERROR: connection dead vec=" VINDEX_FMTX
+        UserWriteF("ERROR: connection dead vec=" VINDEX_FMTX
                    " vector=" VINDEX_FMTX " con=%x mat=%x matadj=%x level(vec)=%d is_extra_con %d\n",
-                   me,VINDEX_PRTX(theVector),VINDEX_PRTX(MDEST(theMatrix)),
+                   VINDEX_PRTX(theVector),VINDEX_PRTX(MDEST(theMatrix)),
                    MMYCON(theMatrix),MDEST(theMatrix),MDEST(MADJ(theMatrix)),
                    GLEVEL(theGrid),CEXTRA(MMYCON(theMatrix)));
       }
@@ -3164,9 +3162,9 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
       if (GHOSTPRIO(prio) && !CEXTRA(MMYCON(theMatrix)))
       {
         errors++;
-        UserWriteF(PFMT "ERROR: ghost vector has matrix vec="
+        UserWriteF("ERROR: ghost vector has matrix vec="
                    VINDEX_FMTX " con=%x mat=%x\n",
-                   me,VINDEX_PRTX(theVector),MMYCON(theMatrix),theMatrix);
+                   VINDEX_PRTX(theVector),MMYCON(theMatrix),theMatrix);
       }
                         #endif
     }
@@ -3379,8 +3377,8 @@ static int Gather_VectorVClass (DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
-  PRINTDEBUG(gm,1,(PFMT "Gather_VectorVClass(): v=" VINDEX_FMTX " vclass=%d\n",
-                   me,VINDEX_PRTX(theVector),VCLASS(theVector)))
+  PRINTDEBUG(gm,1,("Gather_VectorVClass(): v=" VINDEX_FMTX " vclass=%d\n",
+                   VINDEX_PRTX(theVector),VCLASS(theVector)))
 
     ((INT *)data)[0] = VCLASS(theVector);
 
@@ -3393,8 +3391,8 @@ static int Scatter_VectorVClass (DDD_OBJ obj, void *data)
 
   SETVCLASS(theVector,MAX(VCLASS(theVector),((INT *)data)[0]));
 
-  PRINTDEBUG(gm,2,(PFMT "Scatter_VectorVClass(): v=" VINDEX_FMTX " vclass=%d\n",
-                   me,VINDEX_PRTX(theVector),VCLASS(theVector)))
+  PRINTDEBUG(gm,2,("Scatter_VectorVClass(): v=" VINDEX_FMTX " vclass=%d\n",
+                   VINDEX_PRTX(theVector),VCLASS(theVector)))
 
   return(0);
 }
@@ -3405,8 +3403,8 @@ static int Scatter_GhostVectorVClass (DDD_OBJ obj, void *data)
 
   SETVCLASS(theVector,((INT *)data)[0]);
 
-  PRINTDEBUG(gm,1,(PFMT "Scatter_GhostVectorVClass(): v=" VINDEX_FMTX " vclass=%d\n",
-                   me,VINDEX_PRTX(theVector),VCLASS(theVector)))
+  PRINTDEBUG(gm,1,("Scatter_GhostVectorVClass(): v=" VINDEX_FMTX " vclass=%d\n",
+                   VINDEX_PRTX(theVector),VCLASS(theVector)))
 
   return(0);
 }
@@ -3475,8 +3473,8 @@ static INT PropagatePeriodicVectorClass (GRID *theGrid, INT vclass)
 INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
 {
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateVectorClasses():"
-                   " 1. communication on level %d\n",me,GLEVEL(theGrid)))
+  PRINTDEBUG(gm,1,("\nPropagateVectorClasses():"
+                   " 1. communication on level %d\n",GLEVEL(theGrid)))
   /* exchange VCLASS of vectors */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
@@ -3486,8 +3484,7 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
   if (PropagateVectorClass(theGrid,3)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateVectorClasses(): 2. communication\n",
-                   me))
+  PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 2. communication\n"))
   /* exchange VCLASS of vectors */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
@@ -3497,8 +3494,7 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
   if (PropagateVectorClass(theGrid,2)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateVectorClasses(): 3. communication\n",
-                   me))
+  PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 3. communication\n"))
   /* exchange VCLASS of vectors */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
@@ -3509,8 +3505,7 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
   if (PropagatePeriodicVectorClass(theGrid,1)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateVectorClasses(): 4. communication\n",
-                   me))
+  PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 4. communication\n"))
   /* exchange VCLASS of vectors */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
@@ -3609,8 +3604,8 @@ static int Gather_VectorVNClass (DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
-  PRINTDEBUG(gm,2,(PFMT "Gather_VectorVNClass(): v=" VINDEX_FMTX " vnclass=%d\n",
-                   me,VINDEX_PRTX(theVector),VNCLASS(theVector)))
+  PRINTDEBUG(gm,2,("Gather_VectorVNClass(): v=" VINDEX_FMTX " vnclass=%d\n",
+                   VINDEX_PRTX(theVector),VNCLASS(theVector)))
 
     ((INT *)data)[0] = VNCLASS(theVector);
 
@@ -3623,8 +3618,8 @@ static int Scatter_VectorVNClass (DDD_OBJ obj, void *data)
 
   SETVNCLASS(theVector,MAX(VNCLASS(theVector),((INT *)data)[0]));
 
-  PRINTDEBUG(gm,2,(PFMT "Scatter_VectorVNClass(): v=" VINDEX_FMTX " vnclass=%d\n",
-                   me,VINDEX_PRTX(theVector),VNCLASS(theVector)))
+  PRINTDEBUG(gm,2,("Scatter_VectorVNClass(): v=" VINDEX_FMTX " vnclass=%d\n",
+                   VINDEX_PRTX(theVector),VNCLASS(theVector)))
 
   return(GM_OK);
 }
@@ -3635,8 +3630,8 @@ static int Scatter_GhostVectorVNClass (DDD_OBJ obj, void *data)
 
   SETVNCLASS(theVector,((INT *)data)[0]);
 
-  PRINTDEBUG(gm,2,(PFMT "Scatter_GhostVectorVNClass(): v=" VINDEX_FMTX " vnclass=%d\n",
-                   me,VINDEX_PRTX(theVector),VNCLASS(theVector)))
+  PRINTDEBUG(gm,2,("Scatter_GhostVectorVNClass(): v=" VINDEX_FMTX " vnclass=%d\n",
+                   VINDEX_PRTX(theVector),VNCLASS(theVector)))
 
   return(GM_OK);
 }
@@ -3703,7 +3698,7 @@ static INT PropagatePeriodicNextVectorClass (GRID *theGrid)
 INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
 {
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextVectorClasses(): 1. communication\n",me))
+  PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 1. communication\n"))
   /* exchange VNCLASS of vectors */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
@@ -3712,7 +3707,7 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
   if (PropagateNextVectorClass(theGrid,3)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextVectorClasses(): 2. communication\n",me))
+  PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 2. communication\n"))
   /* exchange VNCLASS of vectors */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
@@ -3721,7 +3716,7 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
   if (PropagateNextVectorClass(theGrid,2)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextVectorClasses(): 3. communication\n",me))
+  PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 3. communication\n"))
   /* exchange VNCLASS of vectors */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
@@ -3731,7 +3726,7 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
   if (PropagatePeriodicNextVectorClass(theGrid)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextVectorClasses(): 4. communication\n",me))
+  PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 4. communication\n"))
   /* exchange VNCLASS of vectors */
   DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);

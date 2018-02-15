@@ -145,7 +145,7 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
 
   /* init parallelization module */
 #ifdef ModelP
-  PRINTDEBUG (init, 1, ("%d:     InitParallel()...\n", me))
+  PRINTDEBUG (init, 1, ("     InitParallel()...\n"))
   if ((err = InitParallel (argcp, argvp)) != 0)
   {
     printf
@@ -255,7 +255,7 @@ ExitUg (void)
   INT err;
 
   /* exit gm module */
-  PRINTDEBUG (init, 1, ("%d:     ExitGm()...\n", me))
+  PRINTDEBUG (init, 1, ("     ExitGm()...\n"))
   if ((err = ExitGm ()) != 0)
   {
     printf
@@ -267,7 +267,7 @@ ExitUg (void)
   }
 
   /* exit devices module */
-  PRINTDEBUG (init, 1, ("%d:     ExitDevices()...\n", me))
+  PRINTDEBUG (init, 1, ("     ExitDevices()...\n"))
   if ((err = ExitDevices ()) != 0)
   {
     printf
@@ -287,7 +287,7 @@ ExitUg (void)
      therefore, we switch it on again, if there are any problems with MPI
      and exiting the program, it may come from here. KB 970527 */
 
-  PRINTDEBUG (init, 1, ("%d:     ExitParallel()...\n", me))
+  PRINTDEBUG (init, 1, ("     ExitParallel()...\n"))
   if ((err = ExitParallel ()) != 0)
   {
     printf
@@ -301,7 +301,7 @@ ExitUg (void)
 #endif
 
   /* exit low module */
-  PRINTDEBUG (init, 1, ("%d:     ExitLow()...\n", me))
+  PRINTDEBUG (init, 1, ("     ExitLow()...\n"))
   if ((err = ExitLow ()) != 0)
   {
     printf

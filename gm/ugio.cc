@@ -475,8 +475,8 @@ static void MarkAsOrphan( GRID *theGrid, ELEMENT *theElement)
       GRID_UNLINK_ELEMENT(theGrid,theElement);
       GRID_LINK_ELEMENT(theGrid,theElement,EPRIO(theElement));
     }
-    PRINTDEBUG(gm,1,(PFMT "OrphanCons(): new orphan elem=" EID_FMTX "\n",
-                     me,EID_PRTX(theElement)));
+    PRINTDEBUG(gm,1,("OrphanCons(): new orphan elem=" EID_FMTX "\n",
+                     EID_PRTX(theElement)));
   }
 }
 static INT OrphanCons(MULTIGRID *theMG)
@@ -512,8 +512,8 @@ static INT OrphanCons(MULTIGRID *theMG)
             else if (LEVEL(theElement) != 0)
             {
               error++;
-              PRINTDEBUG(gm,1,(PFMT "OrphanCons(): ERROR: elem=" EID_FMTX " cornernode=" ID_FMTX " is orphannode\n",
-                               me,EID_PRTX(theElement),ID_PRTX(theNode)));
+              PRINTDEBUG(gm,1,("OrphanCons(): ERROR: elem=" EID_FMTX " cornernode=" ID_FMTX " is orphannode\n",
+                               EID_PRTX(theElement),ID_PRTX(theNode)));
             }
           }
           else
@@ -527,8 +527,8 @@ static INT OrphanCons(MULTIGRID *theMG)
             else if (LEVEL(theElement) != 0)
             {
               error++;
-              PRINTDEBUG(gm,1,(PFMT "OrphanCons(): ERROR: elem=" EID_FMTX " midnode=" ID_FMTX " is orphannode\n",
-                               me,EID_PRTX(theElement),ID_PRTX(theNode)));
+              PRINTDEBUG(gm,1,("OrphanCons(): ERROR: elem=" EID_FMTX " midnode=" ID_FMTX " is orphannode\n",
+                               EID_PRTX(theElement),ID_PRTX(theNode)));
             }
           }
           else
@@ -1071,7 +1071,7 @@ static INT SetHierRefinement (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMEN
   NODE *NodeContext[MAX_NEW_CORNERS_DIM+MAX_CORNERS_OF_ELEM];
   MGIO_RR_RULE *theRule;
 
-  /*PRINTDEBUG(gm,0,(PFMT "SetHierRefinement(): level=%d elem=" EID_FMTX "\n",me,LEVEL(theGrid),EID_PRTX(theElement)));*/
+  /*PRINTDEBUG(gm,0,("SetHierRefinement(): level=%d elem=" EID_FMTX "\n",LEVEL(theGrid),EID_PRTX(theElement)));*/
 
   /* sequential part */
   if (REFINE(theElement)==NO_REFINEMENT) return (0);
@@ -1480,7 +1480,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   i = OrphanCons(theMG);
   if (i)
   {
-    PRINTDEBUG(gm,1,(PFMT "OrphanCons() returned %d errors\n",me,i));
+    PRINTDEBUG(gm,1,("OrphanCons() returned %d errors\n",i));
     fflush(stdout);
     assert(0);
   }
@@ -2059,8 +2059,8 @@ static void CheckNeighborElement( ELEMENT *theElement, INT nb_nr, INT expected_n
 
           if ( nb_back != theElement )
           {
-            printf(PFMT " %s neighbor relation unsymmetric, element: " EID_FMTX "has neighbor[%d]: " EID_FMTX " but not vice versa (this pointer has not been in the coarse grid at save time, but it's ok)\n",
-                   me,messagePrefix,EID_PRTX(theElement),nb_nr,EID_PRTX(nb_element));
+            printf(" %s neighbor relation unsymmetric, element: " EID_FMTX "has neighbor[%d]: " EID_FMTX " but not vice versa (this pointer has not been in the coarse grid at save time, but it's ok)\n",
+                   messagePrefix,EID_PRTX(theElement),nb_nr,EID_PRTX(nb_element));
             assert(0);
           }
           else
@@ -2070,8 +2070,8 @@ static void CheckNeighborElement( ELEMENT *theElement, INT nb_nr, INT expected_n
         }
         else                         /* it is an error because there are 2 valid (!=-1) but different keys */
         {
-          printf(PFMT " %s neighbor relation with different keys for ghosts, element: " EID_FMTX "has neighbor[%d]: " EID_FMTX "\n",
-                 me,messagePrefix,EID_PRTX(theElement),nb_nr,EID_PRTX(nb_element));
+          printf(" %s neighbor relation with different keys for ghosts, element: " EID_FMTX "has neighbor[%d]: " EID_FMTX "\n",
+                 messagePrefix,EID_PRTX(theElement),nb_nr,EID_PRTX(nb_element));
           assert(0);
         }
       }
@@ -2083,8 +2083,8 @@ static void CheckNeighborElement( ELEMENT *theElement, INT nb_nr, INT expected_n
            save time expected_nb_key==-1 has held and a key difference
            is in this case always an error.
          */
-        printf(PFMT " %s neighbor relation with different keys for master/ghost, element: " EID_FMTX "has neighbor[%d]: " EID_FMTX ":expected key %d does not match\n",
-               me,messagePrefix,EID_PRTX(theElement),nb_nr,EID_PRTX(nb_element),expected_nb_key);
+        printf(" %s neighbor relation with different keys for master/ghost, element: " EID_FMTX "has neighbor[%d]: " EID_FMTX ":expected key %d does not match\n",
+               messagePrefix,EID_PRTX(theElement),nb_nr,EID_PRTX(nb_element),expected_nb_key);
         assert(0);
       }
     }
@@ -2094,7 +2094,7 @@ static void CheckNeighborElement( ELEMENT *theElement, INT nb_nr, INT expected_n
       {
               if ( expected_nb_key!=-1 && must_exist )
               {
-                      printf(PFMT " %s neighbor relation, element: " EID_FMTX ", neighbor %d doesn't exist but key %d expected\n",me,messagePrefix,EID_PRTX(theElement),nb_nr,ref->mykey);
+                      printf(" %s neighbor relation, element: " EID_FMTX ", neighbor %d doesn't exist but key %d expected\n",messagePrefix,EID_PRTX(theElement),nb_nr,ref->mykey);
                       assert(0);
               }
       }
@@ -2115,7 +2115,7 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
   key = KeyForObject((KEY_OBJECT *)theElement);
   if (key!=ref->mykey)
   {
-    printf(PFMT " IO_Loc: element key, element: " EID_FMTX ": exp.key %d does not match\n",me,EID_PRTX(theElement),ref->mykey);
+    printf(" IO_Loc: element key, element: " EID_FMTX ": exp.key %d does not match\n",EID_PRTX(theElement),ref->mykey);
     assert(0);
   }
 
@@ -2124,14 +2124,14 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
   key = KeyForObject((KEY_OBJECT *)EFATHER(theElement));
   if (key!=ref->myfatherkey)
   {
-    printf(PFMT " IO_Loc: father element key, element: " EID_FMTX ", father element: " EID_FMTX ": exp.key %d does not match\n",me,EID_PRTX(theElement),EID_PRTX(EFATHER(theElement)),ref->mykey);
+    printf(" IO_Loc: father element key, element: " EID_FMTX ", father element: " EID_FMTX ": exp.key %d does not match\n",EID_PRTX(theElement),EID_PRTX(EFATHER(theElement)),ref->mykey);
     assert(0);
   }
 
   /* check corners */
   if (CORNERS_OF_ELEM(theElement)!=ref->mycorners)
   {
-    printf(PFMT " IO_Loc: number of corners, element: " EID_FMTX ": exp.key %d does not matchas %d corners but expected %dh\n",me,EID_PRTX(theElement),CORNERS_OF_ELEM(theElement),ref->mycorners);
+    printf(" IO_Loc: number of corners, element: " EID_FMTX ": exp.key %d does not matchas %d corners but expected %dh\n",EID_PRTX(theElement),CORNERS_OF_ELEM(theElement),ref->mycorners);
     assert(0);
   }
   for (j=0; j<ref->mycorners; j++)
@@ -2141,8 +2141,8 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
     {
       if (ref->mycornerkey[j] != KeyForObject((KEY_OBJECT *)corner_node))
       {
-        printf(PFMT " IO_Loc: corner relation, element: " EID_FMTX ", corner %d: " ID_FMTX " :exp.key %d does not match\n",
-               me,EID_PRTX(theElement),j,ID_PRTX(corner_node),ref->mycornerkey[j]);
+        printf(" IO_Loc: corner relation, element: " EID_FMTX ", corner %d: " ID_FMTX " :exp.key %d does not match\n",
+               EID_PRTX(theElement),j,ID_PRTX(corner_node),ref->mycornerkey[j]);
         assert(0);
       }
 
@@ -2153,15 +2153,15 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
         {
           if ( ref->mycornerfatherkey[j] != -1 )
           {
-            printf(PFMT " IO_Loc: father corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " fathercorner: " ID_FMTX ":exp.key %d does not match\n",
-                   me,EID_PRTX(theElement),j,ID_PRTX(corner_node),ID_PRTX(NFATHER(corner_node)),ref->mycornerfatherkey[j]);
+            printf(" IO_Loc: father corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " fathercorner: " ID_FMTX ":exp.key %d does not match\n",
+                   EID_PRTX(theElement),j,ID_PRTX(corner_node),ID_PRTX(NFATHER(corner_node)),ref->mycornerfatherkey[j]);
             assert(0);
           }
           else
           {
             IFDEBUG(gm,1)
-            printf(PFMT " IO_Loc NOTE: father corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " fathercorner: " ID_FMTX " wasn't here at save time\n",
-                   me,EID_PRTX(theElement),j,ID_PRTX(corner_node),ID_PRTX(NFATHER(corner_node)));
+            printf(" IO_Loc NOTE: father corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " fathercorner: " ID_FMTX " wasn't here at save time\n",
+                   EID_PRTX(theElement),j,ID_PRTX(corner_node),ID_PRTX(NFATHER(corner_node)));
             ENDDEBUG
           }
         }
@@ -2172,7 +2172,7 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
         {
           if ( !EORPHAN(theElement) )
           {
-            printf(PFMT " IO_Loc: father corner relation, element: " EID_FMTX " corner %d doesn't exist but key %d expected\n",me,EID_PRTX(theElement),j,ref->mycornerfatherkey[j]);
+            printf(" IO_Loc: father corner relation, element: " EID_FMTX " corner %d doesn't exist but key %d expected\n",EID_PRTX(theElement),j,ref->mycornerfatherkey[j]);
             assert(0);
           }
           /* else for orphan element: at save time there was a father-corner. Such father-corner pointers are
@@ -2190,15 +2190,15 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
         {
           if ( ref->mycornersonkey[j] != -1 )
           {
-            printf(PFMT " IO_Loc: son corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " soncorner: " ID_FMTX ":exp.key %d does not match\n",
-                   me,EID_PRTX(theElement),j,ID_PRTX(corner_node),ID_PRTX(SONNODE(corner_node)),ref->mycornersonkey[j]);
+            printf(" IO_Loc: son corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " soncorner: " ID_FMTX ":exp.key %d does not match\n",
+                   EID_PRTX(theElement),j,ID_PRTX(corner_node),ID_PRTX(SONNODE(corner_node)),ref->mycornersonkey[j]);
             assert(0);
           }
           else
           {
             IFDEBUG(gm,1)
-            printf(PFMT " IO_Loc NOTE: son corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " soncorner: " ID_FMTX " wasn't here at save time\n",
-                   me,EID_PRTX(theElement),j,ID_PRTX(corner_node),ID_PRTX(SONNODE(corner_node)));
+            printf(" IO_Loc NOTE: son corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " soncorner: " ID_FMTX " wasn't here at save time\n",
+                   EID_PRTX(theElement),j,ID_PRTX(corner_node),ID_PRTX(SONNODE(corner_node)));
             ENDDEBUG
           }
 
@@ -2209,7 +2209,7 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
          {
               if ( ref->mycornersonkey[j]!=-1 && must_exist)
               {
-                      printf(PFMT " IO_Loc: son corner relation, element: " EID_FMTX ", corner[%d] " ID_FMTX ": son corner doesn't exist but key %d expected\n",me,EID_PRTX(theElement),j,ID_PRTX(corner_node),ref->mycornersonkey[j]);
+                      printf(" IO_Loc: son corner relation, element: " EID_FMTX ", corner[%d] " ID_FMTX ": son corner doesn't exist but key %d expected\n",EID_PRTX(theElement),j,ID_PRTX(corner_node),ref->mycornersonkey[j]);
                       assert(0);
               }
          }
@@ -2219,7 +2219,7 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
     {
       if ( ref->mycornerkey[j]!=-1 )
       {
-        printf(PFMT " IO_Loc: corner relation, element: " EID_FMTX ", corner %d doesn't exist but key %d expected\n",me,EID_PRTX(theElement),j,ref->mycornerkey[j]);
+        printf(" IO_Loc: corner relation, element: " EID_FMTX ", corner %d doesn't exist but key %d expected\n",EID_PRTX(theElement),j,ref->mycornerkey[j]);
         assert(0);
       }
     }
@@ -2249,12 +2249,12 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
 
         if (((1<<i) & ref->sonex)!=0)
         {
-          printf(PFMT " IO_Loc: sonlist relation, element: " EID_FMTX ", son %d doesn't exist but sonex 0x%x set\n",me,EID_PRTX(theElement),i,ref->sonex);
+          printf(" IO_Loc: sonlist relation, element: " EID_FMTX ", son %d doesn't exist but sonex 0x%x set\n",EID_PRTX(theElement),i,ref->sonex);
           assert(0);
         }
         if ( ref->sonskey[i] != -1 )
         {
-          printf(PFMT " IO_Loc: sonlist relation, element: " EID_FMTX ", son %d doesn't exist but key %d expected\n",me,EID_PRTX(theElement),i,ref->sonskey[i]);
+          printf(" IO_Loc: sonlist relation, element: " EID_FMTX ", son %d doesn't exist but key %d expected\n",EID_PRTX(theElement),i,ref->sonskey[i]);
           assert(0);
         }
         continue;
@@ -2272,7 +2272,7 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
       key = KeyForObject((KEY_OBJECT *)SonList[i]);
       if (key!=ref->sonskey[i])
       {
-        printf(PFMT " IO_Loc: son element key, element: " EID_FMTX ", son[%d] " EID_FMTX ": exp.key %d does not match\n",me,EID_PRTX(theElement),i,EID_PRTX(SonList[i]),ref->sonskey[i]);
+        printf(" IO_Loc: son element key, element: " EID_FMTX ", son[%d] " EID_FMTX ": exp.key %d does not match\n",EID_PRTX(theElement),i,EID_PRTX(SonList[i]),ref->sonskey[i]);
         assert(0);
       }
 
@@ -2314,7 +2314,7 @@ static INT InsertLocalTree (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMENT 
   ref_copy = *ref;      /* copy the read ref. into local buffer for subsequent checks */
 #endif
 
-  /*PRINTDEBUG(gm,0,(PFMT "InsertLocalTree(): level=%d elem=" EID_FMTX " REFINECLASS %d\n",me,LEVEL(theGrid),EID_PRTX(theElement),ref->refclass));*/
+  /*PRINTDEBUG(gm,0,("InsertLocalTree(): level=%d elem=" EID_FMTX " REFINECLASS %d\n",LEVEL(theGrid),EID_PRTX(theElement),ref->refclass));*/
 
   /* init */
   if (ref->refrule==-1) REP_ERR_RETURN(1);
@@ -2677,15 +2677,15 @@ static INT CheckCGKeys (INT ne, ELEMENT** eid_e, MGIO_CG_ELEMENT *cg_elem)
     key = KeyForObject((KEY_OBJECT *)theElement);
     if (key!=-1 && key!=cge->mykey)
     {
-      printf(PFMT " IO_CG: element key, element: " EID_FMTX ": exp.key %d does not match\n",me,EID_PRTX(theElement),cge->mykey);
+      printf(" IO_CG: element key, element: " EID_FMTX ": exp.key %d does not match\n",EID_PRTX(theElement),cge->mykey);
       assert(0);
     }
 
     key = KeyForObject((KEY_OBJECT *)EFATHER(theElement));
     if (key!=-1)
     {
-      printf(PFMT " IO_CG: father relation, element: " EID_FMTX ", father: " EID_FMTX " ; but no father expected because element is orphan\n",
-             me,EID_PRTX(theElement),EID_PRTX(EFATHER(theElement)));
+      printf(" IO_CG: father relation, element: " EID_FMTX ", father: " EID_FMTX " ; but no father expected because element is orphan\n",
+             EID_PRTX(theElement),EID_PRTX(EFATHER(theElement)));
 
       assert(0);
     }
@@ -2695,8 +2695,8 @@ static INT CheckCGKeys (INT ne, ELEMENT** eid_e, MGIO_CG_ELEMENT *cg_elem)
       key = KeyForObject((KEY_OBJECT *)CORNER(theElement,j));
       if (key!=-1 && key!=cge->nodekey[j])
       {
-        printf(PFMT " IO_CG: corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " :exp.key %d does not match\n",
-               me,EID_PRTX(theElement),j,ID_PRTX(CORNER(theElement,j)),cge->nodekey[j]);
+        printf(" IO_CG: corner relation, element: " EID_FMTX ", corner[%d]: " ID_FMTX " :exp.key %d does not match\n",
+               EID_PRTX(theElement),j,ID_PRTX(CORNER(theElement,j)),cge->nodekey[j]);
         assert(0);
       }
     }
