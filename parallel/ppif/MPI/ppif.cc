@@ -351,7 +351,7 @@ int PPIF::Broadcast (void *data, int size)
 
 int PPIF::Concentrate (const PPIFContext& context, void *data, int size)
 {
-  if (context.me() != context.master())
+  if (not context.isMaster())
     if (SendSync (context, context.uptree(), data, size) < 0) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
@@ -390,7 +390,7 @@ int PPIF::Spread(int slave, void *data, int size)
 
 int PPIF::GetSpread(const PPIFContext& context, void *data, int size)
 {
-  if (context.me() != context.master())
+  if (not context.isMaster())
     if (RecvSync(context, context.uptree(), data, size) < 0) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
