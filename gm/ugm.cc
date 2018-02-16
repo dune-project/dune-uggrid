@@ -2832,6 +2832,8 @@ MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
   theMG = (MULTIGRID *) MakeEnvItem(name,theMGDirID,sizeof(MULTIGRID));
   if (theMG == NULL) return(NULL);
 
+  new(theMG) multigrid;
+
 #if ModelP
   theMG->ppifContext_ = PPIF::ppifContext();
   theMG->dddContext_ = std::make_shared<DDD::DDDContext>(theMG->ppifContext_);
@@ -4169,10 +4171,10 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
   if (MG_BVP(theMG)!=NULL)
     if (BVP_Dispose(MG_BVP(theMG))) return (GM_ERROR);
 
-  theMG->ppifContext_ = nullptr;
-
   /* first unlock the mg */
   ((ENVITEM*) theMG)->v.locked = false;
+
+  theMG->~multigrid();
 
   /* delete mg */
   if (ChangeEnvDir("/Multigrids")==NULL) RETURN (GM_ERROR);
