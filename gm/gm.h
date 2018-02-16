@@ -50,6 +50,12 @@
 #include <ctime>
 #include <cmath>
 
+#include <map>
+#include <vector>
+#include <unordered_map>
+#include <array>
+#include <numeric>
+
 #include "ugtypes.h"
 #include "heaps.h"
 #include "ugenv.h"
@@ -146,7 +152,7 @@ START_UGDIM_NAMESPACE
 /** \brief max number of edges meeting in a corner */
 #define MAX_EDGES_OF_CORNER             4
 /** \brief max number of corners of a side */
-#define MAX_CORNERS_OF_SIDE     4
+#define MAX_CORNERS_OF_SIDE             4
 /** \brief an edge has always two corners.. */
 #define MAX_CORNERS_OF_EDGE             2
 /** \brief two sides have one edge in common */
@@ -1571,9 +1577,31 @@ struct multigrid {
   /** \brief pointers to the grids                                */
   struct grid *grids[MAXLEVEL];
 
-  /* NodeElementPointerArray used for an O(n) InsertElement               */
-  /** \brief pointer to the node element blocks   */
-  union element ***ndelemptrarray;
+  /** @{ Helper structures to for an O(n) InsertElement           */
+  /** \brief List of pointers to face nodes,
+      used as an Id of a face
+  */
+  struct FaceNodes : public std::array<node*,MAX_CORNERS_OF_SIDE>
+  {
+    using array<node*,MAX_CORNERS_OF_SIDE>::array;
+  };
+  /** \brief Hasher for FaceNodes */
+  struct FaceHasher {
+    std::hash<node*> hasher;
+    std::size_t operator() (const FaceNodes& key) const {
+      return std::accumulate(key.begin(), key.end(),
+        144451, [&](auto a, auto b){
+          return hasher(a+b);
+        });
+    }
+  };
+  /** \brief hash-map used for an O(1) search of the neighboring element
+      during InsertElement
+   */
+  std::unordered_map<FaceNodes,
+    std::pair<element *,int>,
+    FaceHasher> facemap;
+  /** @} */
 
   /* user data */
   /** \brief general user data space                              */
@@ -2995,15 +3023,6 @@ START_UGDIM_NAMESPACE
 #define MGHEAP(p)                               ((p)->theHeap)
 #define MG_NPROPERTY(p)                 ((p)->nProperty)
 #define GRID_ON_LEVEL(p,i)              ((p)->grids[i])
-/* macros for the NodeElementsBlockArray . . .  */
-#define ELEMS_OF_NODE_MAX               150
-#define NDELEM_BLKS_MAX                 100
-#define NO_NODES_OF_BLK                 1000
-#define MGNDELEMPTRARRAY(p)             ((p)->ndelemptrarray)
-#define MGNDELEMBLK(p,i)                (*(((p)->ndelemptrarray)+i))
-#define MGNDELEMOFFS(i,o)               (i*ELEMS_OF_NODE_MAX+o)
-#define MGNDELEMBLKENTRY(p,b,i) (*((*(((p)->ndelemptrarray)+b))+i))
-/* . . . macros for the NodeElementsBlockArray  */
 #define MGNAME(p)                               ((p)->v.name)
 #define MG_USER_HEAP(p)                 ((p)->UserHeap)
 #define GEN_MGUD(p)                     ((p)->GenData)
