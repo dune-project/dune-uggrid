@@ -50,6 +50,10 @@
 #include <ctime>
 #include <cmath>
 
+#include <unordered_map>
+#include <array>
+#include <numeric>
+
 #include "ugtypes.h"
 #include "heaps.h"
 #include "ugenv.h"
@@ -1557,9 +1561,31 @@ struct multigrid {
   /** \brief pointers to the grids                                */
   struct grid *grids[MAXLEVEL];
 
-  /* NodeElementPointerArray used for an O(n) InsertElement               */
-  /** \brief pointer to the node element blocks   */
-  union element ***ndelemptrarray;
+  /** @{ Helper structures to for an O(n) InsertElement           */
+  /** \brief List of pointers to face nodes,
+      used as an Id of a face
+  */
+  struct FaceNodes : public std::array<node*,MAX_CORNERS_OF_SIDE>
+  {
+    using array<node*,MAX_CORNERS_OF_SIDE>::array;
+  };
+  /** \brief Hasher for FaceNodes */
+  struct FaceHasher {
+    std::hash<node*> hasher;
+    std::size_t operator() (const FaceNodes& key) const {
+      return std::accumulate(key.begin(), key.end(),
+        144451, [&](auto a, auto b){
+          return hasher(a+b);
+        });
+    }
+  };
+  /** \brief hash-map used for an O(1) search of the neighboring element
+      during InsertElement
+   */
+  std::unordered_map<FaceNodes,
+    std::pair<element *,int>,
+    FaceHasher> facemap;
+  /** @} */
 
   /* i/o handling */
   /** \brief 1 if multigrid saved                                 */
@@ -2974,15 +3000,6 @@ START_UGDIM_NAMESPACE
 #define MGHEAP(p)                               ((p)->theHeap)
 #define MG_NPROPERTY(p)                 ((p)->nProperty)
 #define GRID_ON_LEVEL(p,i)              ((p)->grids[i])
-/* macros for the NodeElementsBlockArray . . .  */
-#define ELEMS_OF_NODE_MAX               150
-#define NDELEM_BLKS_MAX                 100
-#define NO_NODES_OF_BLK                 1000
-#define MGNDELEMPTRARRAY(p)             ((p)->ndelemptrarray)
-#define MGNDELEMBLK(p,i)                (*(((p)->ndelemptrarray)+i))
-#define MGNDELEMOFFS(i,o)               (i*ELEMS_OF_NODE_MAX+o)
-#define MGNDELEMBLKENTRY(p,b,i) (*((*(((p)->ndelemptrarray)+b))+i))
-/* . . . macros for the NodeElementsBlockArray  */
 #define MGNAME(p)                               ((p)->v.name)
 #define VEC_DEF_IN_OBJ_OF_MG(p,tp)       (MGFORMAT(p)->OTypeUsed[(tp)]>0)
 #define NELIST_DEF_IN_MG(p)     (MGFORMAT(p)->nodeelementlist)
