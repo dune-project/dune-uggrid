@@ -51,7 +51,24 @@
 #include <cmath>
 
 #include <map>
+#include <vector>
+#include <unordered_map>
 #include <array>
+
+#ifndef DEF_HASH
+template<class T, size_t N>
+struct std::hash<std::array<T, N>> {
+    auto operator() (const std::array<T, N>& key) const {
+        std::hash<T> hasher;
+        size_t result = 0;
+        for(size_t i = 0; i < N; ++i) {
+            result = result * 31 + hasher(key[i]); // ??
+        }
+        return result;
+    }
+};
+#define DEF_HASH
+#endif
 
 #include "ugtypes.h"
 #include "heaps.h"
@@ -1577,8 +1594,8 @@ struct multigrid {
   /* NodeElementPointerArray used for an O(n) InsertElement               */
   /** \brief pointer to the node element blocks   */
   union element ***ndelemptrarray;
-  std::map<std::array<node*,MAX_CORNERS_OF_SIDE>,
-    std::pair<element *,int>> foobar;
+  std::vector<std::unordered_map<std::array<node*,MAX_CORNERS_OF_SIDE>,
+                       std::pair<element *,int>>> foobar;
   std::size_t foobarmax;
 
   /* user data */

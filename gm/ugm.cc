@@ -4896,7 +4896,13 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
       faceNodes[j] = 0;
     std::sort(faceNodes.begin(), faceNodes.begin()+CORNERS_OF_SIDE_REF(n,i));
 
-    auto foo = theMG->foobar[faceNodes];
+    // for (int j=0; j<CORNERS_OF_SIDE_REF(n,i); j++)
+    //   std::cout << "NODE_ID: " << faceNodes[j]->id << std::endl;
+
+    std::size_t k = faceNodes[0]->id;
+    theMG->foobar.resize(std::max(k+1, theMG->foobar.size()));
+
+    auto foo = theMG->foobar[k][faceNodes];
     union element* theOther = foo.first;
     int idx = foo.second;
 
@@ -4904,12 +4910,12 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
     {
       Nbr[i] = theOther;
       NbrS[i] = jj;
-      theMG->foobar.erase(faceNodes);
+      theMG->foobar[k].erase(faceNodes);
     }
     else
     {
       // put myself into the cache
-      theMG->foobar[faceNodes] = std::pair<element *,int>{theElement,i};
+      theMG->foobar[k][faceNodes] = std::pair<element *,int>{theElement,i};
     }
   }
 
@@ -4992,6 +4998,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   VERTEX           *theVertex;
   NODE             *theNode;
         #endif
+
 
   theMG = MYMG(theGrid);
   for (i=0; i<CORNERS_OF_REF(n); i++) cornerNode[i] = NULL;
