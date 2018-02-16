@@ -46,113 +46,6 @@ typedef PtrOf * CPtr;
 #endif
 /****************************************************************************/
 
-
-
-
-/****************************************************************************/
-#ifdef ArrayOf
-/****************************************************************************/
-
-#define Array(T)   CN(CCAT(T,Array))
-
-/* class name for array */
-#define CArray     CCAT(ArrayOf,Array)
-
-
-#ifndef ArrayAllocate
-/* define default allocate function */
-#define ArrayAllocate OO_Allocate
-#endif
-
-#ifndef ArrayFree
-/* define default free function */
-#define ArrayFree OO_Free
-#endif
-
-
-/*** array class ***/
-
-#define ClassName CArray
-Class_Data_Begin
-CN(ArrayOf) *data;
-int size;
-int used;
-Class_Data_End
-Method_New_     (int _NEWPARAMS);
-void         Method(Free)    (DefThis);
-CN(ArrayOf) *Method(GetData) (DefThis);
-int          Method(GetSize) (DefThis);
-
-
-#ifdef ContainerImplementation
-Method_New_ (int size _NEWPARAMS)
-{
-  Construct(This, _CHECKALLOC(This));
-
-  if (size==0)
-  {
-    This->data = NULL;
-  }
-  else
-  {
-    This->data = (CN(ArrayOf) *)ArrayAllocate (sizeof(CN(ArrayOf))*size);
-    if (This->data==NULL)
-    {
-      Destruct(This);
-      return(NULL);
-    }
-  }
-
-  This->size = size;
-  This->used = 0;
-
-  return(This);
-}
-
-
-void Method(Free) (ParamThis)
-{
-  if (This==NULL)
-    return;
-
-#ifndef NoArrayFree
-  if (This->data!=NULL)
-    ArrayFree (This->data);
-#endif
-
-  Destruct(This);
-}
-
-
-CN(ArrayOf) *Method(GetData) (ParamThis)
-{
-  return(This->data);
-}
-
-
-int Method(GetSize) (ParamThis)
-{
-  return(This->size);
-}
-
-#endif
-
-#undef ClassName
-
-
-/****************************************************************************/
-#undef ArrayAllocate
-#undef ArrayFree
-#ifdef NoArrayFree
-        #undef NoArrayFree
-#endif
-#undef CArray
-#undef ArrayOf
-#endif
-/****************************************************************************/
-
-
-
 /****************************************************************************/
 #ifdef SegmListOf
 /****************************************************************************/
@@ -510,10 +403,6 @@ typedef CN (CListItem) * ListIter (ListOf);
 #define CBTreeNode  CCAT(BTreeOf,BTreeNode)
 #define CBTree      CCAT(BTreeOf,BTree)
 
-/* this is the corresponding pointer-array class */
-#define CPtrArray   CCAT(CN(BTreeOf),PtrArray)
-
-
 /* method pointers */
 #define Iterate_Method         CCAT(BTreeOf,IterateMethod)
 typedef void (*Iterate_Method)(CN(BTreeOf) *);
@@ -850,7 +739,7 @@ void         Method(Print)    (DefThis _PRINTPARAMS);
 void         Method(Reset)    (DefThis);
 int          Method(Insert)   (DefThis, CN(BTreeOf) *);
 void         Method(Iterate)  (DefThis, Iterate_Method);
-CPtrArray   *Method(GetArray) (DefThis);
+std::vector<BTreeOf*> Method(GetArray) (DefThis);
 void         Method(GetResources)  (DefThis, int *, int *, size_t *, size_t *);
 
 
@@ -924,25 +813,16 @@ void Method(Iterate) (ParamThis, Iterate_Method iter_method)
 }
 
 
-CPtrArray *Method(GetArray) (ParamThis)
+std::vector<BTreeOf*> Method(GetArray) (ParamThis)
 {
-  CPtrArray  *array;
-  CN(BTreeOf) **ptr;
+  std::vector<BTreeOf*> array(This->nItems);
 
-  array = CALL(New,CPtrArray) (This->nItems);
+  if (This->nItems != 0) {
+    BTreeOf** ptr = array.data();
+    CALL(CBTreeNode,Linearize) (This->root, ptr);
+  }
 
-  /* if no items exist, we return empty array. */
-  if (This->nItems==0) return(array);
-
-
-  /* if there are items, but New returns NULL, we ran out of
-     memory. we return NULL to the caller in this case. */
-  if (array==NULL) return(NULL);
-
-  ptr = CALL(CPtrArray,GetData) (array);
-  CALL(CBTreeNode,Linearize) (This->root, ptr);
-
-  return(array);
+  return array;
 }
 
 
@@ -970,7 +850,6 @@ void Method(GetResources) (ParamThis,
 
 
 /****************************************************************************/
-#undef CPtrArray
 #undef CBTreeNode
 #undef CBTree
 /*#undef Compare_Method*/
@@ -1007,7 +886,6 @@ void Method(GetResources) (ParamThis,
 
 /* instantiate all template types we will need lateron */
 #define PtrOf      SetOf
-#define ArrayOf    CCAT(SetOf,Ptr)
 #define SegmListOf SetOf
 #define SegmSize   Set_SegmSize
 #define BTreeOf    SetOf
@@ -1025,7 +903,6 @@ void Method(GetResources) (ParamThis,
 #define CSet       CCAT(SetOf,Set)
 #define CSegmList  CCAT(SetOf,SegmList)
 #define CBTree     CCAT(SetOf,BTree)
-#define CPtrArray  CCAT(CN(SetOf),PtrArray)
 
 
 /*** Set class ***/
@@ -1044,7 +921,7 @@ CN(SetOf)   *Method(NewItem)  (DefThis);
 int          Method(ItemOK)   (DefThis);
 int          Method(GetNItems)     (DefThis);
 int          Method(GetNDiscarded) (DefThis);
-CPtrArray   *Method(GetArray) (DefThis);
+std::vector<SetOf*> Method(GetArray) (DefThis);
 void    Method(GetResources)  (DefThis, int *, int *, int *, size_t *, size_t *);
 
 
@@ -1111,7 +988,7 @@ int Method(GetNDiscarded) (ParamThis)
 }
 
 
-CPtrArray *Method(GetArray) (ParamThis)
+std::vector<SetOf*> Method(GetArray) (ParamThis)
 {
   return(CALL(CBTree,GetArray) (This->tree));
 }
@@ -1145,7 +1022,6 @@ void Method(GetResources) (ParamThis,
 /****************************************************************************/
 #undef CSegmList
 #undef CBTree
-#undef CPtrArray
 #undef CSet
 #undef SetOf
 #endif

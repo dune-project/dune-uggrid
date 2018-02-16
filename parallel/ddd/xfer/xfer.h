@@ -33,6 +33,7 @@
 #ifndef __XFER_H__
 #define __XFER_H__
 
+#include <vector>
 
 #define DebugXfer     10   /* 0 is all, 10 is off */
 #define DebugPack     6    /* off: 6 */
@@ -176,10 +177,6 @@ int  Method(Compare) (ClassPtr, ClassPtr);
 #define SetOf          XICopyObj
 #define Set_SegmSize   256
 #define Set_BTreeOrder 32
-#ifdef XferMemFromHeap
-#define ArrayAllocate  xfer_AllocHeap
-#define NoArrayFree
-#endif
 #endif
 #include "basic/ooppcc.h"
 
@@ -261,10 +258,6 @@ int  Method(Compare) (ClassPtr, ClassPtr);
 #define SetOf          XISetPrio
 #define Set_SegmSize   256
 #define Set_BTreeOrder 32
-#ifdef XferMemFromHeap
-#define ArrayAllocate  xfer_AllocHeap
-#define NoArrayFree
-#endif
 #endif
 #include "basic/ooppcc.h"
 
@@ -605,17 +598,17 @@ void CplMsgExit (void);
 
 
 /* cmdmsg.c */
-int  PruneXIDelCmd (XIDelCmd **, int, XICopyObjPtrArray *);
+int  PruneXIDelCmd (XIDelCmd **, int, std::vector<XICopyObj*>&);
 void CmdMsgInit (void);
 void CmdMsgExit (void);
 
 
 /* xfer.c, used only by cmds.c */
-XICopyObj **CplClosureEstimate(XICopyObjPtrArray *, int *);
-int  PrepareObjMsgs(XICopyObjPtrArray *, XINewCpl **, int,
+XICopyObj **CplClosureEstimate(const std::vector<XICopyObj*>&, int *);
+int  PrepareObjMsgs(std::vector<XICopyObj*>&, XINewCpl **, int,
                     XIOldCpl **, int, XFERMSG **, size_t *);
 void ExecLocalXIDelCmd(XIDelCmd  **, int);
-void ExecLocalXISetPrio(XISetPrioPtrArray *, XIDelObj  **,int, XICopyObj **,int);
+void ExecLocalXISetPrio(const std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
 void ExecLocalXIDelObj(XIDelObj  **, int, XICopyObj **,int);
 void PropagateCplInfos(XISetPrio **, int, XIDelObj  **, int,
                        TENewCpl *, int);
@@ -629,8 +622,8 @@ RETCODE XferPackMsgs (XFERMSG *);
 
 /* unpack.c, used only by cmds.c */
 void XferUnpack (LC_MSGHANDLE *, int, const DDD_HDR *, int,
-                 XISetPrioPtrArray *, XIDelObj  **, int,
-                 XICopyObjPtrArray *, XICopyObj **, int);
+                 std::vector<XISetPrio*>&, XIDelObj  **, int,
+                 const std::vector<XICopyObj*>&, XICopyObj **, int);
 
 
 /* ctrl.c */
