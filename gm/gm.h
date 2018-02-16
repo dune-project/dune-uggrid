@@ -1579,6 +1579,7 @@ struct multigrid {
   union element ***ndelemptrarray;
   std::map<std::array<node*,MAX_CORNERS_OF_SIDE>,
     std::pair<element *,int>> foobar;
+  std::size_t foobarmax;
 
   /* user data */
   /** \brief general user data space                              */

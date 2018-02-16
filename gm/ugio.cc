@@ -2751,7 +2751,6 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
                 DisposeGrid(grid_on_level_0)	(caution: for gridlevels>0 DisposeTopLevel is called which involves UG_GlobalMinINT)
                 create all grid levels
                 insert coarse mesh
-
    #CreateAlgebra				(incl. DDD_IF* and
                                                    SetSurfaceClasses incl. UG_GlobalMinINT)
                 PrepareAlgebraModification
