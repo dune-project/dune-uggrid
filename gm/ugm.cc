@@ -4900,7 +4900,6 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
     //   std::cout << "NODE_ID: " << faceNodes[j]->id << std::endl;
 
     std::size_t k = faceNodes[0]->id;
-    theMG->foobar.resize(std::max(k+1, theMG->foobar.size()));
 
     auto foo = theMG->foobar[k][faceNodes];
     union element* theOther = foo.first;
@@ -4999,10 +4998,13 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   NODE             *theNode;
         #endif
 
-
   theMG = MYMG(theGrid);
   for (i=0; i<CORNERS_OF_REF(n); i++) cornerNode[i] = NULL;
   for (i=0; i<2*MAX_CORNERS_OF_ELEM; i++) cornerID [i] = 0;
+
+  // nodes are already inserted, so we know how many there are...
+  if (theMG->foobar.size() == 0)
+    theMG->foobar.resize(theMG->nodeIdCounter);
 
   /* check parameters */
     #ifdef __TWODIM__
