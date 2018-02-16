@@ -50,6 +50,9 @@
 #include <ctime>
 #include <cmath>
 
+#include <map>
+#include <array>
+
 #include "ugtypes.h"
 #include "heaps.h"
 #include "ugenv.h"
@@ -1574,6 +1577,8 @@ struct multigrid {
   /* NodeElementPointerArray used for an O(n) InsertElement               */
   /** \brief pointer to the node element blocks   */
   union element ***ndelemptrarray;
+  std::map<std::array<node*,MAX_CORNERS_OF_SIDE>,
+    std::pair<element *,int>> foobar;
 
   /* user data */
   /** \brief general user data space                              */
@@ -2996,13 +3001,13 @@ START_UGDIM_NAMESPACE
 #define MG_NPROPERTY(p)                 ((p)->nProperty)
 #define GRID_ON_LEVEL(p,i)              ((p)->grids[i])
 /* macros for the NodeElementsBlockArray . . .  */
-#define ELEMS_OF_NODE_MAX               150
-#define NDELEM_BLKS_MAX                 100
-#define NO_NODES_OF_BLK                 1000
-#define MGNDELEMPTRARRAY(p)             ((p)->ndelemptrarray)
-#define MGNDELEMBLK(p,i)                (*(((p)->ndelemptrarray)+i))
-#define MGNDELEMOFFS(i,o)               (i*ELEMS_OF_NODE_MAX+o)
-#define MGNDELEMBLKENTRY(p,b,i) (*((*(((p)->ndelemptrarray)+b))+i))
+/* #define ELEMS_OF_NODE_MAX               150 */
+/* #define NDELEM_BLKS_MAX                 100 */
+/* #define NO_NODES_OF_BLK                 1000 */
+/* #define MGNDELEMPTRARRAY(p)             ((p)->ndelemptrarray) */
+/* #define MGNDELEMBLK(p,i)                (*(((p)->ndelemptrarray)+i)) */
+/* #define MGNDELEMOFFS(i,o)               (i*ELEMS_OF_NODE_MAX+o) */
+/* #define MGNDELEMBLKENTRY(p,b,i) (*((*(((p)->ndelemptrarray)+b))+i)) */
 /* . . . macros for the NodeElementsBlockArray  */
 #define MGNAME(p)                               ((p)->v.name)
 #define MG_USER_HEAP(p)                 ((p)->UserHeap)
