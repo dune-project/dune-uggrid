@@ -4899,9 +4899,7 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
     // for (int j=0; j<CORNERS_OF_SIDE_REF(n,i); j++)
     //   std::cout << "NODE_ID: " << faceNodes[j]->id << std::endl;
 
-    std::size_t k = faceNodes[0]->id;
-
-    auto foo = theMG->foobar[k][faceNodes];
+    auto foo = theMG->foobar[faceNodes];
     union element* theOther = foo.first;
     int idx = foo.second;
 
@@ -4909,12 +4907,12 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
     {
       Nbr[i] = theOther;
       NbrS[i] = jj;
-      theMG->foobar[k].erase(faceNodes);
+      theMG->foobar.erase(faceNodes);
     }
     else
     {
       // put myself into the cache
-      theMG->foobar[k][faceNodes] = std::pair<element *,int>{theElement,i};
+      theMG->foobar[faceNodes] = std::pair<element *,int>{theElement,i};
     }
   }
 
@@ -5003,8 +5001,8 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   for (i=0; i<2*MAX_CORNERS_OF_ELEM; i++) cornerID [i] = 0;
 
   // nodes are already inserted, so we know how many there are...
-  if (theMG->foobar.size() == 0)
-    theMG->foobar.resize(theMG->nodeIdCounter);
+  if (theMG->foobarmax == 0)
+    theMG->foobar.reserve(theMG->nodeIdCounter);
 
   /* check parameters */
     #ifdef __TWODIM__
