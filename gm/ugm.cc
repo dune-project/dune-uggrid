@@ -4845,6 +4845,8 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
     for (theOther=FIRSTELEMENT(theGrid); theOther!=NULL;
          theOther=SUCCE(theOther))
     {
+      if (theOther == theElement)
+        continue;
       /* for all sides of the neighbour element */
       for (jj=0; jj<SIDES_OF_ELEM(theOther); jj++)
       {
