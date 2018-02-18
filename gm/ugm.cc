@@ -4822,7 +4822,7 @@ INT NS_DIM_PREFIX CheckOrientationInGrid (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *theGrid, INT *NbrS, ELEMENT **Nbr)
+static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, MULTIGRID  *theMG, INT *NbrS, ELEMENT **Nbr)
 {
 
 #if 0
@@ -4880,11 +4880,6 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
   }
   /* ... O(n*n)InsertElement */
 #else
-  INT jj,k,m,num;
-  ELEMENT         *theOther;
-  NODE            *NeighborNode;
-  MULTIGRID       *theMG = MYMG(theGrid);
-
   /*O(n*n)InsertElement ...*/
   /* for all sides of the element to be created */
   MULTIGRID::FaceNodes faceNodes;
@@ -4904,7 +4899,7 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
     {
       // update neighbor list the other entry, stored in result.first->second
       auto & data = result.first->second;
-      union element* theOther = data.first;
+      ELEMENT* theOther = data.first;
       int idx = data.second;
       Nbr[i] = theOther;
       NbrS[i] = idx;
@@ -5164,14 +5159,10 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
     return(NULL);
   }
 
-  /**********************************************************************/
-  /* here begins the revised(03/97) part of InsertElement ...	        */
-  /* documentation see ftp://ftp.ica3.uni-stuttgart.de/pub/text/dirk.   */
-  /*                                                                    */
   if (ElemList == NULL)
   {
     /* using the fast O(n) algorithm */
-    NeighborSearch_O_n(n, theElement, Node, /*theMG*/ theGrid, NeighborSide, Neighbor);
+    NeighborSearch_O_n(n, theElement, Node, theMG, NeighborSide, Neighbor);
   }
   else
   {
