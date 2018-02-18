@@ -3221,8 +3221,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   }
 
   /* initialize helper structure for element insertion */
-  theMG->foobar = decltype(theMG->foobar)();
-  theMG->foobarmax = 0;
+  theMG->facemap = decltype(theMG->facemap)();
 
   /* allocate level 0 grid */
   if (CreateNewLevel(theMG,0)==NULL)
@@ -4898,21 +4897,20 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
       faceNodes[j] = 0;
     std::sort(faceNodes.begin(), faceNodes.begin()+CORNERS_OF_SIDE_REF(n,i));
 
-    auto foo = theMG->foobar[faceNodes];
-    union element* theOther = foo.first;
-    int idx = foo.second;
-
-    if (theOther != nullptr)
+    // try to write myself...
+    auto result = theMG->facemap.emplace(faceNodes,std::make_pair(theElement,i));
+    // if this failed (i.e. result.second == false) an entry already exists
+    if (! result.second)
     {
+      // update neighbor list the other entry, stored in result.first->second
+      auto & data = result.first->second;
+      union element* theOther = data.first;
+      int idx = data.second;
       Nbr[i] = theOther;
-      NbrS[i] = jj;
-      theMG->foobar.erase(faceNodes);
+      NbrS[i] = idx;
+      theMG->facemap.erase(faceNodes);
     }
-    else
-    {
-      // put myself into the cache
-      theMG->foobar[faceNodes] = std::pair<element *,int>{theElement,i};
-    }
+
   }
 
 #endif
@@ -4998,6 +4996,14 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   theMG = MYMG(theGrid);
   for (i=0; i<CORNERS_OF_REF(n); i++) cornerNode[i] = NULL;
   for (i=0; i<2*MAX_CORNERS_OF_ELEM; i++) cornerID [i] = 0;
+
+  // nodes are already inserted, so we know how many there are...
+  if (theMG->facemap.bucket_count() <= 1)
+  {
+    // try to allocate the right size a-priori to avoid rehashing
+    theMG->facemap.rehash(theMG->nodeIdCounter);
+    // theMG->facemap.max_load_factor(1000);
+  }
 
   /* check parameters */
     #ifdef __TWODIM__
@@ -5166,7 +5172,6 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   {
     /* using the fast O(n) algorithm */
     NeighborSearch_O_n(n, theElement, Node, /*theMG*/ theGrid, NeighborSide, Neighbor);
-    theMG->foobarmax = std::max(theMG->foobarmax,theMG->foobar.size());
   }
   else
   {

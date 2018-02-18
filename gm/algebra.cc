@@ -2451,6 +2451,9 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
       REP_ERR_RETURN (1);
   }
 
+  /* now we should be safe to clear the InsertElement face map */
+  theMG->facemap.clear();
+
     #ifdef ModelP
     #ifndef __EXCHANGE_CONNECTIONS__
   MGCreateConnection(theMG);
