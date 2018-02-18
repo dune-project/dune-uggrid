@@ -43,11 +43,7 @@
 #include "ugtypes.h"
 #include "namespace.h"
 
-// #include <dune/common/deprected.hh>
-#ifndef DUNE_DEPRECATED
-#define DUNE_DEPRECATED __attribute__ ((deprecated))
-#define DUNE_DEPRECATED_MSG(TXT) __attribute__ ((deprecated))
-#endif
+#include <dune/common/deprecated.hh>
 
 START_UG_NAMESPACE
 
