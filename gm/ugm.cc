@@ -4887,7 +4887,7 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, GRID *the
 
   /*O(n*n)InsertElement ...*/
   /* for all sides of the element to be created */
-  std::array<node*,MAX_CORNERS_OF_SIDE> faceNodes;
+  MULTIGRID::FaceNodes faceNodes;
   for (int i=0; i<SIDES_OF_REF(n); i++)
   {
     int j = 0;

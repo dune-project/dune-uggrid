@@ -54,21 +54,7 @@
 #include <vector>
 #include <unordered_map>
 #include <array>
-
-#ifndef DEF_HASH
-template<class T, size_t N>
-struct std::hash<std::array<T, N>> {
-    auto operator() (const std::array<T, N>& key) const {
-        std::hash<T> hasher;
-        size_t result = 0;
-        for(size_t i = 0; i < N; ++i) {
-            result = result * 31 + hasher(key[i]); // ??
-        }
-        return result;
-    }
-};
-#define DEF_HASH
-#endif
+#include <numeric>
 
 #include "ugtypes.h"
 #include "heaps.h"
@@ -166,7 +152,7 @@ START_UGDIM_NAMESPACE
 /** \brief max number of edges meeting in a corner */
 #define MAX_EDGES_OF_CORNER             4
 /** \brief max number of corners of a side */
-#define MAX_CORNERS_OF_SIDE     4
+#define MAX_CORNERS_OF_SIDE             4
 /** \brief an edge has always two corners.. */
 #define MAX_CORNERS_OF_EDGE             2
 /** \brief two sides have one edge in common */
@@ -1591,11 +1577,31 @@ struct multigrid {
   /** \brief pointers to the grids                                */
   struct grid *grids[MAXLEVEL];
 
-  /* NodeElementPointerArray used for an O(n) InsertElement               */
-  /** \brief pointer to the node element blocks   */
-  union element ***ndelemptrarray;
-  std::unordered_map<std::array<node*,MAX_CORNERS_OF_SIDE>,
-                       std::pair<element *,int>> facemap;
+  /** @{ Helper structures to for an O(n) InsertElement           */
+  /** \brief List of pointers to face nodes,
+      used as an Id of a face
+  */
+  struct FaceNodes : public std::array<node*,MAX_CORNERS_OF_SIDE>
+  {
+    using array<node*,MAX_CORNERS_OF_SIDE>::array;
+  };
+  /** \brief Hasher for FaceNodes */
+  struct FaceHasher {
+    std::hash<node*> hasher;
+    std::size_t operator() (const FaceNodes& key) const {
+      return std::accumulate(key.begin(), key.end(),
+        144451, [&](auto a, auto b){
+          return hasher(a+b);
+        });
+    }
+  };
+  /** \brief hash-map used for an O(1) search of the neighboring element
+      during InsertElement
+   */
+  std::unordered_map<FaceNodes,
+    std::pair<element *,int>,
+    FaceHasher> facemap;
+  /** @} */
 
   /* user data */
   /** \brief general user data space                              */
