@@ -176,7 +176,7 @@ void DDD_PrintError (char error_class, int error_no, const char *text)
     strcpy(classText,"USER");
     break;
   }
-  sprintf(buffer,"DDD [%03d] %s %05d: %s\n",me,classText,error_no,text);
+  sprintf(buffer,"DDD %s %05d: %s\n",classText,error_no,text);
   DDD_PrintLine(buffer);
 }
 
