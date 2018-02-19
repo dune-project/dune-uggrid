@@ -146,7 +146,7 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
   /* init parallelization module */
 #ifdef ModelP
   PRINTDEBUG (init, 1, ("     InitParallel()...\n"))
-  if ((err = InitParallel (argcp, argvp)) != 0)
+  if ((err = InitParallel()) != 0)
   {
     printf
       ("ERROR in InitUg while InitParallel (line %d): called routine line %d\n",

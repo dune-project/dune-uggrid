@@ -37,7 +37,7 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 /* initialisation of the parallel modules */
-INT InitParallel (int *argcp, char ***argvp);
+INT InitParallel();
 INT ExitParallel (void);
 
 END_UGDIM_NAMESPACE

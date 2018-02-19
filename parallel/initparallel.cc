@@ -77,11 +77,7 @@ using namespace PPIF;
    InitParallel - Call of the initfunctions for all parallel modules
 
    SYNOPSIS:
-   INT InitParallel (int *argcp, char ***argvp);
-
-   PARAMETERS:
-   .  argcp - pointer to argument counter
-   .  argvp - pointer to argument vector
+   INT InitParallel();
 
    DESCRIPTION:
    This function initializes.
@@ -93,7 +89,7 @@ using namespace PPIF;
    D*/
 /****************************************************************************/
 
-INT NS_DIM_PREFIX InitParallel (int *argcp, char ***argvp)
+INT NS_DIM_PREFIX InitParallel()
 {
   INT err;
 
