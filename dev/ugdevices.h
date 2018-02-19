@@ -34,7 +34,7 @@
 START_UG_NAMESPACE
 
 /* initialization and clean up */
-INT               InitDevices                           (int *argcp, char **argv);
+INT               InitDevices();
 INT           ExitDevices               (void);
 
 /* set/get mute level for output control */

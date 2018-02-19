@@ -446,11 +446,7 @@ INT NS_PREFIX GetMuteLevel (void)
    InitDevices - Initialize all devices at startup
 
    SYNOPSIS:
-   INT InitDevices (int *argcp, char **argv);
-
-   PARAMETERS:
- * @param   argcp - pointer to argument counter
- * @param   argv  - command line parameters
+   INT InitDevices();
 
    DESCRIPTION:
    This function initializes all devices at startup.
@@ -464,7 +460,7 @@ INT NS_PREFIX GetMuteLevel (void)
 /****************************************************************************/
 
 
-INT NS_PREFIX InitDevices (int *argcp, char **argv)
+INT NS_PREFIX InitDevices()
 {
   return 0;
 }
