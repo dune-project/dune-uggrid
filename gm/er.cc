@@ -496,11 +496,7 @@ static HRID Hash_InsertRule (INT etag, INT key, const ERULE *er, const DOUBLE oc
                 +sizeof(DOUBLE)*
                 (2*ER_NSONS(er)                                 /* #DOUBLEs needed			*/
                  -MAX_SONS);                                            /* #DOUBLEs at end of HRULE	*/
-    #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-  HRULE *hr       = (HRULE*) GetMem(global.heap,size,FROM_BOTTOM);
-    #else
   HRULE *hr       = (HRULE*) GetMemoryForObject(GetCurrentMultigrid(),size,MAOBJ);
-        #endif
   HRID id         = global.maxrule[etag]++;
 
 
@@ -1110,8 +1106,6 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
       long N_er = 0;
       int tag;
 
-      PrintDebug("ExtractInterfaceRules: level %d: HeapFree is %ld bytes\n",lev,(long)HeapFree(global.heap));
-
       PrintDebug("ExtractInterfaceRules: number of refrules extracted from interface on level %d:\n",lev);
       for (tag=0; tag<TAGS; tag++)
       {
@@ -1234,19 +1228,13 @@ static INT ExtractRules (MULTIGRID *mg)
     int max_list_len = 0;
 
     /* make tables of subsequent IDs */
-        #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-    global.hrule[0] = (HRULE**) GetMem(global.heap,global.maxrules*sizeof(HRULE*),FROM_BOTTOM);
-            #else
     global.hrule[0] = (HRULE**)
                       GetMemoryForObject(GetCurrentMultigrid(),
                                          global.maxrules*sizeof(HRULE*),MAOBJ);
-            #endif
     if (global.hrule[0]==NULL)
       REP_ERR_RETURN(1);
     for (tag=1; tag<TAGS; tag++)
       global.hrule[tag] = global.hrule[tag-1]+global.maxrule[tag-1];
-
-    PRINTDEBUG(gm,ER_DBG_GENERAL,("ExtractRules: after hrule table allocation: HeapFree is %ld bytes\n",(long)HeapFree(global.heap)));
 
     for (h=0; h<HASH_SIZE; h++)
     {
@@ -2125,8 +2113,7 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
     REP_ERR_RETURN(1);
 
   global.heap = MGHEAP(mg);
-  PRINTDEBUG(gm,ER_DBG_GENERAL,("Write_RefRules (er): before any allocation: HeapFree is %ld bytes\n",(long)HeapFree(global.heap)));
-  if (Mark(global.heap,FROM_BOTTOM,&BotMarkKey))
+  if (MarkTmpMem(global.heap,&BotMarkKey))
     REP_ERR_RETURN(1);
 
   /* init rule counters (continue with last rule IDs of rm) */
@@ -2161,8 +2148,6 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
   if (*mrule_handle==NULL)
     REP_ERR_RETURN(1);
 
-  PRINTDEBUG(gm,ER_DBG_GENERAL,("Write_RefRules (er): after mrule table allocation: HeapFree is %ld bytes\n",(long)HeapFree(global.heap)));
-
   /* write refrules */
   mrule = *mrule_handle;
   for (tag=0; tag<TAGS; tag++)
@@ -2189,14 +2174,12 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
   Write_RR_Rules(global.maxrules,*mrule_handle);
 
   /* free hrules and hrule table */
-  if (Release(global.heap,FROM_BOTTOM,BotMarkKey))
+  if (ReleaseTmpMem(global.heap,BotMarkKey))
     REP_ERR_RETURN(1);
 
   IFDEBUG(gm,ER_DBG_GENERAL)
   WriteDebugInfo();
   ENDDEBUG
-
-  PRINTDEBUG(gm,ER_DBG_GENERAL,("Write_RefRules (er): when finished (storage occupied by MGIO_RR_RULE list): HeapFree is %ld bytes\n",(long)HeapFree(global.heap)));
 
   IFDEBUG(gm,ER_DBG_RULES)
   CheckMRules(mg,RefRuleOffset,*mrule_handle);

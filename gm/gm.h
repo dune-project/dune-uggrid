@@ -302,12 +302,6 @@ enum NodeType {CORNER_NODE,
                CENTER_NODE,
                LEVEL_0_NODE};
 
-/** @name Macros for the multigrid user data space management */
-/*@{*/
-#define OFFSET_IN_MGUD(id)              (GetMGUDBlockDescriptor(id)->offset)
-#define IS_MGUDBLOCK_DEF(id)    (GetMGUDBlockDescriptor(id)!=NULL)
-/*@}*/
-
 /* REMARK: TOPNODE no more available since 970411
    because of problems in parallelisation
    to use it in serial version uncomment define
@@ -1510,14 +1504,6 @@ struct multigrid {
   /** \brief used for identification                          */
   INT magic_cookie;
 
-  /** \brief is bottom memory temp allocated?
-
-     This field is really only necessary when DYNAMIC_MEMORY_ALLOCMODEL is set.
-     However, as struct declarations should not depend on settings in config.h
-     we leave in the field anyways.  It's just four bytes per multigrid.
-   */
-  INT bottomtmpmem;
-
   /** \brief count objects in that multigrid              */
   INT vertIdCounter;
 
@@ -1574,13 +1560,6 @@ struct multigrid {
   /* NodeElementPointerArray used for an O(n) InsertElement               */
   /** \brief pointer to the node element blocks   */
   union element ***ndelemptrarray;
-
-  /* user data */
-  /** \brief general user data space                              */
-  void *GenData;
-
-  /** \brief user heap                                                    */
-  NS_PREFIX HEAP *UserHeap;
 
   /* i/o handling */
   /** \brief 1 if multigrid saved                                 */
@@ -3005,9 +2984,6 @@ START_UGDIM_NAMESPACE
 #define MGNDELEMBLKENTRY(p,b,i) (*((*(((p)->ndelemptrarray)+b))+i))
 /* . . . macros for the NodeElementsBlockArray  */
 #define MGNAME(p)                               ((p)->v.name)
-#define MG_USER_HEAP(p)                 ((p)->UserHeap)
-#define GEN_MGUD(p)                     ((p)->GenData)
-#define GEN_MGUD_ADR(p,o)               ((void *)(((char *)((p)->GenData))+(o)))
 #define VEC_DEF_IN_OBJ_OF_MG(p,tp)       (MGFORMAT(p)->OTypeUsed[(tp)]>0)
 #define NELIST_DEF_IN_MG(p)     (MGFORMAT(p)->nodeelementlist)
 #define NDATA_DEF_IN_MG(p)      (MGFORMAT(p)->nodedata)
@@ -3256,11 +3232,6 @@ void            ListAllCWsOfObject              (const void *obj);
 void            ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf);
 UINT ReadCW                                     (const void *obj, INT ce);
 void            WriteCW                                 (void *obj, INT ce, INT n);
-void            ResetCEstatistics               (void);
-void            PrintCEstatistics               (void);
-INT             DefineMGUDBlock                 (NS_PREFIX BLOCK_ID id, NS_PREFIX MEM size);
-INT             FreeMGUDBlock                   (NS_PREFIX BLOCK_ID id);
-NS_PREFIX BLOCK_DESC      *GetMGUDBlockDescriptor (NS_PREFIX BLOCK_ID id);
 
 /* ordering of degrees of freedom */
 ALG_DEP         *CreateAlgebraicDependency              (const char *name, DependencyProcPtr DependencyProc);

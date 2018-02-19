@@ -47,23 +47,12 @@ USING_UG_NAMESPACES
 /*																			*/
 /****************************************************************************/
 
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
-
 /****************************************************************************/
 /*																			*/
 /* data structures used in this source file (exported data structures are	*/
 /*		  in the corresponding include file!)								*/
 /*																			*/
 /****************************************************************************/
-
-/****************************************************************************/
-/*																			*/
-/* definition of exported global variables									*/
-/*																			*/
-/****************************************************************************/
-
-INT NS_DIM_PREFIX usefreelistmemory = 1;
-INT NS_DIM_PREFIX freelist_end_mark = 0;
 
 /****************************************************************************/
 /*																			*/
@@ -99,11 +88,5 @@ INT NS_DIM_PREFIX DisposeBottomHeapTmpMemory (MULTIGRID *theMG)
 
   if (DisposeAMGLevels(theMG)) REP_ERR_RETURN(1);
   if (DisposeConnectionsFromMultiGrid(theMG)) REP_ERR_RETURN(1);
-
-  theMG->bottomtmpmem = 0;
-  if (Release(MGHEAP(theMG),FROM_BOTTOM,freelist_end_mark)) REP_ERR_RETURN(1);
-  usefreelistmemory = 1;
-
   return(0);
 }
-#endif

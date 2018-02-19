@@ -56,19 +56,6 @@ START_UGDIM_NAMESPACE
 
 #define MAX_PAR_DIST    1.0E-6          /* max.dist between different parameter */
 
-#ifndef DYNAMIC_MEMORY_ALLOCMODEL
-        #ifdef ModelP
-        #define PutFreeObject(theMG,object,size,type) PutFreeObject_par(MGHEAP(theMG),(object),(size),(type))
-        #define GetMemoryForObject(theMG,size,type) GetMemoryForObject_par(MGHEAP(theMG),(size),(type))
-        #else
-        #define GetMemoryForObject(theMG,size,type) GetFreelistMemory(MGHEAP(theMG),(size))
-        #define PutFreeObject(theMG,object,size,type) PutFreelistMemory(MGHEAP(theMG),(object),(size))
-        #endif
-#else
-        #define GetMemoryForObject(theMG,size,type) GetMemoryForObjectNew(MGHEAP(theMG),(size),(type))
-        #define PutFreeObject(theMG,object,size,type) PutFreeObjectNew(MGHEAP(theMG),(object),(size),(type))
-#endif
-
 /****************************************************************************/
 /*                                                                                                                                                      */
 /* data structures exported by the corresponding source file                            */
@@ -127,7 +114,6 @@ INT              FindNeighborElement    (const ELEMENT *theElement, INT Side, EL
 bool             PointInElement                 (const DOUBLE*, const ELEMENT *theElement);
 INT          PointOnSide            (const DOUBLE *global, const ELEMENT *theElement, INT side);
 DOUBLE       DistanceFromSide       (const DOUBLE *global, const ELEMENT *theElement, INT side);
-NS_PREFIX VIRT_HEAP_MGMT *GetGenMGUDM             (void);
 INT             CheckOrientation                (INT n, VERTEX **vertices);
 INT             CheckOrientationInGrid  (GRID *theGrid);
 
@@ -146,14 +132,8 @@ INT                     GetNodeContext                  (const ELEMENT *theEleme
 void            GetNbSideByNodes                (ELEMENT *theNeighbor, INT *nbside, ELEMENT *theElement, INT side);
 
 
-#if defined(ModelP) && !defined(DYNAMIC_MEMORY_ALLOCMODEL)
-void *GetMemoryForObject_par (NS_PREFIX HEAP *theHeap, INT size, INT type);
-INT PutFreeObject_par (NS_PREFIX HEAP *theHeap, void *object, INT size, INT type);
-#endif
-
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
-void *GetMemoryForObjectNew (NS_PREFIX HEAP *theHeap, INT size, INT type);
-INT PutFreeObjectNew (NS_PREFIX HEAP *theHeap, void *object, INT size, INT type);
+void *GetMemoryForObject (MULTIGRID *mg, INT size, INT type);
+INT PutFreeObject (MULTIGRID *mg, void *object, INT size, INT type);
 
 /* determination of node classes */
 INT             ClearNodeClasses                        (GRID *theGrid);
@@ -165,7 +145,6 @@ INT             PropagateNextNodeClasses        (GRID *theGrid);
 INT             MaxNextNodeClass                        (const ELEMENT *theElement);
 INT             MinNodeClass                            (const ELEMENT *theElement);
 INT             MinNextNodeClass                        (const ELEMENT *theElement);
-#endif
 
 #ifdef __PERIODIC_BOUNDARY__
 INT             MG_GeometricToPeriodic          (MULTIGRID *mg, INT fl, INT tl);

@@ -43,6 +43,8 @@
 #include "ugtypes.h"
 #include "namespace.h"
 
+#include <dune/common/deprecated.hh>
+
 START_UG_NAMESPACE
 
 /****************************************************************************/
@@ -71,17 +73,7 @@ enum HeapType {GENERAL_HEAP,                  /**< Heap with alloc/free mechanis
 enum HeapAllocMode
 {FROM_TOP=1,                       /**< Allocate from top of stack      */
  FROM_BOTTOM=2                       /**< Allocate from bottom of stack   */
-};
-
-/** \brief Number of free object pointers  */
-#define MAXFREEOBJECTS  128
-
-/* by convention, tempory memory on a simple heap should allocated FROM_TOP */
-/* the Freelist memory is allocated FROM_BOTTOM                             */
-
-#define MarkTmpMem(p,kp)     Mark(p,FROM_TOP,kp)
-#define GetTmpMem(p,n,k)         GetMemUsingKey(p,n,FROM_TOP,k)
-#define ReleaseTmpMem(p,k)       Release(p,FROM_TOP,k)
+} DUNE_DEPRECATED;
 
 /****************************************************************************/
 /****************************************************************************/
@@ -92,9 +84,6 @@ enum HeapAllocMode
 
 /** \brief Pass to init routine if no heap yet */
 #define SIZE_UNKNOWN        0
-
-/** \brief The memory sized neded for the vhm  */
-#define SIZEOF_VHM            sizeof(VIRT_HEAP_MGMT)
 
 /** \brief Ok return code for virtual heap mgmt*/
 #define BHM_OK              0
@@ -109,11 +98,6 @@ enum {HEAP_FULL =           1,           /**< Return code if storage exhausted  
 /** \brief Return code if the block is not defined */
 #define BLOCK_NOT_DEFINED    1
 
-/* some useful macros */
-#define OFFSET_IN_HEAP(vhm,id)  (GetBlockDesc((VIRT_HEAP_MGMT*)vhm,id).offset)
-#define TOTUSED_IN_HEAP(vhm)    ((vhm).TotalUsed)
-#define IS_BLOCK_DEFINED(vhm,id) (GetBlockDesc((VIRT_HEAP_MGMT*)vhm,id)!=NULL)
-
 /* @} */
 /****************************************************************************/
 /*                                                                          */
@@ -127,72 +111,12 @@ typedef unsigned long MEM;
 /* structs and typedefs for the simple and general heap management          */
 /****************************************************************************/
 
-struct block {
-  MEM size;
-  struct block *next,*previous;
-};
-
 typedef struct {
   enum HeapType type;
   MEM size;
-  MEM used;
-  MEM freelistmem;
-  struct block *heapptr;
-  INT topStackPtr,bottomStackPtr;
-  MEM topStack[MARK_STACK_SIZE];
-  MEM bottomStack[MARK_STACK_SIZE];
-  INT SizeOfFreeObjects[MAXFREEOBJECTS];
-  void *freeObjects[MAXFREEOBJECTS];
-        #ifdef Debug
-  INT objcount[MAXFREEOBJECTS];
-        #endif
-
-  /* This is used only if UG_USE_SYSTEM_HEAP is set, but I don't want the
-   * #ifdef in an installed header, hence the data member is there all the time. */
-  std::vector<void*> markedMemory[MARK_STACK_SIZE];
+  INT markKey;
+  std::vector<void*> markedMemory[MARK_STACK_SIZE+1];
 } HEAP;
-
-/****************************************************************************/
-/* structs and typedefs for the block virtual management                    */
-/****************************************************************************/
-
-typedef struct {
-
-  INT id;                           /*!< Id for this block                    */
-  MEM offset;                       /*!< Offset of the data in the heap       */
-  MEM size;                         /*!< Size of the data in the heap         */
-
-} BLOCK_DESC;
-
-typedef struct {
-
-  INT locked;                       /**< If true the TotalSize is fixed        */
-  MEM TotalSize;                    /**< Total size of the associated heap     */
-  MEM TotalUsed;                    /**< Total size used                       */
-  INT UsedBlocks;                   /**< Number of blocks initialized          */
-  INT nGaps;                        /**< true if a gap between exist. blocks   */
-  MEM LargestGap;                   /**< Largest free gap between blocks       */
-  BLOCK_DESC BlockDesc[MAXNBLOCKS];
-  /**< The different block descriptors       */
-} VIRT_HEAP_MGMT;
-
-/****************************************************************************/
-/* typedefs for the block virtual management                                */
-/****************************************************************************/
-
-typedef INT BLOCK_ID;
-typedef struct block BLOCK;
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined(DYNAMIC_MEMORY_ALLOCMODEL) && defined(Debug)
-extern INT check_of_getcallstack;
-extern INT check_of_putcallstack;
-#endif
 
 /****************************************************************************/
 /*                                                                          */
@@ -200,38 +124,28 @@ extern INT check_of_putcallstack;
 /*                                                                          */
 /****************************************************************************/
 
-INT          InitHeaps                (void);
-
 /** @name Functions for the simple and general heap management */
 /* @{ */
 HEAP        *NewHeap                (enum HeapType type, MEM size, void *buffer);
 void         DisposeHeap            (HEAP *theHeap);
-void        *GetMem                 (HEAP *theHeap, MEM n, enum HeapAllocMode mode);
-void            *GetMemUsingKey                 (HEAP *theHeap, MEM n, enum HeapAllocMode mode, INT key);
+
+void        *GetMem                 (HEAP *theHeap, MEM n);
+void        *GetFreelistMemory      (HEAP *theHeap, INT size);
 void         DisposeMem             (HEAP *theHeap, void *buffer);
 
-void        *GetFreelistMemory      (HEAP *theHeap, INT size);
-INT          PutFreelistMemory      (HEAP *theHeap, void *object, INT size);
-
-INT          Mark                   (HEAP *theHeap, INT mode, INT *key);
-INT          Release                (HEAP *theHeap, INT mode, INT key);
-
-MEM          HeapSize               (const HEAP *theHeap);
-MEM          HeapUsed               (const HEAP *theHeap);
-MEM                      HeapFree                               (const HEAP *theHeap);
-MEM          HeapFreelistUsed       (const HEAP *theHeap);
-MEM                      HeapTotalFree                  (const HEAP *theHeap);
-void             HeapStat                               (const HEAP *theHeap);
-/* @} */
-
-/** @name Functions for the virtual heap management */
-/* @{ */
-INT          InitVirtualHeapManagement(VIRT_HEAP_MGMT *theVHM, MEM TotalSize);
-MEM          CalcAndFixTotalSize    (VIRT_HEAP_MGMT *theVHM);
-BLOCK_ID     GetNewBlockID            (void);
-BLOCK_DESC  *GetBlockDesc            (VIRT_HEAP_MGMT *theVHM, BLOCK_ID id);
-INT          DefineBlock            (VIRT_HEAP_MGMT *theVHM, BLOCK_ID id, MEM size);
-INT          FreeBlock                (VIRT_HEAP_MGMT *theVHM, BLOCK_ID id);
+INT          MarkTmpMem             (HEAP *theHeap, INT *key);
+void        *GetTmpMem              (HEAP *theHeap, MEM n, INT key);
+INT          ReleaseTmpMem          (HEAP *theHeap, INT key);
+inline INT DUNE_DEPRECATED_MSG("Mark taking a mode is deprecated")
+             Mark                   (HEAP *theHeap, INT mode, INT *key)
+{
+  return MarkTmpMem(theHeap,key);
+}
+inline INT DUNE_DEPRECATED_MSG("Release taking a mode is deprecated")
+             Release                (HEAP *theHeap, INT mode, INT key)
+{
+  return ReleaseTmpMem(theHeap,key);
+}
 /* @} */
 
 END_UG_NAMESPACE

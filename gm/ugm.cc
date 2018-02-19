@@ -67,9 +67,7 @@
 #include "domain.h"
 #include "pargm.h"
 #include "ugstruct.h"
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
 #include "mgheapmgr.h"
-#endif
 
 #ifdef ModelP
 #include "identify.h"
@@ -127,9 +125,6 @@ INT ce_NO_DELETE_OVERLAP2 = -1;
 
 /** \brief General purpose text buffer */
 static char buffer[4*256];
-
-/** \brief General user data space management	*/
-static VIRT_HEAP_MGMT *theGenMGUDM;
 
 static INT theMGDirID;                          /* env var ID for the multigrids		*/
 static INT theMGRootDirID;                      /* env dir ID for the multigrids		*/
@@ -290,58 +285,19 @@ static void ConstructDDDObject (void *obj, INT size, INT type)
 }
 #endif
 
-#ifndef DYNAMIC_MEMORY_ALLOCMODEL
-void * NS_DIM_PREFIX GetMemoryForObject_par (HEAP *theHeap, INT size, INT type)
+void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
 {
-  void *obj = GetFreelistMemory(theHeap, size);
+  void * obj = GetMem(MGHEAP(theMG),size);
+  if (obj != NULL)
+    memset(obj,0,size);
 
-        #ifdef ModelP
+  #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
     ConstructDDDObject(obj,size,type);
-        #endif
+  #endif
 
   return obj;
 }
-#else
-void * NS_DIM_PREFIX GetMemoryForObjectNew (HEAP *theHeap, INT size, INT type)
-{
-  void                    *obj;
-
-        #ifdef Debug
-  check_of_getcallstack = 1;
-        #endif
-
-  if (usefreelistmemory == 1)
-    obj = GetFreelistMemory(theHeap, size);
-  else
-  {
-                #ifdef Debug
-    switch (type)
-    {
-    case MAOBJ :
-    case VEOBJ :
-    case GROBJ :
-      break;
-    default : assert(0);
-    }
-                #endif
-    obj = GetMem(theHeap,size,FROM_BOTTOM);
-    if (obj != NULL)
-      memset(obj,0,size);
-  }
-
-        #ifdef Debug
-  check_of_getcallstack = 0;
-        #endif
-
-        #ifdef ModelP
-  if (type!=MAOBJ && type!=COOBJ)
-    ConstructDDDObject(obj,size,type);
-        #endif
-
-  return obj;
-}
-#endif
 
 /****************************************************************************/
 /** \brief  Put an object in the free list
@@ -377,58 +333,18 @@ static void DestructDDDObject(void *object, INT type)
 }
 #endif
 
-#ifndef DYNAMIC_MEMORY_ALLOCMODEL
-INT NS_DIM_PREFIX PutFreeObject_par (HEAP *theHeap, void *object, INT size, INT type)
-{
-        #ifdef ModelP
-  if (type!=MAOBJ && type!=COOBJ)
-    DestructDDDObject(object,type);
-        #endif
-
-  return (PutFreelistMemory(theHeap, object, size));
-}
-#else
-INT NS_DIM_PREFIX PutFreeObjectNew (HEAP *theHeap, void *object, INT size, INT type)
+INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, INT type)
 {
   INT err;
 
-        #ifdef ModelP
+  #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
     DestructDDDObject(object,type);
-        #endif
+  #endif
 
-        #ifdef Debug
-  check_of_putcallstack = 1;
-        #endif
-
-  if (usefreelistmemory == 1)
-  {
-    err = PutFreelistMemory(theHeap, object, size);
-                #ifdef Debug
-    check_of_putcallstack = 0;
-                #endif
-    return (err);
-  }
-
-        #ifdef Debug
-  switch (type)
-  {
-  case MAOBJ :
-  case VEOBJ :
-  case GROBJ :
-    break;
-  default : assert(0);
-  }
-        #endif
-
-        #ifdef Debug
-  check_of_putcallstack = 0;
-        #endif
-
-  /* memory is freed by release */
-  return(0);
+  DisposeMem(MGHEAP(theMG), object);
+  return 0;
 }
-#endif
 
 /****************************************************************************/
 /** \brief Return pointer to a new boundary vertex structure
@@ -3095,7 +3011,7 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
 MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProblem,
                                            const char *format, MEM heapSize, INT optimizedIE, INT insertMesh)
 {
-  HEAP *theHeap,*theUserHeap;
+  HEAP *theHeap;
   MULTIGRID *theMG;
   INT i,ds;
   BVP *theBVP;
@@ -3123,12 +3039,8 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   }
 
   /* allocate the heap */
-#if UG_USE_SYSTEM_HEAP
   /* When using the system heap: allocate just enough memory for the actual bookkeeping data structure */
-  theHeap = NewHeap(SIMPLE_HEAP, sizeof(HEAP)+MIN_HEAP_SIZE, malloc(sizeof(HEAP)+MIN_HEAP_SIZE));
-#else
-  theHeap = NewHeap(SIMPLE_HEAP, heapSize, malloc(heapSize));
-#endif
+  theHeap = NewHeap(SIMPLE_HEAP, sizeof(HEAP), malloc(sizeof(HEAP)));
   if (theHeap==NULL)
   {
     UserWriteF("CreateMultiGrid: cannot allocate %ld bytes\n", heapSize);
@@ -3159,45 +3071,13 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   theBVPDesc = MG_BVPD(theMG);
 
   /* 1: general user data space */
-  if (!theGenMGUDM->locked)
-    CalcAndFixTotalSize(theGenMGUDM);
-  ds = theGenMGUDM->TotalSize;
-  if (ds!=0)
-  {
-    GEN_MGUD(theMG) = GetMem(theHeap,ds,FROM_BOTTOM);
-    if (GEN_MGUD(theMG)==NULL)
-    {
-      DisposeMultiGrid(theMG);
-      return(NULL);
-    }
-    /* clearing this heap provides the possibility of checking the
-       initialization */
-    memset(GEN_MGUD(theMG),0,ds);
-  }
-  else
-    GEN_MGUD(theMG) = NULL;
-
+  // As we are using this version only with DUNE, we will never have UG user data
   /* 2: user heap */
-  ds = FMT_S_MG(theFormat);
-  if (ds!=0)
-  {
-    theUserHeap = NewHeap(SIMPLE_HEAP, ds, GetMem(theHeap,ds,FROM_BOTTOM));
-    if (theUserHeap==NULL)
-    {
-      DisposeMultiGrid(theMG);
-      return(NULL);
-    }
-    MG_USER_HEAP(theMG) = theUserHeap;
-  }
-  else
-    MG_USER_HEAP(theMG) = NULL;
+  // As we are using this version only with DUNE, we will never need the user heap
 
   /* fill multigrid structure */
   theMG->status = 0;
   MG_COARSE_FIXED(theMG) = 0;
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
-  theMG->bottomtmpmem = 0;
-        #endif
   theMG->vertIdCounter = 0;
   theMG->nodeIdCounter = 0;
   theMG->elemIdCounter = 0;
@@ -3901,11 +3781,9 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
   INT tl = TOPLEVEL(theMG);
   INT l,i;
 
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (MG_COARSE_FIXED(theMG))
     if (DisposeBottomHeapTmpMemory(theMG))
       REP_ERR_RETURN(1);
-        #endif
 
   if( DisposeAMGLevels(theMG) )
     REP_ERR_RETURN(1);
@@ -4025,11 +3903,9 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
   DDD_IFRefreshAll();
         #endif
 
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (MG_COARSE_FIXED(theMG))
     if (CreateAlgebra(theMG))
       REP_ERR_RETURN(1);
-        #endif
 
   return(0);
 }
@@ -4265,12 +4141,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 {
   INT level;
 
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
-        #else
-  if (DisposeAMGLevels(theMG))
-    RETURN(1);
-        #endif
 
         #ifdef ModelP
   /* tell DDD that we will 'inconsistently' delete objects.
@@ -4290,9 +4161,6 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
      deleted without communication */
   DDD_IFRefreshAll();
         #endif
-
-  /* dispose user data */
-  DisposeMem(MGHEAP(theMG), GEN_MGUD(theMG));
 
   /** \todo Normally the MG-heap should be cleaned-up before freeing.
            DDD depends on storage in the heap, even if no DDD objects
@@ -6316,8 +6184,8 @@ void NS_DIM_PREFIX ListMultiGrid (const MULTIGRID *theMG, const INT isCurrent, c
   c = isCurrent ? '*' : ' ';
 
   if (longformat)
-    UserWriteF(" %c %-20.20s %-20.20s %10lu %10lu\n",c,ENVITEM_NAME(theMG),
-               BVPD_NAME(theBVPDesc), HeapSize(theMG->theHeap),HeapUsed(theMG->theHeap));
+    UserWriteF(" %c %-20.20s %-20.20s\n",c,ENVITEM_NAME(theMG),
+               BVPD_NAME(theBVPDesc));
   else
     UserWriteF(" %c %-20.20s\n",c,ENVITEM_NAME(theMG));
 
@@ -6341,15 +6209,13 @@ void NS_DIM_PREFIX ListMultiGrid (const MULTIGRID *theMG, const INT isCurrent, c
 
 INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT greenflag, INT lbflag, INT verbose)
 {
-  INT i,j,sons,maxsons,heap,used,free_bytes;
+  INT i,j,sons,maxsons;
   INT red, green, yellow;
   INT mg_red,mg_green,mg_yellow;
   INT mg_greenrulesons[MAXLEVEL+1][MAX_SONS+1],mg_greenrules[MAXLEVEL+1];
   INT markcount[MAXLEVEL+1],closuresides[MAXLEVEL+1];
-  INT mg_red_size,mg_green_size,mg_yellow_size,mg_sum_size;
   FLOAT sum,sum_div_red,redplusgreen_div_red;
   FLOAT mg_sum,mg_sum_div_red,mg_redplusgreen_div_red;
-  FLOAT mg_sum_size_div_red,mg_redplusgreen_size_div_red;
   ELEMENT *theElement;
   GRID    *theGrid;
         #ifdef ModelP
@@ -6359,6 +6225,12 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   INT total_elements,sum_elements;
   INT master_elements,hghost_elements,vghost_elements,vhghost_elements;
         #endif
+
+#ifdef __TWODIM__
+  static const std::size_t elem_max_size = sizeof(struct quadrilateral);
+#else
+  static const std::size_t elem_max_size = sizeof(struct hexahedron);
+#endif
 
   mg_red = mg_green = mg_yellow = mg_sum = 0;
   mg_sum_div_red = mg_redplusgreen_div_red = 0.0;
@@ -6517,37 +6389,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
     UserWriteF("  ALL  %9d %9d %9d  %9.0f    %2.3f      %2.3f\n",
                mg_red,mg_green,mg_yellow,mg_sum,mg_sum_div_red,mg_redplusgreen_div_red);
 
-  /* compute heap info */
-  if (gridflag)
-  {
-    heap = HeapFreelistUsed(MGHEAP(theMG));
-    used = HeapUsed(MGHEAP(theMG))-heap;
-    free_bytes = (HeapSize(MGHEAP(theMG))-used)>>10;
-    mg_sum_size = used>>10;
-    if (mg_sum > 0)
-    {
-      mg_red_size = mg_sum_size*mg_red/mg_sum;
-      mg_green_size = mg_sum_size*mg_green/mg_sum;
-      mg_yellow_size = (float)mg_sum_size*mg_yellow/mg_sum;
-    }
-    else
-    {
-      mg_red_size = 0.0;
-      mg_green_size = 0.0;
-      mg_yellow_size = 0.0;
-    }
-    if (mg_red > 0)
-    {
-      mg_sum_size_div_red = ((float)mg_sum_size)/mg_red;
-      mg_redplusgreen_size_div_red = ((float)(mg_red_size+mg_green_size))/mg_red;
-    }
-    else
-    {
-      mg_sum_size_div_red = 0.0;
-      mg_redplusgreen_size_div_red = 0.0;
-    }
-  }
-
   /* set heap info in refine info */
   if (gridflag)
   {
@@ -6568,49 +6409,12 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
     SETPREDNEW1(REFINEINFO(theMG),New);
 
     SETREAL(REFINEINFO(theMG),mg_sum);
-    if (mg_sum_size_div_red > 0.0)
-      predmax = free_bytes/mg_sum_size_div_red;
-    else
-      predmax = free_bytes/
-#ifdef __TWODIM__
-                sizeof(struct quadrilateral);
-#else
-                sizeof(struct hexahedron);
-#endif
     SETPREDMAX(REFINEINFO(theMG),predmax);
   }
 
   /* list heap info */
   if (verbose && gridflag)
   {
-    float predmax0,predmax1;
-
-    UserWriteF(" HEAP  %7dKB %7dKB %7dKB  %7dKB    %2.3fKB    %2.3fKB\n",
-               mg_red_size,mg_green_size,mg_yellow_size,mg_sum_size,
-               mg_sum_size_div_red,mg_redplusgreen_size_div_red);
-
-    if (mg_sum_size_div_red > 0.0)
-      predmax0 = free_bytes/mg_sum_size_div_red;
-    else
-      predmax0 = free_bytes/
-#ifdef __TWODIMM__
-                 sizeof(struct quadrilateral);
-#else
-                 sizeof(struct hexahedron);
-#endif
-    if (mg_redplusgreen_size_div_red > 0.0)
-      predmax1 = free_bytes/mg_redplusgreen_size_div_red;
-    else
-      predmax1 = free_bytes/
-#ifdef __TWODIM__
-                 sizeof(struct quadrilateral);
-#else
-                 sizeof(struct hexahedron);
-#endif
-
-    UserWriteF(" EST  FREE=%7dKB  MAXNEWELEMENTS free_bytes/(SUM/RED)=%9.0f "
-               "FREE/((RED+GREEN)/RED)=%9.0f\n",
-               free_bytes,predmax0,predmax1);
     UserWriteF(" EST %2d  ELEMS=%9.0f MARKCOUNT=%9.0f PRED_NEW0=%9.0f PRED_NEW1=%9.0f PRED_MAX=%9.0f\n",
                REFINESTEP(REFINEINFO(theMG)),REAL(REFINEINFO(theMG)),MARKCOUNT(REFINEINFO(theMG)),
                PREDNEW0(REFINEINFO(theMG)),PREDNEW1(REFINEINFO(theMG)),PREDMAX(REFINEINFO(theMG)));
@@ -6816,7 +6620,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
   char c;
   DOUBLE hmin,hmax,h;
   INT l,cl,minl,i,soe,eos,coe,side,e;
-  INT nn,ne,nt,ns,nvec,nc,free,used,heap;
+  INT nn,ne,nt,ns,nvec,nc,free,used;
 
   cl = CURRENTLEVEL(theMG);
 
@@ -7045,22 +6849,6 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
              "---",(long)nn,"        ",(long)nt,
              (long)ns,(long)nvec,"        ",(float)hmin,(float)hmax);
         #endif
-
-  /* storage */
-  heap = HeapFreelistUsed(MGHEAP(theMG));
-  used = HeapUsed(MGHEAP(theMG)) - heap;
-  free = HeapSize(MGHEAP(theMG)) - used;
-  if (heap == 0)
-    UserWriteF("\n%lu bytes used out of %lu allocated\n",used,used+free);
-  else
-    UserWriteF("\n%lu ( %lu + %lu ) bytes used out of %lu allocated\n",
-               used+heap,used,heap,used+free);
-
-    #ifdef ModelP
-  used = used + heap;
-  used = UG_GlobalMaxINT(used);
-  UserWriteF("%lu bytes used on some processor %lu bytes used on all\n",used,UG_GlobalSumINT(used));
-    #endif
 }
 
 /****************************************************************************/
@@ -7424,73 +7212,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
         UserWrite(buffer);
       }
     }
-}
-
-/****************************************************************************/
-/** \brief Define block in general MG user data space
-
- * @param   id - the id of the block to be allocated
- * @param   size - size of the data block
-
-   This function defines a block in the general MG user data space.
-
-   @return <ul>
-   <li>   GM_OK if ok </li>
-   <li>   GM_ERROR if an  error occured. </li>
-   </ul> */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DefineMGUDBlock (BLOCK_ID id, MEM size)
-{
-  if (DefineBlock(theGenMGUDM,id,size)!=0)
-    return (GM_ERROR);
-
-  return (GM_OK);
-}
-
-
-/****************************************************************************/
-/** \brief Free block in general MG user data space
-
- * @param   id: the id of the block to be allocated
-
-   This function frees a block in the general MG user data space.
-
-   @return <ul>
-   <li>   GM_OK if ok </li>
-   <li>   GM_ERROR if an error occured. </li>
-   </ul> */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX FreeMGUDBlock (BLOCK_ID id)
-{
-  if (FreeBlock(theGenMGUDM,id)!=0)
-    return (GM_ERROR);
-
-  return (GM_OK);
-}
-
-/****************************************************************************/
-/** \brief Return pointer to block descriptor with id
-
- * @param   id - the id of the block to be allocated
-
-   This function returns a pointer to the block descriptor with id.
-
-   @return <ul>
-   <li>   pointer to BLOCK_DESC </li>
-   <li>   NULL if an error occured. </li>
-   </ul> */
-/****************************************************************************/
-
-BLOCK_DESC* NS_DIM_PREFIX GetMGUDBlockDescriptor (BLOCK_ID id)
-{
-  return (GetBlockDesc(theGenMGUDM,id));
-}
-
-VIRT_HEAP_MGMT * NS_DIM_PREFIX GetGenMGUDM()
-{
-  return (theGenMGUDM);
 }
 
 /****************************************************************************/
@@ -10102,12 +9823,6 @@ INT NS_DIM_PREFIX InitUGManager ()
 {
   INT i;
 
-  theGenMGUDM = (VIRT_HEAP_MGMT*)malloc(SIZEOF_VHM);
-  if (theGenMGUDM==NULL)
-    return (__LINE__);
-
-  InitVirtualHeapManagement(theGenMGUDM,SIZE_UNKNOWN);
-
   /* install the /Multigrids directory */
   if (ChangeEnvDir("/")==NULL)
   {
@@ -10132,8 +9847,6 @@ INT NS_DIM_PREFIX InitUGManager ()
 
 INT NS_DIM_PREFIX ExitUGManager ()
 {
-  free(theGenMGUDM);
-
   return 0;
 }
 

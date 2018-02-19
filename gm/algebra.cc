@@ -80,9 +80,7 @@
 #include "evm.h"
 #include "misc.h"
 #include "dlmgr.h"
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
 #include "mgheapmgr.h"
-#endif
 
 #ifdef ModelP
 #include "parallel.h"
@@ -994,9 +992,6 @@ static INT DisposeConnectionFromElementInNeighborhood (GRID *theGrid, ELEMENT *t
   if (theElement==NULL) RETURN (GM_OK);
 
   /* create connection at that depth */
-        #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-  if(!EBUILDCON(theElement))
-        #endif
   if (DisposeConnectionFromElement(theGrid,theElement))
     RETURN (GM_ERROR);
   SETEBUILDCON(theElement,1);
@@ -2204,7 +2199,6 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
   ELEMENT *theElement;        VECTOR *v;
   INT level,fullrefine;
 
-    #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   level = TOPLEVEL(theMG);
   if (level > 0) {
     theGrid = GRID_ON_LEVEL(theMG,TOPLEVEL(theMG));
@@ -2241,40 +2235,12 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
     PropagateVectorClasses(theGrid);
     PropagateNextVectorClasses(theGrid);
   }
-    #endif
+
   fullrefine = TOPLEVEL(theMG);
   for (level=TOPLEVEL(theMG); level>=BOTTOMLEVEL(theMG); level--)
   {
     theGrid = GRID_ON_LEVEL(theMG,level);
     for (v=PFIRSTVECTOR(theGrid); v!= NULL; v=SUCCVC(v)) {
-            #ifdef DYNAMIC_MEMORY_ALLOCMODEL
-                    #ifdef Debug
-      if (0)
-        if (VOTYPE(v) == NODEVEC)
-        {
-          NODE *theNode = (NODE *) VOBJECT(v);
-
-          if (NCLASS(theNode) > VCLASS(v))
-            UserWriteF(" node=" ID_FMTX " c %d ncl %d vector="
-                       VINDEX_FMTX
-                       " c %d vc %d level %d\n",
-                       ID_PRTX(theNode),NCOPIES(theNode),NCLASS(theNode),
-                       VINDEX_PRTX(v),NCOPIES(v),VCLASS(v),level);
-
-          assert(NCLASS(theNode) <= VCLASS(v));
-
-
-          if (NNCLASS(theNode) > VNCLASS(v))
-            UserWriteF(" node=" ID_FMTX " c %d ncl %d vector="
-                       VINDEX_FMTX
-                       " c %d vc %d level %d\n",
-                       ID_PRTX(theNode),NCOPIES(theNode),NNCLASS(theNode),
-                       VINDEX_PRTX(v),NCOPIES(v),VNCLASS(v),level);
-
-          assert(NNCLASS(theNode) <= VNCLASS(v));
-        }
-                        #endif
-                        #endif
       SETNEW_DEFECT(v,(VCLASS(v)>=2));
       SETFINE_GRID_DOF(v,((VCLASS(v)>=2)&&(VNCLASS(v)<=1)));
       if (FINE_GRID_DOF(v))
@@ -2459,12 +2425,10 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
   DDD_IFOneway(VectorIF,IF_FORWARD,sizeof(INT),
                Gather_VectorVNew,Scatter_GhostVectorVNew);
     #else
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   MGCreateConnection(theMG);
-        #endif
-        #endif
+    #endif
 
-        #ifdef __PERIODIC_BOUNDARY__
+    #ifdef __PERIODIC_BOUNDARY__
   IFDEBUG(gm,1)
   INT i;
 
@@ -2472,7 +2436,7 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
     if (Grid_CheckPeriodicity(GRID_ON_LEVEL(theMG,i)))
       return (GM_ERROR);
   ENDDEBUG
-        #endif
+    #endif
 
   SetSurfaceClasses(theMG);
 
@@ -2501,13 +2465,6 @@ INT NS_DIM_PREFIX MGCreateConnection (MULTIGRID *theMG)
 
   if (!MG_COARSE_FIXED(theMG))
     RETURN (1);
-
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
-  if (theMG->bottomtmpmem) return(0);
-  usefreelistmemory = 0;
-  if (Mark(MGHEAP(theMG),FROM_BOTTOM,&freelist_end_mark)) REP_ERR_RETURN(1);
-  theMG->bottomtmpmem = 1;
-        #endif
 
   for (i=0; i<=theMG->topLevel; i++)
   {

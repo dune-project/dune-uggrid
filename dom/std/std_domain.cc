@@ -1595,7 +1595,6 @@ BVP_Dispose (BVP * theBVP)
      The memory pointed to by theBVP->patches should also be freed when
      not using the system heap.  However the UG heap data structure is not
      available here, and for this I don't know how to do the proper deallocation. */
-#if UG_USE_SYSTEM_HEAP
   STD_BVP* stdBVP = (STD_BVP *) theBVP;
   /* npatches is the number of corners plus the number of lines plus the number of sides.
    * You apparently can't access nlines directly here, but sideoffset should be ncorners + nlines. */
@@ -1606,7 +1605,6 @@ BVP_Dispose (BVP * theBVP)
   free ( stdBVP->patches );
 
   free ( STD_BVP_S2P_PTR (stdBVP) );
-#endif
 
   /* Unlock the item so it can be deleted from the environment tree */
   ((ENVITEM*)theBVP)->d.locked = 0;
@@ -3315,9 +3313,9 @@ BNDP_Dispose (HEAP * Heap, BNDP * theBndP)
 
   ps = (BND_PS *) theBndP;
   if (!PATCH_IS_FIXED (currBVP->patches[ps->patch_id]))
-    if (PutFreelistMemory (Heap, BND_DATA (ps), DIM * sizeof (DOUBLE)))
-      return (1);
-  return (PutFreelistMemory (Heap, ps, BND_SIZE (ps)));
+    DisposeMem(Heap, BND_DATA (ps));
+  DisposeMem(Heap, ps);
+  return 0;
 }
 
 /* domain interface function: for description see domain.h */
@@ -3331,9 +3329,9 @@ BNDS_Dispose (HEAP * Heap, BNDS * theBndS)
 
   ps = (BND_PS *) theBndS;
   if (!PATCH_IS_FIXED (currBVP->patches[ps->patch_id]))
-    if (PutFreelistMemory (Heap, BND_DATA (ps), BND_N (ps) * sizeof (BNDP *)))
-      return (1);
-  return (PutFreelistMemory (Heap, ps, BND_SIZE (ps)));
+    DisposeMem(Heap, BND_DATA (ps));
+  DisposeMem(Heap, ps);
+  return 0;
 }
 
 /* domain interface function: for description see domain.h */

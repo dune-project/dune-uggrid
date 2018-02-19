@@ -83,9 +83,7 @@
 #include "elements.h"
 #include "rm.h"
 #include "ugm.h"
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
 #include "mgheapmgr.h"
-#endif
 
 /* parallel modules */
 #ifdef ModelP
@@ -2876,7 +2874,6 @@ static int ComputeCopies (GRID *theGrid)
   PRINTDEBUG(gm,1,("ComputeCopies on level %d\n",GLEVEL(theGrid)));
 
   /* set class of all dofs on next level to 0 */
-    #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   ClearNextNodeClasses(theGrid);
         #ifdef __PERIODIC_BOUNDARY__
   /*
@@ -2887,9 +2884,6 @@ static int ComputeCopies (GRID *theGrid)
   /* for periodic boundaries also the vector classes have to be initialized */
   ClearNextVectorClasses(theGrid);
         #endif
-    #else
-  ClearNextVectorClasses(theGrid);
-    #endif
 
   /* seed dofs of regularly and irregularly refined elements to 3 */
   flag = 0;
@@ -2900,16 +2894,12 @@ static int ComputeCopies (GRID *theGrid)
         (MARKCLASS(theElement)==RED_CLASS ||
          MARKCLASS(theElement)==GREEN_CLASS))
     {
-            #ifdef DYNAMIC_MEMORY_ALLOCMODEL
       SeedNextNodeClasses(theElement);
                         #ifdef __PERIODIC_BOUNDARY__
       /* for periodic boundaries seed also for vector classes
          to ensure a proper behaviour in periodic direction */
       SeedNextVectorClasses(theGrid,theElement);
                         #endif
-            #else
-      SeedNextVectorClasses(theGrid,theElement);
-            #endif
       flag=1;                   /* there is at least one element to be refined */
     }
   }
@@ -2924,16 +2914,11 @@ static int ComputeCopies (GRID *theGrid)
       for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
            theElement=SUCCE(theElement))
       {
-                #ifdef DYNAMIC_MEMORY_ALLOCMODEL
         SeedNextNodeClasses(theElement);
-                #else
-        SeedNextVectorClasses(theGrid,theElement);
-                #endif
       }
   }
   else
   {
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
 #ifdef __PERIODIC_BOUNDARY__
     {
       /* for periodic boundaries the seed has to be copied to periodic nodes */
@@ -2944,9 +2929,6 @@ static int ComputeCopies (GRID *theGrid)
     }
 #endif
     PropagateNextNodeClasses(theGrid);
-        #else
-    PropagateNextVectorClasses(theGrid);
-        #endif
   }
 
   /* an element is copied if it has a dof of class 2 and higher */
@@ -2956,11 +2938,7 @@ static int ComputeCopies (GRID *theGrid)
     INT maxclass = 0;
 
     if ((MARK(theElement)==NO_REFINEMENT)&&
-            #ifdef DYNAMIC_MEMORY_ALLOCMODEL
         ((maxclass=MaxNextNodeClass(theElement))>=MINVNCLASS))
-            #else
-        ((maxclass=MaxNextVectorClass(theGrid,theElement))>=MINVNCLASS))
-            #endif
     {
       PRINTDEBUG(gm,1,(PFMT "ComputeCopies(): level=%d e=" EID_FMTX "yellow marked\n",
                        me,LEVEL(theElement),EID_PRTX(theElement)));
@@ -6394,9 +6372,7 @@ static INT MG_MakePeriodicMarksConsistent(MULTIGRID *mg)
 
 static INT      PreProcessAdaptMultiGrid(MULTIGRID *theMG)
 {
-        #ifdef DYNAMIC_MEMORY_ALLOCMODEL
   if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
-        #endif
 
         #ifdef __PERIODIC_BOUNDARY__
   if (MG_MakePeriodicMarksConsistent(theMG)) REP_ERR_RETURN(1);
@@ -6715,37 +6691,22 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
     {
       START_TIMER(algebra_timer)
 
-                        #ifndef DYNAMIC_MEMORY_ALLOCMODEL
-      /* now rebuild connections in neighborhood of elements which have EBUILDCON set */
-      /* This flag has been set either by GridDisposeConnection or by CreateElement	*/
-      if (GridCreateConnection(FinerGrid))
-        RETURN(GM_FATAL);
-                        #endif
-
       /* and compute the vector classes on the new (or changed) level */
-            #ifdef DYNAMIC_MEMORY_ALLOCMODEL
       ClearNodeClasses(FinerGrid);
                         #ifdef __PERIODIC_BOUNDARY__
       /* for periodic case also clear vector classes */
       ClearVectorClasses(FinerGrid);
                         #endif
-            #else
-      ClearVectorClasses(FinerGrid);
-            #endif
+
       for (theElement=FIRSTELEMENT(FinerGrid); theElement!=NULL; theElement=SUCCE(theElement))
         if (ECLASS(theElement)>=GREEN_CLASS || (rFlag==GM_COPY_ALL)) {
-#ifdef DYNAMIC_MEMORY_ALLOCMODEL
           SeedNodeClasses(theElement);
                                 #ifdef __PERIODIC_BOUNDARY__
           /* for periodic nodes also initialize vector class */
           SeedVectorClasses(FinerGrid,theElement);
                                 #endif
-#else
-          SeedVectorClasses(FinerGrid,theElement);
-#endif
         }
 
-            #ifdef DYNAMIC_MEMORY_ALLOCMODEL
                         #ifdef __PERIODIC_BOUNDARY__
       {
         /* for periodic boundaries set class 3 on both periodic sides for nodes */
@@ -6757,9 +6718,6 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
                         #endif
 
       PropagateNodeClasses(FinerGrid);
-            #else
-      PropagateVectorClasses(FinerGrid);
-            #endif
 
       SUM_TIMER(algebra_timer)
     }

@@ -86,13 +86,6 @@ INT NS_PREFIX InitLow ()
 {
   INT err;
 
-  /* init heaps.c */
-  if ((err=InitHeaps())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
   /* init ugenv.c */
   if ((err=InitUgEnv())!=0)
   {
