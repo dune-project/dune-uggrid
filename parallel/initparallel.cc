@@ -77,11 +77,7 @@ using namespace PPIF;
    InitParallel - Call of the initfunctions for all parallel modules
 
    SYNOPSIS:
-   INT InitParallel (int *argcp, char ***argvp);
-
-   PARAMETERS:
-   .  argcp - pointer to argument counter
-   .  argvp - pointer to argument vector
+   INT InitParallel();
 
    DESCRIPTION:
    This function initializes.
@@ -93,12 +89,12 @@ using namespace PPIF;
    D*/
 /****************************************************************************/
 
-INT NS_DIM_PREFIX InitParallel (int *argcp, char ***argvp)
+INT NS_DIM_PREFIX InitParallel()
 {
   INT err;
 
   /* init ddd module */
-  PRINTDEBUG(init,1,("%d:     InitParallel()...\n",me))
+  PRINTDEBUG(init,1,("     InitParallel()...\n"))
   if ((err=InitDDD())!=0)
   {
     printf("ERROR in InitParallel while InitDDD (line %d): called routine line %d\n",(int) HiWrd(err), (int) LoWrd(err));
@@ -135,7 +131,7 @@ INT NS_DIM_PREFIX ExitParallel (void)
   INT err;
 
   /* exit parallelization module */
-  PRINTDEBUG(init,1,("%d:     ExitParallel()...\n",me))
+  PRINTDEBUG(init,1,("     ExitParallel()...\n"))
   if ((err=ExitDDD())!=0)
   {
     printf("ERROR in ExitParallel while ExitDDD (line %d): called routine line %d\n",(int) HiWrd(err), (int) LoWrd(err));
