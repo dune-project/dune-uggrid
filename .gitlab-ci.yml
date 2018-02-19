@@ -8,6 +8,13 @@ debian:10  gcc:c++17:
   variables: {DUNECI_OPTS: /duneci/opts.gcc.c++17}
   tags: [duneci]
 
+debian:10  sequential:
+  image: duneci/base:10
+  script: duneci-standard-test
+  variables:
+    DUNECI_OPTS:   $CI_PROJECT_DIR/opts.sequential
+  tags: [duneci]
+
 debian:9--gcc:
   image: duneci/base:9
   script: duneci-standard-test
