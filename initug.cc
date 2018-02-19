@@ -162,7 +162,7 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
     return (__LINE__);
 
   /* init the devices module */
-  if ((err = InitDevices (argcp, *argvp)) != 0)
+  if ((err = InitDevices()) != 0)
   {
     printf
       ("ERROR in InitUg while InitDevices (line %d): called routine line %d\n",
