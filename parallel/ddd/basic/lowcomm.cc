@@ -1439,28 +1439,12 @@ static void LC_PrintMsgList (MSG_DESC *list)
 
 void LC_PrintSendMsgs (void)
 {
-  int p;
-
-  for(p=0; p<procs; p++)
-  {
-    DDD_SyncAll();
-    if (p==me)
-      LC_PrintMsgList(LC_SendQueue);
-  }
-  DDD_SyncAll();
+  LC_PrintMsgList(LC_SendQueue);
 }
 
 void LC_PrintRecvMsgs (void)
 {
-  int p;
-
-  for(p=0; p<procs; p++)
-  {
-    DDD_SyncAll();
-    if (p==me)
-      LC_PrintMsgList(LC_RecvQueue);
-  }
-  DDD_SyncAll();
+  LC_PrintMsgList(LC_RecvQueue);
 }
 
 
