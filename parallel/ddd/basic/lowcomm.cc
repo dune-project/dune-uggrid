@@ -338,8 +338,8 @@ static LC_MSGHANDLE LC_NewRecvMsg (LC_MSGTYPE mt, DDD_PROC source, size_t size)
   MSG_DESC *msg = NewMsgDesc();
 
 #       if DebugLowComm<=6
-  sprintf(cBuffer, "%4d: LC_NewRecvMsg(%s) source=%d\n",
-          me, mtyp->name, source);
+  sprintf(cBuffer, "LC_NewRecvMsg(%s) source=%d\n",
+          mtyp->name, source);
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -421,8 +421,8 @@ static void LC_MsgRecv (MSG_DESC *md)
   }
 
         #if     DebugLowComm<=2
-  sprintf(cBuffer, "%4d: LC_MsgRecv(). from=%d ready.\n",
-          me, md->proc);
+  sprintf(cBuffer, "LC_MsgRecv(). from=%d ready.\n",
+          md->proc);
   DDD_PrintDebug(cBuffer);
         #endif
 }
@@ -479,7 +479,7 @@ static int LC_PollSend (void)
   }
 
         #if     DebugLowComm<=3
-  sprintf(cBuffer, "%4d: LC_PollSend, %d msgs remaining\n",me,remaining);
+  sprintf(cBuffer, "LC_PollSend, %d msgs remaining\n",remaining);
   DDD_PrintDebug(cBuffer);
         #endif
 
@@ -536,7 +536,7 @@ static int LC_PollRecv (void)
   }
 
         #if     DebugLowComm<=3
-  sprintf(cBuffer, "%4d: LC_PollRecv, %d msgs remaining\n",me,remaining);
+  sprintf(cBuffer, "LC_PollRecv, %d msgs remaining\n",remaining);
   DDD_PrintDebug(cBuffer);
         #endif
 
@@ -652,8 +652,8 @@ int LC_MsgAlloc (LC_MSGHANDLE msg)
       else
       {
 #                               if DebugLowComm<=7
-        sprintf(cBuffer, "%4d: LC_MsgAlloc(%s) detected low memory.\n",
-                me, md->msgType->name);
+        sprintf(cBuffer, "LC_MsgAlloc(%s) detected low memory.\n",
+                md->msgType->name);
         DDD_PrintDebug(cBuffer);
 #                               endif
 
@@ -666,8 +666,8 @@ int LC_MsgAlloc (LC_MSGHANDLE msg)
 
 #                               if DebugLowComm<=6
         sprintf(cBuffer,
-                "%4d: LC_MsgAlloc(%s) preliminary poll, sends_left=%d.\n",
-                me, md->msgType->name, remaining);
+                "LC_MsgAlloc(%s) preliminary poll, sends_left=%d.\n",
+                md->msgType->name, remaining);
         DDD_PrintDebug(cBuffer);
 #                               endif
       }
@@ -677,8 +677,8 @@ int LC_MsgAlloc (LC_MSGHANDLE msg)
   if (give_up)
   {
 #               if DebugLowComm<=7
-    sprintf(cBuffer, "%4d: LC_MsgAlloc(%s) giving up, no memory.\n",
-            me, md->msgType->name);
+    sprintf(cBuffer, "LC_MsgAlloc(%s) giving up, no memory.\n",
+            md->msgType->name);
     DDD_PrintDebug(cBuffer);
 #               endif
     return(false);
@@ -936,8 +936,8 @@ LC_MSGHANDLE LC_NewSendMsg (LC_MSGTYPE aMsgType, DDD_PROC aDest)
   MSG_DESC *msg = NewMsgDesc();
 
 #       if DebugLowComm<=6
-  sprintf(cBuffer, "%4d: LC_NewSendMsg(%s) dest=%d nSends=%d\n",
-          me, mtyp->name, aDest, nSends+1);
+  sprintf(cBuffer, "LC_NewSendMsg(%s) dest=%d nSends=%d\n",
+          mtyp->name, aDest, nSends+1);
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1101,8 +1101,8 @@ int LC_Connect (LC_MSGTYPE mtyp)
   }
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Connect(%s) nSends=%d ...\n",
-          me, ((MSG_TYPE *)mtyp)->name, nSends);
+  sprintf(cBuffer, "LC_Connect(%s) nSends=%d ...\n",
+          ((MSG_TYPE *)mtyp)->name, nSends);
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1150,8 +1150,8 @@ int LC_Connect (LC_MSGTYPE mtyp)
 
 
 #       if DebugLowComm<=7
-  sprintf(cBuffer, "%4d: LC_Connect() nSends=%d nRecvs=%d\n",
-          me, nSends, nRecvs);
+  sprintf(cBuffer, "LC_Connect() nSends=%d nRecvs=%d\n",
+          nSends, nRecvs);
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1208,7 +1208,7 @@ int LC_Connect (LC_MSGTYPE mtyp)
 
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Connect() ready\n", me);
+  sprintf(cBuffer, "LC_Connect() ready\n");
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1238,8 +1238,8 @@ int LC_Abort (int exception)
   DDD_NotifyBegin(exception);
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Abort() exception=%d ...\n",
-          me, exception);
+  sprintf(cBuffer, "LC_Abort() exception=%d ...\n",
+          exception);
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1251,8 +1251,8 @@ int LC_Abort (int exception)
 
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Abort() ready, exception=%d.\n",
-          me, retException);
+  sprintf(cBuffer, "LC_Abort() ready, exception=%d.\n",
+          retException);
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1276,7 +1276,7 @@ LC_MSGHANDLE *LC_Communicate (void)
   int leftSend, leftRecv;
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Communicate() ...\n", me);
+  sprintf(cBuffer, "LC_Communicate() ...\n");
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1291,7 +1291,7 @@ LC_MSGHANDLE *LC_Communicate (void)
 
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Communicate() ready\n", me);
+  sprintf(cBuffer, "LC_Communicate() ready\n");
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1308,7 +1308,7 @@ LC_MSGHANDLE *LC_Communicate (void)
 void LC_Cleanup (void)
 {
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Cleanup() ...\n", me);
+  sprintf(cBuffer, "LC_Cleanup() ...\n");
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -1335,7 +1335,7 @@ void LC_Cleanup (void)
 
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Cleanup() ready\n", me);
+  sprintf(cBuffer, "LC_Cleanup() ready\n");
   DDD_PrintDebug(cBuffer);
 #       endif
 }
@@ -1372,7 +1372,7 @@ static void LC_PrintMsgList (MSG_DESC *list)
       /* first, close part of msg-list with summary */
       if (last_mt!=NULL)
       {
-        sprintf(cBuffer, "%4d:        = |", me);
+        sprintf(cBuffer, "        = |");
         sum = 0;
         for(i=0; i<last_mt->nComps; i++)
         {
@@ -1386,7 +1386,7 @@ static void LC_PrintMsgList (MSG_DESC *list)
       }
 
       /* then, construct header */
-      sprintf(cBuffer, "%4d:%9.9s |", me, LC_Name(mt->name));
+      sprintf(cBuffer, "%9.9s |", LC_Name(mt->name));
       for(i=0; i<mt->nComps; i++)
       {
         if (mt->comp[i].name!=NULL)
@@ -1402,7 +1402,7 @@ static void LC_PrintMsgList (MSG_DESC *list)
     }
 
     /* construct info about message components */
-    sprintf(cBuffer, "%4d:%9d |", me, md->proc);
+    sprintf(cBuffer, "%9d |", md->proc);
     sum = 0;
     for(i=0; i<mt->nComps; i++)
     {
@@ -1421,7 +1421,7 @@ static void LC_PrintMsgList (MSG_DESC *list)
   /* close last part of msg-list with summary */
   if (last_mt!=NULL)
   {
-    sprintf(cBuffer, "%4d:        = |", me);
+    sprintf(cBuffer, "        = |");
     sum = 0;
     for(i=0; i<last_mt->nComps; i++)
     {
