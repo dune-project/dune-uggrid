@@ -6409,7 +6409,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
     SETPREDNEW1(REFINEINFO(theMG),New);
 
     SETREAL(REFINEINFO(theMG),mg_sum);
-    ASSERT(false && "predmax = free_bytes/elem_max_size");
     SETPREDMAX(REFINEINFO(theMG),predmax);
   }
 
