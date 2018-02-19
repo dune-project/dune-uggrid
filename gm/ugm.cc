@@ -6213,7 +6213,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   INT mg_red,mg_green,mg_yellow;
   INT mg_greenrulesons[MAXLEVEL+1][MAX_SONS+1],mg_greenrules[MAXLEVEL+1];
   INT markcount[MAXLEVEL+1],closuresides[MAXLEVEL+1];
-  INT elem_max_size;
   FLOAT sum,sum_div_red,redplusgreen_div_red;
   FLOAT mg_sum,mg_sum_div_red,mg_redplusgreen_div_red;
   ELEMENT *theElement;
@@ -6227,9 +6226,9 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
         #endif
 
 #ifdef __TWODIM__
-  elem_max_size = sizeof(struct quadrilateral);
+  static const std::size_t = elem_max_size = sizeof(struct quadrilateral);
 #else
-  elem_max_size = sizeof(struct hexahedron);
+  static const std::size_t = elem_max_size = sizeof(struct hexahedron);
 #endif
 
   mg_red = mg_green = mg_yellow = mg_sum = 0;
