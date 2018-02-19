@@ -466,17 +466,7 @@ INT NS_PREFIX GetMuteLevel (void)
 
 INT NS_PREFIX InitDevices (int *argcp, char **argv)
 {
-  char buffer[256];
-
-  /* get default mutelevel from defaults file */
-  if (GetDefaultValue(DEFAULTSFILENAME,"mutelevel",buffer)==0)
-  {
-    int ival = 0;
-    sscanf(buffer," %d ",&ival);
-    SetMuteLevel ((INT) ival);
-  }
-
-  return(0);
+  return 0;
 }
 
 
