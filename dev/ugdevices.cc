@@ -225,11 +225,6 @@ INT NS_PREFIX WriteLogFile (const char *text)
 
 void NS_PREFIX UserWrite (const char *s)
 {
-        #ifdef ModelP
-  if (me==master)
-  {
-        #endif
-
   if (mutelevel>-1000)
     printf("%s", s);
   if (logFile!=NULL) {
@@ -245,25 +240,6 @@ void NS_PREFIX UserWrite (const char *s)
     fflush(logFile);
                 #endif
   }
-
-        #ifdef ModelP
-}
-else
-{
-  PRINTDEBUG(ui,1,("%d: %s\n", me,s))
-  IFDEBUG(ui,0)
-  if (logFile!=NULL) {
-    if ( fputs(s,logFile) < 0 )
-    {
-      UserWrite( "ERROR in writing logfile\n" );
-      printf( "ERROR in writing logfile\n" );
-      fflush(logFile);
-    }
-    fflush(logFile);
-  }
-  ENDDEBUG
-}
-        #endif
 }
 
 /****************************************************************************/
@@ -302,31 +278,8 @@ int NS_PREFIX UserWriteF (const char *format, ...)
   count = vsprintf(buffer,format,args);
   assert(count<VAR_ARG_BUFLEN-1);
 
-        #ifdef ModelP
-  if (me==master)
-  {
-        #endif
-
   if (mutelevel>-1000)
     printf("%s", buffer);
-
-        #ifdef ModelP
-}
-else
-{
-  PRINTDEBUG(ui,1,("%d: %s\n", me,buffer))
-  IFDEBUG(ui,0)
-  if (logFile!=NULL) {
-    if ( fputs(buffer,logFile) < 0 )
-    {
-      UserWrite( "ERROR in writing logfile\n" );
-      printf( "ERROR in writing logfile\n" );
-    }
-    fflush(logFile);
-  }
-  ENDDEBUG
-}
-        #endif
 
   if (logFile!=NULL) {
     if ( fputs(buffer,logFile) < 0 )
