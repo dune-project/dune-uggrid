@@ -196,7 +196,7 @@ typedef struct obj_coupl
 typedef struct _ELEM_DESC
 {
   int offset;                         /* element offset from object address     */
-  unsigned char *gbits;               /* ptr to gbits array, if type==EL_GBITS  */
+  std::unique_ptr<unsigned char[]> gbits; /* gbits array, if type==EL_GBITS     */
 
   size_t size;                        /* size of this element                   */
   int type;                           /* type of element, one of EL_xxx         */

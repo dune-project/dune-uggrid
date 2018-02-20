@@ -35,6 +35,8 @@
 
 /* standard C library */
 #include <config.h>
+
+#include <algorithm>
 #include <cstdlib>
 #include <cstdio>
 #include <stdarg.h>
@@ -112,21 +114,6 @@ int ddd_TypeDefined (TYPE_DESC *desc)
 
 
 /****************************************************************************/
-
-
-/*
-        sort pointers to ELEM_DESC according to their offset
- */
-
-static int sort_el_offset (const void *i1, const void *i2)
-{
-  ELEM_DESC *e1 = (ELEM_DESC *)i1;
-  ELEM_DESC *e2 = (ELEM_DESC *)i2;
-
-  if (e1->offset < e2->offset) return(-1);
-  if (e1->offset > e2->offset) return(1);
-  return(0);
-}
 
 
 /*
@@ -244,12 +231,7 @@ static void ConstructEl (ELEM_DESC *elem, int t, int o, size_t s, DDD_TYPE rt)
    */
   if (t==EL_GBITS)
   {
-    elem->gbits = (unsigned char *) AllocFix(s);
-    if (elem->gbits==NULL)
-    {
-      DDD_PrintError('E', 2406, STR_NOMEM " for EL_GBITS array");
-      HARD_EXIT;
-    }
+    elem->gbits = std::make_unique<unsigned char[]>(s);
   }
 }
 
@@ -337,7 +319,7 @@ static void DeleteFirstEl (ELEM_DESC *elarray, int n)
 
   for(i=1; i<n; i++)
   {
-    elarray[i-1] = elarray[i];
+    elarray[i-1] = std::move(elarray[i]);
   }
 }
 
@@ -358,7 +340,10 @@ static int NormalizeDesc (TYPE_DESC *desc)
   ELEM_DESC  *elems = desc->element;
 
   /* sort element array by offset */
-  qsort(elems, desc->nElements, sizeof(ELEM_DESC), sort_el_offset);
+  std::sort(
+    elems, elems + desc->nElements,
+    [](const ELEM_DESC& a, const ELEM_DESC& b) { return a.offset < b.offset; }
+    );
 
   /* check for overlapping elements */
   if (! CheckOverlapEls(desc))
@@ -719,7 +704,7 @@ void DDD_TypeDefine (DDD_TYPE typ, ...)
       gbits = va_arg(ap, char *); argno++;
 
       /* fill gbits array, read forth arg from cmdline */
-      memcpy(desc->element[i].gbits, gbits, argsize);
+      memcpy(desc->element[i].gbits.get(), gbits, argsize);
 
       if (CheckBounds(desc, &desc->element[i], argno) == ERROR)
         return;
