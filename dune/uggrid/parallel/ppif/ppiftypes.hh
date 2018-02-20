@@ -21,6 +21,13 @@ using msgid = Msg*;
 
 constexpr static msgid NO_MSGID = nullptr;
 
+/**
+ * indicate support for context objects in PPIF
+ */
+#ifndef DUNE_UGGRID_HAVE_PPIFCONTEXT
+#  define DUNE_UGGRID_HAVE_PPIFCONTEXT 1
+#endif
+
 class PPIFContext;
 
 } /* namespace PPIF */
