@@ -12,6 +12,15 @@
   will abort. The long-term plan is to compile the data file into the binary, and make
   the new closure algorithm the default.
 * Many now unused parts of UG have been removed from the source.
+* The InsertElement algorithm was completely rewritten. Up to now the user
+  had to ensure that enough memory was allocated in order to create a
+  lookup for the InsertElement neighbor search. This was necessary to
+  ensure an O(n) complexity. Otherwise loading large meshes was
+  prohibetively slow. The new implementation uses modern C++ data
+  structures. To speed up the neighbor search we maintain a hash-map
+  (i.e. unordere_map) from a face to an element. The new
+  implementation is as fast as the old one, can dynamically adapt to
+  the mesh size and uses less memory.
 
 See the list of all [dune-uggrid 2.6 merge requests][] for minor
 changes not mentioned here.
