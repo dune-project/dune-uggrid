@@ -61,6 +61,9 @@ START_UGDIM_NAMESPACE
 /*                                                                                                                                                      */
 /****************************************************************************/
 
+#ifndef DUNE_UGGRID_HAVE_DDDCONTEXT
+#  define DUNE_UGGRID_HAVE_DDDCONTEXT 1
+#endif
 
 #define MAXDDDTYPES   32
 
