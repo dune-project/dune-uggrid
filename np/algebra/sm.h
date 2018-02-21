@@ -31,38 +31,13 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*																			*/
-/* The sparse matrix structure                                                                          */
-/*																			*/
-/****************************************************************************/
-
-typedef struct {
-
-  SHORT nrows;                         /* number of rows                        */
-  SHORT ncols;                         /* number of columns                     */
-  SHORT N;                             /* total number of nonzero elements      */
-
-  SHORT *row_start;                    /* pointer to nrows+1 row starts         */
-  SHORT *col_ind;                      /* pointer to N column indices           */
-  SHORT *offset;                       /* pointer to N value offsets            */
-
-  SHORT components[1];
-
-} SPARSE_MATRIX;
-/* usually there will be nrows+2*N SHORTs allocated after this structure  */
-
-/****************************************************************************/
-/*																			*/
 /* Routines for sparse matrix handling                                                                  */
 /*																			*/
 /****************************************************************************/
 
 INT ComputeSMSizeOfArray (SHORT nr, SHORT nc, const SHORT *comps,
                           SHORT *NPtr, SHORT *NredPtr);
-INT Array2SM             (SHORT nr, SHORT nc, const SHORT *comps,
-                          SPARSE_MATRIX *sm);
 INT String2SMArray       (SHORT n, char *str, SHORT *comps);
-
-INT SM_Compute_Reduced_Size    (SPARSE_MATRIX *sm);
 
 END_UGDIM_NAMESPACE
 

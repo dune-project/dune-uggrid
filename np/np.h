@@ -35,10 +35,9 @@
 #include "ugtypes.h"
 #include "gm.h"
 #include "algebra.h"
+#include "formats.h"
 #include "ugenv.h"
 #include "udm.h"
-#include "numproc.h"
-#include "npscan.h"
 
 #include "namespace.h"
 
@@ -116,30 +115,9 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* structures concerned with symbolic user data management                  */
-/*                                                                          */
-/****************************************************************************/
-
-typedef INT (*SetFuncProcPtr)(const DOUBLE_VECTOR, INT, DOUBLE *);
-
-/****************************************************************************/
-/*                                                                          */
 /* function declarations                                                                                                        */
 /*                                                                                                                                                      */
 /****************************************************************************/
-
-/****************************************************************************/
-/*                                                                                                                                                      */
-/* blas routines and iterative methods                                                                          */
-/*                                                                                                                                                      */
-/****************************************************************************/
-
-/* modus for blas routines                                                  */
-#define ON_SURFACE      -1      /* class on surface                                     */
-#define ALL_VECTORS      0      /* all vectors                                          */
-
-/* iterative methods */
-INT l_setindex          (GRID *g);
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -147,23 +125,8 @@ INT l_setindex          (GRID *g);
 /*                                                                                                                                                      */
 /****************************************************************************/
 
-/* create */
-NP_BASE *       GetNumProcFromName                      (char *name);
-
-/* step */
-NP_BASE    *GetFirstNumProcType                 (void);
-NP_BASE    *GetNextNumProcType                  (NP_BASE *);
-NP_BASE   *GetFirstNumProc                              (void);
-NP_BASE   *GetNextNumProc                               (NP_BASE *);
-
 /* miscellaneous */
-INT             ExecuteNumProc                          (NP_BASE *theNumProc, MULTIGRID *theMG, INT argc, char **argv);
-INT             DisplayNumProc                          (NP_BASE *theNumProc);
-INT             ListNumProc                             (NP_BASE *currNumProc);
-INT                     SetNumProc                                      (NP_BASE *, INT, char **);
 INT             InitNum                                         (void);
-INT             GetVectorCompNames                      (VECDATA_DESC *theVDT, char *compNames, INT *nComp);
-INT             WriteVEC_SCALAR                         (const VECDATA_DESC *theVDT, const VEC_SCALAR Scalar, const char *structdir);
 
 END_UGDIM_NAMESPACE
 

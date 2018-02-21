@@ -1,6 +1,4 @@
 set(SOURCES
-  ugblas.cc
-  ugiter.cc
   sm.cc
 )
 

@@ -37,7 +37,6 @@
 #include "formats.h"
 
 #include "initnumerics.h"
-#include "numproc.h"
 
 USING_UG_NAMESPACES
 
@@ -72,12 +71,6 @@ USING_UG_NAMESPACES
 INT NS_DIM_PREFIX InitNumerics ()
 {
   INT err;
-
-  /* init procs */
-  if ((err=InitNumProcManager())!=0) {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
 
   /* init user data manager */
   if ((err=InitUserDataManager())!=0) {
