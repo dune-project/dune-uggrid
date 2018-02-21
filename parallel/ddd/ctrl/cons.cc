@@ -35,6 +35,9 @@
 #include <cstring>
 #include <cassert>
 
+#include <algorithm>
+#include <vector>
+
 #include "dddi.h"
 /*#include "xfer/xfer.h"*/
 #include "basic/lowcomm.h"
@@ -288,26 +291,14 @@ static int ConsCheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
 
 
 
-static int sort_CplBufDest (const void *e1, const void *e2)
+static bool sort_CplBufDest (const CONS_INFO& a, const CONS_INFO& b)
 {
-  CONS_INFO   *ci1, *ci2;
-
-  ci1 = (CONS_INFO *)e1;
-  ci2 = (CONS_INFO *)e2;
-
-  if (ci1->dest < ci2->dest) return(-1);
-  if (ci1->dest > ci2->dest) return(1);
-
-  if (ci1->gid < ci2->gid) return(-1);
-  if (ci1->gid > ci2->gid) return(1);
-
-  return(0);
+  return std::tie(a.dest, a.gid) < std::tie(b.dest, b.gid);
 }
 
 
 static int ConsCheckGlobalCpl (void)
 {
-  CONS_INFO *cplBuf=NULL;
   COUPLING     *cpl;
   int i, j, lenCplBuf, nRecvMsgs;
   CONSMSG      *sendMsgs=NULL, *cm=NULL;
@@ -321,18 +312,7 @@ static int ConsCheckGlobalCpl (void)
     lenCplBuf += IdxNCpl(i);
 
   /* get storage for messages */
-  cplBuf = (CONS_INFO *)
-                #ifdef ConsMemFromHeap
-           AllocHeap(lenCplBuf*sizeof(CONS_INFO), theMarkKey);
-                #else
-           AllocTmp(lenCplBuf*sizeof(CONS_INFO));
-                #endif
-
-  if (cplBuf==NULL && lenCplBuf!=0)
-  {
-    DDD_PrintError('E', 9901, STR_NOMEM " in ConsCheckGlobalCpl");
-    return(-1);
-  }
+  std::vector<CONS_INFO> cplBuf(lenCplBuf);
 
   /* copy CONS_INFOs into message buffer */
   for(i=0, j=0; i<NCpl_Get; i++)
@@ -359,11 +339,10 @@ static int ConsCheckGlobalCpl (void)
   assert(j==lenCplBuf);
 
   /* sort couplings */
-  if (lenCplBuf>1)
-    qsort(cplBuf, lenCplBuf, sizeof(CONS_INFO), sort_CplBufDest);
+  std::sort(cplBuf.begin(), cplBuf.end(), sort_CplBufDest);
 
   /* accumulate messages (one for each partner); inform receivers */
-  ConsBuildMsgInfos(cplBuf, lenCplBuf, &sendMsgs);
+  ConsBuildMsgInfos(cplBuf.data(), cplBuf.size(), &sendMsgs);
 
   /* init communication topology */
   nRecvMsgs = LC_Connect(consmsg_t);
@@ -409,11 +388,6 @@ exit_ConsCheckGlobalCpl:
 
 
   /* free temporary storage */
-        #ifndef ConsMemFromHeap
-  if (cplBuf!=NULL)
-    FreeTmp(cplBuf,0);
-        #endif
-
   for(; sendMsgs!=NULL; sendMsgs=cm)
   {
     cm = sendMsgs->next;
@@ -571,7 +545,6 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
 
 static int Cons2CheckGlobalCpl (void)
 {
-  CONS_INFO *cplBuf;
   COUPLING     *cpl, *cpl2;
   int i, j, lenCplBuf, nRecvMsgs;
   CONSMSG      *sendMsgs, *cm=0;
@@ -584,18 +557,7 @@ static int Cons2CheckGlobalCpl (void)
     lenCplBuf += (IdxNCpl(i) * (IdxNCpl(i)+1));
 
   /* get storage for messages */
-  cplBuf = (CONS_INFO *)
-                #ifdef ConsMemFromHeap
-           AllocHeap(lenCplBuf*sizeof(CONS_INFO), theMarkKey);
-                #else
-           AllocTmp(lenCplBuf*sizeof(CONS_INFO));
-                #endif
-
-  if (cplBuf==NULL && lenCplBuf!=0)
-  {
-    DDD_PrintError('E', 9902, STR_NOMEM " in Cons2CheckGlobalCpl");
-    return(-1);
-  }
+  std::vector<CONS_INFO> cplBuf(lenCplBuf);
 
   /* copy CONS_INFOs into message buffer */
   for(i=0, j=0; i<NCpl_Get; i++)
@@ -623,11 +585,10 @@ static int Cons2CheckGlobalCpl (void)
   assert(j==lenCplBuf);
 
   /* sort couplings */
-  if (lenCplBuf>1)
-    qsort(cplBuf, lenCplBuf, sizeof(CONS_INFO), sort_CplBufDest);
+  std::sort(cplBuf.begin(), cplBuf.end(), sort_CplBufDest);
 
   /* accumulate messages (one for each partner); inform receivers */
-  ConsBuildMsgInfos(cplBuf, lenCplBuf, &sendMsgs);
+  ConsBuildMsgInfos(cplBuf.data(), cplBuf.size(), &sendMsgs);
 
   /* init communication topology */
   nRecvMsgs = LC_Connect(consmsg_t);
@@ -665,11 +626,6 @@ static int Cons2CheckGlobalCpl (void)
 
 
   /* free temporary storage */
-        #ifndef ConsMemFromHeap
-  if (cplBuf!=NULL)
-    FreeTmp(cplBuf,0);
-        #endif
-
   for(; sendMsgs!=NULL; sendMsgs=cm)
   {
     cm = sendMsgs->next;
