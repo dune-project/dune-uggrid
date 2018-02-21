@@ -77,7 +77,6 @@
 
 /* numerics module */
 #include "np.h"
-#include "ugblas.h"
 #include "disctools.h"
 #include "udm.h"
 

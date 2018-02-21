@@ -342,7 +342,6 @@ INT                     Patterns2Rules                  (ELEMENT *theElement,INT
 ELEMENT         *ELEMENT_TO_MARK                (ELEMENT *theElement);
 
 #ifdef __THREEDIM__
-INT             SetAlignmentPtr                 (MULTIGRID *theMG, EVECTOR *direction);
 INT             GetRule_AnisotropicRed  (ELEMENT *theElement, INT *Rule);
 #endif
 

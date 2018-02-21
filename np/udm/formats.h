@@ -107,8 +107,6 @@ START_UGDIM_NAMESPACE
 #define MT_COMPNAME(mt,i)       ((mt)->CompNames[i])
 #define MT_SUB(mt,i)            ((mt)->SubMat[i])
 #define MT_NSUB(mt)                     ((mt)->nsub)
-#define MT_SM(mt,i)         ((mt)->sm[i])
-#define MT_SMP(mt)          ((mt)->sm)
 /*@}*/
 
 /****************************************************************************/
@@ -188,34 +186,9 @@ typedef struct
 /****************************************************************************/
 
 INT DisplayPrintingFormat (void);
-INT SetPrintingFormatCmd (const MULTIGRID * mg, INT argc, char **argv);
 INT ResetPrintingFormat (void);
 
-VEC_TEMPLATE *GetVectorTemplate (const FORMAT * theFmt, const char *tmplt);
-MAT_TEMPLATE *GetMatrixTemplate (const FORMAT * theFmt, const char *tmplt);
-
-VECDATA_DESC *CreateVecDescOfTemplate (MULTIGRID * theMG,
-                                       const char *name, const char *tmplt);
-MATDATA_DESC *CreateMatDescOfTemplate (MULTIGRID * theMG,
-                                       const char *name, const char *tmplt);
-
-INT VDmatchesVT (const VECDATA_DESC * vd, const VEC_TEMPLATE * vt);
-INT CompMDwithMT (const MATDATA_DESC * md, const MAT_TEMPLATE * mt);
-INT MDmatchesVT (const MATDATA_DESC * md, const VEC_TEMPLATE * vt);
-INT MDmatchesVTxVT (const MATDATA_DESC * md, const VEC_TEMPLATE * rvt,
-                    const VEC_TEMPLATE * cvt);
-
-INT VDsubDescFromVS (const VECDATA_DESC * vd, const SUBVEC * subv,
-                     VECDATA_DESC ** subvd);
-INT MDsubDescFromMT (const MATDATA_DESC * md, const MAT_TEMPLATE * mt,
-                     INT sub, MATDATA_DESC ** submd);
-
 INT CreateFormatCmd (INT argc, char **argv);
-INT RemoveFormatWithSubs (const char *name);
-
-INT CreateVecDescCmd (MULTIGRID * theMG, INT argc, char **argv);
-INT CreateMatDescCmd (MULTIGRID * theMG, INT argc, char **argv);
-INT FreeMatDescCmd (MULTIGRID * theMG, INT argc, char **argv);
 
 INT InitFormats (void);
 
