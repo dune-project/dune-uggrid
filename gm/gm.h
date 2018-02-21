@@ -1631,7 +1631,6 @@ typedef union object_with_key KEY_OBJECT;
 
 typedef INT (*PreprocessingProcPtr)(const char *, MULTIGRID *);
 typedef DOUBLE (*ElementEvalProcPtr)(const ELEMENT *,const DOUBLE **,DOUBLE *);
-typedef void (*ElementVectorProcPtr)(const ELEMENT *,const DOUBLE **,DOUBLE *,DOUBLE *);
 typedef DOUBLE (*MatrixEvalProcPtr)(const MATRIX *);
 
 /*----------- definition of structs ----------------------------------------*/
@@ -1648,24 +1647,7 @@ struct elementvalues {
   ElementEvalProcPtr EvalProc;
 };
 
-struct elementvector {
-
-  /** \brief Fields for environment list variable */
-  NS_PREFIX ENVVAR v;
-
-  /** \brief Prepare eval values */
-  PreprocessingProcPtr PreprocessProc;
-
-  /** \brief Pointer to corresponding function */
-  ElementVectorProcPtr EvalProc;
-
-  /** \brief Dimension of result vector */
-  int dimension;
-
-};
-
 typedef struct elementvalues EVALUES ;
-typedef struct elementvector EVECTOR ;
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -3257,7 +3239,6 @@ FIND_CUT        *CreateFindCutProc                              (const char *nam
 /* functions for evaluation-fct management */
 INT              InitEvalProc                                                           (void);
 EVALUES         *GetElementValueEvalProc                                        (const char *name);
-EVECTOR         *GetElementVectorEvalProc                                       (const char *name);
 
 /* miscellaneous */
 INT             RenumberMultiGrid                                       (MULTIGRID *theMG, INT *nboe, INT *nioe, INT *nbov, INT *niov, NODE ***vid_n, INT *foid, INT *non, INT MarkKey);

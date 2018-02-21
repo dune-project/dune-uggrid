@@ -94,32 +94,6 @@ EVALUES * NS_DIM_PREFIX GetElementValueEvalProc (const char *name)
 
 /****************************************************************************/
 /*
-   GetElementVectorEvalProc -
-
-   SYNOPSIS:
-   EVECTOR *GetElementVectorEvalProc (const char *name);
-
-   PARAMETERS:
-   .  name -
-
-   DESCRIPTION:
-   This function gets element vector plot proceedure in evironement from name.
-
-   RETURN VALUE:
-   EVECTOR *
-   .n      pointer to
-   .n      NULL if not found.
- */
-/****************************************************************************/
-
-EVECTOR * NS_DIM_PREFIX GetElementVectorEvalProc (const char *name)
-{
-  if (ChangeEnvDir("/ElementVectorEvalProcs")==NULL) return(NULL);
-  return((EVECTOR*) SearchEnv(name,".",theElemVectorVarID,SEARCHALL));
-}
-
-/****************************************************************************/
-/*
    InitEvalProc	- Init this file
 
    SYNOPSIS:

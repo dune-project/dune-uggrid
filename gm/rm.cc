@@ -117,7 +117,6 @@ std::unique_ptr<SHORT[]> NS_DIM_PREFIX Pattern2Rule[TAGS];
 #ifdef __THREEDIM__
 /* define the standard regular rules for tetrahedrons */
 FULLREFRULEPTR NS_DIM_PREFIX theFullRefRule;
-static ElementVectorProcPtr theDirectionElemEval;
 #endif
 
 
@@ -2077,74 +2076,6 @@ static INT MaxArea (ELEMENT *theElement)
   return (refrule);
 }
 
-
-/****************************************************************************/
-/** \brief
-   Alignment -  compute best full refined refrule for the element
-
-   SYNOPSIS:
-   static INT Alignment (ELEMENT *theElement);
-
-   PARAMETERS:
-   \param theElement - for that element
-
-   DESCRIPTION:
-   This function computes the best full refined refrule for the element according to velocity
-
-   \return
-   INT
-   .n   Mark: number of refrule
- */
-/****************************************************************************/
-
-static INT Alignment (ELEMENT *theElement)
-{
-  DOUBLE *Corners[MAX_CORNERS_OF_ELEM];
-  DOUBLE_VECTOR MidPoints[MAX_EDGES_OF_ELEM], help, MidPoint;
-  DOUBLE_VECTOR Velocity;
-  INT i, imax;
-  DOUBLE Dist_0_5, Dist_1_3, Dist_2_4, max;
-
-  /* get physical position of the corners */
-  V3_CLEAR(MidPoint)
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
-    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
-  (*theDirectionElemEval)(theElement,(const DOUBLE **)Corners,
-                          (DOUBLE *)LMP(CORNERS_OF_ELEM(theElement)),
-                          Velocity);
-
-  /* get physical position of the midpoints of the edges */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
-    V3_LINCOMB(0.5, Corners[CORNER_OF_EDGE(theElement,i,0)], 0.5, Corners[CORNER_OF_EDGE(theElement,i,1)], MidPoints[i]);
-
-  /* compute differences */
-  max=-MAX_C;
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
-  {
-    V3_SUBTRACT(Corners[CORNER_OF_EDGE(theElement,i,0)], Corners[CORNER_OF_EDGE(theElement,i,1)], help)
-    V3_Normalize(help);
-    if (ABS(Velocity[0]*help[0]+Velocity[1]*help[1]+Velocity[2]*help[2])>max) {imax=i; max=ABS(Velocity[0]*help[0]+Velocity[1]*help[1]+Velocity[2]*help[2]);}
-  }
-  V3_EUKLIDNORM_OF_DIFF(MidPoints[0], MidPoints[5], Dist_0_5)
-  V3_EUKLIDNORM_OF_DIFF(MidPoints[1], MidPoints[3], Dist_1_3)
-  V3_EUKLIDNORM_OF_DIFF(MidPoints[2], MidPoints[4], Dist_2_4)
-  switch (imax)
-  {
-  case 0 : if (Dist_1_3<Dist_2_4) return (FULL_REFRULE_1_3);
-    else return (FULL_REFRULE_2_4);
-  case 1 : if (Dist_0_5<Dist_2_4) return (FULL_REFRULE_0_5);
-    else return (FULL_REFRULE_2_4);
-  case 2 : if (Dist_1_3<Dist_0_5) return (FULL_REFRULE_1_3);
-    else return (FULL_REFRULE_0_5);
-  case 3 : if (Dist_0_5<Dist_2_4) return (FULL_REFRULE_0_5);
-    else return (FULL_REFRULE_2_4);
-  case 4 : if (Dist_1_3<Dist_0_5) return (FULL_REFRULE_1_3);
-    else return (FULL_REFRULE_0_5);
-  case 5 : if (Dist_1_3<Dist_2_4) return (FULL_REFRULE_1_3);
-    else return (FULL_REFRULE_2_4);
-  }
-  return (-1);
-}
 #endif /* __THREEDIM__ */
 
 
@@ -3783,38 +3714,6 @@ static INT InitRuleManager3D (void)
   return (GM_OK);
 }
 
-
-/****************************************************************************/
-/*
-   SetAlignmentPtr -
-
-   SYNOPSIS:
-   INT SetAlignmentPtr (MULTIGRID *theMG, EVECTOR *direction);
-
-   PARAMETERS:
-   \param theMG
-   \param direction
-
-   DESCRIPTION:
-
-   \return
-   INT
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX SetAlignmentPtr (MULTIGRID *theMG, EVECTOR *direction)
-{
-  if (direction != NULL)
-  {
-    if ((*(direction->PreprocessProc))(ENVITEM_NAME(direction),theMG)) return(1);
-    theDirectionElemEval = direction->EvalProc;
-    theFullRefRule = Alignment;
-  }
-  else
-    theFullRefRule = ShortestInteriorEdge;
-
-  return(0);
-}
 
 #endif /* __THREEDIM__ */
 
