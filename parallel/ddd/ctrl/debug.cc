@@ -32,6 +32,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <algorithm>
+
 #include "dddi.h"
 
 /* PPIF namespace: */
@@ -96,19 +98,9 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-static int sort_LocalObjs (const void *e1, const void *e2)
+static bool sort_LocalObjs(const DDD_HDR& a, const DDD_HDR& b)
 {
-  DDD_HDR o1, o2;
-
-  o1 = *((DDD_HDR *)e1);
-  o2 = *((DDD_HDR *)e2);
-
-  if (OBJ_TYPE(o1) < OBJ_TYPE(o2)) return(-1);
-  if (OBJ_TYPE(o1) > OBJ_TYPE(o2)) return(1);
-
-  if (OBJ_GID(o1) < OBJ_GID(o2)) return(-1);
-  if (OBJ_GID(o1) == OBJ_GID(o2)) return(0);
-  return(1);
+  return std::tie(OBJ_TYPE(a), OBJ_GID(a)) < std::tie(OBJ_TYPE(b), OBJ_GID(b));
 }
 
 
@@ -120,7 +112,7 @@ void DDD_ListLocalObjects (void)
   if ((locObjs=LocalObjectsList()) ==NULL)
     return;
 
-  qsort(locObjs, ddd_nObjs, sizeof(DDD_HDR), sort_LocalObjs);
+  std::sort(locObjs, locObjs + ddd_nObjs, sort_LocalObjs);
 
   for(i=0; i<ddd_nObjs; i++)
   {
