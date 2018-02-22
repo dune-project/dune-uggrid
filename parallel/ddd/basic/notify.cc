@@ -35,6 +35,9 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <algorithm>
+#include <tuple>
+
 #include "dddi.h"
 #include "basic/notify.h"
 
@@ -164,50 +167,15 @@ void NotifyExit (void)
 
 /****************************************************************************/
 
-
-
-static int sort_XferInfos (const void *e1, const void *e2)
+static bool sort_XferInfos(const NOTIFY_INFO& a, const NOTIFY_INFO& b)
 {
-  NOTIFY_INFO *ci1, *ci2;
-
-  ci1 = (NOTIFY_INFO *)e1;
-  ci2 = (NOTIFY_INFO *)e2;
-
-  if (ci1->to < ci2->to) return(-1);
-  if (ci1->to > ci2->to) return(1);
-
-  if (ci1->from < ci2->from) return(-1);
-  if (ci1->from == ci2->from) return(0);
-  return(1);
+  return std::tie(a.to, a.from) < std::tie(b.to, b.from);
 }
 
-
-static int sort_XferFlags (const void *e1, const void *e2)
+static bool sort_XferFlags(const NOTIFY_INFO& a, const NOTIFY_INFO& b)
 {
-  NOTIFY_INFO *ci1, *ci2;
-
-  ci1 = (NOTIFY_INFO *)e1;
-  ci2 = (NOTIFY_INFO *)e2;
-
-  if (ci1->flag < ci2->flag) return(-1);
-  if (ci1->flag == ci2->flag) return(0);
-  return(1);
+  return a.flag < b.flag;
 }
-
-
-static int sort_XferRouting (const void *e1, const void *e2)
-{
-  NOTIFY_INFO *ci1, *ci2;
-
-  ci1 = (NOTIFY_INFO *)e1;
-  ci2 = (NOTIFY_INFO *)e2;
-
-  if (theRouting[ci1->to] < theRouting[ci2->to]) return(-1);
-  if (theRouting[ci1->to] == theRouting[ci2->to]) return(0);
-  return(1);
-}
-
-
 
 NOTIFY_INFO *NotifyPrepare (void)
 {
@@ -299,7 +267,7 @@ int NotifyTwoWave (NOTIFY_INFO *allInfos, int lastInfo, int exception)
     /* determine target direction in tree */
     /* TODO: eventually extra solution for root node!
                      (it knows all flags are MYSELF or KNOWN!)  */
-    qsort(allInfos, lastInfo, sizeof(NOTIFY_INFO), sort_XferInfos);
+    std::sort(allInfos, allInfos + lastInfo, sort_XferInfos);
     i = j = 0;
     unknownInfos = lastInfo;
     myInfos = 0;
@@ -319,8 +287,7 @@ int NotifyTwoWave (NOTIFY_INFO *allInfos, int lastInfo, int exception)
           i++;
       }
     }
-    qsort(allInfos, lastInfo, sizeof(NOTIFY_INFO), sort_XferFlags);
-
+    std::sort(allInfos, allInfos + lastInfo, sort_XferFlags);
 
     /* send local Info list uptree, but only unknown Infos */
     newInfos = &allInfos[lastInfo-unknownInfos];
@@ -376,7 +343,11 @@ int NotifyTwoWave (NOTIFY_INFO *allInfos, int lastInfo, int exception)
   if (! local_exception)
   {
     /* sort Infos according to routing */
-    qsort(allInfos, lastInfo, sizeof(NOTIFY_INFO), sort_XferRouting);
+    std::sort(
+      allInfos, allInfos + lastInfo,
+      [](const NOTIFY_INFO& a, const NOTIFY_INFO& b) {
+        return theRouting[a.to] < theRouting[b.to];
+      });
 
                 #if     DebugNotify<=1
     for(i=0; i<lastInfo; i++)
