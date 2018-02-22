@@ -67,6 +67,9 @@
 #include "dimension.h"
 
 #include <dune/uggrid/parallel/ppif/ppiftypes.hh>
+#ifdef ModelP
+#  include <dune/uggrid/parallel/ddd/dddcontext.hh>
+#endif
 
 /****************************************************************************/
 /*                                                                          */
@@ -1609,6 +1612,13 @@ struct multigrid {
     { return *ppifContext_; }
 
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
+
+#ifdef ModelP
+  const DDD::DDDContext& dddContext() const
+    { return *dddContext_; }
+
+  std::shared_ptr<DDD::DDDContext> dddContext_;
+#endif
 };
 
 /****************************************************************************/
