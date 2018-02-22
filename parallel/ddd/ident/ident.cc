@@ -53,6 +53,9 @@
 #include <cstdio>
 #include <cstring>
 
+#include <algorithm>
+#include <tuple>
+
 #include "dddi.h"
 
 #include "basic/notify.h"
@@ -384,7 +387,7 @@ static void PrintPList (ID_PLIST *plist)
 /****************************************************************************/
 
 
-static int compareId (IDENTINFO *el1, IDENTINFO *el2)
+static int compareId (const IDENTINFO *el1, const IDENTINFO *el2)
 {
   int cmp;
 
@@ -433,40 +436,23 @@ static int compareId (IDENTINFO *el1, IDENTINFO *el2)
  */
 
 
-static int sort_intoTupelsLists (const void *e1, const void *e2)
+static bool sort_intoTupelsLists(const IDENTINFO* a, const IDENTINFO* b)
 {
-  IDENTINFO       *el1, *el2;
-
-  el1 = *((IDENTINFO **)e1);
-  el2 = *((IDENTINFO **)e2);
-
-
   /* sort according to (old) global ids */
-  if (el1->msg.gid < el2->msg.gid) return(-1);
-  if (el1->msg.gid > el2->msg.gid) return(1);
-
   /* if equal, keep ordering of input  */
-  if (el1->entry < el2->entry) return(-1);
-  if (el1->entry > el2->entry) return(1);
-
-  return(0);
+  return std::tie(a->msg.gid, a->entry) < std::tie(b->msg.gid, b->entry);
 }
 
-
-static int sort_intoTupelsSets (const void *e1, const void *e2)
+static bool sort_intoTupelsSets(const IDENTINFO* a, const IDENTINFO* b)
 {
-  IDENTINFO       *el1, *el2;
-
-  el1 = *((IDENTINFO **)e1);
-  el2 = *((IDENTINFO **)e2);
-
-
   /* sort according to (old) global ids */
-  if (el1->msg.gid < el2->msg.gid) return(-1);
-  if (el1->msg.gid > el2->msg.gid) return(1);
-
   /* if equal, sort according to identificator itself */
-  return (compareId(el1,el2));
+  if (a->msg.gid < b->msg.gid)
+    return true;
+  else if (a->msg.gid > b->msg.gid)
+    return false;
+  else
+    return compareId(a, b) < 0;
 }
 
 
@@ -474,20 +460,6 @@ static int sort_intoTupelsSets (const void *e1, const void *e2)
 
 /****************************************************************************/
 
-
-static int sort_loi (const void *e1, const void *e2)
-{
-  ID_TUPEL        *el1, *el2;
-
-  el1 = (ID_TUPEL *) e1;
-  el2 = (ID_TUPEL *) e2;
-
-  /* sort according to level-of-indirection */
-  if (el1->loi < el2->loi) return(-1);
-  if (el1->loi > el2->loi) return(1);
-
-  return(0);
-}
 
 static int sort_tupelOrder (const void *e1, const void *e2)
 {
@@ -583,22 +555,6 @@ static void SetLOI (IDENTINFO *ii, int loi)
 
 
 
-static int sort_refd_gid (const void *e1, const void *e2)
-{
-  DDD_GID g1, g2;
-
-  g1 = (*(IDENTINFO **) e1)->id.object;
-  g2 = (*(IDENTINFO **) e2)->id.object;
-
-  /* sort according to global id */
-  if (g1 < g2) return(-1);
-  if (g1 > g2) return(1);
-
-  return(0);
-}
-
-
-
 static void ResolveDependencies (
   ID_TUPEL  *tupels, int nTupels,
   IDENTINFO **id, int nIds, int nIdentObjs)
@@ -626,8 +582,11 @@ static void ResolveDependencies (
   }
 
   /* sort it according to GID of referenced objects */
-  qsort(refd, nIdentObjs, sizeof(IDENTINFO *), sort_refd_gid);
-
+  std::sort(
+    refd, refd + nIdentObjs,
+    [](const IDENTINFO* a, const IDENTINFO* b) {
+      return a->id.object < b->id.object;
+    });
 
   /*
      for(j=0; j<nIdentObjs; j++)
@@ -786,12 +745,12 @@ static int IdentifySort (IDENTINFO **id, int nIds,
   switch (DDD_GetOption(OPT_IDENTIFY_MODE))
   {
   case IDMODE_LISTS :
-    qsort(id, nIds, sizeof(IDENTINFO *), sort_intoTupelsLists);
+    std::sort(id, id + nIds, sort_intoTupelsLists);
     keep_order_inside_tupel = true;
     break;
 
   case IDMODE_SETS :
-    qsort(id, nIds, sizeof(IDENTINFO *), sort_intoTupelsSets);
+    std::sort(id, id + nIds, sort_intoTupelsSets);
     keep_order_inside_tupel = false;
     break;
 
@@ -853,7 +812,10 @@ static int IdentifySort (IDENTINFO **id, int nIds,
 
   /* sort array for loi */
   STAT_RESET3;
-  qsort(tupels, nTupels, sizeof(ID_TUPEL), sort_loi);
+  std::sort(
+    tupels, tupels + nTupels,
+    [](const ID_TUPEL& a, const ID_TUPEL& b) { return a.loi < b.loi; }
+    );
   STAT_INCTIMER3(T_QSORT_LOI);
 
 
@@ -865,10 +827,10 @@ static int IdentifySort (IDENTINFO **id, int nIds,
       /* reorder because of changes in id.object */
       if (! keep_order_inside_tupel)
       {
-        qsort(tupels[j].infos,
-              tupels[j].nObjIds,
-              sizeof(IDENTINFO *),
-              sort_intoTupelsSets);
+        std::sort(
+          tupels[j].infos, tupels[j].infos + tupels[j].nObjIds,
+          sort_intoTupelsSets
+          );
       }
       j++;
     }
