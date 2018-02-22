@@ -8913,7 +8913,7 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
 
   PRINTDEBUG(gm,1,("IPV: GetMatchingProcs\n"));
 
-  DDD_IdentifyBegin();
+  DDD_IdentifyBegin(g->dddContext());
 
   if (0) PrintIdTpls(procs, recv_ntpls,recv_tpls);
 
@@ -8963,7 +8963,7 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
 
   if (1)
   {
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(g->dddContext());
     DDD_IFRefreshAll();
   }
 
@@ -8985,11 +8985,11 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
   return;
 }
 
-static void IdentList (INT nn, PERIODIC_ENTRIES *coordlist)
+static void IdentList (const GRID* g, INT nn, PERIODIC_ENTRIES *coordlist)
 {
   INT i;
 
-  DDD_IdentifyBegin();
+  DDD_IdentifyBegin(g->dddContext());
 
   for (i=0; i<nn; i++)
   {
@@ -9002,7 +9002,7 @@ static void IdentList (INT nn, PERIODIC_ENTRIES *coordlist)
 
   if (1)
   {
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(g->dddContext());
     DDD_IFRefreshAll();
   }
 
@@ -9287,7 +9287,7 @@ INT NS_DIM_PREFIX Grid_GeometricToPeriodic (GRID *g)
     }
     else {
       /* identify entries */
-      IdentList(nn,coordlist);
+      IdentList(g, nn,coordlist);
     }
 
     ReleaseTmpMem(MGHEAP(MYMG(g)),MarkKey);
