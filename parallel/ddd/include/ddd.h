@@ -411,8 +411,8 @@ size_t   DDD_InfoCplMemory (void);
         Identification Environment Module
  */
 
-void     DDD_IdentifyBegin (void);
-DDD_RET  DDD_IdentifyEnd (void);
+void     DDD_IdentifyBegin(DDD::DDDContext& context);
+DDD_RET  DDD_IdentifyEnd(DDD::DDDContext& context);
 void     DDD_IdentifyNumber (DDD_HDR, DDD_PROC, int);
 void     DDD_IdentifyString (DDD_HDR, DDD_PROC, char *);
 void     DDD_IdentifyObject (DDD_HDR, DDD_PROC, DDD_HDR);

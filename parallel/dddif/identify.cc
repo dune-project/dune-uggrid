@@ -2005,8 +2005,8 @@ INT NS_DIM_PREFIX Identify_SonObjects (GRID *theGrid)
 
   if (IDENT_IN_STEPS)
   {
-    DDD_IdentifyEnd();
-    DDD_IdentifyBegin();
+    DDD_IdentifyEnd(theGrid->dddContext());
+    DDD_IdentifyBegin(theGrid->dddContext());
   }
 
 
