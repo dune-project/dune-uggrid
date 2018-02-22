@@ -1282,12 +1282,12 @@ void DDD_XferAddDataX (int cnt, DDD_TYPE typ, size_t *sizes)
    @return #true# if additional data objects will be gathered, sent
                 and scattered; #false# otherwise.
  */
-int DDD_XferWithAddData (void)
+bool DDD_XferWithAddData()
 {
   /* if theXIAddData==NULL, the XferAddData-functions will
      do nothing -> the Gather/Scatter-handlers will not be
      called. */
-  return(theXIAddData!=NULL);
+  return theXIAddData != nullptr;
 }
 
 

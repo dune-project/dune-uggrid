@@ -477,7 +477,7 @@ void     DDD_IFAExecLocalX(DDD_IF,DDD_ATTR,                   ExecProcXPtr);
 /*
         Transfer Environment Module
  */
-int      DDD_XferWithAddData (void);
+bool     DDD_XferWithAddData();
 void     DDD_XferAddData (int, DDD_TYPE);
 void     DDD_XferAddDataX (int, DDD_TYPE, size_t sizes[]);
 int      DDD_XferIsPrunedDelete (DDD_HDR);
