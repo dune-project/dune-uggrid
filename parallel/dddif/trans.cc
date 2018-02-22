@@ -141,7 +141,7 @@ void NS_DIM_PREFIX AMGAgglomerate(MULTIGRID *theMG)
   }
   theGrid = GRID_ON_LEVEL(theMG,level);
 
-  DDD_XferBegin();
+  DDD_XferBegin(theMG->dddContext());
   for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
   {
     Size = sizeof(VECTOR)-sizeof(DOUBLE)
@@ -149,7 +149,7 @@ void NS_DIM_PREFIX AMGAgglomerate(MULTIGRID *theMG)
     XFERCOPYX(theVector,master,PrioMaster,Size);
     SETPRIO(theVector,PrioVGhost);
   }
-  DDD_XferEnd();
+  DDD_XferEnd(theMG->dddContext());
 
   return;
 }
@@ -816,7 +816,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   ddd_HandlerInit(HSET_XFER);
 
   /* start physical transfer */
-  DDD_XferBegin();
+  DDD_XferBegin(theMG->dddContext());
 
   {
     /* send 'commands' to ghosts in old partitioning */
@@ -831,7 +831,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
     }
   }
 
-  DDD_XferEnd();
+  DDD_XferEnd(theMG->dddContext());
 
 #ifdef STAT_OUT
   trans_end = CURRENT_TIME;
