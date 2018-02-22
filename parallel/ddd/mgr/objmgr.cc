@@ -36,6 +36,8 @@
 #include <cstring>
 #include <cassert>
 
+#include <algorithm>
+
 #include "dddi.h"
 
 USING_UG_NAMESPACES
@@ -109,16 +111,9 @@ static DDD_GID theIdCount;
 
 
 
-static int sort_ObjListGID (const void *e1, const void *e2)
+static bool sort_ObjListGID (const DDD_HDR& a, const DDD_HDR& b)
 {
-  DDD_HDR o1, o2;
-
-  o1 = *((DDD_HDR *)e1);
-  o2 = *((DDD_HDR *)e2);
-
-  if (OBJ_GID(o1) < OBJ_GID(o2)) return(-1);
-  if (OBJ_GID(o1) == OBJ_GID(o2)) return(0);
-  return(1);
+  return OBJ_GID(a) < OBJ_GID(b);
 }
 
 
@@ -136,7 +131,7 @@ DDD_HDR *LocalObjectsList (void)
   }
 
   memcpy(locObjs, ddd_ObjTable, ddd_nObjs*sizeof(DDD_HDR));
-  qsort(locObjs, ddd_nObjs, sizeof(DDD_HDR), sort_ObjListGID);
+  std::sort(locObjs, locObjs + ddd_nObjs, sort_ObjListGID);
 
   return(locObjs);
 }
@@ -165,7 +160,7 @@ DDD_HDR *LocalCoupledObjectsList (void)
   }
 
   memcpy(locObjs, ddd_ObjTable, NCpl_Get*sizeof(DDD_HDR));
-  qsort(locObjs, NCpl_Get, sizeof(DDD_HDR), sort_ObjListGID);
+  std::sort(locObjs, locObjs + NCpl_Get, sort_ObjListGID);
 
   return(locObjs);
 }
