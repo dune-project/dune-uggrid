@@ -126,45 +126,14 @@ static void LowComm_DefaultFree (void *buffer)
         As some of the memory handler calls will be initiated during
         the execution of this function, the memory manager has to be
         initialized before calling \funk{Init}.
-
-        Note: Not the actual arguments of the {\em main()}-function
-        are passed here (\ie, {\em argc} and {\em argv}), but {\em pointers}
-        to these arguments (\ie, {\em argcp} and {\em argvp}). This is
-        due to manipulation of the argument lists by certain underlying
-        message-passing-implementations (\eg, Argonne MPI).
-        The parameters are not needed for initialisation of the DDD
-        library itself, but will be passed to the PPIF-libraries
-        initialisation function \ppiffunk{InitPPIF}. If the first
-        parameter {\em argcp} is #NULL#, DDD assumes that the PPIF-library
-        has been initialized explicitly by the application program.
-
-   @param  argcp      pointer to argc (the application's parameter count)
-   @param  argvp      pointer to argv (the application's parameter list)
  */
 
-void DDD_Init (int *argcp, char ***argvp)
+void DDD_Init()
 {
   int buffsize;
 
   /* init lineout-interface to stdout */
   DDD_UserLineOutFunction = NULL;
-
-  /* if first arg is NULL, we assume that PPIF has been initialized elsewhere */
-  if (argcp!=NULL)
-  {
-    /* init PPIF */
-    if (InitPPIF(argcp, argvp) != PPIF_SUCCESS)
-    {
-      DDD_PrintError('E', 1005, "PPIF initialization failed");
-      HARD_EXIT;
-    }
-  }
-
-
-  /*
-     printf("%4d: process_id=%d\n", me, getpid());
-   */
-
 
   /* check max. number of procs (limited by GID construction) */
   if (procs>MAX_PROCS) {
