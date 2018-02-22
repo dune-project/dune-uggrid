@@ -378,11 +378,6 @@ void     DDD_Exit (void);
 void     DDD_Status (void);
 void     DDD_SetOption (DDD_OPTION, int);
 
-DDD_PROC DDD_InfoMe (void);
-DDD_PROC DDD_InfoMaster (void);
-DDD_PROC DDD_InfoProcs (void);
-
-
 /*
         Redirect line-oriented output, new in V1.2
  */
