@@ -42,6 +42,8 @@
 #include <cstring>
 #include <cassert>
 
+#include <algorithm>
+
 #include "dddi.h"
 #include "if.h"
 
@@ -131,24 +133,6 @@ static void DisposeIFAttr (IF_ATTR *ifr)
 {
   ifr->next = memlistIFAttr;
   memlistIFAttr = ifr;
-}
-
-
-
-
-static int sort_type (const void *e1, const void *e2)
-{
-  if (*(DDD_TYPE *)e1 < *(DDD_TYPE *)e2) return(-1);
-  if (*(DDD_TYPE *)e1 == *(DDD_TYPE *)e2) return(0);
-  return(1);
-}
-
-
-static int sort_prio (const void *e1, const void *e2)
-{
-  if (*(DDD_PRIO *)e1 < *(DDD_PRIO *)e2) return(-1);
-  if (*(DDD_PRIO *)e1 == *(DDD_PRIO *)e2) return(0);
-  return(1);
 }
 
 
@@ -636,9 +620,9 @@ theIF[nIFs].nPrioB     = nB;
 memcpy(theIF[nIFs].O, O, nO*sizeof(DDD_TYPE));
 memcpy(theIF[nIFs].A, A, nA*sizeof(DDD_PRIO));
 memcpy(theIF[nIFs].B, B, nB*sizeof(DDD_PRIO));
-if (nO>1) qsort(theIF[nIFs].O, nO, sizeof(DDD_TYPE), sort_type);
-if (nA>1) qsort(theIF[nIFs].A, nA, sizeof(DDD_PRIO), sort_prio);
-if (nB>1) qsort(theIF[nIFs].B, nB, sizeof(DDD_PRIO), sort_prio);
+if (nO>1) std::sort(theIF[nIFs].O, theIF[nIFs].O + nO);
+if (nA>1) std::sort(theIF[nIFs].A, theIF[nIFs].A + nA);
+if (nB>1) std::sort(theIF[nIFs].B, theIF[nIFs].B + nB);
 
 /* reset name string */
 theIF[nIFs].name[0] = 0;
