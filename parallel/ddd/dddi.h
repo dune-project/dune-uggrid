@@ -228,7 +228,7 @@ typedef struct _TYPE_DESC
   int currTypeDefCall;                  /* number of current call to TypeDefine */
 
   /* if C_FRONTEND or (CPP_FRONTEND and storage==STORAGE_STRUCT) */
-  int hasHeader;                        /* flag: real ddd type (with header)?   */
+  bool hasHeader;                       /* flag: real ddd type (with header)?   */
   int offsetHeader;                     /* offset of header from begin of obj   */
 
 
