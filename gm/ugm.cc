@@ -3787,7 +3787,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
     REP_ERR_RETURN(1);
 
 #ifdef ModelP
-  DDD_XferBegin();
+  DDD_XferBegin(theMG->dddContext());
     #ifdef DDDOBJMGR
   DDD_ObjMgrBegin();
     #endif
@@ -3838,7 +3838,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
     #ifdef DDDOBJMGR
   DDD_ObjMgrEnd();
     #endif
-  DDD_XferEnd();
+  DDD_XferEnd(theMG->dddContext());
 #endif
 
   /* move top level grid to bottom (level 0) */
@@ -4092,7 +4092,7 @@ INT NS_DIM_PREFIX DisposeAMGLevels (MULTIGRID *theMG)
   /* tell DDD that we will 'inconsistently' delete objects.
      this is a dangerous mode as it switches DDD warnings off. */
   /** \briefDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_OFF);*/
-  DDD_XferBegin();
+  DDD_XferBegin(theMG->dddContext());
     #ifdef DDDOBJMGR
   DDD_ObjMgrBegin();
         #endif
@@ -4115,7 +4115,7 @@ INT NS_DIM_PREFIX DisposeAMGLevels (MULTIGRID *theMG)
     #ifdef DDDOBJMGR
   DDD_ObjMgrEnd();
         #endif
-  DDD_XferEnd();
+  DDD_XferEnd(theMG->dddContext());
         #endif
 
   return(0);
@@ -9204,7 +9204,7 @@ INT NS_DIM_PREFIX Grid_GeometricToPeriodic (GRID *g)
 
   /* dispose vectors */
         #ifdef ModelP
-  DDD_XferBegin();
+  DDD_XferBegin(g->dddContext());
     #ifdef DDDOBJMGR
   DDD_ObjMgrBegin();
     #endif
@@ -9238,7 +9238,7 @@ INT NS_DIM_PREFIX Grid_GeometricToPeriodic (GRID *g)
     #ifdef DDDOBJMGR
   DDD_ObjMgrEnd();
         #endif
-  DDD_XferEnd();
+  DDD_XferEnd(g->dddContext());
   DDD_IFRefreshAll();
         #endif
 
