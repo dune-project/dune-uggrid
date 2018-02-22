@@ -5886,8 +5886,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   GRID    *theGrid;
         #ifdef ModelP
   INT MarkKey;
-  INT             *infobuffer;
-  INT             **lbinfo;
   INT total_elements,sum_elements;
   INT master_elements,hghost_elements,vghost_elements,vhghost_elements;
         #endif
@@ -5918,15 +5916,11 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
 
         #ifdef ModelP
   MarkTmpMem(MGHEAP(theMG),&MarkKey);
-  infobuffer      = (INT *) GetTmpMem(MGHEAP(theMG),(procs+1)*(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT),MarkKey);
-  if (infobuffer == NULL) assert(0);
-
-  lbinfo          = (INT **) GetTmpMem(MGHEAP(theMG),(procs+1)*sizeof(INT*),MarkKey);
-  if (lbinfo == NULL) assert(0);
-
-  memset((void *)infobuffer,0,(procs+1)*(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
+  std::vector<int> infobuffer((procs+1)*(MAXLEVEL+1)*ELEMENT_PRIOS, 0);
+  std::vector<int*> lbinfo(procs+1);
   for (i=0; i<procs+1; i++)
-    lbinfo[i] = infobuffer+(i*(MAXLEVEL+1)*ELEMENT_PRIOS);
+    lbinfo[i] = &infobuffer[i*(MAXLEVEL+1)*ELEMENT_PRIOS];
+
   total_elements = sum_elements = 0;
   master_elements = hghost_elements = vghost_elements = vhghost_elements = 0;
         #endif
@@ -8431,11 +8425,11 @@ static void CountNTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *ntpls
   return;
 }
 
-static void MergeNTplsMax (const int procs, int *gntpls, int *lntpls)
+static void MergeNTplsMax(std::vector<int>& gntpls, const std::vector<int>& lntpls)
 {
-  int i;
-  for (i=0; i<procs*procs; i++) gntpls[i] = MAX(gntpls[i],lntpls[i]);
-  return;
+  assert(gntpls.size() == lntpls.size());
+  for (std::size_t i = 0; i < gntpls.size(); ++i)
+    gntpls[i] = std::max(gntpls[i], lntpls[i]);
 }
 
 static void AddMyNTpls (const int me, const int procs, int *gntpls, int *ntpls)
@@ -8457,29 +8451,22 @@ static void CommNTpls(GRID *g, int *send_ntpls, int *recv_ntpls)
 {
   int l;
   INT n,MarkKey;
-  int *gntpls,*lntpls;
 
   const int me = g->ppifContext().me();
   const int procs = g->ppifContext().procs();
 
-  MarkTmpMem(MGHEAP(MYMG(g)),&MarkKey);
-
-  gntpls = (int *)GetTmpMem(MGHEAP(MYMG(g)),procs*procs*sizeof(int),MarkKey);
-  assert(gntpls!=NULL);
-  memset(gntpls,0,procs*procs*sizeof(int));
-  lntpls = (int *)GetTmpMem(MGHEAP(MYMG(g)),procs*procs*sizeof(int),MarkKey);
-  assert(lntpls!=NULL);
-  memset(lntpls,0,procs*procs*sizeof(int));
+  std::vector<int> gntpls(procs*procs, 0);
+  std::vector<int> lntpls(procs*procs, 0);
 
   /* construct global tupel array */
   for (l=degree-1; l>=0; l--)
   {
-    GetConcentrate(l,lntpls,procs*procs*sizeof(int));
-    MergeNTplsMax(procs, gntpls,lntpls);
+    GetConcentrate(l,lntpls.data(), lntpls.size()*sizeof(int));
+    MergeNTplsMax(procs, gntpls.data(), lntpls.data());
   }
-  AddMyNTpls(me, procs, gntpls,send_ntpls);
-  Concentrate(gntpls,procs*procs*sizeof(int));
-  Broadcast(gntpls,procs*procs*sizeof(int));
+  AddMyNTpls(me, procs, gntpls.data(), send_ntpls);
+  Concentrate(gntpls.data(), gntpls.size()*sizeof(int));
+  Broadcast(gntpls.data(), gntpls.size()*sizeof(int));
         #ifdef Debug
   if (1)
   {
@@ -8498,10 +8485,6 @@ static void CommNTpls(GRID *g, int *send_ntpls, int *recv_ntpls)
 
   /* fill recv_ntpls array with recv counts */
   for (l=0; l<procs; l++) recv_ntpls[l] = gntpls[l*procs+me];
-
-  ReleaseTmpMem(MGHEAP(MYMG(g)),MarkKey);
-
-  return;
 }
 
 static void PrintIdTpl (int i, int j, IDTPL *idtpl)
