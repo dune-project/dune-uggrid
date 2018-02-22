@@ -2957,10 +2957,10 @@ nparfiles = UG_GlobalMinINT(nparfiles);
         #ifdef ModelP
     if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
-    DDD_IdentifyBegin();
+    DDD_IdentifyBegin(theMG->dddContext());
     /* no elements to insert */
     if (MGCreateConnection(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(theMG->dddContext());
 
     if (MGIO_PARFILE)
     {
@@ -3032,10 +3032,10 @@ nparfiles = UG_GlobalMinINT(nparfiles);
     if (DisposeBottomHeapTmpMemory(theMG))      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
                 #endif
 
-    DDD_IdentifyBegin();
+    DDD_IdentifyBegin(theMG->dddContext());
     /* no elements to insert */
     if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(theMG->dddContext());
 
     if (MGIO_PARFILE)
       if (IO_GridCons(theMG))                                 {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
@@ -3260,7 +3260,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
   ClearMultiGridUsedFlags(theMG,0,TOPLEVEL(theMG),i);
 
   /* open identification context */
-  DDD_IdentifyBegin();
+  DDD_IdentifyBegin(theMG->dddContext());
 
   /* read parinfo of coarse-grid */
   if (MGIO_PARFILE)
@@ -3293,7 +3293,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
     if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
     /* close identification context */
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(theMG->dddContext());
 
     /* repair inconsistencies */
     if (MGIO_PARFILE)
@@ -3382,7 +3382,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
 #ifdef OPTIMIZED_IO
   DDD_SetOption(OPT_IF_CREATE_EXPLICIT,OPT_ON);
 #endif
-  DDD_IdentifyEnd();
+  DDD_IdentifyEnd(theMG->dddContext());
 #ifdef OPTIMIZED_IO
   DDD_SetOption(OPT_IF_CREATE_EXPLICIT,OPT_OFF);
 #endif

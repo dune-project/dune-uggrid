@@ -5888,7 +5888,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
   DDD_XferEnd(theGrid->dddContext());
         #endif
 
-  DDD_IdentifyBegin();
+  DDD_IdentifyBegin(theGrid->dddContext());
   SET_IDENT_MODE(IDENT_ON);
   DDD_XferBegin(theGrid->dddContext());
 
@@ -5925,7 +5925,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
 
     if (IDENT_IN_STEPS)
     {
-      DDD_IdentifyEnd();
+      DDD_IdentifyEnd(theGrid->dddContext());
     }
 
     /* if no grid adaption has occured adapt next level */
@@ -5935,7 +5935,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
       if (!IDENT_IN_STEPS)
       {
         SET_IDENT_MODE(IDENT_OFF);
-        DDD_IdentifyEnd();
+        DDD_IdentifyEnd(theGrid->dddContext());
       }
 
       SUM_TIMER(gridadapti_timer)
@@ -5945,7 +5945,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
 
     /* DDD_JoinBegin(); */
     if (IDENT_IN_STEPS)
-      DDD_IdentifyBegin();
+      DDD_IdentifyBegin(theGrid->dddContext());
 
     DDD_CONSCHECK;
 
@@ -5954,7 +5954,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
     if (Identify_SonObjects(theGrid)) RETURN(GM_FATAL);
 
     SET_IDENT_MODE(IDENT_OFF);
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(theGrid->dddContext());
 
     SUM_TIMER(ident_timer)
     /* DDD_JoinEnd(); */
