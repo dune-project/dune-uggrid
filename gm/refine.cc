@@ -5917,7 +5917,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
   START_TIMER(gridadapti_timer)
 
         #ifdef UPDATE_FULLOVERLAP
-  DDD_XferBegin();
+  DDD_XferBegin(theGrid->dddContext());
   {
     ELEMENT *theElement;
     for (theElement=PFIRSTELEMENT(FinerGrid);
@@ -5927,12 +5927,12 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
       if (EPRIO(theElement) == PrioHGhost) DisposeElement(FinerGrid,theElement,true);
     }
   }
-  DDD_XferEnd();
+  DDD_XferEnd(theGrid->dddContext());
         #endif
 
   DDD_IdentifyBegin();
   SET_IDENT_MODE(IDENT_ON);
-  DDD_XferBegin();
+  DDD_XferBegin(theGrid->dddContext());
 
   DDD_CONSCHECK;
 
@@ -5949,7 +5949,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
   DDD_ObjMgrEnd();
         #endif
 
-  DDD_XferEnd();
+  DDD_XferEnd(theGrid->dddContext());
 
   SUM_TIMER(gridadaptl_timer)
 
@@ -6016,20 +6016,20 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
     if (level<toplevel || newlevel)
     {
       START_TIMER(overlap_timer)
-      DDD_XferBegin();
+      DDD_XferBegin(theGrid->dddContext());
       if (0) /* delete sine this is already done in     */
         /* ConstructConsistentGrid() (s.l. 980522) */
         if (SetGridBorderPriorities(theGrid)) RETURN(GM_FATAL);
       if (UpdateGridOverlap(theGrid)) RETURN(GM_FATAL);
 
 
-      DDD_XferEnd();
+      DDD_XferEnd(theGrid->dddContext());
 
       DDD_CONSCHECK;
 
-      DDD_XferBegin();
+      DDD_XferBegin(theGrid->dddContext());
       if (ConnectGridOverlap(theGrid)) RETURN(GM_FATAL);
-      DDD_XferEnd();
+      DDD_XferEnd(theGrid->dddContext());
 
       DDD_CONSCHECK;
 
