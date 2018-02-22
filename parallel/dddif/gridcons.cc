@@ -372,13 +372,13 @@ void NS_DIM_PREFIX ConstructConsistentGrid (GRID *theGrid)
   /* - setting of the border priorities can only be done if all      */
   /*   ghost objects have their proper priority                      */
 
-  DDD_XferBegin();
+  DDD_XferBegin(theGrid->dddContext());
   SetGhostObjectPriorities(theGrid);
-  DDD_XferEnd();
+  DDD_XferEnd(theGrid->dddContext());
 
-  DDD_XferBegin();
+  DDD_XferBegin(theGrid->dddContext());
   SetBorderPriorities(theGrid);
-  DDD_XferEnd();
+  DDD_XferEnd(theGrid->dddContext());
 
   ConstructConsistentGridLevel(theGrid);
 }
@@ -411,22 +411,22 @@ void NS_DIM_PREFIX ConstructConsistentMultiGrid (MULTIGRID *theMG)
   /* 3. repair grid inconsistencies */
 
   /* 1. set priorities of objects   */
-  DDD_XferBegin();
+  DDD_XferBegin(theMG->dddContext());
   for (l=0; l<=TOPLEVEL(theMG); l++)
   {
     GRID *theGrid = GRID_ON_LEVEL(theMG,l);
     SetGhostObjectPriorities(theGrid);
   }
-  DDD_XferEnd();
+  DDD_XferEnd(theMG->dddContext());
 
   /* 2. set border priorities       */
-  DDD_XferBegin();
+  DDD_XferBegin(theMG->dddContext());
   for (l=0; l<=TOPLEVEL(theMG); l++)
   {
     GRID *theGrid = GRID_ON_LEVEL(theMG,l);
     SetBorderPriorities(theGrid);
   }
-  DDD_XferEnd();
+  DDD_XferEnd(theMG->dddContext());
 
   /* 3. repair grid inconsistencies */
   for (l=0; l<=TOPLEVEL(theMG); l++)
