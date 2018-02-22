@@ -394,7 +394,7 @@ static void DisplayMemResources (void)
         a set of local communications between the processors.
  */
 
-DDD_RET DDD_XferEnd (void)
+DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 {
   DDD_RET ret_code              = DDD_RET_OK;
   XICopyObj   **arrayNewOwners      = NULL;
@@ -1351,7 +1351,7 @@ void DDD_XferDeleteObj (DDD_HDR hdr)
         is carried out via a \funk{XferEnd} call on each processor.
  */
 
-void DDD_XferBegin (void)
+void DDD_XferBegin(DDD::DDDContext&)
 {
   theXIAddData = NULL;
 

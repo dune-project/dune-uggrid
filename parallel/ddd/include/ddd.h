@@ -52,6 +52,8 @@
 
 #include "namespace.h"
 
+#include <dune/uggrid/parallel/ddd/dddtypes.hh>
+
 START_UGDIM_NAMESPACE
 
 #define DDD_VERSION    "1.9"
@@ -450,8 +452,8 @@ void     DDD_XferAddData (int, DDD_TYPE);
 void     DDD_XferAddDataX (int, DDD_TYPE, size_t sizes[]);
 int      DDD_XferIsPrunedDelete (DDD_HDR);
 int      DDD_XferObjIsResent (DDD_HDR);
-void     DDD_XferBegin (void);
-DDD_RET  DDD_XferEnd (void);
+void     DDD_XferBegin(DDD::DDDContext& context);
+DDD_RET  DDD_XferEnd(DDD::DDDContext& context);
 void     DDD_XferCopyObj (DDD_HDR, DDD_PROC, DDD_PRIO);
 void     DDD_XferCopyObjX (DDD_HDR, DDD_PROC, DDD_PRIO, size_t);
 void     DDD_XferDeleteObj (DDD_HDR);
