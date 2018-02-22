@@ -2085,7 +2085,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
     #ifdef ModelP
         #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferBegin();
+    DDD_XferBegin(theGrid->dddContext());
         #endif
         #endif
 
@@ -2149,7 +2149,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
     #ifdef ModelP
         #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferEnd();
+    DDD_XferEnd(theGrid->dddContext());
         #endif
         #endif
 
