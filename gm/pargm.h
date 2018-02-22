@@ -347,8 +347,8 @@ enum {VERTEX_LISTPARTS = 1};
 
 /* ddd dummies */
 #define DDD_OBJ                 void *
-#define DDD_IdentifyBegin()
-#define DDD_IdentifyEnd()
+#define DDD_IdentifyBegin(context)
+#define DDD_IdentifyEnd(context)
 #define DDD_IdentifyNumber(o,p,n)
 #define DDD_IFAOneway(p1,p2,p3,p4,p5,p6)
 #define DDD_PrioritySet(e,p)
