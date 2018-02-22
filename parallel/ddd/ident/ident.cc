@@ -1038,7 +1038,7 @@ static void idcons_CheckPairs (void)
         of local communications between the processors.
  */
 
-DDD_RET DDD_IdentifyEnd (void)
+DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 {
   ID_PLIST        *plist, *pnext=NULL;
   int cnt, j;
@@ -1535,7 +1535,7 @@ printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", me,
         \end{description}
  */
 
-void DDD_IdentifyBegin (void)
+void DDD_IdentifyBegin(DDD::DDDContext&)
 {
   /* step mode and check whether call to IdentifyBegin is valid */
   if (!IdentStepMode(IMODE_IDLE))
