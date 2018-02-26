@@ -237,7 +237,7 @@ typedef struct
 
   INT ugtypes[MAXDDDTYPES];                  /* dddtype -> ugtype */
   DDD_TYPE types[MAXOBJECTS];                /* ugtype -> dddtype */
-  int dddObj[MAXOBJECTS];
+  bool dddObj[MAXOBJECTS];
 
   /* status of DDDIF */
   bool allTypesDefined;

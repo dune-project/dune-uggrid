@@ -2830,6 +2830,8 @@ MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
   theMG = (MULTIGRID *) MakeEnvItem(name,theMGDirID,sizeof(MULTIGRID));
   if (theMG == NULL) return(NULL);
 
+  new(theMG) multigrid;
+
   return (theMG);
 }
 
@@ -3099,9 +3101,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
     GRID_ON_LEVEL(theMG,i) = NULL;
     GRID_ON_LEVEL(theMG,-i-1) = NULL;
   }
-
-  /* initialize helper structure for element insertion */
-  theMG->facemap = decltype(theMG->facemap)();
 
   /* allocate level 0 grid */
   if (CreateNewLevel(theMG,0)==NULL)
@@ -4162,6 +4161,8 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 
   /* first unlock the mg */
   ((ENVITEM*) theMG)->v.locked = false;
+
+  theMG->~multigrid();
 
   /* delete mg */
   if (ChangeEnvDir("/Multigrids")==NULL) RETURN (GM_ERROR);

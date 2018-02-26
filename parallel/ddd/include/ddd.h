@@ -373,7 +373,7 @@ typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 /*
         General DDD Module
  */
-void     DDD_Init (int *argcp, char ***argvp);
+void     DDD_Init();
 void     DDD_Exit (void);
 void     DDD_Status (void);
 void     DDD_SetOption (DDD_OPTION, int);
@@ -477,7 +477,7 @@ void     DDD_IFAExecLocalX(DDD_IF,DDD_ATTR,                   ExecProcXPtr);
 /*
         Transfer Environment Module
  */
-int      DDD_XferWithAddData (void);
+bool     DDD_XferWithAddData();
 void     DDD_XferAddData (int, DDD_TYPE);
 void     DDD_XferAddDataX (int, DDD_TYPE, size_t sizes[]);
 int      DDD_XferIsPrunedDelete (DDD_HDR);

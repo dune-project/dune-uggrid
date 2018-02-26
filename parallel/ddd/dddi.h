@@ -196,7 +196,7 @@ typedef struct obj_coupl
 typedef struct _ELEM_DESC
 {
   int offset;                         /* element offset from object address     */
-  unsigned char *gbits;               /* ptr to gbits array, if type==EL_GBITS  */
+  std::unique_ptr<unsigned char[]> gbits; /* gbits array, if type==EL_GBITS     */
 
   size_t size;                        /* size of this element                   */
   int type;                           /* type of element, one of EL_xxx         */
@@ -228,7 +228,7 @@ typedef struct _TYPE_DESC
   int currTypeDefCall;                  /* number of current call to TypeDefine */
 
   /* if C_FRONTEND or (CPP_FRONTEND and storage==STORAGE_STRUCT) */
-  int hasHeader;                        /* flag: real ddd type (with header)?   */
+  bool hasHeader;                       /* flag: real ddd type (with header)?   */
   int offsetHeader;                     /* offset of header from begin of obj   */
 
 
