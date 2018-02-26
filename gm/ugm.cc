@@ -3221,9 +3221,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
     GRID_ON_LEVEL(theMG,-i-1) = NULL;
   }
 
-  /* initialize helper structure for element insertion */
-  theMG->facemap = decltype(theMG->facemap)();
-
   /* allocate level 0 grid */
   if (CreateNewLevel(theMG,0)==NULL)
   {
