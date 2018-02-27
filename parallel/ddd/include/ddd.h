@@ -390,12 +390,12 @@ void     DDD_LineOutRegister (void (*func)(const char *s));
         Type Manager Module
  */
 
-DDD_TYPE DDD_TypeDeclare (const char *name);
-int      DDD_InfoHdrOffset (DDD_TYPE);
-void     DDD_TypeDefine (DDD_TYPE, ...);
-void     DDD_TypeDisplay (DDD_TYPE);
+DDD_TYPE DDD_TypeDeclare(DDD::DDDContext& context, const char *name);
+int      DDD_InfoHdrOffset(const DDD::DDDContext& context, DDD_TYPE);
+void     DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE, ...);
+void     DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE);
 
-int      DDD_InfoTypes (void);
+int      DDD_InfoTypes(const DDD::DDDContext& context);
 
 
 /* newstyle, type-secure setting of handlers */
