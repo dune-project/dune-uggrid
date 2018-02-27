@@ -784,7 +784,7 @@ static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         a set of local communications between the processors.
  */
 
-DDD_RET DDD_JoinEnd (void)
+DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 {
   int obsolete, nRecvMsgs1, nRecvMsgs2, nRecvMsgs3;
   JOINMSG1    *sendMsgs1=NULL, *sm1=NULL;
@@ -1195,7 +1195,7 @@ DDD_RET DDD_JoinEnd (void)
 
 
 
-void DDD_JoinObj (DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
+void DDD_JoinObj(DDD::DDDContext&, DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
 {
   JIJoin *ji;
 
@@ -1262,7 +1262,7 @@ void DDD_JoinObj (DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
         is carried out via a \funk{JoinEnd} call on each processor.
  */
 
-void DDD_JoinBegin (void)
+void DDD_JoinBegin(DDD::DDDContext&)
 {
   /* step mode and check whether call to JoinBegin is valid */
   if (!JoinStepMode(JMODE_IDLE))

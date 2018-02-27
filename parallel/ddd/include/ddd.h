@@ -499,9 +499,9 @@ void     DDD_PrioChange (DDD_HDR, DDD_PRIO);
 /*
         Join Environment Module
  */
-void     DDD_JoinBegin (void);
-DDD_RET  DDD_JoinEnd (void);
-void     DDD_JoinObj (DDD_HDR, DDD_PROC, DDD_GID);
+void     DDD_JoinBegin(DDD::DDDContext& context);
+DDD_RET  DDD_JoinEnd(DDD::DDDContext& context);
+void     DDD_JoinObj(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_GID);
 
 
 /*
