@@ -44,6 +44,8 @@
 
 #include "dddi.h"
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 USING_UG_NAMESPACES
 
 /* PPIF namespace: */
@@ -504,7 +506,7 @@ static void AttachMask (TYPE_DESC *desc)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_TypeDefine (DDD_TYPE typ, ...)
+void DDD_TypeDefine(DDD::DDDContext&, DDD_TYPE typ, ...)
 {
   TYPE_DESC *desc;
   size_t argsize;
@@ -829,7 +831,7 @@ void DDD_TypeDefine (DDD_TYPE typ, ...)
 /*                                                                          */
 /****************************************************************************/
 
-DDD_TYPE DDD_TypeDeclare(const char *name)
+DDD_TYPE DDD_TypeDeclare(DDD::DDDContext&, const char *name)
 {
   TYPE_DESC *desc = &(theTypeDefs[nDescr]);
 
@@ -865,13 +867,13 @@ DDD_TYPE DDD_TypeDeclare(const char *name)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_TypeDisplay (DDD_TYPE id)
+void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
 {
   int i;
   TYPE_DESC *desc;
 
   /* only master should display DDD_TYPEs */
-  if (me==master)
+  if (context.isMaster())
   {
     /* check for plausibility */
     if (id>=nDescr)
@@ -1041,7 +1043,7 @@ DEFINE_DDD_SETHANDLER(XFERCOPYMANIP)
 /*                                                                          */
 /****************************************************************************/
 
-int DDD_InfoTypes (void)
+int DDD_InfoTypes(const DDD::DDDContext&)
 {
   return nDescr;
 }
@@ -1062,7 +1064,7 @@ int DDD_InfoTypes (void)
 /****************************************************************************/
 
 
-int DDD_InfoHdrOffset (DDD_TYPE typeId)
+int DDD_InfoHdrOffset(const DDD::DDDContext&, DDD_TYPE typeId)
 {
   TYPE_DESC *desc = &(theTypeDefs[typeId]);
 
@@ -1083,7 +1085,7 @@ int DDD_InfoHdrOffset (DDD_TYPE typeId)
 /*                                                                          */
 /****************************************************************************/
 
-void ddd_TypeMgrInit (void)
+void ddd_TypeMgrInit(DDD::DDDContext& context)
 {
   int i;
 
@@ -1106,8 +1108,8 @@ void ddd_TypeMgrInit (void)
     DDD_HEADER *hdr = 0;
 
     /* hdr_type will be EL_DDDHDR (=0) per default */
-    hdr_type = DDD_TypeDeclare("DDD_HDR");
-    DDD_TypeDefine(hdr_type, hdr,
+    hdr_type = DDD_TypeDeclare(context, "DDD_HDR");
+    DDD_TypeDefine(context, hdr_type, hdr,
 
                    EL_GDATA, &hdr->typ,     sizeof(hdr->typ),
                    EL_LDATA, &hdr->prio,    sizeof(hdr->prio),
@@ -1133,7 +1135,7 @@ void ddd_TypeMgrInit (void)
 /*                                                                          */
 /****************************************************************************/
 
-void ddd_TypeMgrExit (void)
+void ddd_TypeMgrExit(DDD::DDDContext&)
 {
   int i;
 

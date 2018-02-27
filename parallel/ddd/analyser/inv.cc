@@ -91,12 +91,12 @@ static TYPE_EDGE *GetTypeEdge (TYPE_NODE *tn, DDD_TYPE reftype)
 }
 
 
-static void AnalyseTypes (void)
+static void AnalyseTypes(const DDD::DDDContext& context)
 {
   int i;
 
   /* create graph of DDD_TYPE ref-relations */
-  for(i=0; i<DDD_InfoTypes(); i++)
+  for(i=0; i<DDD_InfoTypes(context); i++)
   {
     TYPE_DESC *td = &(theTypeDefs[i]);
     TYPE_NODE tn;
@@ -133,7 +133,7 @@ static void AnalyseTypes (void)
 /****************************************************************************/
 
 
-void DDD_GraphicalAnalyser (char *filename)
+void DDD_GraphicalAnalyser (DDD::DDDContext& context, char *filename)
 {
   FILE *fp;
 
@@ -141,7 +141,7 @@ void DDD_GraphicalAnalyser (char *filename)
 
   if (me==0)
   {
-    AnalyseTypes();
+    AnalyseTypes(context);
   }
 
   fclose(fp);
