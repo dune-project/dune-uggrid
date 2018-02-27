@@ -105,7 +105,7 @@ static bool sort_LocalObjs(const DDD_HDR& a, const DDD_HDR& b)
 }
 
 
-void DDD_ListLocalObjects (void)
+void DDD_ListLocalObjects(const DDD::DDDContext&)
 {
   DDD_HDR o, *locObjs;
   int i;
