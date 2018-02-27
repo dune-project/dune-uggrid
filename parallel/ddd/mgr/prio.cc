@@ -278,7 +278,7 @@ static int CheckPrioMatrix (TYPE_DESC *desc)
 /****************************************************************************/
 
 
-void DDD_PrioMergeDefault (DDD_TYPE type_id, int priomerge_mode)
+void DDD_PrioMergeDefault (DDD::DDDContext&, DDD_TYPE type_id, int priomerge_mode)
 {
   if (! SetPrioMatrix(&(theTypeDefs[type_id]), priomerge_mode))
   {
@@ -293,7 +293,7 @@ void DDD_PrioMergeDefault (DDD_TYPE type_id, int priomerge_mode)
 
 #define FUNCNAME "DDD_PrioMergeDefine()"
 
-void DDD_PrioMergeDefine (DDD_TYPE type_id,
+void DDD_PrioMergeDefine (DDD::DDDContext&, DDD_TYPE type_id,
                           DDD_PRIO p1, DDD_PRIO p2, DDD_PRIO pres)
 {
   TYPE_DESC *desc = &(theTypeDefs[type_id]);
@@ -372,7 +372,7 @@ void DDD_PrioMergeDefine (DDD_TYPE type_id,
 /*
         call merge operation from application program
  */
-DDD_PRIO DDD_PrioMerge (DDD_TYPE type_id, DDD_PRIO p1, DDD_PRIO p2)
+DDD_PRIO DDD_PrioMerge (DDD::DDDContext&, DDD_TYPE type_id, DDD_PRIO p1, DDD_PRIO p2)
 {
   TYPE_DESC *desc = &(theTypeDefs[type_id]);
   DDD_PRIO newprio;
@@ -414,7 +414,7 @@ DDD_PRIO DDD_PrioMerge (DDD_TYPE type_id, DDD_PRIO p1, DDD_PRIO p2)
 
 #define FUNCNAME "DDD_PrioMergeDisplay()"
 
-void DDD_PrioMergeDisplay (DDD_TYPE type_id)
+void DDD_PrioMergeDisplay (const DDD::DDDContext&, DDD_TYPE type_id)
 {
   TYPE_DESC *desc = &(theTypeDefs[type_id]);
   int r, c, changed_rows[MAX_PRIO];
