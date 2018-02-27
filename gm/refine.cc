@@ -916,7 +916,8 @@ static int Scatter_ElementClosureInfo (DDD_OBJ obj, void *data, DDD_PROC proc, D
 static INT ExchangeElementClosureInfo (GRID *theGrid)
 {
   /* exchange information of elements to compute closure */
-  DDD_IFAOnewayX(ElementSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOnewayX(theGrid->dddContext(),
+                 ElementSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                  Gather_ElementClosureInfo, Scatter_ElementClosureInfo);
 
   return(GM_OK);
@@ -954,7 +955,8 @@ static int Scatter_ElementRefine (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
 static INT ExchangeElementRefine (GRID *theGrid)
 {
   /* exchange information of elements to compute closure */
-  DDD_IFAOnewayX(ElementSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,2*sizeof(INT),
+  DDD_IFAOnewayX(theGrid->dddContext(),
+                 ElementSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,2*sizeof(INT),
                  Gather_ElementRefine, Scatter_ElementRefine);
 
   return(GM_OK);
@@ -1033,7 +1035,8 @@ static int Scatter_EdgeClosureInfo (DDD_OBJ obj, void *data)
 INT     ExchangeEdgeClosureInfo (GRID *theGrid)
 {
   /* exchange information of edges to compute closure */
-  DDD_IFAOneway(EdgeVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(theGrid->dddContext(),
+                EdgeVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_EdgeClosureInfo, Scatter_EdgeClosureInfo);
 
   return(GM_OK);
@@ -1728,11 +1731,13 @@ static INT ExchangeAddPatterns (GRID *theGrid)
 {
   /* exchange addpatterns of edges */
         #ifdef __TWODIM__
-  DDD_IFAOneway(ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(theGrid->dddContext(),
+                ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_AddEdgePattern, Scatter_AddEdgePattern);
         #endif
         #ifdef __THREEDIM__
-  DDD_IFAOneway(EdgeVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(theGrid->dddContext(),
+                EdgeVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_AddEdgePattern, Scatter_AddEdgePattern);
         #endif
 
@@ -2117,7 +2122,8 @@ static int Scatter_ElementInfo (DDD_OBJ obj, void *Data)
 static INT CheckElementInfo (GRID *theGrid)
 {
   /* exchange element info */
-  DDD_IFAOneway(ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,
+  DDD_IFAOneway(theGrid->dddContext(),
+                ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,
                 CEIL(sizeof(struct generic_element))+2*sizeof(INT),
                 Gather_ElementInfo, Scatter_ElementInfo);
 
@@ -2748,7 +2754,8 @@ static INT RestrictMarks (GRID *theGrid)
         #ifdef ModelP
   PRINTDEBUG(gm,1,("\nexchange USED flag for restrict marks\n"));
   /* exchange USED flag of periodic vectors to indicate marked elements */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),Gather_USEDflag, Scatter_USEDflag);
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),Gather_USEDflag, Scatter_USEDflag);
         #endif
 
   /* if an element at a periodic boundary is marked,
@@ -6219,7 +6226,8 @@ static INT Grid_MakePeriodicMarksConsistent(GRID *grid)
   /* exchange USED flag for periodic vectors */
   PRINTDEBUG(gm,1,("\n" PFMT "exchange USED flag for restrict marks in Grid_MakePeriodicMarksConsistent 1. comm.\n",me));
   /* exchange USED flag of periodic vectors to indicate marked elements */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(grid),sizeof(INT),Gather_USEDflag, Scatter_USEDflag);
+  DDD_IFAExchange(grid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(grid),sizeof(INT),Gather_USEDflag, Scatter_USEDflag);
   #endif
 
   /* flag all periodic vectors consistently */
@@ -6266,7 +6274,8 @@ static INT Grid_MakePeriodicMarksConsistent(GRID *grid)
   /* exchange USED flag for periodic vectors */
   PRINTDEBUG(gm,1,("\n" PFMT "exchange USED flag for restrict marks in Grid_MakePeriodicMarksConsistent 2. comm.\n",me));
   /* exchange USED flag of periodic vectors to indicate marked elements */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(grid),sizeof(INT),Gather_USEDflag, Scatter_USEDflag);
+  DDD_IFAExchange(grid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(grid),sizeof(INT),Gather_USEDflag, Scatter_USEDflag);
   #endif
 
   /* mark all periodic elements consistently */

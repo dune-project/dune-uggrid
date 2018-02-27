@@ -232,10 +232,12 @@ static int Scatter_ElemDest (DDD_OBJ obj, void *data)
 
 static int UpdateGhostDests (MULTIGRID *theMG)
 {
-  DDD_IFOneway(ElementIF, IF_FORWARD, sizeof(DDD_PROC),
+  DDD_IFOneway(theMG->dddContext(),
+               ElementIF, IF_FORWARD, sizeof(DDD_PROC),
                Gather_ElemDest, Scatter_ElemDest);
 
-  DDD_IFOneway(ElementVIF, IF_FORWARD, sizeof(DDD_PROC),
+  DDD_IFOneway(theMG->dddContext(),
+               ElementVIF, IF_FORWARD, sizeof(DDD_PROC),
                Gather_ElemDest, Scatter_ElemDest);
 
   return 0;
@@ -493,7 +495,8 @@ static int Scatter_VHGhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
 
 static int ComputeGhostCmds (MULTIGRID *theMG)
 {
-  DDD_IFOnewayX(ElementVHIF, IF_FORWARD, sizeof(int),
+  DDD_IFOnewayX(theMG->dddContext(),
+                ElementVHIF, IF_FORWARD, sizeof(int),
                 Gather_VHGhostCmd, Scatter_VHGhostCmd);
 
   return(0);
