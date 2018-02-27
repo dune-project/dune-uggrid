@@ -1250,7 +1250,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 
   /* rebuild interfaces after topological change */
   STAT_RESET1;
-  IFAllFromScratch();
+  IFAllFromScratch(context);
   STAT_TIMER1(T_BUILD_IF);
 
 

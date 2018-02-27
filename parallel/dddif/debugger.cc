@@ -42,12 +42,12 @@ using namespace PPIF;
  */
 /****************************************************************************/
 
-static void dddif_DisplayMemoryUsage (void)
+static void dddif_DisplayMemoryUsage (const DDD::DDDContext& context)
 {
   memmgr_Report();
 
   UserWriteF("mem for interfaces:  %8ld bytes\n",
-             (unsigned long) DDD_IFInfoMemoryAll()
+             (unsigned long) DDD_IFInfoMemoryAll(context)
              );
 
   UserWriteF("mem for couplings:   %8ld bytes\n",
@@ -91,7 +91,7 @@ void NS_DIM_PREFIX ddd_pstat(const DDD::DDDContext& context, char *arg)
     break;
 
   case 'm' :
-    dddif_DisplayMemoryUsage();
+    dddif_DisplayMemoryUsage(context);
     break;
 
   case 'c' :
@@ -148,9 +148,9 @@ void NS_DIM_PREFIX ddd_pstat(const DDD::DDDContext& context, char *arg)
     DDD_IF ifId = atoi(arg+1);
 
     if (ifId<=0)
-      DDD_IFDisplayAll();
+      DDD_IFDisplayAll(context);
     else
-      DDD_IFDisplay(ifId);
+      DDD_IFDisplay(context, ifId);
 
     UserWrite("\n");
   }

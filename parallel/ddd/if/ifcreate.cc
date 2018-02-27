@@ -601,6 +601,7 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
  */
 
 DDD_IF DDD_IFDefine (
+  DDD::DDDContext&,
   int nO, DDD_TYPE O[],
   int nA, DDD_PRIO A[],
   int nB, DDD_PRIO B[])
@@ -697,7 +698,7 @@ static void StdIFDefine (void)
 
 
 
-void DDD_IFSetName (DDD_IF ifId, const char *name)
+void DDD_IFSetName(DDD::DDDContext&, DDD_IF ifId, const char *name)
 {
 /* copy name string */
 strncpy(theIF[ifId].name, name, IF_NAMELEN-1);
@@ -862,7 +863,7 @@ static void IFDisplay (DDD_IF i)
    @param aIF  the \ddd{interface} ID.
  */
 
-void DDD_IFDisplay (DDD_IF aIF)
+void DDD_IFDisplay(const DDD::DDDContext&, DDD_IF aIF)
 {
 if (aIF>=nIFs)
 {
@@ -901,7 +902,7 @@ DDD_PrintLine("|\n");
         the number of exchange relations and the neighbour processor number.
  */
 
-void DDD_IFDisplayAll (void)
+void DDD_IFDisplayAll(const DDD::DDDContext& context)
 {
   int i;
 
@@ -910,7 +911,7 @@ void DDD_IFDisplayAll (void)
 
   for(i=0; i<nIFs; i++)
   {
-    IFDisplay(i);
+    IFDisplay(context, i);
   }
 
   DDD_PrintLine("|\n");
@@ -977,7 +978,7 @@ static void IFRebuildAll (void)
 }
 
 
-void IFAllFromScratch (void)
+void IFAllFromScratch(DDD::DDDContext&)
 {
   if (DDD_GetOption(OPT_IF_CREATE_EXPLICIT)==OPT_ON)
   {
@@ -992,7 +993,7 @@ void IFAllFromScratch (void)
 
 
 
-void DDD_IFRefreshAll (void)
+void DDD_IFRefreshAll(DDD::DDDContext&)
 {
   if (DDD_GetOption(OPT_IF_CREATE_EXPLICIT)==OPT_OFF)
   {
@@ -1038,7 +1039,7 @@ void ddd_IFExit (void)
 /****************************************************************************/
 
 
-static size_t IFInfoMemory (DDD_IF ifId)
+static size_t IFInfoMemory(const DDD::DDDContext&, DDD_IF ifId)
 {
   IF_PROC *ifp;
   size_t sum=0;
@@ -1057,7 +1058,7 @@ static size_t IFInfoMemory (DDD_IF ifId)
 
 
 
-size_t DDD_IFInfoMemory (DDD_IF ifId)
+size_t DDD_IFInfoMemory(const DDD::DDDContext& context, DDD_IF ifId)
 {
 if (ifId>=nIFs)
 {
@@ -1066,11 +1067,11 @@ if (ifId>=nIFs)
   HARD_EXIT;
 }
 
-return(IFInfoMemory(ifId));
+return(IFInfoMemory(context, ifId));
 }
 
 
-size_t DDD_IFInfoMemoryAll (void)
+size_t DDD_IFInfoMemoryAll(const DDD::DDDContext& context)
 {
   int i;
   size_t sum = 0;
@@ -1078,7 +1079,7 @@ size_t DDD_IFInfoMemoryAll (void)
 
   for(i=0; i<nIFs; i++)
   {
-    sum += IFInfoMemory(i);
+    sum += IFInfoMemory(context, i);
   }
 
   return(sum);
