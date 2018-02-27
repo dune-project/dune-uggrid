@@ -422,27 +422,27 @@ void     DDD_IdentifyObject (DDD_HDR, DDD_PROC, DDD_HDR);
         Interface Module
  */
 
-DDD_IF   DDD_IFDefine (int, DDD_TYPE O[], int, DDD_PRIO A[], int, DDD_PRIO B[]);
-void     DDD_IFSetName (DDD_IF, const char *);
+DDD_IF   DDD_IFDefine (DDD::DDDContext& context, int, DDD_TYPE O[], int, DDD_PRIO A[], int, DDD_PRIO B[]);
+void     DDD_IFSetName (DDD::DDDContext& context, DDD_IF, const char *);
 
-void     DDD_IFDisplayAll (void);
-void     DDD_IFDisplay (DDD_IF);
-size_t   DDD_IFInfoMemoryAll (void);
-size_t   DDD_IFInfoMemory (DDD_IF);
-void     DDD_IFRefreshAll (void);
+void     DDD_IFDisplayAll(const DDD::DDDContext& context);
+void     DDD_IFDisplay(const DDD::DDDContext& context, DDD_IF);
+size_t   DDD_IFInfoMemoryAll(const DDD::DDDContext& context);
+size_t   DDD_IFInfoMemory(const DDD::DDDContext& context, DDD_IF);
+void     DDD_IFRefreshAll(DDD::DDDContext& context);
 
-void     DDD_IFExchange   (DDD_IF,                    size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFOneway     (DDD_IF,         DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFExecLocal  (DDD_IF,                            ExecProcPtr);
-void     DDD_IFAExchange  (DDD_IF,DDD_ATTR,           size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFAOneway    (DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFAExecLocal (DDD_IF,DDD_ATTR,                   ExecProcPtr);
-void     DDD_IFExchangeX  (DDD_IF,                    size_t, ComProcXPtr,ComProcXPtr);
-void     DDD_IFOnewayX    (DDD_IF,         DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
-void     DDD_IFExecLocalX (DDD_IF,                            ExecProcXPtr);
-void     DDD_IFAExchangeX (DDD_IF,DDD_ATTR,           size_t, ComProcXPtr,ComProcXPtr);
-void     DDD_IFAOnewayX   (DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
-void     DDD_IFAExecLocalX(DDD_IF,DDD_ATTR,                   ExecProcXPtr);
+void     DDD_IFExchange   (DDD::DDDContext& context, DDD_IF,                    size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFOneway     (DDD::DDDContext& context, DDD_IF,         DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFExecLocal  (DDD::DDDContext& context, DDD_IF,                            ExecProcPtr);
+void     DDD_IFAExchange  (DDD::DDDContext& context, DDD_IF,DDD_ATTR,           size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFAOneway    (DDD::DDDContext& context, DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFAExecLocal (DDD::DDDContext& context, DDD_IF,DDD_ATTR,                   ExecProcPtr);
+void     DDD_IFExchangeX  (DDD::DDDContext& context, DDD_IF,                    size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFOnewayX    (DDD::DDDContext& context, DDD_IF,         DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFExecLocalX (DDD::DDDContext& context, DDD_IF,                            ExecProcXPtr);
+void     DDD_IFAExchangeX (DDD::DDDContext& context, DDD_IF,DDD_ATTR,           size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFAOnewayX   (DDD::DDDContext& context, DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFAExecLocalX(DDD::DDDContext& context, DDD_IF,DDD_ATTR,                   ExecProcXPtr);
 
 /*
         Transfer Environment Module
@@ -463,8 +463,8 @@ void     DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
 /*
         Prio Environment Module
  */
-void     DDD_PrioBegin (void);
-DDD_RET  DDD_PrioEnd (void);
+void     DDD_PrioBegin(DDD::DDDContext& context);
+DDD_RET  DDD_PrioEnd(DDD::DDDContext& context);
 void     DDD_PrioChange (DDD_HDR, DDD_PRIO);
 
 
