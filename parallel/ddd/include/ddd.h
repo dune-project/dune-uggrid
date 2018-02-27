@@ -350,7 +350,7 @@ typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
  */
 void     DDD_Init(DDD::DDDContext& context);
 void     DDD_Exit(DDD::DDDContext& context);
-void     DDD_Status (void);
+void     DDD_Status(const DDD::DDDContext& context);
 void     DDD_SetOption (DDD_OPTION, int);
 
 /*
@@ -495,9 +495,9 @@ void     DDD_ObjUnGet (DDD_HDR, size_t);
         Maintainance & Debugging
  */
 
-int      DDD_ConsCheck (void);  /* returns total #errors since V1.6.6 */
-void     DDD_ListLocalObjects (void);
-DDD_HDR  DDD_SearchHdr (DDD_GID);
+int      DDD_ConsCheck(const DDD::DDDContext& context); /* returns total #errors since V1.6.6 */
+void     DDD_ListLocalObjects(const DDD::DDDContext& context);
+DDD_HDR  DDD_SearchHdr(DDD::DDDContext&, DDD_GID);
 
 
 /****************************************************************************/
