@@ -189,22 +189,22 @@ void DDD_Init(DDD::DDDContext& context)
   nCplItems  = 0;
 
   /* set options on default values */
-  DDD_SetOption(OPT_WARNING_VARSIZE_OBJ,   OPT_ON);
-  DDD_SetOption(OPT_WARNING_SMALLSIZE,     OPT_ON);
-  DDD_SetOption(OPT_WARNING_PRIOCHANGE,    OPT_ON);
-  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR,  OPT_ON);
-  DDD_SetOption(OPT_DEBUG_XFERMESGS,       OPT_OFF);
-  DDD_SetOption(OPT_QUIET_CONSCHECK,       OPT_OFF);
-  DDD_SetOption(OPT_IDENTIFY_MODE,         IDMODE_LISTS);
-  DDD_SetOption(OPT_WARNING_REF_COLLISION, OPT_ON);
-  DDD_SetOption(OPT_INFO_XFER,             XFER_SHOW_NONE);
-  DDD_SetOption(OPT_INFO_JOIN,             JOIN_SHOW_NONE);
-  DDD_SetOption(OPT_WARNING_OLDSTYLE,      OPT_ON);
-  DDD_SetOption(OPT_INFO_IF_WITH_ATTR,     OPT_OFF);
-  DDD_SetOption(OPT_XFER_PRUNE_DELETE,     OPT_OFF);
-  DDD_SetOption(OPT_IF_REUSE_BUFFERS,      OPT_OFF);
-  DDD_SetOption(OPT_IF_CREATE_EXPLICIT,    OPT_OFF);
-  DDD_SetOption(OPT_CPLMGR_USE_FREELIST,   OPT_ON);
+  DDD_SetOption(context, OPT_WARNING_VARSIZE_OBJ,   OPT_ON);
+  DDD_SetOption(context, OPT_WARNING_SMALLSIZE,     OPT_ON);
+  DDD_SetOption(context, OPT_WARNING_PRIOCHANGE,    OPT_ON);
+  DDD_SetOption(context, OPT_WARNING_DESTRUCT_HDR,  OPT_ON);
+  DDD_SetOption(context, OPT_DEBUG_XFERMESGS,       OPT_OFF);
+  DDD_SetOption(context, OPT_QUIET_CONSCHECK,       OPT_OFF);
+  DDD_SetOption(context, OPT_IDENTIFY_MODE,         IDMODE_LISTS);
+  DDD_SetOption(context, OPT_WARNING_REF_COLLISION, OPT_ON);
+  DDD_SetOption(context, OPT_INFO_XFER,             XFER_SHOW_NONE);
+  DDD_SetOption(context, OPT_INFO_JOIN,             JOIN_SHOW_NONE);
+  DDD_SetOption(context, OPT_WARNING_OLDSTYLE,      OPT_ON);
+  DDD_SetOption(context, OPT_INFO_IF_WITH_ATTR,     OPT_OFF);
+  DDD_SetOption(context, OPT_XFER_PRUNE_DELETE,     OPT_OFF);
+  DDD_SetOption(context, OPT_IF_REUSE_BUFFERS,      OPT_OFF);
+  DDD_SetOption(context, OPT_IF_CREATE_EXPLICIT,    OPT_OFF);
+  DDD_SetOption(context, OPT_CPLMGR_USE_FREELIST,   OPT_ON);
 }
 
 
@@ -364,7 +364,7 @@ void DDD_LineOutRegister (void (*func)(const char *s))
    @param value    option value, possible values depend on option specifier
  */
 
-void DDD_SetOption (DDD_OPTION option, int value)
+void DDD_SetOption (DDD::DDDContext&, DDD_OPTION option, int value)
 {
 if (option>=OPT_END)
 {

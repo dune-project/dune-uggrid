@@ -1032,24 +1032,24 @@ int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
   DDD_Init(context);
 
   /* we are using varsized DDD objects, turn warnings off */
-  DDD_SetOption(OPT_WARNING_VARSIZE_OBJ, OPT_OFF);
-  DDD_SetOption(OPT_WARNING_SMALLSIZE, OPT_OFF);
+  DDD_SetOption(context, OPT_WARNING_VARSIZE_OBJ, OPT_OFF);
+  DDD_SetOption(context, OPT_WARNING_SMALLSIZE, OPT_OFF);
 
   /* no internal free list */
-  DDD_SetOption(OPT_CPLMGR_USE_FREELIST, OPT_OFF);
+  DDD_SetOption(context, OPT_CPLMGR_USE_FREELIST, OPT_OFF);
 
   /* show messages during transfer, for debugging */
-  DDD_SetOption(OPT_DEBUG_XFERMESGS, OPT_OFF);
+  DDD_SetOption(context, OPT_DEBUG_XFERMESGS, OPT_OFF);
 
   /* TODO: remove this, reference collision with Edge orientation
      in 3D */
-  DDD_SetOption(OPT_WARNING_REF_COLLISION, OPT_OFF);
+  DDD_SetOption(context, OPT_WARNING_REF_COLLISION, OPT_OFF);
 
   /* treat identify tokens for one object as set */
-  DDD_SetOption(OPT_IDENTIFY_MODE, IDMODE_SETS);
+  DDD_SetOption(context, OPT_IDENTIFY_MODE, IDMODE_SETS);
 
   /* dont delete objects when another copy comes in during Xfer */
-  DDD_SetOption(OPT_XFER_PRUNE_DELETE, OPT_ON);
+  DDD_SetOption(context, OPT_XFER_PRUNE_DELETE, OPT_ON);
 
   /* initialize type mapping arrays */
   for(i=0; i<MAXOBJECTS; i++)
