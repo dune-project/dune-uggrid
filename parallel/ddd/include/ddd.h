@@ -387,10 +387,10 @@ void     DDD_SetHandlerXFERSCATTERX    (DDD::DDDContext& context, DDD_TYPE, Hand
 void     DDD_SetHandlerXFERCOPYMANIP   (DDD::DDDContext& context, DDD_TYPE, HandlerXFERCOPYMANIP);
 
 
-void     DDD_PrioMergeDefault (DDD_TYPE, int);
-void     DDD_PrioMergeDefine (DDD_TYPE, DDD_PRIO, DDD_PRIO, DDD_PRIO);
-DDD_PRIO DDD_PrioMerge (DDD_TYPE, DDD_PRIO, DDD_PRIO);
-void     DDD_PrioMergeDisplay (DDD_TYPE);
+void     DDD_PrioMergeDefault (DDD::DDDContext& context, DDD_TYPE, int);
+void     DDD_PrioMergeDefine (DDD::DDDContext& context, DDD_TYPE, DDD_PRIO, DDD_PRIO, DDD_PRIO);
+DDD_PRIO DDD_PrioMerge (DDD::DDDContext& context, DDD_TYPE, DDD_PRIO, DDD_PRIO);
+void     DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE);
 
 
 
