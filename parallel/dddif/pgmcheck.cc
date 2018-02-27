@@ -818,9 +818,9 @@ INT NS_DIM_PREFIX CheckInterfaces (GRID *theGrid)
   nerrors += CheckDistributedObjects(theGrid);
 
   /* check ddd interface consistency */
-  DDD_SetOption(OPT_QUIET_CONSCHECK, OPT_ON);
+  DDD_SetOption(theGrid->dddContext(), OPT_QUIET_CONSCHECK, OPT_ON);
   nerrors += DDD_ConsCheck(theGrid->dddContext());
-  DDD_SetOption(OPT_QUIET_CONSCHECK, OPT_OFF);
+  DDD_SetOption(theGrid->dddContext(), OPT_QUIET_CONSCHECK, OPT_OFF);
 
   return(nerrors);
 }
