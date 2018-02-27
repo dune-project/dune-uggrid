@@ -372,19 +372,19 @@ int      DDD_InfoTypes(const DDD::DDDContext& context);
 
 
 /* newstyle, type-secure setting of handlers */
-void     DDD_SetHandlerLDATACONSTRUCTOR(DDD_TYPE, HandlerLDATACONSTRUCTOR);
-void     DDD_SetHandlerDESTRUCTOR      (DDD_TYPE, HandlerDESTRUCTOR);
-void     DDD_SetHandlerDELETE          (DDD_TYPE, HandlerDELETE);
-void     DDD_SetHandlerUPDATE          (DDD_TYPE, HandlerUPDATE);
-void     DDD_SetHandlerOBJMKCONS       (DDD_TYPE, HandlerOBJMKCONS);
-void     DDD_SetHandlerSETPRIORITY     (DDD_TYPE, HandlerSETPRIORITY);
-void     DDD_SetHandlerXFERCOPY        (DDD_TYPE, HandlerXFERCOPY);
-void     DDD_SetHandlerXFERDELETE      (DDD_TYPE, HandlerXFERDELETE);
-void     DDD_SetHandlerXFERGATHER      (DDD_TYPE, HandlerXFERGATHER);
-void     DDD_SetHandlerXFERSCATTER     (DDD_TYPE, HandlerXFERSCATTER);
-void     DDD_SetHandlerXFERGATHERX     (DDD_TYPE, HandlerXFERGATHERX);
-void     DDD_SetHandlerXFERSCATTERX    (DDD_TYPE, HandlerXFERSCATTERX);
-void     DDD_SetHandlerXFERCOPYMANIP   (DDD_TYPE, HandlerXFERCOPYMANIP);
+void     DDD_SetHandlerLDATACONSTRUCTOR(DDD::DDDContext& context, DDD_TYPE, HandlerLDATACONSTRUCTOR);
+void     DDD_SetHandlerDESTRUCTOR      (DDD::DDDContext& context, DDD_TYPE, HandlerDESTRUCTOR);
+void     DDD_SetHandlerDELETE          (DDD::DDDContext& context, DDD_TYPE, HandlerDELETE);
+void     DDD_SetHandlerUPDATE          (DDD::DDDContext& context, DDD_TYPE, HandlerUPDATE);
+void     DDD_SetHandlerOBJMKCONS       (DDD::DDDContext& context, DDD_TYPE, HandlerOBJMKCONS);
+void     DDD_SetHandlerSETPRIORITY     (DDD::DDDContext& context, DDD_TYPE, HandlerSETPRIORITY);
+void     DDD_SetHandlerXFERCOPY        (DDD::DDDContext& context, DDD_TYPE, HandlerXFERCOPY);
+void     DDD_SetHandlerXFERDELETE      (DDD::DDDContext& context, DDD_TYPE, HandlerXFERDELETE);
+void     DDD_SetHandlerXFERGATHER      (DDD::DDDContext& context, DDD_TYPE, HandlerXFERGATHER);
+void     DDD_SetHandlerXFERSCATTER     (DDD::DDDContext& context, DDD_TYPE, HandlerXFERSCATTER);
+void     DDD_SetHandlerXFERGATHERX     (DDD::DDDContext& context, DDD_TYPE, HandlerXFERGATHERX);
+void     DDD_SetHandlerXFERSCATTERX    (DDD::DDDContext& context, DDD_TYPE, HandlerXFERSCATTERX);
+void     DDD_SetHandlerXFERCOPYMANIP   (DDD::DDDContext& context, DDD_TYPE, HandlerXFERCOPYMANIP);
 
 
 void     DDD_PrioMergeDefault (DDD_TYPE, int);

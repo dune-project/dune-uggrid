@@ -813,7 +813,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   UpdateGhostDests(theMG);
 
   /* init transfer */
-  ddd_HandlerInit(HSET_XFER);
+  ddd_HandlerInit(theMG->dddContext(), HSET_XFER);
 
   /* start physical transfer */
   DDD_XferBegin(theMG->dddContext());
