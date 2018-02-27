@@ -35,6 +35,7 @@
 #include <cstdio>
 #include <cstring>
 
+#include <algorithm>
 
 #include "dddi.h"
 #include "join.h"
@@ -76,36 +77,6 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
-/****************************************************************************/
-
-
-static int sort_NewGid (const void *e1, const void *e2)
-{
-  JIJoin *item1 = *((JIJoin **)e1);
-  JIJoin *item2 = *((JIJoin **)e2);
-
-  if (item1->new_gid < item2->new_gid) return(-1);
-  if (item1->new_gid > item2->new_gid) return(1);
-
-  return(0);
-}
-
-
-/****************************************************************************/
-
-
-static int sort_Gid (const void *e1, const void *e2)
-{
-  JIPartner *item1 = (JIPartner *)e1;
-  JIPartner *item2 = (JIPartner *)e2;
-
-  if (OBJ_GID(item1->hdr) < OBJ_GID(item2->hdr)) return(-1);
-  if (OBJ_GID(item1->hdr) > OBJ_GID(item2->hdr)) return(1);
-
-  return(0);
-}
-
-
 /****************************************************************************/
 
 
@@ -397,8 +368,13 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
 
   /* sort joinObjs-array according to gid */
-  if (nJoinObjs>1)
-    qsort(joinObjs, nJoinObjs, sizeof(JIPartner), sort_Gid);
+  if (nJoinObjs>1) {
+    std::sort(
+      joinObjs, joinObjs + nJoinObjs,
+      [](const JIPartner& a, const JIPartner& b) {
+        return OBJ_GID(a.hdr) < OBJ_GID(b.hdr);
+      });
+  }
 }
 
 
@@ -962,11 +938,11 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* this ordering is needed in UnpackPhase3 */
   if (arrayJIJoin.size() > 1)
   {
-    // TODO: use std::sort
-    qsort(
-      arrayJIJoin.data(),
-      arrayJIJoin.size(),
-      sizeof(JIJoin *), sort_NewGid);
+    std::sort(
+      arrayJIJoin.begin(), arrayJIJoin.end(),
+      [](const JIJoin* a, const JIJoin* b) {
+        return a->new_gid < b->new_gid;
+      });
   }
 
 
