@@ -278,7 +278,7 @@ void DDD_Exit(DDD::DDDContext& context)
         \end{tabular}
  */
 
-void DDD_Status (void)
+void DDD_Status(const DDD::DDDContext&)
 {
   sprintf(cBuffer, "| DDD_Status for proc=%03d, DDD-Version %s\n", me,
           DDD_VERSION);
