@@ -27,8 +27,6 @@
 #ifndef __DDDADDON__
 #define __DDDADDON__
 
-#include "dddresources.h"
-
 START_UGDIM_NAMESPACE
 
 /*
