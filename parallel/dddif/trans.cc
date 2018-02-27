@@ -866,7 +866,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 
         #ifdef Debug
   if (0)
-    DDD_ConsCheck();
+    DDD_ConsCheck(theMG->dddContext());
         #endif
 
   return 0;

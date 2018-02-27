@@ -850,7 +850,7 @@ void ObjCopyGlobalData (TYPE_DESC *desc,
 
 /****************************************************************************/
 
-DDD_HDR DDD_SearchHdr (DDD_GID gid)
+DDD_HDR DDD_SearchHdr(DDD::DDDContext&, DDD_GID gid)
 {
 int i;
 

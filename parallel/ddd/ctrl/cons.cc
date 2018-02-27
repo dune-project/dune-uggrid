@@ -693,7 +693,7 @@ static int ConsCheckDoubleObj (void)
    @returns  total number of errors (sum of all procs)
  */
 
-int DDD_ConsCheck (void)
+int DDD_ConsCheck(const DDD::DDDContext&)
 {
   int cpl_errors;
   int total_errors=0;
