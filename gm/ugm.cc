@@ -272,7 +272,7 @@ INT NS_DIM_PREFIX ReleaseOBJT (INT type)
 /****************************************************************************/
 
 #ifdef ModelP
-static void ConstructDDDObject (void *obj, INT size, INT type)
+static void ConstructDDDObject (const DDD::DDDContext& context, void *obj, INT size, INT type)
 {
   if (obj!=NULL && type!=NOOBJ)
   {
@@ -281,7 +281,7 @@ static void ConstructDDDObject (void *obj, INT size, INT type)
     if (HAS_DDDHDR(type))
     {
       DDD_TYPE dddtype = DDDTYPE(type);
-      DDD_HDR dddhdr = (DDD_HDR)(((char *)obj) + DDD_InfoHdrOffset(dddtype));
+      DDD_HDR dddhdr = (DDD_HDR)(((char *)obj) + DDD_InfoHdrOffset(context, dddtype));
       DDD_HdrConstructor(dddhdr, dddtype, PrioMaster, 0);
     }
   }
@@ -297,7 +297,7 @@ void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
 
   #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
-    ConstructDDDObject(obj,size,type);
+    ConstructDDDObject(theMG->dddContext(), obj,size,type);
   #endif
 
   return obj;
@@ -321,7 +321,7 @@ void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
 /****************************************************************************/
 
 #ifdef ModelP
-static void DestructDDDObject(void *object, INT type)
+static void DestructDDDObject(const DDD::DDDContext& context, void *object, INT type)
 {
   if (type!=NOOBJ)
   {
@@ -329,7 +329,7 @@ static void DestructDDDObject(void *object, INT type)
     if (HAS_DDDHDR(type))
     {
       DDD_HDR dddhdr = (DDD_HDR)
-                       (((char *)object)+DDD_InfoHdrOffset(DDDTYPE(type)));
+                       (((char *)object)+DDD_InfoHdrOffset(context, DDDTYPE(type)));
       DDD_HdrDestructor(dddhdr);
     }
   }
@@ -343,7 +343,7 @@ INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, INT t
 
   #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
-    DestructDDDObject(object,type);
+    DestructDDDObject(theMG->dddContext(), object,type);
   #endif
 
   DisposeMem(MGHEAP(theMG), object);
