@@ -76,15 +76,6 @@ START_UGDIM_NAMESPACE
 typedef int RETCODE;
 
 
-/*
-        macro for output of downward compatibility warning messages
- */
-#define OLDSTYLE(txt) \
-  if (me==master && DDD_GetOption(OPT_WARNING_OLDSTYLE)==OPT_ON)  \
-  { DDD_PrintError('W', 1080, txt); }
-
-
-
 /****************************************************************************/
 /*                                                                          */
 /* defines in the following order                                           */
