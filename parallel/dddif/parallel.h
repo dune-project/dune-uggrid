@@ -271,7 +271,7 @@ void    ddd_pstat                       (const DDD::DDDContext& context, char *)
 void lbs (const char *argv, MULTIGRID *theMG);
 
 /* from handler.c */
-void            ddd_HandlerInit                 (INT);
+void            ddd_HandlerInit                 (DDD::DDDContext& context, INT);
 DDD_TYPE        NFatherObjType                  (DDD_OBJ obj, DDD_OBJ ref);
 void            ObjectPriorityUpdate    (DDD_OBJ obj, DDD_PRIO newPrio);
 
