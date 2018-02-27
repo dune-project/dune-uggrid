@@ -375,8 +375,8 @@ typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 /*
         General DDD Module
  */
-void     DDD_Init();
-void     DDD_Exit (void);
+void     DDD_Init(DDD::DDDContext& context);
+void     DDD_Exit(DDD::DDDContext& context);
 void     DDD_Status (void);
 void     DDD_SetOption (DDD_OPTION, int);
 
