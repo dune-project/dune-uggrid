@@ -2113,15 +2113,15 @@ void NS_DIM_PREFIX ObjectPriorityUpdate (DDD_OBJ obj, DDD_PRIO new_)
 
 
 /* init handlers for all element */
-static void ElemHandlerInit (DDD_TYPE etype, INT handlerSet)
+static void ElemHandlerInit (DDD::DDDContext& context, DDD_TYPE etype, INT handlerSet)
 {
-  DDD_SetHandlerLDATACONSTRUCTOR(etype, ElementLDataConstructor);
-  DDD_SetHandlerDELETE          (etype, ElementDelete);
-  DDD_SetHandlerXFERCOPY        (etype, ElementXferCopy);
-  DDD_SetHandlerSETPRIORITY     (etype, ElementPriorityUpdate);
+  DDD_SetHandlerLDATACONSTRUCTOR(context, etype, ElementLDataConstructor);
+  DDD_SetHandlerDELETE          (context, etype, ElementDelete);
+  DDD_SetHandlerXFERCOPY        (context, etype, ElementXferCopy);
+  DDD_SetHandlerSETPRIORITY     (context, etype, ElementPriorityUpdate);
 
         #ifdef __THREEDIM__
-  DDD_SetHandlerUPDATE          (etype, ElementUpdate);
+  DDD_SetHandlerUPDATE          (context, etype, ElementUpdate);
         #endif
 
 
@@ -2129,107 +2129,107 @@ static void ElemHandlerInit (DDD_TYPE etype, INT handlerSet)
   {
   /* TODO: not needed any more ??
      case HSET_XFER:
-          DDD_SetHandlerOBJMKCONS(etype, ElementObjMkCons_Xfer);
+          DDD_SetHandlerOBJMKCONS(context, etype, ElementObjMkCons_Xfer);
           break;
 
      case HSET_REFINE:
-          DDD_SetHandlerOBJMKCONS(etype, ElementObjMkCons_Refine);
+          DDD_SetHandlerOBJMKCONS(context, etype, ElementObjMkCons_Refine);
           break;
    */
   default :
-    DDD_SetHandlerOBJMKCONS(etype, ElementObjMkCons);
+    DDD_SetHandlerOBJMKCONS(context, etype, ElementObjMkCons);
     break;
   }
 }
 
 
 /* init handlers for inner element */
-static void IElemHandlerInit (DDD_TYPE etype, INT handlerSet)
+static void IElemHandlerInit (DDD::DDDContext& context, DDD_TYPE etype, INT handlerSet)
 {
   /* init standard elem handlers */
-  ElemHandlerInit(etype, handlerSet);
+  ElemHandlerInit(context, etype, handlerSet);
 
   /* init additional handlers, necessary for inside management */
-  DDD_SetHandlerXFERGATHER (etype, ElemGatherI);
-  DDD_SetHandlerXFERSCATTER(etype, ElemScatterI);
+  DDD_SetHandlerXFERGATHER (context, etype, ElemGatherI);
+  DDD_SetHandlerXFERSCATTER(context, etype, ElemScatterI);
 }
 
 
 /* init handlers for boundary element */
-static void BElemHandlerInit (DDD_TYPE etype, INT handlerSet)
+static void BElemHandlerInit (DDD::DDDContext& context, DDD_TYPE etype, INT handlerSet)
 {
   /* init standard elem handlers */
-  ElemHandlerInit(etype, handlerSet);
+  ElemHandlerInit(context, etype, handlerSet);
 
   /* init additional handlers, necessary for boundary management */
-  DDD_SetHandlerXFERGATHER (etype, ElemGatherB);
-  DDD_SetHandlerXFERSCATTER(etype, ElemScatterB);
+  DDD_SetHandlerXFERGATHER (context, etype, ElemGatherB);
+  DDD_SetHandlerXFERSCATTER(context, etype, ElemScatterB);
 }
 
 
 /****************************************************************************/
 
 /* init all handlers necessary for grid xfer */
-void NS_DIM_PREFIX ddd_HandlerInit (INT handlerSet)
+void NS_DIM_PREFIX ddd_HandlerInit (DDD::DDDContext& context, INT handlerSet)
 {
-  DDD_SetHandlerUPDATE           (TypeVector, VectorUpdate);
-  DDD_SetHandlerXFERCOPY         (TypeVector, VectorXferCopy);
-  DDD_SetHandlerXFERGATHERX      (TypeVector, VectorGatherMatX);
-  DDD_SetHandlerXFERSCATTERX     (TypeVector, VectorScatterConnX);
-  DDD_SetHandlerOBJMKCONS        (TypeVector, VectorObjMkCons);
-  DDD_SetHandlerSETPRIORITY      (TypeVector, VectorPriorityUpdate);
+  DDD_SetHandlerUPDATE           (context, TypeVector, VectorUpdate);
+  DDD_SetHandlerXFERCOPY         (context, TypeVector, VectorXferCopy);
+  DDD_SetHandlerXFERGATHERX      (context, TypeVector, VectorGatherMatX);
+  DDD_SetHandlerXFERSCATTERX     (context, TypeVector, VectorScatterConnX);
+  DDD_SetHandlerOBJMKCONS        (context, TypeVector, VectorObjMkCons);
+  DDD_SetHandlerSETPRIORITY      (context, TypeVector, VectorPriorityUpdate);
   /* TODO: not used
-          DDD_SetHandlerDELETE           (TypeVector, VectorDelete);
+          DDD_SetHandlerDELETE           (context, TypeVector, VectorDelete);
    */
 
-  DDD_SetHandlerUPDATE           (TypeIVertex, VertexUpdate);
-  DDD_SetHandlerSETPRIORITY      (TypeIVertex, VertexPriorityUpdate);
+  DDD_SetHandlerUPDATE           (context, TypeIVertex, VertexUpdate);
+  DDD_SetHandlerSETPRIORITY      (context, TypeIVertex, VertexPriorityUpdate);
 
-  DDD_SetHandlerLDATACONSTRUCTOR (TypeBVertex, BVertexLDataConstructor);
-  DDD_SetHandlerUPDATE           (TypeBVertex, VertexUpdate);
-  DDD_SetHandlerXFERCOPY         (TypeBVertex, BVertexXferCopy);
-  DDD_SetHandlerXFERGATHER       (TypeBVertex, BVertexGather);
-  DDD_SetHandlerXFERSCATTER      (TypeBVertex, BVertexScatter);
-  DDD_SetHandlerSETPRIORITY      (TypeBVertex, VertexPriorityUpdate);
+  DDD_SetHandlerLDATACONSTRUCTOR (context, TypeBVertex, BVertexLDataConstructor);
+  DDD_SetHandlerUPDATE           (context, TypeBVertex, VertexUpdate);
+  DDD_SetHandlerXFERCOPY         (context, TypeBVertex, BVertexXferCopy);
+  DDD_SetHandlerXFERGATHER       (context, TypeBVertex, BVertexGather);
+  DDD_SetHandlerXFERSCATTER      (context, TypeBVertex, BVertexScatter);
+  DDD_SetHandlerSETPRIORITY      (context, TypeBVertex, VertexPriorityUpdate);
 
-  DDD_SetHandlerXFERGATHER       (TypeNode, DuneEntityGather<NODE>);
-  DDD_SetHandlerXFERSCATTER      (TypeNode, DuneEntityScatter<NODE>);
+  DDD_SetHandlerXFERGATHER       (context, TypeNode, DuneEntityGather<NODE>);
+  DDD_SetHandlerXFERSCATTER      (context, TypeNode, DuneEntityScatter<NODE>);
 
-  DDD_SetHandlerLDATACONSTRUCTOR (TypeNode, NodeObjInit);
-  DDD_SetHandlerDESTRUCTOR       (TypeNode, NodeDestructor);
-  DDD_SetHandlerOBJMKCONS        (TypeNode, NodeObjMkCons);
-  DDD_SetHandlerUPDATE           (TypeNode, NodeUpdate);
-  DDD_SetHandlerXFERCOPY         (TypeNode, NodeXferCopy);
-  DDD_SetHandlerSETPRIORITY      (TypeNode, NodePriorityUpdate);
+  DDD_SetHandlerLDATACONSTRUCTOR (context, TypeNode, NodeObjInit);
+  DDD_SetHandlerDESTRUCTOR       (context, TypeNode, NodeDestructor);
+  DDD_SetHandlerOBJMKCONS        (context, TypeNode, NodeObjMkCons);
+  DDD_SetHandlerUPDATE           (context, TypeNode, NodeUpdate);
+  DDD_SetHandlerXFERCOPY         (context, TypeNode, NodeXferCopy);
+  DDD_SetHandlerSETPRIORITY      (context, TypeNode, NodePriorityUpdate);
 
 
 
         #ifdef __TWODIM__
-  IElemHandlerInit(TypeTrElem, handlerSet);
-  BElemHandlerInit(TypeTrBElem, handlerSet);
+  IElemHandlerInit(context, TypeTrElem, handlerSet);
+  BElemHandlerInit(context, TypeTrBElem, handlerSet);
 
-  IElemHandlerInit(TypeQuElem, handlerSet);
-  BElemHandlerInit(TypeQuBElem, handlerSet);
+  IElemHandlerInit(context, TypeQuElem, handlerSet);
+  BElemHandlerInit(context, TypeQuBElem, handlerSet);
         #endif
 
         #ifdef __THREEDIM__
-  IElemHandlerInit(TypeTeElem, handlerSet);
-  BElemHandlerInit(TypeTeBElem, handlerSet);
+  IElemHandlerInit(context, TypeTeElem, handlerSet);
+  BElemHandlerInit(context, TypeTeBElem, handlerSet);
 
-  IElemHandlerInit(TypePyElem, handlerSet);
-  BElemHandlerInit(TypePyBElem, handlerSet);
+  IElemHandlerInit(context, TypePyElem, handlerSet);
+  BElemHandlerInit(context, TypePyBElem, handlerSet);
 
-  IElemHandlerInit(TypePrElem, handlerSet);
-  BElemHandlerInit(TypePrBElem, handlerSet);
+  IElemHandlerInit(context, TypePrElem, handlerSet);
+  BElemHandlerInit(context, TypePrBElem, handlerSet);
 
-  IElemHandlerInit(TypeHeElem, handlerSet);
-  BElemHandlerInit(TypeHeBElem, handlerSet);
+  IElemHandlerInit(context, TypeHeElem, handlerSet);
+  BElemHandlerInit(context, TypeHeBElem, handlerSet);
         #endif
 
-  DDD_SetHandlerUPDATE      (TypeEdge, EdgeUpdate);
-  DDD_SetHandlerOBJMKCONS   (TypeEdge, EdgeObjMkCons);
-  DDD_SetHandlerXFERCOPY    (TypeEdge, EdgeXferCopy);
-  DDD_SetHandlerSETPRIORITY (TypeEdge, EdgePriorityUpdate);
+  DDD_SetHandlerUPDATE      (context, TypeEdge, EdgeUpdate);
+  DDD_SetHandlerOBJMKCONS   (context, TypeEdge, EdgeObjMkCons);
+  DDD_SetHandlerXFERCOPY    (context, TypeEdge, EdgeXferCopy);
+  DDD_SetHandlerSETPRIORITY (context, TypeEdge, EdgePriorityUpdate);
 
   DomHandlerInit(handlerSet);
 }
