@@ -66,9 +66,6 @@ using namespace PPIF;
 }
 
 
-/* #define DDD_PrioMergeDefault(x,y)*/	/* TODO: delete this define */
-
-
 /****************************************************************************/
 /*																			*/
 /* data structures used in this source file (exported data structures are	*/
@@ -255,14 +252,14 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
   }
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(dddType, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, dddType, PRIOMERGE_MAXIMUM);
   /* TODO: set prios
-          DDD_PrioMergeDefine(dddType, PrioHGhost, PrioVGhost, PrioVHGhost);
-          DDD_PrioMergeDefine(dddType, PrioHGhost, PrioVHGhost, PrioVHGhost);
-          DDD_PrioMergeDefine(dddType, PrioVGhost, PrioVHGhost, PrioVHGhost);
-          DDD_PrioMergeDefine(dddType, PrioHGhost, PrioMaster, PrioMaster);
-          DDD_PrioMergeDefine(dddType, PrioVGhost, PrioMaster, PrioMaster);
-          DDD_PrioMergeDefine(dddType, PrioVHGhost, PrioMaster, PrioMaster);
+          DDD_PrioMergeDefine(context, dddType, PrioHGhost, PrioVGhost, PrioVHGhost);
+          DDD_PrioMergeDefine(context, dddType, PrioHGhost, PrioVHGhost, PrioVHGhost);
+          DDD_PrioMergeDefine(context, dddType, PrioVGhost, PrioVHGhost, PrioVHGhost);
+          DDD_PrioMergeDefine(context, dddType, PrioHGhost, PrioMaster, PrioMaster);
+          DDD_PrioMergeDefine(context, dddType, PrioVGhost, PrioMaster, PrioMaster);
+          DDD_PrioMergeDefine(context, dddType, PrioVHGhost, PrioMaster, PrioMaster);
    */
 
 }
@@ -445,7 +442,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  );
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(TypeVector, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, TypeVector, PRIOMERGE_MAXIMUM);
 
   /* compute global fields it control word entry */
   gbits = ~((((1<<ONEDGE_LEN)-1)<<ONEDGE_SHIFT) |
@@ -488,7 +485,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  );
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(TypeIVertex, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, TypeIVertex, PRIOMERGE_MAXIMUM);
 
 
   DDD_TypeDefine(context, TypeBVertex, &bv,
@@ -527,7 +524,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  );
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(TypeBVertex, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, TypeBVertex, PRIOMERGE_MAXIMUM);
 
 
   DDD_TypeDefine(context, TypeNode, &n,
@@ -569,7 +566,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_END, ((char *)&n)+size);
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(TypeNode, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, TypeNode, PRIOMERGE_MAXIMUM);
 
 
         #ifdef __TWODIM__
@@ -648,7 +645,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
   DDD_TypeDefine(context, TypeEdge, &e, EL_END, ((char *)&e)+size);
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(TypeEdge, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, TypeEdge, PRIOMERGE_MAXIMUM);
 
 }
 
