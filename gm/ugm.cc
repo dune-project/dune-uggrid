@@ -4053,7 +4053,7 @@ static INT DisposeAMGLevel (MULTIGRID *theMG)
 
         #ifdef ModelP
   /* stop dangerous mode. from now on DDD will issue warnings again. */
-  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_ON);
+  DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_ON);
         #endif
 
   /* remove from grids array */
@@ -4104,7 +4104,7 @@ INT NS_DIM_PREFIX DisposeAMGLevels (MULTIGRID *theMG)
 
         #ifdef ModelP
   /* stop dangerous mode. from now on DDD will issue warnings again. */
-  /*DDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_ON);*/
+  /*DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_ON);*/
 
   /* rebuild DDD-interfaces because distributed vectors have been
      deleted without communication */
@@ -4141,7 +4141,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
         #ifdef ModelP
   /* tell DDD that we will 'inconsistently' delete objects.
      this is a dangerous mode as it switches DDD warnings off. */
-  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_OFF);
+  DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_OFF);
         #endif
 
   for (level = TOPLEVEL(theMG); level >= 0; level --)
@@ -4150,7 +4150,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 
         #ifdef ModelP
   /* stop dangerous mode. from now on DDD will issue warnings again. */
-  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_ON);
+  DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_ON);
 
   /* rebuild DDD-interfaces because distributed vectors have been
      deleted without communication */
