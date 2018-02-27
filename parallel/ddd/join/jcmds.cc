@@ -1142,7 +1142,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   /* re-create all interfaces and step JMODE */
   STAT_RESET;
-  IFAllFromScratch();
+  IFAllFromScratch(context);
   STAT_TIMER(T_JOIN_BUILD_IF);
 
 

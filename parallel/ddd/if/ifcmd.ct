@@ -170,6 +170,7 @@
 
 
 void IF_FUNCNAME (
+	DDD::DDDContext& context,
 	NS_DIM_PREFIX DDD_IF aIF,
 	#ifdef IF_WITH_ATTR
 		NS_DIM_PREFIX DDD_ATTR aAttr,
