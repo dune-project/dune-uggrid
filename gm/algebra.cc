@@ -2423,9 +2423,11 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
   MGCreateConnection(theMG);
     #endif
   /* update VNEW-flags */
-  DDD_IFExchange(BorderVectorSymmIF,sizeof(INT),
+  DDD_IFExchange(theMG->dddContext(),
+                 BorderVectorSymmIF,sizeof(INT),
                  Gather_VectorVNew,Scatter_VectorVNew);
-  DDD_IFOneway(VectorIF,IF_FORWARD,sizeof(INT),
+  DDD_IFOneway(theMG->dddContext(),
+               VectorIF,IF_FORWARD,sizeof(INT),
                Gather_VectorVNew,Scatter_GhostVectorVNew);
     #else
   MGCreateConnection(theMG);
@@ -3436,7 +3438,8 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses():"
                    " 1. communication on level %d\n",GLEVEL(theGrid)))
   /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
 
@@ -3446,7 +3449,8 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 2. communication\n"))
   /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
 
@@ -3456,7 +3460,8 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 3. communication\n"))
   /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
 
@@ -3467,14 +3472,16 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 4. communication\n"))
   /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
         #endif
 #endif
 
         #ifdef ModelP
   /* send VCLASS to ghosts */
-  DDD_IFAOneway(VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(theGrid->dddContext(),
+                VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_VectorVClass, Scatter_GhostVectorVClass);
     #endif
 
@@ -3660,7 +3667,8 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 1. communication\n"))
   /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
     #endif
 
@@ -3669,7 +3677,8 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 2. communication\n"))
   /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
     #endif
 
@@ -3678,7 +3687,8 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 3. communication\n"))
   /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
         #endif
 
@@ -3688,14 +3698,16 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 4. communication\n"))
   /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
         #endif
 #endif
 
         #ifdef ModelP
   /* send VCLASS to ghosts */
-  DDD_IFAOneway(VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(theGrid->dddContext(),
+                VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_VectorVNClass, Scatter_GhostVectorVNClass);
     #endif
 

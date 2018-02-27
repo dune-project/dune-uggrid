@@ -829,7 +829,7 @@ exit:
   {
     /* re-create all interfaces and step XMODE */
     STAT_RESET;
-    IFAllFromScratch();
+    IFAllFromScratch(context);
     STAT_TIMER(T_XFER_BUILD_IF);
   }
 

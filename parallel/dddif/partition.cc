@@ -409,7 +409,8 @@ INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
       }
     }
     /* transfer restriction flags to master copies of father */
-    DDD_IFAOneway(ElementVHIF,GRID_ATTR(theGrid),IF_BACKWARD,sizeof(INT),
+    DDD_IFAOneway(theGrid->dddContext(),
+                  ElementVHIF,GRID_ATTR(theGrid),IF_BACKWARD,sizeof(INT),
                   Gather_ElementRestriction, Scatter_ElementRestriction);
   }
 
@@ -419,7 +420,8 @@ INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
     theGrid = GRID_ON_LEVEL(theMG,i);
 
     /* transfer (new) partitions of elements to non master copies */
-    DDD_IFAOnewayX(ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+    DDD_IFAOnewayX(theGrid->dddContext(),
+                   ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                    Gather_RestrictedPartition, Scatter_RestrictedPartition);
 
     for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
