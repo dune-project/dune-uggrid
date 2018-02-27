@@ -662,7 +662,7 @@ enum PrioMergeVals PriorityMerge (TYPE_DESC *, DDD_PRIO, DDD_PRIO, DDD_PRIO *);
 /* if/if.c */
 void      ddd_IFInit (void);
 void      ddd_IFExit (void);
-void      IFAllFromScratch (void);
+void      IFAllFromScratch(DDD::DDDContext&);
 void      DDD_InfoIFImpl (DDD_IF);
 void      IFInvalidateShortcuts (DDD_TYPE);
 int       DDD_CheckInterfaces (void);
