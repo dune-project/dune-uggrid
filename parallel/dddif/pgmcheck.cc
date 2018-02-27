@@ -819,7 +819,7 @@ INT NS_DIM_PREFIX CheckInterfaces (GRID *theGrid)
 
   /* check ddd interface consistency */
   DDD_SetOption(OPT_QUIET_CONSCHECK, OPT_ON);
-  nerrors += DDD_ConsCheck();
+  nerrors += DDD_ConsCheck(theGrid->dddContext());
   DDD_SetOption(OPT_QUIET_CONSCHECK, OPT_OFF);
 
   return(nerrors);

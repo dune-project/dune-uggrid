@@ -125,9 +125,9 @@ using namespace PPIF;
 
 /* define for use of DDD_ConsCheck() */
 /*
-   #define DDD_CONSCHECK                if (DDD_ConsCheck()) assert(0);
+   #define DDD_CONSCHECK(context)           if (DDD_ConsCheck(context)) assert(0);
  */
-#define DDD_CONSCHECK
+#define DDD_CONSCHECK(context)
 
 #define MINVNCLASS      2           /* determines copies, dep. on discr. !  */
 
@@ -5890,7 +5890,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
   SET_IDENT_MODE(IDENT_ON);
   DDD_XferBegin(theGrid->dddContext());
 
-  DDD_CONSCHECK;
+  DDD_CONSCHECK(theGrid->dddContext());
 
   /* now really manipulate the next finer level */
   START_TIMER(gridadaptl_timer)
@@ -5909,7 +5909,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
 
   SUM_TIMER(gridadaptl_timer)
 
-  DDD_CONSCHECK;
+  DDD_CONSCHECK(theGrid->dddContext());
 
   {
     int check=1;
@@ -5945,7 +5945,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
     if (IDENT_IN_STEPS)
       DDD_IdentifyBegin(theGrid->dddContext());
 
-    DDD_CONSCHECK;
+    DDD_CONSCHECK(theGrid->dddContext());
 
     START_TIMER(ident_timer)
 
@@ -5958,7 +5958,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
     /* DDD_JoinEnd(); */
 
 
-    DDD_CONSCHECK;
+    DDD_CONSCHECK(theGrid->dddContext());
 
 #ifdef __PERIODIC_BOUNDARY__
     /** \todo modification for adaptive refinement in parallel */
@@ -5981,13 +5981,13 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
 
       DDD_XferEnd(theGrid->dddContext());
 
-      DDD_CONSCHECK;
+      DDD_CONSCHECK(theGrid->dddContext());
 
       DDD_XferBegin(theGrid->dddContext());
       if (ConnectGridOverlap(theGrid)) RETURN(GM_FATAL);
       DDD_XferEnd(theGrid->dddContext());
 
-      DDD_CONSCHECK;
+      DDD_CONSCHECK(theGrid->dddContext());
 
       /* this is needed due to special cases while coarsening */
       /* sample scene: a ghost element is needed as overlap     */
@@ -6005,7 +6005,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
       SUM_TIMER(overlap_timer)
     }
 
-    DDD_CONSCHECK;
+    DDD_CONSCHECK(theGrid->dddContext());
 
 
     CheckConsistency(MYMG(theGrid),(INT)level,(INT)debugstart,(INT)gmlevel,&check);
@@ -6061,7 +6061,7 @@ static void CheckConsistency (MULTIGRID *theMG, INT level ,INT debugstart, INT g
                 #ifdef Debug
   Debuggm=gmlevel;
                 #endif
-  if (DDD_ConsCheck() > 0) buggy(theMG);
+  if (DDD_ConsCheck(theMG->dddContext()) > 0) buggy(theMG);
   ENDDEBUG
 }
 #endif
