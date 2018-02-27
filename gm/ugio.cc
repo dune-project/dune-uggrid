@@ -3380,11 +3380,11 @@ nparfiles = UG_GlobalMinINT(nparfiles);
 
   /* close identification context */
 #ifdef OPTIMIZED_IO
-  DDD_SetOption(OPT_IF_CREATE_EXPLICIT,OPT_ON);
+  DDD_SetOption(theMG->dddContext(), OPT_IF_CREATE_EXPLICIT,OPT_ON);
 #endif
   DDD_IdentifyEnd(theMG->dddContext());
 #ifdef OPTIMIZED_IO
-  DDD_SetOption(OPT_IF_CREATE_EXPLICIT,OPT_OFF);
+  DDD_SetOption(theMG->dddContext(), OPT_IF_CREATE_EXPLICIT,OPT_OFF);
 #endif
 
   /* repair inconsistencies */
