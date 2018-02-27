@@ -31,6 +31,10 @@
 #ifndef __PARALLEL_H__
 #define __PARALLEL_H__
 
+#ifdef ModelP
+#  include <dune/uggrid/parallel/ddd/dddcontext.hh>
+#endif
+
 #include "heaps.h"
 
 #ifdef ModelP
@@ -256,8 +260,8 @@ extern DDD_CTRL dddctrl;
 #ifdef ModelP
 
 /* from initddd.c */
-int             InitDDD                 (void);
-int             ExitDDD                 (void);
+int             InitDDD(DDD::DDDContext& context);
+int             ExitDDD(DDD::DDDContext& context);
 void    InitCurrMG              (MULTIGRID *);
 
 /* from debugger.c */
