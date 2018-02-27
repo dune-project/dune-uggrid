@@ -770,7 +770,7 @@ void DDD_InfoIFImpl (DDD_IF ifId)
 
 
 
-static void IFDisplay (DDD_IF i)
+static void IFDisplay (const DDD::DDDContext&, DDD_IF i)
 {
   IF_PROC    *ifh;
   IF_ATTR    *ifr;
@@ -863,7 +863,7 @@ static void IFDisplay (DDD_IF i)
    @param aIF  the \ddd{interface} ID.
  */
 
-void DDD_IFDisplay(const DDD::DDDContext&, DDD_IF aIF)
+void DDD_IFDisplay(const DDD::DDDContext& context, DDD_IF aIF)
 {
 if (aIF>=nIFs)
 {
@@ -876,7 +876,7 @@ if (aIF>=nIFs)
 sprintf(cBuffer, "|\n| DDD_IF-Info for proc=%03d\n", me);
 DDD_PrintLine(cBuffer);
 
-IFDisplay(aIF);
+IFDisplay(context, aIF);
 
 DDD_PrintLine("|\n");
 }
