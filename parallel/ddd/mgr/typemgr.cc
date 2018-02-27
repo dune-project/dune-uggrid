@@ -1009,7 +1009,7 @@ static void InitHandlers (TYPE_DESC *desc)
 }
 
 #define DEFINE_DDD_SETHANDLER(name)                                     \
-  void DDD_SetHandler##name(DDD_TYPE type_id, Handler##name funcptr) { \
+  void DDD_SetHandler##name(DDD::DDDContext&, DDD_TYPE type_id, Handler##name funcptr) { \
     TYPE_DESC& desc = theTypeDefs[type_id];                             \
     assert(desc.mode == DDD_TYPE_DEFINED);                              \
     desc.handler##name = funcptr;                                       \
