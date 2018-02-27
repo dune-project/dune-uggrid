@@ -95,12 +95,12 @@ void NS_DIM_PREFIX ddd_pstat(const DDD::DDDContext& context, char *arg)
     break;
 
   case 'c' :
-    DDD_ConsCheck();
+    DDD_ConsCheck(context);
     UserWrite("\n");
     break;
 
   case 's' :
-    DDD_Status();
+    DDD_Status(context);
     UserWrite("\n");
     break;
 
@@ -157,7 +157,7 @@ void NS_DIM_PREFIX ddd_pstat(const DDD::DDDContext& context, char *arg)
   break;
 
   case 'l' :
-    DDD_ListLocalObjects();
+    DDD_ListLocalObjects(context);
     UserWrite("\n");
     break;
 
@@ -382,7 +382,7 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
 
   if (!found)
   {
-    DDD_HDR hdr = DDD_SearchHdr(gid);
+    DDD_HDR hdr = DDD_SearchHdr(theMG->dddContext(), gid);
 
     if (hdr!=NULL)
     {
@@ -605,7 +605,7 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
         break;
 
       case 2 :
-        DDD_ListLocalObjects();
+        DDD_ListLocalObjects(theMG->dddContext());
         break;
 
       default :
