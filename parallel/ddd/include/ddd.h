@@ -378,7 +378,7 @@ typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 void     DDD_Init(DDD::DDDContext& context);
 void     DDD_Exit(DDD::DDDContext& context);
 void     DDD_Status(const DDD::DDDContext& context);
-void     DDD_SetOption (DDD_OPTION, int);
+void     DDD_SetOption(DDD::DDDContext& context, DDD_OPTION, int);
 
 /*
         Redirect line-oriented output, new in V1.2
