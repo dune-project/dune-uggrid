@@ -346,7 +346,7 @@ void lbs (const char *argv, MULTIGRID *theMG)
 
   /* switch DDD infos on */
   if (param>=100)
-    DDD_SetOption(OPT_INFO_XFER, XFER_SHOW_MEMUSAGE);
+    DDD_SetOption(theMG->dddContext(), OPT_INFO_XFER, XFER_SHOW_MEMUSAGE);
 
   switch (mode)
   {
@@ -440,7 +440,7 @@ void lbs (const char *argv, MULTIGRID *theMG)
 
   /* switch DDD infos off */
   if (param>=100)
-    DDD_SetOption(OPT_INFO_XFER, XFER_SHOW_NONE);
+    DDD_SetOption(theMG->dddContext(), OPT_INFO_XFER, XFER_SHOW_NONE);
 }
 
 END_UGDIM_NAMESPACE
