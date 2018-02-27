@@ -3895,7 +3895,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
     DDD_AttrSet(PARHDR(vec),GRID_ATTR(theGrid));
 
   /* rebiuld all DDD interfaces due to removed objects and changed attributes */
-  DDD_IFRefreshAll();
+  DDD_IFRefreshAll(theGrid->dddContext());
         #endif
 
   if (MG_COARSE_FIXED(theMG))
@@ -4108,7 +4108,7 @@ INT NS_DIM_PREFIX DisposeAMGLevels (MULTIGRID *theMG)
 
   /* rebuild DDD-interfaces because distributed vectors have been
      deleted without communication */
-  /*DDD_IFRefreshAll();*/
+  /*DDD_IFRefreshAll(theMG->dddContext());*/
     #ifdef DDDOBJMGR
   DDD_ObjMgrEnd();
         #endif
@@ -4154,7 +4154,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 
   /* rebuild DDD-interfaces because distributed vectors have been
      deleted without communication */
-  DDD_IFRefreshAll();
+  DDD_IFRefreshAll(theMG->dddContext());
         #endif
 
   /** \todo Normally the MG-heap should be cleaned-up before freeing.
@@ -7183,7 +7183,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses():"
                    " 1. communication on level %d\n",theGrid->ppifContext().me(),GLEVEL(theGrid)))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
     #endif
 
@@ -7194,7 +7195,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 2. communication\n",
                    theGrid->ppifContext().me()))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
     #endif
 
@@ -7205,7 +7207,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 3. communication\n",
                    theGrid->ppifContext().me()))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
         #endif
 
@@ -7218,7 +7221,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
     PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 4. communication\n",
                      theGrid->ppifContext().me()))
     /* exchange NCLASS of Nodes */
-    DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+    DDD_IFAExchange(theGrid->dddContext(),
+                    BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                     Gather_NodeClass, Scatter_NodeClass);
         #endif
   }
@@ -7226,7 +7230,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 
         #ifdef ModelP
   /* send NCLASS to ghosts */
-  DDD_IFAOneway(NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(theGrid->dddContext(),
+                NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_NodeClass, Scatter_GhostNodeClass);
     #endif
 
@@ -7399,7 +7404,8 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 1. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
     #endif
 
@@ -7408,7 +7414,8 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 2. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
     #endif
 
@@ -7417,7 +7424,8 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 3. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
         #endif
 
@@ -7428,14 +7436,16 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 4. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(theGrid->dddContext(),
+                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
         #endif
 #endif
 
         #ifdef ModelP
   /* send NNCLASSn to ghosts */
-  DDD_IFAOneway(NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(theGrid->dddContext(),
+                NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_NextNodeClass, Scatter_GhostNextNodeClass);
     #endif
 
@@ -8967,7 +8977,7 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
   if (1)
   {
     DDD_IdentifyEnd(g->dddContext());
-    DDD_IFRefreshAll();
+    DDD_IFRefreshAll(g->dddContext());
   }
 
 #ifdef Debug
@@ -9006,7 +9016,7 @@ static void IdentList (const GRID* g, INT nn, PERIODIC_ENTRIES *coordlist)
   if (1)
   {
     DDD_IdentifyEnd(g->dddContext());
-    DDD_IFRefreshAll();
+    DDD_IFRefreshAll(g->dddContext());
   }
 
   return;
@@ -9232,7 +9242,7 @@ INT NS_DIM_PREFIX Grid_GeometricToPeriodic (GRID *g)
   DDD_ObjMgrEnd();
         #endif
   DDD_XferEnd(g->dddContext());
-  DDD_IFRefreshAll();
+  DDD_IFRefreshAll(g->dddContext());
         #endif
 
   IFDEBUG(gm,1)
