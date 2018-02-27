@@ -1024,7 +1024,7 @@ static int CheckInitParallel (void)
  */
 /****************************************************************************/
 
-int NS_DIM_PREFIX InitDDD (void)
+int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
 {
   INT err;
   int i;
@@ -1032,7 +1032,7 @@ int NS_DIM_PREFIX InitDDD (void)
   memmgr_Init();
 
   /* init DDD and set options */
-  DDD_Init();
+  DDD_Init(context);
 
   /* we are using varsized DDD objects, turn warnings off */
   DDD_SetOption(OPT_WARNING_VARSIZE_OBJ, OPT_OFF);
@@ -1105,9 +1105,9 @@ int NS_DIM_PREFIX InitDDD (void)
  */
 /****************************************************************************/
 
-int NS_DIM_PREFIX ExitDDD (void)
+int NS_DIM_PREFIX ExitDDD(DDD::DDDContext& context)
 {
-  DDD_Exit();
+  DDD_Exit(context);
 
   return 0;          /* no error */
 }
