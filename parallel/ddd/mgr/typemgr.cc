@@ -1006,46 +1006,28 @@ static void InitHandlers (TYPE_DESC *desc)
   desc->handlerXFERCOPYMANIP = NULL;
 }
 
+#define DEFINE_DDD_SETHANDLER(name)                                     \
+  void DDD_SetHandler##name(DDD_TYPE type_id, Handler##name funcptr) { \
+    TYPE_DESC& desc = theTypeDefs[type_id];                             \
+    assert(desc.mode == DDD_TYPE_DEFINED);                              \
+    desc.handler##name = funcptr;                                       \
+  }
 
-#define HDLR_NAME LDATACONSTRUCTOR
-#include "handler.ct"
+DEFINE_DDD_SETHANDLER(LDATACONSTRUCTOR)
+DEFINE_DDD_SETHANDLER(DESTRUCTOR)
+DEFINE_DDD_SETHANDLER(DELETE)
+DEFINE_DDD_SETHANDLER(UPDATE)
+DEFINE_DDD_SETHANDLER(OBJMKCONS)
+DEFINE_DDD_SETHANDLER(SETPRIORITY)
+DEFINE_DDD_SETHANDLER(XFERCOPY)
+DEFINE_DDD_SETHANDLER(XFERDELETE)
+DEFINE_DDD_SETHANDLER(XFERGATHER)
+DEFINE_DDD_SETHANDLER(XFERSCATTER)
+DEFINE_DDD_SETHANDLER(XFERGATHERX)
+DEFINE_DDD_SETHANDLER(XFERSCATTERX)
+DEFINE_DDD_SETHANDLER(XFERCOPYMANIP)
 
-#define HDLR_NAME DESTRUCTOR
-#include "handler.ct"
-
-#define HDLR_NAME DELETE
-#include "handler.ct"
-
-#define HDLR_NAME UPDATE
-#include "handler.ct"
-
-#define HDLR_NAME OBJMKCONS
-#include "handler.ct"
-
-#define HDLR_NAME SETPRIORITY
-#include "handler.ct"
-
-#define HDLR_NAME XFERCOPY
-#include "handler.ct"
-
-#define HDLR_NAME XFERDELETE
-#include "handler.ct"
-
-#define HDLR_NAME XFERGATHER
-#include "handler.ct"
-
-#define HDLR_NAME XFERSCATTER
-#include "handler.ct"
-
-#define HDLR_NAME XFERGATHERX
-#include "handler.ct"
-
-#define HDLR_NAME XFERSCATTERX
-#include "handler.ct"
-
-#define HDLR_NAME XFERCOPYMANIP
-#include "handler.ct"
-
+#undef DEFINE_DDD_SETHANDLER
 
 /****************************************************************************/
 /*                                                                          */
