@@ -726,13 +726,15 @@ static INT CheckDistributedObjects (GRID *theGrid)
 
   check_distributed_objects_errors = 0;
 
-  // void DDD_IFAOnewayX (DDD_IF, DDD_ATTR, DDD_IF_DIR, size_t, ComProcXPtr, ComProcXPtr);
-  DDD_IFAOnewayX(ElementSymmVHIF,GRID_ATTR(theGrid),IF_BACKWARD,size*sizeof(DDD_GID),
+  // void DDD_IFAOnewayX (DDD::DDDContext&, DDD_IF, DDD_ATTR, DDD_IF_DIR, size_t, ComProcXPtr, ComProcXPtr);
+  DDD_IFAOnewayX(theGrid->dddContext(),
+                 ElementSymmVHIF,GRID_ATTR(theGrid),IF_BACKWARD,size*sizeof(DDD_GID),
                  Gather_ElemObjectGids, Scatter_ElemObjectGids);
 
         #ifdef __THREEDIM__
   if (0)
-    DDD_IFAOnewayX(BorderEdgeSymmIF,GRID_ATTR(theGrid),IF_BACKWARD,3*sizeof(DDD_GID),
+    DDD_IFAOnewayX(theGrid->dddContext(),
+                   BorderEdgeSymmIF,GRID_ATTR(theGrid),IF_BACKWARD,3*sizeof(DDD_GID),
                    Gather_EdgeObjectGids, Scatter_EdgeObjectGids);
         #endif
 
