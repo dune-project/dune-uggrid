@@ -326,7 +326,7 @@ static int ScatterPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
         between the processors.
  */
 
-DDD_RET DDD_PrioEnd (void)
+DDD_RET DDD_PrioEnd(DDD::DDDContext& context)
 {
   /* step mode and check whether call to PrioEnd is valid */
   if (!PrioStepMode(PMODE_CMDS))
@@ -342,7 +342,7 @@ DDD_RET DDD_PrioEnd (void)
           free temporary storage
    */
   STAT_RESET;
-  IFAllFromScratch();
+  IFAllFromScratch(context);
   STAT_TIMER(T_PRIO_BUILD_IF);
 
 
@@ -369,7 +369,7 @@ DDD_RET DDD_PrioEnd (void)
         each processor.
  */
 
-void DDD_PrioBegin (void)
+void DDD_PrioBegin(DDD::DDDContext&)
 {
   /* step mode and check whether call to JoinBegin is valid */
   if (!PrioStepMode(PMODE_IDLE))
