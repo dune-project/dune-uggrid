@@ -898,7 +898,7 @@ static void InitDDDTypes(DDD::DDDContext& context)
         #endif
   ENDDEBUG
 
-  ddd_HandlerInit(HSET_XFER);
+  ddd_HandlerInit(context, HSET_XFER);
 }
 
 
