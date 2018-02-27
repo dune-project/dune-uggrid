@@ -172,7 +172,7 @@ void DDD_Init(DDD::DDDContext& context)
   NotifyInit();
   LC_Init(LowComm_DefaultAlloc, LowComm_DefaultFree);
   ddd_StatInit();
-  ddd_TypeMgrInit();
+  ddd_TypeMgrInit(context);
   ddd_ObjMgrInit();
   ddd_CplMgrInit();
   ddd_TopoInit();
@@ -245,7 +245,7 @@ void DDD_Exit(DDD::DDDContext& context)
   ddd_TopoExit();
   ddd_CplMgrExit();
   ddd_ObjMgrExit();
-  ddd_TypeMgrExit();
+  ddd_TypeMgrExit(context);
   ddd_StatExit();
   LC_Exit();
   NotifyExit();
