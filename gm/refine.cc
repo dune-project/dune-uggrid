@@ -482,54 +482,10 @@ static INT DropMarks (MULTIGRID *theMG)
 
         SETMARK(FatherElement,Mark);
         SETMARKCLASS(FatherElement,RED_CLASS);
-
-                                #ifdef ModelPTest
-        MakeRefMarkandMarkClassConsistent(k);
-                                #endif
       }
   }
   return(GM_OK);
 }
-
-#ifdef ModelPTest
-
-
-/****************************************************************************/
-/*
-   ExchangePatternOfMasterAndSlaves - exchange the PATTERN between elements
-
-   SYNOPSIS:
-   int GetEdgePatternOfElement (OBJECT obj, void *data);
-
-   PARAMETERS:
-   \param level - level for which to make flags consistent
-
-   DESCRIPTION:
-   This function exchanges the PATTERN between elements on horizontal boundary of one level.
-
-   \return <ul>
-   void
- */
-/****************************************************************************/
-
-int NS_DIM_PREFIX GetEdgePatternOfElement (OBJECT obj, void *data)
-{}
-
-int NS_DIM_PREFIX PutEdgePatternOfElement (OBJECT obj, void *data)
-{}
-
-/** \todo perhaps it is better to exchange the PATTERN to check that they are
-    consistent then use the name ExchangePatternOfMasterToSlaves        */
-void NS_DIM_PREFIX SendPatternFromMasterToSlaves(int level)
-{
-  int id;
-
-  /* get interface id for horizontal interface */
-  id = 1;
-  DDD_IFExchange(id,INT,GetEdgePatternOfElement, PutEdgePatternOfElement);
-}
-#endif
-
 
 /* Functions for realizing the (parallel) closure FIFO */
 
