@@ -23,5 +23,4 @@ ug_add_dim_libs(ugS APPEND DUNE SOURCES ../initug.cc
 
 if(MPI_C_FOUND)
   add_dune_mpi_flags(ugL)
-  add_dune_mpi_flags(ugS2 ugS3)
 endif()
