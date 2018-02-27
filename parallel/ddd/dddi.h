@@ -643,8 +643,8 @@ int DDD_GetOption (DDD_OPTION);
 
 
 /* typemgr.c */
-void      ddd_TypeMgrInit (void);
-void      ddd_TypeMgrExit (void);
+void      ddd_TypeMgrInit(DDD::DDDContext& context);
+void      ddd_TypeMgrExit(DDD::DDDContext& context);
 int       ddd_TypeDefined (TYPE_DESC *);
 
 

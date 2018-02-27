@@ -61,9 +61,10 @@ static void dddif_DisplayMemoryUsage (void)
    ddd_pstat -
 
    SYNOPSIS:
-   void ddd_pstat (char *arg);
+   void ddd_pstat (const DDD::DDDContext& context, char *arg);
 
    PARAMETERS:
+   .  context
    .  arg
 
    DESCRIPTION:
@@ -74,7 +75,7 @@ static void dddif_DisplayMemoryUsage (void)
 /****************************************************************************/
 
 
-void NS_DIM_PREFIX ddd_pstat (char *arg)
+void NS_DIM_PREFIX ddd_pstat(const DDD::DDDContext& context, char *arg)
 {
   int cmd;
 
@@ -107,36 +108,36 @@ void NS_DIM_PREFIX ddd_pstat (char *arg)
     if (me==master)
     {
       /* display ddd types */
-      DDD_TypeDisplay(TypeVector);
-      DDD_TypeDisplay(TypeIVertex);
-      DDD_TypeDisplay(TypeBVertex);
-      DDD_TypeDisplay(TypeNode);
+      DDD_TypeDisplay(context, TypeVector);
+      DDD_TypeDisplay(context, TypeIVertex);
+      DDD_TypeDisplay(context, TypeBVertex);
+      DDD_TypeDisplay(context, TypeNode);
                                 #ifdef __THREEDIM__
-      DDD_TypeDisplay(TypeEdge);
+      DDD_TypeDisplay(context, TypeEdge);
                                 #endif
 
                                 #ifdef __TWODIM__
-      DDD_TypeDisplay(TypeTrElem);
-      DDD_TypeDisplay(TypeTrBElem);
-      DDD_TypeDisplay(TypeQuElem);
-      DDD_TypeDisplay(TypeQuBElem);
+      DDD_TypeDisplay(context, TypeTrElem);
+      DDD_TypeDisplay(context, TypeTrBElem);
+      DDD_TypeDisplay(context, TypeQuElem);
+      DDD_TypeDisplay(context, TypeQuBElem);
                                 #endif
 
                                 #ifdef __THREEDIM__
-      DDD_TypeDisplay(TypeTeElem);
-      DDD_TypeDisplay(TypeTeBElem);
-      DDD_TypeDisplay(TypePyElem);
-      DDD_TypeDisplay(TypePyBElem);
-      DDD_TypeDisplay(TypePrElem);
-      DDD_TypeDisplay(TypePrBElem);
-      DDD_TypeDisplay(TypeHeElem);
-      DDD_TypeDisplay(TypeHeBElem);
+      DDD_TypeDisplay(context, TypeTeElem);
+      DDD_TypeDisplay(context, TypeTeBElem);
+      DDD_TypeDisplay(context, TypePyElem);
+      DDD_TypeDisplay(context, TypePyBElem);
+      DDD_TypeDisplay(context, TypePrElem);
+      DDD_TypeDisplay(context, TypePrBElem);
+      DDD_TypeDisplay(context, TypeHeElem);
+      DDD_TypeDisplay(context, TypeHeBElem);
                                 #endif
 
       /* display dependent types */
-      DDD_TypeDisplay(TypeMatrix);
+      DDD_TypeDisplay(context, TypeMatrix);
                                 #ifdef __TWODIM__
-      DDD_TypeDisplay(TypeEdge);
+      DDD_TypeDisplay(context, TypeEdge);
                                 #endif
     }
     break;
