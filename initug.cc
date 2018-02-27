@@ -52,7 +52,6 @@
 
 /* parallelization module */
 #ifdef ModelP
-#include "initparallel.h"
 #include "parallel.h"
 #include "ppif.h"
 using namespace PPIF;
@@ -142,20 +141,6 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
 
     return (1);
   }
-
-  /* init parallelization module */
-#ifdef ModelP
-  PRINTDEBUG (init, 1, ("     InitParallel()...\n"))
-  if ((err = InitParallel()) != 0)
-  {
-    printf
-      ("ERROR in InitUg while InitParallel (line %d): called routine line %d\n",
-      (int) HiWrd (err), (int) LoWrd (err));
-    printf ("aborting ug\n");
-
-    return (1);
-  }
-#endif
 
   /* create struct for configuration parameters */
   if (MakeStruct (":conf"))
@@ -277,28 +262,6 @@ ExitUg (void)
 
     return (1);
   }
-
-
-  /* exit parallelization module */
-#ifdef ModelP
-
-  /* the following code (ExitParallel) once seemed to crash
-     with MPI-PPIF. today it seems to run without problems.
-     therefore, we switch it on again, if there are any problems with MPI
-     and exiting the program, it may come from here. KB 970527 */
-
-  PRINTDEBUG (init, 1, ("     ExitParallel()...\n"))
-  if ((err = ExitParallel ()) != 0)
-  {
-    printf
-      ("ERROR in ExitUg while ExitParallel (line %d): called routine line %d\n",
-      (int) HiWrd (err), (int) LoWrd (err));
-    printf ("aborting ug\n");
-
-    return (1);
-  }
-
-#endif
 
   /* exit low module */
   PRINTDEBUG (init, 1, ("     ExitLow()...\n"))

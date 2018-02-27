@@ -41,6 +41,7 @@
 #include "basic/notify.h"
 #include "basic/lowcomm.h"
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 USING_UG_NAMESPACE
 using namespace PPIF;
@@ -67,7 +68,14 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-
+/**
+ * number of users of DDD.
+ * Managed by calls to `DDD_Init` and `DDD_Exit`.
+ * Resources are only freed by `DDD_Exit` when `dddUsers` is zero.
+ *
+ * This variable will be removed once no global state for DDD remains.
+ */
+static unsigned int dddUsers = 0;
 
 /****************************************************************************/
 /*                                                                          */
@@ -128,9 +136,11 @@ static void LowComm_DefaultFree (void *buffer)
         initialized before calling \funk{Init}.
  */
 
-void DDD_Init()
+void DDD_Init(DDD::DDDContext& context)
 {
   int buffsize;
+
+  dddUsers += 1;
 
   /* init lineout-interface to stdout */
   DDD_UserLineOutFunction = NULL;
@@ -216,8 +226,12 @@ void DDD_Init()
         to the DDD application programmer.
  */
 
-void DDD_Exit (void)
+void DDD_Exit(DDD::DDDContext& context)
 {
+  dddUsers -= 1;
+  if (dddUsers > 0)
+    return;
+
   /* free bufferspace */
   FreeFix(iBuffer);
 
@@ -237,7 +251,7 @@ void DDD_Exit (void)
   NotifyExit();
 
   /* exit PPIF */
-  ExitPPIF();
+  ExitPPIF(context.ppifContext());
 }
 
 
