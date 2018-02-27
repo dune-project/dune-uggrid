@@ -268,7 +268,7 @@ static INT UpdateMultiGridOverlap (MULTIGRID *theMG, INT FromLevel)
   INT l;
   GRID    *theGrid;
 
-  ddd_HandlerInit(HSET_REFINE);
+  ddd_HandlerInit(theMG->dddContext(), HSET_REFINE);
 
   for (l=FromLevel; l<TOPLEVEL(theMG); l++)
   {
