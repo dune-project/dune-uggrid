@@ -357,18 +357,18 @@ enum {VERTEX_LISTPARTS = 1};
 #define Broadcast(p,n)  ((int)0)
 
 /* dummys for reduction functions implemented in parallel/dddif/support.c */
-#define UG_GlobalSumINT(x)              x
-#define UG_GlobalMaxINT(x)              x
-#define UG_GlobalMinINT(x)              x
-#define UG_GlobalSumNINT(x,y)
-#define UG_GlobalMaxNINT(x,y)
-#define UG_GlobalMinNINT(x,y)
-#define UG_GlobalSumDOUBLE(x)   x
-#define UG_GlobalMaxDOUBLE(x)   x
-#define UG_GlobalMinDOUBLE(x)   x
-#define UG_GlobalSumNDOUBLE(x,y)
-#define UG_GlobalMaxNDOUBLE(x,y)
-#define UG_GlobalMinNDOUBLE(x,y)
+#define UG_GlobalSumINT(context, x)              x
+#define UG_GlobalMaxINT(context, x)              x
+#define UG_GlobalMinINT(context, x)              x
+#define UG_GlobalSumNINT(context, x,y)
+#define UG_GlobalMaxNINT(context, x,y)
+#define UG_GlobalMinNINT(context, x,y)
+#define UG_GlobalSumDOUBLE(context, x)   x
+#define UG_GlobalMaxDOUBLE(context, x)   x
+#define UG_GlobalMinDOUBLE(context, x)   x
+#define UG_GlobalSumNDOUBLE(context, x,y)
+#define UG_GlobalMaxNDOUBLE(context, x,y)
+#define UG_GlobalMinNDOUBLE(context, x,y)
 #endif
 
 
@@ -386,18 +386,18 @@ enum {VERTEX_LISTPARTS = 1};
 
 /* functions implemented in parallel/dddif/support.c */
 #ifdef ModelP
-INT    UG_GlobalSumINT     (INT x);
-INT    UG_GlobalMaxINT     (INT x);
-INT    UG_GlobalMinINT     (INT x);
-void   UG_GlobalSumNINT    (INT n, INT *x);
-void   UG_GlobalMaxNINT    (INT n, INT *x);
-void   UG_GlobalMinNINT    (INT n, INT *x);
-DOUBLE UG_GlobalSumDOUBLE  (DOUBLE i);
-DOUBLE UG_GlobalMaxDOUBLE  (DOUBLE i);
-DOUBLE UG_GlobalMinDOUBLE  (DOUBLE i);
-void   UG_GlobalSumNDOUBLE (INT n, DOUBLE *x);
-void   UG_GlobalMaxNDOUBLE (INT n, DOUBLE *x);
-void   UG_GlobalMinNDOUBLE (INT n, DOUBLE *x);
+INT    UG_GlobalSumINT     (const PPIF::PPIFContext& context, INT x);
+INT    UG_GlobalMaxINT     (const PPIF::PPIFContext& context, INT x);
+INT    UG_GlobalMinINT     (const PPIF::PPIFContext& context, INT x);
+void   UG_GlobalSumNINT    (const PPIF::PPIFContext& context, INT n, INT *x);
+void   UG_GlobalMaxNINT    (const PPIF::PPIFContext& context, INT n, INT *x);
+void   UG_GlobalMinNINT    (const PPIF::PPIFContext& context, INT n, INT *x);
+DOUBLE UG_GlobalSumDOUBLE  (const PPIF::PPIFContext& context, DOUBLE i);
+DOUBLE UG_GlobalMaxDOUBLE  (const PPIF::PPIFContext& context, DOUBLE i);
+DOUBLE UG_GlobalMinDOUBLE  (const PPIF::PPIFContext& context, DOUBLE i);
+void   UG_GlobalSumNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x);
+void   UG_GlobalMaxNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x);
+void   UG_GlobalMinNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x);
 #endif
 
 END_UGDIM_NAMESPACE
