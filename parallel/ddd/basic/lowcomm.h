@@ -57,10 +57,30 @@ START_UGDIM_NAMESPACE
 
 typedef unsigned long ULONG;
 
+/**
+ * opaque data type for messages
+ */
+struct MSG_DESC;
 
-typedef void *LC_MSGHANDLE;  /* handle for actual message (send OR recv side*/
-typedef void *LC_MSGTYPE;    /* type of message (on send AND recv side) */
-typedef int LC_MSGCOMP;      /* component of message (dto) */
+/**
+ * handle for messages
+ */
+using LC_MSGHANDLE = MSG_DESC*;
+
+/**
+ * opaque data type for message types
+ */
+struct MSG_TYPE;
+
+/**
+ * handle for message types (on send AND recv side)
+ */
+using LC_MSGTYPE = MSG_TYPE*;
+
+/**
+ * component of message (on send AND recv side)
+ */
+typedef int LC_MSGCOMP;
 
 
 /* function pointer types for alloc and free */
