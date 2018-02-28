@@ -1066,7 +1066,7 @@ size_t LC_GetBufferSize (LC_MSGHANDLE md)
 int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 {
   DDD_PROC    *partners = DDD_ProcArray();
-  NOTIFY_DESC *msgs = DDD_NotifyBegin(nSends);
+  NOTIFY_DESC *msgs = DDD_NotifyBegin(context, nSends);
   MSG_DESC *md;
   int i, p;
 
@@ -1100,7 +1100,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
 
   /* inform message receivers */
-  nRecvs = DDD_Notify();
+  nRecvs = DDD_Notify(context);
   if (nRecvs<0)
   {
     /* some processor raised an exception */
@@ -1110,7 +1110,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
     DDD_PrintError('E', 6624, cBuffer);
 
     /* automatically call LC_Cleanup() */
-    DDD_NotifyEnd();
+    DDD_NotifyEnd(context);
     LC_Cleanup(context);
 
     return(nRecvs);
@@ -1122,7 +1122,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
     sprintf(cBuffer, "cannot receive %d messages (must be less than %d)",
             nRecvs, procs-1);
     DDD_PrintError('E', 6622, cBuffer);
-    DDD_NotifyEnd();
+    DDD_NotifyEnd(context);
     return(EXCEPTION_LOWCOMM_CONNECT);
   }
 
@@ -1142,7 +1142,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
     if (theRecvArray==NULL)
     {
       DDD_PrintError('E', 6623, "out of memory in LC_Connect()");
-      DDD_NotifyEnd();
+      DDD_NotifyEnd(context);
       return(EXCEPTION_LOWCOMM_CONNECT);
     }
   }
@@ -1160,7 +1160,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
   }
 
 
-  DDD_NotifyEnd();
+  DDD_NotifyEnd(context);
 
 
   /* get necessary connections to comm-partners */
@@ -1214,7 +1214,7 @@ int LC_Abort(DDD::DDDContext& context, int exception)
   }
 
 
-  DDD_NotifyBegin(exception);
+  DDD_NotifyBegin(context, exception);
 
 #       if DebugLowComm<=9
   sprintf(cBuffer, "%4d: LC_Abort() exception=%d ...\n",
@@ -1224,9 +1224,9 @@ int LC_Abort(DDD::DDDContext& context, int exception)
 
 
   /* inform message receivers */
-  retException = DDD_Notify();
+  retException = DDD_Notify(context);
 
-  DDD_NotifyEnd();
+  DDD_NotifyEnd(context);
 
 
 #       if DebugLowComm<=9

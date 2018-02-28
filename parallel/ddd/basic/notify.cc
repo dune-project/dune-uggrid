@@ -117,7 +117,7 @@ static int maxInfos, lastInfo, nSendDescs;
 
 
 
-void NotifyInit (void)
+void NotifyInit(DDD::DDDContext& context)
 {
   /* allocate memory */
   theRouting = (int *) AllocFix(procs*sizeof(int));
@@ -152,7 +152,7 @@ void NotifyInit (void)
 }
 
 
-void NotifyExit (void)
+void NotifyExit(DDD::DDDContext& context)
 {
   /* free memory */
   FreeFix(theRouting);
@@ -218,7 +218,7 @@ NOTIFY_INFO *NotifyPrepare (void)
  */
 
 static
-int NotifyTwoWave (NOTIFY_INFO *allInfos, int lastInfo, int exception)
+int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo, int exception)
 {
   NOTIFY_INFO  *newInfos;
   int l, i, j, n, unknownInfos, myInfos;
@@ -418,7 +418,7 @@ int NotifyTwoWave (NOTIFY_INFO *allInfos, int lastInfo, int exception)
 /****************************************************************************/
 
 
-NOTIFY_DESC *DDD_NotifyBegin (int n)
+NOTIFY_DESC *DDD_NotifyBegin(DDD::DDDContext& context, int n)
 {
   nSendDescs = n;
 
@@ -435,13 +435,13 @@ NOTIFY_DESC *DDD_NotifyBegin (int n)
 }
 
 
-void DDD_NotifyEnd (void)
+void DDD_NotifyEnd(DDD::DDDContext&)
 {
   /* free'ing of theDescs is done in NotifyExit() */
 }
 
 
-int DDD_Notify (void)
+int DDD_Notify(DDD::DDDContext& context)
 {
   NOTIFY_INFO  *allInfos;
   int i, nRecvMsgs;
@@ -461,7 +461,7 @@ int DDD_Notify (void)
     DDD_PrintError('W', 6312, cBuffer);
 
     /* notify partners */
-    nRecvMsgs = NotifyTwoWave(allInfos, lastInfo, -nSendDescs);
+    nRecvMsgs = NotifyTwoWave(context, allInfos, lastInfo, -nSendDescs);
   }
   else
   {
@@ -494,7 +494,7 @@ int DDD_Notify (void)
     }
 
     /* notify partners */
-    nRecvMsgs = NotifyTwoWave(allInfos, lastInfo, 0);
+    nRecvMsgs = NotifyTwoWave(context, allInfos, lastInfo, 0);
   }
 
 

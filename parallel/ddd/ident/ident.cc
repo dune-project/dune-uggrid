@@ -959,9 +959,9 @@ static int InitComm (int nPartners)
         pairwise consistent.
  */
 
-static void idcons_CheckPairs (void)
+static void idcons_CheckPairs(DDD::DDDContext& context)
 {
-  NOTIFY_DESC *msgs = DDD_NotifyBegin(nPLists);
+  NOTIFY_DESC *msgs = DDD_NotifyBegin(context, nPLists);
   ID_PLIST        *plist;
   int i, j, nRecvs, err=false;
 
@@ -972,7 +972,7 @@ static void idcons_CheckPairs (void)
   }
 
   /* communicate */
-  nRecvs = DDD_Notify();
+  nRecvs = DDD_Notify(context);
   if (nRecvs==ERROR)
   {
     DDD_PrintError('E', 3907, ERR_ID_NOTIFY_FAILED);
@@ -1007,7 +1007,7 @@ static void idcons_CheckPairs (void)
     }
   }
 
-  DDD_NotifyEnd();
+  DDD_NotifyEnd(context);
 
   if (err)
   {
@@ -1063,7 +1063,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 
 
 #   if DebugIdent<=9
-  idcons_CheckPairs();
+  idcons_CheckPairs(context);
 #       endif
 
 
