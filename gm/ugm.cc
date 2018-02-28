@@ -2839,6 +2839,8 @@ MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
   theMG->dddContext_ = std::make_shared<DDD::DDDContext>(theMG->ppifContext_);
 
   InitDDD(theMG->dddContext());
+
+  globalDDDContext(theMG->dddContext_);
 #else
   theMG->ppifContext_ = std::make_shared<PPIF::PPIFContext>();
 #endif
@@ -4175,6 +4177,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 
 #ifdef ModelP
   ExitDDD(theMG->dddContext());
+  globalDDDContext(nullptr);
 #endif
   theMG->~multigrid();
 
