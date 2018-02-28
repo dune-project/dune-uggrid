@@ -64,12 +64,12 @@ struct NOTIFY_DESC
 /****************************************************************************/
 
 
-void         NotifyInit (void);
-void         NotifyExit (void);
+void         NotifyInit(DDD::DDDContext& context);
+void         NotifyExit(DDD::DDDContext& context);
 
-NOTIFY_DESC *DDD_NotifyBegin (int);
-void         DDD_NotifyEnd (void);
-int          DDD_Notify (void);
+NOTIFY_DESC *DDD_NotifyBegin(DDD::DDDContext& context, int);
+void         DDD_NotifyEnd(DDD::DDDContext& context);
+int          DDD_Notify(DDD::DDDContext& context);
 
 END_UGDIM_NAMESPACE
 

@@ -729,7 +729,7 @@ int DDD_ConsCheck(DDD::DDDContext& context)
   else
     total_errors += cpl_errors;
 
-  total_errors += DDD_CheckInterfaces();
+  total_errors += DDD_CheckInterfaces(context);
 
 
   /* compute sum of errors over all processors */
