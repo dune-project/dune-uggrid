@@ -267,7 +267,7 @@ int             ExitDDD(DDD::DDDContext& context);
 void    InitCurrMG              (MULTIGRID *);
 
 /* from debugger.c */
-void    ddd_pstat                       (const DDD::DDDContext& context, char *);
+void    ddd_pstat                       (DDD::DDDContext& context, char *);
 
 /* from lb.c */
 void lbs (const char *argv, MULTIGRID *theMG);

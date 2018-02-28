@@ -170,7 +170,7 @@ void DDD_Init(DDD::DDDContext& context)
 
   /* init all DDD components */
   NotifyInit();
-  LC_Init(LowComm_DefaultAlloc, LowComm_DefaultFree);
+  LC_Init(context, LowComm_DefaultAlloc, LowComm_DefaultFree);
   ddd_StatInit();
   ddd_TypeMgrInit(context);
   ddd_ObjMgrInit();
@@ -180,8 +180,8 @@ void DDD_Init(DDD::DDDContext& context)
   ddd_IFInit();
   ddd_XferInit(context);
   ddd_PrioInit();
-  ddd_JoinInit();
-  ddd_ConsInit();
+  ddd_JoinInit(context);
+  ddd_ConsInit(context);
 
   /* reset all global counters */
   ddd_nObjs  = 0;
@@ -236,8 +236,8 @@ void DDD_Exit(DDD::DDDContext& context)
   FreeFix(iBuffer);
 
   /* close up all DDD components */
-  ddd_ConsExit();
-  ddd_JoinExit();
+  ddd_ConsExit(context);
+  ddd_JoinExit(context);
   ddd_PrioExit();
   ddd_XferExit(context);
   ddd_IFExit();
@@ -247,7 +247,7 @@ void DDD_Exit(DDD::DDDContext& context)
   ddd_ObjMgrExit();
   ddd_TypeMgrExit(context);
   ddd_StatExit();
-  LC_Exit();
+  LC_Exit(context);
   NotifyExit();
 
   /* exit PPIF */

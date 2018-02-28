@@ -98,7 +98,7 @@ static LC_MSGCOMP undelete_id;
 
 void CmdMsgInit(DDD::DDDContext& context)
 {
-  cmdmsg_t = LC_NewMsgType("CmdMsg");
+  cmdmsg_t = LC_NewMsgType(context, "CmdMsg");
   undelete_id = LC_NewMsgTable("UndelTab", cmdmsg_t, sizeof(DDD_GID));
 }
 
@@ -232,13 +232,13 @@ static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nC
     DDD_GID *array;
 
     /* create new send message */
-    xm->msg_h = LC_NewSendMsg(cmdmsg_t, xm->proc);
+    xm->msg_h = LC_NewSendMsg(context, cmdmsg_t, xm->proc);
 
     /* init tables inside message */
     LC_SetTableSize(xm->msg_h, undelete_id, xm->nUnDelete);
 
     /* prepare message for sending away */
-    LC_MsgPrepareSend(xm->msg_h);
+    LC_MsgPrepareSend(context, xm->msg_h);
 
     array = (DDD_GID *)LC_GetPtr(xm->msg_h, undelete_id);
     memcpy((char *)array,
@@ -259,7 +259,7 @@ static void CmdMsgSend(DDD::DDDContext& context, CMDMSG *theMsgs)
   for(m=theMsgs; m!=NULL; m=m->next)
   {
     /* schedule message for send */
-    LC_MsgSend(m->msg_h);
+    LC_MsgSend(context, m->msg_h);
   }
 }
 
@@ -494,13 +494,13 @@ int PruneXIDelCmd (
   }
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(cmdmsg_t);
+  nRecvMsgs = LC_Connect(context, cmdmsg_t);
 
   /* build and send messages */
   CmdMsgSend(context, sendMsgs);
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
 
 
   nPruned = CmdMsgUnpack(recvMsgs, nRecvMsgs, itemsDC, nDC);
@@ -518,7 +518,7 @@ int PruneXIDelCmd (
 
 
   /* cleanup low-comm layer */
-  LC_Cleanup();
+  LC_Cleanup(context);
 
 
   /* free temporary memory */

@@ -693,8 +693,8 @@ int       ddd_PrioActive (void);
 
 
 /* join/join.c */
-void      ddd_JoinInit (void);
-void      ddd_JoinExit (void);
+void      ddd_JoinInit(DDD::DDDContext& context);
+void      ddd_JoinExit(DDD::DDDContext& context);
 int       ddd_JoinActive (void);
 
 
@@ -704,8 +704,8 @@ void      ddd_IdentExit (void);
 
 
 /* basic/cons.c */
-void      ddd_ConsInit (void);
-void      ddd_ConsExit (void);
+void      ddd_ConsInit(DDD::DDDContext& context);
+void      ddd_ConsExit(DDD::DDDContext& context);
 
 
 /* basic/topo.c */

@@ -626,7 +626,7 @@ RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
   /* allocate buffer, pack messages and send away */
   for(xm=theMsgs; xm!=NULL; xm=xm->next)
   {
-    if (! LC_MsgAlloc(xm->msg_h))
+    if (! LC_MsgAlloc(context, xm->msg_h))
     {
       sprintf(cBuffer, STR_NOMEM " in XferPackMsgs (size=%ld)",
               (unsigned long) LC_GetBufferSize(xm->msg_h));
@@ -634,7 +634,7 @@ RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
       RET_ON_ERROR;
     }
     XferPackSingleMsg(xm);
-    LC_MsgSend(xm->msg_h);
+    LC_MsgSend(context, xm->msg_h);
   }
 
   RET_ON_OK;

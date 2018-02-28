@@ -99,7 +99,7 @@ static LC_MSGCOMP delcpl_id, modcpl_id, addcpl_id;
 
 void CplMsgInit(DDD::DDDContext& context)
 {
-  cplmsg_t = LC_NewMsgType("CplMsg");
+  cplmsg_t = LC_NewMsgType(context, "CplMsg");
   delcpl_id = LC_NewMsgTable("DelCpl", cplmsg_t, sizeof(TEDelCpl));
   modcpl_id = LC_NewMsgTable("ModCpl", cplmsg_t, sizeof(TEModCpl));
   addcpl_id = LC_NewMsgTable("AddCpl", cplmsg_t, sizeof(TEAddCpl));
@@ -237,7 +237,7 @@ static int PrepareCplMsgs (
   for(xm=*theMsgs; xm!=NULL; xm=xm->next)
   {
     /* create new send message */
-    xm->msg_h = LC_NewSendMsg(cplmsg_t, xm->proc);
+    xm->msg_h = LC_NewSendMsg(context, cplmsg_t, xm->proc);
 
     /* init tables inside message */
     LC_SetTableSize(xm->msg_h, delcpl_id, xm->nDelCpl);
@@ -245,7 +245,7 @@ static int PrepareCplMsgs (
     LC_SetTableSize(xm->msg_h, addcpl_id, xm->nAddCpl);
 
     /* prepare message for sending away */
-    LC_MsgPrepareSend(xm->msg_h);
+    LC_MsgPrepareSend(context, xm->msg_h);
   }
 
   return(nMsgs);
@@ -289,7 +289,7 @@ static void CplMsgSend(DDD::DDDContext& context, CPLMSG *theMsgs)
     }
 
     /* schedule message for send */
-    LC_MsgSend(m->msg_h);
+    LC_MsgSend(context, m->msg_h);
   }
 }
 
@@ -438,7 +438,7 @@ void CommunicateCplMsgs (
                              &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(cplmsg_t);
+  nRecvMsgs = LC_Connect(context, cplmsg_t);
 
   /* build and send messages */
   CplMsgSend(context, sendMsgs);
@@ -461,12 +461,12 @@ void CommunicateCplMsgs (
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Send\n");
-    LC_PrintSendMsgs();
+    LC_PrintSendMsgs(context);
   }
 
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
 
 
   /* display information about recv-messages on lowcomm-level */
@@ -475,7 +475,7 @@ void CommunicateCplMsgs (
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Recv\n");
-    LC_PrintRecvMsgs();
+    LC_PrintRecvMsgs(context);
   }
 
 
@@ -491,7 +491,7 @@ void CommunicateCplMsgs (
 
 
   /* cleanup low-comm layer */
-  LC_Cleanup();
+  LC_Cleanup(context);
 
 
 
