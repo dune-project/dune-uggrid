@@ -178,7 +178,7 @@ void DDD_Init(DDD::DDDContext& context)
   ddd_TopoInit();
   ddd_IdentInit();
   ddd_IFInit();
-  ddd_XferInit();
+  ddd_XferInit(context);
   ddd_PrioInit();
   ddd_JoinInit();
   ddd_ConsInit();
@@ -239,7 +239,7 @@ void DDD_Exit(DDD::DDDContext& context)
   ddd_ConsExit();
   ddd_JoinExit();
   ddd_PrioExit();
-  ddd_XferExit();
+  ddd_XferExit(context);
   ddd_IFExit();
   ddd_IdentExit();
   ddd_TopoExit();

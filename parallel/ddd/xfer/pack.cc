@@ -575,7 +575,7 @@ static void XferPackSingleMsg (XFERMSG *msg)
 /*                                                                          */
 /****************************************************************************/
 
-RETCODE XferPackMsgs (XFERMSG *theMsgs)
+RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
 {
   XFERMSG      *xm;
 
