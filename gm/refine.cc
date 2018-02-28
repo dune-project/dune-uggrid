@@ -63,6 +63,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
+
 /* low module */
 #include "ugtypes.h"
 #include "debug.h"
@@ -480,54 +482,10 @@ static INT DropMarks (MULTIGRID *theMG)
 
         SETMARK(FatherElement,Mark);
         SETMARKCLASS(FatherElement,RED_CLASS);
-
-                                #ifdef ModelPTest
-        MakeRefMarkandMarkClassConsistent(k);
-                                #endif
       }
   }
   return(GM_OK);
 }
-
-#ifdef ModelPTest
-
-
-/****************************************************************************/
-/*
-   ExchangePatternOfMasterAndSlaves - exchange the PATTERN between elements
-
-   SYNOPSIS:
-   int GetEdgePatternOfElement (OBJECT obj, void *data);
-
-   PARAMETERS:
-   \param level - level for which to make flags consistent
-
-   DESCRIPTION:
-   This function exchanges the PATTERN between elements on horizontal boundary of one level.
-
-   \return <ul>
-   void
- */
-/****************************************************************************/
-
-int NS_DIM_PREFIX GetEdgePatternOfElement (OBJECT obj, void *data)
-{}
-
-int NS_DIM_PREFIX PutEdgePatternOfElement (OBJECT obj, void *data)
-{}
-
-/** \todo perhaps it is better to exchange the PATTERN to check that they are
-    consistent then use the name ExchangePatternOfMasterToSlaves        */
-void NS_DIM_PREFIX SendPatternFromMasterToSlaves(int level)
-{
-  int id;
-
-  /* get interface id for horizontal interface */
-  id = 1;
-  DDD_IFExchange(id,INT,GetEdgePatternOfElement, PutEdgePatternOfElement);
-}
-#endif
-
 
 /* Functions for realizing the (parallel) closure FIFO */
 
@@ -3573,29 +3531,22 @@ INT NS_DIM_PREFIX GetSonSideNodes (const ELEMENT *theElement, INT side, INT *nod
    compare_node -
 
    SYNOPSIS:
-   static INT compare_node (const void *e0, const void *e1);
+   static bool compare_node (const NODE* a, const NODE* b)
 
    PARAMETERS:
-   .  e0
-   .  e1
+   .  a
+   .  b
 
    DESCRIPTION:
 
    \return <ul>
-   INT
+   bool
  */
 /****************************************************************************/
 
-static int compare_node (const void *e0, const void *e1)
+static bool compare_node(const NODE* a, const NODE* b)
 {
-  NODE *n0, *n1;
-
-  n0 = (NODE *) *(NODE **)e0;
-  n1 = (NODE *) *(NODE **)e1;
-
-  if (n0 < n1) return(1);
-  if (n0 > n1) return(-1);
-  return(0);
+  return a > b;
 }
 
 /****************************************************************************/
@@ -3687,7 +3638,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
     GetSonSideNodes(theElement,side,&nodes,SideNodes,ioflag);
 
     /* sort side nodes in descending adress order */
-    qsort(SideNodes,MAX_SIDE_NODES,sizeof(NODE *),compare_node);
+    std::sort(SideNodes, SideNodes + MAX_SIDE_NODES, compare_node);
 
     IFDEBUG(gm,3)
     UserWriteF("After qsort:\n");
@@ -3715,11 +3666,8 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
       /* soncorners on side */
       for (j=0; j<CORNERS_OF_ELEM(SonList[i]); j++)
       {
-        NODE *nd;
-
-        nd = CORNER(SonList[i],j);
-        if (bsearch(&nd,SideNodes, nodes,sizeof(NODE *),
-                    compare_node))
+        NODE *nd = CORNER(SonList[i],j);
+        if (std::binary_search(SideNodes, SideNodes + nodes, nd, compare_node))
         {
           corner[n] = j;
           n++;
@@ -3997,49 +3945,31 @@ static INT      Fill_Comp_Table (COMPARE_RECORD **SortTable, COMPARE_RECORD *Tab
    compare_nodes -
 
    SYNOPSIS:
-   static int compare_nodes (const void *ce0, const void *ce1);
+   static bool compare_nodes(const COMPARE_RECORD* a, const COMPARE_RECORD* b)
 
    PARAMETERS:
-   .  ce0
-   .  ce1
+   .  a
+   .  b
 
    DESCRIPTION:
 
    \return <ul>
-   int
+   bool
  */
 /****************************************************************************/
 
-static int compare_nodes (const void *ce0, const void *ce1)
+static bool compare_nodes(const COMPARE_RECORD* a, const COMPARE_RECORD* b)
 {
-  COMPARE_RECORD *e0, *e1;
-  INT j;
+  const int n = (a->nodes == 4 && b->nodes == 4) ? 4 : 3;
 
-  e0 = (COMPARE_RECORD *) *(COMPARE_RECORD **)ce0;
-  e1 = (COMPARE_RECORD *) *(COMPARE_RECORD **)ce1;
-
-  IFDEBUG(gm,5)
-  UserWriteF("TO compare:\n");
-  for (j=0; j<e0->nodes; j++)
-    UserWriteF("eNodePtr=%x nbNodePtr=%x\n",e0->nodeptr[j],e1->nodeptr[j]);
-  ENDDEBUG
-
-  if (e0->nodeptr[0] < e1->nodeptr[0]) return(1);
-  if (e0->nodeptr[0] > e1->nodeptr[0]) return(-1);
-
-  if (e0->nodeptr[1] < e1->nodeptr[1]) return(1);
-  if (e0->nodeptr[1] > e1->nodeptr[1]) return(-1);
-
-  if (e0->nodeptr[2] < e1->nodeptr[2]) return(1);
-  if (e0->nodeptr[2] > e1->nodeptr[2]) return(-1);
-
-  if (e0->nodes==4 && e1->nodes==4)
-  {
-    if (e0->nodeptr[3] < e1->nodeptr[3]) return(1);
-    if (e0->nodeptr[3] > e1->nodeptr[3]) return(-1);
+  for (int i = 0; i < n; ++i) {
+    if (a->nodeptr[i] > b->nodeptr[i])
+      return true;
+    else if (a->nodeptr[i] < b->nodeptr[i])
+      return false;
   }
 
-  return(0);
+  return false;
 }
 
 /****************************************************************************/
@@ -4222,8 +4152,8 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   ENDDEBUG
 
   /* qsort the tables using nodeptrs */
-  qsort(ElemSortTable,Sons_of_Side,sizeof(COMPARE_RECORD *), compare_nodes);
-  qsort(NbSortTable,Sons_of_NbSide,sizeof(COMPARE_RECORD *), compare_nodes);
+  std::sort(ElemSortTable, ElemSortTable + Sons_of_Side, compare_nodes);
+  std::sort(NbSortTable, NbSortTable + Sons_of_NbSide, compare_nodes);
 
         #ifdef ModelP
   if (!ioflag && Sons_of_NbSide!=Sons_of_Side) ASSERT(0);

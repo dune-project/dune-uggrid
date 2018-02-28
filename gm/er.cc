@@ -63,6 +63,8 @@
 #include <config.h>
 #include <cstring>
 
+#include <algorithm>
+
 /* low */
 #include "general.h"
 
@@ -327,72 +329,6 @@ static void DCorners2Corners (INT n, DOUBLE dco, SHORT corners[])
 
 /****************************************************************************/
 /*doctext_disabled
-    CornerCompare - compare two corners for qsort (ascending order)
-
-    SYNOPSIS:
-    static int CornerCompare (const SHORT *c0, const SHORT *c1)
-
-    PAAMETERS:
-   .   c0 - first corner
-   .   c1 - second corner
-
-    DESCRIPTION:
-        Compare two corners for qsort (ascending order). The qsort is called
-        by 'FillOrderedSons'.
-
-    RETURN VALUE:
-    int
-   .n    1	c0>c1
-   .n   -1	c0<c1
-
-    SEE ALSO:
-        FillOrderedSons
-   doctext_disabled*/
-/****************************************************************************/
-
-static int CornerCompare (const SHORT *c0, const SHORT *c1)
-{
-  if (*c0>*c1)
-    return ( 1);
-  else
-    return (-1);
-}
-
-/****************************************************************************/
-/*doctext_disabled
-    SonCompare - compare two sons (corners as DOUBLEs)
-
-    SYNOPSIS:
-    static int SonCompare (const DOUBLE *s0, const DOUBLE *s1)
-
-    PAAMETERS:
-   .   s0 - first son
-   .   s1 - second son
-
-    DESCRIPTION:
-        Compare two sons given as corners in ascending order coded on a DOUBLE
-        (cf. 'Corner2DCorners'). The qsort is called in 'FillOrderedSons'.
-
-    RETURN VALUE:
-    int
-   .n    1	s0>s1
-   .n   -1	s0<s1
-
-        SEE ALSO:
-        FillOrderedSons
-   doctext_disabled*/
-/****************************************************************************/
-
-static int SonCompare (const DOUBLE *s0, const DOUBLE *s1)
-{
-  if (*s0>*s1)
-    return ( 1);
-  else
-    return (-1);
-}
-
-/****************************************************************************/
-/*doctext_disabled
     FillOrderedSons - fill array with ordered sons
 
     SYNOPSIS:
@@ -420,16 +356,12 @@ static void FillOrderedSons (const ERULE *er, DOUBLE oco[])
   for (s=0; s<ER_NSONS(er); s++)
   {
     DCorners2Corners(ER_NCO(er,s),ER_DCO(er,s),corners);
-    qsort(corners,ER_NCO(er,s),sizeof(*corners),
-          (int (*)(const void *, const void *))CornerCompare);
+    std::sort(corners, corners + ER_NCO(er,s));
     oco[s] = Corner2DCorners(ER_NCO(er,s),corners);
   }
 
-  /* sort sons */
-  qsort(oco,ER_NSONS(er),sizeof(*oco),
-        (int (*)(const void *, const void *))SonCompare);
-
-  return;
+  /* sort sons in ascending order coded on a DOUBLE (cf. `Corner2DCorners`) */
+  std::sort(oco, oco + ER_NSONS(er));
 }
 
 /****************************************************************************/
