@@ -867,7 +867,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   cons_end = CURRENT_TIME;
 
   /* sum up moved elements */
-  migrated = UG_GlobalSumINT(migrated);
+  migrated = UG_GlobalSumINT(theMG->ppifContext(), migrated);
 
   UserWriteF("MIGRATION: migrated=%d t_migrate=%.2f t_cons=%.2f\n",
              migrated,trans_end-trans_begin,cons_end-trans_end);

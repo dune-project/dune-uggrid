@@ -29,37 +29,16 @@
 /*                                                                          */
 /****************************************************************************/
 
-/* standard C library */
-/*
-   #include <config.h>
-   #include <cstdlib>
-   #include <cstdio>
- */
+#include "config.h"
 
-#include "ppif.h"
+#include <mpi.h>
+
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "namespace.h"
 
-/* PPIF namespace: */
-using namespace PPIF;
-
-  START_UGDIM_NAMESPACE
-
-/****************************************************************************/
-/*                                                                          */
-/* macros                                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-
-#ifndef MAX
-#define MAX(x,y) (((x)>(y)) ? (x) : (y))
-#endif
-
-#ifndef MIN
-#define MIN(x,y) (((x)<(y)) ? (x) : (y))
-#endif
-
+START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
@@ -71,98 +50,22 @@ using namespace PPIF;
 /* some useful functions by Peter Bastian, from ugp/ug/ugcom.c */
 
 
-int ddd_GlobalMaxInt (int i)
+int ddd_GlobalMaxInt(const DDD::DDDContext& context, int i)
 {
-  int l,n;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&n,sizeof(int));
-    i = MAX(i,n);
-  }
-  Concentrate(&i,sizeof(int));
-  Broadcast(&i,sizeof(int));
-  return(i);
+  MPI_Allreduce(MPI_IN_PLACE, &i, 1, MPI_INT, MPI_MAX, context.ppifContext().comm());
+  return i;
 }
 
-int ddd_GlobalMinInt (int i)
+int ddd_GlobalMinInt(const DDD::DDDContext& context, int i)
 {
-  int l,n;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&n,sizeof(int));
-    i = MIN(i,n);
-  }
-  Concentrate(&i,sizeof(int));
-  Broadcast(&i,sizeof(int));
-  return(i);
+  MPI_Allreduce(MPI_IN_PLACE, &i, 1, MPI_INT, MPI_MIN, context.ppifContext().comm());
+  return i;
 }
 
-
-
-int ddd_GlobalSumInt (int x)
+int ddd_GlobalSumInt(const DDD::DDDContext& context, int x)
 {
-  int l;
-  int y;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&y,sizeof(int));
-    x += y;
-  }
-  Concentrate(&x,sizeof(int));
-  Broadcast(&x,sizeof(int));
-  return(x);
+  MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_INT, MPI_SUM, context.ppifContext().comm());
+  return x;
 }
-
-
-
-/*
-   double ddd_GlobalMaxDouble (double i)
-   {
-    int l;
-        double n;
-
-    for (l=degree-1; l>=0; l--)
-    {
-        GetConcentrate(l,&n,sizeof(double));
-        i = MAX(i,n);
-    }
-    Concentrate(&i,sizeof(double));
-    Broadcast(&i,sizeof(double));
-    return(i);
-   }
-
-   double ddd_GlobalMinDouble (double i)
-   {
-    int l;
-        double n;
-
-    for (l=degree-1; l>=0; l--)
-    {
-        GetConcentrate(l,&n,sizeof(double));
-        i = MIN(i,n);
-    }
-    Concentrate(&i,sizeof(double));
-    Broadcast(&i,sizeof(double));
-    return(i);
-   }
-
-   double ddd_GlobalSumDouble (double x)
-   {
-        int l;
-        double y;
-
-        for (l=degree-1; l>=0; l--)
-        {
-                GetConcentrate(l,&y,sizeof(double));
-                x += y;
-        }
-        Concentrate(&x,sizeof(double));
-        Broadcast(&x,sizeof(double));
-        return(x);
-   }
- */
 
 END_UGDIM_NAMESPACE

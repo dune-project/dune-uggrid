@@ -1893,7 +1893,7 @@ INT NS_DIM_PREFIX CheckGrid (GRID *theGrid, INT checkgeom, INT checkalgebra, INT
 
     errors = CheckGeometry(theGrid);
         #ifdef ModelP
-    errors = UG_GlobalSumINT(errors);
+    errors = UG_GlobalSumINT(theGrid->ppifContext(), errors);
             #endif
     if (errors != GM_OK)
     {
@@ -1912,7 +1912,7 @@ INT NS_DIM_PREFIX CheckGrid (GRID *theGrid, INT checkgeom, INT checkalgebra, INT
 
     errors = CheckAlgebra(theGrid);
         #ifdef ModelP
-    errors = UG_GlobalSumINT(errors);
+    errors = UG_GlobalSumINT(theGrid->ppifContext(), errors);
             #endif
     if (errors != GM_OK)
     {
@@ -1931,7 +1931,7 @@ INT NS_DIM_PREFIX CheckGrid (GRID *theGrid, INT checkgeom, INT checkalgebra, INT
 
     errors = CheckLists(theGrid);
         #ifdef ModelP
-    errors = UG_GlobalSumINT(errors);
+    errors = UG_GlobalSumINT(theGrid->ppifContext(), errors);
             #endif
     if (errors != GM_OK)
     {
@@ -1951,7 +1951,7 @@ INT NS_DIM_PREFIX CheckGrid (GRID *theGrid, INT checkgeom, INT checkalgebra, INT
 
     errors = CheckInterfaces(theGrid);
         #ifdef ModelP
-    errors = UG_GlobalSumINT(errors);
+    errors = UG_GlobalSumINT(theGrid->ppifContext(), errors);
             #endif
     if (errors != GM_OK)
     {
