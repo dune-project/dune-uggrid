@@ -693,7 +693,7 @@ static int ConsCheckDoubleObj (void)
    @returns  total number of errors (sum of all procs)
  */
 
-int DDD_ConsCheck(const DDD::DDDContext&)
+int DDD_ConsCheck(const DDD::DDDContext& context)
 {
   int cpl_errors;
   int total_errors=0;
@@ -733,7 +733,7 @@ int DDD_ConsCheck(const DDD::DDDContext&)
 
 
   /* compute sum of errors over all processors */
-  total_errors = ddd_GlobalSumInt(total_errors);
+  total_errors = ddd_GlobalSumInt(context, total_errors);
 
   DDD_Flush();
   Synchronize();
