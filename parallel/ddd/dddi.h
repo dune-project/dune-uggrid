@@ -665,7 +665,7 @@ void      ddd_IFExit (void);
 void      IFAllFromScratch(DDD::DDDContext&);
 void      DDD_InfoIFImpl (DDD_IF);
 void      IFInvalidateShortcuts (DDD_TYPE);
-int       DDD_CheckInterfaces (void);
+int       DDD_CheckInterfaces(DDD::DDDContext& context);
 
 /* if/ifcmds.c */
 void   ddd_StdIFExchange   (size_t, ComProcHdrPtr,ComProcHdrPtr);
