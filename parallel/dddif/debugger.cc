@@ -75,7 +75,7 @@ static void dddif_DisplayMemoryUsage (const DDD::DDDContext& context)
 /****************************************************************************/
 
 
-void NS_DIM_PREFIX ddd_pstat(const DDD::DDDContext& context, char *arg)
+void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
 {
   int cmd;
 

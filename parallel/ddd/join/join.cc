@@ -253,7 +253,7 @@ int JoinStepMode (int old)
 /****************************************************************************/
 
 
-void ddd_JoinInit (void)
+void ddd_JoinInit(DDD::DDDContext& context)
 {
   /* set kind of TMEM alloc/free requests */
   join_SetTmpMem(TMEM_ANY);
@@ -265,21 +265,21 @@ void ddd_JoinInit (void)
 
   JoinSetMode(JMODE_IDLE);
 
-  joinGlobals.phase1msg_t = LC_NewMsgType("Join1Msg");
+  joinGlobals.phase1msg_t = LC_NewMsgType(context, "Join1Msg");
   joinGlobals.jointab_id = LC_NewMsgTable("GidTab",
                                           joinGlobals.phase1msg_t, sizeof(TEJoin));
 
-  joinGlobals.phase2msg_t = LC_NewMsgType("Join2Msg");
+  joinGlobals.phase2msg_t = LC_NewMsgType(context, "Join2Msg");
   joinGlobals.addtab_id = LC_NewMsgTable("AddCplTab",
                                          joinGlobals.phase2msg_t, sizeof(TEAddCpl));
 
-  joinGlobals.phase3msg_t = LC_NewMsgType("Join3Msg");
+  joinGlobals.phase3msg_t = LC_NewMsgType(context, "Join3Msg");
   joinGlobals.cpltab_id = LC_NewMsgTable("AddCplTab",
                                          joinGlobals.phase3msg_t, sizeof(TEAddCpl));
 }
 
 
-void ddd_JoinExit (void)
+void ddd_JoinExit(DDD::DDDContext&)
 {
   /* set kind of TMEM alloc/free requests */
   join_SetTmpMem(TMEM_ANY);
