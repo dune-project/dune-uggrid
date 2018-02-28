@@ -136,14 +136,14 @@ static long theMarkKey;
 /****************************************************************************/
 
 
-void ddd_ConsInit (void)
+void ddd_ConsInit(DDD::DDDContext& context)
 {
-  consmsg_t = LC_NewMsgType("ConsCheckMsg");
+  consmsg_t = LC_NewMsgType(context, "ConsCheckMsg");
   constab_id = LC_NewMsgTable("ConsTab", consmsg_t, sizeof(CONS_INFO));
 }
 
 
-void ddd_ConsExit (void)
+void ddd_ConsExit(DDD::DDDContext&)
 {}
 
 
@@ -169,7 +169,7 @@ static void cons_FreeSend (void *buffer)
 
 /****************************************************************************/
 
-static int ConsBuildMsgInfos (CONS_INFO *allItems, int nXferItems, CONSMSG **theMsgs)
+static int ConsBuildMsgInfos(DDD::DDDContext& context, CONS_INFO *allItems, int nXferItems, CONSMSG **theMsgs)
 {
   CONSMSG    *cm, *lastCm;
   int i, lastdest, nMsgs;
@@ -206,13 +206,13 @@ static int ConsBuildMsgInfos (CONS_INFO *allItems, int nXferItems, CONSMSG **the
   for(cm=*theMsgs; cm!=NULL; cm=cm->next)
   {
     /* create new send message */
-    cm->msg_h = LC_NewSendMsg(consmsg_t, cm->dest);
+    cm->msg_h = LC_NewSendMsg(context, consmsg_t, cm->dest);
 
     /* init table inside message */
     LC_SetTableSize(cm->msg_h, constab_id, cm->nItems);
 
     /* prepare message for sending away */
-    LC_MsgPrepareSend(cm->msg_h);
+    LC_MsgPrepareSend(context, cm->msg_h);
   }
 
   return(nMsgs);
@@ -220,7 +220,7 @@ static int ConsBuildMsgInfos (CONS_INFO *allItems, int nXferItems, CONSMSG **the
 
 
 
-static void ConsSend (CONSMSG *theMsgs)
+static void ConsSend(DDD::DDDContext& context, CONSMSG *theMsgs)
 {
   CONSMSG *cm;
 
@@ -231,7 +231,7 @@ static void ConsSend (CONSMSG *theMsgs)
            cm->consArray, sizeof(CONS_INFO)*cm->nItems);
 
     /* send message */
-    LC_MsgSend(cm->msg_h);
+    LC_MsgSend(context, cm->msg_h);
   }
 }
 
@@ -296,7 +296,7 @@ static bool sort_CplBufDest (const CONS_INFO& a, const CONS_INFO& b)
 }
 
 
-static int ConsCheckGlobalCpl (void)
+static int ConsCheckGlobalCpl(DDD::DDDContext& context)
 {
   COUPLING     *cpl;
   int i, j, lenCplBuf, nRecvMsgs;
@@ -341,10 +341,10 @@ static int ConsCheckGlobalCpl (void)
   std::sort(cplBuf.begin(), cplBuf.end(), sort_CplBufDest);
 
   /* accumulate messages (one for each partner); inform receivers */
-  ConsBuildMsgInfos(cplBuf.data(), cplBuf.size(), &sendMsgs);
+  ConsBuildMsgInfos(context, cplBuf.data(), cplBuf.size(), &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(consmsg_t);
+  nRecvMsgs = LC_Connect(context, consmsg_t);
   if (nRecvMsgs==ERROR)
   {
     error_cnt = -1;
@@ -352,11 +352,11 @@ static int ConsCheckGlobalCpl (void)
   }
 
   /* build and send messages */
-  ConsSend(sendMsgs);
+  ConsSend(context, sendMsgs);
 
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
 
 
   /* perform checking of received data */
@@ -383,7 +383,7 @@ static int ConsCheckGlobalCpl (void)
 exit_ConsCheckGlobalCpl:
 
   /* cleanup low-comm layer */
-  LC_Cleanup();
+  LC_Cleanup(context);
 
 
   /* free temporary storage */
@@ -542,7 +542,7 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
 
 
 
-static int Cons2CheckGlobalCpl (void)
+static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
 {
   COUPLING     *cpl, *cpl2;
   int i, j, lenCplBuf, nRecvMsgs;
@@ -587,16 +587,16 @@ static int Cons2CheckGlobalCpl (void)
   std::sort(cplBuf.begin(), cplBuf.end(), sort_CplBufDest);
 
   /* accumulate messages (one for each partner); inform receivers */
-  ConsBuildMsgInfos(cplBuf.data(), cplBuf.size(), &sendMsgs);
+  ConsBuildMsgInfos(context, cplBuf.data(), cplBuf.size(), &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(consmsg_t);
+  nRecvMsgs = LC_Connect(context, consmsg_t);
 
   /* build and send messages */
-  ConsSend(sendMsgs);
+  ConsSend(context, sendMsgs);
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
 
 
   /* perform checking of received data */
@@ -621,7 +621,7 @@ static int Cons2CheckGlobalCpl (void)
 
 
   /* cleanup low-comm layer */
-  LC_Cleanup();
+  LC_Cleanup(context);
 
 
   /* free temporary storage */
@@ -693,15 +693,15 @@ static int ConsCheckDoubleObj (void)
    @returns  total number of errors (sum of all procs)
  */
 
-int DDD_ConsCheck(const DDD::DDDContext& context)
+int DDD_ConsCheck(DDD::DDDContext& context)
 {
   int cpl_errors;
   int total_errors=0;
 
         #ifdef ConsMemFromHeap
   MarkHeap(&theMarkKey);
-  LC_SetMemMgrRecv(cons_AllocHeap, NULL);
-  LC_SetMemMgrSend(cons_AllocSend, cons_FreeSend);
+  LC_SetMemMgrRecv(context, cons_AllocHeap, NULL);
+  LC_SetMemMgrSend(context, cons_AllocSend, cons_FreeSend);
         #endif
 
   DDD_Flush();
@@ -715,10 +715,10 @@ int DDD_ConsCheck(const DDD::DDDContext& context)
   total_errors += ConsCheckDoubleObj();
 
         #ifdef CHECK_CPL_PAIRS
-  cpl_errors = ConsCheckGlobalCpl();
+  cpl_errors = ConsCheckGlobalCpl(context);
         #endif
         #ifdef CHECK_CPL_ALLTOALL
-  cpl_errors = Cons2CheckGlobalCpl();
+  cpl_errors = Cons2CheckGlobalCpl(context);
         #endif
 
   if (cpl_errors==-1)
@@ -749,7 +749,7 @@ int DDD_ConsCheck(const DDD::DDDContext& context)
 
         #ifdef ConsMemFromHeap
   ReleaseHeap(theMarkKey);
-  LC_SetMemMgrDefault();
+  LC_SetMemMgrDefault(context);
         #endif
 
   return(total_errors);
