@@ -475,7 +475,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     obsolete += (nXIDelCmd-remXIDelCmd);
 
     /* do communication and actual pruning */
-    prunedXIDelCmd = PruneXIDelCmd(arrayXIDelCmd, remXIDelCmd, arrayXICopyObj);
+    prunedXIDelCmd = PruneXIDelCmd(context, arrayXIDelCmd, remXIDelCmd, arrayXICopyObj);
     obsolete += prunedXIDelCmd;
     remXIDelCmd -= prunedXIDelCmd;
 
@@ -530,7 +530,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
 
   /* prepare msgs for objects and XINewCpl-items */
-  nSendMsgs = PrepareObjMsgs(arrayXICopyObj,
+  nSendMsgs = PrepareObjMsgs(context,
+                             arrayXICopyObj,
                              arrayXINewCpl, nXINewCpl,
                              arrayXIOldCpl, nXIOldCpl,
                              &sendMsgs, &sendMem);
@@ -580,7 +581,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
   STAT_RESET;
   /* build obj msgs on sender side and start send */
-  if (! IS_OK(XferPackMsgs(sendMsgs)))
+  if (! IS_OK(XferPackMsgs(context, sendMsgs)))
   {
     DDD_PrintError('W', 6086,
                    "error during message packing in DDD_XferEnd(), giving up.");
@@ -765,7 +766,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
    */
 
   STAT_RESET;
-  CommunicateCplMsgs(arrayXIDelCpl, remXIDelCpl,
+  CommunicateCplMsgs(context,
+                     arrayXIDelCpl, remXIDelCpl,
                      arrayXIModCpl, remXIModCpl,
                      arrayXIAddCpl, nXIAddCpl,
                      localCplObjs, NCpl_Get);
@@ -1351,7 +1353,7 @@ void DDD_XferDeleteObj (DDD_HDR hdr)
         is carried out via a \funk{XferEnd} call on each processor.
  */
 
-void DDD_XferBegin(DDD::DDDContext&)
+void DDD_XferBegin(DDD::DDDContext& context)
 {
   theXIAddData = NULL;
 

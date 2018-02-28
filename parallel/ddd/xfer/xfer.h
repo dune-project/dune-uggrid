@@ -579,21 +579,23 @@ void xfer_FreeSend (void *);
 
 
 /* cplmsg.c */
-void CommunicateCplMsgs (XIDelCpl **, int,
+void CommunicateCplMsgs (DDD::DDDContext& context,
+                         XIDelCpl **, int,
                          XIModCpl **, int, XIAddCpl **, int, DDD_HDR *, int);
-void CplMsgInit (void);
-void CplMsgExit (void);
+void CplMsgInit(DDD::DDDContext& context);
+void CplMsgExit(DDD::DDDContext& context);
 
 
 /* cmdmsg.c */
-int  PruneXIDelCmd (XIDelCmd **, int, std::vector<XICopyObj*>&);
-void CmdMsgInit (void);
-void CmdMsgExit (void);
+int  PruneXIDelCmd (DDD::DDDContext& context, XIDelCmd **, int, std::vector<XICopyObj*>&);
+void CmdMsgInit(DDD::DDDContext& context);
+void CmdMsgExit(DDD::DDDContext& context);
 
 
 /* xfer.c, used only by cmds.c */
 XICopyObj **CplClosureEstimate(const std::vector<XICopyObj*>&, int *);
-int  PrepareObjMsgs(std::vector<XICopyObj*>&, XINewCpl **, int,
+int  PrepareObjMsgs(DDD::DDDContext& context,
+                    std::vector<XICopyObj*>&, XINewCpl **, int,
                     XIOldCpl **, int, XFERMSG **, size_t *);
 void ExecLocalXIDelCmd(XIDelCmd  **, int);
 void ExecLocalXISetPrio(const std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
@@ -605,7 +607,7 @@ int XferStepMode(enum XferMode);
 
 
 /* pack.c,   used only by cmds.c */
-RETCODE XferPackMsgs (XFERMSG *);
+RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *);
 
 
 /* unpack.c, used only by cmds.c */
