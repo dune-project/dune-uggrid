@@ -1327,7 +1327,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   /* something to do ? */
   saved = MG_SAVED(theMG);
 #ifdef ModelP
-  saved = UG_GlobalMinINT(saved);
+  saved = UG_GlobalMinINT(theMG->ppifContext(), saved);
   proc_list_size = PROCLISTSIZE_VALUE;
 #endif
   if (saved)
@@ -1387,7 +1387,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
     if (MGIO_dircreate(filename,(int)rename))
       error = -1;
         #ifdef LOCAL_FILE_SYSTEM
-  error = UG_GlobalMinINT(error);
+  error = UG_GlobalMinINT(theMG->ppifContext(), error);
         #endif
   Broadcast(&error,sizeof(int));
   if (error == -1)
@@ -2900,7 +2900,7 @@ else
 
   }
 }
-nparfiles = UG_GlobalMinINT(nparfiles);
+nparfiles = UG_GlobalMinINT(*PPIF::ppifContext(), nparfiles);
 #endif
   if (nparfiles == -1)
   {

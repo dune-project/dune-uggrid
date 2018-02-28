@@ -270,7 +270,7 @@ static void CreateDD(MULTIGRID *theMG, INT level, int hor_boxes, int vert_boxes 
   if( hor_boxes*vert_boxes >= 4 )
   {
     elements = NT(theGrid);
-    elements = UG_GlobalMaxINT(elements);
+    elements = UG_GlobalMaxINT(theMG->ppifContext(), elements);
 
     if( elements > 20000 )
     {
