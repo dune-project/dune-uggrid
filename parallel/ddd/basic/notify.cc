@@ -177,6 +177,7 @@ static bool sort_XferFlags(const NOTIFY_INFO& a, const NOTIFY_INFO& b)
   return a.flag < b.flag;
 }
 
+static
 NOTIFY_INFO *NotifyPrepare (void)
 {
   NOTIFY_INFO  *allInfos;
@@ -216,6 +217,7 @@ NOTIFY_INFO *NotifyPrepare (void)
         communicated.
  */
 
+static
 int NotifyTwoWave (NOTIFY_INFO *allInfos, int lastInfo, int exception)
 {
   NOTIFY_INFO  *newInfos;
