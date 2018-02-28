@@ -676,8 +676,8 @@ void   ddd_StdIFExecLocalX (        ExecProcHdrXPtr);
 
 
 /* xfer/xfer.c */
-void      ddd_XferInit (void);
-void      ddd_XferExit (void);
+void      ddd_XferInit(DDD::DDDContext& context);
+void      ddd_XferExit(DDD::DDDContext& context);
 int       ddd_XferActive (void);
 void      ddd_XferRegisterDelete (DDD_HDR);
 

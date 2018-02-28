@@ -96,14 +96,14 @@ static LC_MSGCOMP undelete_id;
 /****************************************************************************/
 
 
-void CmdMsgInit (void)
+void CmdMsgInit(DDD::DDDContext& context)
 {
   cmdmsg_t = LC_NewMsgType("CmdMsg");
   undelete_id = LC_NewMsgTable("UndelTab", cmdmsg_t, sizeof(DDD_GID));
 }
 
 
-void CmdMsgExit (void)
+void CmdMsgExit(DDD::DDDContext& context)
 {}
 
 
@@ -131,7 +131,7 @@ static CMDMSG *CreateCmdMsg (DDD_PROC dest, CMDMSG *lastxm)
 
 
 
-static int PrepareCmdMsgs (XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
+static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
 {
   CMDMSG    *xm=NULL;
   int j, iCO, markedCO, nMsgs=0;
@@ -252,7 +252,7 @@ static int PrepareCmdMsgs (XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
 }
 
 
-static void CmdMsgSend (CMDMSG *theMsgs)
+static void CmdMsgSend(DDD::DDDContext& context, CMDMSG *theMsgs)
 {
   CMDMSG *m;
 
@@ -468,6 +468,7 @@ static void CmdMsgDisplay (const char *comment, LC_MSGHANDLE xm)
  */
 
 int PruneXIDelCmd (
+  DDD::DDDContext& context,
   XIDelCmd  **itemsDC, int nDC,
   std::vector<XICopyObj*>& arrayCO)
 {
@@ -480,7 +481,7 @@ int PruneXIDelCmd (
   const int nCO = arrayCO.size();
 
   /* accumulate messages (one for each partner) */
-  nSendMsgs = PrepareCmdMsgs(itemsCO, nCO, &sendMsgs);
+  nSendMsgs = PrepareCmdMsgs(context, itemsCO, nCO, &sendMsgs);
 
 #if DebugCmdMsg>2
   if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
@@ -496,7 +497,7 @@ int PruneXIDelCmd (
   nRecvMsgs = LC_Connect(cmdmsg_t);
 
   /* build and send messages */
-  CmdMsgSend(sendMsgs);
+  CmdMsgSend(context, sendMsgs);
 
   /* communicate set of messages (send AND receive) */
   recvMsgs = LC_Communicate();
