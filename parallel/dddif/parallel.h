@@ -31,6 +31,8 @@
 #ifndef __PARALLEL_H__
 #define __PARALLEL_H__
 
+#include <memory>
+
 #ifdef ModelP
 #  include <dune/uggrid/parallel/ddd/dddcontext.hh>
 #endif
@@ -318,6 +320,31 @@ INT             RestrictPartitioning            (MULTIGRID *theMG);
 
 /* from pgmcheck.c */
 INT             CheckInterfaces                         (GRID *theGrid);
+
+/*
+ * COMPATABILITY FUNCTIONS FOR OLDER dune-grid RELEASES
+ */
+
+/**
+ * get global DDD context.
+ * This only exists for compatability with old versions of dune-grid.
+ */
+DDD::DDDContext& globalDDDContext();
+
+/**
+ * set global DDD context.
+ * This only exists for compatability with old versions of dune-grid.
+ */
+void globalDDDContext(const std::shared_ptr<DDD::DDDContext>& context);
+
+/**
+ * invalidate global DDD context.
+ * This only exists for compatability with old versions of dune-grid.
+ */
+void globalDDDContext(std::nullptr_t);
+
+void DDD_IFOneway(DDD_IF, DDD_IF_DIR, size_t, ComProcPtr, ComProcPtr);
+
 
 #endif /* ModelP */
 
