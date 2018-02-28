@@ -522,7 +522,7 @@ void     DDD_ObjUnGet (DDD_HDR, size_t);
         Maintainance & Debugging
  */
 
-int      DDD_ConsCheck(const DDD::DDDContext& context); /* returns total #errors since V1.6.6 */
+int      DDD_ConsCheck(DDD::DDDContext& context); /* returns total #errors since V1.6.6 */
 void     DDD_ListLocalObjects(const DDD::DDDContext& context);
 DDD_HDR  DDD_SearchHdr(DDD::DDDContext&, DDD_GID);
 

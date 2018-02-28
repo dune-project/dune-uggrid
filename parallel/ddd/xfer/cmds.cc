@@ -468,7 +468,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     {
       DDD_PrintError('W', 6081, "out of memory in DDD_XferEnd(), giving up.");
       ret_code = DDD_RET_ERROR_NOMEM;
-      LC_Abort(EXCEPTION_LOWCOMM_USER);
+      LC_Abort(context, EXCEPTION_LOWCOMM_USER);
       goto exit;
     }
     remXIDelCmd   = UnifyXIDelCmd(arrayXIDelCmd, unify_XIDelCmd);
@@ -503,7 +503,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   {
     DDD_PrintError('W', 6082, "out of memory in DDD_XferEnd(), giving up.");
     ret_code = DDD_RET_ERROR_NOMEM;
-    LC_Abort(EXCEPTION_LOWCOMM_USER);
+    LC_Abort(context, EXCEPTION_LOWCOMM_USER);
     goto exit;
   }
 
@@ -515,7 +515,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   {
     DDD_PrintError('W', 6083, "out of memory in DDD_XferEnd(), giving up.");
     ret_code = DDD_RET_ERROR_NOMEM;
-    LC_Abort(EXCEPTION_LOWCOMM_USER);
+    LC_Abort(context, EXCEPTION_LOWCOMM_USER);
     goto exit;
   }
 
@@ -524,7 +524,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   {
     DDD_PrintError('W', 6084, "out of memory in DDD_XferEnd(), giving up.");
     ret_code = DDD_RET_ERROR_NOMEM;
-    LC_Abort(EXCEPTION_LOWCOMM_USER);
+    LC_Abort(context, EXCEPTION_LOWCOMM_USER);
     goto exit;
   }
 
@@ -542,7 +542,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
    */
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(xferGlobals.objmsg_t);
+  nRecvMsgs = LC_Connect(context, xferGlobals.objmsg_t);
   STAT_TIMER(T_XFER_PREP_MSGS);
   if (nRecvMsgs<0)
   {
@@ -585,7 +585,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   {
     DDD_PrintError('W', 6086,
                    "error during message packing in DDD_XferEnd(), giving up.");
-    LC_Cleanup();
+    LC_Cleanup(context);
     ret_code = DDD_RET_ERROR_UNKNOWN;
     goto exit;
   }
@@ -608,7 +608,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     if (arrayXIDelCmd==NULL && nXIDelCmd>0)
     {
       DDD_PrintError('W', 6088, "out of memory in DDD_XferEnd(), giving up.");
-      LC_Cleanup();
+      LC_Cleanup(context);
       ret_code = DDD_RET_ERROR_NOMEM;
       goto exit;
     }
@@ -667,13 +667,13 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: ObjMsg.Send\n");
-    LC_PrintSendMsgs();
+    LC_PrintSendMsgs(context);
   }
 
 
   /* wait for communication-completion (send AND receive) */
   STAT_RESET;
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
   STAT_TIMER(T_XFER_WAIT_RECV);
 
 
@@ -701,7 +701,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: ObjMsg.Recv\n");
-    LC_PrintRecvMsgs();
+    LC_PrintRecvMsgs(context);
   }
 
 
@@ -723,7 +723,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
              arrayXIDelObj, nXIDelObj,
              arrayXICopyObj,
              arrayNewOwners, nNewOwners);
-  LC_Cleanup();
+  LC_Cleanup(context);
   STAT_TIMER(T_XFER_UNPACK);
 
   /* recreate sorted list of local coupled objects,
@@ -819,7 +819,7 @@ exit:
         #ifdef XferMemFromHeap
   xferGlobals.useHeap = false;
   ReleaseHeap(xferGlobals.theMarkKey);
-  LC_SetMemMgrDefault();
+  LC_SetMemMgrDefault(context);
         #endif
 
 #       if DebugXfer<=4
@@ -1372,8 +1372,8 @@ void DDD_XferBegin(DDD::DDDContext& context)
         #ifdef XferMemFromHeap
   MarkHeap(&xferGlobals.theMarkKey);
   xferGlobals.useHeap = true;
-  LC_SetMemMgrRecv(xfer_AllocHeap, NULL);
-  LC_SetMemMgrSend(xfer_AllocSend, xfer_FreeSend);
+  LC_SetMemMgrRecv(context, xfer_AllocHeap, NULL);
+  LC_SetMemMgrSend(context, xfer_AllocSend, xfer_FreeSend);
         #endif
 }
 
