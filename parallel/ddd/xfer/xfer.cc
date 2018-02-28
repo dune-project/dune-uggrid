@@ -584,7 +584,7 @@ int PrepareObjMsgs (DDD::DDDContext& context,
   for(xm=*theMsgs; xm!=NULL; xm=xm->next)
   {
     size_t bufSize;
-    xm->msg_h = LC_NewSendMsg(xferGlobals.objmsg_t, xm->proc);
+    xm->msg_h = LC_NewSendMsg(context, xferGlobals.objmsg_t, xm->proc);
     LC_SetTableSize(xm->msg_h, xferGlobals.symtab_id, xm->nPointers);
     LC_SetTableSize(xm->msg_h, xferGlobals.objtab_id, xm->nObjects);
     LC_SetTableSize(xm->msg_h, xferGlobals.newcpl_id, xm->nNewCpl);
@@ -1051,7 +1051,7 @@ void ddd_XferInit(DDD::DDDContext& context)
 
   XferSetMode(XMODE_IDLE);
 
-  xferGlobals.objmsg_t = LC_NewMsgType("XferMsg");
+  xferGlobals.objmsg_t = LC_NewMsgType(context, "XferMsg");
   xferGlobals.symtab_id = LC_NewMsgTable("SymTab",
                                          xferGlobals.objmsg_t, sizeof(SYMTAB_ENTRY));
   xferGlobals.objtab_id = LC_NewMsgTable("ObjTab",
