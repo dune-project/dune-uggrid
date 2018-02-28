@@ -85,7 +85,7 @@ START_UGDIM_NAMESPACE
 
  */
 
-static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
+static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& arrayJoin,
                               JOINMSG1 **theMsgs, size_t *memUsage)
 {
   int i, last_i, nMsgs;
@@ -169,13 +169,13 @@ static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
     nMsgs++;
 
     /* create new send message */
-    jm->msg_h = LC_NewSendMsg(joinGlobals.phase1msg_t, jm->dest);
+    jm->msg_h = LC_NewSendMsg(context, joinGlobals.phase1msg_t, jm->dest);
 
     /* init table inside message */
     LC_SetTableSize(jm->msg_h, joinGlobals.jointab_id, jm->nJoins);
 
     /* prepare message for sending away */
-    bufSize = LC_MsgPrepareSend(jm->msg_h);
+    bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
     if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
@@ -210,7 +210,7 @@ static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
 /*                                                                          */
 /****************************************************************************/
 
-static void PackPhase1Msgs (JOINMSG1 *theMsgs)
+static void PackPhase1Msgs (DDD::DDDContext& context, JOINMSG1 *theMsgs)
 {
   JOINMSG1 *jm;
 
@@ -230,7 +230,7 @@ static void PackPhase1Msgs (JOINMSG1 *theMsgs)
 
 
     /* send away */
-    LC_MsgSend(jm->msg_h);
+    LC_MsgSend(context, jm->msg_h);
   }
 }
 
@@ -386,7 +386,7 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
  */
 
-static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
+static int PreparePhase2Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& arrayAddCpl,
                               JOINMSG2 **theMsgs, size_t *memUsage)
 {
   int i, last_i, nMsgs;
@@ -435,13 +435,13 @@ static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
     nMsgs++;
 
     /* create new send message */
-    jm->msg_h = LC_NewSendMsg(joinGlobals.phase2msg_t, jm->dest);
+    jm->msg_h = LC_NewSendMsg(context, joinGlobals.phase2msg_t, jm->dest);
 
     /* init table inside message */
     LC_SetTableSize(jm->msg_h, joinGlobals.addtab_id, jm->nAddCpls);
 
     /* prepare message for sending away */
-    bufSize = LC_MsgPrepareSend(jm->msg_h);
+    bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
     if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
@@ -476,7 +476,7 @@ static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
 /*                                                                          */
 /****************************************************************************/
 
-static void PackPhase2Msgs (JOINMSG2 *theMsgs)
+static void PackPhase2Msgs(DDD::DDDContext& context, JOINMSG2 *theMsgs)
 {
   JOINMSG2 *jm;
 
@@ -496,7 +496,7 @@ static void PackPhase2Msgs (JOINMSG2 *theMsgs)
 
 
     /* send away */
-    LC_MsgSend(jm->msg_h);
+    LC_MsgSend(context, jm->msg_h);
   }
 }
 
@@ -579,7 +579,7 @@ static void UnpackPhase2Msgs (LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
 
  */
 
-static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
+static int PreparePhase3Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& arrayAddCpl,
                               JOINMSG3 **theMsgs, size_t *memUsage)
 {
   int i, last_i, nMsgs;
@@ -628,13 +628,13 @@ static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
     nMsgs++;
 
     /* create new send message */
-    jm->msg_h = LC_NewSendMsg(joinGlobals.phase3msg_t, jm->dest);
+    jm->msg_h = LC_NewSendMsg(context, joinGlobals.phase3msg_t, jm->dest);
 
     /* init table inside message */
     LC_SetTableSize(jm->msg_h, joinGlobals.cpltab_id, jm->nAddCpls);
 
     /* prepare message for sending away */
-    bufSize = LC_MsgPrepareSend(jm->msg_h);
+    bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
     if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
@@ -669,7 +669,7 @@ static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
 /*                                                                          */
 /****************************************************************************/
 
-static void PackPhase3Msgs (JOINMSG3 *theMsgs)
+static void PackPhase3Msgs(DDD::DDDContext& context, JOINMSG3 *theMsgs)
 {
   JOINMSG3 *jm;
 
@@ -689,7 +689,7 @@ static void PackPhase3Msgs (JOINMSG3 *theMsgs)
 
 
     /* send away */
-    LC_MsgSend(jm->msg_h);
+    LC_MsgSend(context, jm->msg_h);
   }
 }
 
@@ -776,7 +776,8 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
         #ifdef JoinMemFromHeap
   MarkHeap();
-  LC_SetMemMgr(memmgr_AllocTMEM, memmgr_FreeTMEM,
+  LC_SetMemMgr(context,
+               memmgr_AllocTMEM, memmgr_FreeTMEM,
                memmgr_AllocHMEM, NULL);
         #endif
 
@@ -808,16 +809,16 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
    */
   STAT_RESET;
   /* prepare msgs for JIJoin-items */
-  PreparePhase1Msgs(arrayJIJoin, &sendMsgs1, &sendMem);
+  PreparePhase1Msgs(context, arrayJIJoin, &sendMsgs1, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
-  nRecvMsgs1 = LC_Connect(joinGlobals.phase1msg_t);
+  nRecvMsgs1 = LC_Connect(context, joinGlobals.phase1msg_t);
   STAT_TIMER(T_JOIN_PREP_MSGS);
 
   STAT_RESET;
   /* build phase1 msgs on sender side and start send */
-  PackPhase1Msgs(sendMsgs1);
+  PackPhase1Msgs(context, sendMsgs1);
   STAT_TIMER(T_JOIN_PACK_SEND);
 
 
@@ -859,13 +860,13 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Send\n");
-    LC_PrintSendMsgs();
+    LC_PrintSendMsgs(context);
   }
 
 
   /* wait for communication-completion (send AND receive) */
   STAT_RESET;
-  recvMsgs1 = LC_Communicate();
+  recvMsgs1 = LC_Communicate(context);
   STAT_TIMER(T_JOIN_WAIT_RECV);
 
 
@@ -893,14 +894,14 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Recv\n");
-    LC_PrintRecvMsgs();
+    LC_PrintRecvMsgs(context);
   }
 
   /* unpack messages */
   STAT_RESET;
   UnpackPhase1Msgs(recvMsgs1, nRecvMsgs1, localCplObjs, NCpl_Get,
                    &joinObjs, &nJoinObjs);
-  LC_Cleanup();
+  LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
 
 
@@ -918,16 +919,16 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   STAT_RESET;
   /* prepare msgs for JIAddCpl-items */
-  PreparePhase2Msgs(arrayJIAddCpl2, &sendMsgs2, &sendMem);
+  PreparePhase2Msgs(context, arrayJIAddCpl2, &sendMsgs2, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
-  nRecvMsgs2 = LC_Connect(joinGlobals.phase2msg_t);
+  nRecvMsgs2 = LC_Connect(context, joinGlobals.phase2msg_t);
   STAT_TIMER(T_JOIN_PREP_MSGS);
 
   STAT_RESET;
   /* build phase2 msgs on sender side and start send */
-  PackPhase2Msgs(sendMsgs2);
+  PackPhase2Msgs(context, sendMsgs2);
   STAT_TIMER(T_JOIN_PACK_SEND);
 
   /*
@@ -956,13 +957,13 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Send\n");
-    LC_PrintSendMsgs();
+    LC_PrintSendMsgs(context);
   }
 
 
   /* wait for communication-completion (send AND receive) */
   STAT_RESET;
-  recvMsgs2 = LC_Communicate();
+  recvMsgs2 = LC_Communicate(context);
   STAT_TIMER(T_JOIN_WAIT_RECV);
 
 
@@ -990,7 +991,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Recv\n");
-    LC_PrintRecvMsgs();
+    LC_PrintRecvMsgs(context);
   }
 
   /* unpack messages */
@@ -998,7 +999,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   UnpackPhase2Msgs(recvMsgs2, nRecvMsgs2, joinObjs, nJoinObjs,
                    localCplObjs, NCpl_Get);
 
-  LC_Cleanup();
+  LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
 
   for(; sendMsgs2!=NULL; sendMsgs2=sm2)
@@ -1027,16 +1028,16 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   STAT_RESET;
   /* prepare msgs for JIAddCpl-items */
-  PreparePhase3Msgs(arrayJIAddCpl3, &sendMsgs3, &sendMem);
+  PreparePhase3Msgs(context, arrayJIAddCpl3, &sendMsgs3, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
-  nRecvMsgs3 = LC_Connect(joinGlobals.phase3msg_t);
+  nRecvMsgs3 = LC_Connect(context, joinGlobals.phase3msg_t);
   STAT_TIMER(T_JOIN_PREP_MSGS);
 
   STAT_RESET;
   /* build phase3 msgs on sender side and start send */
-  PackPhase3Msgs(sendMsgs3);
+  PackPhase3Msgs(context, sendMsgs3);
   STAT_TIMER(T_JOIN_PACK_SEND);
 
   /*
@@ -1054,13 +1055,13 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Send\n");
-    LC_PrintSendMsgs();
+    LC_PrintSendMsgs(context);
   }
 
 
   /* wait for communication-completion (send AND receive) */
   STAT_RESET;
-  recvMsgs3 = LC_Communicate();
+  recvMsgs3 = LC_Communicate(context);
   STAT_TIMER(T_JOIN_WAIT_RECV);
 
 
@@ -1088,13 +1089,13 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
     DDD_SyncAll();
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Recv\n");
-    LC_PrintRecvMsgs();
+    LC_PrintRecvMsgs(context);
   }
 
   /* unpack messages */
   STAT_RESET;
   UnpackPhase3Msgs(recvMsgs3, nRecvMsgs3, arrayJIJoin);
-  LC_Cleanup();
+  LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
 
   for(; sendMsgs3!=NULL; sendMsgs3=sm3)
@@ -1131,7 +1132,8 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
         #ifdef JoinMemFromHeap
   ReleaseHeap();
-  LC_SetMemMgr(memmgr_AllocTMEM, memmgr_FreeTMEM,
+  LC_SetMemMgr(context,
+               memmgr_AllocTMEM, memmgr_FreeTMEM,
                memmgr_AllocTMEM, memmgr_FreeTMEM);
         #endif
 
