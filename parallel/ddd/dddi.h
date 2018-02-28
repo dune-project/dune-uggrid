@@ -726,9 +726,9 @@ DDD_HDR  *LocalCoupledObjectsList (void);
 void      FreeLocalCoupledObjectsList (DDD_HDR *);
 
 /* basic/reduct.c */
-int       ddd_GlobalSumInt  (int);
-int       ddd_GlobalMaxInt  (int);
-int       ddd_GlobalMinInt  (int);
+int       ddd_GlobalSumInt(const DDD::DDDContext& context, int);
+int       ddd_GlobalMaxInt(const DDD::DDDContext& context, int);
+int       ddd_GlobalMinInt(const DDD::DDDContext& context, int);
 
 
 /* ctrl/stat.c */
