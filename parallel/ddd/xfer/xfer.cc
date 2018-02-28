@@ -513,7 +513,8 @@ static XFERMSG *AccumXIOldCpl (XFERMSG *currxm, int *nMsgs, int *nItems,
         coupling closure from CplClosureEstimate().
  */
 
-int PrepareObjMsgs (std::vector<XICopyObj*>& arrayO,
+int PrepareObjMsgs (DDD::DDDContext& context,
+                    std::vector<XICopyObj*>& arrayO,
                     XINewCpl **itemsNC, int nNC,
                     XIOldCpl **itemsOC, int nOC,
                     XFERMSG **theMsgs, size_t *memUsage)
@@ -1026,7 +1027,7 @@ int XferStepMode (enum XferMode old)
 /****************************************************************************/
 
 
-void ddd_XferInit (void)
+void ddd_XferInit(DDD::DDDContext& context)
 {
   /* switch off heap usage, will be switched on during XferBegin/End */
   xferGlobals.useHeap = false;
@@ -1069,18 +1070,18 @@ void ddd_XferInit (void)
                   LC_NewMsgTable(xferGlobals.objmsg_t, sizeof(CPLTAB_ENTRY));
    */
 
-  CplMsgInit();
-  CmdMsgInit();
+  CplMsgInit(context);
+  CmdMsgInit(context);
 }
 
 
-void ddd_XferExit (void)
+void ddd_XferExit(DDD::DDDContext& context)
 {
   /* set kind of TMEM alloc/free requests */
   xfer_SetTmpMem(TMEM_ANY);
 
-  CmdMsgExit();
-  CplMsgExit();
+  CmdMsgExit(context);
+  CplMsgExit(context);
 
   XICopyObjSet_Free(xferGlobals.setXICopyObj);
   XISetPrioSet_Free(xferGlobals.setXISetPrio);

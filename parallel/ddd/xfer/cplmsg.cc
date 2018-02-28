@@ -96,7 +96,7 @@ static LC_MSGCOMP delcpl_id, modcpl_id, addcpl_id;
 /****************************************************************************/
 
 
-void CplMsgInit (void)
+void CplMsgInit(DDD::DDDContext& context)
 {
   cplmsg_t = LC_NewMsgType("CplMsg");
   delcpl_id = LC_NewMsgTable("DelCpl", cplmsg_t, sizeof(TEDelCpl));
@@ -105,7 +105,7 @@ void CplMsgInit (void)
 }
 
 
-void CplMsgExit (void)
+void CplMsgExit(DDD::DDDContext&)
 {}
 
 
@@ -136,6 +136,7 @@ static CPLMSG *CreateCplMsg (DDD_PROC dest, CPLMSG *lastxm)
 
 
 static int PrepareCplMsgs (
+  DDD::DDDContext& context,
   XIDelCpl **itemsDC, int nDC,
   XIModCpl **itemsMC, int nMC,
   XIAddCpl **itemsAC, int nAC,
@@ -250,7 +251,7 @@ static int PrepareCplMsgs (
 }
 
 
-static void CplMsgSend (CPLMSG *theMsgs)
+static void CplMsgSend(DDD::DDDContext& context, CPLMSG *theMsgs)
 {
   CPLMSG *m;
 
@@ -417,6 +418,7 @@ static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
  */
 
 void CommunicateCplMsgs (
+  DDD::DDDContext& context,
   XIDelCpl **itemsDC, int nDC,
   XIModCpl **itemsMC, int nMC,
   XIAddCpl **itemsAC, int nAC,
@@ -428,7 +430,8 @@ void CommunicateCplMsgs (
 
 
   /* accumulate messages (one for each partner) */
-  nSendMsgs = PrepareCplMsgs(itemsDC, nDC,
+  nSendMsgs = PrepareCplMsgs(context,
+                             itemsDC, nDC,
                              itemsMC, nMC,
                              itemsAC, nAC,
                              &sendMsgs);
@@ -437,7 +440,7 @@ void CommunicateCplMsgs (
   nRecvMsgs = LC_Connect(cplmsg_t);
 
   /* build and send messages */
-  CplMsgSend(sendMsgs);
+  CplMsgSend(context, sendMsgs);
 
 
 #if DebugCplMsg>2
