@@ -3941,7 +3941,7 @@ INT NS_DIM_PREFIX DisposeTopLevel (MULTIGRID *theMG)
   if (PFIRSTNODE(theGrid)!=NULL) DO_NOT_DISPOSE;
 
         #ifdef ModelP
-  dispose = UG_GlobalMinINT(dispose);
+  dispose = UG_GlobalMinINT(theMG->ppifContext(), dispose);
   if (!dispose) return(2);
         #endif
 
@@ -6504,14 +6504,14 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
         }
       }
   }
-  nn = UG_GlobalSumINT(nn);
-  ne = UG_GlobalSumINT(ne);
-  nt = UG_GlobalSumINT(nt);
-  ns = UG_GlobalSumINT(ns);
-  nvec = UG_GlobalSumINT(nvec);
-  nc = UG_GlobalSumINT(nc);
-  hmin = UG_GlobalMinDOUBLE(hmin);
-  hmax = UG_GlobalMaxDOUBLE(hmax);
+  nn = UG_GlobalSumINT(theMG->ppifContext(), nn);
+  ne = UG_GlobalSumINT(theMG->ppifContext(), ne);
+  nt = UG_GlobalSumINT(theMG->ppifContext(), nt);
+  ns = UG_GlobalSumINT(theMG->ppifContext(), ns);
+  nvec = UG_GlobalSumINT(theMG->ppifContext(), nvec);
+  nc = UG_GlobalSumINT(theMG->ppifContext(), nc);
+  hmin = UG_GlobalMinDOUBLE(theMG->ppifContext(), hmin);
+  hmax = UG_GlobalMaxDOUBLE(theMG->ppifContext(), hmax);
   UserWrite("\nsurface of all processors up to current level:\n");
   UserWriteF("%c %3d %8d %8s %8ld %8s %8ld %8ld %8ld %8s %9.3e %9.3e\n",
              ' ',minl,(int)cl,

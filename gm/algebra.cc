@@ -2248,7 +2248,7 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
     }
   }
         #ifdef ModelP
-  fullrefine = UG_GlobalMinINT(fullrefine);
+  fullrefine = UG_GlobalMinINT(theMG->ppifContext(), fullrefine);
         #endif
 
   FULLREFINELEVEL(theMG) = fullrefine;

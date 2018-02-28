@@ -2882,7 +2882,7 @@ static int ComputeCopies (GRID *theGrid)
   if (rFlag==GM_COPY_ALL)
   {
         #ifdef ModelP
-    flag = UG_GlobalMaxINT(flag);
+    flag = UG_GlobalMaxINT(theGrid->ppifContext(), flag);
         #endif
     if (flag)
       for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
@@ -5858,7 +5858,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
 #endif
 #endif
 
-  if (UG_GlobalMaxINT(modified))
+  if (UG_GlobalMaxINT(theGrid->ppifContext(), modified))
   {
     /* reset (multi)grid status */
     SETGLOBALGSTATUS(UpGrid);
@@ -5934,7 +5934,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
     }
 
     /* if no grid adaption has occured adapt next level */
-    *nadapted = UG_GlobalSumINT(*nadapted);
+    *nadapted = UG_GlobalSumINT(theGrid->ppifContext(), *nadapted);
     if (*nadapted == 0)
     {
       if (!IDENT_IN_STEPS)
@@ -6122,7 +6122,7 @@ void NS_DIM_PREFIX Manage_Adapt_Timer (int alloc)
   }
 }
 
-void NS_DIM_PREFIX Print_Adapt_Timer (int total_adapted)
+void NS_DIM_PREFIX Print_Adapt_Timer (const MULTIGRID* theMG, int total_adapted)
 {
   UserWriteF("ADAPT: total_adapted=%d t_adapt=%.2f: t_closure=%.2f t_gridadapt=%.2f t_gridadapti=%.2f "
              "t_gridadaptl=%.2f t_overlap=%.2f t_ident=%.2f t_gridcons=%.2f t_algebra=%.2f\n",
@@ -6132,13 +6132,13 @@ void NS_DIM_PREFIX Print_Adapt_Timer (int total_adapted)
   UserWriteF("ADAPTMAX: total_adapted=%d t_adapt=%.2f: t_closure=%.2f t_gridadapt=%.2f "
              "t_gridadapti=%.2f "
              "t_gridadaptl=%.2f t_overlap=%.2f t_ident=%.2f t_gridcons=%.2f t_algebra=%.2f\n",
-             total_adapted,UG_GlobalMaxDOUBLE(EVAL_TIMER(adapt_timer)),
-             UG_GlobalMaxDOUBLE(EVAL_TIMER(closure_timer)),
-             UG_GlobalMaxDOUBLE(EVAL_TIMER(gridadapt_timer)),UG_GlobalMaxDOUBLE(EVAL_TIMER(gridadapti_timer)),
-             UG_GlobalMaxDOUBLE(EVAL_TIMER(gridadaptl_timer)),
-             UG_GlobalMaxDOUBLE(EVAL_TIMER(overlap_timer)),
-             UG_GlobalMaxDOUBLE(EVAL_TIMER(ident_timer)),UG_GlobalMaxDOUBLE(EVAL_TIMER(gridcons_timer)),
-             UG_GlobalMaxDOUBLE(EVAL_TIMER(algebra_timer)));
+             total_adapted,UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(adapt_timer)),
+             UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(closure_timer)),
+             UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(gridadapt_timer)),UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(gridadapti_timer)),
+             UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(gridadaptl_timer)),
+             UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(overlap_timer)),
+             UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(ident_timer)),UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(gridcons_timer)),
+             UG_GlobalMaxDOUBLE(theMG->ppifContext(), EVAL_TIMER(algebra_timer)));
 }
 #endif
 
@@ -6361,7 +6361,7 @@ static INT      PostProcessAdaptMultiGrid(MULTIGRID *theMG)
    */
 
         #ifdef STAT_OUT
-  Print_Adapt_Timer(total_adapted);
+  Print_Adapt_Timer(theMG, total_adapted);
   Manage_Adapt_Timer(0);
         #endif
 
@@ -6429,7 +6429,7 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
         #ifndef ModelP
   if (TOPLEVEL(theMG) == 0)
         #else
-  if (UG_GlobalMaxINT(TOPLEVEL(theMG)) == 0)
+  if (UG_GlobalMaxINT(theMG->ppifContext(), TOPLEVEL(theMG)) == 0)
         #endif
   {
     SETREFINESTEP(REFINEINFO(theMG),0);
@@ -6604,7 +6604,7 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
     /* create a new grid level, if at least one element is refined on finest level */
     if (nrefined>0 && level==toplevel) newlevel = 1;
 #ifdef ModelP
-    newlevel = UG_GlobalMaxINT(newlevel);
+    newlevel = UG_GlobalMaxINT(theMG->ppifContext(), newlevel);
 #endif
     if (newlevel)
     {
