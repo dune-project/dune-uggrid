@@ -61,11 +61,11 @@ START_UGDIM_NAMESPACE
 
 
 
-static int DDD_CheckInterface (DDD_IF ifId)
+static int DDD_CheckInterface(DDD::DDDContext& context, DDD_IF ifId)
 {
   int errors=0;
   IF_PROC *h;
-  NOTIFY_DESC *msgs = DDD_NotifyBegin(theIF[ifId].nIfHeads);
+  NOTIFY_DESC *msgs = DDD_NotifyBegin(context, theIF[ifId].nIfHeads);
   int nRecvs, k;
 
   /* fill NOTIFY_DESCS */
@@ -77,7 +77,7 @@ static int DDD_CheckInterface (DDD_IF ifId)
     k++;
   }
 
-  nRecvs = DDD_Notify();
+  nRecvs = DDD_Notify(context);
   if (nRecvs==ERROR)
   {
     sprintf(cBuffer, "Notify failed on proc %d\n", me);
@@ -113,7 +113,7 @@ static int DDD_CheckInterface (DDD_IF ifId)
     }
   }
 
-  DDD_NotifyEnd();
+  DDD_NotifyEnd(context);
   return(errors);
 }
 
@@ -121,7 +121,7 @@ static int DDD_CheckInterface (DDD_IF ifId)
 /****************************************************************************/
 
 
-int DDD_CheckInterfaces (void)
+int DDD_CheckInterfaces(DDD::DDDContext& context)
 {
   int i;
   int errors;
@@ -129,7 +129,7 @@ int DDD_CheckInterfaces (void)
   errors = 0;
   for(i=0; i<nIFs; i++)
   {
-    errors += DDD_CheckInterface(i);
+    errors += DDD_CheckInterface(context, i);
   }
 
   return(errors);

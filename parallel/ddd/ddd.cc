@@ -169,7 +169,7 @@ void DDD_Init(DDD::DDDContext& context)
   cBuffer = (char *)iBuffer;
 
   /* init all DDD components */
-  NotifyInit();
+  NotifyInit(context);
   LC_Init(context, LowComm_DefaultAlloc, LowComm_DefaultFree);
   ddd_StatInit();
   ddd_TypeMgrInit(context);
@@ -248,7 +248,7 @@ void DDD_Exit(DDD::DDDContext& context)
   ddd_TypeMgrExit(context);
   ddd_StatExit();
   LC_Exit(context);
-  NotifyExit();
+  NotifyExit(context);
 
   /* exit PPIF */
   ExitPPIF(context.ppifContext());
