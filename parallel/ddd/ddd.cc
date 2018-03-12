@@ -175,9 +175,9 @@ void DDD_Init(DDD::DDDContext& context)
   ddd_TypeMgrInit(context);
   ddd_ObjMgrInit();
   ddd_CplMgrInit();
-  ddd_TopoInit();
+  ddd_TopoInit(context);
   ddd_IdentInit();
-  ddd_IFInit();
+  ddd_IFInit(context);
   ddd_XferInit(context);
   ddd_PrioInit();
   ddd_JoinInit(context);
@@ -240,9 +240,9 @@ void DDD_Exit(DDD::DDDContext& context)
   ddd_JoinExit(context);
   ddd_PrioExit();
   ddd_XferExit(context);
-  ddd_IFExit();
+  ddd_IFExit(context);
   ddd_IdentExit();
-  ddd_TopoExit();
+  ddd_TopoExit(context);
   ddd_CplMgrExit();
   ddd_ObjMgrExit();
   ddd_TypeMgrExit(context);

@@ -336,7 +336,7 @@ DDD_RET DDD_PrioEnd(DDD::DDDContext& context)
   }
 
 
-  ddd_StdIFExchangeX(sizeof(DDD_PRIO), GatherPrio, ScatterPrio);
+  ddd_StdIFExchangeX(context, sizeof(DDD_PRIO), GatherPrio, ScatterPrio);
 
   /*
           free temporary storage
