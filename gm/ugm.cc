@@ -337,8 +337,6 @@ static void DestructDDDObject(void *object, INT type)
 
 INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, INT type)
 {
-  INT err;
-
   #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
     DestructDDDObject(object,type);
@@ -3017,7 +3015,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
 {
   HEAP *theHeap;
   MULTIGRID *theMG;
-  INT i,ds;
+  INT i;
   BVP *theBVP;
   BVP_DESC *theBVPDesc;
   MESH mesh;
@@ -4847,19 +4845,12 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   ELEMENT          *theElement,*Neighbor[MAX_SIDES_OF_ELEM];
   BNDS         *bnds[MAX_SIDES_OF_ELEM];
   BNDP         *bndp[MAX_CORNERS_OF_ELEM];
-  NODE            *cornerNode[MAX_CORNERS_OF_ELEM];
-  INT cornerID[2*MAX_CORNERS_OF_ELEM];
-  INT MIndex[MAX_CORNERS_OF_ELEM];
-  INT MBlock[MAX_CORNERS_OF_ELEM];
-  INT highestid;
         #ifdef __TWODIM__
   VERTEX           *theVertex;
   NODE             *theNode;
         #endif
 
   theMG = MYMG(theGrid);
-  for (i=0; i<CORNERS_OF_REF(n); i++) cornerNode[i] = NULL;
-  for (i=0; i<2*MAX_CORNERS_OF_ELEM; i++) cornerID [i] = 0;
 
   // nodes are already inserted, so we know how many there are...
   if (theMG->facemap.bucket_count() <= 1)
@@ -6284,7 +6275,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
   char c;
   DOUBLE hmin,hmax,h;
   INT l,cl,minl,i,soe,eos,coe,side,e;
-  INT nn,ne,nt,ns,nvec,nc,free,used;
+  INT nn,ne,nt,ns,nvec,nc;
 
   cl = CURRENTLEVEL(theMG);
 
