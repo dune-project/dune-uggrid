@@ -4840,7 +4840,7 @@ static INT Neighbor_Direct_Insert(INT n, ELEMENT **ElemList, INT *NbgSdList, INT
 ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMENT **ElemList, INT *NbgSdList, INT *bnds_flag)
 {
   MULTIGRID *theMG;
-  INT i,j,k,m,rv,found,tag,ElementType;
+  INT i,j,k,m,rv,tag,ElementType;
   INT NeighborSide[MAX_SIDES_OF_ELEM];
   NODE             *sideNode[MAX_CORNERS_OF_SIDE];
   VERTEX           *Vertex[MAX_CORNERS_OF_ELEM],*sideVertex[MAX_CORNERS_OF_SIDE];
@@ -4989,10 +4989,10 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
       sideNode[j] = Node[k];
       sideVertex[j] = Vertex[k];
     }
-    found = 0;
+    bool found = false;
     for(j=0; j<m; j++ )
     {
-      if( OBJT(sideVertex[j]) == IVOBJ ) found = 1;
+      if( OBJT(sideVertex[j]) == IVOBJ ) found = true;
     }
     if( found ) continue;
 
