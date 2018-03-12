@@ -857,7 +857,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* display information about send-messages on lowcomm-level */
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
+    DDD_SyncAll(context);
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Send\n");
     LC_PrintSendMsgs(context);
@@ -891,7 +891,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* display information about recv-messages on lowcomm-level */
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
+    DDD_SyncAll(context);
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Recv\n");
     LC_PrintRecvMsgs(context);
@@ -954,7 +954,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* display information about send-messages on lowcomm-level */
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
+    DDD_SyncAll(context);
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Send\n");
     LC_PrintSendMsgs(context);
@@ -988,7 +988,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* display information about recv-messages on lowcomm-level */
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
+    DDD_SyncAll(context);
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Recv\n");
     LC_PrintRecvMsgs(context);
@@ -1052,7 +1052,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* display information about send-messages on lowcomm-level */
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
+    DDD_SyncAll(context);
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Send\n");
     LC_PrintSendMsgs(context);
@@ -1086,7 +1086,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* display information about recv-messages on lowcomm-level */
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
+    DDD_SyncAll(context);
     if (me==master)
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Recv\n");
     LC_PrintRecvMsgs(context);

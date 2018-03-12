@@ -110,7 +110,7 @@ void DDD_Flush (void)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_SyncAll (void)
+void DDD_SyncAll(const DDD::DDDContext& context)
 {
   DDD_Flush();
   Synchronize();

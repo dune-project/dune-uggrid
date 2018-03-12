@@ -72,6 +72,7 @@
 
 
 void IF_FUNCNAME (
+                        DDD::DDDContext& context,
 	#ifdef IF_EXECLOCAL
 		#ifdef IF_WITH_XARGS
 			NS_DIM_PREFIX ExecProcHdrXPtr ExecProc)
@@ -112,7 +113,7 @@ void IF_FUNCNAME (
 	}
 
 	/* init communication, initiate receives */
-	recv_mesgs = NS_DIM_PREFIX IFInitComm(aIF);
+	recv_mesgs = NS_DIM_PREFIX IFInitComm(context, aIF);
 
 
 	/* build messages using gather-handler and send them away */
@@ -123,7 +124,7 @@ void IF_FUNCNAME (
 
 		buffer= COMM_LOOP(Gather, D_ABA(PART), buffer, aSize, PART->nItems);
 
-		NS_DIM_PREFIX IFInitSend(ifHead);
+		NS_DIM_PREFIX IFInitSend(context, ifHead);
 	}
 
 
@@ -195,7 +196,7 @@ void IF_FUNCNAME (
 			me, aIF, (unsigned long)tries);
 		#endif
 
-		if (! NS_DIM_PREFIX IFPollSend(aIF))
+		if (! NS_DIM_PREFIX IFPollSend(context, aIF))
 		{
 			sprintf(NS_DIM_PREFIX cBuffer, CONCAT("send-timeout for IF %02d in ",IF_FUNCNAME), aIF);
 			DDD_PrintError('E', 4210, NS_DIM_PREFIX cBuffer);
@@ -215,7 +216,7 @@ void IF_FUNCNAME (
 
 
 	/* free memory */
-	NS_DIM_PREFIX IFExitComm(aIF);
+	NS_DIM_PREFIX IFExitComm(context, aIF);
 
 	/*STAT_TIMER1(60);*/
 
