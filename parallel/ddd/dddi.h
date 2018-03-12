@@ -660,18 +660,18 @@ enum PrioMergeVals PriorityMerge (TYPE_DESC *, DDD_PRIO, DDD_PRIO, DDD_PRIO *);
 
 
 /* if/if.c */
-void      ddd_IFInit (void);
-void      ddd_IFExit (void);
+void      ddd_IFInit(DDD::DDDContext& context);
+void      ddd_IFExit(DDD::DDDContext& context);
 void      IFAllFromScratch(DDD::DDDContext&);
 void      DDD_InfoIFImpl (DDD_IF);
 void      IFInvalidateShortcuts (DDD_TYPE);
 int       DDD_CheckInterfaces(DDD::DDDContext& context);
 
 /* if/ifcmds.c */
-void   ddd_StdIFExchange   (size_t, ComProcHdrPtr,ComProcHdrPtr);
-void   ddd_StdIFExecLocal  (        ExecProcHdrPtr);
-void   ddd_StdIFExchangeX  (size_t, ComProcHdrXPtr,ComProcHdrXPtr);
-void   ddd_StdIFExecLocalX (        ExecProcHdrXPtr);
+void   ddd_StdIFExchange   (DDD::DDDContext& context, size_t, ComProcHdrPtr,ComProcHdrPtr);
+void   ddd_StdIFExecLocal  (DDD::DDDContext& context,         ExecProcHdrPtr);
+void   ddd_StdIFExchangeX  (DDD::DDDContext& context, size_t, ComProcHdrXPtr,ComProcHdrXPtr);
+void   ddd_StdIFExecLocalX (DDD::DDDContext& context,         ExecProcHdrXPtr);
 
 
 
@@ -709,11 +709,11 @@ void      ddd_ConsExit(DDD::DDDContext& context);
 
 
 /* basic/topo.c */
-void      ddd_TopoInit (void);
-void      ddd_TopoExit (void);
+void      ddd_TopoInit(DDD::DDDContext& context);
+void      ddd_TopoExit(DDD::DDDContext& context);
 DDD_PROC *DDD_ProcArray (void);
-RETCODE   DDD_GetChannels (int);
-void      DDD_DisplayTopo (void);
+RETCODE   DDD_GetChannels(DDD::DDDContext& context, int);
+void      DDD_DisplayTopo(const DDD::DDDContext& context);
 
 
 

@@ -103,7 +103,7 @@ void IFGetMem (IF_PROC *ifHead, size_t itemSize, int lenIn, int lenOut)
         initiate asynchronous receive calls,
         return number of messages to be received
  */
-int IFInitComm (DDD_IF ifId)
+int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
 {
   IF_PROC   *ifHead;
   int error;
@@ -143,7 +143,7 @@ int IFInitComm (DDD_IF ifId)
 /*
         cleanup memory
  */
-void IFExitComm (DDD_IF ifId)
+void IFExitComm(DDD::DDDContext& context, DDD_IF ifId)
 {
   IF_PROC   *ifHead;
 
@@ -164,7 +164,7 @@ void IFExitComm (DDD_IF ifId)
 /*
         initiate single asynchronous send call
  */
-void IFInitSend (IF_PROC *ifHead)
+void IFInitSend(DDD::DDDContext& context, IF_PROC *ifHead)
 {
   int error;
 
@@ -190,7 +190,7 @@ void IFInitSend (IF_PROC *ifHead)
         poll asynchronous send calls,
         return if ready
  */
-int IFPollSend (DDD_IF ifId)
+int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
 {
   unsigned long tries;
 

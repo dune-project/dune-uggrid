@@ -706,7 +706,7 @@ int LC_MsgAlloc(DDD::DDDContext& context, LC_MSGHANDLE md)
         NOTE: one big memory block is allocated and used for all
               message buffers.
  */
-static RETCODE LC_PrepareRecv (void)
+static RETCODE LC_PrepareRecv(DDD::DDDContext& context)
 {
   MSG_DESC *md;
   size_t sumSize;
@@ -1164,7 +1164,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
   /* get necessary connections to comm-partners */
   if (p>0)
   {
-    if (! IS_OK(DDD_GetChannels(nRecvs+nSends)))
+    if (! IS_OK(DDD_GetChannels(context, nRecvs+nSends)))
     {
       DDD_PrintError('E', 6620, "couldn't get channels in LC_Connect()");
       return(EXCEPTION_LOWCOMM_CONNECT);
@@ -1173,13 +1173,13 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
 
 #       if DebugLowComm<=5
-  DDD_DisplayTopo();
+  DDD_DisplayTopo(context);
 #       endif
 
 
   if (nRecvs>0)
   {
-    if (! IS_OK(LC_PrepareRecv()))
+    if (! IS_OK(LC_PrepareRecv(context)))
       return(EXCEPTION_LOWCOMM_CONNECT);
   }
 
