@@ -253,7 +253,7 @@ static int is_elem (DDD_PRIO el, int n, DDD_PRIO *set)
 
 
 
-static RETCODE update_channels (DDD_IF ifId)
+static RETCODE update_channels(DDD::DDDContext& context, DDD_IF ifId)
 {
   IF_PROC *ifh;
   int i;
@@ -271,7 +271,7 @@ static RETCODE update_channels (DDD_IF ifId)
     partners[i] = ifh->proc;
   }
 
-  if (! IS_OK(DDD_GetChannels(theIF[ifId].nIfHeads)))
+  if (! IS_OK(DDD_GetChannels(context, theIF[ifId].nIfHeads)))
   {
     RET_ON_ERROR;
   }
@@ -331,7 +331,7 @@ static COUPLING ** IFCollectStdCouplings (void)
 
 /****************************************************************************/
 
-static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
+static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, DDD_IF ifId)
 {
   IF_PROC     *ifHead, *lastIfHead;
   IF_ATTR    *ifAttr, *lastIfAttr;
@@ -557,7 +557,7 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
 
 
   STAT_RESET1;
-  if (! IS_OK(update_channels(ifId)))
+  if (! IS_OK(update_channels(context, ifId)))
   {
     DDD_PrintError('E', 4003, "couldn't create communication channels");
     RET_ON_ERROR;
@@ -601,7 +601,7 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
  */
 
 DDD_IF DDD_IFDefine (
-  DDD::DDDContext&,
+  DDD::DDDContext& context,
   int nO, DDD_TYPE O[],
   int nA, DDD_PRIO A[],
   int nB, DDD_PRIO B[])
@@ -646,7 +646,7 @@ if (nCplItems>0)
     HARD_EXIT;
   }
 
-  if (! IS_OK(IFCreateFromScratch(tmpcpl, nIFs)))
+  if (! IS_OK(IFCreateFromScratch(context, tmpcpl, nIFs)))
   {
     DDD_PrintError('E', 4101, "cannot create interface in DDD_IFDefine");
     return(0);
@@ -657,7 +657,7 @@ if (nCplItems>0)
 }
 else
 {
-  if (! IS_OK(IFCreateFromScratch(NULL, nIFs)))
+  if (! IS_OK(IFCreateFromScratch(context, NULL, nIFs)))
   {
     DDD_PrintError('E', 4102, "cannot create interface in DDD_IFDefine");
     return(0);
@@ -672,7 +672,7 @@ return(nIFs-1);
 
 
 
-static void StdIFDefine (void)
+static void StdIFDefine(DDD::DDDContext& context)
 {
   /* exception: no OBJSTRUCT or priority entries */
   theIF[STD_INTERFACE].nObjStruct = 0;
@@ -688,7 +688,7 @@ static void StdIFDefine (void)
 
   /* create initial interface state */
   theIF[STD_INTERFACE].ifHead = NULL;
-  if (! IS_OK(IFCreateFromScratch(NULL, STD_INTERFACE)))
+  if (! IS_OK(IFCreateFromScratch(context, NULL, STD_INTERFACE)))
   {
     DDD_PrintError('E', 4104,
                    "cannot create standard interface during IF initialization");
@@ -919,10 +919,10 @@ void DDD_IFDisplayAll(const DDD::DDDContext& context)
 
 
 
-static void IFRebuildAll (void)
+static void IFRebuildAll(DDD::DDDContext& context)
 {
   /* create standard interface */
-  if (! IS_OK(IFCreateFromScratch(NULL, STD_INTERFACE)))
+  if (! IS_OK(IFCreateFromScratch(context, NULL, STD_INTERFACE)))
   {
     DDD_PrintError('E', 4105,
                    "cannot create standard interface in IFRebuildAll");
@@ -950,7 +950,7 @@ static void IFRebuildAll (void)
       /* TODO: ausnutzen, dass STD_IF obermenge von allen interfaces ist */
       for(i=1; i<nIFs; i++)
       {
-        if (! IS_OK(IFCreateFromScratch(tmpcpl, i)))
+        if (! IS_OK(IFCreateFromScratch(context, tmpcpl, i)))
         {
           sprintf(cBuffer, "cannot create interface %d in IFRebuildAll", i);
           DDD_PrintError('E', 4106, cBuffer);
@@ -978,7 +978,7 @@ static void IFRebuildAll (void)
 }
 
 
-void IFAllFromScratch(DDD::DDDContext&)
+void IFAllFromScratch(DDD::DDDContext& context)
 {
   if (DDD_GetOption(OPT_IF_CREATE_EXPLICIT)==OPT_ON)
   {
@@ -988,12 +988,12 @@ void IFAllFromScratch(DDD::DDDContext&)
     return;
   }
 
-  IFRebuildAll();
+  IFRebuildAll(context);
 }
 
 
 
-void DDD_IFRefreshAll(DDD::DDDContext&)
+void DDD_IFRefreshAll(DDD::DDDContext& context)
 {
   if (DDD_GetOption(OPT_IF_CREATE_EXPLICIT)==OPT_OFF)
   {
@@ -1004,13 +1004,13 @@ void DDD_IFRefreshAll(DDD::DDDContext&)
                 once more. just to be sure. */
   }
 
-  IFRebuildAll();
+  IFRebuildAll(context);
 }
 
 
 /****************************************************************************/
 
-void ddd_IFInit (void)
+void ddd_IFInit(DDD::DDDContext& context)
 {
   /* init lists of unused items */
   memlistIFHead = NULL;
@@ -1020,14 +1020,14 @@ void ddd_IFInit (void)
   theIF[0].cpl    = NULL;
 
   /* init standard interface */
-  StdIFDefine();
+  StdIFDefine(context);
 
   /* no other interfaces yet */
   nIFs = 1;
 }
 
 
-void ddd_IFExit (void)
+void ddd_IFExit(DDD::DDDContext& context)
 {
   int i;
 

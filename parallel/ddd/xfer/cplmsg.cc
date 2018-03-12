@@ -457,7 +457,7 @@ void CommunicateCplMsgs (
   /* display information about send-messages on lowcomm-level */
   if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
+    DDD_SyncAll(context);
     if (me==master)
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Send\n");
     LC_PrintSendMsgs(context);
@@ -471,7 +471,7 @@ void CommunicateCplMsgs (
   /* display information about recv-messages on lowcomm-level */
   if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
+    DDD_SyncAll(context);
     if (me==master)
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Recv\n");
     LC_PrintRecvMsgs(context);
