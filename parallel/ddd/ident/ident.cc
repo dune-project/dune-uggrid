@@ -915,7 +915,7 @@ static int IdentifySort (IDENTINFO **id, int nIds,
 
 
 
-static int InitComm (int nPartners)
+static int InitComm(DDD::DDDContext& context, int nPartners)
 {
   ID_PLIST  *plist;
   int i, err;
@@ -925,7 +925,7 @@ static int InitComm (int nPartners)
   for(plist=thePLists, i=0; i<nPartners; i++, plist=plist->next)
     partners[i] = plist->proc;
 
-  if (! IS_OK(DDD_GetChannels(nPartners)))
+  if (! IS_OK(DDD_GetChannels(context, nPartners)))
   {
     return(false);
   }
@@ -1133,7 +1133,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 
   /* initiate comm-channels and send/receive calls */
   STAT_RESET1;
-  if (!InitComm(cnt))
+  if (!InitComm(context, cnt))
   {
     DDD_PrintError('E', 3074, ERR_ID_ABORT_END);
     HARD_EXIT;

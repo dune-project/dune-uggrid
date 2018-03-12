@@ -99,7 +99,7 @@ static DDD_PROC    *theProcArray;
 
 /* TODO memory usage is O(P) in current implementation! */
 
-void ddd_TopoInit (void)
+void ddd_TopoInit(DDD::DDDContext& context)
 {
   int i;
 
@@ -126,7 +126,7 @@ void ddd_TopoInit (void)
 }
 
 
-void ddd_TopoExit (void)
+void ddd_TopoExit(DDD::DDDContext& context)
 {
   int i;
 
@@ -157,7 +157,7 @@ DDD_PROC *DDD_ProcArray (void)
 }
 
 
-RETCODE DDD_GetChannels (int nPartners)
+RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
 {
   int i, nConn;
 
@@ -229,12 +229,12 @@ RETCODE DDD_GetChannels (int nPartners)
 }
 
 
-void DDD_DisplayTopo (void)
+void DDD_DisplayTopo (const DDD::DDDContext& context)
 {
   int p, i;
   char buf[20];
 
-  DDD_SyncAll();
+  DDD_SyncAll(context);
 
   if (me==0)
   {
@@ -274,7 +274,7 @@ void DDD_DisplayTopo (void)
     }
   }
 
-  DDD_SyncAll();
+  DDD_SyncAll(context);
 }
 
 

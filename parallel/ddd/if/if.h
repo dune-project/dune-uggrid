@@ -187,10 +187,10 @@ extern int nIFs;
 
 /* ifuse.c */
 void    IFGetMem (IF_PROC *, size_t, int, int);
-int     IFInitComm (DDD_IF);
-void    IFExitComm (DDD_IF);
-void    IFInitSend (IF_PROC *);
-int     IFPollSend (DDD_IF);
+int     IFInitComm(DDD::DDDContext& context, DDD_IF);
+void    IFExitComm(DDD::DDDContext& context, DDD_IF);
+void    IFInitSend(DDD::DDDContext& context, IF_PROC *);
+int     IFPollSend(DDD::DDDContext& context, DDD_IF);
 char *  IFCommLoopObj (ComProcPtr, IFObjPtr *, char *, size_t, int);
 char *  IFCommLoopCpl (ComProcPtr, COUPLING **, char *, size_t, int);
 char *  IFCommLoopCplX (ComProcXPtr, COUPLING **, char *, size_t , int);
