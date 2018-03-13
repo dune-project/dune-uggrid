@@ -35,6 +35,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <vector>
+
 #include "memmgr.h"
 
 #include "dddi.h"
@@ -86,7 +88,6 @@ VChannelPtr *theTopology;
 
 
 static DDD_PROC    *theProcArray;
-static int         *theProcFlags;
 
 
 /****************************************************************************/
@@ -122,13 +123,6 @@ void ddd_TopoInit (void)
     DDD_PrintError('E', 1510, STR_NOMEM " in TopoInit");
     return;
   }
-
-  theProcFlags = (int *) AllocFix(2 * procs*sizeof(int));
-  if (theProcFlags==NULL)
-  {
-    DDD_PrintError('E', 1511, STR_NOMEM " in TopoInit");
-    return;
-  }
 }
 
 
@@ -137,7 +131,6 @@ void ddd_TopoExit (void)
   int i;
 
   FreeFix(theProcArray);
-  FreeFix(theProcFlags);
 
 
   /* disconnect channels */
@@ -173,6 +166,8 @@ RETCODE DDD_GetChannels (int nPartners)
     DDD_PrintError('E', 1520, "topology error in DDD_GetChannels");
     RET_ON_ERROR;
   }
+
+  std::vector<bool> theProcFlags(nPartners);
 
   nConn = 0;
   for(i=0; i<nPartners; i++)
