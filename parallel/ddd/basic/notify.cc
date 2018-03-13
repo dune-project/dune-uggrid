@@ -41,6 +41,8 @@
 #include "dddi.h"
 #include "basic/notify.h"
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 USING_UG_NAMESPACES
 
 /* PPIF namespace: */
@@ -49,23 +51,6 @@ using namespace PPIF;
   START_UGDIM_NAMESPACE
 
 #define DebugNotify   10  /* 0 is all, 10 is off */
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*        compile time constants defining static data size (i.e. arrays)    */
-/*        other constants                                                   */
-/*        macros                                                            */
-/*                                                                          */
-/****************************************************************************/
-
-
-#define MAX_INFOS    ((procs)*(MAX((1+procs),10)))
-
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -115,10 +100,15 @@ static int maxInfos, lastInfo, nSendDescs;
 /*                                                                          */
 /****************************************************************************/
 
-
+static int MAX_INFOS(int procs)
+{
+  return procs * std::max(1+procs, 10);
+}
 
 void NotifyInit(DDD::DDDContext& context)
 {
+  const auto procs = context.procs();
+
   /* allocate memory */
   theRouting = (int *) AllocFix(procs*sizeof(int));
   if (theRouting==NULL)
@@ -128,7 +118,7 @@ void NotifyInit(DDD::DDDContext& context)
   }
 
 
-  maxInfos = MAX_INFOS;                 /* TODO maximum value, just for testing */
+  maxInfos = MAX_INFOS(procs);     /* TODO maximum value, just for testing */
 
 
   /* init local array for all Info records */
@@ -154,6 +144,8 @@ void NotifyInit(DDD::DDDContext& context)
 
 void NotifyExit(DDD::DDDContext& context)
 {
+  const auto procs = context.procs();
+
   /* free memory */
   FreeFix(theRouting);
   FreeFix(allInfoBuffer);
@@ -233,7 +225,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
   /* get local Info lists from downtree */
   for(l=degree-1; l>=0; l--)
   {
-    GetConcentrate(l, &n, sizeof(int));
+    GetConcentrate(context.ppifContext(), l, &n, sizeof(int));
 
     if (n<0)
     {
@@ -247,12 +239,12 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
       local_exception = EXCEPTION_NOTIFY;
 
       /* receive data, but put it onto dummy position */
-      GetConcentrate(l, allInfos, n*sizeof(NOTIFY_INFO));
+      GetConcentrate(context.ppifContext(), l, allInfos, n*sizeof(NOTIFY_INFO));
     }
     else
     {
       if (n>0)
-        GetConcentrate(l, &(allInfos[lastInfo]), n*sizeof(NOTIFY_INFO));
+        GetConcentrate(context.ppifContext(), l, &(allInfos[lastInfo]), n*sizeof(NOTIFY_INFO));
     }
 
     /* construct routing table */
@@ -293,8 +285,8 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
 
     /* send local Info list uptree, but only unknown Infos */
     newInfos = &allInfos[lastInfo-unknownInfos];
-    Concentrate(&unknownInfos, sizeof(int));
-    Concentrate(newInfos, unknownInfos*sizeof(NOTIFY_INFO));
+    Concentrate(context.ppifContext(), &unknownInfos, sizeof(int));
+    Concentrate(context.ppifContext(), newInfos, unknownInfos*sizeof(NOTIFY_INFO));
     lastInfo -= unknownInfos;
 
                 #if     DebugNotify<=1
@@ -313,7 +305,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
     /* we have an exception somewhere in the processor tree */
     /* propagate it */
     int neg_exception = -local_exception;
-    Concentrate(&neg_exception, sizeof(int));
+    Concentrate(context.ppifContext(), &neg_exception, sizeof(int));
     /* don't need to send data now */
   }
 
@@ -328,7 +320,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
 
   /* get Infos local to my subtree from uptree */
   unknownInfos = 0;
-  GetSpread(&unknownInfos, sizeof(int));
+  GetSpread(context.ppifContext(), &unknownInfos, sizeof(int));
   if (unknownInfos<0)
   {
     /* exception from downtree, propagate */
@@ -338,7 +330,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
 
   if (unknownInfos>0)
   {
-    GetSpread(newInfos, unknownInfos*sizeof(NOTIFY_INFO));
+    GetSpread(context.ppifContext(), newInfos, unknownInfos*sizeof(NOTIFY_INFO));
     lastInfo += unknownInfos;
   }
 
@@ -372,9 +364,9 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
       while ((i<unknownInfos)&&(theRouting[allInfos[i].to]==l)) i++;
       j = i-j;
 
-      Spread(l, &j, sizeof(int));
+      Spread(context.ppifContext(), l, &j, sizeof(int));
       if (j>0)
-        Spread(l, &allInfos[i-j], j*sizeof(NOTIFY_INFO));
+        Spread(context.ppifContext(), l, &allInfos[i-j], j*sizeof(NOTIFY_INFO));
     }
 
 
@@ -397,7 +389,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
     for(l=0; l<degree; l++)
     {
       int neg_exception = -local_exception;
-      Spread(l, &neg_exception, sizeof(int));
+      Spread(context.ppifContext(), l, &neg_exception, sizeof(int));
       /* dont send any data */
     }
 
@@ -424,7 +416,7 @@ NOTIFY_DESC *DDD_NotifyBegin(DDD::DDDContext& context, int n)
 
   /* allocation of theDescs is done in NotifyInit() */
 
-  if (n>procs-1)
+  if (n > context.procs()-1)
   {
     DDD_PrintError('E', 6340,
                    "more send-messages than other processors in DDD_NotifyBegin");
@@ -445,6 +437,9 @@ int DDD_Notify(DDD::DDDContext& context)
 {
   NOTIFY_INFO  *allInfos;
   int i, nRecvMsgs;
+
+  const auto me = context.me();
+  const auto procs = context.procs();
 
   /* get storage for local info list */
   allInfos = NotifyPrepare();

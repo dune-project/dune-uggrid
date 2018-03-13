@@ -146,14 +146,14 @@ void DDD_Init(DDD::DDDContext& context)
   DDD_UserLineOutFunction = NULL;
 
   /* check max. number of procs (limited by GID construction) */
-  if (procs>MAX_PROCS) {
+  if (context.procs() > MAX_PROCS) {
     DDD_PrintError('E', 1010,
                    "too many processors, cannot construct global IDs in DDD_Init");
     HARD_EXIT;
   }
 
   /* compute size for general buffer */
-  buffsize = (procs+1)*(sizeof(int)*BUFFER_SIZE_FACTOR);
+  buffsize = (context.procs()+1)*(sizeof(int)*BUFFER_SIZE_FACTOR);
   if (buffsize<MIN_BUFFER_SIZE)
   {
     buffsize = MIN_BUFFER_SIZE;
@@ -174,7 +174,7 @@ void DDD_Init(DDD::DDDContext& context)
   ddd_StatInit();
   ddd_TypeMgrInit(context);
   ddd_ObjMgrInit();
-  ddd_CplMgrInit();
+  ddd_CplMgrInit(context);
   ddd_TopoInit(context);
   ddd_IdentInit();
   ddd_IFInit(context);
@@ -243,7 +243,7 @@ void DDD_Exit(DDD::DDDContext& context)
   ddd_IFExit(context);
   ddd_IdentExit();
   ddd_TopoExit(context);
-  ddd_CplMgrExit();
+  ddd_CplMgrExit(context);
   ddd_ObjMgrExit();
   ddd_TypeMgrExit(context);
   ddd_StatExit();

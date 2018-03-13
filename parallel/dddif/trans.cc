@@ -34,6 +34,8 @@
 #include <config.h>
 #include <cassert>
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
 #include "ugtypes.h"
 #include "ugtime.h"
 #include "parallel.h"
@@ -132,6 +134,8 @@ void NS_DIM_PREFIX AMGAgglomerate(MULTIGRID *theMG)
   INT level,Size;
   GRID    *theGrid;
   VECTOR  *theVector;
+
+  const auto master = theMG->ppifContext().master();
 
   level = BOTTOMLEVEL(theMG);
   if (level >= 0)

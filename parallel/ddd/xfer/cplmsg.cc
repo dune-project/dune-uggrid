@@ -34,6 +34,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -145,6 +146,8 @@ static int PrepareCplMsgs (
 {
   CPLMSG    *xm=NULL;
   int iDC, iMC, iAC, nMsgs=0;
+
+  const auto procs = context.procs();
 
 #       if DebugCplMsg<=3
   sprintf(cBuffer,"%4d: PrepareCplMsgs, nXIDelCpl=%d nXIModCpl=%d nXIAddCpl=%d\n",
@@ -459,7 +462,7 @@ void CommunicateCplMsgs (
   if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Send\n");
     LC_PrintSendMsgs(context);
   }
@@ -473,7 +476,7 @@ void CommunicateCplMsgs (
   if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Recv\n");
     LC_PrintRecvMsgs(context);
   }

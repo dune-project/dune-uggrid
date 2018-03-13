@@ -56,6 +56,8 @@
 #include <algorithm>
 #include <tuple>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "dddi.h"
 
 #include "basic/notify.h"
@@ -936,14 +938,14 @@ static int InitComm(DDD::DDDContext& context, int nPartners)
   {
     long *len_adr;
 
-    plist->idin = RecvASync(VCHAN_TO(plist->proc),
+    plist->idin = RecvASync(context.ppifContext(), VCHAN_TO(plist->proc),
                             ((char *)plist->msgin) - sizeof(long),
                             sizeof(MSGITEM)*plist->nEntries + sizeof(long), &err);
 
     /* store number of entries at beginning of message */
     len_adr = (long *) (((char *)plist->msgout) - sizeof(long));
     *len_adr = plist->nEntries;
-    plist->idout = SendASync(VCHAN_TO(plist->proc),
+    plist->idout = SendASync(context.ppifContext(), VCHAN_TO(plist->proc),
                              ((char *)plist->msgout) - sizeof(long),
                              sizeof(MSGITEM)*plist->nEntries + sizeof(long), &err);
   }
@@ -1158,7 +1160,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
     {
       int ret, i;
 
-      if ((ret=InfoARecv(VCHAN_TO(plist->proc), plist->idin))==1)
+      if ((ret=InfoARecv(context.ppifContext(), VCHAN_TO(plist->proc), plist->idin))==1)
       {
         /* process single plist */
         MSGITEM   *msgin  = plist->msgin;
@@ -1231,7 +1233,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
     pnext = plist->next;
 
     /* wait for correct send and free buffer */
-    while(InfoASend(VCHAN_TO(plist->proc), plist->idout)!=1)
+    while(InfoASend(context.ppifContext(), VCHAN_TO(plist->proc), plist->idout)!=1)
       ;
 
     /* now, the plist->entries list isn't needed anymore, free */
