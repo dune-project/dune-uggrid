@@ -37,6 +37,8 @@
 
 #include <vector>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "memmgr.h"
 
 #include "dddi.h"
@@ -103,6 +105,8 @@ void ddd_TopoInit(DDD::DDDContext& context)
 {
   int i;
 
+  const auto procs = context.procs();
+
   /* get one channel pointer for each partner */
   theTopology = (VChannelPtr *) AllocFix(procs*sizeof(VChannelPtr));
   if (theTopology==NULL)
@@ -130,16 +134,17 @@ void ddd_TopoExit(DDD::DDDContext& context)
 {
   int i;
 
-  FreeFix(theProcArray);
+  const auto procs = context.procs();
 
+  FreeFix(theProcArray);
 
   /* disconnect channels */
   for(i=0; i<procs; i++)
   {
     if (theTopology[i]!=NULL)
     {
-      DiscASync(theTopology[i]);
-      while (InfoADisc(theTopology[i])!=1)
+      DiscASync(context.ppifContext(), theTopology[i]);
+      while (InfoADisc(context.ppifContext(), theTopology[i])!=1)
         ;
     }
   }
@@ -161,7 +166,7 @@ RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
 {
   int i, nConn;
 
-  if (nPartners>2*(procs-1))
+  if (nPartners > 2*(context.procs()-1))
   {
     DDD_PrintError('E', 1520, "topology error in DDD_GetChannels");
     RET_ON_ERROR;
@@ -174,7 +179,7 @@ RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
   {
     if (theTopology[theProcArray[i]]==NULL)
     {
-      VChannelPtr vc = ConnASync(theProcArray[i], VC_TOPO);
+      VChannelPtr vc = ConnASync(context.ppifContext(), theProcArray[i], VC_TOPO);
 
       if (vc==NULL)
       {
@@ -203,7 +208,7 @@ RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
     {
       if (theProcFlags[i])
       {
-        int ret = InfoAConn(theTopology[theProcArray[i]]);
+        int ret = InfoAConn(context.ppifContext(), theTopology[theProcArray[i]]);
         if (ret==-1)
         {
           sprintf(cBuffer,
@@ -234,6 +239,9 @@ void DDD_DisplayTopo (const DDD::DDDContext& context)
   int p, i;
   char buf[20];
 
+  const auto me = context.me();
+  const auto procs = context.procs();
+
   DDD_SyncAll(context);
 
   if (me==0)
@@ -250,7 +258,7 @@ void DDD_DisplayTopo (const DDD::DDDContext& context)
 
   for(p=0; p<procs; p++)
   {
-    Synchronize();
+    Synchronize(context.ppifContext());
     if (p==me)
     {
       sprintf(cBuffer, "%4d: ", me);

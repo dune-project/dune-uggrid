@@ -37,6 +37,7 @@
 #include <cstdio>
 #include <cstring>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -420,6 +421,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   STAT_SET_MODULE(DDD_MODULE_XFER);
   STAT_ZEROALL;
 
+  const auto procs = context.procs();
+
   /* step mode and check whether call to XferEnd is valid */
   if (!XferStepMode(XMODE_CMDS))
   {
@@ -665,7 +668,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: ObjMsg.Send\n");
     LC_PrintSendMsgs(context);
   }
@@ -699,7 +702,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD XFER_SHOW_MSGSALL: ObjMsg.Recv\n");
     LC_PrintRecvMsgs(context);
   }

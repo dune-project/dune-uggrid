@@ -17,6 +17,8 @@
 
 #include "debugger.h"
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
 USING_UG_NAMESPACES
 using namespace PPIF;
 
@@ -105,7 +107,7 @@ void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
     break;
 
   case 't' :
-    if (me==master)
+    if (context.isMaster())
     {
       /* display ddd types */
       DDD_TypeDisplay(context, TypeVector);
@@ -544,7 +546,9 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
   DDD_GID gid;
   int proc, cmd;
 
-  Synchronize();
+  Synchronize(theMG->ppifContext());
+
+  const int me = theMG->ppifContext().me();
 
   if (me==0)
   {
@@ -592,9 +596,9 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
       }
     }
 
-    Broadcast(&cmd, sizeof(int));
-    Broadcast(&proc, sizeof(int));
-    Broadcast(&gid, sizeof(unsigned int));
+    Broadcast(theMG->ppifContext(), &cmd, sizeof(int));
+    Broadcast(theMG->ppifContext(), &proc, sizeof(int));
+    Broadcast(theMG->ppifContext(), &gid, sizeof(unsigned int));
 
     if (me==proc)
     {
@@ -619,7 +623,7 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
     }
 
     fflush(stdout);
-    Synchronize();
+    Synchronize(theMG->ppifContext());
   }
   while (proc>=0);
 }

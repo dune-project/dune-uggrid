@@ -405,7 +405,7 @@ static int NormalizeDesc (TYPE_DESC *desc)
         compute copy-mask (for efficiency) and attach it to TYPE_DESC
  */
 
-static void AttachMask (TYPE_DESC *desc)
+static void AttachMask(const DDD::DDDContext& context, TYPE_DESC *desc)
 {
   int i, k;
   ELEM_DESC *e;
@@ -460,7 +460,7 @@ static void AttachMask (TYPE_DESC *desc)
   }
 
 #       ifdef DebugCopyMask
-  if (me==master)
+  if (context.isMaster())
   {
     char buf[8];
 
@@ -506,7 +506,7 @@ static void AttachMask (TYPE_DESC *desc)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_TypeDefine(DDD::DDDContext&, DDD_TYPE typ, ...)
+void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 {
   TYPE_DESC *desc;
   size_t argsize;
@@ -801,7 +801,7 @@ void DDD_TypeDefine(DDD::DDDContext&, DDD_TYPE typ, ...)
       HARD_EXIT;                                 /*return;*/
 
     /* attach copy-mask for efficient copying */
-    AttachMask(desc);
+    AttachMask(context, desc);
 
     /* change TYPE_DESC state to DEFINED */
     desc->mode = DDD_TYPE_DEFINED;

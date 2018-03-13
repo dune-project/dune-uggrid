@@ -119,7 +119,7 @@ static int TransferGridComplete (MULTIGRID *theMG, INT level)
   }
 
   /* assign elements of level 0 */
-  if (me == master) {
+  if (theMG->dddContext().isMaster()) {
     for (e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
       PARTITION(e) = 1;
   }
@@ -161,7 +161,7 @@ static int TransferGridToMaster (MULTIGRID *theMG, INT fl, INT tl)
   GRID *theGrid;
 
   /* send all levels to master */
-  if (me!=master)
+  if (not theMG->dddContext().isMaster())
   {
     int l;
 
@@ -326,6 +326,8 @@ static int SimpleSubdomainDistribution (MULTIGRID *theMG,  INT Procs, INT from, 
 void lbs (const char *argv, MULTIGRID *theMG)
 {
   int n,mode,param,fromlevel,tolevel,part,hor_boxes,vert_boxes,dest;
+
+  const auto procs = theMG->dddContext().procs();
 
   mode = param = fromlevel = tolevel = 0;
 

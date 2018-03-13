@@ -39,6 +39,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "dddi.h"
 #include "if.h"
 
