@@ -2,7 +2,7 @@ add_subdirectory(ugdata)
 
 if(UG_ENABLE_PARALLEL)
   set(_parallel_dim_libs parallel ddd analyser basic ctrl ident if join mgr prio xfer dddif)
-  set(_parallel_libs ppifmpi parutil)
+  set(_parallel_libs ppifmpi)
 endif()
 
 set(_dim_libs ug_gm np algebra udm ugui)

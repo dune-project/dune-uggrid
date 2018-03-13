@@ -66,24 +66,6 @@ typedef struct _TYPE_EDGE
   struct _TYPE_EDGE *next;        /* linked list */
 } TYPE_EDGE;
 
-
-
-/****************************************************************************/
-/*                                                                          */
-/* local variables                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/* this array corresponds to theTypeDefs */
-static TYPE_NODE theTypeNodes[MAX_TYPEDESC];
-
-/* this array is sorted due to reference relations */
-static TYPE_NODE *theTypeGraph[MAX_TYPEDESC];
-
-
-
 /****************************************************************************/
 /*                                                                          */
 /* subroutines                                                              */
@@ -120,13 +102,11 @@ static void AnalyseTypes (void)
   for(i=0; i<DDD_InfoTypes(); i++)
   {
     TYPE_DESC *td = &(theTypeDefs[i]);
-    TYPE_NODE *tn = &(theTypeNodes[i]);
+    TYPE_NODE tn;
     int e;
 
-    tn->def = td;
-    tn->refs = NULL;
-
-    theTypeGraph[i] = tn;
+    tn.def = td;
+    tn.refs = NULL;
 
     for(e=0; e<td->nElements; e++)
     {
@@ -134,7 +114,7 @@ static void AnalyseTypes (void)
 
       if (el->type==EL_OBJPTR)
       {
-        TYPE_EDGE *te = GetTypeEdge(tn, EDESC_REFTYPE(el));
+        TYPE_EDGE *te = GetTypeEdge(&tn, EDESC_REFTYPE(el));
         te->n += (el->size / sizeof(void *));
       }
     }
@@ -142,18 +122,13 @@ static void AnalyseTypes (void)
     printf("%4d: type %s (%03d) refs:\n", me, theTypeDefs[i].name, i);
     {
       TYPE_EDGE *te;
-      for(te=tn->refs; te!=NULL; te=te->next)
+      for(te=tn.refs; te!=NULL; te=te->next)
       {
         printf("         %s (%03d), n=%d\n",
                theTypeDefs[te->reftype].name, te->reftype, te->n);
       }
     }
   }
-
-  /* sort type-graph nodes according to mutual references */
-  /*
-          qsort(theTypeGraph, DDD_InfoTypes
-   */
 }
 
 

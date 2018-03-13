@@ -156,24 +156,24 @@ void DDD_PrintDebug (const char *s)
 void DDD_PrintError (char error_class, int error_no, const char *text)
 {
   char buffer[256];
-  char classText[32];
+  const char* classText;
 
   switch (error_class)
   {
   case 'W' :
-    strcpy(classText,"WARNING");
+    classText = "WARNING";
     break;
 
   case 'E' :
-    strcpy(classText,"ERROR");
+    classText = "ERROR";
     break;
 
   case 'F' :
-    strcpy(classText,"FATAL");
+    classText = "FATAL";
     break;
 
   default :
-    strcpy(classText,"USER");
+    classText = "USER";
     break;
   }
   sprintf(buffer,"DDD [%03d] %s %05d: %s\n",me,classText,error_no,text);

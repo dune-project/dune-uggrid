@@ -114,35 +114,35 @@ enum CompType {
 /*                                                                          */
 /****************************************************************************/
 
-typedef struct _COMP_DESC
+struct COMP_DESC
 {
   const char *name;               /* textual description of component */
   int type;                    /* type of this component */
   size_t entry_size;           /* size per entry (for tables) */
-} COMP_DESC;
+};
 
 
-typedef struct _MSG_TYPE
+struct MSG_TYPE
 {
   const char *name;                      /* textual description of msgtype */
   int nComps;                            /* number of components */
   COMP_DESC comp[MAX_COMPONENTS];        /* component array */
 
-  struct _MSG_TYPE *next;         /* linked list of all message types */
-} MSG_TYPE;
+  MSG_TYPE *next;         /* linked list of all message types */
+};
 
 
-typedef struct _CHUNK_DESC
+struct CHUNK_DESC
 {
   size_t size;           /* size of chunk (in bytes) */
   ULONG entries;         /* number of valid entries (for tables) */
   ULONG offset;          /* offset of chunk in MSG */
-} CHUNK_DESC;
+};
 
 
 enum MsgState { MSTATE_NEW, MSTATE_FREEZED, MSTATE_ALLOCATED, MSTATE_COMM, MSTATE_READY };
 
-typedef struct _MSG_DESC
+struct MSG_DESC
 {
   int msgState;                /* message state of this message (one of MsgState) */
   MSG_TYPE   *msgType;         /* message type of this message */
@@ -155,19 +155,19 @@ typedef struct _MSG_DESC
   char    *buffer;             /* address of message buffer */
 
 
-  struct _MSG_DESC *next;       /* linked list inside Send/Recv-queue */
+  MSG_DESC *next;              /* linked list inside Send/Recv-queue */
   DDD_PROC proc;
   msgid msgId;
 
-} MSG_DESC;
+};
 
 
-typedef struct _TABLE_DESC
+struct TABLE_DESC
 {
   size_t entry_size;             /* size of one table entry */
   int nMax;                      /* number of entries in table */
   int nValid;                    /* number of valid entries */
-} TABLE_DESC;
+};
 
 
 /****************************************************************************/
@@ -332,9 +332,8 @@ static void FreeMsgDesc (MSG_DESC *md)
         asynchronous receive calls itself.
  */
 
-static LC_MSGHANDLE LC_NewRecvMsg (LC_MSGTYPE mt, DDD_PROC source, size_t size)
+static LC_MSGHANDLE LC_NewRecvMsg (LC_MSGTYPE mtyp, DDD_PROC source, size_t size)
 {
-  MSG_TYPE *mtyp = (MSG_TYPE *)mt;
   MSG_DESC *msg = NewMsgDesc();
 
 #       if DebugLowComm<=6
@@ -355,15 +354,14 @@ static LC_MSGHANDLE LC_NewRecvMsg (LC_MSGTYPE mt, DDD_PROC source, size_t size)
   msg->next = LC_RecvQueue;
   LC_RecvQueue = msg;
 
-  return((LC_MSGHANDLE) msg);
+  return msg;
 }
 
 
 
 
-static void LC_DeleteMsg (LC_MSGHANDLE msg)
+static void LC_DeleteMsg (LC_MSGHANDLE md)
 {
-  MSG_DESC   *md = (MSG_DESC *)msg;
   size_t size = sizeof(CHUNK_DESC) * md->msgType->nComps;
 
   FreeTmpReq(md->chunks,size,TMEM_LOWCOMM);
@@ -371,10 +369,8 @@ static void LC_DeleteMsg (LC_MSGHANDLE msg)
 }
 
 
-static void LC_DeleteMsgBuffer (LC_MSGHANDLE msg)
+static void LC_DeleteMsgBuffer (LC_MSGHANDLE md)
 {
-  MSG_DESC   *md = (MSG_DESC *)msg;
-
   if (_SendFree!=NULL)
     (*_SendFree)(md->buffer);
 }
@@ -604,9 +600,8 @@ static void LC_FreeRecvQueue (void)
 
 /* returns size of message buffer */
 
-size_t LC_MsgFreeze (LC_MSGHANDLE msg)
+size_t LC_MsgFreeze (LC_MSGHANDLE md)
 {
-  MSG_DESC   *md = (MSG_DESC *) msg;
   int i, n = md->msgType->nComps;
 
   assert(md->msgState==MSTATE_NEW);
@@ -629,9 +624,8 @@ size_t LC_MsgFreeze (LC_MSGHANDLE msg)
 
 
 
-int LC_MsgAlloc (LC_MSGHANDLE msg)
+int LC_MsgAlloc (LC_MSGHANDLE md)
 {
-  MSG_DESC   *md = (MSG_DESC *) msg;
   ULONG      *hdr;
   int i, j, n = md->msgType->nComps;
   int remaining=1, give_up = false;
@@ -806,7 +800,7 @@ LC_MSGTYPE LC_NewMsgType (const char *aName)
   mt->next = LC_MsgTypes;
   LC_MsgTypes = mt;
 
-  return((LC_MSGTYPE) mt);
+  return mt;
 }
 
 
@@ -830,12 +824,11 @@ LC_MSGTYPE LC_NewMsgType (const char *aName)
 
    @return           identifier of new message-component
    @param  aName     name of new message component
-   @param  aMsgType  previously declared message-type
+   @param  mtyp      previously declared message-type
  */
 
-LC_MSGCOMP LC_NewMsgChunk (const char *aName, LC_MSGTYPE aMsgType)
+LC_MSGCOMP LC_NewMsgChunk (const char *aName, LC_MSGTYPE mtyp)
 {
-  MSG_TYPE  *mtyp = (MSG_TYPE *)aMsgType;
   LC_MSGCOMP id = mtyp->nComps++;
 
   if (id>=MAX_COMPONENTS)
@@ -878,13 +871,12 @@ LC_MSGCOMP LC_NewMsgChunk (const char *aName, LC_MSGTYPE aMsgType)
 
    @return           identifier of new message-component
    @param  aName     name of new message component
-   @param  aMsgType  previously declared message-type
+   @param  mtyp      previously declared message-type
    @param  aSize     size of each table entry (in byte)
  */
 
-LC_MSGCOMP LC_NewMsgTable (const char *aName, LC_MSGTYPE aMsgType, size_t aSize)
+LC_MSGCOMP LC_NewMsgTable (const char *aName, LC_MSGTYPE mtyp, size_t aSize)
 {
-  MSG_TYPE  *mtyp = (MSG_TYPE *)aMsgType;
   LC_MSGCOMP id = mtyp->nComps++;
 
   if (id>=MAX_COMPONENTS)
@@ -926,13 +918,12 @@ LC_MSGCOMP LC_NewMsgTable (const char *aName, LC_MSGTYPE aMsgType, size_t aSize)
         sending process can be initiated by \lcfunk{MsgSend}.
 
    @return          identifier of new message
-   @param aMsgType  message-type for new message
+   @param mtyp      message-type for new message
    @param aDest     destination processor of new message
  */
 
-LC_MSGHANDLE LC_NewSendMsg (LC_MSGTYPE aMsgType, DDD_PROC aDest)
+LC_MSGHANDLE LC_NewSendMsg (LC_MSGTYPE mtyp, DDD_PROC aDest)
 {
-  MSG_TYPE *mtyp = (MSG_TYPE *)aMsgType;
   MSG_DESC *msg = NewMsgDesc();
 
 #       if DebugLowComm<=6
@@ -961,16 +952,14 @@ LC_MSGHANDLE LC_NewSendMsg (LC_MSGTYPE aMsgType, DDD_PROC aDest)
   LC_SendQueue = msg;
   nSends++;
 
-  return((LC_MSGHANDLE) msg);
+  return msg;
 }
 
 
 
 
-void LC_SetChunkSize (LC_MSGHANDLE msg, LC_MSGCOMP id, size_t size)
+void LC_SetChunkSize (LC_MSGHANDLE md, LC_MSGCOMP id, size_t size)
 {
-  MSG_DESC *md = (MSG_DESC *) msg;
-
   assert(md->msgState==MSTATE_NEW);
   assert(id < md->msgType->nComps);
 
@@ -979,10 +968,8 @@ void LC_SetChunkSize (LC_MSGHANDLE msg, LC_MSGCOMP id, size_t size)
 }
 
 
-void LC_SetTableSize (LC_MSGHANDLE msg, LC_MSGCOMP id, ULONG entries)
+void LC_SetTableSize (LC_MSGHANDLE md, LC_MSGCOMP id, ULONG entries)
 {
-  MSG_DESC *md = (MSG_DESC *) msg;
-
   assert(md->msgState==MSTATE_NEW);
   assert(id < md->msgType->nComps);
 
@@ -1018,25 +1005,20 @@ size_t LC_MsgPrepareSend (LC_MSGHANDLE msg)
 
 
 
-DDD_PROC LC_MsgGetProc (LC_MSGHANDLE msg)
+DDD_PROC LC_MsgGetProc (LC_MSGHANDLE md)
 {
-  MSG_DESC *md = (MSG_DESC *)msg;
-
   return md->proc;
 }
 
 
-void *LC_GetPtr (LC_MSGHANDLE msg, LC_MSGCOMP id)
+void *LC_GetPtr (LC_MSGHANDLE md, LC_MSGCOMP id)
 {
-  MSG_DESC *md = (MSG_DESC *)msg;
-
   return ((void *)(((char *)md->buffer) + md->chunks[id].offset));
 }
 
 
-void LC_SetTableLen (LC_MSGHANDLE msg, LC_MSGCOMP id, ULONG n)
+void LC_SetTableLen (LC_MSGHANDLE md, LC_MSGCOMP id, ULONG n)
 {
-  MSG_DESC *md = (MSG_DESC *)msg;
   ULONG *hdr = (ULONG *)md->buffer;
 
   hdr[HDR_ENTRIES_PER_CHUNK*id+4] = n;
@@ -1044,17 +1026,14 @@ void LC_SetTableLen (LC_MSGHANDLE msg, LC_MSGCOMP id, ULONG n)
 }
 
 
-ULONG LC_GetTableLen (LC_MSGHANDLE msg, LC_MSGCOMP id)
+ULONG LC_GetTableLen (LC_MSGHANDLE md, LC_MSGCOMP id)
 {
-  MSG_DESC *md = (MSG_DESC *)msg;
-
   return((ULONG)md->chunks[id].entries);
 }
 
 
-void LC_MsgSend (LC_MSGHANDLE msg)
+void LC_MsgSend (LC_MSGHANDLE md)
 {
-  MSG_DESC   *md = (MSG_DESC *)msg;
   int error;
 
   assert(md->msgState==MSTATE_ALLOCATED);
@@ -1067,10 +1046,8 @@ void LC_MsgSend (LC_MSGHANDLE msg)
 }
 
 
-size_t LC_GetBufferSize (LC_MSGHANDLE msg)
+size_t LC_GetBufferSize (LC_MSGHANDLE md)
 {
-  MSG_DESC *md = (MSG_DESC *) msg;
-
   return(md->bufferSize);
 }
 
@@ -1102,7 +1079,7 @@ int LC_Connect (LC_MSGTYPE mtyp)
 
 #       if DebugLowComm<=9
   sprintf(cBuffer, "%4d: LC_Connect(%s) nSends=%d ...\n",
-          me, ((MSG_TYPE *)mtyp)->name, nSends);
+          me, mtyp->name, nSends);
   DDD_PrintDebug(cBuffer);
 #       endif
 
