@@ -42,6 +42,8 @@
 /*#include "xfer/xfer.h"*/
 #include "basic/lowcomm.h"
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 USING_UG_NAMESPACES
 
 /* PPIF namespace: */
@@ -305,6 +307,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
   int error_cnt = 0;
   DDD_HDR      *locObjs = NULL;
 
+  const auto procs = context.procs();
 
   /* count overall number of couplings */
   for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
@@ -705,10 +708,10 @@ int DDD_ConsCheck(DDD::DDDContext& context)
         #endif
 
   DDD_Flush();
-  Synchronize();
+  Synchronize(context.ppifContext());
   if (DDD_GetOption(OPT_QUIET_CONSCHECK)==OPT_OFF)
   {
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("   DDD-GCC (Global Consistency Check)\n");
   }
 
@@ -736,10 +739,10 @@ int DDD_ConsCheck(DDD::DDDContext& context)
   total_errors = ddd_GlobalSumInt(context, total_errors);
 
   DDD_Flush();
-  Synchronize();
+  Synchronize(context.ppifContext());
   if (DDD_GetOption(OPT_QUIET_CONSCHECK)==OPT_OFF)
   {
-    if (me==master)
+    if (context.isMaster())
     {
       sprintf(cBuffer, "   DDD-GCC ready (%d errors)\n", total_errors);
       DDD_PrintLine(cBuffer);

@@ -184,7 +184,7 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
   }
 
   _restrict_ = UG_GlobalMaxINT(theMG->ppifContext(), _restrict_);
-  if (me==master && _restrict_==1)
+  if (theMG->dddContext().isMaster() && _restrict_==1)
   {
     UserWriteF("CheckPartitioning(): partitioning is not valid for refinement\n");
     UserWriteF("                     cleaning up ...\n");
