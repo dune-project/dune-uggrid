@@ -35,6 +35,8 @@
 #include <cstring>
 #include <cassert>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "dddi.h"
 
 USING_UG_NAMESPACES
@@ -792,13 +794,13 @@ size_t DDD_InfoCplMemory (void)
 /*                                                                          */
 /****************************************************************************/
 
-void ddd_CplMgrInit (void)
+void ddd_CplMgrInit(DDD::DDDContext& context)
 {
   /* allocate first (smallest) coupling tables */
   AllocCplTables(MAX_CPL_START);
 
 
-  localIBuffer = (int*)AllocFix((2*procs+1)*sizeof(int));
+  localIBuffer = (int*)AllocFix((2*context.procs()+1)*sizeof(int));
   if (localIBuffer==NULL)
   {
     DDD_PrintError('E', 2532, STR_NOMEM " for DDD_InfoProcList()");
@@ -811,7 +813,7 @@ void ddd_CplMgrInit (void)
 }
 
 
-void ddd_CplMgrExit (void)
+void ddd_CplMgrExit(DDD::DDDContext& context)
 {
   FreeFix(localIBuffer);
   FreeCplSegms();

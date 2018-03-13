@@ -39,6 +39,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "dddi.h"
 #include "if.h"
 
@@ -120,7 +122,7 @@ int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
     if (! BufferIsEmpty(ifHead->bufIn))
     {
       ifHead->msgIn =
-        RecvASync(ifHead->vc,
+        RecvASync(context.ppifContext(), ifHead->vc,
                   BufferMem(ifHead->bufIn), BufferLen(ifHead->bufIn),
                   &error);
       if (ifHead->msgIn==0)
@@ -171,7 +173,7 @@ void IFInitSend(DDD::DDDContext& context, IF_PROC *ifHead)
   if (! BufferIsEmpty(ifHead->bufOut))
   {
     ifHead->msgOut =
-      SendASync(ifHead->vc,
+      SendASync(context.ppifContext(), ifHead->vc,
                 BufferMem(ifHead->bufOut), BufferLen(ifHead->bufOut),
                 &error);
     if (ifHead->msgOut==0)
@@ -203,7 +205,7 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
     {
       if ((! BufferIsEmpty(ifHead->bufOut)) && ifHead->msgOut!= NO_MSGID)
       {
-        int error = InfoASend(ifHead->vc, ifHead->msgOut);
+        int error = InfoASend(context.ppifContext(), ifHead->vc, ifHead->msgOut);
         if (error==-1)
         {
           sprintf(cBuffer,

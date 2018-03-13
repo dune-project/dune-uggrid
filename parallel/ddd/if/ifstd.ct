@@ -137,7 +137,7 @@ void IF_FUNCNAME (
 		{
 			if ((! BufferIsEmpty(ifHead->bufIn)) && ifHead->msgIn!=NO_MSGID)
 			{
-				int error = InfoARecv(ifHead->vc, ifHead->msgIn);
+				int error = InfoARecv(context.ppifContext(), ifHead->vc, ifHead->msgIn);
 				if (error==-1)
 				{
 					sprintf(NS_DIM_PREFIX cBuffer,

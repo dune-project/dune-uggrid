@@ -37,6 +37,8 @@
 
 #include <algorithm>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "dddi.h"
 #include "join.h"
 
@@ -858,7 +860,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Send\n");
     LC_PrintSendMsgs(context);
   }
@@ -892,7 +894,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Recv\n");
     LC_PrintRecvMsgs(context);
   }
@@ -955,7 +957,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Send\n");
     LC_PrintSendMsgs(context);
   }
@@ -989,7 +991,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Recv\n");
     LC_PrintRecvMsgs(context);
   }
@@ -1053,7 +1055,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Send\n");
     LC_PrintSendMsgs(context);
   }
@@ -1087,7 +1089,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Recv\n");
     LC_PrintRecvMsgs(context);
   }
@@ -1173,9 +1175,11 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
 
 
-void DDD_JoinObj(DDD::DDDContext&, DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
+void DDD_JoinObj(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
 {
   JIJoin *ji;
+
+  const auto procs = context.procs();
 
   if (!ddd_JoinActive())
   {
@@ -1191,7 +1195,7 @@ void DDD_JoinObj(DDD::DDDContext&, DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
     HARD_EXIT;
   }
 
-  if (dest==me)
+  if (dest==context.me())
   {
     sprintf(cBuffer, "cannot join " OBJ_GID_FMT " with myself", OBJ_GID(hdr));
     DDD_PrintError('E', 7004, cBuffer);
