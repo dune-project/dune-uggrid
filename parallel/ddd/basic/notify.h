@@ -50,12 +50,11 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-typedef struct _NOTIFY_DESC
+struct NOTIFY_DESC
 {
   DDD_PROC proc;
   size_t size;
-
-} NOTIFY_DESC;
+};
 
 
 /****************************************************************************/

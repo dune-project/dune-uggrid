@@ -68,18 +68,16 @@ START_UGDIM_NAMESPACE
 
 
 /* return types for DDD functions */
-/* NOTE: changes must be also done in fddd.f */
-typedef enum {
+enum DDD_RET {
   DDD_RET_OK            = 0,            /* function was executed ok             */
   DDD_RET_ERROR_UNKNOWN = 1,            /* unknown error condition              */
   DDD_RET_ERROR_NOMEM   = 2             /* function aborted due to mem shortage */
-} DDD_RET;
+};
 
 
 /* types of elements for StructRegister */
 /* (use negative values for combination with positive DDD_TYPEs) */
-/* NOTE: changes must be also done in fddd.f */
-typedef enum {
+enum DDD_ELEM_TYPE {
   EL_DDDHDR   =  0,                     /* element type: DDD header             */
   EL_GDATA    = -1,                     /* element type: global data            */
   EL_LDATA    = -2,                     /* element type: local data             */
@@ -88,14 +86,14 @@ typedef enum {
   EL_OBJPTR   = -5,                     /* element type: object pointer         */
   EL_CONTINUE = -6,                     /* continued element definition list    */
   EL_END      = -7                      /* end of element definition list       */
-} DDD_ELEM_TYPE;
+};
 
 
 
 
 /* options for DDD_SetOption */
 /* NOTE: changes must be also done in fddd.f */
-typedef enum {
+enum DDD_OPTION {
   OPT_IDENTIFY_MODE=0,             /* one of the IDMODE_xxx constants           */
 
   OPT_WARNING_VARSIZE_OBJ=8,       /* warning on differing obj sizes            */
@@ -119,7 +117,7 @@ typedef enum {
   OPT_CPLMGR_USE_FREELIST,         /* use freelist for coupling-memory (default)*/
 
   OPT_END
-} DDD_OPTION;
+};
 
 
 /* NOTE: changes must be also done in fddd.f */
@@ -151,10 +149,10 @@ enum OptConstJoin {
 
 /* direction of interface communication (DDD_IFOneway) */
 /* NOTE: changes must be also done in fddd.f */
-typedef enum {
+enum DDD_IF_DIR {
   IF_FORWARD  = 1,                     /* communicate from A to B               */
   IF_BACKWARD = 2                      /* communicate from B to A               */
-} DDD_IF_DIR;
+};
 
 
 /* ID of (predefined) standard interface */
@@ -264,7 +262,7 @@ typedef unsigned int DDD_ATTR;
              elements which are not accessible via the DDD functional interface
              should not be accessed by the application program anyway,
  */
-typedef struct _DDD_HEADER
+struct DDD_HEADER
 {
   /* control word elements */
   unsigned char typ;
@@ -276,7 +274,7 @@ typedef struct _DDD_HEADER
   DDD_GID gid;            /* global id */
 
   char empty[4];                 /* 4 unused bytes in current impl. */
-} DDD_HEADER;
+};
 
 typedef char           * DDD_OBJ;
 typedef DDD_HEADER     * DDD_HDR;

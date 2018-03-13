@@ -55,7 +55,7 @@ START_UGDIM_NAMESPACE
 /* STATISTICS: global record for statistical data                           */
 /****************************************************************************/
 
-typedef struct
+struct STAT_DATA
 {
   /* current DDD module                 */
   int curr_module;
@@ -68,8 +68,7 @@ typedef struct
 
   /* miscellaneous count measurements   */
   long items[DDD_MODULES][STAT_NITEM];
-
-} STAT_DATA;
+};
 
 
 

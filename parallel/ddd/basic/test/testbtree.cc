@@ -52,12 +52,12 @@ int  Method(Compare) (ClassPtr, ClassPtr);
 
 #include "../ooppcc.h"
 
-void TestTreeElement_Print(_TestTreeElement* element, int indent, FILE* fp)
+void TestTreeElement_Print(TestTreeElement* element, int indent, FILE* fp)
 {
   printf("TestTreeElement: %d\n", element->value);
 }
 
-int TestTreeElement_Compare(_TestTreeElement* a, _TestTreeElement* b)
+int TestTreeElement_Compare(TestTreeElement* a, TestTreeElement* b)
 {
   if (a->value < b->value)
     return -1;

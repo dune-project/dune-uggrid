@@ -27,13 +27,13 @@
 /****************************************************************************/
 
 /* segment of items */
-typedef struct aSegm(T)
+struct Segm(T)
 {
-	struct aSegm(T) *next;
+	Segm(T) *next;
 	int              nItems;
 
 	T                item[SEGM_SIZE];
-} Segm(T);
+};
 
 
 /* linked list of items */

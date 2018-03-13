@@ -77,11 +77,11 @@ using namespace PPIF;
 enum NotifyTypes {MYSELF,KNOWN,DUMMY,UNKNOWN};
 
 
-typedef struct {
+struct NOTIFY_INFO {
   short from, to;                       /* source and destination processor */
   unsigned short flag;                  /* one of NotifyTypes */
   size_t size;                          /* message size */
-} NOTIFY_INFO;
+};
 
 #define PROC_INVALID_TEMP   -1
 

@@ -121,11 +121,11 @@ int  Method(Compare) (ClassPtr, ClassPtr);
 /* JIPartner: description of phase1 message on sender side                  */
 /****************************************************************************/
 
-typedef struct _JIPartner
+struct JIPartner
 {
   DDD_HDR hdr;                  /* local obj which has been contacted by join   */
   DDD_PROC proc;                /* proc which initiated join                    */
-} JIPartner;
+};
 
 
 
@@ -133,13 +133,13 @@ typedef struct _JIPartner
 /* JIAddCpl: remote command to add cpl for join-obj during phase 2          */
 /****************************************************************************/
 
-typedef struct _TEAddCpl
+struct TEAddCpl
 {
   DDD_GID gid;                  /* gid of object to add coupling                */
   DDD_PROC proc;                /* proc of new coupling                         */
   DDD_PRIO prio;                /* prio of new coupling                         */
 
-} TEAddCpl;
+};
 
 
 #define ClassName JIAddCpl
@@ -167,20 +167,20 @@ int  Method(Compare) (ClassPtr, ClassPtr);
 /* JOINMSG1: description of phase1 message on sender side                   */
 /****************************************************************************/
 
-typedef struct _TEJoin
+struct TEJoin
 {
   DDD_GID gid;                  /* gid of distributed obj to join with          */
   DDD_PRIO prio;                /* prio of new local object which is joined     */
 
   DDD_HDR hdr;                  /* hdr of local DDD object (only for receiver)  */
-} TEJoin;
+};
 
 
-typedef struct _JOINMSG1
+struct JOINMSG1
 {
   DDD_PROC dest;                 /* receiver of message                         */
 
-  struct _JOINMSG1 *next;
+  JOINMSG1 *next;
 
   JIJoinPtr *arrayJoin;
   int nJoins;
@@ -188,7 +188,7 @@ typedef struct _JOINMSG1
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
 
-} JOINMSG1;
+};
 
 
 
@@ -196,19 +196,18 @@ typedef struct _JOINMSG1
 /* JOINMSG2: description of phase2 message on sender side                   */
 /****************************************************************************/
 
-typedef struct _JOINMSG2
+struct JOINMSG2
 {
   DDD_PROC dest;                 /* receiver of message                         */
 
-  struct _JOINMSG2 *next;
+  JOINMSG2 *next;
 
   JIAddCplPtr *arrayAddCpl;
   int nAddCpls;
 
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
-
-} JOINMSG2;
+};
 
 
 
@@ -216,19 +215,18 @@ typedef struct _JOINMSG2
 /* JOINMSG3: description of phase3 message on sender side                   */
 /****************************************************************************/
 
-typedef struct _JOINMSG3
+struct JOINMSG3
 {
   DDD_PROC dest;                 /* receiver of message                         */
 
-  struct _JOINMSG3 *next;
+  JOINMSG3 *next;
 
   JIAddCplPtr *arrayAddCpl;
   int nAddCpls;
 
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
-
-} JOINMSG3;
+};
 
 
 
@@ -237,7 +235,7 @@ typedef struct _JOINMSG3
 /* JOIN_GLOBALS: global data for join module                                */
 /****************************************************************************/
 
-typedef struct _JOIN_GLOBALS
+struct JOIN_GLOBALS
 {
   /* mode of join module */
   int joinMode;
@@ -260,7 +258,7 @@ typedef struct _JOIN_GLOBALS
   JIAddCplSet *setJIAddCpl2;
   JIAddCplSet *setJIAddCpl3;
 
-} JOIN_GLOBALS;
+};
 
 
 /* one instance of JOIN_GLOBALS */

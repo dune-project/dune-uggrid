@@ -58,11 +58,11 @@ using namespace PPIF;
 
 /* CMDMSG: complete description of message on sender side */
 
-typedef struct _CMDMSG
+struct CMDMSG
 {
   DDD_PROC proc;
 
-  struct _CMDMSG *next;
+  CMDMSG *next;
 
 
   DDD_GID   *aUnDelete;
@@ -70,8 +70,7 @@ typedef struct _CMDMSG
 
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
-
-} CMDMSG;
+};
 
 
 /****************************************************************************/

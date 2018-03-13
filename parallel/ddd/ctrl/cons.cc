@@ -74,23 +74,23 @@ using namespace PPIF;
 /*                                                                          */
 /****************************************************************************/
 
-typedef struct
+struct CONS_INFO
 {
   DDD_GID gid;
   DDD_TYPE typ;
   DDD_PROC dest;
   DDD_PROC proc;
   DDD_PRIO prio;
-} CONS_INFO;
+};
 
 
 
 
-typedef struct _CONSMSG
+struct CONSMSG
 {
   DDD_PROC dest;
 
-  struct _CONSMSG *next;
+  CONSMSG *next;
 
 
   CONS_INFO *consArray;
@@ -98,8 +98,7 @@ typedef struct _CONSMSG
 
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
-
-} CONSMSG;
+};
 
 
 

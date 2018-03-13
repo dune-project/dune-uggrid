@@ -52,11 +52,11 @@ using namespace PPIF;
 
 /* CPLMSG: complete description of message on sender side */
 
-typedef struct _CPLMSG
+struct CPLMSG
 {
   DDD_PROC proc;
 
-  struct _CPLMSG *next;
+  CPLMSG *next;
 
 
   XIDelCpl  **xferDelCpl;
@@ -71,8 +71,7 @@ typedef struct _CPLMSG
 
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
-
-} CPLMSG;
+};
 
 
 /****************************************************************************/

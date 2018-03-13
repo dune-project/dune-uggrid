@@ -80,13 +80,13 @@ START_UGDIM_NAMESPACE
 
 
 /* segment of Cpls */
-typedef struct _CplSegm
+struct CplSegm
 {
-  struct _CplSegm *next;
+  CplSegm *next;
   int nItems;
 
   COUPLING item[CPLSEGM_SIZE];
-} CplSegm;
+};
 
 
 

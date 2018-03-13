@@ -95,17 +95,16 @@ typedef DDD_OBJ IFObjPtr;
 /* IF_ATTR: single part of interface, all couplings have same attr          */
 /****************************************************************************/
 
-typedef struct if_attr
+struct IF_ATTR
 {
-  struct if_attr *next;
+  IF_ATTR* next;
 
   /* note: the cplXX resp. objXX arrays are NOT contiguous in memory */
   COUPLING   **cplAB, **cplBA, **cplABA;
   IFObjPtr   *objAB,  *objBA,  *objABA;       /* object shortcut */
   int nItems, nAB, nBA, nABA;
   DDD_ATTR attr;
-
-} IF_ATTR;
+};
 
 
 
@@ -113,9 +112,9 @@ typedef struct if_attr
 /* IF_PROC: descriptor of message and its contents/buffers for IF-communic. */
 /****************************************************************************/
 
-typedef struct if_proc
+struct IF_PROC
 {
-  struct     if_proc *next;
+  IF_PROC* next;
   IF_ATTR    *ifAttr;
   int nAttrs;
 
@@ -130,8 +129,7 @@ typedef struct if_proc
   msgid msgOut;
   Buffer bufIn;
   Buffer bufOut;
-
-} IF_PROC;
+};
 
 
 
@@ -139,7 +137,7 @@ typedef struct if_proc
 /* IF_DEF: descriptor for one single interface                              */
 /****************************************************************************/
 
-typedef struct if_def
+struct IF_DEF
 {
   IF_PROC   *ifHead;
   COUPLING  **cpl;              /* list of couplings belonging to interface     */
@@ -162,8 +160,7 @@ typedef struct if_def
 
   /* data for nice user interaction */
   char name[IF_NAMELEN+1];            /* string for interface identification */
-
-} IF_DEF;
+};
 
 
 

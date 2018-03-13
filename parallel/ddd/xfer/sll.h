@@ -55,13 +55,13 @@
 #define SLL_NAMELEN    30
 
 #define SLL_INFO(T)   \
-  struct T *sll_next;                     /* linked list          */  \
+  T *sll_next;                            /* linked list          */  \
   char sll_file[SLL_NAMELEN];             /* filename of New-call */  \
   int sll_line                            /* lineno of New-call   */
 
 #define SLL_INFO_WITH_COUNTER(T)   \
   int sll_n;                              /* unique index number  */  \
-  struct T *sll_next;                     /* linked list          */  \
+  T* sll_next;                            /* linked list          */  \
   char sll_file[SLL_NAMELEN];             /* filename of New-call */  \
   int sll_line                            /* lineno of New-call   */
 
@@ -72,11 +72,11 @@
 
 
 #define SLL_INFO(T)   \
-  struct T *sll_next            /* linked list         */
+  T* sll_next                   /* linked list         */
 
 #define SLL_INFO_WITH_COUNTER(T)   \
   int sll_n;                    /* unique index number */  \
-  struct T *sll_next            /* linked list         */
+  T* sll_next                   /* linked list         */
 
 #endif
 
@@ -86,9 +86,6 @@
 /*
         macros for template support: datatypes
  */
-#define _aSegm(T) aSegm ## T
-#define aSegm(T) _aSegm(T)
-
 #define _Segm(T) Segm ## T
 #define Segm(T) _Segm(T)
 
