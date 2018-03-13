@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <cmath>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
 
@@ -116,7 +117,7 @@ static void AnalyseTypes(const DDD::DDDContext& context)
       }
     }
 
-    printf("%4d: type %s (%03d) refs:\n", me, theTypeDefs[i].name, i);
+    printf("%4d: type %s (%03d) refs:\n", context.me(), theTypeDefs[i].name, i);
     {
       TYPE_EDGE *te;
       for(te=tn.refs; te!=NULL; te=te->next)
@@ -139,7 +140,7 @@ void DDD_GraphicalAnalyser (DDD::DDDContext& context, char *filename)
 
   fp = fopen(filename, "w");
 
-  if (me==0)
+  if (context.isMaster())
   {
     AnalyseTypes(context);
   }

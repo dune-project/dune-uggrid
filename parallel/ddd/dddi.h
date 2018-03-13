@@ -646,8 +646,8 @@ void      ddd_EnsureObjTabSize(int);
 
 
 /* cplmgr.c */
-void      ddd_CplMgrInit (void);
-void      ddd_CplMgrExit (void);
+void      ddd_CplMgrInit(DDD::DDDContext& context);
+void      ddd_CplMgrExit(DDD::DDDContext& context);
 COUPLING *AddCoupling (DDD_HDR, DDD_PROC, DDD_PRIO);
 COUPLING *ModCoupling (DDD_HDR, DDD_PROC, DDD_PRIO);
 void      DelCoupling (DDD_HDR, DDD_PROC);

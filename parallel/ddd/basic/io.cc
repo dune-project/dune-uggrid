@@ -28,6 +28,8 @@
 #include <cstring>
 #include <cmath>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "ugtypes.h"
 #include "ppif.h"
 #include "dddio.h"
@@ -113,7 +115,7 @@ void DDD_Flush (void)
 void DDD_SyncAll(const DDD::DDDContext& context)
 {
   DDD_Flush();
-  Synchronize();
+  Synchronize(context.ppifContext());
 }
 
 

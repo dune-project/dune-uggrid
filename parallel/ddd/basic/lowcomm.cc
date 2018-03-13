@@ -71,6 +71,8 @@
 #include "basic/lowcomm.h"
 #include "basic/notify.h"
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 USING_UG_NAMESPACES
 
 /* PPIF namespace: */
@@ -451,7 +453,7 @@ static int LC_PollSend(const DDD::DDDContext& context)
   {
     if (md->msgState==MSTATE_COMM)
     {
-      error = InfoASend(VCHAN_TO(md->proc), md->msgId);
+      error = InfoASend(context.ppifContext(), VCHAN_TO(md->proc), md->msgId);
       if (error==-1)
       {
         sprintf(cBuffer,
@@ -510,7 +512,7 @@ static int LC_PollRecv(const DDD::DDDContext& context)
   {
     if (md->msgState==MSTATE_COMM)
     {
-      error = InfoARecv(VCHAN_TO(md->proc), md->msgId);
+      error = InfoARecv(context.ppifContext(), VCHAN_TO(md->proc), md->msgId);
       if (error==-1)
       {
         sprintf(cBuffer,
@@ -741,7 +743,7 @@ static RETCODE LC_PrepareRecv(DDD::DDDContext& context)
     md->buffer = buffer;
     buffer += md->bufferSize;
 
-    md->msgId = RecvASync(VCHAN_TO(md->proc),
+    md->msgId = RecvASync(context.ppifContext(), VCHAN_TO(md->proc),
                           md->buffer, md->bufferSize, &error);
 
     md->msgState=MSTATE_COMM;
@@ -1041,7 +1043,7 @@ void LC_MsgSend(const DDD::DDDContext& context, LC_MSGHANDLE md)
   assert(md->msgState==MSTATE_ALLOCATED);
 
   /* initiate asynchronous send */
-  md->msgId = SendASync(VCHAN_TO(md->proc),
+  md->msgId = SendASync(context.ppifContext(), VCHAN_TO(md->proc),
                         md->buffer, md->bufferSize, &error);
 
   md->msgState=MSTATE_COMM;
@@ -1070,6 +1072,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
   MSG_DESC *md;
   int i, p;
 
+  const auto procs = context.procs();
 
   if (nSends<0 || nSends>procs-1)
   {

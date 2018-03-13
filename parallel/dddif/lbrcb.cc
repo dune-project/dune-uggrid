@@ -333,14 +333,16 @@ int BalanceGridRCB (MULTIGRID *theMG, int level)
   ELEMENT *e;
   int i;
 
+  DDD::DDDContext& context = theMG->dddContext();
+
   /* distributed grids cannot be redistributed by this function */
-  if (me!=master && FIRSTELEMENT(theGrid) != NULL)
+  if (not context.isMaster() && FIRSTELEMENT(theGrid) != NULL)
   {
     printf("Error: Redistributing distributed grids using recursive coordinate bisection is not implemented!\n");
     return (1);
   }
 
-  if (me==master)
+  if (context.isMaster())
   {
     if (NT(theGrid) == 0)
     {
