@@ -314,7 +314,7 @@ typedef DDD_TYPE (*HandlerGetRefType)(DDD::DDDContext& context, DDD_OBJ, DDD_OBJ
 
 typedef int (*ExecProcPtr)(DDD::DDDContext& context, DDD_OBJ);
 typedef int (*ExecProcXPtr)(DDD::DDDContext& context, DDD_OBJ, DDD_PROC, DDD_PRIO);
-typedef int (*ComProcPtr)(DDD::DDDContext& context, DDD_OBJ, void *);
+typedef int (*ComProcPtr2)(DDD::DDDContext& context, DDD_OBJ, void *);
 typedef int (*ComProcXPtr)(DDD::DDDContext& context, DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 
 
@@ -431,11 +431,11 @@ size_t   DDD_IFInfoMemoryAll(const DDD::DDDContext& context);
 size_t   DDD_IFInfoMemory(const DDD::DDDContext& context, DDD_IF);
 void     DDD_IFRefreshAll(DDD::DDDContext& context);
 
-void     DDD_IFExchange   (DDD::DDDContext& context, DDD_IF,                    size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFOneway     (DDD::DDDContext& context, DDD_IF,         DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFExchange   (DDD::DDDContext& context, DDD_IF,                    size_t, ComProcPtr2,ComProcPtr2);
+void     DDD_IFOneway     (DDD::DDDContext& context, DDD_IF,         DDD_IF_DIR,size_t, ComProcPtr2,ComProcPtr2);
 void     DDD_IFExecLocal  (DDD::DDDContext& context, DDD_IF,                            ExecProcPtr);
-void     DDD_IFAExchange  (DDD::DDDContext& context, DDD_IF,DDD_ATTR,           size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFAOneway    (DDD::DDDContext& context, DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
+void     DDD_IFAExchange  (DDD::DDDContext& context, DDD_IF,DDD_ATTR,           size_t, ComProcPtr2,ComProcPtr2);
+void     DDD_IFAOneway    (DDD::DDDContext& context, DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcPtr2,ComProcPtr2);
 void     DDD_IFAExecLocal (DDD::DDDContext& context, DDD_IF,DDD_ATTR,                   ExecProcPtr);
 void     DDD_IFExchangeX  (DDD::DDDContext& context, DDD_IF,                    size_t, ComProcXPtr,ComProcXPtr);
 void     DDD_IFOnewayX    (DDD::DDDContext& context, DDD_IF,         DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
