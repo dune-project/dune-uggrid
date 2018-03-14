@@ -163,7 +163,7 @@ static int sort_ObjTabPtrs (const void *e1, const void *e2)
         used by PutDepData() ).
  */
 
-static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
+static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC *desc,
                             const char *msgmem,
                             DDD_OBJ objmem,
                             const SYMTAB_ENTRY *theSymTab)
@@ -218,7 +218,7 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
 
             assert(obj!=NULL);
 
-            rt = theElem->reftypeHandler(obj, *ref);
+            rt = theElem->reftypeHandler(context, obj, *ref);
 
             if (rt>=MAX_TYPEDESC)
             {
@@ -370,7 +370,8 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
 
 
 
-static void PutDepData (char *data,
+static void PutDepData (DDD::DDDContext& context,
+                        char *data,
                         const TYPE_DESC *desc,
                         DDD_OBJ obj,
                         const SYMTAB_ENTRY *theSymTab,
@@ -407,7 +408,7 @@ static void PutDepData (char *data,
           /* insert pointers into copy using SymTab */
           if (descDep->nPointers>0)
           {
-            LocalizeObject(false, descDep,
+            LocalizeObject(context, false, descDep,
                            curr,
                            (DDD_OBJ)curr,
                            theSymTab);
@@ -425,7 +426,7 @@ static void PutDepData (char *data,
       /* scatter data via handler */
       if (desc->handlerXFERSCATTER)
       {
-        desc->handlerXFERSCATTER(obj, addCnt, addTyp, (void *)chunk, newness);
+        desc->handlerXFERSCATTER(context, obj, addCnt, addTyp, (void *)chunk, newness);
       }
     }
     else
@@ -446,7 +447,7 @@ static void PutDepData (char *data,
         {
           curr = table[i];
           if (descDep->nPointers>0)
-            LocalizeObject(false, descDep,
+            LocalizeObject(context, false, descDep,
                            curr,
                            (DDD_OBJ)curr,
                            theSymTab);
@@ -456,7 +457,7 @@ static void PutDepData (char *data,
       /* scatter data via handler */
       if (desc->handlerXFERSCATTERX)
       {
-        desc->handlerXFERSCATTERX(obj, addCnt, addTyp, table, newness);
+        desc->handlerXFERSCATTERX(context, obj, addCnt, addTyp, table, newness);
       }
     }
 
@@ -471,6 +472,7 @@ static void PutDepData (char *data,
 
 
 static void AcceptObjFromMsg (
+  DDD::DDDContext& context,
   OBJTAB_ENTRY *theObjTab, int lenObjTab,
   const char *theObjects,
   const DDD_HDR *localCplObjs, int nLocalCplObjs)
@@ -605,14 +607,15 @@ static void AcceptObjFromMsg (
 
       /* construct LDATA */
       if (desc->handlerLDATACONSTRUCTOR)
-        desc->handlerLDATACONSTRUCTOR(newcopy);
+        desc->handlerLDATACONSTRUCTOR(context, newcopy);
     }
   }
 }
 
 
 
-static void AcceptReceivedObjects (const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+static void AcceptReceivedObjects (DDD::DDDContext& context,
+                                   const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                                    OBJTAB_ENTRY **allRecObjs, int nRecObjs,
                                    const DDD_HDR *localCplObjs, int nLocalCplObjs)
 {
@@ -686,6 +689,7 @@ static void AcceptReceivedObjects (const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
     LC_MSGHANDLE xm = theMsgs[i];
 
     AcceptObjFromMsg(
+      context,
       (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id),
       (int)    LC_GetTableLen(xm, xferGlobals.objtab_id),
       (char *) LC_GetPtr(xm, xferGlobals.objmem_id),
@@ -1125,7 +1129,7 @@ static void LocalizeSymTab (LC_MSGHANDLE xm,
 }
 
 
-static void LocalizeObjects (LC_MSGHANDLE xm, int required_newness)
+static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
   const SYMTAB_ENTRY *theSymTab;
   const OBJTAB_ENTRY *theObjTab;
@@ -1149,7 +1153,7 @@ static void LocalizeObjects (LC_MSGHANDLE xm, int required_newness)
 
       if (desc->nPointers>0)
       {
-        LocalizeObject(false, desc,
+        LocalizeObject(context, false, desc,
                        (char *)(OTE_OBJ(theObjects,&(theObjTab[i]))),
                        obj,
                        theSymTab);
@@ -1176,7 +1180,7 @@ static void LocalizeObjects (LC_MSGHANDLE xm, int required_newness)
                                 #endif
 
         /* execute Localize in merge_mode */
-        LocalizeObject(true, desc,
+        LocalizeObject(context, true, desc,
                        (char *)(OTE_OBJ(theObjects,&(theObjTab[i]))),
                        obj,
                        theSymTab);
@@ -1189,7 +1193,7 @@ static void LocalizeObjects (LC_MSGHANDLE xm, int required_newness)
 
 
 
-static void CallUpdateHandler (LC_MSGHANDLE xm)
+static void CallUpdateHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 {
   OBJTAB_ENTRY *theObjTab;
   int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
@@ -1209,7 +1213,7 @@ static void CallUpdateHandler (LC_MSGHANDLE xm)
       if (desc->handlerUPDATE)
       {
         DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
-        desc->handlerUPDATE(obj);
+        desc->handlerUPDATE(context, obj);
       }
     }
   }
@@ -1217,7 +1221,7 @@ static void CallUpdateHandler (LC_MSGHANDLE xm)
 
 
 
-static void UnpackAddData (LC_MSGHANDLE xm, int required_newness)
+static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
@@ -1275,7 +1279,7 @@ static void UnpackAddData (LC_MSGHANDLE xm, int required_newness)
         data = (char *)(OTE_OBJ(theObjects,&(theObjTab[i])) +
                         CEIL(theObjTab[i].size));
 
-        PutDepData(data, desc, obj, theSymTab, newness);
+        PutDepData(context, data, desc, obj, theSymTab, newness);
       }
     }
   }
@@ -1297,7 +1301,7 @@ static void UnpackAddData (LC_MSGHANDLE xm, int required_newness)
         the old prio before calling the handler and set the newprio
         afterwards.
  */
-static void CallSetPriorityHandler (LC_MSGHANDLE xm)
+static void CallSetPriorityHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 {
   OBJTAB_ENTRY *theObjTab;
   int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
@@ -1334,7 +1338,7 @@ static void CallSetPriorityHandler (LC_MSGHANDLE xm)
         DDD_PRIO new_prio = OTE_PRIO(theObjects, &(theObjTab[i]));                        /* remember new prio */
         OBJ_PRIO(theObjTab[i].hdr) = theObjTab[i].oldprio;
 
-        desc->handlerSETPRIORITY(obj, new_prio);
+        desc->handlerSETPRIORITY(context, obj, new_prio);
 
         /* restore new priority */
         OBJ_PRIO(theObjTab[i].hdr) = new_prio;
@@ -1345,7 +1349,7 @@ static void CallSetPriorityHandler (LC_MSGHANDLE xm)
 
 
 
-static void CallObjMkConsHandler (LC_MSGHANDLE xm, int required_newness)
+static void CallObjMkConsHandler (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
   OBJTAB_ENTRY *theObjTab;
   int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
@@ -1390,7 +1394,7 @@ static void CallObjMkConsHandler (LC_MSGHANDLE xm, int required_newness)
       /* call application handler for object consistency */
       if (desc->handlerOBJMKCONS)
       {
-        desc->handlerOBJMKCONS(obj, newness);
+        desc->handlerOBJMKCONS(context, obj, newness);
       }
     }
   }
@@ -1511,7 +1515,7 @@ static int CompressNewCpl (TENewCpl *tabNC, int nNC)
         main unpack procedure.
  */
 
-void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                  const DDD_HDR *localCplObjs, int nLocalCplObjs,
                  std::vector<XISetPrio*>& theSP,
                  XIDelObj **arrayDO, int nDO,
@@ -1632,6 +1636,7 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   if (nRecvMsgs>0)
   {
     AcceptReceivedObjects(
+      context,
       theMsgs, nRecvMsgs,
       unionObjTab, lenObjTab,
       localCplObjs, nLocalCplObjs
@@ -1661,8 +1666,8 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
 
   /* unpack all messages and update local topology */
-  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(context, theMsgs[i],  TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(context, theMsgs[i], !TOTALNEW);
 
   /*
           at this point all new objects are established,
@@ -1682,19 +1687,19 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   /* for NOTNEW,PARTNEW,PRUNEDNEW objects */
   for(i=0; i<nRecvMsgs; i++)
-    CallSetPriorityHandler(theMsgs[i]);
+    CallSetPriorityHandler(context, theMsgs[i]);
 
   /* for TOTALNEW objects */
   for(i=0; i<nRecvMsgs; i++)
-    CallUpdateHandler(theMsgs[i]);
+    CallUpdateHandler(context, theMsgs[i]);
 
   /* for all incoming objects */
-  for(i=0; i<nRecvMsgs; i++) UnpackAddData(theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) UnpackAddData(theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) UnpackAddData(context, theMsgs[i],  TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) UnpackAddData(context, theMsgs[i], !TOTALNEW);
 
   /* for PARTNEW and TOTALNEW objects */
-  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(context, theMsgs[i],  TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(context, theMsgs[i], !TOTALNEW);
 
 
 

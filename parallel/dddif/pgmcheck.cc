@@ -546,7 +546,7 @@ static INT CheckElementPrio (ELEMENT *theElement)
  */
 /****************************************************************************/
 
-static int Gather_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -570,7 +570,7 @@ static int Gather_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
   return 0;
 }
 
-static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -610,7 +610,7 @@ static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
 }
 
 #ifdef __THREEDIM__
-static int Gather_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_EdgeObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT i;
   EDGE *theEdge = (EDGE *)obj;
@@ -633,7 +633,7 @@ static int Gather_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
   return 0;
 }
 
-static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_EdgeObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT i;
   DDD_GID remotegid;

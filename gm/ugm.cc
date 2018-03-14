@@ -7074,7 +7074,7 @@ INT NS_DIM_PREFIX ClearNodeClasses (GRID *theGrid)
 }
 
 #ifdef ModelP
-static int Gather_NodeClass (DDD_OBJ obj, void *data)
+static int Gather_NodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7083,7 +7083,7 @@ static int Gather_NodeClass (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_NodeClass (DDD_OBJ obj, void *data)
+static int Scatter_NodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7092,7 +7092,7 @@ static int Scatter_NodeClass (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_GhostNodeClass (DDD_OBJ obj, void *data)
+static int Scatter_GhostNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7309,7 +7309,7 @@ INT NS_DIM_PREFIX SeedNextNodeClasses (ELEMENT *theElement)
 /****************************************************************************/
 
 #ifdef ModelP
-static int Gather_NextNodeClass (DDD_OBJ obj, void *data)
+static int Gather_NextNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7318,7 +7318,7 @@ static int Gather_NextNodeClass (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_NextNodeClass (DDD_OBJ obj, void *data)
+static int Scatter_NextNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7327,7 +7327,7 @@ static int Scatter_NextNodeClass (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_GhostNextNodeClass (DDD_OBJ obj, void *data)
+static int Scatter_GhostNextNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 

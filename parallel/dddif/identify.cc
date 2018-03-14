@@ -1119,7 +1119,7 @@ static INT IdentifyDistributedObjects (MULTIGRID *theMG, INT FromLevel, INT ToLe
 
 
 #ifdef IDENT_ONLY_NEW
-static int Gather_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_NewNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
   NODE *SonNode = SONNODE(theNode);
@@ -1141,7 +1141,7 @@ static int Gather_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
   return(0);
 }
 
-static int Scatter_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_NewNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
   NODE    *SonNode        = SONNODE(theNode);
@@ -1157,7 +1157,7 @@ static int Scatter_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
 
 /*************************/
 
-static int Gather_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_NodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1174,7 +1174,7 @@ static int Gather_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pri
   return(0);
 }
 
-static int Scatter_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_NodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode = (NODE *)obj;
   int nprop    = *((int *)data);
@@ -1202,7 +1202,7 @@ static int Scatter_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pr
 
 /*************************/
 
-static int Gather_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_TestNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1214,7 +1214,7 @@ static int Gather_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   return(0);
 }
 
-static int Scatter_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_TestNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
   int nprop   = *((int *)data);
@@ -1234,7 +1234,7 @@ static int Scatter_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
 /*************************/
 
-static int Gather_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_IdentSonNode (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
   NODE *SonNode = SONNODE(theNode);
@@ -1254,7 +1254,7 @@ static int Gather_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   return(0);
 }
 
-static int Scatter_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_IdentSonNode (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
   NODE    *SonNode        = SONNODE(theNode);
@@ -1302,7 +1302,7 @@ static int Scatter_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 }
 
 /* callback functions for edge identification */
-static int Gather_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_NewObjectInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT ident_needed;
   EDGE *theEdge   = (EDGE *)obj;
@@ -1334,7 +1334,7 @@ static int Gather_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
   return(0);
 }
 
-static int Scatter_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_NewObjectInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   int newsonobjects   = *((int *)data);
   EDGE    *theEdge                = (EDGE *)obj;
@@ -1371,7 +1371,7 @@ static int Scatter_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
 
 /*************************/
 
-static int Gather_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_EdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
 
@@ -1388,7 +1388,7 @@ static int Gather_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pri
   return(0);
 }
 
-static int Scatter_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_EdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge = (EDGE *)obj;
   int nprop    = *((int *)data);
@@ -1416,7 +1416,7 @@ static int Scatter_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pr
 
 /*************************/
 
-static int Gather_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_TestEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
 
@@ -1428,7 +1428,7 @@ static int Gather_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   return(0);
 }
 
-static int Scatter_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_TestEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge        = (EDGE *)obj;
   int nprop   = *((int *)data);
@@ -1448,7 +1448,7 @@ static int Scatter_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
 /*************************/
 
-static int Gather_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_IdentSonEdge (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
   EDGE *SonEdge = GetSonEdge(theEdge);
@@ -1468,7 +1468,7 @@ static int Gather_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   return(0);
 }
 
-static int Scatter_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_IdentSonEdge (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge        = (EDGE *)obj;
   EDGE    *SonEdge;
@@ -1517,7 +1517,7 @@ static int Scatter_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
 /*************************/
 
-static int Gather_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_IdentSonObjects (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT ident_needed;
   EDGE *theEdge   = (EDGE *)obj;
@@ -1549,7 +1549,7 @@ static int Gather_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
   return(0);
 }
 
-static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_IdentSonObjects (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   int newsonobjects   = *((int *)data);
   EDGE    *theEdge                = (EDGE *)obj;
@@ -1704,7 +1704,7 @@ static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_
  */
 /****************************************************************************/
 
-static int Gather_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_SonNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1739,7 +1739,7 @@ static int Gather_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
  */
 /****************************************************************************/
 
-static int Scatter_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_SonNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
   NODE    *SonNode        = SONNODE(theNode);
@@ -1792,7 +1792,7 @@ static int Scatter_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
  */
 /****************************************************************************/
 
-static int Gather_SonEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_SonEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
   EDGE *SonEdge;
@@ -1831,7 +1831,7 @@ static int Gather_SonEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
  */
 /****************************************************************************/
 
-static int Scatter_SonEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_SonEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge        = (EDGE *)obj;
   EDGE    *SonEdge;

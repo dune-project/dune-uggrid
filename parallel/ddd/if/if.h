@@ -188,15 +188,15 @@ int     IFInitComm(DDD::DDDContext& context, DDD_IF);
 void    IFExitComm(DDD::DDDContext& context, DDD_IF);
 void    IFInitSend(DDD::DDDContext& context, IF_PROC *);
 int     IFPollSend(DDD::DDDContext& context, DDD_IF);
-char *  IFCommLoopObj (ComProcPtr, IFObjPtr *, char *, size_t, int);
-char *  IFCommLoopCpl (ComProcPtr, COUPLING **, char *, size_t, int);
-char *  IFCommLoopCplX (ComProcXPtr, COUPLING **, char *, size_t , int);
-void    IFExecLoopObj (ExecProcPtr, IFObjPtr *, int);
-void    IFExecLoopCplX (ExecProcXPtr, COUPLING **, int);
-char *  IFCommHdrLoopCpl (ComProcHdrPtr, COUPLING **, char *, size_t, int);
-char *  IFCommHdrLoopCplX (ComProcHdrXPtr, COUPLING **, char *, size_t, int);
-void    IFExecHdrLoopCpl (ExecProcHdrPtr, COUPLING **, int);
-void    IFExecHdrLoopCplX (ExecProcHdrXPtr, COUPLING **, int);
+char *  IFCommLoopObj (DDD::DDDContext& context, ComProcPtr, IFObjPtr *, char *, size_t, int);
+char *  IFCommLoopCpl (DDD::DDDContext& context, ComProcPtr, COUPLING **, char *, size_t, int);
+char *  IFCommLoopCplX (DDD::DDDContext& context, ComProcXPtr, COUPLING **, char *, size_t , int);
+void    IFExecLoopObj (DDD::DDDContext& context, ExecProcPtr, IFObjPtr *, int);
+void    IFExecLoopCplX (DDD::DDDContext& context, ExecProcXPtr, COUPLING **, int);
+char *  IFCommHdrLoopCpl (DDD::DDDContext& context, ComProcHdrPtr, COUPLING **, char *, size_t, int);
+char *  IFCommHdrLoopCplX (DDD::DDDContext& context, ComProcHdrXPtr, COUPLING **, char *, size_t, int);
+void    IFExecHdrLoopCpl (DDD::DDDContext& context, ExecProcHdrPtr, COUPLING **, int);
+void    IFExecHdrLoopCplX (DDD::DDDContext& context, ExecProcHdrXPtr, COUPLING **, int);
 
 
 /* ifobjsc.c */

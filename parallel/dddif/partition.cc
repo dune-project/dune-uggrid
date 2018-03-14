@@ -211,7 +211,7 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
  */
 /****************************************************************************/
 
-static int Gather_ElementRestriction (DDD_OBJ obj, void *data)
+static int Gather_ElementRestriction (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -241,7 +241,7 @@ static int Gather_ElementRestriction (DDD_OBJ obj, void *data)
  */
 /****************************************************************************/
 
-static int Scatter_ElementRestriction (DDD_OBJ obj, void *data)
+static int Scatter_ElementRestriction (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   int used;
@@ -280,7 +280,7 @@ static int Scatter_ElementRestriction (DDD_OBJ obj, void *data)
  */
 /****************************************************************************/
 
-static int Gather_RestrictedPartition (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_RestrictedPartition (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -315,7 +315,7 @@ static int Gather_RestrictedPartition (DDD_OBJ obj, void *data, DDD_PROC proc, D
  */
 /****************************************************************************/
 
-static int Scatter_RestrictedPartition (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_RestrictedPartition (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   ELEMENT *SonList[MAX_SONS];
