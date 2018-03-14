@@ -189,7 +189,7 @@ void IF_FUNCNAME (
 		#ifdef IF_WITH_XARGS
 			NS_DIM_PREFIX ComProcXPtr Gather, NS_DIM_PREFIX ComProcXPtr Scatter)
 		#else
-			NS_DIM_PREFIX ComProcPtr Gather, NS_DIM_PREFIX ComProcPtr Scatter)
+			NS_DIM_PREFIX ComProcPtr2 Gather, NS_DIM_PREFIX ComProcPtr2 Scatter)
 		#endif
 	#endif
 {
