@@ -255,7 +255,7 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
         fast version: uses object pointer shortcut
  */
 char *IFCommLoopObj (DDD::DDDContext& context,
-                     ComProcPtr LoopProc,
+                     ComProcPtr2 LoopProc,
                      IFObjPtr *obj,
                      char *buffer,
                      size_t itemSize,
@@ -298,7 +298,7 @@ void IFExecLoopObj (DDD::DDDContext& context, ExecProcPtr LoopProc, IFObjPtr *ob
         (-> CPL -> DDD_HDR.typ -> header offset -> object address)
  */
 char *IFCommLoopCpl (DDD::DDDContext& context,
-                     ComProcPtr LoopProc,
+                     ComProcPtr2 LoopProc,
                      COUPLING **cpl,
                      char *buffer,
                      size_t itemSize,
