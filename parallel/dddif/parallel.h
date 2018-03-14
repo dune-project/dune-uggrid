@@ -114,9 +114,9 @@ enum HandlerSets
 #define EPROCPRIO(e,p)                                  DDD_InfoProcPrio(PARHDRE(e),p)
 #define ENCOPIES(e)                                             DDD_InfoNCopies(PARHDRE(e))
 #define EATTR(e)                                                DDD_InfoAttr(PARHDRE(e))
-#define XFEREDELETE(e)                                  DDD_XferDeleteObj(PARHDRE(e))
-#define XFERECOPY(e,dest,prio)                  DDD_XferCopyObj(PARHDRE(e),dest,prio)
-#define XFERECOPYX(e,dest,prio,size)    DDD_XferCopyObjX(PARHDRE(e),dest,prio,size)
+#define XFEREDELETE(context, e)                         DDD_XferDeleteObj(context, PARHDRE(e))
+#define XFERECOPY(context, e,dest,prio)                 DDD_XferCopyObj(context, PARHDRE(e),dest,prio)
+#define XFERECOPYX(context, e,dest,prio,size)           DDD_XferCopyObjX(context, PARHDRE(e),dest,prio,size)
 
 /* for nodes, vectors, edges (edges only 3D) */
 #define PRIO(e)                                                 DDD_InfoPriority(PARHDR(e))
@@ -133,9 +133,9 @@ enum HandlerSets
 #define PROCPRIO(e,p)                                   DDD_InfoProcPrio(PARHDR(e),p)
 #define NCOPIES(e)                                              DDD_InfoNCopies(PARHDR(e))
 #define ATTR(e)                                                 DDD_InfoAttr(PARHDR(e))
-#define XFERDELETE(e)                                   DDD_XferDeleteObj(PARHDR(e))
-#define XFERCOPY(e,dest,prio)                   DDD_XferCopyObj(PARHDR(e),dest,prio)
-#define XFERCOPYX(e,dest,prio,size)             DDD_XferCopyObjX(PARHDR(e),dest,prio,size)
+#define XFERDELETE(context, e)                          DDD_XferDeleteObj(context, PARHDR(e))
+#define XFERCOPY(context, e,dest,prio)                  DDD_XferCopyObj(context, PARHDR(e),dest,prio)
+#define XFERCOPYX(context, e,dest,prio,size)            DDD_XferCopyObjX(context, PARHDR(e),dest,prio,size)
 
 /* for vertices */
 #define VXPRIO(e)                                               DDD_InfoPriority(PARHDRV(e))
@@ -152,9 +152,9 @@ enum HandlerSets
 #define VXPROCPRIO(e,p)                                 DDD_InfoProcPrio(PARHDRV(e),p)
 #define VXNCOPIES(e)                                    DDD_InfoNCopies(PARHDRV(e))
 #define VXATTR(e)                                               DDD_InfoAttr(PARHDRV(e))
-#define XFERVXDELETE(e)                                 DDD_XferDeleteObj(PARHDRV(e))
-#define XFERVXCOPY(e,dest,prio)                 DDD_XferCopyObj(PARHDRV(e),dest,prio,size)
-#define XFERVXCOPYX(e,dest,prio,size)   DDD_XferCopyObjX(PARHDRV(e),dest,prio,size)
+#define XFERVXDELETE(context, e)                        DDD_XferDeleteObj(context, PARHDRV(e))
+#define XFERVXCOPY(context, e,dest,prio)                DDD_XferCopyObj(context, PARHDRV(e),dest,prio,size)
+#define XFERVXCOPYX(context, e,dest,prio,size)          DDD_XferCopyObjX(context, PARHDRV(e),dest,prio,size)
 
 /* macros for priorities */
 /* for elements */
@@ -274,8 +274,8 @@ void lbs (const char *argv, MULTIGRID *theMG);
 
 /* from handler.c */
 void            ddd_HandlerInit                 (DDD::DDDContext& context, INT);
-DDD_TYPE        NFatherObjType                  (DDD_OBJ obj, DDD_OBJ ref);
-void            ObjectPriorityUpdate    (DDD_OBJ obj, DDD_PRIO newPrio);
+DDD_TYPE        NFatherObjType                  (DDD::DDDContext& context, DDD_OBJ obj, DDD_OBJ ref);
+void            ObjectPriorityUpdate    (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO newPrio);
 
 /* from lbrcb.c */
 int BalanceGridRCB (MULTIGRID *, int);

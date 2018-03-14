@@ -156,7 +156,8 @@ static int sort_MsgSize (const void *e1, const void *e2)
 /*                                                                          */
 /****************************************************************************/
 
-static int BuildSymTab (TYPE_DESC *desc,
+static int BuildSymTab (DDD::DDDContext& context,
+                        TYPE_DESC *desc,
                         DDD_OBJ obj,
                         const char *copy,
                         SYMTAB_ENTRY *theSymTab)
@@ -207,7 +208,7 @@ static int BuildSymTab (TYPE_DESC *desc,
             /* determine reftype on the fly by calling handler */
             assert(obj!=NULL);                                       /* we need a real object here */
 
-            rt = theElem->reftypeHandler(obj, *ref);
+            rt = theElem->reftypeHandler(context, obj, *ref);
             if (rt>=MAX_TYPEDESC)
             {
               DDD_PrintError('E', 6520,
@@ -256,7 +257,8 @@ static int BuildSymTab (TYPE_DESC *desc,
 /*                                                                          */
 /****************************************************************************/
 
-static int GetDepData (char *data,
+static int GetDepData (DDD::DDDContext& context,
+                       char *data,
                        TYPE_DESC *desc,
                        DDD_OBJ obj,
                        SYMTAB_ENTRY *theSymTab,
@@ -292,7 +294,7 @@ static int GetDepData (char *data,
       /* then all records should be gathered via handler */
       if (desc->handlerXFERGATHER)
       {
-        desc->handlerXFERGATHER( obj,
+        desc->handlerXFERGATHER( context, obj,
                                  xa->addCnt, xa->addTyp, (void *)chunk);
       }
 
@@ -302,7 +304,7 @@ static int GetDepData (char *data,
         descDep = &theTypeDefs[xa->addTyp];
         for(i=0; i<xa->addCnt; i++)
         {
-          actSym += BuildSymTab(descDep, NULL,
+          actSym += BuildSymTab(context, descDep, NULL,
                                 chunk, &(theSymTab[actSym]));
           chunk += CEIL(descDep->size);
         }
@@ -332,7 +334,7 @@ static int GetDepData (char *data,
       /* then all records should be gathered via handler */
       if (desc->handlerXFERGATHERX)
       {
-        desc->handlerXFERGATHERX( obj,
+        desc->handlerXFERGATHERX( context, obj,
                                   xa->addCnt, xa->addTyp, table1);
       }
 
@@ -345,7 +347,7 @@ static int GetDepData (char *data,
         /* insert pointers into symtab */
         if (xa->addTyp<DDD_USER_DATA || xa->addTyp>DDD_USER_DATA_MAX)
         {
-          actSym += BuildSymTab(descDep, NULL,
+          actSym += BuildSymTab(context, descDep, NULL,
                                 table1[i], &(theSymTab[actSym]));
         }
 
@@ -385,7 +387,7 @@ static int GetDepData (char *data,
 /*                                                                          */
 /****************************************************************************/
 
-static void XferPackSingleMsg (XFERMSG *msg)
+static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
 {
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
@@ -485,14 +487,14 @@ static void XferPackSingleMsg (XFERMSG *msg)
       int offset = desc->offsetHeader;
 
       /* now call handler */
-      desc->handlerXFERCOPYMANIP(currObj);
+      desc->handlerXFERCOPYMANIP(context, currObj);
 
       /* adjust new description according to new type */
       desc = &(theTypeDefs[OBJ_TYPE((DDD_HDR)(currObj+offset))]);
     }
 
     /* build symbol table portion from object copy */
-    actSym += BuildSymTab(desc, obj, (char *)currObj, &(theSymTab[actSym]));
+    actSym += BuildSymTab(context, desc, obj, (char *)currObj, &(theSymTab[actSym]));
 
 
     /* advance to next free object slot in message, c.f. alignment */
@@ -502,7 +504,7 @@ static void XferPackSingleMsg (XFERMSG *msg)
     /* gather additional data */
     if (xi->addLen>0)
     {
-      actSym += GetDepData(currObj,
+      actSym += GetDepData(context, currObj,
                            desc, obj, &(theSymTab[actSym]), xi);
       currObj += xi->addLen;
     }
@@ -633,7 +635,7 @@ RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
       DDD_PrintError('E', 6522, cBuffer);
       RET_ON_ERROR;
     }
-    XferPackSingleMsg(xm);
+    XferPackSingleMsg(context, xm);
     LC_MsgSend(context, xm->msg_h);
   }
 

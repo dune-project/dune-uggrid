@@ -37,14 +37,14 @@
 
 
 #ifdef IF_WITH_XARGS
-	#define EXEC_LOOP(a,b,c)     NS_DIM_PREFIX IFExecLoopCplX(a,b,c)
-	#define COMM_LOOP(a,b,c,d,e) NS_DIM_PREFIX IFCommLoopCplX(a,b,c,d,e)
+	#define EXEC_LOOP(context, a,b,c)     NS_DIM_PREFIX IFExecLoopCplX(context, a,b,c)
+	#define COMM_LOOP(context, a,b,c,d,e) NS_DIM_PREFIX IFCommLoopCplX(context, a,b,c,d,e)
 	#define D_AB(p)              (p->cplAB)
 	#define D_BA(p)              (p->cplBA)
 	#define D_ABA(p)             (p->cplABA)
 #else
-	#define EXEC_LOOP(a,b,c)     NS_DIM_PREFIX IFExecLoopObj(a,b,c)
-	#define COMM_LOOP(a,b,c,d,e) NS_DIM_PREFIX IFCommLoopObj(a,b,c,d,e)
+	#define EXEC_LOOP(context, a,b,c)     NS_DIM_PREFIX IFExecLoopObj(context, a,b,c)
+	#define COMM_LOOP(context, a,b,c,d,e) NS_DIM_PREFIX IFCommLoopObj(context, a,b,c,d,e)
 	#define D_AB(p)              (p->objAB)
 	#define D_BA(p)              (p->objBA)
 	#define D_ABA(p)             (p->objABA)
@@ -223,9 +223,9 @@ void IF_FUNCNAME (
 			FIND_ATTR; /* find ifAttr */
 		#endif
 
-		EXEC_LOOP(ExecProc, D_BA(PART),  PART->nBA);
-		EXEC_LOOP(ExecProc, D_AB(PART),  PART->nAB);
-		EXEC_LOOP(ExecProc, D_ABA(PART), PART->nABA);
+		EXEC_LOOP(context, ExecProc, D_BA(PART),  PART->nBA);
+		EXEC_LOOP(context, ExecProc, D_AB(PART),  PART->nAB);
+		EXEC_LOOP(context, ExecProc, D_ABA(PART), PART->nABA);
 	}
 
 #else /* ! IF_EXECLOCAL */
@@ -309,8 +309,8 @@ void IF_FUNCNAME (
 
 		#ifdef IF_EXCHANGE
 			/* exchange BA and AB during send */
-			buffer= COMM_LOOP(Gather, D_BA(PART), buffer, aSize, PART->nBA);
-			buffer= COMM_LOOP(Gather, D_AB(PART), buffer, aSize, PART->nAB);
+			buffer= COMM_LOOP(context, Gather, D_BA(PART), buffer, aSize, PART->nBA);
+			buffer= COMM_LOOP(context, Gather, D_AB(PART), buffer, aSize, PART->nAB);
 		#endif
 
 		#ifdef IF_ONEWAY
@@ -321,10 +321,10 @@ void IF_FUNCNAME (
 				nOut = PART->nBA;  datOut = D_BA(PART);
 			}
 
-			buffer= COMM_LOOP(Gather, datOut, buffer, aSize, nOut);
+			buffer= COMM_LOOP(context, Gather, datOut, buffer, aSize, nOut);
 		#endif
 
-		buffer= COMM_LOOP(Gather, D_ABA(PART), buffer, aSize, PART->nABA);
+		buffer= COMM_LOOP(context, Gather, D_ABA(PART), buffer, aSize, PART->nABA);
 
 		NS_DIM_PREFIX IFInitSend(context, ifHead);
 	}
@@ -383,9 +383,9 @@ void IF_FUNCNAME (
 
 					/* get data using scatter-handler */
 					#ifdef IF_EXCHANGE
-						buffer = COMM_LOOP(Scatter,
+						buffer = COMM_LOOP(context, Scatter,
 									D_AB(PART), buffer, aSize, PART->nAB);
-						buffer = COMM_LOOP(Scatter,
+						buffer = COMM_LOOP(context, Scatter,
 									D_BA(PART), buffer, aSize, PART->nBA);
 					#endif
 
@@ -397,10 +397,10 @@ void IF_FUNCNAME (
 							nIn  = PART->nAB;  datIn = D_AB(PART);
 						}
 
-						buffer = COMM_LOOP(Scatter, datIn, buffer, aSize, nIn);
+						buffer = COMM_LOOP(context, Scatter, datIn, buffer, aSize, nIn);
 					#endif
 
-					buffer = COMM_LOOP(Scatter,
+					buffer = COMM_LOOP(context, Scatter,
 						D_ABA(PART), buffer, aSize, PART->nABA);
 				}
 			}

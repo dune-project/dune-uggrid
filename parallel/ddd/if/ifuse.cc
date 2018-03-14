@@ -254,7 +254,8 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
 
         fast version: uses object pointer shortcut
  */
-char *IFCommLoopObj (ComProcPtr LoopProc,
+char *IFCommLoopObj (DDD::DDDContext& context,
+                     ComProcPtr LoopProc,
                      IFObjPtr *obj,
                      char *buffer,
                      size_t itemSize,
@@ -264,7 +265,7 @@ char *IFCommLoopObj (ComProcPtr LoopProc,
 
   for(i=0; i<nItems; i++, buffer+=itemSize)
   {
-    error = (*LoopProc)(obj[i], buffer);
+    error = (*LoopProc)(context, obj[i], buffer);
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
 
@@ -275,13 +276,13 @@ char *IFCommLoopObj (ComProcPtr LoopProc,
         simple variant of above routine. dont communicate,
         but call an application's routine.
  */
-void IFExecLoopObj (ExecProcPtr LoopProc, IFObjPtr *obj, int nItems)
+void IFExecLoopObj (DDD::DDDContext& context, ExecProcPtr LoopProc, IFObjPtr *obj, int nItems)
 {
   int i, error;
 
   for(i=0; i<nItems; i++)
   {
-    error = (*LoopProc)(obj[i]);
+    error = (*LoopProc)(context, obj[i]);
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
 }
@@ -296,7 +297,8 @@ void IFExecLoopObj (ExecProcPtr LoopProc, IFObjPtr *obj, int nItems)
         unnecessary indirect addressing!
         (-> CPL -> DDD_HDR.typ -> header offset -> object address)
  */
-char *IFCommLoopCpl (ComProcPtr LoopProc,
+char *IFCommLoopCpl (DDD::DDDContext& context,
+                     ComProcPtr LoopProc,
                      COUPLING **cpl,
                      char *buffer,
                      size_t itemSize,
@@ -306,7 +308,7 @@ char *IFCommLoopCpl (ComProcPtr LoopProc,
 
   for(i=0; i<nItems; i++, buffer+=itemSize)
   {
-    error = (*LoopProc)(OBJ_OBJ(cpl[i]->obj), buffer);
+    error = (*LoopProc)(context, OBJ_OBJ(cpl[i]->obj), buffer);
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
 
@@ -325,7 +327,8 @@ char *IFCommLoopCpl (ComProcPtr LoopProc,
         (necessary) indirect addressing!
         (-> CPL -> DDD_HDR.typ -> header offset -> object address)
  */
-char *IFCommLoopCplX (ComProcXPtr LoopProc,
+char *IFCommLoopCplX (DDD::DDDContext& context,
+                      ComProcXPtr LoopProc,
                       COUPLING **cpl,
                       char *buffer,
                       size_t itemSize,
@@ -335,7 +338,7 @@ char *IFCommLoopCplX (ComProcXPtr LoopProc,
 
   for(i=0; i<nItems; i++, buffer+=itemSize)
   {
-    error = (*LoopProc)(OBJ_OBJ(cpl[i]->obj),
+    error = (*LoopProc)(context, OBJ_OBJ(cpl[i]->obj),
                         buffer, CPL_PROC(cpl[i]), cpl[i]->prio);
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
@@ -349,13 +352,13 @@ char *IFCommLoopCplX (ComProcXPtr LoopProc,
         simple variant of above routine. dont communicate,
         but call an application's routine.
  */
-void IFExecLoopCplX (ExecProcXPtr LoopProc, COUPLING **cpl, int nItems)
+void IFExecLoopCplX (DDD::DDDContext& context, ExecProcXPtr LoopProc, COUPLING **cpl, int nItems)
 {
   int i, error;
 
   for(i=0; i<nItems; i++)
   {
-    error = (*LoopProc)(OBJ_OBJ(cpl[i]->obj), CPL_PROC(cpl[i]), cpl[i]->prio);
+    error = (*LoopProc)(context, OBJ_OBJ(cpl[i]->obj), CPL_PROC(cpl[i]), cpl[i]->prio);
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
 }
@@ -376,7 +379,8 @@ void IFExecLoopCplX (ExecProcXPtr LoopProc, COUPLING **cpl, int nItems)
         do loop over single list of couplings,
         copy object data from/to message buffer
  */
-char *IFCommHdrLoopCpl (ComProcHdrPtr LoopProc,
+char *IFCommHdrLoopCpl (DDD::DDDContext& context,
+                        ComProcHdrPtr LoopProc,
                         COUPLING **cpl,
                         char *buffer,
                         size_t itemSize,
@@ -386,7 +390,7 @@ char *IFCommHdrLoopCpl (ComProcHdrPtr LoopProc,
 
   for(i=0; i<nItems; i++, buffer+=itemSize)
   {
-    error = (*LoopProc)(cpl[i]->obj, buffer);
+    error = (*LoopProc)(context, cpl[i]->obj, buffer);
 
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
@@ -399,13 +403,13 @@ char *IFCommHdrLoopCpl (ComProcHdrPtr LoopProc,
         simple variant of above routine. dont communicate,
         but call an application's routine.
  */
-void IFExecHdrLoopCpl (ExecProcHdrPtr LoopProc, COUPLING **cpl, int nItems)
+void IFExecHdrLoopCpl (DDD::DDDContext& context, ExecProcHdrPtr LoopProc, COUPLING **cpl, int nItems)
 {
   int i, error;
 
   for(i=0; i<nItems; i++)
   {
-    error = (*LoopProc)(cpl[i]->obj);
+    error = (*LoopProc)(context, cpl[i]->obj);
 
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
@@ -418,7 +422,8 @@ void IFExecHdrLoopCpl (ExecProcHdrPtr LoopProc, COUPLING **cpl, int nItems)
 
         extended version: call ComProc with extended parameters
  */
-char *IFCommHdrLoopCplX (ComProcHdrXPtr LoopProc,
+char *IFCommHdrLoopCplX (DDD::DDDContext& context,
+                         ComProcHdrXPtr LoopProc,
                          COUPLING **cpl,
                          char *buffer,
                          size_t itemSize,
@@ -428,7 +433,7 @@ char *IFCommHdrLoopCplX (ComProcHdrXPtr LoopProc,
 
   for(i=0; i<nItems; i++, buffer+=itemSize)
   {
-    error = (*LoopProc)(cpl[i]->obj,
+    error = (*LoopProc)(context, cpl[i]->obj,
                         buffer, CPL_PROC(cpl[i]), cpl[i]->prio);
 
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
@@ -444,13 +449,13 @@ char *IFCommHdrLoopCplX (ComProcHdrXPtr LoopProc,
 
         extended version: call ExecProc with extended parameters
  */
-void IFExecHdrLoopCplX (ExecProcHdrXPtr LoopProc, COUPLING **cpl, int nItems)
+void IFExecHdrLoopCplX (DDD::DDDContext& context, ExecProcHdrXPtr LoopProc, COUPLING **cpl, int nItems)
 {
   int i, error;
 
   for(i=0; i<nItems; i++)
   {
-    error = (*LoopProc)(cpl[i]->obj, CPL_PROC(cpl[i]), cpl[i]->prio);
+    error = (*LoopProc)(context, cpl[i]->obj, CPL_PROC(cpl[i]), cpl[i]->prio);
 
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }

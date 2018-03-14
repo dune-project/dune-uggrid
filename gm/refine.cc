@@ -834,7 +834,7 @@ static INT PrepareGridClosure (GRID *theGrid)
  */
 /****************************************************************************/
 
-static int Gather_ElementClosureInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT refinedata;
   ELEMENT *theElement = (ELEMENT *)obj;
@@ -882,7 +882,7 @@ static int Gather_ElementClosureInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DD
  */
 /****************************************************************************/
 
-static int Scatter_ElementClosureInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT refinedata;
   ELEMENT *theElement = (ELEMENT *)obj;
@@ -923,7 +923,7 @@ static INT ExchangeElementClosureInfo (GRID *theGrid)
   return(GM_OK);
 }
 
-static int Gather_ElementRefine (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_ElementRefine (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -936,7 +936,7 @@ static int Gather_ElementRefine (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
   return(GM_OK);
 }
 
-static int Scatter_ElementRefine (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_ElementRefine (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -982,7 +982,7 @@ static INT ExchangeElementRefine (GRID *theGrid)
  */
 /****************************************************************************/
 
-static int Gather_EdgeClosureInfo (DDD_OBJ obj, void *data)
+static int Gather_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   INT pattern;
   EDGE    *theEdge = (EDGE *)obj;
@@ -1017,7 +1017,7 @@ static int Gather_EdgeClosureInfo (DDD_OBJ obj, void *data)
  */
 /****************************************************************************/
 
-static int Scatter_EdgeClosureInfo (DDD_OBJ obj, void *data)
+static int Scatter_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   INT pattern;
   EDGE    *theEdge = (EDGE *)obj;
@@ -1629,7 +1629,7 @@ static INT SetElementRules (GRID *theGrid, ELEMENT *firstElement, INT *cnt)
  */
 /****************************************************************************/
 
-static int Gather_AddEdgePattern (DDD_OBJ obj, void *data)
+static int Gather_AddEdgePattern (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
         #ifdef __TWODIM__
   INT pat;
@@ -1678,7 +1678,7 @@ static int Gather_AddEdgePattern (DDD_OBJ obj, void *data)
  */
 /****************************************************************************/
 
-static int Scatter_AddEdgePattern (DDD_OBJ obj, void *data)
+static int Scatter_AddEdgePattern (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
         #ifdef __TWODIM__
   INT pat;
@@ -2001,7 +2001,7 @@ static INT BuildGreenClosure (GRID *theGrid)
  */
 /****************************************************************************/
 
-static int Gather_ElementInfo (DDD_OBJ obj, void *Data)
+static int Gather_ElementInfo (DDD::DDDContext&, DDD_OBJ obj, void *Data)
 {
   INT epat,eaddpat;
   ELEMENT *theElement = (ELEMENT *)obj;
@@ -2077,7 +2077,7 @@ static int Gather_ElementInfo (DDD_OBJ obj, void *Data)
  */
 /****************************************************************************/
 
-static int Scatter_ElementInfo (DDD_OBJ obj, void *Data)
+static int Scatter_ElementInfo (DDD::DDDContext&, DDD_OBJ obj, void *Data)
 {
   INT epat,mpat,eaddpat,maddpat;
   ELEMENT *theElement = (ELEMENT *)obj;
@@ -2575,7 +2575,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
 
 #ifdef __PERIODIC_BOUNDARY__
 #ifdef ModelP
-static int Gather_USEDflag (DDD_OBJ obj, void *data)
+static int Gather_USEDflag (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *pv = (VECTOR *)obj;
 
@@ -2583,7 +2583,7 @@ static int Gather_USEDflag (DDD_OBJ obj, void *data)
   return (0);
 }
 
-static int Scatter_USEDflag (DDD_OBJ obj, void *data)
+static int Scatter_USEDflag (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *pv = (VECTOR *)obj;
   INT flag1,flag = ((INT *)data)[0];

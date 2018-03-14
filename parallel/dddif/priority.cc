@@ -154,7 +154,7 @@ REP_ERR_FILE
  */
 /****************************************************************************/
 
-static int ComputeNodeBorderPrios (DDD_OBJ obj)
+static int ComputeNodeBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
 {
   NODE    *node  = (NODE *)obj;
   int     *plist = DDD_InfoProcList(PARHDR(node));
@@ -196,7 +196,7 @@ static int ComputeNodeBorderPrios (DDD_OBJ obj)
  */
 /****************************************************************************/
 
-static int ComputeVectorBorderPrios (DDD_OBJ obj)
+static int ComputeVectorBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
 {
   VECTOR  *vector  = (VECTOR *)obj;
   int     *plist = DDD_InfoProcList(PARHDR(vector));
@@ -239,7 +239,7 @@ static int ComputeVectorBorderPrios (DDD_OBJ obj)
  */
 /****************************************************************************/
 
-static int ComputeEdgeBorderPrios (DDD_OBJ obj)
+static int ComputeEdgeBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
 {
   EDGE    *edge  =        (EDGE *)obj;
   int             *plist =        DDD_InfoProcList(PARHDR(edge));
