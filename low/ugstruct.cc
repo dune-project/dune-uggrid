@@ -390,20 +390,7 @@ char * NS_PREFIX GetStringVar (const char *name)
 
 INT NS_PREFIX GetStringValue (const char *name, double *value)
 {
-  const char *lastname;
-  ENVDIR *theDir;
-  STRVAR *myVar;
-
-  if ((theDir=FindStructDir(name,&lastname))==NULL)
-    return(1);                  /* structure directory not found */
-
-  if ((myVar=FindStringVar(theDir,lastname))==NULL)
-    return(1);
-
-  if (sscanf(myVar->s,"%lf",value)!=1)
-    return (1);
-
-  return (0);
+  return GetStringValueDouble(name, value);
 }
 
 /****************************************************************************/
@@ -424,22 +411,16 @@ INT NS_PREFIX GetStringValue (const char *name, double *value)
 
 INT NS_PREFIX GetStringValueDouble (const char *name, double *value)
 {
-  const char *lastname;
-  ENVDIR *theDir;
-  STRVAR *myVar;
-  double val;
+  const char* stringValue = GetStringVar(name);
+  if (not stringValue)
+    return 1;
 
-  if ((theDir=FindStructDir(name,&lastname))==NULL)
-    return(1);                  /* structure directory not found */
+  double tmp;
+  if (sscanf(stringValue, "%lf", &tmp)!=1)
+    return 1;
 
-  if ((myVar=FindStringVar(theDir,lastname))==NULL)
-    return(1);
-
-  if (sscanf(myVar->s,"%lf",&val)!=1)
-    return (1);
-
-  *value = val;
-  return (0);
+  *value = tmp;
+  return 0;
 }
 
 /****************************************************************************/
@@ -460,22 +441,15 @@ INT NS_PREFIX GetStringValueDouble (const char *name, double *value)
 
 INT NS_PREFIX GetStringValueInt (const char *name, int *value)
 {
-  const char *lastname;
-  ENVDIR *theDir;
-  STRVAR *myVar;
-  int val;
+  const char* stringValue = GetStringVar(name);
+  if (not stringValue)
+    return 1;
 
-  if ((theDir=FindStructDir(name,&lastname))==NULL)
-    return(1);                  /* structure directory not found */
-
-  if ((myVar=FindStringVar(theDir,lastname))==NULL)
-    return(1);
-
-  if (sscanf(myVar->s,"%d",&val)!=1)
-    return (1);
-
-  *value = val;
-  return (0);
+  int tmp;
+  if (sscanf(stringValue, "%d", &tmp)!=1)
+    return 1;
+  *value = tmp;
+  return 0;
 }
 
 /****************************************************************************/
