@@ -24,9 +24,25 @@ void globalDDDContext(std::nullptr_t)
   globalDDDContext_ = nullptr;
 }
 
+static ComProcPtr realGather;
+static ComProcPtr realScatter;
+
+static int realGatherWrapper(DDD::DDDContext&, DDD_OBJ obj, void* data)
+{
+  return realGather(obj, data);
+}
+
+static int realScatterWrapper(DDD::DDDContext&, DDD_OBJ obj, void* data)
+{
+  return realGather(obj, data);
+}
+
 void DDD_IFOneway(DDD_IF interface, DDD_IF_DIR direction, std::size_t size, ComProcPtr gather, ComProcPtr scatter)
 {
-  DDD_IFOneway(globalDDDContext(), interface, direction, size, gather, scatter);
+  realGather = gather;
+  realScatter = scatter;
+
+  DDD_IFOneway(globalDDDContext(), interface, direction, size, realGatherWrapper, realScatterWrapper);
 }
 
 END_UGDIM_NAMESPACE
