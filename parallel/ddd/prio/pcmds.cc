@@ -76,12 +76,12 @@ enum PrioMode {
 /* PRIO_GLOBALS: global data for prio module                                */
 /****************************************************************************/
 
-typedef struct _PRIO_GLOBALS
+struct PRIO_GLOBALS
 {
   /* mode of prio module */
   int prioMode;
 
-} PRIO_GLOBALS;
+};
 
 
 

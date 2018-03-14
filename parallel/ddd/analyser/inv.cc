@@ -47,24 +47,21 @@ using namespace PPIF;
 /*                                                                          */
 /****************************************************************************/
 
-
 /* graph of DDD_TYPEs, with directed edges according to references */
 
-typedef struct _TYPE_NODE
-{
-  TYPE_DESC *def;                  /* pointer to DDD_TYPE */
-  struct _TYPE_EDGE *refs;         /* linked list of referenced types */
-
-} TYPE_NODE;
-
-
-typedef struct _TYPE_EDGE
+struct TYPE_EDGE
 {
   DDD_TYPE reftype;        /* referenced type */
   int n;                   /* number of references */
 
-  struct _TYPE_EDGE *next;        /* linked list */
-} TYPE_EDGE;
+  TYPE_EDGE *next;         /* linked list */
+};
+
+struct TYPE_NODE
+{
+  TYPE_DESC *def;          /* pointer to DDD_TYPE */
+  TYPE_EDGE *refs;         /* linked list of referenced types */
+};
 
 /****************************************************************************/
 /*                                                                          */

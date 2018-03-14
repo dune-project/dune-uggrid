@@ -225,7 +225,7 @@ extern DDD_IF EdgeIF, BorderEdgeSymmIF, EdgeHIF, EdgeVHIF,
               EdgeSymmVHIF;
 
 /* DDD Global Controls */
-typedef struct
+struct DDD_CTRL
 {
   /* data from ug */
   MULTIGRID *currMG;
@@ -241,7 +241,7 @@ typedef struct
 
   /* status of DDDIF */
   bool allTypesDefined;
-} DDD_CTRL;
+};
 
 extern DDD_CTRL dddctrl;
 

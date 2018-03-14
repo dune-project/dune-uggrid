@@ -95,8 +95,6 @@ char    *GetStringVar                           (const char *name);
 INT              GetStringValue                         (const char *name, double *value);
 INT      GetStringValueDouble           (const char *name, double *value);
 INT      GetStringValueInt                      (const char *name, int *value);
-INT              GetStringDOUBLEInRange         (const char *name, DOUBLE min, DOUBLE max, DOUBLE *value);
-INT              GetStringINTInRange            (const char *name, INT min, INT max, INT *value);
 INT      SetStringValue                         (const char *name, double value);
 ENVDIR  *GetCurrentStructDir            (void);
 INT      GetStructPathName                      (char *s, int n);

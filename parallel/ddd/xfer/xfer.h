@@ -138,15 +138,15 @@ enum XferMode {
 /* XFERADDDATA: description of additional data on sender side               */
 /****************************************************************************/
 
-typedef struct xferaddinfo {
+struct XFERADDDATA {
   int addCnt;
   DDD_TYPE addTyp;
   int addLen;                    /* length of additional data                   */
   int addNPointers;
   int      *sizes;
 
-  struct   xferaddinfo *next;
-} XFERADDDATA;
+  XFERADDDATA* next;
+};
 
 
 /****************************************************************************/
@@ -202,11 +202,11 @@ int  Method(Compare) (ClassPtr, ClassPtr);
 /****************************************************************************/
 
 /* XIDelCmd represents a XferDeleteObj-cmd by the application program */
-typedef struct _XIDelCmd
+struct XIDelCmd
 {
-  SLL_INFO_WITH_COUNTER(_XIDelCmd);
+  SLL_INFO_WITH_COUNTER(XIDelCmd);
   DDD_HDR hdr;
-} XIDelCmd;
+};
 
 /* include template */
 #define T XIDelCmd
@@ -215,18 +215,20 @@ typedef struct _XIDelCmd
 #undef T
 
 
+struct XIDelCpl;
+
 /* XIDelObj represents an object-delete-action (cf. XferRegisterDelete()) */
-typedef struct _XIDelObj
+struct XIDelObj
 {
-  SLL_INFO(_XIDelObj);
+  SLL_INFO(XIDelObj);
   DDD_GID gid;                  /* gid of local object                          */
 
   /* hdr is explicitly not stored here, because object may be deleted
      when this XIDelObj-item is evaluated. */
 
-  struct _XIDelCpl *delcpls;        /* couplings of deleted object              */
+  XIDelCpl *delcpls;        /* couplings of deleted object              */
 
-} XIDelObj;
+};
 
 /* include template */
 #define T XIDelObj
@@ -266,15 +268,14 @@ int  Method(Compare) (ClassPtr, ClassPtr);
 /* XINewCpl:                                                                */
 /****************************************************************************/
 
-typedef struct _TENewCpl
+struct TENewCpl
 {
   DDD_GID _gid;                 /* obj-gid for which new copy will be created   */
   DDD_PROC _dest;               /* destination of new object copy               */
 
   DDD_PRIO_SMALL _prio;         /* priority of new object copy                  */
   DDD_TYPE_SMALL _type;         /* ddd-type of gid for PriorityMerge on receiver*/
-
-} TENewCpl;
+};
 
 #define NewCpl_GetGid(i)     ((i)._gid)
 #define NewCpl_SetGid(i,d)   ((i)._gid = (d))
@@ -294,13 +295,13 @@ typedef struct _TENewCpl
 #endif
 
 
-typedef struct _XINewCpl
+struct XINewCpl
 {
-  SLL_INFO(_XINewCpl);
+  SLL_INFO(XINewCpl);
   DDD_PROC to;                  /* receiver of this item                        */
   TENewCpl te;                  /* table entry (for message)                    */
 
-} XINewCpl;
+};
 
 /* include template */
 #define T XINewCpl
@@ -313,22 +314,20 @@ typedef struct _XINewCpl
 /* XIOldCpl:                                                                */
 /****************************************************************************/
 
-typedef struct _TEOldCpl
+struct TEOldCpl
 {
   DDD_GID gid;                  /* obj-gid of local copy                        */
   DDD_PROC proc;                /* owner of that local object                   */
   DDD_PRIO prio;                /* priority of that local object                */
+};
 
-} TEOldCpl;
 
-
-typedef struct _XIOldCpl
+struct XIOldCpl
 {
-  SLL_INFO(_XIOldCpl);
+  SLL_INFO(XIOldCpl);
   DDD_PROC to;                  /* receiver of this item                        */
   TEOldCpl te;                  /* table entry (for message)                    */
-
-} XIOldCpl;
+};
 
 /* include template */
 #define T XIOldCpl
@@ -340,22 +339,21 @@ typedef struct _XIOldCpl
 /* XIAddCpl:                                                                */
 /****************************************************************************/
 
-typedef struct _TEAddCpl
+struct TEAddCpl
 {
   DDD_GID gid;                  /* obj-gid of new local object                  */
   DDD_PROC proc;                /* owner of new object copy                     */
   DDD_PRIO prio;                /* priority of new local object                 */
+};
 
-} TEAddCpl;
 
-
-typedef struct _XIAddCpl
+struct XIAddCpl
 {
-  SLL_INFO(_XIAddCpl);
+  SLL_INFO(XIAddCpl);
   DDD_PROC to;                  /* receiver of this item                        */
   TEAddCpl te;                  /* table entry (for message)                    */
 
-} XIAddCpl;
+};
 
 /* include template */
 #define T XIAddCpl
@@ -368,23 +366,21 @@ typedef struct _XIAddCpl
 /* XIDelCpl:                                                                */
 /****************************************************************************/
 
-typedef struct _TEDelCpl
+struct TEDelCpl
 {
   DDD_GID gid;                  /* obj-gid of deleted local object              */
+};
 
-} TEDelCpl;
 
-
-typedef struct _XIDelCpl
+struct XIDelCpl
 {
-  SLL_INFO(_XIDelCpl);
+  SLL_INFO(XIDelCpl);
   DDD_PROC to;                  /* receiver of this item                        */
   TEDelCpl te;                  /* table entry (for message)                    */
 
   DDD_PRIO prio;                /* prio of deleted coupling                     */
-  struct _XIDelCpl *next;       /* linked list of XIDelCpls                     */
-
-} XIDelCpl;
+  XIDelCpl* next;               /* linked list of XIDelCpls                     */
+};
 
 /* include template */
 #define T XIDelCpl
@@ -398,23 +394,21 @@ typedef struct _XIDelCpl
 /* XIModCpl:                                                                */
 /****************************************************************************/
 
-typedef struct _TEModCpl
+struct TEModCpl
 {
   DDD_GID gid;                  /* obj-gid of corresponding object              */
   DDD_PRIO prio;                /* new priority for this obj on sending proc    */
+};
 
-} TEModCpl;
 
-
-typedef struct _XIModCpl
+struct XIModCpl
 {
-  SLL_INFO(_XIModCpl);
+  SLL_INFO(XIModCpl);
   DDD_PROC to;                  /* receiver of this item                        */
   TEModCpl te;                  /* table entry (for message)                    */
 
   DDD_TYPE typ;                 /* type of corresponding object                 */
-
-} XIModCpl;
+};
 
 /* include template */
 #define T XIModCpl
@@ -426,12 +420,12 @@ typedef struct _XIModCpl
 /* XFERMSG: complete description about message on sender side               */
 /****************************************************************************/
 
-typedef struct _XFERMSG
+struct XFERMSG
 {
   DDD_PROC proc;                 /* receiver of message                         */
   size_t size;                   /* size of message data                        */
 
-  struct _XFERMSG *next;
+  XFERMSG* next;
 
 
   XICopyObjPtr *xferObjArray;
@@ -449,8 +443,7 @@ typedef struct _XFERMSG
 
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
-
-} XFERMSG;
+};
 
 
 
@@ -460,7 +453,7 @@ typedef struct _XFERMSG
 /****************************************************************************/
 
 
-typedef struct
+struct SYMTAB_ENTRY
 {
   DDD_GID gid;
 
@@ -468,7 +461,7 @@ typedef struct
     DDD_HDR hdr;                      /* used on receiver side only */
     DDD_OBJ    *ref;                  /* used on sender side only   */
   } adr;                          /* undefined during transfer  */
-} SYMTAB_ENTRY;
+};
 
 
 
@@ -476,7 +469,7 @@ typedef struct
 /* OBJTAB_ENTRY: single entry of object table inside message                */
 /****************************************************************************/
 
-typedef struct
+struct OBJTAB_ENTRY
 {
 
   int h_offset;                   /* header offset from beginObjMem */
@@ -490,10 +483,7 @@ typedef struct
   /* TODO: the following data is only used on receiver side */
   char is_new;
   char oldprio;
-
-
-
-} OBJTAB_ENTRY;
+};
 
 
 
@@ -515,31 +505,30 @@ typedef struct
 /* DELTAB_ENTRY: single entry of deletion table inside message              */
 /****************************************************************************/
 
-typedef struct {
+struct DELTAB_ENTRY {
   DDD_GID gid;
   DDD_PROC proc;
-} DELTAB_ENTRY;
-
+};
 
 
 /****************************************************************************/
 /* XFER_PER_PROC: data needed on a per-proc basis during xfer               */
 /****************************************************************************/
 
-typedef struct _XFER_PER_PROC
+struct XFER_PER_PROC
 {
   int dummy;        /* not used yet */
-} XFER_PER_PROC;
+};
 
 
 /****************************************************************************/
 /* XFER_GLOBALS: global data for xfer module                                */
 /****************************************************************************/
 
-typedef struct _XFER_GLOBALS
+struct XFER_GLOBALS
 {
   /* mode of xfer module */
-  enum XferMode xferMode;
+  XferMode xferMode;
 
   /* description for object message */
   LC_MSGTYPE objmsg_t;
@@ -556,8 +545,7 @@ typedef struct _XFER_GLOBALS
   int useHeap;
   /* MarkKey for memory management */
   long theMarkKey;
-
-} XFER_GLOBALS;
+};
 
 
 /* one instance of XFER_GLOBALS */

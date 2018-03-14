@@ -390,20 +390,7 @@ char * NS_PREFIX GetStringVar (const char *name)
 
 INT NS_PREFIX GetStringValue (const char *name, double *value)
 {
-  const char *lastname;
-  ENVDIR *theDir;
-  STRVAR *myVar;
-
-  if ((theDir=FindStructDir(name,&lastname))==NULL)
-    return(1);                  /* structure directory not found */
-
-  if ((myVar=FindStringVar(theDir,lastname))==NULL)
-    return(1);
-
-  if (sscanf(myVar->s,"%lf",value)!=1)
-    return (1);
-
-  return (0);
+  return GetStringValueDouble(name, value);
 }
 
 /****************************************************************************/
@@ -424,22 +411,16 @@ INT NS_PREFIX GetStringValue (const char *name, double *value)
 
 INT NS_PREFIX GetStringValueDouble (const char *name, double *value)
 {
-  const char *lastname;
-  ENVDIR *theDir;
-  STRVAR *myVar;
-  double val;
+  const char* stringValue = GetStringVar(name);
+  if (not stringValue)
+    return 1;
 
-  if ((theDir=FindStructDir(name,&lastname))==NULL)
-    return(1);                  /* structure directory not found */
+  double tmp;
+  if (sscanf(stringValue, "%lf", &tmp)!=1)
+    return 1;
 
-  if ((myVar=FindStringVar(theDir,lastname))==NULL)
-    return(1);
-
-  if (sscanf(myVar->s,"%lf",&val)!=1)
-    return (1);
-
-  *value = val;
-  return (0);
+  *value = tmp;
+  return 0;
 }
 
 /****************************************************************************/
@@ -460,96 +441,15 @@ INT NS_PREFIX GetStringValueDouble (const char *name, double *value)
 
 INT NS_PREFIX GetStringValueInt (const char *name, int *value)
 {
-  const char *lastname;
-  ENVDIR *theDir;
-  STRVAR *myVar;
-  int val;
+  const char* stringValue = GetStringVar(name);
+  if (not stringValue)
+    return 1;
 
-  if ((theDir=FindStructDir(name,&lastname))==NULL)
-    return(1);                  /* structure directory not found */
-
-  if ((myVar=FindStringVar(theDir,lastname))==NULL)
-    return(1);
-
-  if (sscanf(myVar->s,"%d",&val)!=1)
-    return (1);
-
-  *value = val;
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Get the double value of 'name' together with a range check
-
-   \param name - memory address of the string variable
-   \param min - left endpoint of interval
-   \param max - right endpoint of interval
-   \param value - address where the value is stored
-
-   This function gets the double value of the string variable 'name'
-   and checks wether it is lying in the specified interval.
-
-   \return <ul>
-   <li>  0 if ok </li>
-   <li>  1 variable not found </li>
-   <li>  2 no legal value </li>
-   <li>  3/4 outside of range </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_PREFIX GetStringDOUBLEInRange (const char *name, DOUBLE min, DOUBLE max, DOUBLE *value)
-{
-  const char *lastname;
-  ENVDIR *theDir;
-  STRVAR *myVar;
-  double val;
-
-  if ((theDir=FindStructDir(name,&lastname))==NULL) return(1);
-  if ((myVar=FindStringVar(theDir,lastname))==NULL) return(1);
-  if (sscanf(myVar->s,"%lf",&val)!=1) return(2);
-  if (val<min) return(3);
-  if (val>max) return(4);
-  *value = (DOUBLE) val;
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Get the integer value of 'name' together with a range check
-
-   \param name - memory address of the string variable
-   \param min - left endpoint of interval
-   \param max - right endpoint of interval
-   \param value - address where the value is stored
-
-   This function gets the integer value of the string variable 'name'
-   and checks wether it is lying in the specified interval.
-
-   \return <ul>
-   <li>  0 if ok </li>
-   <li>  1 variable not found </li>
-   <li>  2 no legal value </li>
-   <li>  3/4 outside of range </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_PREFIX GetStringINTInRange (const char *name, INT min, INT max, INT *value)
-{
-  const char *lastname;
-  ENVDIR *theDir;
-  STRVAR *myVar;
-  int val;
-
-  if ((theDir=FindStructDir(name,&lastname))==NULL) return(1);
-  if ((myVar=FindStringVar(theDir,lastname))==NULL) return(1);
-  if (sscanf(myVar->s,"%d",&val)!=1) return(2);
-  if (val<min) return(3);
-  if (val>max) return(4);
-  *value = (INT) val;
-
-  return (0);
+  int tmp;
+  if (sscanf(stringValue, "%d", &tmp)!=1)
+    return 1;
+  *value = tmp;
+  return 0;
 }
 
 /****************************************************************************/

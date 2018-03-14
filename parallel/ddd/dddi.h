@@ -161,14 +161,14 @@ enum PrioMergeVals {
 /* COUPLING: record for coupling of local object with foreign objects       */
 /****************************************************************************/
 
-typedef struct obj_coupl
+struct COUPLING
 {
-  struct obj_coupl *_next;
+  COUPLING* _next;
   unsigned short _proc;
   unsigned char prio;
   unsigned char _flags;
   DDD_HDR obj;
-} COUPLING;
+};
 
 
 #define CPL_NEXT(cpl)   ((cpl)->_next)
@@ -184,7 +184,7 @@ typedef struct obj_coupl
         F_FRONTEND is needed, depending on setting of desc->storage.
         this should be a union for memory efficiency reasons.
  */
-typedef struct _ELEM_DESC
+struct ELEM_DESC
 {
   int offset;                         /* element offset from object address     */
   std::unique_ptr<unsigned char[]> gbits; /* gbits array, if type==EL_GBITS     */
@@ -200,7 +200,7 @@ typedef struct _ELEM_DESC
      determining the reftype on-the-fly (additional parameter during
      TypeDefine with EL_OBJPTR)                                        */
   HandlerGetRefType reftypeHandler;
-} ELEM_DESC;
+};
 
 
 /* macros for accessing ELEM_DESC */
@@ -212,7 +212,7 @@ typedef struct _ELEM_DESC
 /* TYPE_DESC: single DDD object structure description                       */
 /****************************************************************************/
 
-typedef struct _TYPE_DESC
+struct TYPE_DESC
 {
   int mode;                             /* current TypeMode (DECLARE/DEFINE)    */
   const char  *name;                       /* textual object description           */
@@ -250,7 +250,7 @@ typedef struct _TYPE_DESC
   /* redundancy for efficiency */
   int nPointers;                        /* number of outside references         */
   std::unique_ptr<unsigned char[]> cmask; /* mask for fast type-dependent copy    */
-} TYPE_DESC;
+};
 
 
 

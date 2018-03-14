@@ -162,11 +162,11 @@ static void ident_FreeTmp (void *buffer)
 /* IDENTIFIER:                                                              */
 /****************************************************************************/
 
-typedef union {
+union IDENTIFIER {
   int number;
   char       *string;
   DDD_GID object;
-} IDENTIFIER;
+};
 
 
 
@@ -174,7 +174,7 @@ typedef union {
 /* MSGITEM:                                                                 */
 /****************************************************************************/
 
-typedef struct {
+struct MSGITEM {
   DDD_GID gid;
   DDD_PRIO prio;
 
@@ -182,7 +182,7 @@ typedef struct {
   unsigned long tupel;         /* send tupel ID for checking consistency */
 #       endif
 
-} MSGITEM;
+};
 
 
 
@@ -190,8 +190,9 @@ typedef struct {
 /* IDENTINFO:                                                               */
 /****************************************************************************/
 
+struct ID_TUPEL;
 
-typedef struct _IDENTINFO {
+struct IDENTINFO {
   int typeId;
   int entry;
   IDENTIFIER id;
@@ -201,8 +202,8 @@ typedef struct _IDENTINFO {
 
   DDD_HDR hdr;
 
-  struct _ID_TUPEL  *tupel;
-} IDENTINFO;
+  ID_TUPEL  *tupel;
+};
 
 
 
@@ -210,14 +211,14 @@ typedef struct _IDENTINFO {
 /* ID_TUPEL:                                                                */
 /****************************************************************************/
 
-typedef struct _ID_REFDBY
+struct ID_REFDBY
 {
-  struct _IDENTINFO  *by;
-  struct _ID_REFDBY  *next;
-} ID_REFDBY;
+  IDENTINFO  *by;
+  ID_REFDBY  *next;
+};
 
 
-typedef struct _ID_TUPEL {
+struct ID_TUPEL {
   unsigned long tId;
   IDENTINFO     **infos;
 
@@ -225,8 +226,7 @@ typedef struct _ID_TUPEL {
 
   int loi;                        /* level of indirection */
   ID_REFDBY     *refd;            /* list of referencing IdEntries */
-
-} ID_TUPEL;
+};
 
 
 /****************************************************************************/
@@ -234,9 +234,9 @@ typedef struct _ID_TUPEL {
 /****************************************************************************/
 
 
-typedef struct _IdEntry {
+struct IdEntry {
   IDENTINFO msg;
-} IdEntry;
+};
 
 
 /* define container class */
@@ -251,12 +251,12 @@ typedef struct _IdEntry {
 /* ID_PLIST:                                                                */
 /****************************************************************************/
 
-typedef struct _ID_PLIST {
+struct ID_PLIST {
   DDD_PROC proc;
   int nEntries;
   int nIdentObjs;
 
-  struct _ID_PLIST *next;
+  ID_PLIST *next;
   IdEntrySegmList  *entries;
 
   IDENTINFO   **local_ids;
@@ -264,7 +264,7 @@ typedef struct _ID_PLIST {
 
   MSGITEM     *msgin, *msgout;
   msgid idin, idout;
-} ID_PLIST;
+};
 
 
 /****************************************************************************/

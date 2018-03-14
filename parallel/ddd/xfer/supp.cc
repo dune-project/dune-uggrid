@@ -146,23 +146,23 @@ extern XICopyObj *theXIAddData;
 /****************************************************************************/
 
 /* segment of AddDatas */
-typedef struct _AddDataSegm
+struct AddDataSegm
 {
-  struct _AddDataSegm *next;
+  AddDataSegm *next;
   int nItems;
 
   XFERADDDATA item[ADDDATASEGM_SIZE];
-} AddDataSegm;
+};
 
 
 /* segment of AddData-Sizes */
-typedef struct _SizesSegm
+struct SizesSegm
 {
-  struct _SizesSegm   *next;
+  SizesSegm   *next;
   int current;
 
   int data[SIZESSEGM_SIZE];
-} SizesSegm;
+};
 
 
 

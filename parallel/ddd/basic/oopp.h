@@ -58,12 +58,11 @@
 /* from now on, we suppose a '#define ClassName XXX' for a given class */
 
 #define Class            CN(ClassName)           /* internal class-name */
-#define __Class          CCAT(_,Class)
-#define ClassPtr         struct __Class *
+#define ClassPtr         Class*
 #define ClassRef         ClassPtr
 /* #define VoidRef          void * */
-#define Class_Data_Begin typedef struct __Class {
-#define Class_Data_End   } Class;
+#define Class_Data_Begin struct Class {
+#define Class_Data_End   };
 
 #define Method(M)        CCAT(CCAT(ClassName,_),M)
 

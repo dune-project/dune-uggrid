@@ -66,12 +66,12 @@ START_UGDIM_NAMESPACE
  */
 
 
-typedef struct _Buffer
+struct Buffer
 {
   char    *buf;              /* pointer to memory for buffer                    */
   size_t size;               /* size of memory chunk                            */
   size_t used;               /* size of used memory inside memory, used<=size!  */
-} Buffer;
+};
 
 
 
