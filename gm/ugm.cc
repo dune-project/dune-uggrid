@@ -2459,6 +2459,8 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
   else if (objtype == BEOBJ)
     pe = (ELEMENT*)GetMemoryForObject(MYMG(theGrid),BND_SIZE_TAG(tag),
                                       MAPPED_BND_OBJT_TAG(tag));
+  else
+    std::abort();
 
   if (pe==NULL) return(NULL);
 
