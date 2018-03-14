@@ -1911,7 +1911,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
 }
 
 #ifdef ModelP
-static int Gather_RefineInfo (DDD_OBJ obj, void *data)
+static int Gather_RefineInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -1923,7 +1923,7 @@ static int Gather_RefineInfo (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_RefineInfo (DDD_OBJ obj, void *data)
+static int Scatter_RefineInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -1944,7 +1944,7 @@ static INT SpreadRefineInfo(GRID *theGrid)
 }
 #endif
 
-static int Gather_NodeType (DDD_OBJ obj, void *data)
+static int Gather_NodeType (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1953,7 +1953,7 @@ static int Gather_NodeType (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_NodeType (DDD_OBJ obj, void *data)
+static int Scatter_NodeType (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -2631,7 +2631,7 @@ static INT InsertLocalTree (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMENT 
 }
 
 #ifdef ModelP
-static int Gather_EClasses (DDD_OBJ obj, void *data)
+static int Gather_EClasses (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *p;
   int *d;
@@ -2643,7 +2643,7 @@ static int Gather_EClasses (DDD_OBJ obj, void *data)
   return (0);
 }
 
-static int Scatter_EClasses(DDD_OBJ obj, void *data)
+static int Scatter_EClasses(DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *p;
   int *d;

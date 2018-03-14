@@ -131,7 +131,7 @@ START_UGDIM_NAMESPACE
  */
 /****************************************************************************/
 
-static INT UpdateElementOverlap (ELEMENT *theElement)
+static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
 {
   INT i,s,prio;
   INT SonsOfSide,SonSides[MAX_SONS];
@@ -189,7 +189,7 @@ static INT UpdateElementOverlap (ELEMENT *theElement)
 
       if (EPROCPRIO(theNeighbor,PrioMaster)>=procs) break;
 
-      XFERECOPYX(theSon,EPROCPRIO(theNeighbor,PrioMaster),PrioHGhost,
+      XFERECOPYX(context, theSon,EPROCPRIO(theNeighbor,PrioMaster),PrioHGhost,
                  (OBJT(theSon)==BEOBJ) ? BND_SIZE_TAG(TAG(theSon)) :
                  INNER_SIZE_TAG(TAG(theSon)));
       /* send son to all elements where theNeighbor is master, vghost or vhghost */
@@ -201,7 +201,7 @@ static INT UpdateElementOverlap (ELEMENT *theElement)
         {
           if (!EHGHOSTPRIO(*(proclist+1)))
           {
-            XFERECOPYX(theSon,*proclist,PrioHGhost,
+            XFERECOPYX(context, theSon,*proclist,PrioHGhost,
                        (OBJT(theSon)==BEOBJ) ? BND_SIZE_TAG(TAG(theSon)) :
                        INNER_SIZE_TAG(TAG(theSon)));
           }
@@ -233,12 +233,13 @@ static INT UpdateElementOverlap (ELEMENT *theElement)
 
 INT UpdateGridOverlap (GRID *theGrid)
 {
+  DDD::DDDContext& context = theGrid->dddContext();
   ELEMENT *theElement;
 
   for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
   {
     if (IS_REFINED(theElement))
-      UpdateElementOverlap(theElement);
+      UpdateElementOverlap(context, theElement);
   }
 
   return(GM_OK);

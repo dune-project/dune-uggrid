@@ -623,6 +623,7 @@ int PrepareObjMsgs (DDD::DDDContext& context,
         procs during first message phase.
  */
 void ExecLocalXISetPrio (
+  DDD::DDDContext& context,
   const std::vector<XISetPrio*>& arrayP,
   XIDelObj  **itemsD, int nD,
   XICopyObj  **itemsNO, int nNO)
@@ -663,7 +664,7 @@ void ExecLocalXISetPrio (
       {
         DDD_OBJ obj = HDR2OBJ(hdr,desc);
 
-        desc->handlerSETPRIORITY( obj, newprio);
+        desc->handlerSETPRIORITY(context, obj, newprio);
       }
 
       /* change actual priority to new value */
@@ -717,7 +718,7 @@ void ExecLocalXISetPrio (
  */
 
 
-void ExecLocalXIDelCmd (XIDelCmd  **itemsD, int nD)
+void ExecLocalXIDelCmd (DDD::DDDContext& context, XIDelCmd  **itemsD, int nD)
 {
   int iD;
   XIDelCmd **origD;
@@ -748,7 +749,7 @@ void ExecLocalXIDelCmd (XIDelCmd  **itemsD, int nD)
 
     /* do deletion */
     if (desc->handlerDELETE)
-      desc->handlerDELETE( obj);
+      desc->handlerDELETE(context, obj);
     else
     {
       /* TODO the following three calls should be collected in
@@ -756,7 +757,7 @@ void ExecLocalXIDelCmd (XIDelCmd  **itemsD, int nD)
 
       /* destruct LDATA and GDATA */
       if (desc->handlerDESTRUCTOR!=NULL)
-        desc->handlerDESTRUCTOR( obj);
+        desc->handlerDESTRUCTOR(context, obj);
 
       /* HdrDestructor will call ddd_XferRegisterDelete() */
       DDD_HdrDestructor(hdr);

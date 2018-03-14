@@ -2165,7 +2165,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
 
 
 #ifdef ModelP
-static int Gather_VectorVNew (DDD_OBJ obj, void *data)
+static int Gather_VectorVNew (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -2174,7 +2174,7 @@ static int Gather_VectorVNew (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_VectorVNew (DDD_OBJ obj, void *data)
+static int Scatter_VectorVNew (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -2183,7 +2183,7 @@ static int Scatter_VectorVNew (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_GhostVectorVNew (DDD_OBJ obj, void *data)
+static int Scatter_GhostVectorVNew (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3335,7 +3335,7 @@ INT NS_DIM_PREFIX ClearVectorClasses (GRID *theGrid)
 
 
 #ifdef ModelP
-static int Gather_VectorVClass (DDD_OBJ obj, void *data)
+static int Gather_VectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3347,7 +3347,7 @@ static int Gather_VectorVClass (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_VectorVClass (DDD_OBJ obj, void *data)
+static int Scatter_VectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3359,7 +3359,7 @@ static int Scatter_VectorVClass (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_GhostVectorVClass (DDD_OBJ obj, void *data)
+static int Scatter_GhostVectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3567,7 +3567,7 @@ INT NS_DIM_PREFIX SeedNextVectorClasses (GRID *theGrid, ELEMENT *theElement)
 
 
 #ifdef ModelP
-static int Gather_VectorVNClass (DDD_OBJ obj, void *data)
+static int Gather_VectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3579,7 +3579,7 @@ static int Gather_VectorVNClass (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_VectorVNClass (DDD_OBJ obj, void *data)
+static int Scatter_VectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3591,7 +3591,7 @@ static int Scatter_VectorVNClass (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_GhostVectorVNClass (DDD_OBJ obj, void *data)
+static int Scatter_GhostVectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 

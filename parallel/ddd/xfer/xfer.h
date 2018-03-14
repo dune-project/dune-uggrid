@@ -597,8 +597,8 @@ XICopyObj **CplClosureEstimate(const std::vector<XICopyObj*>&, int *);
 int  PrepareObjMsgs(DDD::DDDContext& context,
                     std::vector<XICopyObj*>&, XINewCpl **, int,
                     XIOldCpl **, int, XFERMSG **, size_t *);
-void ExecLocalXIDelCmd(XIDelCmd  **, int);
-void ExecLocalXISetPrio(const std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
+void ExecLocalXIDelCmd(DDD::DDDContext& context, XIDelCmd  **, int);
+void ExecLocalXISetPrio(DDD::DDDContext& context, const std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
 void ExecLocalXIDelObj(XIDelObj  **, int, XICopyObj **,int);
 void PropagateCplInfos(XISetPrio **, int, XIDelObj  **, int,
                        TENewCpl *, int);
@@ -611,7 +611,7 @@ RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *);
 
 
 /* unpack.c, used only by cmds.c */
-void XferUnpack (LC_MSGHANDLE *, int, const DDD_HDR *, int,
+void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *, int, const DDD_HDR *, int,
                  std::vector<XISetPrio*>&, XIDelObj  **, int,
                  const std::vector<XICopyObj*>&, XICopyObj **, int);
 

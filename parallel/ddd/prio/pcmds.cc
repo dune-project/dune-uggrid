@@ -272,7 +272,7 @@ void DDD_PrioChange (DDD_HDR hdr, DDD_PRIO prio)
 /*                                                                          */
 /****************************************************************************/
 
-static int GatherPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int GatherPrio (DDD::DDDContext&, DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
 #       if DebugPrio<=1
   sprintf(cBuffer, "%4d: DDD_PrioEnd/GatherPrio %08x, prio=%d. Send to copy on proc %3d/p%d)\n",
@@ -284,7 +284,7 @@ static int GatherPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
   return(0);
 }
 
-static int ScatterPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int ScatterPrio (DDD::DDDContext&, DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   DDD_PRIO real_prio = *((DDD_PRIO *)data);
 

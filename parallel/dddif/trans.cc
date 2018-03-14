@@ -69,10 +69,10 @@ using namespace PPIF;
 enum GhostCmds { GC_Keep, GC_ToMaster, GC_Delete };
 
 
-#define XferElement(elem,dest,prio) \
+#define XferElement(context, elem,dest,prio)                             \
   { PRINTDEBUG(dddif,1,("%4d: XferElement(): XferCopy elem=" EID_FMTX " dest=%d prio=%d\n", \
                         me,EID_PRTX(elem), dest, prio)); \
-    XFERECOPYX((elem), dest, prio, \
+    XFERECOPYX(context, (elem), dest, prio,               \
                (OBJT(elem)==BEOBJ) ?   \
                BND_SIZE_TAG(TAG(elem)) :   \
                INNER_SIZE_TAG(TAG(elem)));  }
@@ -135,6 +135,7 @@ void NS_DIM_PREFIX AMGAgglomerate(MULTIGRID *theMG)
   GRID    *theGrid;
   VECTOR  *theVector;
 
+  DDD::DDDContext& context = theMG->dddContext();
   const auto master = theMG->ppifContext().master();
 
   level = BOTTOMLEVEL(theMG);
@@ -145,15 +146,15 @@ void NS_DIM_PREFIX AMGAgglomerate(MULTIGRID *theMG)
   }
   theGrid = GRID_ON_LEVEL(theMG,level);
 
-  DDD_XferBegin(theMG->dddContext());
+  DDD_XferBegin(context);
   for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
   {
     Size = sizeof(VECTOR)-sizeof(DOUBLE)
            +FMT_S_VEC_TP(MGFORMAT(theMG),VTYPE(theVector));
-    XFERCOPYX(theVector,master,PrioMaster,Size);
+    XFERCOPYX(context, theVector,master,PrioMaster,Size);
     SETPRIO(theVector,PrioVGhost);
   }
-  DDD_XferEnd(theMG->dddContext());
+  DDD_XferEnd(context);
 
   return;
 }
@@ -179,7 +180,7 @@ void NS_DIM_PREFIX AMGAgglomerate(MULTIGRID *theMG)
  */
 /****************************************************************************/
 
-static int Gather_ElemDest (DDD_OBJ obj, void *data)
+static int Gather_ElemDest (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -207,7 +208,7 @@ static int Gather_ElemDest (DDD_OBJ obj, void *data)
  */
 /****************************************************************************/
 
-static int Scatter_ElemDest (DDD_OBJ obj, void *data)
+static int Scatter_ElemDest (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -272,7 +273,7 @@ static int UpdateGhostDests (MULTIGRID *theMG)
  */
 /****************************************************************************/
 
-static int Gather_GhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_GhostCmd (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   INT j;
@@ -329,7 +330,7 @@ static int Gather_GhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pri
  */
 /****************************************************************************/
 
-static int Scatter_GhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_GhostCmd (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   ELEMENT *SonList[MAX_SONS];
@@ -357,7 +358,7 @@ static int Scatter_GhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pr
         i++;
       }
     }
-    XFEREDELETE(theElement);
+    XFEREDELETE(context, theElement);
     break;
 
   default :
@@ -388,7 +389,7 @@ static int Scatter_GhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pr
  */
 /****************************************************************************/
 
-static int Gather_VHGhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_VHGhostCmd (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   ELEMENT *theFather      = EFATHER(theElement);
@@ -450,7 +451,7 @@ static int Gather_VHGhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO p
  */
 /****************************************************************************/
 
-static int Scatter_VHGhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_VHGhostCmd (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   ELEMENT *SonList[MAX_SONS];
@@ -472,7 +473,7 @@ static int Scatter_VHGhostCmd (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
   /* element is not needed on me any more */
   if ((*(int *)data) == GC_Delete)
   {
-    XFEREDELETE(theElement);
+    XFEREDELETE(context, theElement);
     return(0);
   }
 
@@ -608,13 +609,15 @@ static int XferGridWithOverlap (GRID *theGrid)
   INT i,j,overlap_elem,part;
   INT migrated = 0;
 
+  DDD::DDDContext& context = theGrid->dddContext();
+
   for(theElement=FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
   {
     /* goal processor */
     part = PARTITION(theElement);
 
     /* create Master copy */
-    XferElement(theElement, part, PrioMaster);
+    XferElement(context, theElement, part, PrioMaster);
 
                 #ifdef STAT_OUT
     /* count elems */
@@ -637,7 +640,7 @@ static int XferGridWithOverlap (GRID *theGrid)
         if (PARTITION(theElement)!=PARTITION(theNeighbor))
         {
           /* create Ghost copy */
-          XferElement(theElement, PARTITION(theNeighbor), PrioHGhost);
+          XferElement(context, theElement, PARTITION(theNeighbor), PrioHGhost);
         }
 
         /* remember any local neighbour element */
@@ -653,7 +656,7 @@ static int XferGridWithOverlap (GRID *theGrid)
       if (PARTITION(theFather) != PARTITION(theElement) ||
           !EMASTER(theFather))
         /* create VGhost copy */
-        XferElement(theFather, PARTITION(theElement), PrioVGhost);
+        XferElement(context, theFather, PARTITION(theElement), PrioVGhost);
     }
     else
     {
@@ -708,7 +711,7 @@ static int XferGridWithOverlap (GRID *theGrid)
         PRINTDEBUG(dddif,2,("%d: XferGridWithOverlap(): XferDel elem=%d to p=%d prio=%d\n",
                             me,EGID(theElement),PARTITION(theElement),PrioHGhost));
 
-        XFEREDELETE(theElement);
+        XFEREDELETE(context, theElement);
       }
     }
   }
