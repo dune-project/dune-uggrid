@@ -31,6 +31,9 @@
 /****************************************************************************/
 
 #include <config.h>
+
+#include <algorithm>
+
 #include "parallel.h"
 #include "evm.h"
 #include "general.h"
@@ -111,115 +114,29 @@ typedef struct {
  */
 /****************************************************************************/
 
-static int sort_rcb_x (const void *e1, const void *e2)
+/**
+ * compare entities according to center coordinate.
+ * This function implements a lexiographic order by the
+ * `d0`-th, `d1`-th and `d2`-th component of the center coordinate.
+ */
+template<int d0, int d1, int d2>
+static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
 {
-  LB_INFO *t1, *t2;
-
-  t1 = (LB_INFO *)e1;
-  t2 = (LB_INFO *)e2;
-
-  if (t1->center[0] < t2->center[0] -SMALL_DOUBLE) return(-1);
-  if (t1->center[0] > t2->center[0] +SMALL_DOUBLE) return(1);
+  if (a.center[0] < b.center[0] -SMALL_DOUBLE) return true;
+  if (a.center[0] > b.center[0] +SMALL_DOUBLE) return false;
 
   /* x coordinates are considered to be equal, compare y now */
-  if (t1->center[1] < t2->center[1] -SMALL_DOUBLE) return(-1);
-  if (t1->center[1] > t2->center[1] +SMALL_DOUBLE) return(1);
-
-        #ifdef __THREEDIM__
-  /* x and y coordinates are considered to be equal, compare y now */
-  if (t1->center[2] < t2->center[2] -SMALL_DOUBLE) return(-1);
-  if (t1->center[2] > t2->center[2] +SMALL_DOUBLE) return(1);
-        #endif
-
-  return(0);
-}
-
-
-/****************************************************************************/
-/*
-   sort_rcb_y -
-
-   SYNOPSIS:
-   static int sort_rcb_y (const void *e1, const void *e2);
-
-   PARAMETERS:
-   .  e1
-   .  e2
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   int
- */
-/****************************************************************************/
-
-static int sort_rcb_y (const void *e1, const void *e2)
-{
-  LB_INFO *t1, *t2;
-
-  t1 = (LB_INFO *)e1;
-  t2 = (LB_INFO *)e2;
-
-  if (t1->center[1] < t2->center[1] -SMALL_DOUBLE) return(-1);
-  if (t1->center[1] > t2->center[1] +SMALL_DOUBLE) return(1);
-
-  /* y coordinates are considered to be equal, compare x now */
-  if (t1->center[0] < t2->center[0] -SMALL_DOUBLE) return(-1);
-  if (t1->center[0] > t2->center[0] +SMALL_DOUBLE) return(1);
-
-        #ifdef __THREEDIM__
-  /* y and x coordinates are considered to be equal, compare x now */
-  if (t1->center[2] < t2->center[2] -SMALL_DOUBLE) return(-1);
-  if (t1->center[2] > t2->center[2] +SMALL_DOUBLE) return(1);
-        #endif
-
-  return(0);
-}
-
+  if (a.center[1] < b.center[1] -SMALL_DOUBLE) return true;
+  if (a.center[1] > b.center[1] +SMALL_DOUBLE) return false;
 
 #ifdef __THREEDIM__
-
-
-/****************************************************************************/
-/*
-   sort_rcb_z -
-
-   SYNOPSIS:
-   static int sort_rcb_z (const void *e1, const void *e2);
-
-   PARAMETERS:
-   .  e1
-   .  e2
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   int
- */
-/****************************************************************************/
-
-static int sort_rcb_z (const void *e1, const void *e2)
-{
-  LB_INFO *t1, *t2;
-
-  t1 = (LB_INFO *)e1;
-  t2 = (LB_INFO *)e2;
-
-  if (t1->center[2] < t2->center[2] -SMALL_DOUBLE) return(-1);
-  if (t1->center[2] > t2->center[2] +SMALL_DOUBLE) return(1);
-
-  /* z coordinates are considered to be equal, compare x now */
-  if (t1->center[1] < t2->center[1] -SMALL_DOUBLE) return(-1);
-  if (t1->center[1] > t2->center[1] +SMALL_DOUBLE) return(1);
-
-  /* z and y coordinates are considered to be equal, compare x now */
-  if (t1->center[0] < t2->center[0] -SMALL_DOUBLE) return(-1);
-  if (t1->center[0] > t2->center[0] +SMALL_DOUBLE) return(1);
-
-  return(0);
-}
+  /* x and y coordinates are considered to be equal, compare y now */
+  if (a.center[2] < b.center[2] -SMALL_DOUBLE) return true;
+  if (a.center[2] > b.center[2] +SMALL_DOUBLE) return false;
 #endif
 
+  return false;
+}
 
 /****************************************************************************/
 /*
@@ -248,23 +165,24 @@ static int sort_rcb_z (const void *e1, const void *e2)
 static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim)
 {
   int i, part0, part1, ni0, ni1;
-  static int (*sort_function)(const void *e1, const void *e2);
+  bool (*sort_function)(const LB_INFO&, const LB_INFO&);
 
   /* determine sort function */
   switch (dim) {
   case 0 :
-    sort_function = sort_rcb_x;
+    sort_function = sort_rcb<0, 1, 2>;
     break;
   case 1 :
-    sort_function = sort_rcb_y;
+    sort_function = sort_rcb<1, 0, 2>;
     break;
                 #ifdef __THREEDIM__
   case 2 :
-    sort_function = sort_rcb_z;
+    sort_function = sort_rcb<2, 1, 0>;
     break;
                 #endif
   default :
     printf("%d: theRCB(): ERROR no valid sort dimension specified\n",me);
+    std::abort();
     break;
   }
 
@@ -283,7 +201,7 @@ static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int d
 
   if (dx>=dy)
   {
-    if (nItems>1) qsort(theItems, nItems, sizeof(LB_INFO), sort_function);
+    if (nItems>1) std::sort(theItems, theItems + nItems, sort_function);
 
     part0 = dx/2;
     part1 = dx-part0;
@@ -297,7 +215,7 @@ static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int d
   }
   else
   {
-    if (nItems>1) qsort(theItems, nItems, sizeof(LB_INFO), sort_function);
+    if (nItems>1) std::sort(theItems, theItems + nItems, sort_function);
 
     part0 = dy/2;
     part1 = dy-part0;
