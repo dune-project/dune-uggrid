@@ -626,7 +626,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* execute local commands */
   /* NOTE: messages have been build before in order to allow
            deletion of objects. */
-  ExecLocalXIDelCmd(arrayXIDelCmd,  remXIDelCmd);
+  ExecLocalXIDelCmd(context, arrayXIDelCmd,  remXIDelCmd);
 
   /* now all XIDelObj-items have been created. these come from:
           1. application->DDD_XferDeleteObj->XIDelCmd->HdrDestructor->
@@ -638,7 +638,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* create sorted array of XIDelObj-items */
   arrayXIDelObj = SortedArrayXIDelObj(sort_XIDelObj);
 
-  ExecLocalXISetPrio(arrayXISetPrio,
+  ExecLocalXISetPrio(context, arrayXISetPrio,
                      arrayXIDelObj,  nXIDelObj,
                      arrayNewOwners, nNewOwners);
   ExecLocalXIDelObj(arrayXIDelObj,  nXIDelObj,
@@ -720,7 +720,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
   /* unpack messages */
   STAT_RESET;
-  XferUnpack(recvMsgs, nRecvMsgs,
+  XferUnpack(context, recvMsgs, nRecvMsgs,
              localCplObjs, NCpl_Get,
              arrayXISetPrio,
              arrayXIDelObj, nXIDelObj,
@@ -898,7 +898,8 @@ void DDD_XferPrioChange (DDD_HDR hdr, DDD_PRIO prio)
 
 
 
-static void XferInitCopyInfo (DDD_HDR hdr,
+static void XferInitCopyInfo (DDD::DDDContext& context,
+                              DDD_HDR hdr,
                               TYPE_DESC *desc,
                               size_t size,
                               DDD_PROC dest,
@@ -962,7 +963,7 @@ static void XferInitCopyInfo (DDD_HDR hdr,
     {
       DDD_OBJ obj = HDR2OBJ(hdr,desc);
 
-      desc->handlerXFERCOPY( obj, dest, prio);
+      desc->handlerXFERCOPY(context, obj, dest, prio);
     }
 
     /* theXIAddData might be changed during handler execution */
@@ -1006,7 +1007,7 @@ static void XferInitCopyInfo (DDD_HDR hdr,
     {
       DDD_OBJ obj = HDR2OBJ(hdr,desc);
 
-      desc->handlerXFERCOPY( obj, dest, prio);
+      desc->handlerXFERCOPY(context, obj, dest, prio);
     }
 
     /* theXIAddData might be changed during handler execution */
@@ -1070,7 +1071,7 @@ static void XferInitCopyInfo (DDD_HDR hdr,
    @param prio  DDD priority of new object copy.
  */
 
-void DDD_XferCopyObj (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
+void DDD_XferCopyObj (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
 TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
 
@@ -1080,7 +1081,7 @@ sprintf(cBuffer, "%4d: DDD_XferCopyObj %08x, proc=%d prio=%d\n",
 DDD_PrintDebug(cBuffer);
 #       endif
 
-XferInitCopyInfo(hdr, desc, desc->size, proc, prio);
+XferInitCopyInfo(context, hdr, desc, desc->size, proc, prio);
 }
 
 
@@ -1107,7 +1108,7 @@ XferInitCopyInfo(hdr, desc, desc->size, proc, prio);
    @param prio  DDD priority of new object copy.
    @param size  real size of local object.
  */
-void DDD_XferCopyObjX (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio, size_t size)
+void DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio, size_t size)
 {
   TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
 
@@ -1129,7 +1130,7 @@ void DDD_XferCopyObjX (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio, size_t size)
                    "object size smaller than declared size in DDD_XferCopyObjX");
   }
 
-  XferInitCopyInfo(hdr, desc, size, proc, prio);
+  XferInitCopyInfo(context, hdr, desc, size, proc, prio);
 }
 
 
@@ -1316,7 +1317,7 @@ bool DDD_XferWithAddData()
    @param hdr   DDD local object which has to be deleted.
  */
 
-void DDD_XferDeleteObj (DDD_HDR hdr)
+void DDD_XferDeleteObj (DDD::DDDContext& context, DDD_HDR hdr)
 {
   TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
   XIDelCmd  *dc = NewXIDelCmd(SLLNewArgs);
@@ -1336,7 +1337,7 @@ void DDD_XferDeleteObj (DDD_HDR hdr)
   /* call application handler for deletion of dependent objects */
   if (desc->handlerXFERDELETE!=NULL)
   {
-    desc->handlerXFERDELETE(HDR2OBJ(hdr,desc));
+    desc->handlerXFERDELETE(context, HDR2OBJ(hdr,desc));
   }
 }
 

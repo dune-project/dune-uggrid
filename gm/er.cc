@@ -733,7 +733,7 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
    doctext_disabled*/
 /****************************************************************************/
 
-static int CountIFElements (DDD_OBJ obj)
+static int CountIFElements (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem = (ELEMENT*) obj;
 
@@ -777,7 +777,7 @@ static int CountIFElements (DDD_OBJ obj)
    doctext_disabled*/
 /****************************************************************************/
 
-static int InitMasterRules (DDD_OBJ obj)
+static int InitMasterRules (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem   = (ELEMENT*) obj;
 
@@ -814,7 +814,7 @@ static int InitMasterRules (DDD_OBJ obj)
    doctext_disabled*/
 /****************************************************************************/
 
-static int Gather_ERULE (DDD_OBJ obj, void *data)
+static int Gather_ERULE (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *elem   = (ELEMENT*) obj;
 
@@ -847,7 +847,7 @@ static int Gather_ERULE (DDD_OBJ obj, void *data)
    doctext_disabled*/
 /****************************************************************************/
 
-static int Scatter_ERULE (DDD_OBJ obj, void *data)
+static int Scatter_ERULE (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *elem   = (ELEMENT*)obj;
 
@@ -883,7 +883,7 @@ static int Scatter_ERULE (DDD_OBJ obj, void *data)
    doctext_disabled*/
 /****************************************************************************/
 
-static int Scatter_partial_ERULE (DDD_OBJ obj, void *data)
+static int Scatter_partial_ERULE (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *elem   = (ELEMENT*)obj;
 
@@ -932,7 +932,7 @@ static int Scatter_partial_ERULE (DDD_OBJ obj, void *data)
    doctext_disabled*/
 /****************************************************************************/
 
-static int ExtractInterfaceERule (DDD_OBJ obj)
+static int ExtractInterfaceERule (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem   = (ELEMENT*)obj;
 

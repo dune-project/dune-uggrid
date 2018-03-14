@@ -33,11 +33,11 @@
 
 
 #ifdef IF_WITH_XARGS
-	#define EXEC_LOOP(a,b,c)     IFExecHdrLoopCplX(a,b,c)
-	#define COMM_LOOP(a,b,c,d,e) IFCommHdrLoopCplX(a,b,c,d,e)
+	#define EXEC_LOOP(context, a,b,c)     IFExecHdrLoopCplX(context, a,b,c)
+	#define COMM_LOOP(context, a,b,c,d,e) IFCommHdrLoopCplX(context, a,b,c,d,e)
 #else
-	#define EXEC_LOOP(a,b,c)     IFExecHdrLoopCpl(a,b,c)
-	#define COMM_LOOP(a,b,c,d,e) IFCommHdrLoopCpl(a,b,c,d,e)
+	#define EXEC_LOOP(context, a,b,c)     IFExecHdrLoopCpl(context, a,b,c)
+	#define COMM_LOOP(context, a,b,c,d,e) IFCommHdrLoopCpl(context, a,b,c,d,e)
 #endif
 
 #define D_ABA(p)             (p->cpl)
@@ -98,7 +98,7 @@ void IF_FUNCNAME (
 
 	ForIF(aIF,ifHead)
 	{
-		EXEC_LOOP(ExecProc, D_ABA(PART), PART->nItems);
+		EXEC_LOOP(context, ExecProc, D_ABA(PART), PART->nItems);
 	}
 
 #else /* ! IF_EXECLOCAL */
@@ -122,7 +122,7 @@ void IF_FUNCNAME (
 		char   *buffer;
 		buffer = BufferMem(ifHead->bufOut);
 
-		buffer= COMM_LOOP(Gather, D_ABA(PART), buffer, aSize, PART->nItems);
+		buffer= COMM_LOOP(context, Gather, D_ABA(PART), buffer, aSize, PART->nItems);
 
 		NS_DIM_PREFIX IFInitSend(context, ifHead);
 	}
@@ -165,7 +165,7 @@ void IF_FUNCNAME (
 					buffer = BufferMem(ifHead->bufIn);
 
 					/* get data using scatter-handler */
-					buffer = COMM_LOOP(Scatter,
+					buffer = COMM_LOOP(context, Scatter,
 						D_ABA(PART), buffer, aSize, PART->nItems);
 				}
 			}

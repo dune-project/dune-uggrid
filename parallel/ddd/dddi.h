@@ -435,10 +435,10 @@ extern VChannelPtr *theTopology;
 /****************************************************************************/
 
 /* types for StdIf-communication functions (see if/ifstd.ct) */
-typedef int (*ExecProcHdrPtr)(DDD_HDR);
-typedef int (*ExecProcHdrXPtr)(DDD_HDR, DDD_PROC, DDD_PRIO);
-typedef int (*ComProcHdrPtr)(DDD_HDR, void *);
-typedef int (*ComProcHdrXPtr)(DDD_HDR, void *, DDD_PROC, DDD_PRIO);
+typedef int (*ExecProcHdrPtr)(DDD::DDDContext& context, DDD_HDR);
+typedef int (*ExecProcHdrXPtr)(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
+typedef int (*ComProcHdrPtr)(DDD::DDDContext& context, DDD_HDR, void *);
+typedef int (*ComProcHdrXPtr)(DDD::DDDContext& context, DDD_HDR, void *, DDD_PROC, DDD_PRIO);
 
 
 /****************************************************************************/

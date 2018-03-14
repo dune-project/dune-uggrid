@@ -291,31 +291,31 @@ typedef DDD_HEADER     * DDD_HDR;
 /* handler prototypes */
 
 /* handlers related to certain DDD_TYPE (i.e., member functions) */
-typedef void (*HandlerLDATACONSTRUCTOR)(DDD_OBJ);
-typedef void (*HandlerDESTRUCTOR)(DDD_OBJ);
-typedef void (*HandlerDELETE)(DDD_OBJ);
-typedef void (*HandlerUPDATE)(DDD_OBJ);
-typedef void (*HandlerOBJMKCONS)(DDD_OBJ, int);
-typedef void (*HandlerSETPRIORITY)(DDD_OBJ, DDD_PRIO);
-typedef void (*HandlerXFERCOPY)(DDD_OBJ, DDD_PROC, DDD_PRIO);
-typedef void (*HandlerXFERDELETE)(DDD_OBJ);
-typedef void (*HandlerXFERGATHER)(DDD_OBJ, int, DDD_TYPE, void *);
-typedef void (*HandlerXFERSCATTER)(DDD_OBJ, int, DDD_TYPE, void *, int);
-typedef void (*HandlerXFERGATHERX)(DDD_OBJ, int, DDD_TYPE, char **);
-typedef void (*HandlerXFERSCATTERX)(DDD_OBJ, int, DDD_TYPE, char **, int);
-typedef void (*HandlerXFERCOPYMANIP)(DDD_OBJ);
+typedef void (*HandlerLDATACONSTRUCTOR)(DDD::DDDContext& context, DDD_OBJ);
+typedef void (*HandlerDESTRUCTOR)(DDD::DDDContext& context, DDD_OBJ);
+typedef void (*HandlerDELETE)(DDD::DDDContext& context, DDD_OBJ);
+typedef void (*HandlerUPDATE)(DDD::DDDContext& context, DDD_OBJ);
+typedef void (*HandlerOBJMKCONS)(DDD::DDDContext& context, DDD_OBJ, int);
+typedef void (*HandlerSETPRIORITY)(DDD::DDDContext& context, DDD_OBJ, DDD_PRIO);
+typedef void (*HandlerXFERCOPY)(DDD::DDDContext& context, DDD_OBJ, DDD_PROC, DDD_PRIO);
+typedef void (*HandlerXFERDELETE)(DDD::DDDContext& context, DDD_OBJ);
+typedef void (*HandlerXFERGATHER)(DDD::DDDContext& context, DDD_OBJ, int, DDD_TYPE, void *);
+typedef void (*HandlerXFERSCATTER)(DDD::DDDContext& context, DDD_OBJ, int, DDD_TYPE, void *, int);
+typedef void (*HandlerXFERGATHERX)(DDD::DDDContext& context, DDD_OBJ, int, DDD_TYPE, char **);
+typedef void (*HandlerXFERSCATTERX)(DDD::DDDContext& context, DDD_OBJ, int, DDD_TYPE, char **, int);
+typedef void (*HandlerXFERCOPYMANIP)(DDD::DDDContext& context, DDD_OBJ);
 
 
 
 /* handlers not related to DDD_TYPE (i.e., global functions) */
-typedef DDD_TYPE (*HandlerGetRefType)(DDD_OBJ, DDD_OBJ);
+typedef DDD_TYPE (*HandlerGetRefType)(DDD::DDDContext& context, DDD_OBJ, DDD_OBJ);
 
 
 
-typedef int (*ExecProcPtr)(DDD_OBJ);
-typedef int (*ExecProcXPtr)(DDD_OBJ, DDD_PROC, DDD_PRIO);
-typedef int (*ComProcPtr)(DDD_OBJ, void *);
-typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
+typedef int (*ExecProcPtr)(DDD::DDDContext& context, DDD_OBJ);
+typedef int (*ExecProcXPtr)(DDD::DDDContext& context, DDD_OBJ, DDD_PROC, DDD_PRIO);
+typedef int (*ComProcPtr)(DDD::DDDContext& context, DDD_OBJ, void *);
+typedef int (*ComProcXPtr)(DDD::DDDContext& context, DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 
 
 
@@ -454,9 +454,9 @@ int      DDD_XferIsPrunedDelete (DDD_HDR);
 int      DDD_XferObjIsResent (DDD_HDR);
 void     DDD_XferBegin(DDD::DDDContext& context);
 DDD_RET  DDD_XferEnd(DDD::DDDContext& context);
-void     DDD_XferCopyObj (DDD_HDR, DDD_PROC, DDD_PRIO);
-void     DDD_XferCopyObjX (DDD_HDR, DDD_PROC, DDD_PRIO, size_t);
-void     DDD_XferDeleteObj (DDD_HDR);
+void     DDD_XferCopyObj (DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
+void     DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO, size_t);
+void     DDD_XferDeleteObj (DDD::DDDContext& context, DDD_HDR);
 void     DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
 
 
