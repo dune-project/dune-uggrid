@@ -33,6 +33,7 @@
 #include <config.h>
 
 #include <algorithm>
+#include <vector>
 
 #include "parallel.h"
 #include "evm.h"
@@ -44,6 +45,8 @@
 
 USING_UG_NAMESPACES
 using namespace PPIF;
+
+START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*																			*/
@@ -324,14 +327,11 @@ static void InheritPartition (ELEMENT *e)
  */
 /****************************************************************************/
 
-int NS_DIM_PREFIX BalanceGridRCB (MULTIGRID *theMG, int level)
+int BalanceGridRCB (MULTIGRID *theMG, int level)
 {
-  HEAP *theHeap = theMG->theHeap;
   GRID *theGrid = GRID_ON_LEVEL(theMG,level);       /* balance grid of level */
-  LB_INFO *lbinfo;
   ELEMENT *e;
   int i;
-  INT MarkKey;
 
   /* distributed grids cannot be redistributed by this function */
   if (me!=master && FIRSTELEMENT(theGrid) != NULL)
@@ -348,28 +348,16 @@ int NS_DIM_PREFIX BalanceGridRCB (MULTIGRID *theMG, int level)
       return (1);
     }
 
-    MarkTmpMem(theHeap,&MarkKey);
-    lbinfo = (LB_INFO *)
-             GetTmpMem(theHeap, NT(theGrid)*sizeof(LB_INFO), MarkKey);
-
-    if (lbinfo==NULL)
-    {
-      ReleaseTmpMem(theHeap,MarkKey);
-      UserWrite("ERROR in BalanceGridRCB: could not allocate memory from the MGHeap\n");
-      return (1);
-    }
-
-
     /* construct LB_INFO list */
+    std::vector<LB_INFO> lbinfo(NT(theGrid));
     for (i=0, e=FIRSTELEMENT(theGrid); e!=NULL; i++, e=SUCCE(e))
     {
       lbinfo[i].elem = e;
       CenterOfMass(e, lbinfo[i].center);
     }
 
-
     /* apply coordinate bisection strategy */
-    theRCB(lbinfo, NT(theGrid), 0, 0, DimX, DimY, 0);
+    theRCB(lbinfo.data(), lbinfo.size(), 0, 0, DimX, DimY, 0);
 
     IFDEBUG(dddif,1)
     for (e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
@@ -383,8 +371,6 @@ int NS_DIM_PREFIX BalanceGridRCB (MULTIGRID *theMG, int level)
     {
       InheritPartition (e);
     }
-
-    ReleaseTmpMem(theHeap,MarkKey);
   }
 
   return 0;
@@ -392,5 +378,7 @@ int NS_DIM_PREFIX BalanceGridRCB (MULTIGRID *theMG, int level)
 
 
 /****************************************************************************/
+
+END_UGDIM_NAMESPACE
 
 #endif  /* ModelP */
