@@ -24,6 +24,16 @@ struct LowCommContext
   FreeFunc DefaultFree, SendFree, RecvFree;
 };
 
+struct NotifyContext
+{
+  NOTIFY_INFO* allInfoBuffer;
+  NOTIFY_DESC* theDescs;
+  int* theRouting;
+  int maxInfos;
+  int lastInfo;
+  int nSendDescs;
+};
+
 } /* namespace Basic */
 
 class DDDContext {
@@ -69,10 +79,14 @@ public:
   const Basic::LowCommContext& lowCommContext() const
     { return lowCommContext_; }
 
+  Basic::NotifyContext& notifyContext()
+    { return notifyContext_; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
   Basic::LowCommContext lowCommContext_;
+  Basic::NotifyContext notifyContext_;
 };
 
 } /* namespace DDD */
