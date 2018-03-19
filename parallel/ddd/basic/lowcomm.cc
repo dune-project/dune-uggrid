@@ -1055,7 +1055,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 {
   auto& lcContext = context.lowCommContext();
 
-  DDD_PROC    *partners = DDD_ProcArray();
+  DDD_PROC    *partners = DDD_ProcArray(context);
   NOTIFY_DESC *msgs = DDD_NotifyBegin(context, lcContext.nSends);
   MSG_DESC *md;
   int i, p;

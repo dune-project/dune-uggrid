@@ -237,7 +237,7 @@ static RETCODE update_channels(DDD::DDDContext& context, DDD_IF ifId)
 {
   IF_PROC *ifh;
   int i;
-  DDD_PROC *partners = DDD_ProcArray();
+  DDD_PROC *partners = DDD_ProcArray(context);
 
   if (theIF[ifId].nIfHeads==0)
   {

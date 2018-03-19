@@ -717,7 +717,7 @@ void      ddd_ConsExit(DDD::DDDContext& context);
 /* basic/topo.c */
 void      ddd_TopoInit(DDD::DDDContext& context);
 void      ddd_TopoExit(DDD::DDDContext& context);
-DDD_PROC *DDD_ProcArray (void);
+DDD_PROC* DDD_ProcArray(DDD::DDDContext& context);
 RETCODE   DDD_GetChannels(DDD::DDDContext& context, int);
 void      DDD_DisplayTopo(const DDD::DDDContext& context);
 

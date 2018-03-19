@@ -156,7 +156,7 @@ void ddd_TopoExit(DDD::DDDContext& context)
 /****************************************************************************/
 
 
-DDD_PROC *DDD_ProcArray (void)
+DDD_PROC* DDD_ProcArray(DDD::DDDContext& context)
 {
   return theProcArray;
 }
