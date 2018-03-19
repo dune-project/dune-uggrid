@@ -430,7 +430,7 @@ static int LC_PollSend(const DDD::DDDContext& context)
   {
     if (md->msgState==MSTATE_COMM)
     {
-      error = InfoASend(context.ppifContext(), VCHAN_TO(md->proc), md->msgId);
+      error = InfoASend(context.ppifContext(), VCHAN_TO(context, md->proc), md->msgId);
       if (error==-1)
       {
         sprintf(cBuffer,
@@ -491,7 +491,7 @@ static int LC_PollRecv(const DDD::DDDContext& context)
   {
     if (md->msgState==MSTATE_COMM)
     {
-      error = InfoARecv(context.ppifContext(), VCHAN_TO(md->proc), md->msgId);
+      error = InfoARecv(context.ppifContext(), VCHAN_TO(context, md->proc), md->msgId);
       if (error==-1)
       {
         sprintf(cBuffer,
@@ -726,7 +726,7 @@ static RETCODE LC_PrepareRecv(DDD::DDDContext& context)
     md->buffer = buffer;
     buffer += md->bufferSize;
 
-    md->msgId = RecvASync(context.ppifContext(), VCHAN_TO(md->proc),
+    md->msgId = RecvASync(context.ppifContext(), VCHAN_TO(context, md->proc),
                           md->buffer, md->bufferSize, &error);
 
     md->msgState=MSTATE_COMM;
@@ -1029,7 +1029,7 @@ void LC_MsgSend(const DDD::DDDContext& context, LC_MSGHANDLE md)
   assert(md->msgState==MSTATE_ALLOCATED);
 
   /* initiate asynchronous send */
-  md->msgId = SendASync(context.ppifContext(), VCHAN_TO(md->proc),
+  md->msgId = SendASync(context.ppifContext(), VCHAN_TO(context, md->proc),
                         md->buffer, md->bufferSize, &error);
 
   md->msgState=MSTATE_COMM;

@@ -257,7 +257,7 @@ static RETCODE update_channels(DDD::DDDContext& context, DDD_IF ifId)
   }
 
   for(ifh=theIF[ifId].ifHead; ifh!=NULL; ifh=ifh->next) {
-    ifh->vc = VCHAN_TO(ifh->proc);
+    ifh->vc = VCHAN_TO(context, ifh->proc);
   }
 
   /* ReleaseHeap(); */
