@@ -37,6 +37,8 @@
 #include <climits>
 #include <ctime>
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
 #include "ugtypes.h"
 #include "architecture.h"
 #include "fileopen.h"
@@ -1381,7 +1383,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
 #ifdef ModelP
   error = 0;
         #ifndef LOCAL_FILE_SYSTEM
-  if (me == master)
+  if (theMG->ppifContext().isMaster())
         #endif
   if (MGIO_PARFILE)
     if (MGIO_dircreate(filename,(int)rename))
@@ -1389,7 +1391,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
         #ifdef LOCAL_FILE_SYSTEM
   error = UG_GlobalMinINT(theMG->ppifContext(), error);
         #endif
-  Broadcast(&error,sizeof(int));
+  Broadcast(theMG->ppifContext(), &error,sizeof(int));
   if (error == -1)
   {
     UserWriteF("SaveMultiGrid_SPF(): error during file/directory creation\n");
@@ -1408,7 +1410,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   if (BVP_SetBVPDesc(theBVP,&theBVPDesc)) REP_ERR_RETURN(1);
   mg_general.mode                 = mode;
   mg_general.dim                  = DIM;
-  Broadcast(&MG_MAGIC_COOKIE(theMG),sizeof(INT));
+  Broadcast(theMG->ppifContext(), &MG_MAGIC_COOKIE(theMG),sizeof(INT));
   mg_general.magic_cookie = MG_MAGIC_COOKIE(theMG);
   mg_general.heapsize             = MGHEAP(theMG)->size/KBYTE;
   mg_general.nLevel               = TOPLEVEL(theMG) + 1;
