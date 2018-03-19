@@ -47,6 +47,8 @@
 
 #include <cassert>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "ugtypes.h"
 #include "architecture.h"
 
@@ -428,8 +430,12 @@ extern VChannelPtr *theTopology;
 
 /****************************************************************************/
 
-/* get default VChan to processor p */
-#define VCHAN_TO(p)   (theTopology[(p)])
+/** get default VChan to processor p */
+inline
+const VChannelPtr VCHAN_TO(const DDD::DDDContext& context, DDD_PROC p)
+{
+  return theTopology[p];
+}
 
 
 /****************************************************************************/
