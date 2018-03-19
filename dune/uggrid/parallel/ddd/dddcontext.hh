@@ -2,9 +2,29 @@
 #define DUNE_UGGRID_PARALLEL_DDD_DDDCONTEXT_HH 1
 
 #include <memory>
+#include <dune/uggrid/parallel/ddd/dddtypes.hh>
 #include <dune/uggrid/parallel/ppif/ppiftypes.hh>
 
 namespace DDD {
+
+namespace Basic {
+
+struct LowCommContext
+{
+  MSG_TYPE *MsgTypes = nullptr;
+  MSG_DESC *SendQueue = nullptr;
+  MSG_DESC *RecvQueue = nullptr;
+  int nSends = 0;
+  int nRecvs = 0;
+  char *theRecvBuffer;
+  LC_MSGHANDLE *theRecvArray = nullptr;
+  MSG_DESC *FreeMsgDescs = nullptr;
+
+  AllocFunc DefaultAlloc, SendAlloc, RecvAlloc;
+  FreeFunc DefaultFree, SendFree, RecvFree;
+};
+
+} /* namespace Basic */
 
 class DDDContext {
 public:
@@ -43,9 +63,16 @@ public:
   const void* data() const
     { return data_; }
 
+  Basic::LowCommContext& lowCommContext()
+    { return lowCommContext_; }
+
+  const Basic::LowCommContext& lowCommContext() const
+    { return lowCommContext_; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
+  Basic::LowCommContext lowCommContext_;
 };
 
 } /* namespace DDD */
