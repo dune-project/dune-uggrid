@@ -354,7 +354,7 @@ enum {VERTEX_LISTPARTS = 1};
 #define DDD_PrioritySet(e,p)
 
 /* ppif dummies */
-#define Broadcast(p,n)  ((int)0)
+#define Broadcast(context, p,n)  ((int)0)
 
 /* dummys for reduction functions implemented in parallel/dddif/support.c */
 #define UG_GlobalSumINT(context, x)              x

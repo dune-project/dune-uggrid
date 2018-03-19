@@ -37,6 +37,8 @@
 #include <climits>
 #include <ctime>
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
 #include "ugtypes.h"
 #include "architecture.h"
 #include "fileopen.h"
@@ -1321,6 +1323,8 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
     REP_ERR_RETURN(1);
   }
 
+  const auto& procs = theMG->ppifContext().procs();
+
   theHeap = MGHEAP(theMG);
   MarkTmpMem(theHeap,&MarkKey);
 
@@ -1381,7 +1385,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
 #ifdef ModelP
   error = 0;
         #ifndef LOCAL_FILE_SYSTEM
-  if (me == master)
+  if (theMG->ppifContext().isMaster())
         #endif
   if (MGIO_PARFILE)
     if (MGIO_dircreate(filename,(int)rename))
@@ -1389,7 +1393,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
         #ifdef LOCAL_FILE_SYSTEM
   error = UG_GlobalMinINT(theMG->ppifContext(), error);
         #endif
-  Broadcast(&error,sizeof(int));
+  Broadcast(theMG->ppifContext(), &error,sizeof(int));
   if (error == -1)
   {
     UserWriteF("SaveMultiGrid_SPF(): error during file/directory creation\n");
@@ -1397,7 +1401,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   }
   if (MGIO_PARFILE)
   {
-    sprintf(buf,"/mg.%04d",(int)me);
+    sprintf(buf,"/mg.%04d",(int)theMG->ppifContext().me());
     strcat(filename,buf);
   }
 #endif
@@ -1408,7 +1412,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   if (BVP_SetBVPDesc(theBVP,&theBVPDesc)) REP_ERR_RETURN(1);
   mg_general.mode                 = mode;
   mg_general.dim                  = DIM;
-  Broadcast(&MG_MAGIC_COOKIE(theMG),sizeof(INT));
+  Broadcast(theMG->ppifContext(), &MG_MAGIC_COOKIE(theMG),sizeof(INT));
   mg_general.magic_cookie = MG_MAGIC_COOKIE(theMG);
   mg_general.heapsize             = MGHEAP(theMG)->size/KBYTE;
   mg_general.nLevel               = TOPLEVEL(theMG) + 1;
@@ -1977,6 +1981,7 @@ static INT IO_GridCons(MULTIGRID *theMG)
   GRID    *theGrid;
   ELEMENT *theElement;
   VECTOR  *theVector;
+  const auto& me = theMG->ppifContext().me();
 
   for (i=TOPLEVEL(theMG); i>=0; i--)         /* propagate information top-down */
   {
@@ -2827,6 +2832,9 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
       );
     InitPPIF(*ppifContext);
   }
+  const auto& me = ppifContext->me();
+  const auto& procs = ppifContext->procs();
+
   if (autosave)
   {
     if (name==NULL)
@@ -2855,7 +2863,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
 
 #ifdef ModelP
   proc_list_size = PROCLISTSIZE_VALUE;
-  if (me == master)
+  if (ppifContext->isMaster())
   {
 #endif
   nparfiles = 1;
@@ -2895,13 +2903,13 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   else
     nparfiles = -1;
 #ifdef ModelP
-  Broadcast(&nparfiles,sizeof(int));
+  Broadcast(*ppifContext, &nparfiles,sizeof(int));
 }
 else
 {
   sprintf(buf,"/mg.%04d",(int)me);                      /* Also me>=nparfiles needs its filename to be stored in the multigrid */
   strcat(filename,buf);
-  Broadcast(&nparfiles,sizeof(int));
+  Broadcast(*ppifContext, &nparfiles,sizeof(int));
   if (me < nparfiles)
   {
     if (Read_OpenMGFile (filename))                 {nparfiles = -1;}
@@ -2910,7 +2918,7 @@ else
 
   }
 }
-nparfiles = UG_GlobalMinINT(*PPIF::ppifContext(), nparfiles);
+nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
 #endif
   if (nparfiles == -1)
   {
@@ -2920,7 +2928,7 @@ nparfiles = UG_GlobalMinINT(*PPIF::ppifContext(), nparfiles);
 
   if (procs>nparfiles)
   {
-    Broadcast(&mg_general,sizeof(MGIO_MG_GENERAL));
+    Broadcast(*ppifContext, &mg_general,sizeof(MGIO_MG_GENERAL));
     if (me < nparfiles)
       mg_general.me = me;
   }

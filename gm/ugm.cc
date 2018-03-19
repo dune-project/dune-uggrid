@@ -5915,8 +5915,9 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   static const std::size_t elem_max_size = sizeof(struct hexahedron);
 #endif
 
-  const int me = theMG->ppifContext().me();
-  const int procs = theMG->ppifContext().procs();
+  const auto& ppifContext = theMG->ppifContext();
+  const int me = ppifContext.me();
+  const int procs = ppifContext.procs();
 
   mg_red = mg_green = mg_yellow = mg_sum = 0;
   mg_sum_div_red = mg_redplusgreen_div_red = 0.0;
@@ -6147,29 +6148,29 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   {
     UserWriteF("\nLB INFO:\n");
     /* now collect lb info on master */
-    if (theMG->ppifContext().isMaster())
+    if (ppifContext.isMaster())
     {
       std::vector<VChannelPtr> mych(procs, nullptr);
 
       for (i=1; i<procs; i++)
       {
-        mych[i] =ConnSync(i,3917);
-        RecvSync(mych[i],(void *)lbinfo[i],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
+        mych[i] =ConnSync(ppifContext, i,3917);
+        RecvSync(ppifContext, mych[i],(void *)lbinfo[i],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
       }
-      Synchronize();
+      Synchronize(ppifContext);
       for (i=1; i<procs; i++)
       {
-        DiscSync(mych[i]);
+        DiscSync(ppifContext, mych[i]);
       }
     }
     else
     {
       VChannelPtr mych;
 
-      mych = ConnSync(master,3917);
-      SendSync(mych,(void *)lbinfo[me],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
-      Synchronize();
-      DiscSync(mych);
+      mych = ConnSync(ppifContext, master,3917);
+      SendSync(ppifContext, mych,(void *)lbinfo[me],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
+      Synchronize(ppifContext);
+      DiscSync(ppifContext, mych);
       ReleaseTmpMem(MGHEAP(theMG),MarkKey);
       return(GM_OK);
     }
@@ -8490,12 +8491,12 @@ static void CommNTpls(GRID *g, int *send_ntpls, int *recv_ntpls)
   /* construct global tupel array */
   for (l=degree-1; l>=0; l--)
   {
-    GetConcentrate(l,lntpls.data(), lntpls.size()*sizeof(int));
+    GetConcentrate(g->ppifContext(), l,lntpls.data(), lntpls.size()*sizeof(int));
     MergeNTplsMax(procs, gntpls.data(), lntpls.data());
   }
   AddMyNTpls(me, procs, gntpls.data(), send_ntpls);
-  Concentrate(gntpls.data(), gntpls.size()*sizeof(int));
-  Broadcast(gntpls.data(), gntpls.size()*sizeof(int));
+  Concentrate(g->ppifContext(), gntpls.data(), gntpls.size()*sizeof(int));
+  Broadcast(g->ppifContext(), gntpls.data(), gntpls.size()*sizeof(int));
         #ifdef Debug
   if (1)
   {
@@ -8718,7 +8719,7 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
   }
         #ifdef Debug
   /*
-          Synchronize();
+          Synchronize(ppifContext);
    */
         #endif
 
@@ -9006,8 +9007,7 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
     }
   }
   /*
-     Synchronize();
-     Synchronize();
+     Synchronize(g->ppifContext());
    */
 #endif
 
