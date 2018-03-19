@@ -245,11 +245,11 @@ typedef std::uint_least64_t DDD_GID;
 #endif
 #define DDD_GID_TO_INT(A) (A)
 
-typedef unsigned int DDD_TYPE;
-typedef unsigned int DDD_IF;
-typedef unsigned int DDD_PROC;
-typedef unsigned int DDD_PRIO;
-typedef unsigned int DDD_ATTR;
+using DDD_TYPE = DDD::DDD_TYPE;
+using DDD_IF = DDD::DDD_IF;
+using DDD_PROC = DDD::DDD_PROC;
+using DDD_PRIO = DDD::DDD_PRIO;
+using DDD_ATTR = DDD::DDD_ATTR;
 
 /*
         DDD object header, include this into all parallel object structures
