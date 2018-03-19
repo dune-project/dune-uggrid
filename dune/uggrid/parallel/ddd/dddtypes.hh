@@ -5,6 +5,12 @@ namespace DDD {
 
 class DDDContext;
 
+using DDD_TYPE = unsigned int;
+using DDD_IF = unsigned int;
+using DDD_PROC = unsigned int;
+using DDD_PRIO = unsigned int;
+using DDD_ATTR = unsigned int;
+
 namespace Basic {
 
 /*
