@@ -348,7 +348,6 @@ static void IncreaseCplTabSize (void)
 COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
   COUPLING        *cp, *cp2;
-  DDD_HDR oldObj;
   int objIndex;
   int freeCplIdx = NCpl_Get;
 
@@ -379,7 +378,7 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
     }
 
                 #ifdef WithFullObjectTable
-    oldObj = ddd_ObjTable[freeCplIdx];
+    DDD_HDR oldObj = ddd_ObjTable[freeCplIdx];
 
     /* exchange object without coupling and object with coupling */
     /* free position freeCplIdx, move corresponding hdr reference

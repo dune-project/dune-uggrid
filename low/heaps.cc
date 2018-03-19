@@ -99,7 +99,6 @@ REP_ERR_FILE
 HEAP *NS_PREFIX NewHeap (enum HeapType type, MEM size, void *buffer)
 {
   HEAP *theHeap;
-  INT i;
 
   /* check size */
   if (buffer==NULL) return(NULL);

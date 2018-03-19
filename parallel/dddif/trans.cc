@@ -776,9 +776,11 @@ static void InheritPartitionBottomTop (ELEMENT *e)
 
 int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 {
-  INT g,alreadydisposed;
+  INT g;
   INT migrated = 0;       /* number of elements moved */
+#ifdef STAT_OUT
   DOUBLE trans_begin, trans_end, cons_end;
+#endif
 
 #ifdef __OVERLAP2__
   NODE *node;
@@ -794,7 +796,9 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 
   if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
 
+#ifdef STAT_OUT
   trans_begin = CURRENT_TIME;
+#endif
 
   /* dispose negative levels */
   if (level < 1)
@@ -829,7 +833,9 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 
   DDD_XferEnd();
 
+#ifdef STAT_OUT
   trans_end = CURRENT_TIME;
+#endif
 
 #ifdef __OVERLAP2__
   for (g=0; g<=TOPLEVEL(theMG); g++)
@@ -854,9 +860,9 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   /* the grid has changed at least on one processor, thus reset MGSTATUS on all processors */
   RESETMGSTATUS(theMG);
 
+        #ifdef STAT_OUT
   cons_end = CURRENT_TIME;
 
-        #ifdef STAT_OUT
   /* sum up moved elements */
   migrated = UG_GlobalSumINT(migrated);
 

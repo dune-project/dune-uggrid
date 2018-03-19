@@ -225,8 +225,9 @@ void ddd_PrioExit (void)
 
 void DDD_PrioChange (DDD_HDR hdr, DDD_PRIO prio)
 {
+#if DebugPrio<=2
   DDD_PRIO old_prio = OBJ_PRIO(hdr);
-
+#endif
 
   if (!ddd_PrioActive())
   {

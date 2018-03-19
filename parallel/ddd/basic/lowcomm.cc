@@ -65,6 +65,8 @@
 #include <cstring>
 #include <cassert>
 
+#include <dune/common/unused.hh>
+
 #include "dddi.h"
 #include "basic/lowcomm.h"
 #include "basic/notify.h"
@@ -362,7 +364,7 @@ static LC_MSGHANDLE LC_NewRecvMsg (LC_MSGTYPE mtyp, DDD_PROC source, size_t size
 
 static void LC_DeleteMsg (LC_MSGHANDLE md)
 {
-  size_t size = sizeof(CHUNK_DESC) * md->msgType->nComps;
+  DUNE_UNUSED size_t size = sizeof(CHUNK_DESC) * md->msgType->nComps;
 
   FreeTmpReq(md->chunks,size,TMEM_LOWCOMM);
   FreeMsgDesc(md);
@@ -1299,7 +1301,7 @@ void LC_Cleanup (void)
 
   if (theRecvArray!=NULL)
   {
-    size_t size = sizeof(LC_MSGHANDLE)*nRecvs;
+    DUNE_UNUSED size_t size = sizeof(LC_MSGHANDLE)*nRecvs;
     FreeTmpReq(theRecvArray,size,TMEM_ANY);
     theRecvArray=NULL;
   }

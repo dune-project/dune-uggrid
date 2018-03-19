@@ -65,6 +65,8 @@
 
 #include <algorithm>
 
+#include <dune/common/unused.hh>
+
 /* low module */
 #include "ugtypes.h"
 #include "debug.h"
@@ -3262,7 +3264,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
         fatherEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),0),
                              CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),1));
 
-        NODE* Node0 = MIDNODE(fatherEdge);
+        DUNE_UNUSED NODE* Node0 = MIDNODE(fatherEdge);
 
         /* if side node exists all mid nodes must exist */
         ASSERT(Node0 != NULL);

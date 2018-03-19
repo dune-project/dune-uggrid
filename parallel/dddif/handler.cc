@@ -38,6 +38,8 @@
 #include <cstring>
 #include <cassert>
 
+#include <dune/common/unused.hh>
+
 #include "architecture.h"
 #include "debug.h"
 #include "ugtypes.h"
@@ -763,7 +765,7 @@ static void VertexUpdate (DDD_OBJ obj)
 
 static void VertexObjMkCons (DDD_OBJ obj, int newness)
 {
-  VERTEX  *theVertex      = (VERTEX *) obj;
+  DUNE_UNUSED VERTEX  *theVertex      = (VERTEX *) obj;
 
   PRINTDEBUG(dddif,1,(PFMT " VertexObjMkCons(): v=" VID_FMTX
                       " I/BVOBJ=%d newness=%d\n",
@@ -1215,7 +1217,7 @@ static void ElementLDataConstructor (DDD_OBJ obj)
 
 static void ElementUpdate (DDD_OBJ obj)
 {
-  ELEMENT *pe                     = (ELEMENT *)obj;
+  DUNE_UNUSED ELEMENT *pe                     = (ELEMENT *)obj;
 
   PRINTDEBUG(dddif,1,(PFMT " ElementUpdate(): pe=" EID_FMTX
                       " EOBJ=%d\n",me,EID_PRTX(pe),OBJT(pe)))
@@ -1511,7 +1513,6 @@ static void ElemScatterEdge (ELEMENT *pe, int cnt, char *data, int newness)
     if (MIDNODE(ecopy) != NULL)
     {
       VERTEX                  *theVertex;
-      DOUBLE_VECTOR global;
       INT co0,co1;
 
       MIDNODE(enew)   = MIDNODE(ecopy);
@@ -2041,7 +2042,7 @@ static void EdgePriorityUpdate (DDD_OBJ obj, DDD_PRIO new_)
 {
   EDGE    *theEdge        = (EDGE *)obj;
   INT level           = LEVEL(theEdge);
-  INT old                     = PRIO(theEdge);
+  DUNE_UNUSED INT old                     = PRIO(theEdge);
 
   GetGridOnDemand(dddctrl.currMG,level);
 
@@ -2065,7 +2066,7 @@ static void EdgeObjMkCons (DDD_OBJ obj, int newness)
 
 static void EdgeXferCopy (DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
-  EDGE *pe        =       (EDGE *)obj;
+  DUNE_UNUSED EDGE *pe        =       (EDGE *)obj;
 
   PRINTDEBUG(dddif,1,(PFMT " EdgeXferCopy(): edge=%x/%08x proc=%d prio=%d\n",
                       me,pe,DDD_InfoGlobalId(PARHDR(pe)),proc,prio));

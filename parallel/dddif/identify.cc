@@ -32,6 +32,8 @@
 #include <config.h>
 #include <cstdio>
 
+#include <dune/common/unused.hh>
+
 #include "general.h"
 #include "ugtypes.h"
 #include "debug.h"
@@ -1549,7 +1551,6 @@ static int Gather_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
 
 static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT nedges;
   int newsonobjects   = *((int *)data);
   EDGE    *theEdge                = (EDGE *)obj;
   EDGE    *SonEdges[2];
@@ -1560,7 +1561,7 @@ static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_
   /* identification is only done between master objects */
   ASSERT(identlevel-1 == LEVEL(theEdge));
 
-  nedges = GetSonEdges(theEdge,SonEdges);
+  DUNE_UNUSED INT nedges = GetSonEdges(theEdge,SonEdges);
 
   if (newsonobjects)
   {
