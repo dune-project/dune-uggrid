@@ -280,11 +280,6 @@ extern char       *cBuffer;
 extern int theOptions[OPT_END];
 
 
-/* from topo.c */
-extern VChannelPtr *theTopology;
-
-
-
 /****************************************************************************/
 /*                                                                          */
 /* definitions previously hold in misc.h                                    */
@@ -434,7 +429,7 @@ extern VChannelPtr *theTopology;
 inline
 const VChannelPtr VCHAN_TO(const DDD::DDDContext& context, DDD_PROC p)
 {
-  return theTopology[p];
+  return context.topoContext().theTopology[p];
 }
 
 
