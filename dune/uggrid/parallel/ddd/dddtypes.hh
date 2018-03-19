@@ -22,6 +22,12 @@ using LC_MSGHANDLE = MSG_DESC*;
 using AllocFunc = void* (*)(std::size_t);
 using FreeFunc = void (*)(void*);
 
+/*
+ * types used by notify
+ */
+struct NOTIFY_DESC;
+struct NOTIFY_INFO;
+
 } /* namespace Basic */
 
 } /* namespace DDD */
