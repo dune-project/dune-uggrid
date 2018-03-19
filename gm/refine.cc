@@ -207,7 +207,7 @@ using namespace PPIF;
 #define GETMARKDATA(elem,dataadr)                                            \
   (*(dataadr)) = (*(dataadr)) | ((MARK(elem))<<MARKDATA_SHIFT)
 #define SETMARKDATA(elem,data)                                               \
-  SETMARK((elem),MARK(elem)|((data)>>MARKDATA_SHIFT)&((1<<MARK_LEN)-1))
+  SETMARK((elem),MARK(elem)|(((data)>>MARKDATA_SHIFT)&((1<<MARK_LEN)-1)))
 /*@}*/
 
 /** @name Macros for storing sparse data needed in ExchangeClosureInfo() */

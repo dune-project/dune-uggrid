@@ -420,7 +420,7 @@ static void ddd_DefineTypes (void)
    * as a representative. To ensure consistency, both are handled in the same
    * place (`ElementObjMkCons`).
    */
-  gbits = ~((1 << VECTORSIDE_LEN)-1 << VECTORSIDE_SHIFT);
+  gbits = ~(((1 << VECTORSIDE_LEN)-1) << VECTORSIDE_SHIFT);
   DDD_TypeDefine(TypeVector, &v,
                  EL_DDDHDR, &v.ddd,
                  EL_GBITS,  ELDEF(v.control), &gbits,
