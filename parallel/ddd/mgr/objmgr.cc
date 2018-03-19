@@ -581,7 +581,7 @@ MarkHdrInvalid(hdr);
 /*                                                                          */
 /****************************************************************************/
 
-DDD_OBJ DDD_ObjGet (size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
+DDD_OBJ DDD_ObjGet (DDD::DDDContext&, size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 {
   DDD_OBJ obj;
   TYPE_DESC  *desc = &(theTypeDefs[typ]);
@@ -635,7 +635,7 @@ DDD_OBJ DDD_ObjGet (size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_ObjUnGet (DDD_HDR hdr, size_t size)
+void DDD_ObjUnGet (DDD::DDDContext&, DDD_HDR hdr, size_t size)
 
 {
   DDD_TYPE typ = OBJ_TYPE(hdr);
