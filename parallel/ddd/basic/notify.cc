@@ -48,8 +48,6 @@ USING_UG_NAMESPACES
 /* PPIF namespace: */
 using namespace PPIF;
 
-  START_UGDIM_NAMESPACE
-
 #define DebugNotify   10  /* 0 is all, 10 is off */
 
 /****************************************************************************/
@@ -58,9 +56,10 @@ using namespace PPIF;
 /*                                                                          */
 /****************************************************************************/
 
+namespace DDD {
+namespace Basic {
 
 enum NotifyTypes {MYSELF,KNOWN,DUMMY,UNKNOWN};
-
 
 struct NOTIFY_INFO {
   short from, to;                       /* source and destination processor */
@@ -70,35 +69,18 @@ struct NOTIFY_INFO {
 
 #define PROC_INVALID_TEMP   -1
 
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-static NOTIFY_INFO *allInfoBuffer;
-static NOTIFY_DESC *theDescs;
-static int      *theRouting;
-static int maxInfos, lastInfo, nSendDescs;
-
+} /* namespace Basic */
+} /* namespace DDD */
 
 /****************************************************************************/
 /*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
+
+START_UGDIM_NAMESPACE
+
+using namespace DDD::Basic;
 
 static int MAX_INFOS(int procs)
 {
@@ -107,23 +89,24 @@ static int MAX_INFOS(int procs)
 
 void NotifyInit(DDD::DDDContext& context)
 {
+  auto& ctx = context.notifyContext();
   const auto procs = context.procs();
 
   /* allocate memory */
-  theRouting = (int *) AllocFix(procs*sizeof(int));
-  if (theRouting==NULL)
+  ctx.theRouting = (int *) AllocFix(procs*sizeof(int));
+  if (ctx.theRouting == nullptr)
   {
     DDD_PrintError('E', 6301, STR_NOMEM " in NotifyInit");
     HARD_EXIT;
   }
 
 
-  maxInfos = MAX_INFOS(procs);     /* TODO maximum value, just for testing */
+  ctx.maxInfos = MAX_INFOS(procs);     /* TODO maximum value, just for testing */
 
 
   /* init local array for all Info records */
-  allInfoBuffer = (NOTIFY_INFO *) AllocFix(maxInfos*sizeof(NOTIFY_INFO));
-  if (allInfoBuffer==NULL)
+  ctx.allInfoBuffer = (NOTIFY_INFO *) AllocFix(ctx.maxInfos*sizeof(NOTIFY_INFO));
+  if (ctx.allInfoBuffer == nullptr)
   {
     DDD_PrintError('E', 6300, STR_NOMEM " in NotifyInit");
     HARD_EXIT;
@@ -133,26 +116,26 @@ void NotifyInit(DDD::DDDContext& context)
   /* allocate array of NOTIFY_DESCs */
   if (procs>1)
   {
-    theDescs = (NOTIFY_DESC *) AllocTmp(sizeof(NOTIFY_DESC)*(procs-1));
+    ctx.theDescs = (NOTIFY_DESC *) AllocTmp(sizeof(NOTIFY_DESC)*(procs-1));
   }
   else
   {
-    theDescs = NULL;
+    ctx.theDescs = nullptr;
   }
 }
 
 
 void NotifyExit(DDD::DDDContext& context)
 {
-  const auto procs = context.procs();
+  auto& ctx = context.notifyContext();
 
   /* free memory */
-  FreeFix(theRouting);
-  FreeFix(allInfoBuffer);
+  FreeFix(ctx.theRouting);
+  FreeFix(ctx.allInfoBuffer);
 
-  if (theDescs!=NULL)
+  if (ctx.theDescs != nullptr)
   {
-    FreeTmp(theDescs,sizeof(NOTIFY_DESC)*(procs-1));
+    FreeTmp(ctx.theDescs,sizeof(NOTIFY_DESC)*(context.procs()-1));
   }
 }
 
@@ -170,9 +153,9 @@ static bool sort_XferFlags(const NOTIFY_INFO& a, const NOTIFY_INFO& b)
 }
 
 static
-NOTIFY_INFO *NotifyPrepare (void)
+NOTIFY_INFO *NotifyPrepare (DDD::DDDContext& context)
 {
-  NOTIFY_INFO  *allInfos;
+  auto& ctx = context.notifyContext();
 
 #if     DebugNotify<=4
   printf("%4d:    NotifyPrepare\n", me);
@@ -180,11 +163,11 @@ NOTIFY_INFO *NotifyPrepare (void)
 #endif
 
   /* init local array for all Info records */
-  allInfos = allInfoBuffer;
+  NOTIFY_INFO* allInfos = ctx.allInfoBuffer;
 
 
   /* init local routing array */
-  theRouting[me] = -1;
+  ctx.theRouting[me] = -1;
 
 
   /* dummy Info if there is no message to be send */
@@ -192,9 +175,9 @@ NOTIFY_INFO *NotifyPrepare (void)
   allInfos[0].to   = PROC_INVALID_TEMP;
   allInfos[0].size = 0;
   allInfos[0].flag = DUMMY;
-  lastInfo = 1;
+  ctx.lastInfo = 1;
 
-  return(allInfos);
+  return allInfos;
 }
 
 
@@ -212,6 +195,8 @@ NOTIFY_INFO *NotifyPrepare (void)
 static
 int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo, int exception)
 {
+  auto& ctx = context.notifyContext();
+
   NOTIFY_INFO  *newInfos;
   int l, i, j, n, unknownInfos, myInfos;
   int local_exception = exception;
@@ -234,7 +219,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
         local_exception = -n;
     }
 
-    if (lastInfo+n >= maxInfos) {
+    if (lastInfo+n >= ctx.maxInfos) {
       DDD_PrintError('E', 6321, "msg-info array overflow in NotifyTwoWave");
       local_exception = EXCEPTION_NOTIFY;
 
@@ -249,7 +234,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
 
     /* construct routing table */
     for(i=0; i<n; i++)
-      theRouting[allInfos[lastInfo+i].from] = l;
+      ctx.theRouting[allInfos[lastInfo+i].from] = l;
 
     if (n>0)
       lastInfo += n;
@@ -339,8 +324,8 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
     /* sort Infos according to routing */
     std::sort(
       allInfos, allInfos + lastInfo,
-      [](const NOTIFY_INFO& a, const NOTIFY_INFO& b) {
-        return theRouting[a.to] < theRouting[b.to];
+      [&ctx](const NOTIFY_INFO& a, const NOTIFY_INFO& b) {
+        return ctx.theRouting[a.to] < ctx.theRouting[b.to];
       });
 
                 #if     DebugNotify<=1
@@ -361,7 +346,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
     for(l=0; l<degree; l++)
     {
       j = i;
-      while ((i<unknownInfos)&&(theRouting[allInfos[i].to]==l)) i++;
+      while ((i<unknownInfos)&&(ctx.theRouting[allInfos[i].to]==l)) i++;
       j = i-j;
 
       Spread(context.ppifContext(), l, &j, sizeof(int));
@@ -373,8 +358,8 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
     /* reuse theDescs-array for registering messages to be received */
     for(i=0; i<lastInfo; i++)
     {
-      theDescs[i].proc = allInfos[i].from;
-      theDescs[i].size = allInfos[i].size;
+      ctx.theDescs[i].proc = allInfos[i].from;
+      ctx.theDescs[i].size = allInfos[i].size;
     }
 
                 #if     DebugNotify<=3
@@ -412,7 +397,9 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
 
 NOTIFY_DESC *DDD_NotifyBegin(DDD::DDDContext& context, int n)
 {
-  nSendDescs = n;
+  auto& ctx = context.notifyContext();
+
+  ctx.nSendDescs = n;
 
   /* allocation of theDescs is done in NotifyInit() */
 
@@ -420,10 +407,10 @@ NOTIFY_DESC *DDD_NotifyBegin(DDD::DDDContext& context, int n)
   {
     DDD_PrintError('E', 6340,
                    "more send-messages than other processors in DDD_NotifyBegin");
-    return(NULL);
+    return nullptr;
   }
 
-  return(theDescs);
+  return ctx.theDescs;
 }
 
 
@@ -435,61 +422,61 @@ void DDD_NotifyEnd(DDD::DDDContext&)
 
 int DDD_Notify(DDD::DDDContext& context)
 {
-  NOTIFY_INFO  *allInfos;
+  auto& ctx = context.notifyContext();
   int i, nRecvMsgs;
 
   const auto me = context.me();
   const auto procs = context.procs();
 
   /* get storage for local info list */
-  allInfos = NotifyPrepare();
-  if (allInfos==NULL) return(ERROR);
+  NOTIFY_INFO* allInfos = NotifyPrepare(context);
+  if (allInfos == nullptr) return(ERROR);
 
-  if (nSendDescs<0)
+  if (ctx.nSendDescs<0)
   {
     /* this processor is trying to send a global notification
        message. this is necessary for communicating fatal error
        conditions to all other processors. */
 
     sprintf(cBuffer, "proc %d is sending global exception #%d"
-            " in DDD_Notify()", me, -nSendDescs);
+            " in DDD_Notify()", me, -ctx.nSendDescs);
     DDD_PrintError('W', 6312, cBuffer);
 
     /* notify partners */
-    nRecvMsgs = NotifyTwoWave(context, allInfos, lastInfo, -nSendDescs);
+    nRecvMsgs = NotifyTwoWave(context, allInfos, ctx.lastInfo, -ctx.nSendDescs);
   }
   else
   {
     /* convert message list to local Info list */
-    for(i=0; i<nSendDescs; i++)
+    for(i=0; i<ctx.nSendDescs; i++)
     {
                         #if     DebugNotify<=4
       printf("%4d:    Notify send msg #%02d to %3d size=%d\n", me,
-             lastInfo, theDescs[i].proc, theDescs[i].size);
+             ctx.lastInfo, ctx.theDescs[i].proc, ctx.theDescs[i].size);
                         #endif
 
-      if (theDescs[i].proc==me) {
+      if (ctx.theDescs[i].proc==me) {
         sprintf(cBuffer, "proc %d is trying to send message to itself"
                 " in DDD_Notify()", me);
         DDD_PrintError('E', 6310, cBuffer);
         return(ERROR);
       }
-      if (theDescs[i].proc>=procs) {
+      if (ctx.theDescs[i].proc>=procs) {
         sprintf(cBuffer, "proc %d is trying to send message to proc %d"
-                " in DDD_Notify()", me, theDescs[i].proc);
+                " in DDD_Notify()", me, ctx.theDescs[i].proc);
         DDD_PrintError('E', 6311, cBuffer);
         return(ERROR);
       }
 
-      allInfos[lastInfo].from = me;
-      allInfos[lastInfo].to   = theDescs[i].proc;
-      allInfos[lastInfo].size = theDescs[i].size;
-      allInfos[lastInfo].flag = UNKNOWN;
-      lastInfo++;
+      allInfos[ctx.lastInfo].from = me;
+      allInfos[ctx.lastInfo].to   = ctx.theDescs[i].proc;
+      allInfos[ctx.lastInfo].size = ctx.theDescs[i].size;
+      allInfos[ctx.lastInfo].flag = UNKNOWN;
+      ctx.lastInfo++;
     }
 
     /* notify partners */
-    nRecvMsgs = NotifyTwoWave(context, allInfos, lastInfo, 0);
+    nRecvMsgs = NotifyTwoWave(context, allInfos, ctx.lastInfo, 0);
   }
 
 
@@ -497,7 +484,7 @@ int DDD_Notify(DDD::DDDContext& context)
   for(i=0; i<nRecvMsgs; i++)
   {
     printf("%4d:    Notify recv msg #%02d from %3d size=%d\n", me,
-           lastInfo, theDescs[i].proc, theDescs[i].size);
+           ctx.lastInfo, ctx.theDescs[i].proc, ctx.theDescs[i].size);
   }
 #       endif
 
