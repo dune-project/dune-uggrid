@@ -39,6 +39,8 @@
 #include <cstring>
 #include <cassert>
 
+#include <algorithm>
+#include <vector>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -267,26 +269,13 @@ static void CmdMsgSend (CMDMSG *theMsgs)
 /****************************************************************************/
 
 
-static int sort_Gids (const void *e1, const void *e2)
-{
-  if ((*(DDD_GID *)e1) < (*(DDD_GID *)e2)) return(-1);
-  if ((*(DDD_GID *)e1) > (*(DDD_GID *)e2)) return(1);
-
-  return(0);
-}
-
-
-
-
 
 static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                          XIDelCmd  **itemsDC, int nDC)
 {
-  DDD_GID *unionGidTab;
-  int lenGidTab;
   int i, k, jDC, iDC, pos, nPruned;
 
-  lenGidTab = 0;
+  int lenGidTab = 0;
   for(i=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
@@ -296,14 +285,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   if (lenGidTab==0)
     return(0);
 
-
-  unionGidTab = (DDD_GID *) OO_Allocate (sizeof(DDD_GID)*lenGidTab);
-  if (unionGidTab==NULL)
-  {
-    DDD_PrintError('E', 6510, STR_NOMEM " in CmdMsgUnpack");
-    HARD_EXIT;
-  }
-
+  std::vector<DDD_GID> unionGidTab(lenGidTab);
 
   for(i=0, pos=0; i<nRecvMsgs; i++)
   {
@@ -312,7 +294,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
     if (len>0)
     {
-      memcpy((char *) (unionGidTab+pos),
+      memcpy((char *) (unionGidTab.data()+pos),
              (char *)    LC_GetPtr(xm, undelete_id),
              sizeof(DDD_GID) * len);
       pos += len;
@@ -321,8 +303,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   assert(pos==lenGidTab);
 
   /* sort GidTab */
-  qsort(unionGidTab, lenGidTab, sizeof(DDD_GID), sort_Gids);
-
+  std::sort(unionGidTab.begin(), unionGidTab.end());
 
         #ifdef SUPPORT_RESENT_FLAG
   {
@@ -415,9 +396,6 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   DDD_PrintDebug(cBuffer);
 #       endif
 
-
-  OO_Free (unionGidTab /*,0*/);
-
   return(nPruned);
 }
 
@@ -443,7 +421,7 @@ static void CmdMsgDisplay (const char *comment, LC_MSGHANDLE xm)
 
   for(i=0; i<lenGid; i++)
   {
-    sprintf(cBuffer, "%s 14 gid    %04d - %08x\n",
+    sprintf(cBuffer, "%s 14 gid    %04d - " DDD_GID_FMT "\n",
             buf, i, DDD_GID_TO_INT(theGid[i]));
     DDD_PrintDebug(cBuffer);
   }
