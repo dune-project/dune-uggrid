@@ -486,8 +486,8 @@ void     DDD_ObjDelete (DDD_OBJ, size_t, DDD_TYPE);
 void     DDD_HdrConstructor (DDD_HDR, DDD_TYPE, DDD_PRIO, DDD_ATTR);
 void     DDD_HdrConstructorMove (DDD_HDR, DDD_HDR);
 void     DDD_HdrDestructor (DDD_HDR);
-DDD_OBJ  DDD_ObjGet (size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
-void     DDD_ObjUnGet (DDD_HDR, size_t);
+DDD_OBJ  DDD_ObjGet (DDD::DDDContext& context, size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
+void     DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR, size_t);
 
 
 
