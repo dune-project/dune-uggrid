@@ -78,10 +78,10 @@ USING_UG_NAMESPACES
 /* PPIF namespace: */
 using namespace PPIF;
 
-  START_UGDIM_NAMESPACE
-
 #define DebugLowComm  10  /* 0 is all, 10 is off */
 
+namespace DDD {
+namespace Basic {
 
 /****************************************************************************/
 /*                                                                          */
@@ -173,35 +173,8 @@ struct TABLE_DESC
   int nValid;                    /* number of valid entries */
 };
 
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-static MSG_TYPE *LC_MsgTypes;
-static MSG_DESC *LC_SendQueue, *LC_RecvQueue;
-static int nSends, nRecvs;
-static char *theRecvBuffer;
-static LC_MSGHANDLE *theRecvArray;
-static MSG_DESC *LC_FreeMsgDescs;
-
-static AllocFunc _DefaultAlloc, _SendAlloc, _RecvAlloc;
-static FreeFunc _DefaultFree,  _SendFree,  _RecvFree;
-
+} /* namespace Basic */
+} /* namespace DDD */
 
 /****************************************************************************/
 /*                                                                          */
@@ -209,6 +182,9 @@ static FreeFunc _DefaultFree,  _SendFree,  _RecvFree;
 /*                                                                          */
 /****************************************************************************/
 
+START_UGDIM_NAMESPACE
+
+using namespace DDD::Basic;
 
 /**
         Initiates LowComm subsystem.
@@ -223,19 +199,9 @@ static FreeFunc _DefaultFree,  _SendFree,  _RecvFree;
 
 void LC_Init(DDD::DDDContext& context, AllocFunc aAllocFunc, FreeFunc aFreeFunc)
 {
-  LC_SendQueue = NULL;
-  LC_RecvQueue = NULL;
-  nSends = 0;
-  nRecvs = 0;
-
-  LC_MsgTypes = NULL;
-
-  theRecvArray = NULL;
-
-  LC_FreeMsgDescs = NULL;
-
-  _DefaultAlloc = aAllocFunc;
-  _DefaultFree  = aFreeFunc;
+  auto& lcContext = context.lowCommContext();
+  lcContext.DefaultAlloc = aAllocFunc;
+  lcContext.DefaultFree  = aFreeFunc;
   LC_SetMemMgrDefault(context);
 }
 
@@ -260,10 +226,11 @@ void LC_Exit(DDD::DDDContext&)
         Currently this function supports only alloc/free of
         buffers for messages to be sent.
  */
-void LC_SetMemMgrSend(DDD::DDDContext&, AllocFunc aAllocFunc, FreeFunc aFreeFunc)
+void LC_SetMemMgrSend(DDD::DDDContext& context, AllocFunc aAllocFunc, FreeFunc aFreeFunc)
 {
-  _SendAlloc = aAllocFunc;
-  _SendFree  = aFreeFunc;
+  auto& lcContext = context.lowCommContext();
+  lcContext.SendAlloc = aAllocFunc;
+  lcContext.SendFree  = aFreeFunc;
 }
 
 
@@ -272,10 +239,11 @@ void LC_SetMemMgrSend(DDD::DDDContext&, AllocFunc aAllocFunc, FreeFunc aFreeFunc
         Currently this function supports only alloc/free of
         buffers for messages to be received.
  */
-void LC_SetMemMgrRecv(DDD::DDDContext&, AllocFunc aAllocFunc, FreeFunc aFreeFunc)
+void LC_SetMemMgrRecv(DDD::DDDContext& context, AllocFunc aAllocFunc, FreeFunc aFreeFunc)
 {
-  _RecvAlloc = aAllocFunc;
-  _RecvFree  = aFreeFunc;
+  auto& lcContext = context.lowCommContext();
+  lcContext.RecvAlloc = aAllocFunc;
+  lcContext.RecvFree  = aFreeFunc;
 }
 
 
@@ -284,12 +252,13 @@ void LC_SetMemMgrRecv(DDD::DDDContext&, AllocFunc aAllocFunc, FreeFunc aFreeFunc
         Set alloc/free of message buffers to the functions provided to
         \lcfunk{Init}.
  */
-void LC_SetMemMgrDefault(DDD::DDDContext&)
+void LC_SetMemMgrDefault(DDD::DDDContext& context)
 {
-  _SendAlloc = _DefaultAlloc;
-  _SendFree  = _DefaultFree;
-  _RecvAlloc = _DefaultAlloc;
-  _RecvFree  = _DefaultFree;
+  auto& lcContext = context.lowCommContext();
+  lcContext.SendAlloc = lcContext.DefaultAlloc;
+  lcContext.SendFree  = lcContext.DefaultFree;
+  lcContext.RecvAlloc = lcContext.DefaultAlloc;
+  lcContext.RecvFree  = lcContext.DefaultFree;
 }
 
 
@@ -299,15 +268,16 @@ void LC_SetMemMgrDefault(DDD::DDDContext&)
         auxiliary functions
  */
 
-static MSG_DESC *NewMsgDesc (void)
+static MSG_DESC *NewMsgDesc (DDD::DDDContext& context)
 {
+  auto& lcContext = context.lowCommContext();
   MSG_DESC *md;
 
-  if (LC_FreeMsgDescs!=NULL)
+  if (lcContext.FreeMsgDescs != nullptr)
   {
     /* get item from freelist */
-    md = LC_FreeMsgDescs;
-    LC_FreeMsgDescs = LC_FreeMsgDescs->next;
+    md = lcContext.FreeMsgDescs;
+    lcContext.FreeMsgDescs = lcContext.FreeMsgDescs->next;
   }
   else
   {
@@ -319,11 +289,13 @@ static MSG_DESC *NewMsgDesc (void)
 }
 
 
-static void FreeMsgDesc (MSG_DESC *md)
+static void FreeMsgDesc (DDD::DDDContext& context, MSG_DESC *md)
 {
+  auto& lcContext = context.lowCommContext();
+
   /* sort into freelist */
-  md->next = LC_FreeMsgDescs;
-  LC_FreeMsgDescs = md;
+  md->next = lcContext.FreeMsgDescs;
+  lcContext.FreeMsgDescs = md;
 }
 
 
@@ -336,9 +308,10 @@ static void FreeMsgDesc (MSG_DESC *md)
         asynchronous receive calls itself.
  */
 
-static LC_MSGHANDLE LC_NewRecvMsg (LC_MSGTYPE mtyp, DDD_PROC source, size_t size)
+static LC_MSGHANDLE LC_NewRecvMsg (DDD::DDDContext& context, LC_MSGTYPE mtyp, DDD_PROC source, size_t size)
 {
-  MSG_DESC *msg = NewMsgDesc();
+  auto& lcContext = context.lowCommContext();
+  MSG_DESC *msg = NewMsgDesc(context);
 
 #       if DebugLowComm<=6
   sprintf(cBuffer, "%4d: LC_NewRecvMsg(%s) source=%d\n",
@@ -355,8 +328,8 @@ static LC_MSGHANDLE LC_NewRecvMsg (LC_MSGTYPE mtyp, DDD_PROC source, size_t size
   msg->chunks = (CHUNK_DESC *) AllocTmpReq(sizeof(CHUNK_DESC)*mtyp->nComps, TMEM_LOWCOMM);
 
   /* enter message into recv queue */
-  msg->next = LC_RecvQueue;
-  LC_RecvQueue = msg;
+  msg->next = lcContext.RecvQueue;
+  lcContext.RecvQueue = msg;
 
   return msg;
 }
@@ -364,19 +337,21 @@ static LC_MSGHANDLE LC_NewRecvMsg (LC_MSGTYPE mtyp, DDD_PROC source, size_t size
 
 
 
-static void LC_DeleteMsg (LC_MSGHANDLE md)
+static void LC_DeleteMsg (DDD::DDDContext& context, LC_MSGHANDLE md)
 {
   DUNE_UNUSED size_t size = sizeof(CHUNK_DESC) * md->msgType->nComps;
 
   FreeTmpReq(md->chunks,size,TMEM_LOWCOMM);
-  FreeMsgDesc(md);
+  FreeMsgDesc(context, md);
 }
 
 
-static void LC_DeleteMsgBuffer (LC_MSGHANDLE md)
+static void LC_DeleteMsgBuffer (const DDD::DDDContext& context, LC_MSGHANDLE md)
 {
-  if (_SendFree!=NULL)
-    (*_SendFree)(md->buffer);
+  const auto& lcContext = context.lowCommContext();
+
+  if (lcContext.SendFree != nullptr)
+    (*lcContext.SendFree)(md->buffer);
 }
 
 
@@ -445,11 +420,13 @@ static void LC_MsgRecv (MSG_DESC *md)
 
 static int LC_PollSend(const DDD::DDDContext& context)
 {
+  const auto& lcContext = context.lowCommContext();
+
   MSG_DESC *md;
   int remaining, error;
 
   remaining = 0;
-  for(md=LC_SendQueue; md!=NULL; md=md->next)
+  for(md=lcContext.SendQueue; md != nullptr; md=md->next)
   {
     if (md->msgState==MSTATE_COMM)
     {
@@ -466,7 +443,7 @@ static int LC_PollSend(const DDD::DDDContext& context)
       if (error==1)
       {
         /* free message buffer */
-        LC_DeleteMsgBuffer((LC_MSGHANDLE)md);
+        LC_DeleteMsgBuffer(context, (LC_MSGHANDLE)md);
 
         md->msgState=MSTATE_READY;
       }
@@ -504,11 +481,13 @@ static int LC_PollSend(const DDD::DDDContext& context)
 
 static int LC_PollRecv(const DDD::DDDContext& context)
 {
+  const auto& lcContext = context.lowCommContext();
+
   MSG_DESC *md;
   int remaining, error;
 
   remaining = 0;
-  for(md=LC_RecvQueue; md!=NULL; md=md->next)
+  for(md=lcContext.RecvQueue; md != nullptr; md=md->next)
   {
     if (md->msgState==MSTATE_COMM)
     {
@@ -550,23 +529,24 @@ static int LC_PollRecv(const DDD::DDDContext& context)
 /*                                                                          */
 /****************************************************************************/
 
-static void LC_FreeSendQueue (void)
+static void LC_FreeSendQueue (DDD::DDDContext& context)
 {
+  auto& lcContext = context.lowCommContext();
   MSG_DESC *md, *next=NULL;
 
-  for(md=LC_SendQueue; md!=NULL; md=next)
+  for(md=lcContext.SendQueue; md != nullptr; md=next)
   {
     /* the following assertion is too picky. Freeing of
        message queues should be possible in all msgStates. */
     /*assert(md->msgState==MSTATE_READY);*/
 
     next = md->next;
-    LC_DeleteMsg((LC_MSGHANDLE)md);
+    LC_DeleteMsg(context, (LC_MSGHANDLE)md);
   }
 
 
-  LC_SendQueue = NULL;
-  nSends = 0;
+  lcContext.SendQueue = nullptr;
+  lcContext.nSends = 0;
 }
 
 
@@ -576,23 +556,24 @@ static void LC_FreeSendQueue (void)
 /*                                                                          */
 /****************************************************************************/
 
-static void LC_FreeRecvQueue (void)
+static void LC_FreeRecvQueue (DDD::DDDContext& context)
 {
+  auto& lcContext = context.lowCommContext();
   MSG_DESC *md, *next=NULL;
 
-  for(md=LC_RecvQueue; md!=NULL; md=next)
+  for(md=lcContext.RecvQueue; md != nullptr; md=next)
   {
     /* the following assertion is too picky. Freeing of
        message queues should be possible in all msgStates. */
     /*assert(md->msgState==MSTATE_READY);*/
 
     next = md->next;
-    LC_DeleteMsg((LC_MSGHANDLE)md);
+    LC_DeleteMsg(context, (LC_MSGHANDLE)md);
   }
 
 
-  LC_RecvQueue = NULL;
-  nRecvs = 0;
+  lcContext.RecvQueue = nullptr;
+  lcContext.nRecvs = 0;
 }
 
 
@@ -630,6 +611,7 @@ size_t LC_MsgFreeze (LC_MSGHANDLE md)
 
 int LC_MsgAlloc(DDD::DDDContext& context, LC_MSGHANDLE md)
 {
+  auto& lcContext = context.lowCommContext();
   ULONG      *hdr;
   int i, j, n = md->msgType->nComps;
   int remaining=1, give_up = false;
@@ -642,7 +624,7 @@ int LC_MsgAlloc(DDD::DDDContext& context, LC_MSGHANDLE md)
      no remaining async-sends, we give up. */
   do {
     /* allocate buffer for messages */
-    md->buffer = (char *) (*_SendAlloc)(md->bufferSize);
+    md->buffer = (char *) (*lcContext.SendAlloc)(md->bufferSize);
     if (md->buffer==NULL)
     {
       if (remaining==0)
@@ -712,13 +694,14 @@ int LC_MsgAlloc(DDD::DDDContext& context, LC_MSGHANDLE md)
  */
 static RETCODE LC_PrepareRecv(DDD::DDDContext& context)
 {
+  auto& lcContext = context.lowCommContext();
   MSG_DESC *md;
   size_t sumSize;
   char     *buffer;
   int error;
 
   /* compute sum of message buffer sizes */
-  for(sumSize=0, md=LC_RecvQueue; md!=NULL; md=md->next)
+  for(sumSize=0, md=lcContext.RecvQueue; md != nullptr; md=md->next)
   {
     assert(md->msgState==MSTATE_NEW);
     sumSize += md->bufferSize;
@@ -726,8 +709,8 @@ static RETCODE LC_PrepareRecv(DDD::DDDContext& context)
 
 
   /* allocate buffer for messages */
-  theRecvBuffer = (char *) (*_RecvAlloc)(sumSize);
-  if (theRecvBuffer==NULL)
+  lcContext.theRecvBuffer = (char *) (*lcContext.RecvAlloc)(sumSize);
+  if (lcContext.theRecvBuffer == nullptr)
   {
     DDD_PrintError('E', 6610, STR_NOMEM " in LC_PrepareRecv");
     sprintf(cBuffer, "(size of message buffer: %ld)", sumSize);
@@ -737,8 +720,8 @@ static RETCODE LC_PrepareRecv(DDD::DDDContext& context)
 
 
   /* initiate receive calls */
-  buffer=theRecvBuffer;
-  for(md=LC_RecvQueue; md!=NULL; md=md->next)
+  buffer = lcContext.theRecvBuffer;
+  for(md=lcContext.RecvQueue; md != nullptr; md=md->next)
   {
     md->buffer = buffer;
     buffer += md->bufferSize;
@@ -786,8 +769,9 @@ static RETCODE LC_PrepareRecv(DDD::DDDContext& context)
         and logging output.
  */
 
-LC_MSGTYPE LC_NewMsgType(DDD::DDDContext&, const char *aName)
+LC_MSGTYPE LC_NewMsgType(DDD::DDDContext& context, const char *aName)
 {
+  auto& lcContext = context.lowCommContext();
   MSG_TYPE *mt;
 
   mt = (MSG_TYPE *) AllocCom(sizeof(MSG_TYPE));
@@ -801,8 +785,8 @@ LC_MSGTYPE LC_NewMsgType(DDD::DDDContext&, const char *aName)
   mt->nComps = 0;
 
   /* insert into linked list of message types */
-  mt->next = LC_MsgTypes;
-  LC_MsgTypes = mt;
+  mt->next = lcContext.MsgTypes;
+  lcContext.MsgTypes = mt;
 
   return mt;
 }
@@ -926,13 +910,15 @@ LC_MSGCOMP LC_NewMsgTable (const char *aName, LC_MSGTYPE mtyp, size_t aSize)
    @param aDest     destination processor of new message
  */
 
-LC_MSGHANDLE LC_NewSendMsg(DDD::DDDContext&, LC_MSGTYPE mtyp, DDD_PROC aDest)
+LC_MSGHANDLE LC_NewSendMsg(DDD::DDDContext& context, LC_MSGTYPE mtyp, DDD_PROC aDest)
 {
-  MSG_DESC *msg = NewMsgDesc();
+  auto& lcContext = context.lowCommContext();
+
+  MSG_DESC *msg = NewMsgDesc(context);
 
 #       if DebugLowComm<=6
   sprintf(cBuffer, "%4d: LC_NewSendMsg(%s) dest=%d nSends=%d\n",
-          me, mtyp->name, aDest, nSends+1);
+          me, mtyp->name, aDest, lcContext.nSends+1);
   DDD_PrintDebug(cBuffer);
 #       endif
 
@@ -952,9 +938,9 @@ LC_MSGHANDLE LC_NewSendMsg(DDD::DDDContext&, LC_MSGTYPE mtyp, DDD_PROC aDest)
 
 
   /* enter message into send queue */
-  msg->next = LC_SendQueue;
-  LC_SendQueue = msg;
-  nSends++;
+  msg->next = lcContext.SendQueue;
+  lcContext.SendQueue = msg;
+  lcContext.nSends++;
 
   return msg;
 }
@@ -1067,31 +1053,33 @@ size_t LC_GetBufferSize (LC_MSGHANDLE md)
 
 int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 {
+  auto& lcContext = context.lowCommContext();
+
   DDD_PROC    *partners = DDD_ProcArray();
-  NOTIFY_DESC *msgs = DDD_NotifyBegin(context, nSends);
+  NOTIFY_DESC *msgs = DDD_NotifyBegin(context, lcContext.nSends);
   MSG_DESC *md;
   int i, p;
 
   const auto procs = context.procs();
 
-  if (nSends<0 || nSends>procs-1)
+  if (lcContext.nSends<0 || lcContext.nSends>procs-1)
   {
     sprintf(cBuffer, "cannot send %d messages (must be less than %d)",
-            nSends, procs-1);
+            lcContext.nSends, procs-1);
     DDD_PrintError('E', 6620, cBuffer);
     HARD_EXIT;
   }
 
 #       if DebugLowComm<=9
   sprintf(cBuffer, "%4d: LC_Connect(%s) nSends=%d ...\n",
-          me, mtyp->name, nSends);
+          me, mtyp->name, lcContext.nSends);
   DDD_PrintDebug(cBuffer);
 #       endif
 
 
 
   /* fill notify array */
-  for(i=0, p=0, md=LC_SendQueue; md!=NULL; i++, md=md->next)
+  for(i=0, p=0, md=lcContext.SendQueue; md != nullptr; i++, md=md->next)
   {
     msgs[i].proc = md->proc;
     msgs[i].size = md->bufferSize;
@@ -1103,27 +1091,27 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
 
   /* inform message receivers */
-  nRecvs = DDD_Notify(context);
-  if (nRecvs<0)
+  lcContext.nRecvs = DDD_Notify(context);
+  if (lcContext.nRecvs<0)
   {
     /* some processor raised an exception */
     sprintf(cBuffer,
             "Notify() raised exception #%d in LC_Connect()",
-            -nRecvs);
+            -lcContext.nRecvs);
     DDD_PrintError('E', 6624, cBuffer);
 
     /* automatically call LC_Cleanup() */
     DDD_NotifyEnd(context);
     LC_Cleanup(context);
 
-    return(nRecvs);
+    return lcContext.nRecvs;
   }
 
 
-  if (nRecvs>procs-1)
+  if (lcContext.nRecvs>procs-1)
   {
     sprintf(cBuffer, "cannot receive %d messages (must be less than %d)",
-            nRecvs, procs-1);
+            lcContext.nRecvs, procs-1);
     DDD_PrintError('E', 6622, cBuffer);
     DDD_NotifyEnd(context);
     return(EXCEPTION_LOWCOMM_CONNECT);
@@ -1133,16 +1121,16 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
 #       if DebugLowComm<=7
   sprintf(cBuffer, "%4d: LC_Connect() nSends=%d nRecvs=%d\n",
-          me, nSends, nRecvs);
+          me, lcContext.nSends, lcContext.nRecvs);
   DDD_PrintDebug(cBuffer);
 #       endif
 
 
   /* create array of receive message handles */
-  if (nRecvs>0)
+  if (lcContext.nRecvs>0)
   {
-    theRecvArray = (LC_MSGHANDLE *)AllocTmpReq(sizeof(LC_MSGHANDLE)*nRecvs, TMEM_ANY);
-    if (theRecvArray==NULL)
+    lcContext.theRecvArray = (LC_MSGHANDLE *)AllocTmpReq(sizeof(LC_MSGHANDLE)*lcContext.nRecvs, TMEM_ANY);
+    if (lcContext.theRecvArray == nullptr)
     {
       DDD_PrintError('E', 6623, "out of memory in LC_Connect()");
       DDD_NotifyEnd(context);
@@ -1152,10 +1140,10 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
 
   /* create recv messages from notify array */
-  for(i=0; i<nRecvs; i++)
+  for(i=0; i < lcContext.nRecvs; i++)
   {
     /* create recv message handle and store it in MSGHANDLE array */
-    theRecvArray[i] = LC_NewRecvMsg(mtyp, msgs[i].proc, msgs[i].size);
+    lcContext.theRecvArray[i] = LC_NewRecvMsg(context, mtyp, msgs[i].proc, msgs[i].size);
 
     /* enhance list of communication partners (sources) */
     partners[p++] = msgs[i].proc;
@@ -1169,7 +1157,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
   /* get necessary connections to comm-partners */
   if (p>0)
   {
-    if (! IS_OK(DDD_GetChannels(context, nRecvs+nSends)))
+    if (! IS_OK(DDD_GetChannels(context, lcContext.nRecvs+lcContext.nSends)))
     {
       DDD_PrintError('E', 6620, "couldn't get channels in LC_Connect()");
       return(EXCEPTION_LOWCOMM_CONNECT);
@@ -1182,7 +1170,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 #       endif
 
 
-  if (nRecvs>0)
+  if (lcContext.nRecvs>0)
   {
     if (! IS_OK(LC_PrepareRecv(context)))
       return(EXCEPTION_LOWCOMM_CONNECT);
@@ -1194,7 +1182,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
   DDD_PrintDebug(cBuffer);
 #       endif
 
-  return(nRecvs);
+  return lcContext.nRecvs;
 }
 
 
@@ -1255,7 +1243,7 @@ int LC_Abort(DDD::DDDContext& context, int exception)
 
 LC_MSGHANDLE *LC_Communicate(const DDD::DDDContext& context)
 {
-  int leftSend, leftRecv;
+  auto& lcContext = context.lowCommContext();
 
 #       if DebugLowComm<=9
   sprintf(cBuffer, "%4d: LC_Communicate() ...\n", me);
@@ -1264,8 +1252,8 @@ LC_MSGHANDLE *LC_Communicate(const DDD::DDDContext& context)
 
 
   /* poll asynchronous send and receives */
-  leftSend = nSends;
-  leftRecv = nRecvs;
+  int leftSend = lcContext.nSends;
+  int leftRecv = lcContext.nRecvs;
   do {
     if (leftRecv>0) leftRecv = LC_PollRecv(context);
     if (leftSend>0) leftSend = LC_PollSend(context);
@@ -1277,7 +1265,7 @@ LC_MSGHANDLE *LC_Communicate(const DDD::DDDContext& context)
   DDD_PrintDebug(cBuffer);
 #       endif
 
-  return(theRecvArray);
+  return lcContext.theRecvArray;
 }
 
 
@@ -1289,31 +1277,33 @@ LC_MSGHANDLE *LC_Communicate(const DDD::DDDContext& context)
 
 void LC_Cleanup(DDD::DDDContext& context)
 {
+  auto& lcContext = context.lowCommContext();
+
 #       if DebugLowComm<=9
   sprintf(cBuffer, "%4d: LC_Cleanup() ...\n", me);
   DDD_PrintDebug(cBuffer);
 #       endif
 
-  if (nRecvs>0)
+  if (lcContext.nRecvs>0)
   {
-    if (_RecvFree!=NULL)
-      (*_RecvFree)(theRecvBuffer);
+    if (lcContext.RecvFree != nullptr)
+      (lcContext.RecvFree)(lcContext.theRecvBuffer);
 
-    theRecvBuffer=NULL;
+    lcContext.theRecvBuffer = nullptr;
   }
 
-  if (theRecvArray!=NULL)
+  if (lcContext.theRecvArray != nullptr)
   {
-    DUNE_UNUSED size_t size = sizeof(LC_MSGHANDLE)*nRecvs;
-    FreeTmpReq(theRecvArray,size,TMEM_ANY);
-    theRecvArray=NULL;
+    DUNE_UNUSED size_t size = sizeof(LC_MSGHANDLE)*lcContext.nRecvs;
+    FreeTmpReq(lcContext.theRecvArray,size,TMEM_ANY);
+    lcContext.theRecvArray = nullptr;
   }
 
   /* free recv queue */
-  LC_FreeRecvQueue();
+  LC_FreeRecvQueue(context);
 
   /* free send queue */
-  LC_FreeSendQueue();
+  LC_FreeSendQueue(context);
 
 
 #       if DebugLowComm<=9
@@ -1343,7 +1333,7 @@ static void LC_PrintMsgList (MSG_DESC *list)
   size_t sum, comp_size[MAX_COMPONENTS];
   int i;
 
-  for(md=list; md!=NULL; md=md->next)
+  for(md=list; md != nullptr; md=md->next)
   {
     MSG_TYPE *mt = md->msgType;
 
@@ -1421,12 +1411,12 @@ static void LC_PrintMsgList (MSG_DESC *list)
 
 void LC_PrintSendMsgs(const DDD::DDDContext& context)
 {
-  LC_PrintMsgList(LC_SendQueue);
+  LC_PrintMsgList(context.lowCommContext().SendQueue);
 }
 
 void LC_PrintRecvMsgs(const DDD::DDDContext& context)
 {
-  LC_PrintMsgList(LC_RecvQueue);
+  LC_PrintMsgList(context.lowCommContext().RecvQueue);
 }
 
 

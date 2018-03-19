@@ -30,6 +30,8 @@
 #ifndef __DDD_LOWCOMM_H__
 #define __DDD_LOWCOMM_H__
 
+#include <dune/uggrid/parallel/ddd/dddtypes.hh>
+
 START_UGDIM_NAMESPACE
 
 /****************************************************************************/
@@ -60,17 +62,17 @@ typedef unsigned long ULONG;
 /**
  * opaque data type for messages
  */
-struct MSG_DESC;
+using MSG_DESC = DDD::Basic::MSG_DESC;
 
 /**
  * handle for messages
  */
-using LC_MSGHANDLE = MSG_DESC*;
+using LC_MSGHANDLE = DDD::Basic::LC_MSGHANDLE;
 
 /**
  * opaque data type for message types
  */
-struct MSG_TYPE;
+using MSG_TYPE = DDD::Basic::MSG_TYPE;
 
 /**
  * handle for message types (on send AND recv side)
@@ -84,8 +86,8 @@ typedef int LC_MSGCOMP;
 
 
 /* function pointer types for alloc and free */
-typedef void * (*AllocFunc)(size_t);
-typedef void (*FreeFunc)(void *);
+using AllocFunc = DDD::Basic::AllocFunc;
+using FreeFunc = DDD::Basic::FreeFunc;
 
 
 /****************************************************************************/
