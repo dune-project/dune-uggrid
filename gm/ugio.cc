@@ -1941,7 +1941,6 @@ static INT SpreadRefineInfo(GRID *theGrid)
                 Gather_RefineInfo,Scatter_RefineInfo);
   return(GM_OK);
 }
-#endif
 
 static int Gather_NodeType (DDD_OBJ obj, void *data)
 {
@@ -1967,6 +1966,7 @@ static INT SpreadGridNodeTypes(GRID *theGrid)
                 Gather_NodeType,Scatter_NodeType);
   return(GM_OK);
 }
+#endif
 
 static INT IO_GridCons(MULTIGRID *theMG)
 {
