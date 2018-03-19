@@ -55,28 +55,11 @@ enum FileTypes { FT_UNKNOWN, FT_FILE, FT_DIR, FT_LINK };
 #define fileopen(fname,mode)            fopen_r(BasedConvertedFilename(fname),(mode),0)
 #define fileopen_r(fname,mode,r)        fopen_r(BasedConvertedFilename(fname),(mode),(r))
 
-enum DIRWALK_ERR
-{
-  PATH_INVALID    = 1,
-  PATH_NO_DIR,
-  NAME_TOO_LONG,
-  NOT_IMPLEMENTED,
-  VOLUME_NOT_FOUND,
-  NO_DEFAULT_VOLUME,
-  IO_ERROR,
-  BAD_FILENAME,
-  FILE_NOT_FOUND,
-  DIR_NOT_FOUND,
-  ACCESS_ERROR
-};
-
 /****************************************************************************/
 /*                                                                                                                                                      */
 /* data structures exported by the corresponding source file                            */
 /*                                                                                                                                                      */
 /****************************************************************************/
-
-typedef void (*ProcessFileProc)(const char *fname);
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -91,9 +74,7 @@ typedef void (*ProcessFileProc)(const char *fname);
 /****************************************************************************/
 
 const char*     BasedConvertedFilename          (const char *fname);
-size_t          filesize                    (const char *fname);
 int             filetype                    (const char *fname);
-INT                     DirWalk                                         (const char *dir, ProcessFileProc fcn);
 INT                     ReadSearchingPaths                      (const char *filename, const char *pathsvar);
 int                     DirCreateUsingSearchPaths       (const char *fname, const char *paths);
 int                     DirCreateUsingSearchPaths_r     (const char *fname, const char *paths, int rename);
@@ -107,9 +88,6 @@ int             mkdir_r                                         (const char *fna
 
 int                     AppendTrailingSlash                     (char *path);
 char*           SimplifyPath                            (char *path);
-const char*     GetBasePath                                     (void);
-const char*     SetBasePath                                     (const char *path);
-const char*     AddBasePath                                     (const char *path);
 
 INT                     InitFileOpen                            (void);
 
