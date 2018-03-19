@@ -443,7 +443,7 @@ static void CmdMsgDisplay (const char *comment, LC_MSGHANDLE xm)
 
   for(i=0; i<lenGid; i++)
   {
-    sprintf(cBuffer, "%s 14 gid    %04d - %08x\n",
+    sprintf(cBuffer, "%s 14 gid    %04d - " DDD_GID_FMT "\n",
             buf, i, DDD_GID_TO_INT(theGid[i]));
     DDD_PrintDebug(cBuffer);
   }
