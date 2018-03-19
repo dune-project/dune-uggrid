@@ -34,6 +34,12 @@ struct NotifyContext
   int nSendDescs;
 };
 
+struct TopoContext
+{
+  PPIF::VChannelPtr* theTopology;
+  DDD_PROC* theProcArray;
+};
+
 } /* namespace Basic */
 
 class DDDContext {
@@ -82,11 +88,18 @@ public:
   Basic::NotifyContext& notifyContext()
     { return notifyContext_; }
 
+  Basic::TopoContext& topoContext()
+    { return topoContext_; }
+
+  const Basic::TopoContext& topoContext() const
+    { return topoContext_; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
   Basic::LowCommContext lowCommContext_;
   Basic::NotifyContext notifyContext_;
+  Basic::TopoContext topoContext_;
 };
 
 } /* namespace DDD */
