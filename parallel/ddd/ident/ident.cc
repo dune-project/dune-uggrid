@@ -921,7 +921,7 @@ static int InitComm(DDD::DDDContext& context, int nPartners)
 {
   ID_PLIST  *plist;
   int i, err;
-  DDD_PROC  *partners = DDD_ProcArray();
+  DDD_PROC  *partners = DDD_ProcArray(context);
 
   /* fill partner processor numbers into array */
   for(plist=thePLists, i=0; i<nPartners; i++, plist=plist->next)
