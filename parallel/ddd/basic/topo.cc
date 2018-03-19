@@ -54,46 +54,6 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*        compile time constants defining static data size (i.e. arrays)    */
-/*        other constants                                                   */
-/*        macros                                                            */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-VChannelPtr *theTopology;
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-static DDD_PROC    *theProcArray;
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -103,26 +63,25 @@ static DDD_PROC    *theProcArray;
 
 void ddd_TopoInit(DDD::DDDContext& context)
 {
-  int i;
-
+  auto& ctx = context.topoContext();
   const auto procs = context.procs();
 
   /* get one channel pointer for each partner */
-  theTopology = (VChannelPtr *) AllocFix(procs*sizeof(VChannelPtr));
-  if (theTopology==NULL)
+  ctx.theTopology = (VChannelPtr *) AllocFix(procs*sizeof(VChannelPtr));
+  if (ctx.theTopology == nullptr)
   {
     DDD_PrintError('E', 1500, STR_NOMEM " in TopoInit");
     return;
   }
 
   /* initialize channel topology */
-  for(i=0; i<procs; i++)
-    theTopology[i] = NULL;
+  for(int i=0; i<procs; i++)
+    ctx.theTopology[i] = nullptr;
 
 
   /* get proc array with maxsize = 2 * number of procs */
-  theProcArray = (DDD_PROC *) AllocFix(2 * procs*sizeof(DDD_PROC));
-  if (theProcArray==NULL)
+  ctx.theProcArray = (DDD_PROC *) AllocFix(2 * procs*sizeof(DDD_PROC));
+  if (ctx.theProcArray == nullptr)
   {
     DDD_PrintError('E', 1510, STR_NOMEM " in TopoInit");
     return;
@@ -132,24 +91,23 @@ void ddd_TopoInit(DDD::DDDContext& context)
 
 void ddd_TopoExit(DDD::DDDContext& context)
 {
-  int i;
-
+  auto& ctx = context.topoContext();
   const auto procs = context.procs();
 
-  FreeFix(theProcArray);
+  FreeFix(ctx.theProcArray);
 
   /* disconnect channels */
-  for(i=0; i<procs; i++)
+  for(int i=0; i<procs; i++)
   {
-    if (theTopology[i]!=NULL)
+    if (ctx.theTopology[i]!=NULL)
     {
-      DiscASync(context.ppifContext(), theTopology[i]);
-      while (InfoADisc(context.ppifContext(), theTopology[i])!=1)
+      DiscASync(context.ppifContext(), ctx.theTopology[i]);
+      while (InfoADisc(context.ppifContext(), ctx.theTopology[i])!=1)
         ;
     }
   }
 
-  FreeFix(theTopology);
+  FreeFix(ctx.theTopology);
 }
 
 
@@ -158,12 +116,13 @@ void ddd_TopoExit(DDD::DDDContext& context)
 
 DDD_PROC* DDD_ProcArray(DDD::DDDContext& context)
 {
-  return theProcArray;
+  return context.topoContext().theProcArray;
 }
 
 
 RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
 {
+  auto& ctx = context.topoContext();
   int i, nConn;
 
   if (nPartners > 2*(context.procs()-1))
@@ -177,20 +136,20 @@ RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
   nConn = 0;
   for(i=0; i<nPartners; i++)
   {
-    if (theTopology[theProcArray[i]]==NULL)
+    if (ctx.theTopology[ctx.theProcArray[i]] == nullptr)
     {
-      VChannelPtr vc = ConnASync(context.ppifContext(), theProcArray[i], VC_TOPO);
+      VChannelPtr vc = ConnASync(context.ppifContext(), ctx.theProcArray[i], VC_TOPO);
 
       if (vc==NULL)
       {
         sprintf(cBuffer,
                 "can't connect to proc=%d in DDD_GetChannels",
-                theProcArray[i]);
+                ctx.theProcArray[i]);
         DDD_PrintError('E', 1521, cBuffer);
         RET_ON_ERROR;
       }
 
-      theTopology[theProcArray[i]] = vc;
+      ctx.theTopology[ctx.theProcArray[i]] = vc;
       nConn++;
 
       theProcFlags[i] = true;
@@ -208,13 +167,13 @@ RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
     {
       if (theProcFlags[i])
       {
-        int ret = InfoAConn(context.ppifContext(), theTopology[theProcArray[i]]);
+        int ret = InfoAConn(context.ppifContext(), ctx.theTopology[ctx.theProcArray[i]]);
         if (ret==-1)
         {
           sprintf(cBuffer,
                   "PPIF's InfoAConn() failed for connect to proc=%d"
                   " in DDD_GetChannels",
-                  theProcArray[i]);
+                  ctx.theProcArray[i]);
           DDD_PrintError('E', 1530, cBuffer);
           RET_ON_ERROR;
         }
@@ -239,6 +198,7 @@ void DDD_DisplayTopo (const DDD::DDDContext& context)
   int p, i;
   char buf[20];
 
+  const auto& ctx = context.topoContext();
   const auto me = context.me();
   const auto procs = context.procs();
 
@@ -264,7 +224,7 @@ void DDD_DisplayTopo (const DDD::DDDContext& context)
       sprintf(cBuffer, "%4d: ", me);
       for(i=0; i<procs; i++)
       {
-        if (theTopology[i]!=NULL)
+        if (ctx.theTopology[i]!=NULL)
         {
           strcat(cBuffer,"<>");
         }
