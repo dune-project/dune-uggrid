@@ -155,9 +155,7 @@ void NS_PREFIX DisposeHeap (HEAP *theHeap)
    \param n - number of bytes to allocate
 
    this function now only forwards to `malloc`.
-
-/****************************************************************************/
-
+*/
 void *NS_PREFIX GetMem (HEAP *theHeap, MEM n)
 {
   return malloc(n);
@@ -171,9 +169,7 @@ void *NS_PREFIX GetMem (HEAP *theHeap, MEM n)
    \param key - key with which we can identify the rollback record
 
    this function allocates memory on the heap and tags it with the `key`.
-
-/****************************************************************************/
-
+*/
 void *NS_PREFIX GetTmpMem (HEAP *theHeap, MEM n, INT key)
 {
   if (theHeap->type==SIMPLE_HEAP)
