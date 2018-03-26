@@ -33,6 +33,12 @@ struct NOTIFY_INFO;
 
 } /* namespace Basic */
 
+namespace Prio {
+
+enum class PrioMode : unsigned char;
+
+} /* namespace Prio */
+
 } /* namespace DDD */
 
 #endif
