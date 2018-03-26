@@ -483,7 +483,7 @@ void     DDD_JoinObj(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_GID);
 
 DDD_OBJ  DDD_ObjNew (size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
 void     DDD_ObjDelete (DDD_OBJ, size_t, DDD_TYPE);
-void     DDD_HdrConstructor (DDD_HDR, DDD_TYPE, DDD_PRIO, DDD_ATTR);
+void     DDD_HdrConstructor (DDD::DDDContext& context, DDD_HDR, DDD_TYPE, DDD_PRIO, DDD_ATTR);
 void     DDD_HdrConstructorMove (DDD_HDR, DDD_HDR);
 void     DDD_HdrDestructor (DDD_HDR);
 DDD_OBJ  DDD_ObjGet (DDD::DDDContext& context, size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
