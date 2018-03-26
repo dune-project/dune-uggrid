@@ -1,10 +1,13 @@
 #ifndef DUNE_UGGRID_PARALLEL_DDD_DDDTYPES_HH
 #define DUNE_UGGRID_PARALLEL_DDD_DDDTYPES_HH 1
 
+#include <cinttypes>
+
 namespace DDD {
 
 class DDDContext;
 
+using DDD_GID = std::uint_least64_t;
 using DDD_TYPE = unsigned int;
 using DDD_IF = unsigned int;
 using DDD_PROC = unsigned int;
