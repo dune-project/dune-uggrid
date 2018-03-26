@@ -367,7 +367,8 @@ void DDD_ObjDelete (DDD_OBJ obj, size_t size, DDD_TYPE typ)
    @param aAttr  \ddd{attribute} of \ddd{object}
  */
 
-void DDD_HdrConstructor (DDD_HDR aHdr, DDD_TYPE aType,
+void DDD_HdrConstructor (DDD::DDDContext& context,
+                         DDD_HDR aHdr, DDD_TYPE aType,
                          DDD_PRIO aPrio, DDD_ATTR aAttr)
 {
 /* check input parameters */
@@ -581,7 +582,7 @@ MarkHdrInvalid(hdr);
 /*                                                                          */
 /****************************************************************************/
 
-DDD_OBJ DDD_ObjGet (DDD::DDDContext&, size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
+DDD_OBJ DDD_ObjGet (DDD::DDDContext& context, size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 {
   DDD_OBJ obj;
   TYPE_DESC  *desc = &(theTypeDefs[typ]);
@@ -616,7 +617,7 @@ DDD_OBJ DDD_ObjGet (DDD::DDDContext&, size_t size, DDD_TYPE typ, DDD_PRIO prio, 
 
 
   /* call DDD_HdrConstructor */
-  DDD_HdrConstructor(OBJ2HDR(obj,desc), typ, prio, attr);
+  DDD_HdrConstructor(context, OBJ2HDR(obj,desc), typ, prio, attr);
 
   return(obj);
 }
@@ -870,7 +871,7 @@ else
 /****************************************************************************/
 
 
-void ddd_ObjMgrInit (void)
+void ddd_ObjMgrInit(DDD::DDDContext& context)
 {
   /* sanity check: does the DDD_PROC type have enough bits? */
   if (sizeof(DDD_PROC)*8 < MAX_PROCBITS_IN_GID)
@@ -890,7 +891,7 @@ void ddd_ObjMgrInit (void)
 }
 
 
-void ddd_ObjMgrExit (void)
+void ddd_ObjMgrExit(DDD::DDDContext&)
 {
   FreeTmp(ddd_ObjTable,0);
 }
