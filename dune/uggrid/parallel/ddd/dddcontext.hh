@@ -51,6 +51,15 @@ struct ObjmgrContext
 
 } /* namespace Mgr */
 
+namespace Prio {
+
+struct PrioContext
+{
+  PrioMode prioMode;
+};
+
+} /* namespace Prio */
+
 class DDDContext {
 public:
   DDDContext(const std::shared_ptr<PPIF::PPIFContext>& ppifContext);
@@ -106,6 +115,12 @@ public:
   Mgr::ObjmgrContext& objmgrContext()
     { return objmgrContext_; }
 
+  Prio::PrioContext& prioContext()
+    { return prioContext_; }
+
+  const Prio::PrioContext& prioContext() const
+    { return prioContext_; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
@@ -113,6 +128,7 @@ protected:
   Basic::NotifyContext notifyContext_;
   Basic::TopoContext topoContext_;
   Mgr::ObjmgrContext objmgrContext_;
+  Prio::PrioContext prioContext_;
 };
 
 } /* namespace DDD */
