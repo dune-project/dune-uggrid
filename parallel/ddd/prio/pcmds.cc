@@ -38,8 +38,6 @@
 
 #include "dddi.h"
 
-START_UGDIM_NAMESPACE
-
 #define DebugPrio     10   /* 0 is all, 10 is off */
 
 
@@ -54,6 +52,9 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
+namespace DDD {
+namespace Prio {
+
 /* overall mode of prio-environment */
 enum class PrioMode : unsigned char {
   PMODE_IDLE = 0,            /* waiting for next DDD_PrioBegin() */
@@ -61,58 +62,12 @@ enum class PrioMode : unsigned char {
   PMODE_BUSY                 /* during DDD_PrioEnd() */
 };
 
+} /* namespace Prio */
+} /* namespace DDD */
 
+START_UGDIM_NAMESPACE
 
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-
-/****************************************************************************/
-/* PRIO_GLOBALS: global data for prio module                                */
-/****************************************************************************/
-
-struct PRIO_GLOBALS
-{
-  /* mode of prio module */
-  PrioMode prioMode;
-
-};
-
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-/* one instance of PRIO_GLOBALS */
-static PRIO_GLOBALS prioGlobals;
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* routines                                                                 */
-/*                                                                          */
-/****************************************************************************/
-
+using DDD::Prio::PrioMode;
 
 /*
         management functions for PrioMode.
@@ -137,11 +92,12 @@ static const char* PrioModeName (PrioMode mode)
 
 static void PrioSetMode (DDD::DDDContext& context, PrioMode mode)
 {
-  prioGlobals.prioMode = mode;
+  auto& ctx = context.prioContext();
+  ctx.prioMode = mode;
 
 #       if DebugPrio<=8
   sprintf(cBuffer, "%4d: PrioMode=%s.\n",
-          me, PrioModeName(prioGlobals.prioMode));
+          me, PrioModeName(ctx.prioMode));
   DDD_PrintDebug(cBuffer);
 #       endif
 }
@@ -161,21 +117,22 @@ static PrioMode PrioSuccMode (PrioMode mode)
 
 bool ddd_PrioActive (const DDD::DDDContext& context)
 {
-  return prioGlobals.prioMode!=PrioMode::PMODE_IDLE;
+  return context.prioContext().prioMode != PrioMode::PMODE_IDLE;
 }
 
 
 static bool PrioStepMode(DDD::DDDContext& context, PrioMode old)
 {
-  if (prioGlobals.prioMode!=old)
+  auto& ctx = context.prioContext();
+  if (ctx.prioMode!=old)
   {
     sprintf(cBuffer, "wrong prio-mode (currently in %s, expected %s)",
-            PrioModeName(prioGlobals.prioMode), PrioModeName(old));
+            PrioModeName(ctx.prioMode), PrioModeName(old));
     DDD_PrintError('E', 8200, cBuffer);
     return false;
   }
 
-  PrioSetMode(context, PrioSuccMode(prioGlobals.prioMode));
+  PrioSetMode(context, PrioSuccMode(ctx.prioMode));
   return true;
 }
 
