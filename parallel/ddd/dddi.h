@@ -688,9 +688,9 @@ void      DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
 
 
 /* prio/pcmds.c */
-void      ddd_PrioInit (void);
-void      ddd_PrioExit (void);
-int       ddd_PrioActive (void);
+void      ddd_PrioInit(DDD::DDDContext& context);
+void      ddd_PrioExit(DDD::DDDContext& context);
+bool      ddd_PrioActive(const DDD::DDDContext& context);
 
 
 /* join/join.c */

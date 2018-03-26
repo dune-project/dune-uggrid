@@ -1746,6 +1746,10 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
   VECTOR          *theVector;
   EDGE            *theEdge;
 
+#ifdef ModelP
+  auto& dddContext = theGrid->dddContext();
+#endif
+
   evec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),ELEMVEC);
   nvec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),NODEVEC);
   edvec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),EDGEVEC);
@@ -1765,7 +1769,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
     oldwhere = PRIO2INDEX(EPRIO(theElement));
     Succe = SUCCE(theElement);
     GRID_UNLINK_ELEMENT(theGrid,theElement);
-    SETEPRIO(theElement,prio);
+    SETEPRIO(dddContext, theElement,prio);
     if (theFather != NULL)
     {
       if (theElement == SON(theFather,oldwhere))
@@ -1787,7 +1791,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
     {
       theVector = EVECTOR(theElement);
       GRID_UNLINK_VECTOR(theGrid,theVector);
-      SETPRIO(EVECTOR(theElement),prio);
+      SETPRIO(dddContext, EVECTOR(theElement),prio);
       GRID_LINK_VECTOR(theGrid,theVector,prio);
     }
   }
@@ -1807,13 +1811,13 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
       if ((prio = pinfo->prio_node[j]) != PrioMaster)
       {
         GRID_UNLINK_NODE(theGrid,theNode);
-        SETPRIO(theNode,prio);
+        SETPRIO(dddContext, theNode,prio);
         GRID_LINK_NODE(theGrid,theNode,prio);
         if (nvec)
         {
           theVector = NVECTOR(theNode);
           GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(NVECTOR(theNode),prio);
+          SETPRIO(dddContext, NVECTOR(theNode),prio);
           GRID_LINK_VECTOR(theGrid,theVector,prio);
         }
       }
@@ -1839,7 +1843,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
       if ((prio = pinfo->prio_vertex[j]) != PrioMaster)
       {
         GRID_UNLINK_VERTEX(vgrid,theVertex);
-        SETVXPRIO(theVertex,prio);
+        SETVXPRIO(dddContext, theVertex,prio);
         GRID_LINK_VERTEX(vgrid,theVertex,prio);
       }
       PRINTDEBUG(gm,1,("Evaluate-pinfo():vid=%d prio=%d\n",ID(theVertex),prio);fflush(stdout));
@@ -1863,7 +1867,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
         theVector = EDVECTOR(theEdge);
         if ((prio = pinfo->prio_edge[j]) != PrioMaster) {
           GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(theVector,prio);
+          SETPRIO(dddContext, theVector,prio);
           GRID_LINK_VECTOR(theGrid,theVector,prio);
         }
         for (i=0; i<pinfo->ncopies_edge[j]; i++) {
@@ -1888,12 +1892,12 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
     {
       if ((prio = pinfo->prio_edge[j]) != PrioMaster)
       {
-        SETPRIO(theEdge,prio);
+        SETPRIO(dddContext, theEdge,prio);
         if (edvec)
         {
           theVector = EDVECTOR(theEdge);
           GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(EDVECTOR(theEdge),prio);
+          SETPRIO(dddContext, EDVECTOR(theEdge),prio);
           GRID_LINK_VECTOR(theGrid,theVector,prio);
         }
       }

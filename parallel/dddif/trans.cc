@@ -152,7 +152,7 @@ void NS_DIM_PREFIX AMGAgglomerate(MULTIGRID *theMG)
     Size = sizeof(VECTOR)-sizeof(DOUBLE)
            +FMT_S_VEC_TP(MGFORMAT(theMG),VTYPE(theVector));
     XFERCOPYX(context, theVector,master,PrioMaster,Size);
-    SETPRIO(theVector,PrioVGhost);
+    SETPRIO(context, theVector,PrioVGhost);
   }
   DDD_XferEnd(context);
 
@@ -690,15 +690,15 @@ static int XferGridWithOverlap (GRID *theGrid)
         switch (overlap_elem)
         {
         case (1) :
-          SETEPRIO(theElement,PrioHGhost);
+          SETEPRIO(context, theElement,PrioHGhost);
           break;
 
         case (2) :
-          SETEPRIO(theElement,PrioVGhost);
+          SETEPRIO(context, theElement,PrioVGhost);
           break;
 
         case (3) :
-          SETEPRIO(theElement,PrioVGhost);
+          SETEPRIO(context, theElement,PrioVGhost);
           break;
 
         default :
