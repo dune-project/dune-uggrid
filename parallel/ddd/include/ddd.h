@@ -396,7 +396,7 @@ void     DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE);
 /*
         Object Properties
  */
-void     DDD_PrioritySet (DDD_HDR, DDD_PRIO);
+void     DDD_PrioritySet(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 void     DDD_AttrSet (DDD_HDR, DDD_ATTR); /* this shouldn't be allowed */
 int  *   DDD_InfoProcList (DDD_HDR);
 DDD_PROC DDD_InfoProcPrio (DDD_HDR, DDD_PRIO);
@@ -464,7 +464,7 @@ void     DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
  */
 void     DDD_PrioBegin(DDD::DDDContext& context);
 DDD_RET  DDD_PrioEnd(DDD::DDDContext& context);
-void     DDD_PrioChange (DDD_HDR, DDD_PRIO);
+void     DDD_PrioChange(const DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 
 
 
