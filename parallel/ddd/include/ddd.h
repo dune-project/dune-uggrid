@@ -237,12 +237,11 @@ enum TMemRequests {
 /*
         new DDD types, used during access of DDD functional interface
  */
-#ifdef DDD_GID_T
-typedef DDD_GID_T DDD_GID;
-#else
-typedef std::uint_least64_t DDD_GID;
+using DDD_GID = DDD::DDD_GID;
+static_assert(
+  std::is_same<DDD::DDD_GID, std::uint_least64_t>::value,
+  "printf conversion specifier below expects DDD_GID to be uint_least64_t");
 #define DDD_GID_FMT "%08" PRIxLEAST64
-#endif
 #define DDD_GID_TO_INT(A) (A)
 
 using DDD_TYPE = DDD::DDD_TYPE;
