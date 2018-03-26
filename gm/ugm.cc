@@ -272,7 +272,7 @@ INT NS_DIM_PREFIX ReleaseOBJT (INT type)
 /****************************************************************************/
 
 #ifdef ModelP
-static void ConstructDDDObject (const DDD::DDDContext& context, void *obj, INT size, INT type)
+static void ConstructDDDObject (DDD::DDDContext& context, void *obj, INT size, INT type)
 {
   if (obj!=NULL && type!=NOOBJ)
   {
@@ -282,7 +282,7 @@ static void ConstructDDDObject (const DDD::DDDContext& context, void *obj, INT s
     {
       DDD_TYPE dddtype = DDDTYPE(type);
       DDD_HDR dddhdr = (DDD_HDR)(((char *)obj) + DDD_InfoHdrOffset(context, dddtype));
-      DDD_HdrConstructor(dddhdr, dddtype, PrioMaster, 0);
+      DDD_HdrConstructor(context, dddhdr, dddtype, PrioMaster, 0);
     }
   }
   return;
