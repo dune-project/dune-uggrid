@@ -74,28 +74,29 @@ using namespace PPIF;
 #endif
 
 /* macros for setting object priorities with related objects */
-#define NODE_PRIORITY_SET(g,n,prio)                                          \
-  {                                                                    \
-    /* set priorities of node */                                     \
-    SETPRIOX(n,prio);                                                \
-                                                                             \
-    if (VEC_DEF_IN_OBJ_OF_GRID(g,NODEVEC))                           \
-      if (NVECTOR(n) != NULL)                                      \
-        SETPRIOPV(NVECTOR(n),prio);                              \
-  }
+inline void NODE_PRIORITY_SET(DDD::DDDContext& context, GRID* grid, NODE* node, INT prio)
+{
+  /* set priorities of node */
+  SETPRIOX(context, node, prio);
 
-#define PRIO_SET_EDGE(e,prio)  SETPRIOX(e,prio);
+  if (VEC_DEF_IN_OBJ_OF_GRID(grid, NODEVEC) and NVECTOR(node) != nullptr)
+    SETPRIOPV(context, NVECTOR(node),prio);
+}
 
-#define EDGE_PRIORITY_SET(g,e,prio)                                          \
-  {                                                                    \
-    /* set priorities of node for 3D */                              \
-    PRIO_SET_EDGE(e,prio)                                            \
-                                                                             \
-    /* set priority of edge vector */                                \
-    if (VEC_DEF_IN_OBJ_OF_GRID(g,EDGEVEC))                           \
-      if (EDVECTOR(e) != NULL)                                     \
-        SETPRIOX(EDVECTOR(e),prio);                              \
-  }
+inline void PRIO_SET_EDGE(DDD::DDDContext& context, EDGE* edge, INT prio)
+{
+  SETPRIOX(context, edge, prio);
+}
+
+inline void EDGE_PRIORITY_SET(DDD::DDDContext& context, GRID* grid, EDGE* edge, INT prio)
+{
+  /* set priorities of node for 3D */
+  PRIO_SET_EDGE(context, edge, prio);
+
+  /* set priority of edge vector */
+  if (VEC_DEF_IN_OBJ_OF_GRID(grid, EDGEVEC) and EDVECTOR(edge) != nullptr)
+    SETPRIOX(context, EDVECTOR(edge),prio);
+}
 
 
 /****************************************************************************/
@@ -154,7 +155,7 @@ REP_ERR_FILE
  */
 /****************************************************************************/
 
-static int ComputeNodeBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
+static int ComputeNodeBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
 {
   NODE    *node  = (NODE *)obj;
   int     *plist = DDD_InfoProcList(PARHDR(node));
@@ -174,7 +175,7 @@ static int ComputeNodeBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
     return(0);
 
   if (me!=min_proc)
-    SETPRIO(node, PrioBorder);
+    SETPRIO(context, node, PrioBorder);
   return 0;
 }
 
@@ -196,7 +197,7 @@ static int ComputeNodeBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
  */
 /****************************************************************************/
 
-static int ComputeVectorBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
+static int ComputeVectorBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
 {
   VECTOR  *vector  = (VECTOR *)obj;
   int     *plist = DDD_InfoProcList(PARHDR(vector));
@@ -216,7 +217,7 @@ static int ComputeVectorBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
     return(0);
 
   if (me!=min_proc)
-    SETPRIO(vector, PrioBorder);
+    SETPRIO(context, vector, PrioBorder);
   return 0;
 }
 
@@ -239,7 +240,7 @@ static int ComputeVectorBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
  */
 /****************************************************************************/
 
-static int ComputeEdgeBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
+static int ComputeEdgeBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
 {
   EDGE    *edge  =        (EDGE *)obj;
   int             *plist =        DDD_InfoProcList(PARHDR(edge));
@@ -259,7 +260,7 @@ static int ComputeEdgeBorderPrios (DDD::DDDContext&, DDD_OBJ obj)
     return(0);
 
   if (me!=min_proc)
-    SETPRIO(edge, PrioBorder);
+    SETPRIO(context, edge, PrioBorder);
   return 0;
 }
 
@@ -288,6 +289,8 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
   EDGE    *theEdge;
   VECTOR  *theVector;
   INT i,prio,hghost,vghost;
+
+  auto& context = theGrid->dddContext();
 
   /* reset USED flag for objects of ghostelements */
   for (theElement=PFIRSTELEMENT(theGrid);
@@ -428,13 +431,13 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
       prio = PRIO_CALC(theElement);
       PRINTDEBUG(gm,1,("SetGhostObjectPriorities(): e=" EID_FMTX " new prio=%d\n",
                        EID_PRTX(theElement),prio))
-      SETEPRIOX(theElement,prio);
+      SETEPRIOX(context, theElement, prio);
 
       if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
       {
         theVector = EVECTOR(theElement);
         if (theVector != NULL)
-          SETPRIOX(theVector,prio);
+          SETPRIOX(context, theVector,prio);
       }
     }
 
@@ -452,10 +455,10 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
                             " downgrade edge=" EDID_FMTX " from=%d to PrioHGhost\n",
                             me,EDID_PRTX(theEdge),prio));
 
-        EDGE_PRIORITY_SET(theGrid,theEdge,PRIO_CALC(theEdge));
+        EDGE_PRIORITY_SET(context, theGrid,theEdge,PRIO_CALC(theEdge));
       }
       else
-        EDGE_PRIORITY_SET(theGrid,theEdge,PrioMaster);
+        EDGE_PRIORITY_SET(context, theGrid,theEdge,PrioMaster);
     }
 
                         #ifdef __THREEDIM__
@@ -465,7 +468,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         if (USED(theVector) || THEFLAG(theVector))
-          SETPRIOX(theVector,PRIO_CALC(theVector));
+          SETPRIOX(context, theVector,PRIO_CALC(theVector));
       }
                         #endif
 
@@ -482,19 +485,19 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
                           me,ID_PRTX(theNode),prio));
 
       /* set node priorities of node to ghost */
-      NODE_PRIORITY_SET(theGrid,theNode,PRIO_CALC(theNode))
+      NODE_PRIORITY_SET(context, theGrid,theNode,PRIO_CALC(theNode));
     }
     else if (MODIFIED(theNode) == 0)
     {
       /* this is a node of the boundary without connection to master elements */
-      NODE_PRIORITY_SET(theGrid,theNode,PrioHGhost)
+      NODE_PRIORITY_SET(context, theGrid,theNode,PrioHGhost);
     }
     /* this is needed only for consistency after refinement */
     /* ghost nodes which belong after refinement to master  */
     /* elements have to be upgraded explicitly (980126 s.l.)*/
     else if (MODIFIED(theNode) == 1)
     {
-      NODE_PRIORITY_SET(theGrid,theNode,PrioMaster)
+      NODE_PRIORITY_SET(context, theGrid,theNode,PrioMaster);
     }
   }
 }
