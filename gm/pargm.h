@@ -324,7 +324,7 @@ enum {VERTEX_LISTPARTS = 1};
 #define EHGHOST(p)              0
 #define EVGHOST(p)              0
 #define EPRIO(p)                0
-#define SETEPRIO(p,i)   ;
+#define SETEPRIO(context, p,i)   ;
 #define EMASTERPRIO(p)  1
 #define EPROCLIST(p)    (&_proclist_)
 #define ENCOPIES(p)             1
@@ -338,12 +338,12 @@ enum {VERTEX_LISTPARTS = 1};
 #define PRIO(p)                 0
 #define EPRIO(p)                0
 #define VXPRIO(p)               0
-#define SETPRIO(p,i)    ;
+#define SETPRIO(context, p,i)    ;
 #define PROCLIST(p)             (&_proclist_)
 #define NCOPIES(p)              1
 
 /* dummies for vertices */
-#define SETVXPRIO(e,p)  ;
+#define SETVXPRIO(context, e,p)  ;
 
 /* ddd dummies */
 #define DDD_OBJ                 void *
@@ -351,7 +351,6 @@ enum {VERTEX_LISTPARTS = 1};
 #define DDD_IdentifyEnd(context)
 #define DDD_IdentifyNumber(o,p,n)
 #define DDD_IFAOneway(context, p1,p2,p3,p4,p5,p6)
-#define DDD_PrioritySet(e,p)
 
 /* ppif dummies */
 #define Broadcast(context, p,n)  ((int)0)

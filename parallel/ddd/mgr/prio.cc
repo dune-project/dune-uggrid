@@ -97,7 +97,7 @@ START_UGDIM_NAMESPACE
 
 
 
-void DDD_PrioritySet (DDD_HDR hdr, DDD_PRIO prio)
+void DDD_PrioritySet(DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 {
 /* check input parameters */
 if (prio>=MAX_PRIO)
@@ -120,10 +120,10 @@ if (ddd_XferActive())
   /* we are during Xfer, therefore initiate PrioChange operation */
   DDD_XferPrioChange(hdr, prio);
 }
-else if(ddd_PrioActive())
+else if(ddd_PrioActive(context))
 {
   /* we are in a Prio-environment, therefore initiate consistent PrioChange operation */
-  DDD_PrioChange(hdr, prio);
+  DDD_PrioChange(context, hdr, prio);
 }
 else
 {

@@ -2473,7 +2473,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
   SETLEVEL(pe,theGrid->level);
         #ifdef ModelP
   DDD_AttrSet(PARHDRE(pe),GRID_ATTR(theGrid));
-  /* SETEPRIO(pe,PrioMaster); */
+  /* SETEPRIO(theGrid->dddContext(), pe,PrioMaster); */
   PARTITION(pe) = theGrid->ppifContext().me();
         #endif
   SETEBUILDCON(pe,1);
