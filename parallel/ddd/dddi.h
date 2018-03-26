@@ -641,8 +641,8 @@ int       ddd_TypeDefined (TYPE_DESC *);
 
 
 /* objmgr.c */
-void      ddd_ObjMgrInit (void);
-void      ddd_ObjMgrExit (void);
+void      ddd_ObjMgrInit(DDD::DDDContext& context);
+void      ddd_ObjMgrExit(DDD::DDDContext& context);
 void      ddd_EnsureObjTabSize(int);
 
 
