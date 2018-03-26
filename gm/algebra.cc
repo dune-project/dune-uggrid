@@ -340,7 +340,7 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
   SETVNCLASS(pv,0);
   SETVBUILDCON(pv,1);
   SETVNEW(pv,1);
-  /* SETPRIO(pv,PrioMaster); */
+  /* SETPRIO(dddContext, pv,PrioMaster); */
 
 #ifndef ModelP
   // Dune uses the id field for face indices in sequential grids
@@ -2077,6 +2077,8 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
   VECTOR *vList[20];
   INT i,cnt;
 
+  auto& dddContext = theGrid->dddContext();
+
   if (!MG_COARSE_FIXED(MYMG(theGrid)))
     RETURN (1);
 
@@ -2087,7 +2089,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
     #ifdef ModelP
         #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferBegin(theGrid->dddContext());
+    DDD_XferBegin(dddContext);
         #endif
         #endif
 
@@ -2109,7 +2111,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
           EDVECTOR(ed) = vList[0];
                     #ifdef ModelP
                         #ifdef __THREEDIM__
-          SETPRIO(EDVECTOR(ed),PRIO(ed));
+          SETPRIO(dddContext, EDVECTOR(ed),PRIO(ed));
                     #endif
                         #endif
         }

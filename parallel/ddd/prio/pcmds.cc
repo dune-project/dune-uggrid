@@ -55,7 +55,7 @@ START_UGDIM_NAMESPACE
 
 
 /* overall mode of prio-environment */
-enum PrioMode {
+enum class PrioMode : unsigned char {
   PMODE_IDLE = 0,            /* waiting for next DDD_PrioBegin() */
   PMODE_CMDS,                /* after DDD_PrioBegin(), before DDD_PrioEnd() */
   PMODE_BUSY                 /* during DDD_PrioEnd() */
@@ -79,7 +79,7 @@ enum PrioMode {
 struct PRIO_GLOBALS
 {
   /* mode of prio module */
-  int prioMode;
+  PrioMode prioMode;
 
 };
 
@@ -123,19 +123,19 @@ static PRIO_GLOBALS prioGlobals;
         and recovery.
  */
 
-const char *PrioModeName (int mode)
+static const char* PrioModeName (PrioMode mode)
 {
   switch(mode)
   {
-  case PMODE_IDLE : return "idle-mode";
-  case PMODE_CMDS : return "commands-mode";
-  case PMODE_BUSY : return "busy-mode";
+  case PrioMode::PMODE_IDLE : return "idle-mode";
+  case PrioMode::PMODE_CMDS : return "commands-mode";
+  case PrioMode::PMODE_BUSY : return "busy-mode";
   }
   return "unknown-mode";
 }
 
 
-static void PrioSetMode (int mode)
+static void PrioSetMode (DDD::DDDContext& context, PrioMode mode)
 {
   prioGlobals.prioMode = mode;
 
@@ -147,32 +147,25 @@ static void PrioSetMode (int mode)
 }
 
 
-static int PrioSuccMode (int mode)
+static PrioMode PrioSuccMode (PrioMode mode)
 {
   switch(mode)
   {
-  case PMODE_IDLE : return PMODE_CMDS;
-  case PMODE_CMDS : return PMODE_BUSY;
-  case PMODE_BUSY : return PMODE_IDLE;
+  case PrioMode::PMODE_IDLE: return PrioMode::PMODE_CMDS;
+  case PrioMode::PMODE_CMDS: return PrioMode::PMODE_BUSY;
+  case PrioMode::PMODE_BUSY: return PrioMode::PMODE_IDLE;
+  default:                   std::abort();
   }
-  return PMODE_IDLE;
 }
 
 
-
-static int PrioMode (void)
+bool ddd_PrioActive (const DDD::DDDContext& context)
 {
-  return prioGlobals.prioMode;
+  return prioGlobals.prioMode!=PrioMode::PMODE_IDLE;
 }
 
 
-int ddd_PrioActive (void)
-{
-  return prioGlobals.prioMode!=PMODE_IDLE;
-}
-
-
-static int PrioStepMode (int old)
+static bool PrioStepMode(DDD::DDDContext& context, PrioMode old)
 {
   if (prioGlobals.prioMode!=old)
   {
@@ -182,7 +175,7 @@ static int PrioStepMode (int old)
     return false;
   }
 
-  PrioSetMode(PrioSuccMode(prioGlobals.prioMode));
+  PrioSetMode(context, PrioSuccMode(prioGlobals.prioMode));
   return true;
 }
 
@@ -190,13 +183,13 @@ static int PrioStepMode (int old)
 /****************************************************************************/
 
 
-void ddd_PrioInit (void)
+void ddd_PrioInit(DDD::DDDContext& context)
 {
-  PrioSetMode(PMODE_IDLE);
+  PrioSetMode(context, PrioMode::PMODE_IDLE);
 }
 
 
-void ddd_PrioExit (void)
+void ddd_PrioExit(DDD::DDDContext&)
 {}
 
 
@@ -223,13 +216,13 @@ void ddd_PrioExit (void)
    @param prio new priority for this local object.
  */
 
-void DDD_PrioChange (DDD_HDR hdr, DDD_PRIO prio)
+void DDD_PrioChange (const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 {
 #if DebugPrio<=2
   DDD_PRIO old_prio = OBJ_PRIO(hdr);
 #endif
 
-  if (!ddd_PrioActive())
+  if (!ddd_PrioActive(context))
   {
     DDD_PrintError('E', 8030, "Missing DDD_PrioBegin(). aborted");
     HARD_EXIT;
@@ -329,7 +322,7 @@ static int ScatterPrio (DDD::DDDContext&, DDD_HDR obj, void *data, DDD_PROC proc
 DDD_RET DDD_PrioEnd(DDD::DDDContext& context)
 {
   /* step mode and check whether call to PrioEnd is valid */
-  if (!PrioStepMode(PMODE_CMDS))
+  if (!PrioStepMode(context, PrioMode::PMODE_CMDS))
   {
     DDD_PrintError('E', 8011, "DDD_PrioEnd() aborted");
     HARD_EXIT;
@@ -346,7 +339,7 @@ DDD_RET DDD_PrioEnd(DDD::DDDContext& context)
   STAT_TIMER(T_PRIO_BUILD_IF);
 
 
-  PrioStepMode(PMODE_BUSY);
+  PrioStepMode(context, PrioMode::PMODE_BUSY);
 
   return(DDD_RET_OK);
 }
@@ -369,10 +362,10 @@ DDD_RET DDD_PrioEnd(DDD::DDDContext& context)
         each processor.
  */
 
-void DDD_PrioBegin(DDD::DDDContext&)
+void DDD_PrioBegin(DDD::DDDContext& context)
 {
   /* step mode and check whether call to JoinBegin is valid */
-  if (!PrioStepMode(PMODE_IDLE))
+  if (!PrioStepMode(context, PrioMode::PMODE_IDLE))
   {
     DDD_PrintError('E', 8010, "DDD_PrioBegin() aborted");
     HARD_EXIT;

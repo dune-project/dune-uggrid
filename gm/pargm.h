@@ -324,7 +324,7 @@ enum {VERTEX_LISTPARTS = 1};
 #define EHGHOST(p)              0
 #define EVGHOST(p)              0
 #define EPRIO(p)                0
-#define SETEPRIO(p,i)   ;
+#define SETEPRIO(context, p,i)   ;
 #define EMASTERPRIO(p)  1
 #define EPROCLIST(p)    (&_proclist_)
 #define ENCOPIES(p)             1
@@ -338,12 +338,12 @@ enum {VERTEX_LISTPARTS = 1};
 #define PRIO(p)                 0
 #define EPRIO(p)                0
 #define VXPRIO(p)               0
-#define SETPRIO(p,i)    ;
+#define SETPRIO(context, p,i)    ;
 #define PROCLIST(p)             (&_proclist_)
 #define NCOPIES(p)              1
 
 /* dummies for vertices */
-#define SETVXPRIO(e,p)  ;
+#define SETVXPRIO(context, e,p)  ;
 
 /* ddd dummies */
 #define DDD_OBJ                 void *
