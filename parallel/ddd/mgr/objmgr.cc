@@ -73,38 +73,6 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* data structures                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of static variables                                           */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-/* local unique ID count */
-static DDD_GID theIdCount;
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -371,6 +339,8 @@ void DDD_HdrConstructor (DDD::DDDContext& context,
                          DDD_HDR aHdr, DDD_TYPE aType,
                          DDD_PRIO aPrio, DDD_ATTR aAttr)
 {
+  auto& ctx = context.objmgrContext();
+
 /* check input parameters */
 if (aPrio>=MAX_PRIO)
 {
@@ -413,10 +383,10 @@ OBJ_ATTR(aHdr)  = aAttr;
 OBJ_FLAGS(aHdr) = 0;
 
 /* create unique GID */
-OBJ_GID(aHdr)   = MakeUnique(theIdCount++);
+OBJ_GID(aHdr)   = MakeUnique(ctx.theIdCount++);
 
 /* check overflow of global id numbering */
-if (MakeUnique(theIdCount) <= MakeUnique(theIdCount-1))
+if (MakeUnique(ctx.theIdCount) <= MakeUnique(ctx.theIdCount-1))
 {
   /* TODO update docu */
   DDD_PrintError('F', 2221, "global ID overflow DDD_HdrConstructor");
@@ -873,11 +843,13 @@ else
 
 void ddd_ObjMgrInit(DDD::DDDContext& context)
 {
+  auto& ctx = context.objmgrContext();
+
   /* sanity check: does the DDD_PROC type have enough bits? */
   if (sizeof(DDD_PROC)*8 < MAX_PROCBITS_IN_GID)
     DDD_PrintError('F', 666, "DDD_PROC isn't large enough for MAX_PROCBITS_IN_GID bits");
 
-  theIdCount = 1;        /* start with 1, for debugging reasons */
+  ctx.theIdCount = 1;        /* start with 1, for debugging reasons */
 
   /* allocate first (smallest) object table */
   ddd_ObjTable = (DDD_HDR *) AllocTmp(sizeof(DDD_HDR) * MAX_OBJ_START);

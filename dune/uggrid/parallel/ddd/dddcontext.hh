@@ -42,6 +42,15 @@ struct TopoContext
 
 } /* namespace Basic */
 
+namespace Mgr {
+
+struct ObjmgrContext
+{
+  DDD_GID theIdCount;
+};
+
+} /* namespace Mgr */
+
 class DDDContext {
 public:
   DDDContext(const std::shared_ptr<PPIF::PPIFContext>& ppifContext);
@@ -94,12 +103,16 @@ public:
   const Basic::TopoContext& topoContext() const
     { return topoContext_; }
 
+  Mgr::ObjmgrContext& objmgrContext()
+    { return objmgrContext_; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
   Basic::LowCommContext lowCommContext_;
   Basic::NotifyContext notifyContext_;
   Basic::TopoContext topoContext_;
+  Mgr::ObjmgrContext objmgrContext_;
 };
 
 } /* namespace DDD */
