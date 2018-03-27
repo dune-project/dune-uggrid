@@ -92,7 +92,7 @@ static IF_PROC *NewIFHead (void)
 
   if (memlistIFHead==NULL)
   {
-    ifh = (IF_PROC *) AllocIF(sizeof(IF_PROC));
+    ifh = new IF_PROC;
   }
   else
   {
@@ -191,8 +191,10 @@ void IFDeleteAll (DDD_IF ifId)
 
 
     /* if there are msg-buffers, then we must free them here */
-    BufferFree(ifh->bufIn);
-    BufferFree(ifh->bufOut);
+    ifh->bufIn.clear();
+    ifh->bufIn.shrink_to_fit();
+    ifh->bufOut.clear();
+    ifh->bufOut.shrink_to_fit();
 
     DisposeIFHead(ifh);
 
@@ -431,9 +433,6 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
       ifHead->next     = lastIfHead;
       lastIfHead = ifHead;
       lastproc   = ifHead->proc;
-
-      BufferInit(ifHead->bufIn);
-      BufferInit(ifHead->bufOut);
 
       ifHead->nAttrs = 1;
       ifHead->ifAttr = ifAttr = NewIFAttr();

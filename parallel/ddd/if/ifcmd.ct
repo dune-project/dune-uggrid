@@ -250,8 +250,8 @@ void IF_FUNCNAME (
 
 		#ifdef IF_WITH_ATTR
 			/* reset buffers */
-			BufferReset(ifHead->bufIn);
-			BufferReset(ifHead->bufOut);
+			ifHead->bufIn.clear();
+			ifHead->bufOut.clear();
 			FIND_ATTR; /* find ifAttr */
 			/* if no ATTR can be found, buffers will be empty */
 		#endif
@@ -273,7 +273,7 @@ void IF_FUNCNAME (
 		/* STAT_SETCOUNT(20,STAT_GETCOUNT(20)+ifHead->nItems);
 		STAT_SETCOUNT(21,STAT_GETCOUNT(21)+2);
 		STAT_SETCOUNT(22,STAT_GETCOUNT(22)+
-			BufferLen(ifHead->bufIn) + BufferLen(ifHead->bufOut));
+			ifHead->bufIn.size() + ifHead->bufOut.size());
 		*/
 	}
 	/*
@@ -305,7 +305,7 @@ void IF_FUNCNAME (
 		FIND_ATTR; /* find ifAttr */
 		#endif
 
-		buffer = BufferMem(ifHead->bufOut);
+		buffer = ifHead->bufOut.data();
 
 		#ifdef IF_EXCHANGE
 			/* exchange BA and AB during send */
@@ -337,7 +337,7 @@ void IF_FUNCNAME (
 		/* poll receive calls */
 		ForIF(aIF,ifHead)
 		{
-			if ((! BufferIsEmpty(ifHead->bufIn)) && ifHead->msgIn!=NO_MSGID)
+			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
 				int error = InfoARecv(context.ppifContext(), ifHead->vc, ifHead->msgIn);
 				if (error==-1)
@@ -369,7 +369,7 @@ void IF_FUNCNAME (
 						"%4d after %10ld, size %ld\n",
 						me, aIF, ifHead->proc,
 						(unsigned long)tries,
-						(unsigned long)BufferLen(ifHead->bufIn));
+						(unsigned long)ifHead->bufIn.size());
 					#endif
 
 					recv_mesgs--;
@@ -379,7 +379,7 @@ void IF_FUNCNAME (
 					FIND_ATTR; /* find ifAttr */
 					#endif
 
-					buffer = BufferMem(ifHead->bufIn);
+					buffer = ifHead->bufIn.data();
 
 					/* get data using scatter-handler */
 					#ifdef IF_EXCHANGE
@@ -415,11 +415,11 @@ void IF_FUNCNAME (
 
 		ForIF(aIF,ifHead)
 		{
-			if ((! BufferIsEmpty(ifHead->bufIn)) && ifHead->msgIn!=NO_MSGID)
+			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
 				sprintf(NS_DIM_PREFIX cBuffer,
 					"  waiting for message (from proc %d, size %ld)",
-					ifHead->proc, (unsigned long)BufferLen(ifHead->bufIn));
+					ifHead->proc, (unsigned long)ifHead->bufIn.size());
 				DDD_PrintError('E', 4201, NS_DIM_PREFIX cBuffer);
 			}
 		}
@@ -438,11 +438,11 @@ void IF_FUNCNAME (
 
 			ForIF(aIF,ifHead)
 			{
-				if ((! BufferIsEmpty(ifHead->bufOut)) && ifHead->msgOut!=NO_MSGID)
+				if (not ifHead->bufOut.empty() && ifHead->msgOut!=NO_MSGID)
 				{
 					sprintf(NS_DIM_PREFIX cBuffer,
 						"  waiting for send completion (to proc %d, size %ld)",
-						ifHead->proc, (unsigned long)BufferLen(ifHead->bufOut));
+						ifHead->proc, (unsigned long)ifHead->bufOut.size());
 					DDD_PrintError('E', 4211, NS_DIM_PREFIX cBuffer);
 				}
 			}
