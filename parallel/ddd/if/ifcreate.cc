@@ -43,6 +43,7 @@
 #include <cassert>
 
 #include <algorithm>
+#include <tuple>
 
 #include "dddi.h"
 #include "if.h"
@@ -151,37 +152,18 @@ static void DisposeIFAttr (IF_ATTR *ifr)
 /*                4. global ids of objects                                  */
 /*                    (increasing order)                                    */
 /*                                                                          */
-/* Input:     two couplings                                                 */
+/* Input:     two couplings `a`, `b`                                        */
 /*                                                                          */
-/* Output:    1, 0, -1 depending on order of couplings                      */
+/* Output:    `a < b`                                                       */
 /*                                                                          */
 /****************************************************************************/
 
-static int sort_IFCouplings (const void *e1, const void *e2)
+static bool sort_IFCouplings (const COUPLING* a, const COUPLING* b)
 {
-  COUPLING  *cp1, *cp2;
-  DDD_GID gid1, gid2;
-  DDD_ATTR attr1, attr2;
-
-  cp1 = *((COUPLING **)e1);
-  cp2 = *((COUPLING **)e2);
-
-  if (CPL_PROC(cp1) < CPL_PROC(cp2)) return(-1);
-  if (CPL_PROC(cp1) > CPL_PROC(cp2)) return(1);
-
-  if (CPLDIR(cp1) < CPLDIR(cp2)) return(-1);
-  if (CPLDIR(cp1) > CPLDIR(cp2)) return(1);
-
-  attr1 = OBJ_ATTR(cp1->obj);
-  attr2 = OBJ_ATTR(cp2->obj);
-  if (attr1 > attr2) return(-1);
-  if (attr1 < attr2) return(1);
-
-  gid1 = OBJ_GID(cp1->obj);
-  gid2 = OBJ_GID(cp2->obj);
-  if (gid1 < gid2) return(-1);
-  if (gid1 == gid2) return(0);
-  return(1);
+  const auto aDir = CPLDIR(a), bDir = CPLDIR(b);
+  // a, b switched in the third component as decreasing order is used for attr
+  return std::tie(CPL_PROC(a), aDir, OBJ_ATTR(b->obj), OBJ_GID(a->obj))
+       < std::tie(CPL_PROC(b), bDir, OBJ_ATTR(a->obj), OBJ_GID(b->obj));
 }
 
 
@@ -426,7 +408,7 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
   /* sort IF couplings */
   STAT_RESET1;
   if (n>1)
-    qsort(theIF[ifId].cpl, n, sizeof(COUPLING *), sort_IFCouplings);
+    std::sort(theIF[ifId].cpl, theIF[ifId].cpl + n, sort_IFCouplings);
   STAT_TIMER1(T_CREATE_SORT);
 
 
