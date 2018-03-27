@@ -6,5 +6,5 @@ if(MPI_C_FOUND)
   ug_add_dim_libs(basic OBJECT SOURCES ${SOURCES})
 endif()
 
-install(FILES notify.h lowcomm.h oopp.h ooppcc.h memutil.h
+install(FILES notify.h lowcomm.h oopp.h ooppcc.h
   DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})

@@ -120,7 +120,7 @@ void IF_FUNCNAME (
 	ForIF(aIF,ifHead)
 	{
 		char   *buffer;
-		buffer = BufferMem(ifHead->bufOut);
+		buffer = ifHead->bufOut.data();
 
 		buffer= COMM_LOOP(context, Gather, D_ABA(PART), buffer, aSize, PART->nItems);
 
@@ -135,7 +135,7 @@ void IF_FUNCNAME (
 		/* poll receive calls */
 		ForIF(aIF,ifHead)
 		{
-			if ((! BufferIsEmpty(ifHead->bufIn)) && ifHead->msgIn!=NO_MSGID)
+			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
 				int error = InfoARecv(context.ppifContext(), ifHead->vc, ifHead->msgIn);
 				if (error==-1)
@@ -156,13 +156,13 @@ void IF_FUNCNAME (
 						"%4d after %10ld, size %ld\n",
 						me, aIF, ifHead->proc,
 						(unsigned long)tries,
-						(unsigned long)BufferLen(ifHead->bufIn));
+						(unsigned long)ifHead->bufIn.size());
 					#endif
 
 					recv_mesgs--;
 					ifHead->msgIn=NO_MSGID;
 
-					buffer = BufferMem(ifHead->bufIn);
+					buffer = ifHead->bufIn.data();
 
 					/* get data using scatter-handler */
 					buffer = COMM_LOOP(context, Scatter,
@@ -180,11 +180,11 @@ void IF_FUNCNAME (
 
 		ForIF(aIF,ifHead)
 		{
-			if ((! BufferIsEmpty(ifHead->bufIn)) && ifHead->msgIn!=NO_MSGID)
+			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
 				sprintf(NS_DIM_PREFIX cBuffer,
 					"  waiting for message (from proc %d, size %ld)",
-					ifHead->proc, (unsigned long)BufferLen(ifHead->bufIn));
+					ifHead->proc, (unsigned long)ifHead->bufIn.size());
 				DDD_PrintError('E', 4201, NS_DIM_PREFIX cBuffer);
 			}
 		}
@@ -203,11 +203,11 @@ void IF_FUNCNAME (
 
 			ForIF(aIF,ifHead)
 			{
-				if ((! BufferIsEmpty(ifHead->bufOut)) && ifHead->msgOut!=NO_MSGID)
+				if (not ifHead->bufOut.empty() && ifHead->msgOut!=NO_MSGID)
 				{
 					sprintf(NS_DIM_PREFIX cBuffer,
 						"  waiting for send completion (to proc %d, size %ld)",
-						ifHead->proc, (unsigned long)BufferLen(ifHead->bufOut));
+						ifHead->proc, (unsigned long)ifHead->bufOut.size());
 					DDD_PrintError('E', 4211, NS_DIM_PREFIX cBuffer);
 				}
 			}
