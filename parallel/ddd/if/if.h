@@ -24,16 +24,7 @@
 #ifndef __DDD_IF_H__
 #define __DDD_IF_H__
 
-
-/****************************************************************************/
-/*                                                                          */
-/* auto include mechanism and other include files                           */
-/*                                                                          */
-/****************************************************************************/
-
-#include "basic/memutil.h"
-
-
+#include <vector>
 
 /****************************************************************************/
 /*                                                                          */
@@ -127,8 +118,8 @@ struct IF_PROC
   VChannelPtr vc;
   msgid msgIn;
   msgid msgOut;
-  Buffer bufIn;
-  Buffer bufOut;
+  std::vector<char> bufIn;
+  std::vector<char> bufOut;
 };
 
 
