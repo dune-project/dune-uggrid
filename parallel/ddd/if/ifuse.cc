@@ -67,23 +67,9 @@ void IFGetMem (IF_PROC *ifHead, size_t itemSize, int lenIn, int lenOut)
   size_t sizeIn  = itemSize * lenIn;
   size_t sizeOut = itemSize * lenOut;
 
-  BufferCreate(ifHead->bufIn,  sizeIn);
-  if (sizeIn > 0)
-  {
-    /* check memory creation and set memory to initial value, in order to
-       find any bugs lateron (hint by C.Wieners). */
-    assert(ifHead->bufIn.buf != NULL);
-    memset(BufferMem(ifHead->bufIn),0,sizeIn);
-  }
-
-  BufferCreate(ifHead->bufOut, sizeOut);
-  if (sizeOut > 0)
-  {
-    /* check memory creation and set memory to initial value, in order to
-       find any bugs lateron (hint by C.Wieners). */
-    assert(ifHead->bufOut.buf != NULL);
-    memset(BufferMem(ifHead->bufOut),0,sizeOut);
-  }
+  /* set memory to initial value, in order to find any bugs lateron */
+  ifHead->bufIn.assign(sizeIn, 0);
+  ifHead->bufOut.assign(sizeOut, 0);
 }
 
 
@@ -108,11 +94,11 @@ int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
   /* get memory and initiate receive calls */
   ForIF(ifId,ifHead)
   {
-    if (! BufferIsEmpty(ifHead->bufIn))
+    if (not ifHead->bufIn.empty())
     {
       ifHead->msgIn =
         RecvASync(context.ppifContext(), ifHead->vc,
-                  BufferMem(ifHead->bufIn), BufferLen(ifHead->bufIn),
+                  ifHead->bufIn.data(), ifHead->bufIn.size(),
                   &error);
       if (ifHead->msgIn==0)
       {
@@ -142,8 +128,11 @@ void IFExitComm(DDD::DDDContext& context, DDD_IF ifId)
   {
     ForIF(ifId,ifHead)
     {
-      BufferFree(ifHead->bufIn);
-      BufferFree(ifHead->bufOut);
+      ifHead->bufIn.clear();
+      ifHead->bufIn.shrink_to_fit();
+
+      ifHead->bufOut.clear();
+      ifHead->bufOut.shrink_to_fit();
     }
   }
 
@@ -161,11 +150,11 @@ void IFInitSend(DDD::DDDContext& context, IF_PROC *ifHead)
 
   auto& ctx = context.ifUseContext();
 
-  if (! BufferIsEmpty(ifHead->bufOut))
+  if (not ifHead->bufOut.empty())
   {
     ifHead->msgOut =
       SendASync(context.ppifContext(), ifHead->vc,
-                BufferMem(ifHead->bufOut), BufferLen(ifHead->bufOut),
+                ifHead->bufOut.data(), ifHead->bufOut.size(),
                 &error);
     if (ifHead->msgOut==0)
     {
@@ -196,7 +185,7 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
     /* poll send calls */
     ForIF(ifId,ifHead)
     {
-      if ((! BufferIsEmpty(ifHead->bufOut)) && ifHead->msgOut!= NO_MSGID)
+      if (not ifHead->bufOut.empty() && ifHead->msgOut!= NO_MSGID)
       {
         int error = InfoASend(context.ppifContext(), ifHead->vc, ifHead->msgOut);
         if (error==-1)
@@ -218,7 +207,7 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
                  "%4d after %10ld, size %ld\n",
                  me, ifId, ifHead->proc,
                  (unsigned long)tries,
-                 (unsigned long)BufferLen(ifHead->bufOut));
+                 (unsigned long)ifHead->bufOut.size());
                                         #endif
         }
       }
