@@ -222,11 +222,9 @@ void IFDeleteAll (DDD_IF ifId)
 
 
 /* TODO  el-set relation, VERY inefficient! */
-static int is_elem (DDD_PRIO el, int n, DDD_PRIO *set)
+static bool is_elem (DDD_PRIO el, int n, DDD_PRIO *set)
 {
-  int i;
-
-  for(i=0; i<n; i++)
+  for(int i=0; i<n; i++)
     if (set[i]==el)
       return(true);
 
@@ -345,12 +343,10 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
       /* determine whether object belongs to IF */
       if ((1<<OBJ_TYPE(ddd_ObjTable[index])) & theIF[ifId].maskO)
       {
-        int objInA, objInB;
-
-        objInA = is_elem(OBJ_PRIO(ddd_ObjTable[index]),
-                         theIF[ifId].nPrioA, theIF[ifId].A);
-        objInB = is_elem(OBJ_PRIO(ddd_ObjTable[index]),
-                         theIF[ifId].nPrioB, theIF[ifId].B);
+        const bool objInA = is_elem(OBJ_PRIO(ddd_ObjTable[index]),
+                                    theIF[ifId].nPrioA, theIF[ifId].A);
+        const bool objInB = is_elem(OBJ_PRIO(ddd_ObjTable[index]),
+                                    theIF[ifId].nPrioB, theIF[ifId].B);
 
         if (objInA || objInB)
         {
@@ -359,18 +355,16 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
           /* test coupling list */
           for(cpl=IdxCplList(index); cpl!=NULL; cpl=CPL_NEXT(cpl))
           {
-            int cplInA, cplInB, dir;
-
-            cplInA = is_elem(cpl->prio,
-                             theIF[ifId].nPrioA, theIF[ifId].A);
-            cplInB = is_elem(cpl->prio,
-                             theIF[ifId].nPrioB, theIF[ifId].B);
+            const bool cplInA = is_elem(cpl->prio,
+                                        theIF[ifId].nPrioA, theIF[ifId].A);
+            const bool cplInB = is_elem(cpl->prio,
+                                        theIF[ifId].nPrioB, theIF[ifId].B);
 
             /* compute possible IF directions */
-            dir = ((objInA&&cplInB) ? DirAB : 0) |
-                  ((objInB&&cplInA) ? DirBA : 0);
+            const int dir = ((objInA&&cplInB) ? DirAB : 0) |
+                            ((objInB&&cplInA) ? DirBA : 0);
 
-            if (dir > 0)
+            if (dir != 0)
             {
               SETCPLDIR(cpl,dir);
               tmpcpl[n] = cpl;
