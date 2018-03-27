@@ -67,74 +67,9 @@ int nIFs;
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of variables global to this source file only                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-static IF_PROC *memlistIFHead;
-static IF_ATTR *memlistIFAttr;
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
-
-
-static IF_PROC *NewIFHead (void)
-{
-  IF_PROC *ifh;
-
-  if (memlistIFHead==NULL)
-  {
-    ifh = new IF_PROC;
-  }
-  else
-  {
-    ifh = memlistIFHead;
-    memlistIFHead = ifh->next;
-  }
-
-  return(ifh);
-}
-
-
-static void DisposeIFHead (IF_PROC *ifh)
-{
-  ifh->next = memlistIFHead;
-  memlistIFHead = ifh;
-}
-
-
-
-static IF_ATTR *NewIFAttr (void)
-{
-  IF_ATTR *ifr;
-
-  if (memlistIFAttr==NULL)
-  {
-    ifr = (IF_ATTR *) AllocIF(sizeof(IF_ATTR));
-  }
-  else
-  {
-    ifr = memlistIFAttr;
-    memlistIFAttr = ifr->next;
-  }
-
-  return(ifr);
-}
-
-
-static void DisposeIFAttr (IF_ATTR *ifr)
-{
-  ifr->next = memlistIFAttr;
-  memlistIFAttr = ifr;
-}
 
 
 /****************************************************************************/
@@ -184,19 +119,11 @@ void IFDeleteAll (DDD_IF ifId)
     while (ifr!=NULL)
     {
       ifrNext = ifr->next;
-
-      DisposeIFAttr(ifr);
+      delete ifr;
       ifr = ifrNext;
     }
 
-
-    /* if there are msg-buffers, then we must free them here */
-    ifh->bufIn.clear();
-    ifh->bufIn.shrink_to_fit();
-    ifh->bufOut.clear();
-    ifh->bufOut.shrink_to_fit();
-
-    DisposeIFHead(ifh);
+    delete ifh;
 
     ifh = ifhNext;
   }
@@ -423,24 +350,15 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
     {
       /* create new IfHead */
       theIF[ifId].nIfHeads++;
-      ifHead = NewIFHead();
-      ifHead->nItems   = 0;
+      ifHead = new IF_PROC;
       ifHead->cpl      = cplp;
-      ifHead->obj      = NULL;
-      ifHead->nAB      = ifHead->nBA   = ifHead->nABA   = 0;
-      ifHead->cplAB    = ifHead->cplBA = ifHead->cplABA = NULL;
       ifHead->proc     = CPL_PROC(cpl);
       ifHead->next     = lastIfHead;
       lastIfHead = ifHead;
       lastproc   = ifHead->proc;
 
       ifHead->nAttrs = 1;
-      ifHead->ifAttr = ifAttr = NewIFAttr();
-      ifAttr->attr   = attr;
-      ifAttr->nItems = 0;
-      ifAttr->nAB    = ifAttr->nBA   = ifAttr->nABA   = 0;
-      ifAttr->cplAB  = ifAttr->cplBA = ifAttr->cplABA = NULL;
-      ifAttr->next   = NULL;
+      ifHead->ifAttr = ifAttr = new IF_ATTR(attr);
       lastIfAttr = ifAttr;
     }
 
@@ -469,12 +387,7 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
       {
         /* create new ifAttr */
         ifHead->nAttrs++;
-        ifAttr = NewIFAttr();
-        ifAttr->attr   = attr;
-        ifAttr->nItems = 0;
-        ifAttr->nAB    = ifAttr->nBA   = ifAttr->nABA   = 0;
-        ifAttr->cplAB  = ifAttr->cplBA = ifAttr->cplABA = NULL;
-        ifAttr->next   = NULL;
+        ifAttr = new IF_ATTR(attr);
         lastIfAttr->next = ifAttr;
         lastIfAttr = ifAttr;
       }
@@ -970,9 +883,6 @@ void DDD_IFRefreshAll(DDD::DDDContext& context)
 void ddd_IFInit(DDD::DDDContext& context)
 {
   /* init lists of unused items */
-  memlistIFHead = NULL;
-  memlistIFAttr = NULL;
-
   theIF[0].ifHead = NULL;
   theIF[0].cpl    = NULL;
 
