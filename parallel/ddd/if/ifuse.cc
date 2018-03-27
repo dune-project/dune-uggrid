@@ -53,18 +53,6 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* variables global to this source file (static)                            */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-static int send_mesgs;
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -111,6 +99,7 @@ int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
   int error;
   int recv_mesgs;
 
+  auto& ctx = context.ifUseContext();
 
   /* MarkHeap(); */
 
@@ -135,7 +124,7 @@ int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
     }
   }
 
-  send_mesgs = 0;
+  ctx.send_mesgs = 0;
 
   return recv_mesgs;
 }
@@ -170,6 +159,8 @@ void IFInitSend(DDD::DDDContext& context, IF_PROC *ifHead)
 {
   int error;
 
+  auto& ctx = context.ifUseContext();
+
   if (! BufferIsEmpty(ifHead->bufOut))
   {
     ifHead->msgOut =
@@ -182,7 +173,7 @@ void IFInitSend(DDD::DDDContext& context, IF_PROC *ifHead)
       HARD_EXIT;
     }
 
-    send_mesgs++;
+    ctx.send_mesgs++;
   }
 }
 
@@ -196,7 +187,9 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
 {
   unsigned long tries;
 
-  for(tries=0; tries<MAX_TRIES && send_mesgs>0; tries++)
+  auto& ctx = context.ifUseContext();
+
+  for(tries=0; tries<MAX_TRIES && ctx.send_mesgs>0; tries++)
   {
     IF_PROC   *ifHead;
 
@@ -217,7 +210,7 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
 
         if (error==1)
         {
-          send_mesgs--;
+          ctx.send_mesgs--;
           ifHead->msgOut=NO_MSGID;
 
                                         #ifdef CtrlTimeoutsDetailed
@@ -233,14 +226,14 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
   }
 
         #ifdef CtrlTimeouts
-  if (send_mesgs==0)
+  if (ctx.send_mesgs==0)
   {
     printf("%4d: IFCTRL %02d send-completed    all after %10ld tries\n",
            me, ifId, (unsigned long)tries);
   }
         #endif
 
-  return(send_mesgs==0);
+  return(ctx.send_mesgs==0);
 }
 
 
