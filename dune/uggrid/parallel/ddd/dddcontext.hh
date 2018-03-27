@@ -42,6 +42,15 @@ struct TopoContext
 
 } /* namespace Basic */
 
+namespace If {
+
+struct IfUseContext
+{
+  int send_mesgs;
+};
+
+} /* namespace If */
+
 namespace Mgr {
 
 struct ObjmgrContext
@@ -112,6 +121,9 @@ public:
   const Basic::TopoContext& topoContext() const
     { return topoContext_; }
 
+  If::IfUseContext& ifUseContext()
+    { return ifUseContext_; }
+
   Mgr::ObjmgrContext& objmgrContext()
     { return objmgrContext_; }
 
@@ -127,6 +139,7 @@ protected:
   Basic::LowCommContext lowCommContext_;
   Basic::NotifyContext notifyContext_;
   Basic::TopoContext topoContext_;
+  If::IfUseContext ifUseContext_;
   Mgr::ObjmgrContext objmgrContext_;
   Prio::PrioContext prioContext_;
 };
