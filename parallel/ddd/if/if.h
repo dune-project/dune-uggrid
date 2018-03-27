@@ -88,13 +88,20 @@ typedef DDD_OBJ IFObjPtr;
 
 struct IF_ATTR
 {
-  IF_ATTR* next;
+  IF_ATTR* next = nullptr;
 
   /* note: the cplXX resp. objXX arrays are NOT contiguous in memory */
-  COUPLING   **cplAB, **cplBA, **cplABA;
+  COUPLING   **cplAB = nullptr, **cplBA = nullptr, **cplABA = nullptr;
   IFObjPtr   *objAB,  *objBA,  *objABA;       /* object shortcut */
-  int nItems, nAB, nBA, nABA;
+  int nItems = 0;
+  int nAB = 0;
+  int nBA = 0;
+  int nABA = 0;
   DDD_ATTR attr;
+
+  explicit IF_ATTR(DDD_ATTR attr)
+  : attr(attr)
+    { /* Nothing */ }
 };
 
 
@@ -110,9 +117,9 @@ struct IF_PROC
   int nAttrs;
 
   /* note: the cplXX resp. objXX arrays ARE contiguous in memory */
-  COUPLING   **cpl, **cplAB, **cplBA, **cplABA;
-  IFObjPtr   *obj,  *objAB,  *objBA,  *objABA;       /* object shortcut */
-  int nItems, nAB, nBA, nABA;
+  COUPLING   **cpl, **cplAB = nullptr, **cplBA = nullptr, **cplABA = nullptr;
+  IFObjPtr   *obj = nullptr,  *objAB,  *objBA,  *objABA; /* object shortcut */
+  int nItems = 0, nAB = 0, nBA = 0, nABA = 0;
   DDD_PROC proc;
 
   VChannelPtr vc;
