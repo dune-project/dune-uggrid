@@ -582,7 +582,6 @@ DDD_IF DDD_IFDefine (
   int nB, DDD_PRIO B[])
 {
 int i;
-COUPLING **tmpcpl;
 
 if (nIFs==MAX_IF) {
   DDD_PrintError('E', 4100, "no more interfaces in DDD_IFDefine");
@@ -615,20 +614,13 @@ if (nCplItems>0)
 {
   /* allocate temporary cpl-list, this will be too large for
      average interfaces. */
-  tmpcpl = (COUPLING **) AllocTmp(sizeof(COUPLING *)*nCplItems);
-  if (tmpcpl==NULL) {
-    DDD_PrintError('E', 4002, STR_NOMEM " in IFDefine");
-    HARD_EXIT;
-  }
+  std::vector<COUPLING*> tmpcpl(nCplItems);
 
-  if (! IS_OK(IFCreateFromScratch(context, tmpcpl, nIFs)))
+  if (! IS_OK(IFCreateFromScratch(context, tmpcpl.data(), nIFs)))
   {
     DDD_PrintError('E', 4101, "cannot create interface in DDD_IFDefine");
     return(0);
   }
-
-  /* free temporary array */
-  FreeTmp(tmpcpl,0);
 }
 else
 {
@@ -911,21 +903,14 @@ static void IFRebuildAll(DDD::DDDContext& context)
 
     if (nCplItems>0)
     {
-      COUPLING **tmpcpl;
-
       /* allocate temporary cpl-list, this will be too large for
               average interfaces. */
-      tmpcpl = (COUPLING **) AllocTmp(sizeof(COUPLING *)*nCplItems);
-      if (tmpcpl==NULL)
-      {
-        DDD_PrintError('E', 4000, STR_NOMEM " in IFAllFromScratch");
-        HARD_EXIT;
-      }
+      std::vector<COUPLING*> tmpcpl(nCplItems);
 
       /* TODO: ausnutzen, dass STD_IF obermenge von allen interfaces ist */
       for(i=1; i<nIFs; i++)
       {
-        if (! IS_OK(IFCreateFromScratch(context, tmpcpl, i)))
+        if (! IS_OK(IFCreateFromScratch(context, tmpcpl.data(), i)))
         {
           sprintf(cBuffer, "cannot create interface %d in IFRebuildAll", i);
           DDD_PrintError('E', 4106, cBuffer);
@@ -936,9 +921,6 @@ static void IFRebuildAll(DDD::DDDContext& context)
            DDD_InfoIFImpl(i);
          */
       }
-
-      /* free temporary array */
-      FreeTmp(tmpcpl,0);
     }
     else
     {
