@@ -313,8 +313,8 @@ static COUPLING ** IFCollectStdCouplings (void)
 
 static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
 {
-  IF_PROC     *ifHead, *lastIfHead;
-  IF_ATTR    *ifAttr, *lastIfAttr;
+  IF_PROC     *ifHead = nullptr, *lastIfHead;
+  IF_ATTR    *ifAttr = nullptr, *lastIfAttr = nullptr;
   int n, i;
   DDD_PROC lastproc;
   int STAT_MOD;
