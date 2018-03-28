@@ -1082,7 +1082,8 @@ void ddd_XferExit (void)
   CmdMsgExit();
   CplMsgExit();
 
-  /* TODO data (e.g., lists&trees of XI-items) should be freed!! */
+  XICopyObjSet_Free(xferGlobals.setXICopyObj);
+  XISetPrioSet_Free(xferGlobals.setXISetPrio);
 }
 
 
