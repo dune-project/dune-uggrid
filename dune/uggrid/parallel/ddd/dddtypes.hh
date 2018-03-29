@@ -19,9 +19,32 @@ namespace Basic {
 /*
  * types used by lowcomm
  */
+
+/**
+ * opaque data type for message types
+ */
 struct MSG_TYPE;
+
+/**
+ * opaque data type for messages
+ */
 struct MSG_DESC;
+
+/**
+ * handle for messages
+ */
 using LC_MSGHANDLE = MSG_DESC*;
+
+/**
+ * handle for message types (on send AND recv side)
+ */
+using LC_MSGTYPE = MSG_TYPE*;
+
+/**
+ * component of message (on send AND recv side)
+ */
+using LC_MSGCOMP = int;
+
 using AllocFunc = void* (*)(std::size_t);
 using FreeFunc = void (*)(void*);
 
