@@ -59,31 +59,11 @@ START_UGDIM_NAMESPACE
 
 typedef unsigned long ULONG;
 
-/**
- * opaque data type for messages
- */
 using MSG_DESC = DDD::Basic::MSG_DESC;
-
-/**
- * handle for messages
- */
 using LC_MSGHANDLE = DDD::Basic::LC_MSGHANDLE;
-
-/**
- * opaque data type for message types
- */
 using MSG_TYPE = DDD::Basic::MSG_TYPE;
-
-/**
- * handle for message types (on send AND recv side)
- */
-using LC_MSGTYPE = MSG_TYPE*;
-
-/**
- * component of message (on send AND recv side)
- */
-typedef int LC_MSGCOMP;
-
+using LC_MSGTYPE = DDD::Basic::LC_MSGTYPE;
+using LC_MSGCOMP = DDD::Basic::LC_MSGCOMP;
 
 /* function pointer types for alloc and free */
 using AllocFunc = DDD::Basic::AllocFunc;
