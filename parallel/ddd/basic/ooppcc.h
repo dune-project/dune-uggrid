@@ -735,6 +735,7 @@ int nItems;
 /*Compare_Method compare_func;*/
 Class_Data_End
 Method_New_      (/*Compare_Method*/ _NEWPARAMS_OR_VOID);
+void         Method(Free)     (DefThis);
 void         Method(Print)    (DefThis _PRINTPARAMS);
 void         Method(Reset)    (DefThis);
 int          Method(Insert)   (DefThis, CN(BTreeOf) *);
@@ -751,6 +752,13 @@ Method_New_ (/*Compare_Method compare_func*/ _NEWPARAMS_OR_VOID)
   This->nItems = 0;
   /*This->compare_func = compare_func;*/
   return(This);
+}
+
+
+void Method(Free) (ParamThis)
+{
+  CALL(CBTree, Reset)(This);
+  Destruct(This);
 }
 
 
@@ -915,6 +923,7 @@ CBTree        *tree;
 CN(SetOf)     *last_item;             /* temp storage for last call to NewItem() */
 Class_Data_End
 Method_New_      (_NEWPARAMS_OR_VOID);
+void         Method(Free)     (DefThis);
 void         Method(Print)    (DefThis _PRINTPARAMS);
 void         Method(Reset)    (DefThis);
 CN(SetOf)   *Method(NewItem)  (DefThis);
@@ -939,6 +948,14 @@ Method_New_ (_NEWPARAMS_OR_VOID)
 
   This->last_item = NULL;
   return(This);
+}
+
+
+void Method(Free) (ParamThis)
+{
+  CALL(CSegmList,Free) (This->list);
+  CALL(CBTree,Free) (This->tree);
+  Destruct(This);
 }
 
 

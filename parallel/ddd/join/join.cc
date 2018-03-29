@@ -284,8 +284,9 @@ void ddd_JoinExit (void)
   /* set kind of TMEM alloc/free requests */
   join_SetTmpMem(TMEM_ANY);
 
-
-  /* TODO data (e.g., lists&trees of JI-items) should be freed!! */
+  JIJoinSet_Free(joinGlobals.setJIJoin);
+  JIAddCplSet_Free(joinGlobals.setJIAddCpl2);
+  JIAddCplSet_Free(joinGlobals.setJIAddCpl3);
 }
 
 
