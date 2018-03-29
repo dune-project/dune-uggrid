@@ -42,6 +42,16 @@ struct TopoContext
 
 } /* namespace Basic */
 
+namespace Ctrl {
+
+struct ConsContext
+{
+  Basic::LC_MSGTYPE consmsg_t;
+  Basic::LC_MSGCOMP constab_id;
+};
+
+} /* namespace Ctrl */
+
 namespace If {
 
 struct IfUseContext
@@ -121,6 +131,9 @@ public:
   const Basic::TopoContext& topoContext() const
     { return topoContext_; }
 
+  Ctrl::ConsContext& consContext()
+    { return consContext_; }
+
   If::IfUseContext& ifUseContext()
     { return ifUseContext_; }
 
@@ -139,6 +152,7 @@ protected:
   Basic::LowCommContext lowCommContext_;
   Basic::NotifyContext notifyContext_;
   Basic::TopoContext topoContext_;
+  Ctrl::ConsContext consContext_;
   If::IfUseContext ifUseContext_;
   Mgr::ObjmgrContext objmgrContext_;
   Prio::PrioContext prioContext_;
