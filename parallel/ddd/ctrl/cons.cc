@@ -119,12 +119,6 @@ struct CONSMSG
 /****************************************************************************/
 
 
-
-
-static LC_MSGTYPE consmsg_t;
-static LC_MSGCOMP constab_id;
-
-
 #ifdef ConsMemFromHeap
 static long theMarkKey;
 #endif
@@ -140,8 +134,9 @@ static long theMarkKey;
 
 void ddd_ConsInit(DDD::DDDContext& context)
 {
-  consmsg_t = LC_NewMsgType(context, "ConsCheckMsg");
-  constab_id = LC_NewMsgTable("ConsTab", consmsg_t, sizeof(CONS_INFO));
+  auto& ctx = context.consContext();
+  ctx.consmsg_t = LC_NewMsgType(context, "ConsCheckMsg");
+  ctx.constab_id = LC_NewMsgTable("ConsTab", ctx.consmsg_t, sizeof(CONS_INFO));
 }
 
 
@@ -176,6 +171,8 @@ static int ConsBuildMsgInfos(DDD::DDDContext& context, CONS_INFO *allItems, int 
   CONSMSG    *cm, *lastCm;
   int i, lastdest, nMsgs;
 
+  auto& ctx = context.consContext();
+
   lastdest = -1;
   lastCm = cm = NULL;
   nMsgs = 0;
@@ -208,10 +205,10 @@ static int ConsBuildMsgInfos(DDD::DDDContext& context, CONS_INFO *allItems, int 
   for(cm=*theMsgs; cm!=NULL; cm=cm->next)
   {
     /* create new send message */
-    cm->msg_h = LC_NewSendMsg(context, consmsg_t, cm->dest);
+    cm->msg_h = LC_NewSendMsg(context, ctx.consmsg_t, cm->dest);
 
     /* init table inside message */
-    LC_SetTableSize(cm->msg_h, constab_id, cm->nItems);
+    LC_SetTableSize(cm->msg_h, ctx.constab_id, cm->nItems);
 
     /* prepare message for sending away */
     LC_MsgPrepareSend(context, cm->msg_h);
@@ -224,12 +221,12 @@ static int ConsBuildMsgInfos(DDD::DDDContext& context, CONS_INFO *allItems, int 
 
 static void ConsSend(DDD::DDDContext& context, CONSMSG *theMsgs)
 {
-  CONSMSG *cm;
+  auto& ctx = context.consContext();
 
-  for(cm=theMsgs; cm!=NULL; cm=cm->next)
+  for(CONSMSG* cm=theMsgs; cm != nullptr; cm=cm->next)
   {
     /* copy data into message */
-    memcpy(LC_GetPtr(cm->msg_h, constab_id),
+    memcpy(LC_GetPtr(cm->msg_h, ctx.constab_id),
            cm->consArray, sizeof(CONS_INFO)*cm->nItems);
 
     /* send message */
@@ -239,15 +236,16 @@ static void ConsSend(DDD::DDDContext& context, CONSMSG *theMsgs)
 
 
 
-static int ConsCheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
+static int ConsCheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_HDR *locObjs)
 {
   CONS_INFO    *theCplBuf;
   int i, j, nItems;
   int error_cnt = 0;
 
+  auto& ctx = context.consContext();
 
-  nItems = (int) LC_GetTableLen(xm,constab_id);
-  theCplBuf = (CONS_INFO *) LC_GetPtr(xm, constab_id);
+  nItems = (int) LC_GetTableLen(xm, ctx.constab_id);
+  theCplBuf = (CONS_INFO *) LC_GetPtr(xm, ctx.constab_id);
 
 
   /*
@@ -307,6 +305,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
   int error_cnt = 0;
   DDD_HDR      *locObjs = NULL;
 
+  auto& ctx = context.consContext();
   const auto procs = context.procs();
 
   /* count overall number of couplings */
@@ -347,7 +346,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
   ConsBuildMsgInfos(context, cplBuf.data(), cplBuf.size(), &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(context, consmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.consmsg_t);
   if (nRecvMsgs==ERROR)
   {
     error_cnt = -1;
@@ -376,7 +375,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
 
     for(i=0; i<nRecvMsgs; i++)
     {
-      error_cnt += ConsCheckSingleMsg(recvMsgs[i], locObjs);
+      error_cnt += ConsCheckSingleMsg(context, recvMsgs[i], locObjs);
     }
     FreeLocalObjectsList(locObjs);
   }
@@ -405,15 +404,16 @@ exit_ConsCheckGlobalCpl:
 /****************************************************************************/
 
 
-static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
+static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_HDR *locObjs)
 {
   CONS_INFO    *theCplBuf;
   int i, inext=0, j, nItems;
   int error_cnt = 0;
 
+  auto& ctx = context.consContext();
 
-  nItems = (int) LC_GetTableLen(xm,constab_id);
-  theCplBuf = (CONS_INFO *) LC_GetPtr(xm, constab_id);
+  nItems = (int) LC_GetTableLen(xm, ctx.constab_id);
+  theCplBuf = (CONS_INFO *) LC_GetPtr(xm, ctx.constab_id);
 
 
   /*
@@ -554,6 +554,8 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
   int error_cnt = 0;
   DDD_HDR      *locObjs = NULL;
 
+  auto& ctx = context.consContext();
+
   /* count overall number of couplings */
   for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
     lenCplBuf += (IdxNCpl(i) * (IdxNCpl(i)+1));
@@ -593,7 +595,7 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
   ConsBuildMsgInfos(context, cplBuf.data(), cplBuf.size(), &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(context, consmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.consmsg_t);
 
   /* build and send messages */
   ConsSend(context, sendMsgs);
@@ -616,7 +618,7 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
     {
       for(i=0; i<nRecvMsgs; i++)
       {
-        error_cnt += Cons2CheckSingleMsg(recvMsgs[i], locObjs);
+        error_cnt += Cons2CheckSingleMsg(context, recvMsgs[i], locObjs);
       }
       FreeLocalObjectsList(locObjs);
     }
