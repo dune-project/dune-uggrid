@@ -213,9 +213,29 @@ void LC_Init(DDD::DDDContext& context, AllocFunc aAllocFunc, FreeFunc aFreeFunc)
         and shuts down its communication structures.
  */
 
-void LC_Exit(DDD::DDDContext&)
+void LC_Exit(DDD::DDDContext& context)
 {
-  /* TODO: free temporary data */
+  auto& lcContext = context.lowCommContext();
+
+  {
+    auto md = lcContext.FreeMsgDescs;
+    while (md != nullptr) {
+      const auto next = md->next;
+      FreeCom(md);
+      md = next;
+    }
+    lcContext.FreeMsgDescs = nullptr;
+  }
+
+  {
+    auto mt = lcContext.MsgTypes;
+    while (mt != nullptr) {
+      const auto next = mt->next;
+      FreeCom(mt);
+      mt = next;
+    }
+    lcContext.MsgTypes = nullptr;
+  }
 }
 
 
