@@ -35,6 +35,9 @@
 #include <cstring>
 #include <cassert>
 
+#include <algorithm>
+#include <tuple>
+
 #include "dddi.h"
 #include "xfer.h"
 
@@ -72,49 +75,28 @@ static void NEW_AddCpl(DDD_PROC destproc, DDD_GID objgid, DDD_PROC cplproc, DDD_
 }
 
 
-static int sort_TENewCpl (const void *e1, const void *e2)
+static bool sort_TENewCpl (const TENewCpl& a, const TENewCpl& b)
 {
-  TENewCpl   *ci1, *ci2;
-
-  ci1 = (TENewCpl *)e1;
-  ci2 = (TENewCpl *)e2;
-
-  if (ci1->_gid < ci2->_gid) return(-1);
-  if (ci1->_gid > ci2->_gid) return(1);
-
-  if (ci1->_dest < ci2->_dest) return(-1);
-  if (ci1->_dest > ci2->_dest) return(1);
-
   /* sorting according to priority is not necessary anymore,
      equal items with different priorities will be sorted
      out according to PriorityMerge(). KB 970326
      if (ci1->prio < ci2->prio) return(-1);
      if (ci1->prio > ci2->prio) return(1);
    */
-
-  return(0);
+  return std::tie(a._gid, a._dest) < std::tie(b._gid, b._dest);
 }
 
 
-static int sort_ObjTabPtrs (const void *e1, const void *e2)
+static bool sort_ObjTabPtrs (const OBJTAB_ENTRY* a, const OBJTAB_ENTRY* b)
 {
-  DDD_HDR ci1, ci2;
-
-  ci1 = (*(OBJTAB_ENTRY **)e1)->hdr;
-  ci2 = (*(OBJTAB_ENTRY **)e2)->hdr;
-
   /* sort with ascending gid */
-  if (OBJ_GID(ci1) < OBJ_GID(ci2)) return(-1);
-  if (OBJ_GID(ci1) > OBJ_GID(ci2)) return(1);
-
   /* sort with decreasing priority */
   /* not necessary anymore. see first phase of
      AcceptReceivedObjects() for details. KB 970128
      if (OBJ_PRIO(ci1) < OBJ_PRIO(ci2)) return(1);
      if (OBJ_PRIO(ci1) > OBJ_PRIO(ci2)) return(-1);
    */
-
-  return(0);
+  return OBJ_GID(a->hdr) < OBJ_GID(b->hdr);
 }
 
 
@@ -1440,7 +1422,7 @@ static int CompressNewCpl (TENewCpl *tabNC, int nNC)
   int nNCnew;
   int iNC;
 
-  qsort(tabNC, nNC, sizeof(TENewCpl), sort_TENewCpl);
+  std::sort(tabNC, tabNC + nNC, sort_TENewCpl);
 
   nNCnew = iNC = 0;
   while (iNC<nNC)
@@ -1583,7 +1565,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   if (lenObjTab>0)
   {
-    qsort(unionObjTab, lenObjTab, sizeof(OBJTAB_ENTRY *), sort_ObjTabPtrs);
+    std::sort(unionObjTab, unionObjTab + lenObjTab, sort_ObjTabPtrs);
   }
 
 
