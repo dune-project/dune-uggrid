@@ -35,6 +35,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <algorithm>
+
 #include "dddi.h"
 #include "xfer.h"
 
@@ -91,53 +93,15 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-static int sort_SymTabEntries (const void *e1, const void *e2)
+static bool sort_SymTabEntries (const SYMTAB_ENTRY& a, const SYMTAB_ENTRY& b)
 {
-  SYMTAB_ENTRY   *ci1, *ci2;
-
-  ci1 = (SYMTAB_ENTRY *)e1;
-  ci2 = (SYMTAB_ENTRY *)e2;
-
-  if (ci1->gid < ci2->gid) return(-1);
-  if (ci1->gid == ci2->gid) return(0);
-  return(1);
+  return a.gid < b.gid;
 }
 
-
-
-static char *currentObjectMem;
-
-static int sort_ObjTabEntries (const void *e1, const void *e2)
+static bool sort_MsgSize (const XFERMSG* a, const XFERMSG* b)
 {
-  DDD_GID g1, g2;
-
-  g1 = OTE_GID(currentObjectMem, (OBJTAB_ENTRY *)e1);
-  g2 = OTE_GID(currentObjectMem, (OBJTAB_ENTRY *)e2);
-
-  /* sort with ascending gid */
-  if (g1 < g2) return(-1);
-  if (g1 > g2) return(1);
-
-  return(0);
-}
-
-
-static int sort_MsgSize (const void *e1, const void *e2)
-{
-  XFERMSG   *xm1, *xm2;
-  size_t s1, s2;
-
-  xm1 = *((XFERMSG **)e1);
-  xm2 = *((XFERMSG **)e2);
-
-  s1 = LC_GetBufferSize(xm1->msg_h);
-  s2 = LC_GetBufferSize(xm2->msg_h);
-
   /* sort with descending msg-size */
-  if (s1 < s2) return(1);
-  if (s1 > s2) return(-1);
-
-  return(0);
+  return LC_GetBufferSize(a->msg_h) > LC_GetBufferSize(b->msg_h);
 }
 
 
@@ -528,12 +492,15 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
 
   /* sort SymTab, ObjTab and CplTab */
   /* sort SymTab according to the global ids stored there */
-  qsort(theSymTab, actSym, sizeof(SYMTAB_ENTRY), sort_SymTabEntries);
+  std::sort(theSymTab, theSymTab + actSym, sort_SymTabEntries);
 
   /* sort ObjTab according to their global ids */
   /* sorting of objtab is necessary!! (see AcceptObjFromMsg) KB 960812 */
-  currentObjectMem = theObjects;
-  qsort(theObjTab, msg->nObjects, sizeof(OBJTAB_ENTRY), sort_ObjTabEntries);
+  const auto sort_ObjTabEntries = [=](const OBJTAB_ENTRY& a, const OBJTAB_ENTRY& b) {
+    /* sort with ascending gid */
+    return OTE_GID(theObjects, &a) < OTE_GID(theObjects, &b);
+  };
+  std::sort(theObjTab, theObjTab + msg->nObjects, sort_ObjTabEntries);
 
 
   /* substitute all pointers by index into SymTab */
@@ -606,7 +573,7 @@ RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
         for(i=0, xm=theMsgs; i<n; xm=xm->next, i++) xm_array[i] = xm;
 
         /* sort array and relink list */
-        qsort(xm_array, n, sizeof(XFERMSG *), sort_MsgSize);
+        std::sort(xm_array, xm_array + n, sort_MsgSize);
         theMsgs = xm_array[0];
         for(i=0; i<n-1; i++) xm_array[i]->next = xm_array[i+1];
         if (n>1) xm_array[n-1]->next = NULL;
