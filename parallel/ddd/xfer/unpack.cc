@@ -61,49 +61,15 @@ START_UGDIM_NAMESPACE
  */
 
 
-/****************************************************************************/
-/*                                                                          */
-/* constant definitions                                                     */
-/*                                                                          */
-/****************************************************************************/
-
-#define NEW_AddCpl(destproc,objgid,cplproc,cplprio)   {          \
-    XIAddCpl *xc = NewXIAddCpl(SLLNewArgs);          \
-    if (xc==NULL) HARD_EXIT;                         \
-    xc->to      = (destproc);                        \
-    xc->te.gid  = (objgid);                          \
-    xc->te.proc = (cplproc);                         \
-    xc->te.prio = (cplprio);                         \
+static void NEW_AddCpl(DDD_PROC destproc, DDD_GID objgid, DDD_PROC cplproc, DDD_PRIO cplprio)
+{
+  XIAddCpl *xc = NewXIAddCpl(SLLNewArgs);
+  assert(xc);
+  xc->to      = destproc;
+  xc->te.gid  = objgid;
+  xc->te.proc = cplproc;
+  xc->te.prio = cplprio;
 }
-/*
-   printf("%4d:          NEW_AddCpl(%d,%08x, %d, %d)\n",\
-   me,destproc,objgid,cplproc,cplprio); \
- */
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* routines                                                                 */
-/*                                                                          */
-/****************************************************************************/
 
 
 static int sort_TENewCpl (const void *e1, const void *e2)
