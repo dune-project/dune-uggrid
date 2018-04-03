@@ -38,6 +38,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <algorithm>
+#include <tuple>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -80,18 +82,9 @@ XFER_GLOBALS xferGlobals;
 
 
 
-static int sort_NewOwners (const void *e1, const void *e2)
+static bool sort_NewOwners (const XICopyObj* a, const XICopyObj* b)
 {
-  XICopyObj *item1 = *((XICopyObj **)e1);
-  XICopyObj *item2 = *((XICopyObj **)e2);
-
-  if (item1->gid < item2->gid) return(-1);
-  if (item1->gid > item2->gid) return(1);
-
-  if (item1->dest < item2->dest) return(-1);
-  if (item1->dest > item2->dest) return(1);
-
-  return(0);
+  return std::tie(a->gid, a->dest) < std::tie(b->gid, b->dest);
 }
 
 
@@ -243,7 +236,7 @@ XICopyObj **CplClosureEstimate (const std::vector<XICopyObj*>& arrayItems, int *
       return(arrayNewOwners);
 
     /* sort according to gid (items is sorted according to dest) */
-    qsort(arrayNewOwners, nNewOwners, sizeof(XICopyObj *), sort_NewOwners);
+    std::sort(arrayNewOwners, arrayNewOwners + nNewOwners, sort_NewOwners);
 
 
     for(j=0; j<nNewOwners-1; j++)
