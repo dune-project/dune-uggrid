@@ -709,7 +709,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
 
   /* get sorted list of local objects with couplings */
-  localCplObjs = LocalCoupledObjectsList();
+  localCplObjs = LocalCoupledObjectsList(context);
 
 
   /* unpack messages */
@@ -726,7 +726,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* recreate sorted list of local coupled objects,
      old list might be corrupt due to creation of new objects */
   STAT_RESET;
-  localCplObjs = LocalCoupledObjectsList();
+  localCplObjs = LocalCoupledObjectsList(context);
 
 
   /* create sorted array of XIDelCpl-, XIModCpl- and XIAddCpl-items.

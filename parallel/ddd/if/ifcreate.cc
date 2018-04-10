@@ -248,6 +248,8 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
   DDD_PROC lastproc;
   int STAT_MOD;
 
+  const auto& objTable = context.objTable();
+
   STAT_GET_MODULE(STAT_MOD);
   STAT_SET_MODULE(DDD_MODULE_IF);
 
@@ -270,11 +272,11 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
     for(index=0; index<NCpl_Get; index++)
     {
       /* determine whether object belongs to IF */
-      if ((1<<OBJ_TYPE(ddd_ObjTable[index])) & theIF[ifId].maskO)
+      if ((1<<OBJ_TYPE(objTable[index])) & theIF[ifId].maskO)
       {
-        const bool objInA = is_elem(OBJ_PRIO(ddd_ObjTable[index]),
+        const bool objInA = is_elem(OBJ_PRIO(objTable[index]),
                                     theIF[ifId].nPrioA, theIF[ifId].A);
-        const bool objInB = is_elem(OBJ_PRIO(ddd_ObjTable[index]),
+        const bool objInB = is_elem(OBJ_PRIO(objTable[index]),
                                     theIF[ifId].nPrioB, theIF[ifId].B);
 
         if (objInA || objInB)

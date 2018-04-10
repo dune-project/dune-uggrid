@@ -300,7 +300,7 @@ static void CplMsgSend(DDD::DDDContext& context, CPLMSG *theMsgs)
 /****************************************************************************/
 
 
-static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
+static void CplMsgUnpackSingle (DDD::DDDContext& context, LC_MSGHANDLE xm,
                                 DDD_HDR *localCplObjs, int nLCO)
 {
   TEDelCpl  *theDelCpl;
@@ -326,7 +326,7 @@ static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
 
     if ((j<nLCO) && (OBJ_GID(localCplObjs[j])==theModCpl[i].gid))
     {
-      ModCoupling(localCplObjs[j], proc, theModCpl[i].prio);
+      ModCoupling(context, localCplObjs[j], proc, theModCpl[i].prio);
     }
   }
 
@@ -339,7 +339,7 @@ static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
 
     if ((j<nLCO) && (OBJ_GID(localCplObjs[j])==theDelCpl[i].gid))
     {
-      DelCoupling(localCplObjs[j], proc);
+      DelCoupling(context, localCplObjs[j], proc);
     }
   }
 
@@ -352,7 +352,7 @@ static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
 
     if ((j<nLCO) && (OBJ_GID(localCplObjs[j])==theAddCpl[i].gid))
     {
-      AddCoupling(localCplObjs[j], theAddCpl[i].proc, theAddCpl[i].prio);
+      AddCoupling(context, localCplObjs[j], theAddCpl[i].proc, theAddCpl[i].prio);
     }
   }
 }
@@ -483,7 +483,7 @@ void CommunicateCplMsgs (
 
   for(i=0; i<nRecvMsgs; i++)
   {
-    CplMsgUnpackSingle(recvMsgs[i], localCplObjs, nLCO);
+    CplMsgUnpackSingle(context, recvMsgs[i], localCplObjs, nLCO);
 
     /*
                     if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)

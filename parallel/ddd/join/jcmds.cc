@@ -242,7 +242,8 @@ static void PackPhase1Msgs (DDD::DDDContext& context, JOINMSG1 *theMsgs)
         unpack phase1 messages.
  */
 
-static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+static void UnpackPhase1Msgs (DDD::DDDContext& context,
+                              LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                               DDD_HDR *localCplObjs, int nLCO,
                               JIPartner **p_joinObjs, int *p_nJoinObjs)
 {
@@ -349,7 +350,7 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
     for(i=0; i<nJ; i++)
     {
-      AddCoupling(theJoin[i].hdr, LC_MsgGetProc(jm), theJoin[i].prio);
+      AddCoupling(context, theJoin[i].hdr, LC_MsgGetProc(jm), theJoin[i].prio);
 
       /* send one phase3-JIAddCpl for symmetric connection */
       {
@@ -508,7 +509,8 @@ static void PackPhase2Msgs(DDD::DDDContext& context, JOINMSG2 *theMsgs)
         unpack phase2 messages.
  */
 
-static void UnpackPhase2Msgs (LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
+static void UnpackPhase2Msgs (DDD::DDDContext& context,
+                              LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
                               JIPartner *joinObjs, int nJoinObjs,
                               DDD_HDR *localCplObjs, int nLCO)
 {
@@ -532,7 +534,7 @@ static void UnpackPhase2Msgs (LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
       if ((j<nLCO) && (OBJ_GID(localCplObjs[j])==theAC[i].gid))
       {
         /* found local object which is AddCpl target */
-        AddCoupling(localCplObjs[j], theAC[i].proc, theAC[i].prio);
+        AddCoupling(context, localCplObjs[j], theAC[i].proc, theAC[i].prio);
 
 #                               if DebugJoin<=1
         printf("%4d: Phase2 execute AddCpl(%08x,%d,%d) (from %d).\n",
@@ -704,7 +706,8 @@ static void PackPhase3Msgs(DDD::DDDContext& context, JOINMSG3 *theMsgs)
         unpack phase3 messages.
  */
 
-static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+static void UnpackPhase3Msgs (DDD::DDDContext& context,
+                              LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                               std::vector<JIJoin*>& arrayJoin)
 {
   JIJoin** itemsJ = arrayJoin.data();
@@ -727,7 +730,7 @@ static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
       if ((j<nJ) && (OBJ_GID(itemsJ[j]->hdr) == theAC[i].gid))
       {
         /* found local object which is AddCpl target */
-        AddCoupling(itemsJ[j]->hdr, theAC[i].proc, theAC[i].prio);
+        AddCoupling(context, itemsJ[j]->hdr, theAC[i].proc, theAC[i].prio);
 
 #                               if DebugJoin<=1
         printf("%4d: Phase3 execute AddCpl(%08x,%d,%d) (from %d).\n",
@@ -828,7 +831,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
    */
   STAT_RESET;
   /* get sorted list of local objects with couplings */
-  std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList();
+  std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList(context);
 
   if (obsolete>0)
   {
@@ -893,7 +896,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   /* unpack messages */
   STAT_RESET;
-  UnpackPhase1Msgs(recvMsgs1, nRecvMsgs1, localCplObjs.data(), NCpl_Get,
+  UnpackPhase1Msgs(context, recvMsgs1, nRecvMsgs1, localCplObjs.data(), NCpl_Get,
                    &joinObjs, &nJoinObjs);
   LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
@@ -990,7 +993,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   /* unpack messages */
   STAT_RESET;
-  UnpackPhase2Msgs(recvMsgs2, nRecvMsgs2, joinObjs, nJoinObjs,
+  UnpackPhase2Msgs(context, recvMsgs2, nRecvMsgs2, joinObjs, nJoinObjs,
                    localCplObjs.data(), NCpl_Get);
 
   LC_Cleanup(context);
@@ -1088,7 +1091,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   /* unpack messages */
   STAT_RESET;
-  UnpackPhase3Msgs(recvMsgs3, nRecvMsgs3, arrayJIJoin);
+  UnpackPhase3Msgs(context, recvMsgs3, nRecvMsgs3, arrayJIJoin);
   LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
 
