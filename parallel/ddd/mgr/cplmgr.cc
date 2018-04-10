@@ -635,7 +635,7 @@ void DisposeCouplingList (COUPLING *cpl)
 /*                                                                          */
 /****************************************************************************/
 
-int *DDD_InfoProcList (DDD_HDR hdr)
+int *DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR hdr)
 {
 COUPLING *cpl;
 int i, objIndex = OBJ_INDEX(hdr);
