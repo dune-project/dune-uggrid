@@ -60,7 +60,7 @@ START_UGDIM_NAMESPACE
 
 
 /*
-   #define AddCoupling(a,b,c)  printf("%4d: AC %05d, %d/%d     %08x\n",me,__LINE__,b,c,(int) AddCoupling(a,b,c))
+   #define AddCoupling(context, a,b,c)  printf("%4d: AC %05d, %d/%d     %08x\n",me,__LINE__,b,c,(int) AddCoupling(context, a,b,c))
  */
 
 
@@ -551,7 +551,7 @@ static void AcceptObjFromMsg (
       ote->is_new = TOTALNEW;
 
       /* construct HDR */
-      DDD_HdrConstructorCopy(ote->hdr, new_prio);
+      DDD_HdrConstructorCopy(context, ote->hdr, new_prio);
 
       /* construct LDATA */
       if (desc->handlerLDATACONSTRUCTOR)
@@ -662,13 +662,14 @@ static void AcceptReceivedObjects (DDD::DDDContext& context,
 /****************************************************************************/
 
 
-static void AddAndSpread (DDD_HDR hdr, DDD_GID gid, DDD_PROC dest, DDD_PRIO prio,
+static void AddAndSpread (DDD::DDDContext& context,
+                          DDD_HDR hdr, DDD_GID gid, DDD_PROC dest, DDD_PRIO prio,
                           XICopyObj **itemsNO, int nNO)
 {
   int k;
 
   if (hdr!=NULL)
-    AddCoupling(hdr, dest, prio);
+    AddCoupling(context, hdr, dest, prio);
 
   for(k=0; k<nNO; k++)
   {
@@ -698,6 +699,7 @@ enum UpdateCpl_Cases { UCC_NONE, UCC_NO, UCC_NC, UCC_NO_AND_NC };
 
 
 static void UpdateCouplings (
+  DDD::DDDContext& context,
   TENewCpl *itemsNC, int nNC,                     /* NewCpl  */
   OBJTAB_ENTRY **itemsO, int nO,                  /* Objects */
   const DDD_HDR *itemsLCO, int nLCO,                                /* local objs with coupling */
@@ -735,7 +737,7 @@ static void UpdateCouplings (
       {
         /* restore previous coupling */
         if (dc->prio!=PRIO_INVALID)
-          AddCoupling(hdr, dc->to, dc->prio);
+          AddCoupling(context, hdr, dc->to, dc->prio);
 
         /* invalidate XIDelCpl-item */
         dc->to=procs;
@@ -754,7 +756,7 @@ static void UpdateCouplings (
     while (iNC<nNC && NewCpl_GetGid(itemsNC[iNC]) == gid)
     {
       /* there is a corresponding NewCpl-item */
-      AddCoupling(hdr,
+      AddCoupling(context, hdr,
                   NewCpl_GetDest(itemsNC[iNC]),
                   NewCpl_GetPrio(itemsNC[iNC]));
       NEW_AddCpl(NewCpl_GetDest(itemsNC[iNC]), gid, me, OBJ_PRIO(hdr));
@@ -851,7 +853,7 @@ static void UpdateCouplings (
       for(jNO=0; jNO<nNOset; jNO++)
       {
         /* there is no NewCpl-item for given dest */
-        AddAndSpread(hdrNO, gidNO, setNO[jNO]->dest,
+        AddAndSpread(context, hdrNO, gidNO, setNO[jNO]->dest,
                      setNO[jNO]->prio, setNO, nNOset);
       }
 
@@ -869,7 +871,7 @@ static void UpdateCouplings (
       for(jNC=firstNC; jNC<=lastNC; jNC++)
       {
         if (hdrNC!=NULL)
-          AddCoupling(hdrNC,
+          AddCoupling(context, hdrNC,
                       NewCpl_GetDest(itemsNC[jNC]),
                       NewCpl_GetPrio(itemsNC[jNC]));
         /* else: dont need to AddCpl to deleted object */
@@ -899,7 +901,7 @@ static void UpdateCouplings (
         /* scan NewCpl-items for given dest processor */
         while (jNC<=lastNC && NewCpl_GetDest(itemsNC[jNC]) < setNO[jNO]->dest)
         {
-          AddAndSpread(hdr, gidNO,
+          AddAndSpread(context, hdr, gidNO,
                        NewCpl_GetDest(itemsNC[jNC]),
                        NewCpl_GetPrio(itemsNC[jNC]),
                        setNO, nNOset);
@@ -914,20 +916,20 @@ static void UpdateCouplings (
           PriorityMerge(&theTypeDefs[NewCpl_GetType(itemsNC[jNC])],
                         setNO[jNO]->prio, NewCpl_GetPrio(itemsNC[jNC]), &newprio);
 
-          AddAndSpread(hdr, gidNO, setNO[jNO]->dest, newprio,
+          AddAndSpread(context, hdr, gidNO, setNO[jNO]->dest, newprio,
                        setNO, nNOset);
           jNC++;
         }
         else
         {
           /* there is no NewCpl-item for given dest */
-          AddAndSpread(hdr, gidNO, setNO[jNO]->dest, setNO[jNO]->prio,
+          AddAndSpread(context, hdr, gidNO, setNO[jNO]->dest, setNO[jNO]->prio,
                        setNO, nNOset);
         }
       }
       while (jNC<=lastNC)
       {
-        AddAndSpread(hdr, gidNO,
+        AddAndSpread(context, hdr, gidNO,
                      NewCpl_GetDest(itemsNC[jNC]),
                      NewCpl_GetPrio(itemsNC[jNC]),
                      setNO, nNOset);
@@ -1370,6 +1372,7 @@ static void CallObjMkConsHandler (DDD::DDDContext& context, LC_MSGHANDLE xm, int
         datasets before the Xfer) and are therefore redundant.
  */
 static void UnpackOldCplTab (
+  DDD::DDDContext& context,
   TEOldCpl *tabOC, int nOC,
   OBJTAB_ENTRY *tabO, int nO)
 {
@@ -1394,7 +1397,7 @@ static void UnpackOldCplTab (
       /* add couplings now */
       while (iOC<nOC && tabOC[iOC].gid==OBJ_GID(tabO[iO].hdr))
       {
-        AddCoupling(tabO[iO].hdr,tabOC[iOC].proc,tabOC[iOC].prio);
+        AddCoupling(context, tabO[iO].hdr,tabOC[iOC].proc,tabOC[iOC].prio);
         iOC++;
       }
 
@@ -1668,6 +1671,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   {
     LC_MSGHANDLE xm = theMsgs[i];
     UnpackOldCplTab(
+      context,
       (TEOldCpl *)     LC_GetPtr(xm,xferGlobals.oldcpl_id),
       (int)            LC_GetTableLen(xm, xferGlobals.oldcpl_id),
       (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id),
@@ -1678,7 +1682,8 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
 
   /* update couplings according to global cpl tab */
-  UpdateCouplings(allNewCpl, nNewCpl,
+  UpdateCouplings(context,
+                  allNewCpl, nNewCpl,
                   unionObjTab, lenObjTab,
                   localCplObjs, nLocalCplObjs,
                   arrayDO, nDO,

@@ -235,7 +235,7 @@ static int GatherPrio (DDD::DDDContext&, DDD_HDR obj, void *data, DDD_PROC proc,
   return(0);
 }
 
-static int ScatterPrio (DDD::DDDContext&, DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int ScatterPrio (DDD::DDDContext& context, DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   DDD_PRIO real_prio = *((DDD_PRIO *)data);
 
@@ -250,7 +250,7 @@ static int ScatterPrio (DDD::DDDContext&, DDD_HDR obj, void *data, DDD_PROC proc
     DDD_PrintDebug(cBuffer);
 #               endif
 
-    ModCoupling(obj, proc, real_prio);
+    ModCoupling(context, obj, proc, real_prio);
   }
 #       if DebugPrio<=1
   else

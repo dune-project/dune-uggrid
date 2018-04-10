@@ -1201,7 +1201,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
             MIN(OBJ_GID(msgout->infos[0]->hdr), msgin->gid);
 
           /* add a coupling for new object copy */
-          AddCoupling(msgout->infos[0]->hdr, plist->proc, msgin->prio);
+          AddCoupling(context, msgout->infos[0]->hdr, plist->proc, msgin->prio);
         }
 
         /* free indexmap (=tupel) array */
