@@ -303,7 +303,6 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
   CONSMSG      *sendMsgs=NULL, *cm=NULL;
   LC_MSGHANDLE *recvMsgs;
   int error_cnt = 0;
-  DDD_HDR      *locObjs = NULL;
 
   auto& ctx = context.consContext();
   const auto procs = context.procs();
@@ -364,20 +363,12 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
   /* perform checking of received data */
   if (nRecvMsgs>0)
   {
-    locObjs = LocalObjectsList();
-    if (locObjs==NULL && ddd_nObjs>0)
-    {
-      DDD_PrintLine(
-        "    DDD-GCC Warning: out of memory in ConsCheckGlobalCpl()\n");
-      error_cnt++;                   /* one additional error */
-      goto exit_ConsCheckGlobalCpl;
-    }
+    std::vector<DDD_HDR> locObjs = LocalObjectsList();
 
     for(i=0; i<nRecvMsgs; i++)
     {
-      error_cnt += ConsCheckSingleMsg(context, recvMsgs[i], locObjs);
+      error_cnt += ConsCheckSingleMsg(context, recvMsgs[i], locObjs.data());
     }
-    FreeLocalObjectsList(locObjs);
   }
 
 
@@ -552,7 +543,6 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
   CONSMSG      *sendMsgs, *cm=0;
   LC_MSGHANDLE *recvMsgs;
   int error_cnt = 0;
-  DDD_HDR      *locObjs = NULL;
 
   auto& ctx = context.consContext();
 
@@ -607,20 +597,10 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
   /* perform checking of received data */
   if (nRecvMsgs>0)
   {
-    locObjs = LocalObjectsList();
-    if (locObjs==NULL && ddd_nObjs>0)
-    {
-      DDD_PrintLine(
-        "    DDD-GCC Warning: out of memory in Cons2CheckGlobalCpl()\n");
-      error_cnt++;                   /* one additional error */
-    }
-    else
-    {
-      for(i=0; i<nRecvMsgs; i++)
-      {
-        error_cnt += Cons2CheckSingleMsg(context, recvMsgs[i], locObjs);
-      }
-      FreeLocalObjectsList(locObjs);
+    std::vector<DDD_HDR> locObjs = LocalObjectsList();
+
+    for(i=0; i<nRecvMsgs; i++) {
+      error_cnt += Cons2CheckSingleMsg(context, recvMsgs[i], locObjs.data());
     }
   }
 
@@ -645,17 +625,10 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
 
 static int ConsCheckDoubleObj (void)
 {
-  DDD_HDR      *locObjs;
-  int i, error_cnt = 0;
+  std::vector<DDD_HDR> locObjs = LocalObjectsList();
 
-  locObjs = LocalObjectsList();
-  if (locObjs==NULL && ddd_nObjs>0)
-  {
-    DDD_PrintLine("    DDD-GCC Warning: out of memory in ConsCheckDoubleObj()\n");
-    return(1);             /* report one error */
-  }
-
-  for(i=1; i<ddd_nObjs; i++)
+  int error_cnt = 0;
+  for(int i=1; i<ddd_nObjs; i++)
   {
     if (OBJ_GID(locObjs[i-1])==OBJ_GID(locObjs[i]))
     {
@@ -665,8 +638,6 @@ static int ConsCheckDoubleObj (void)
       DDD_PrintLine(cBuffer);
     }
   }
-
-  FreeLocalObjectsList(locObjs);
 
   return(error_cnt);
 }

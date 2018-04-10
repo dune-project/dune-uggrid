@@ -308,14 +308,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         #ifdef SUPPORT_RESENT_FLAG
   {
     int iLCO, nLCO=NCpl_Get;
-    DDD_HDR *localCplObjs = LocalCoupledObjectsList();
-
-    if (localCplObjs==NULL && ddd_nCpls>0)
-    {
-      DDD_PrintError('E', 6525,
-                     "Cannot get list of coupled objects. Aborted.");
-      HARD_EXIT;
-    }
+    std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList();
 
     /* set RESENT flag for objects which will receive another copy */
     iLCO=0;
@@ -359,8 +352,6 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
       iLCO++;
     }
-
-    FreeLocalCoupledObjectsList(localCplObjs);
   }
         #endif
 
