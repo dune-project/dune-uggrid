@@ -14,6 +14,11 @@ using DDD_PROC = unsigned int;
 using DDD_PRIO = unsigned int;
 using DDD_ATTR = unsigned int;
 
+using DDD_OBJ = char*;
+
+struct DDD_HEADER;
+using DDD_HDR = DDD_HEADER*;
+
 namespace Basic {
 
 /*

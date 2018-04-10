@@ -321,7 +321,7 @@ void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
 /****************************************************************************/
 
 #ifdef ModelP
-static void DestructDDDObject(const DDD::DDDContext& context, void *object, INT type)
+static void DestructDDDObject(DDD::DDDContext& context, void *object, INT type)
 {
   if (type!=NOOBJ)
   {
@@ -330,7 +330,7 @@ static void DestructDDDObject(const DDD::DDDContext& context, void *object, INT 
     {
       DDD_HDR dddhdr = (DDD_HDR)
                        (((char *)object)+DDD_InfoHdrOffset(context, DDDTYPE(type)));
-      DDD_HdrDestructor(dddhdr);
+      DDD_HdrDestructor(context, dddhdr);
     }
   }
   return;

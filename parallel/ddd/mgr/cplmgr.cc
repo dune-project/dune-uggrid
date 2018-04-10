@@ -268,7 +268,7 @@ static void AllocCplTables (long n)
 }
 
 
-static void IncreaseCplTabSize (void)
+static void IncreaseCplTabSize(DDD::DDDContext& context)
 {
   COUPLING **old_CplTable   = ddd_CplTable;
   short     *old_NCplTable  = ddd_NCplTable;
@@ -324,7 +324,7 @@ static void IncreaseCplTabSize (void)
   DDD_PrintError('W', 2514, cBuffer);
 
 
-  ddd_EnsureObjTabSize(ddd_CplTabSize);
+  ddd_EnsureObjTabSize(context, ddd_CplTabSize);
 }
 
 
@@ -347,7 +347,7 @@ static void IncreaseCplTabSize (void)
 /*                                                                          */
 /****************************************************************************/
 
-COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
+COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
   COUPLING        *cp, *cp2;
   int objIndex;
@@ -368,7 +368,7 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
     if (freeCplIdx==ddd_CplTabSize)
     {
       /* try to make CplTables larger ... */
-      IncreaseCplTabSize();
+      IncreaseCplTabSize(context);
 
       if (freeCplIdx==ddd_CplTabSize)
       {
@@ -379,13 +379,14 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
       }
     }
 
+    auto& objTable = context.objTable();
                 #ifdef WithFullObjectTable
-    DDD_HDR oldObj = ddd_ObjTable[freeCplIdx];
+    DDD_HDR oldObj = objTable[freeCplIdx];
 
     /* exchange object without coupling and object with coupling */
     /* free position freeCplIdx, move corresponding hdr reference
        elsewhere. */
-    ddd_ObjTable[objIndex] = oldObj;
+    objTable[objIndex] = oldObj;
     OBJ_INDEX(oldObj)      = objIndex;
                 #else
     assert(IsHdrLocal(hdr));
@@ -396,8 +397,8 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
                 #endif
 
 
-    assert(freeCplIdx<ddd_ObjTabSize);
-    ddd_ObjTable[freeCplIdx] = hdr;
+    assert(freeCplIdx < context.objTable().size());
+    objTable[freeCplIdx] = hdr;
     OBJ_INDEX(hdr)           = freeCplIdx;
 
     objIndex = freeCplIdx;
@@ -469,7 +470,7 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 /*                                                                          */
 /****************************************************************************/
 
-COUPLING *ModCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
+COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
   COUPLING        *cp2;
   int objIndex;
@@ -529,12 +530,11 @@ COUPLING *ModCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 /*                                                                          */
 /****************************************************************************/
 
-void DelCoupling (DDD_HDR hdr, DDD_PROC proc)
+void DelCoupling (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc)
 {
   COUPLING        *cpl, *cplLast;
-  int objIndex;
-
-  objIndex = OBJ_INDEX(hdr);
+  auto& objTable = context.objTable();
+  const int objIndex = OBJ_INDEX(hdr);
 
   if (objIndex<NCpl_Get)
   {
@@ -565,16 +565,16 @@ void DelCoupling (DDD_HDR hdr, DDD_PROC proc)
 
                                         #ifdef WithFullObjectTable
           OBJ_INDEX(hdr) = NCpl_Get;
-          OBJ_INDEX(ddd_ObjTable[NCpl_Get]) = objIndex;
-          ddd_ObjTable[objIndex] = ddd_ObjTable[NCpl_Get];
-          ddd_ObjTable[NCpl_Get] = hdr;
+          OBJ_INDEX(objTable[NCpl_Get]) = objIndex;
+          objTable[objIndex] = objTable[NCpl_Get];
+          objTable[NCpl_Get] = hdr;
                                         #else
           /* we will not register objects without coupling,
              so we have to forget about hdr and mark it as local. */
           ddd_nObjs--; assert(ddd_nObjs==NCpl_Get);
 
-          ddd_ObjTable[objIndex] = ddd_ObjTable[NCpl_Get];
-          OBJ_INDEX(ddd_ObjTable[NCpl_Get]) = objIndex;
+          objTable[objIndex] = objTable[NCpl_Get];
+          OBJ_INDEX(objTable[NCpl_Get]) = objIndex;
 
           MarkHdrLocal(hdr);
                                         #endif
