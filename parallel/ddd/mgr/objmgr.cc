@@ -85,22 +85,24 @@ static bool sort_ObjListGID (const DDD_HDR& a, const DDD_HDR& b)
 }
 
 
-std::vector<DDD_HDR> LocalObjectsList()
+std::vector<DDD_HDR> LocalObjectsList(const DDD::DDDContext& context)
 {
   std::vector<DDD_HDR> locObjs(ddd_nObjs);
 
-  std::copy(ddd_ObjTable, ddd_ObjTable + ddd_nObjs, locObjs.begin());
+  const auto& objTable = context.objTable();
+  std::copy(objTable.begin(), objTable.begin() + ddd_nObjs, locObjs.begin());
   std::sort(locObjs.begin(), locObjs.end(), sort_ObjListGID);
 
   return locObjs;
 }
 
 
-std::vector<DDD_HDR> LocalCoupledObjectsList()
+std::vector<DDD_HDR> LocalCoupledObjectsList(const DDD::DDDContext& context)
 {
   std::vector<DDD_HDR> locObjs(NCpl_Get);
 
-  std::copy(ddd_ObjTable, ddd_ObjTable + NCpl_Get, locObjs.begin());
+  const auto& objTable = context.objTable();
+  std::copy(objTable.begin(), objTable.begin() + NCpl_Get, locObjs.begin());
   std::sort(locObjs.begin(), locObjs.end(), sort_ObjListGID);
 
   return locObjs;
@@ -110,36 +112,18 @@ std::vector<DDD_HDR> LocalCoupledObjectsList()
 /****************************************************************************/
 
 
-void ddd_EnsureObjTabSize (int n)
+void ddd_EnsureObjTabSize(DDD::DDDContext& context, int n)
 {
-  DDD_HDR *old_ObjTable   = ddd_ObjTable;
-  int old_ObjTabSize = ddd_ObjTabSize;
+  auto& objTable = context.objTable();
 
   /* if size is large enough, we are already finished. */
-  if (old_ObjTabSize >= n)
+  if (objTable.size() >= n)
     return;
 
-  /* set new size */
-  ddd_ObjTabSize = n;
-
-  /* allocate new object table */
-  ddd_ObjTable = (DDD_HDR *) AllocTmp(sizeof(DDD_HDR) * ddd_ObjTabSize);
-  if (ddd_ObjTable==NULL)
-  {
-    sprintf(cBuffer, STR_NOMEM " for object table of size %ld",
-            ((long)ddd_ObjTabSize) * sizeof(DDD_HDR));
-    DDD_PrintError('E', 2223, cBuffer);
-    HARD_EXIT;
-  }
-
-  /* copy data from old cpl-table to new one, assuming the old one is full */
-  memcpy(ddd_ObjTable, old_ObjTable, sizeof(DDD_HDR) * old_ObjTabSize);
-
-  /* free old one */
-  FreeTmp(old_ObjTable,0);
+  objTable.resize(n);
 
   /* issue a warning in order to inform user */
-  sprintf(cBuffer, "increased object table, now %d entries", ddd_ObjTabSize);
+  sprintf(cBuffer, "increased object table, now %d entries", n);
   DDD_PrintError('W', 2224, cBuffer);
 }
 
@@ -302,6 +286,7 @@ void DDD_HdrConstructor (DDD::DDDContext& context,
                          DDD_HDR aHdr, DDD_TYPE aType,
                          DDD_PRIO aPrio, DDD_ATTR aAttr)
 {
+  auto& objTable = context.objTable();
   auto& ctx = context.objmgrContext();
 
 /* check input parameters */
@@ -318,7 +303,7 @@ if (aPrio>=MAX_PRIO)
    global ddd_ObjTable. */
 
 /* check whether there are available objects */
-if (ddd_nObjs==ddd_ObjTabSize)
+if (ddd_nObjs == objTable.size())
 {
   /* TODO update docu */
   /* this is a fatal case. we cant register more objects here */
@@ -328,7 +313,7 @@ if (ddd_nObjs==ddd_ObjTabSize)
 }
 
 /* insert into theObj array */
-ddd_ObjTable[ddd_nObjs] = aHdr;
+objTable[ddd_nObjs] = aHdr;
 OBJ_INDEX(aHdr) = ddd_nObjs;
 ddd_nObjs++;
         #else
@@ -407,8 +392,9 @@ DDD_PrintDebug(cBuffer);
    @param hdr  the object's DDD Header
  */
 
-void DDD_HdrDestructor (DDD_HDR hdr)
+void DDD_HdrDestructor(DDD::DDDContext& context, DDD_HDR hdr)
 {
+  auto& objTable = context.objTable();
 COUPLING   *cpl;
 int objIndex, xfer_active = ddd_XferActive();
 
@@ -461,17 +447,17 @@ if (objIndex<NCpl_Get)
   ddd_nObjs--;
 
   /* fill slot of deleted obj with last cpl-obj */
-  ddd_ObjTable[objIndex] = ddd_ObjTable[NCpl_Get];
+  objTable[objIndex] = objTable[NCpl_Get];
   IdxCplList(objIndex) = IdxCplList(NCpl_Get);
   IdxNCpl(objIndex) = IdxNCpl(NCpl_Get);
-  OBJ_INDEX(ddd_ObjTable[objIndex]) = objIndex;
+  OBJ_INDEX(objTable[objIndex]) = objIndex;
 
                 #ifdef WithFullObjectTable
   /* fill slot of last cpl-obj with last obj */
   if (NCpl_Get<ddd_nObjs)
   {
-    ddd_ObjTable[NCpl_Get] = ddd_ObjTable[ddd_nObjs];
-    OBJ_INDEX(ddd_ObjTable[NCpl_Get]) = NCpl_Get;
+    objTable[NCpl_Get] = objTable[ddd_nObjs];
+    OBJ_INDEX(objTable[NCpl_Get]) = NCpl_Get;
   }
                 #else
   assert(NCpl_Get==ddd_nObjs);
@@ -488,8 +474,8 @@ else
   ddd_nObjs--;
 
   /* fill slot of deleted obj with last obj */
-  ddd_ObjTable[objIndex] = ddd_ObjTable[ddd_nObjs];
-  OBJ_INDEX(ddd_ObjTable[objIndex]) = objIndex;
+  objTable[objIndex] = objTable[ddd_nObjs];
+  OBJ_INDEX(objTable[objIndex]) = objIndex;
                 #endif
 }
 
@@ -569,7 +555,7 @@ DDD_OBJ DDD_ObjGet (DDD::DDDContext& context, size_t size, DDD_TYPE typ, DDD_PRI
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_ObjUnGet (DDD::DDDContext&, DDD_HDR hdr, size_t size)
+void DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR hdr, size_t size)
 
 {
   DDD_TYPE typ = OBJ_TYPE(hdr);
@@ -583,7 +569,7 @@ void DDD_ObjUnGet (DDD::DDDContext&, DDD_HDR hdr, size_t size)
   }
 
   /* call DDD_HDR-destructor */
-  DDD_HdrDestructor(hdr);
+  DDD_HdrDestructor(context, hdr);
 
   /* free raw memory */
   DDD_ObjDelete(obj, size, typ);
@@ -604,8 +590,10 @@ void DDD_ObjUnGet (DDD::DDDContext&, DDD_HDR hdr, size_t size)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_HdrConstructorCopy (DDD_HDR newhdr, DDD_PRIO prio)
+void DDD_HdrConstructorCopy (DDD::DDDContext& context, DDD_HDR newhdr, DDD_PRIO prio)
 {
+  auto& objTable = context.objTable();
+
   /* check input parameters */
   if (prio>=MAX_PRIO)
   {
@@ -617,7 +605,7 @@ void DDD_HdrConstructorCopy (DDD_HDR newhdr, DDD_PRIO prio)
 
         #ifdef WithFullObjectTable
   /* check whether there are available objects */
-  if (ddd_nObjs==ddd_ObjTabSize)
+  if (ddd_nObjs == context.objTable().size())
   {
     /* TODO update docu */
     /* this is a fatal case. we cant register more objects here */
@@ -626,7 +614,7 @@ void DDD_HdrConstructorCopy (DDD_HDR newhdr, DDD_PRIO prio)
   }
 
   /* insert into theObj array */
-  ddd_ObjTable[ddd_nObjs] = newhdr;
+  objTable[ddd_nObjs] = newhdr;
   OBJ_INDEX(newhdr) = ddd_nObjs;
   ddd_nObjs++;
         #else
@@ -662,7 +650,7 @@ void DDD_HdrConstructorCopy (DDD_HDR newhdr, DDD_PRIO prio)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_HdrConstructorMove (DDD_HDR newhdr, DDD_HDR oldhdr)
+void DDD_HdrConstructorMove (DDD::DDDContext& context, DDD_HDR newhdr, DDD_HDR oldhdr)
 {
   int objIndex = OBJ_INDEX(oldhdr);
 
@@ -679,11 +667,12 @@ void DDD_HdrConstructorMove (DDD_HDR newhdr, DDD_HDR oldhdr)
   /* change all references from DDD to oldhdr */
 
   /* change entry of theObj array */
+  auto& objTable = context.objTable();
         #ifdef WithFullObjectTable
-  ddd_ObjTable[objIndex] = newhdr;
+  objTable[objIndex] = newhdr;
         #else
   if (objIndex<NCpl_Get)
-    ddd_ObjTable[objIndex] = newhdr;
+    objTable[objIndex] = newhdr;
         #endif
 
   /* change pointers from couplings to object */
@@ -784,17 +773,18 @@ void ObjCopyGlobalData (TYPE_DESC *desc,
 
 /****************************************************************************/
 
-DDD_HDR DDD_SearchHdr(DDD::DDDContext&, DDD_GID gid)
+DDD_HDR DDD_SearchHdr(DDD::DDDContext& context, DDD_GID gid)
 {
+  auto& objTable = context.objTable();
 int i;
 
 i=0;
-while (i<ddd_nObjs && OBJ_GID(ddd_ObjTable[i])!=gid)
+while (i<ddd_nObjs && OBJ_GID(objTable[i])!=gid)
   i++;
 
 if (i<ddd_nObjs)
 {
-  return(ddd_ObjTable[i]);
+  return(objTable[i]);
 }
 else
   return(NULL);
@@ -815,20 +805,13 @@ void ddd_ObjMgrInit(DDD::DDDContext& context)
   ctx.theIdCount = 1;        /* start with 1, for debugging reasons */
 
   /* allocate first (smallest) object table */
-  ddd_ObjTable = (DDD_HDR *) AllocTmp(sizeof(DDD_HDR) * MAX_OBJ_START);
-  if (ddd_ObjTable==NULL)
-  {
-    DDD_PrintError('E', 2222, STR_NOMEM " for initial object table");
-    HARD_EXIT;
-  }
-
-  ddd_ObjTabSize = MAX_OBJ_START;
+  context.objTable().resize(MAX_OBJ_START);
 }
 
 
-void ddd_ObjMgrExit(DDD::DDDContext&)
+void ddd_ObjMgrExit(DDD::DDDContext& context)
 {
-  FreeTmp(ddd_ObjTable,0);
+  context.objTable().clear();
 }
 
 

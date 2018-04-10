@@ -753,7 +753,7 @@ void ExecLocalXIDelCmd (DDD::DDDContext& context, XIDelCmd  **itemsD, int nD)
         desc->handlerDESTRUCTOR(context, obj);
 
       /* HdrDestructor will call ddd_XferRegisterDelete() */
-      DDD_HdrDestructor(hdr);
+      DDD_HdrDestructor(context, hdr);
       DDD_ObjDelete(obj, desc->size, typ);
     }
   }

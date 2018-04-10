@@ -105,9 +105,9 @@ static bool sort_LocalObjs(const DDD_HDR& a, const DDD_HDR& b)
 }
 
 
-void DDD_ListLocalObjects(const DDD::DDDContext&)
+void DDD_ListLocalObjects(const DDD::DDDContext& context)
 {
-  std::vector<DDD_HDR> locObjs = LocalObjectsList();
+  std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
   if (locObjs.empty())
     return;
 

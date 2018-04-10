@@ -270,7 +270,8 @@ static void CmdMsgSend(DDD::DDDContext& context, CMDMSG *theMsgs)
 
 
 
-static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+static int CmdMsgUnpack (DDD::DDDContext& context,
+                         LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                          XIDelCmd  **itemsDC, int nDC)
 {
   int i, k, jDC, iDC, pos, nPruned;
@@ -308,7 +309,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         #ifdef SUPPORT_RESENT_FLAG
   {
     int iLCO, nLCO=NCpl_Get;
-    std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList();
+    std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList(context);
 
     /* set RESENT flag for objects which will receive another copy */
     iLCO=0;
@@ -471,7 +472,7 @@ int PruneXIDelCmd (
   recvMsgs = LC_Communicate(context);
 
 
-  nPruned = CmdMsgUnpack(recvMsgs, nRecvMsgs, itemsDC, nDC);
+  nPruned = CmdMsgUnpack(context, recvMsgs, nRecvMsgs, itemsDC, nDC);
 
 
   /*

@@ -2,6 +2,8 @@
 #define DUNE_UGGRID_PARALLEL_DDD_DDDCONTEXT_HH 1
 
 #include <memory>
+#include <vector>
+
 #include <dune/uggrid/parallel/ddd/dddtypes.hh>
 #include <dune/uggrid/parallel/ppif/ppiftypes.hh>
 
@@ -146,6 +148,12 @@ public:
   const Prio::PrioContext& prioContext() const
     { return prioContext_; }
 
+  const std::vector<DDD_HDR>& objTable() const
+    { return objTable_; }
+
+  std::vector<DDD_HDR>& objTable()
+    { return objTable_; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
@@ -156,6 +164,8 @@ protected:
   If::IfUseContext ifUseContext_;
   Mgr::ObjmgrContext objmgrContext_;
   Prio::PrioContext prioContext_;
+
+  std::vector<DDD_HDR> objTable_;
 };
 
 } /* namespace DDD */

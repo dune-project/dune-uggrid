@@ -53,6 +53,7 @@
 #include "namespace.h"
 
 #include <dune/uggrid/parallel/ddd/dddtypes.hh>
+#include <dune/uggrid/parallel/ddd/dddtypes_impl.hh>
 
 START_UGDIM_NAMESPACE
 
@@ -250,35 +251,9 @@ using DDD_PROC = DDD::DDD_PROC;
 using DDD_PRIO = DDD::DDD_PRIO;
 using DDD_ATTR = DDD::DDD_ATTR;
 
-/*
-        DDD object header, include this into all parallel object structures
-
-        Some remarks:
-
-           - don't touch the member elements of DDD_HEADER in the
-             application program, they will be changed in further
-             DDD versions!
-
-           - use DDD functional interface for accessing the header fields;
-             elements which are not accessible via the DDD functional interface
-             should not be accessed by the application program anyway,
- */
-struct DDD_HEADER
-{
-  /* control word elements */
-  unsigned char typ;
-  unsigned char prio;
-  unsigned char attr;
-  unsigned char flags;
-
-  unsigned int myIndex;         /* global object array index */
-  DDD_GID gid;            /* global id */
-
-  char empty[4];                 /* 4 unused bytes in current impl. */
-};
-
-typedef char           * DDD_OBJ;
-typedef DDD_HEADER     * DDD_HDR;
+using DDD_OBJ = DDD::DDD_OBJ;
+using DDD_HEADER = DDD::DDD_HEADER;
+using DDD_HDR = DDD::DDD_HDR;
 
 /* NULL values for DDD types */
 #define DDD_TYPE_NULL  0
@@ -482,9 +457,9 @@ void     DDD_JoinObj(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_GID);
 
 DDD_OBJ  DDD_ObjNew (size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
 void     DDD_ObjDelete (DDD_OBJ, size_t, DDD_TYPE);
-void     DDD_HdrConstructor (DDD::DDDContext& context, DDD_HDR, DDD_TYPE, DDD_PRIO, DDD_ATTR);
-void     DDD_HdrConstructorMove (DDD_HDR, DDD_HDR);
-void     DDD_HdrDestructor (DDD_HDR);
+void     DDD_HdrConstructor(DDD::DDDContext& context, DDD_HDR, DDD_TYPE, DDD_PRIO, DDD_ATTR);
+void     DDD_HdrConstructorMove(DDD::DDDContext& context, DDD_HDR, DDD_HDR);
+void     DDD_HdrDestructor(DDD::DDDContext& context, DDD_HDR);
 DDD_OBJ  DDD_ObjGet (DDD::DDDContext& context, size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
 void     DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR, size_t);
 
