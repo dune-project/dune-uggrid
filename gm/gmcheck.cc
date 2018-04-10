@@ -692,7 +692,7 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
 }
 
 #ifdef ModelP
-int EdgeHasTMasterCopy (ELEMENT *e, int i)
+int EdgeHasTMasterCopy (DDD::DDDContext& context, ELEMENT *e, int i)
 {
   int nmaster,nborder,nall;
   EDGE *edge;
@@ -700,8 +700,8 @@ int EdgeHasTMasterCopy (ELEMENT *e, int i)
   edge = GetEdge(CORNER_OF_EDGE_PTR(e,i,0),CORNER_OF_EDGE_PTR(e,i,1));
   assert(edge != NULL);
 
-  nmaster = CheckProcListCons(PROCLIST(edge),PrioMaster);
-  nborder = CheckProcListCons(PROCLIST(edge),PrioBorder);
+  nmaster = CheckProcListCons(PROCLIST(context, edge),PrioMaster);
+  nborder = CheckProcListCons(PROCLIST(context, edge),PrioBorder);
   nall = nmaster + nborder;
   if (0)
     assert(nall==1 || nall==2);
@@ -730,6 +730,9 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
     DOUBLE  *x[MAX_CORNERS_OF_ELEM];
     DOUBLE_VECTOR center;
     ) ENDPAR
+#ifdef ModelP
+  auto& dddContext = theGrid->dddContext();
+#endif
 
   *SideError = 0;
   *NodeError = 0;
@@ -934,7 +937,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
                                 #ifdef ModelP
           if (EMASTER(theElement))
                                 #if defined(__TWODIM__)
-            if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(theElement,i)==0)
+            if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(dddContext, theElement,i)==0)
                                 #endif
                                 #endif
           *SideError |= (1<<(i+MAX_SIDES_OF_ELEM));
@@ -946,7 +949,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
                                   #ifdef ModelP
           if (EMASTER(theElement))
                                   #if defined(__TWODIM__)
-            if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(theElement,i)==0)
+            if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(dddContext, theElement,i)==0)
                                   #endif
                                   #endif
           if (INNER_SIDE(theElement,i)) {
@@ -966,7 +969,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
                                         #ifdef ModelP
           if (EMASTER(theElement))
                                     #if defined(__TWODIM__)
-            if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(theElement,i)==0)
+            if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(dddContext, theElement,i)==0)
                                         #endif
                                         #endif
           *SideError |= (1<<(i+2*MAX_SIDES_OF_ELEM));

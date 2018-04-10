@@ -200,11 +200,11 @@ void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
  */
 /****************************************************************************/
 
-static void buggy_ShowCopies (DDD_HDR hdr)
+static void buggy_ShowCopies (DDD::DDDContext& context, DDD_HDR hdr)
 {
   int   *p, i;
 
-  p = DDD_InfoProcList(hdr);
+  p = DDD_InfoProcList(context, hdr);
   for(i=0; p[i]!=-1; i+=2)
   {
     printf("%4d:    copy on %3d with prio %d\n",
@@ -345,6 +345,8 @@ static void buggy_NodeShow (NODE *n)
 
 static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
 {
+  auto& context = theMG->dddContext();
+
   int level, found;
 
   found = false;
@@ -361,7 +363,7 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
       {
         printf("%4d: ELEMENT gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
                me, gid, e, level);
-        buggy_ShowCopies(PARHDRE(e));
+        buggy_ShowCopies(context, PARHDRE(e));
         buggy_ElemShow(e);
         found = true;
       }
@@ -375,7 +377,7 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
       {
         printf("%4d: NODE gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
                me, gid, n, level);
-        buggy_ShowCopies(PARHDR(n));
+        buggy_ShowCopies(context, PARHDR(n));
         buggy_NodeShow(n);
         found = true;
       }
@@ -390,7 +392,7 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
     {
       printf("%4d: DDDOBJ gid=" DDD_GID_FMT ", typ=%d, level=%d\n",
              me, gid, DDD_InfoType(hdr), DDD_InfoAttr(hdr));
-      buggy_ShowCopies(hdr);
+      buggy_ShowCopies(context, hdr);
     }
     else
     {

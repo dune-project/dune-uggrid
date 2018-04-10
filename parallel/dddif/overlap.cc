@@ -195,7 +195,7 @@ static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
       /* send son to all elements where theNeighbor is master, vghost or vhghost */
       if (0)
       {
-        int *proclist = EPROCLIST(theNeighbor);
+        int *proclist = EPROCLIST(context, theNeighbor);
         proclist += 2;
         while (*proclist != -1)
         {
