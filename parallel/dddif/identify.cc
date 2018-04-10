@@ -406,7 +406,7 @@ static INT Identify_by_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 #ifdef __THREEDIM__
 
 
-static void IdentifySideVector (ELEMENT* theElement, ELEMENT *theNeighbor,
+static void IdentifySideVector (DDD::DDDContext& context, ELEMENT* theElement, ELEMENT *theNeighbor,
                                ELEMENT *Son, INT SonSide)
 {
   INT k,nident;
@@ -419,7 +419,7 @@ static void IdentifySideVector (ELEMENT* theElement, ELEMENT *theNeighbor,
 
   IdentObjectHdr[0] = PARHDR(SVECTOR(Son,SonSide));
 
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
   /* identify using corner nodes */
   for (k=0; k<CORNERS_OF_SIDE(Son,SonSide); k++)
@@ -431,7 +431,7 @@ static void IdentifySideVector (ELEMENT* theElement, ELEMENT *theNeighbor,
       IdentHdr[nident++] = PARHDR(theNode);
   }
 
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
   Ident_FctPtr(IdentObjectHdr,1,proclist+2,PrioHGhost,IdentHdr,nident);
 
@@ -465,6 +465,8 @@ static void IdentifySideVector (ELEMENT* theElement, ELEMENT *theNeighbor,
 static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
                           NODE *Nodes[MAX_SIDE_NODES], INT node, INT ncorners, INT Vec)
 {
+  auto& context = theGrid->dddContext();
+
   INT nobject,nident;
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
@@ -511,7 +513,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
       IdentObjectHdr[nobject++] = PARHDR(NVECTOR(theNode));
 
     /* identify to proclist of node */
-    proclist = DDD_InfoProcList(PARHDR((NODE *)NFATHER(theNode)));
+    proclist = DDD_InfoProcList(context, PARHDR((NODE *)NFATHER(theNode)));
 
     /* identify using father node */
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(theNode));
@@ -563,7 +565,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
                       (NODE *)NFATHER(EdgeNodes[1]));
     ASSERT(theEdge!=NULL);
 
-    proclist = DDD_InfoProcList(PARHDR(theEdge));
+    proclist = DDD_InfoProcList(context, PARHDR(theEdge));
 
     /* identify using edge nodes */
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(EdgeNodes[0]));
@@ -595,7 +597,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
       IdentObjectHdr[nobject++] = PARHDR(NVECTOR(theNode));
 
     /* identify to proclist of neighbor element */
-    proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+    proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
     /* identify using corner nodes of side */
     for (i=0; i<ncorners; i++)
@@ -654,6 +656,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
   NODE   *theNode0,*theNode1;
+  auto& context = theGrid->dddContext();
 
   nobject = nident = 0;
 
@@ -696,7 +699,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
   }
 
   /* identify to proclist of neighbor */
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
   /* now choose identificator objects */
   theNode0 = NBNODE(LINK0(theEdge));
@@ -806,6 +809,7 @@ static INT IdentifyEdge (GRID *theGrid,
   int *proclist;
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
+  auto& context = theGrid->dddContext();
 
   nobject = nident = 0;
 
@@ -886,7 +890,7 @@ static INT IdentifyEdge (GRID *theGrid,
 
         #ifdef __TWODIM__
   /* identify to proclist of neighbor */
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
         #endif
 
   /* identify to proclist of father edge or neighbor*/
@@ -899,11 +903,11 @@ static INT IdentifyEdge (GRID *theGrid,
     fatherEdge = FatherEdge(SideNodes,ncorners,Nodes,theEdge);
 
     if (fatherEdge != NULL)
-      proclist = DDD_InfoProcList(PARHDR(fatherEdge));
+      proclist = DDD_InfoProcList(context, PARHDR(fatherEdge));
     else
-      proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+      proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
   }
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
         #endif
 
   if (CORNERTYPE(Nodes[0]))
@@ -970,6 +974,8 @@ static INT IdentifyEdge (GRID *theGrid,
 static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                                         INT i, ELEMENT *theNeighbor)
 {
+  auto& context = theGrid->dddContext();
+
   INT nodes,j,n;
   NODE *SideNodes[MAX_SIDE_NODES];
   INT ncorners;
@@ -1032,7 +1038,7 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
 
                         #ifdef __THREEDIM__
       if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-        IdentifySideVector(theElement,theNeighbor,SonList[j],SonSides[j]);
+        IdentifySideVector(context, theElement,theNeighbor,SonList[j],SonSides[j]);
                         #endif
     }
   }

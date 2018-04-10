@@ -5680,6 +5680,9 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
   ELEMENTCONTEXT theContext;
   GRID *UpGrid;
   const int me = theGrid->ppifContext().me();
+#ifdef ModelP
+  auto& dddContext = theGrid->dddContext();
+#endif
 
   UpGrid = UPGRID(theGrid);
   if (UpGrid==NULL)
@@ -5736,7 +5739,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
                         #ifdef ModelP
       {
         /* check for valid load balancing */
-        int *proclist = EPROCLIST(theElement);
+        int *proclist = EPROCLIST(dddContext, theElement);
         proclist += 2;
         while (*proclist != -1)
         {

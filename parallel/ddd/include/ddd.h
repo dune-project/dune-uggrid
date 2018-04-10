@@ -398,7 +398,7 @@ void     DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE);
  */
 void     DDD_PrioritySet(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 void     DDD_AttrSet (DDD_HDR, DDD_ATTR); /* this shouldn't be allowed */
-int  *   DDD_InfoProcList (DDD_HDR);
+int  *   DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR);
 DDD_PROC DDD_InfoProcPrio (DDD_HDR, DDD_PRIO);
 int      DDD_InfoIsLocal (DDD_HDR);
 int      DDD_InfoNCopies (DDD_HDR);
