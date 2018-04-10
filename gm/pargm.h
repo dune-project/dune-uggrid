@@ -326,7 +326,7 @@ enum {VERTEX_LISTPARTS = 1};
 #define EPRIO(p)                0
 #define SETEPRIO(context, p,i)   ;
 #define EMASTERPRIO(p)  1
-#define EPROCLIST(p)    (&_proclist_)
+#define EPROCLIST(context, p)   (&_proclist_)
 #define ENCOPIES(p)             1
 #define PARTITION(p)    _partition_
 
@@ -339,7 +339,7 @@ enum {VERTEX_LISTPARTS = 1};
 #define EPRIO(p)                0
 #define VXPRIO(p)               0
 #define SETPRIO(context, p,i)    ;
-#define PROCLIST(p)             (&_proclist_)
+#define PROCLIST(context, p)    (&_proclist_)
 #define NCOPIES(p)              1
 
 /* dummies for vertices */
