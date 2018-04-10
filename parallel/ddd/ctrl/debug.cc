@@ -107,24 +107,20 @@ static bool sort_LocalObjs(const DDD_HDR& a, const DDD_HDR& b)
 
 void DDD_ListLocalObjects(const DDD::DDDContext&)
 {
-  DDD_HDR o, *locObjs;
-  int i;
-
-  if ((locObjs=LocalObjectsList()) ==NULL)
+  std::vector<DDD_HDR> locObjs = LocalObjectsList();
+  if (locObjs.empty())
     return;
 
-  std::sort(locObjs, locObjs + ddd_nObjs, sort_LocalObjs);
+  std::sort(locObjs.begin(), locObjs.end(), sort_LocalObjs);
 
-  for(i=0; i<ddd_nObjs; i++)
+  for(int i=0; i<ddd_nObjs; i++)
   {
-    o = locObjs[i];
+    const auto& o = locObjs[i];
     sprintf(cBuffer, "%4d: #%04d  adr=%p gid=0x" OBJ_GID_FMT " type=0x%02x"
             " prio=%04d attr=%04d\n",
             me, i, o, OBJ_GID(o), OBJ_TYPE(o), OBJ_PRIO(o), OBJ_ATTR(o));
     DDD_PrintLine(cBuffer);
   }
-
-  FreeLocalObjectsList(locObjs);
 }
 
 END_UGDIM_NAMESPACE
