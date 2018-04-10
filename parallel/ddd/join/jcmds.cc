@@ -769,7 +769,6 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   JOINMSG2    *sendMsgs2=NULL, *sm2=NULL;
   JOINMSG3    *sendMsgs3=NULL, *sm3=NULL;
   LC_MSGHANDLE *recvMsgs1=NULL, *recvMsgs2=NULL, *recvMsgs3=NULL;
-  DDD_HDR     *localCplObjs=NULL;
   size_t sendMem=0, recvMem=0;
   JIPartner   *joinObjs = NULL;
   int nJoinObjs;
@@ -829,14 +828,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
    */
   STAT_RESET;
   /* get sorted list of local objects with couplings */
-  localCplObjs = LocalCoupledObjectsList();
-  if (localCplObjs==NULL && ddd_nCpls>0)
-  {
-    DDD_PrintError('E', 7020,
-                   "Cannot get list of coupled objects in DDD_JoinEnd(). Aborted");
-    HARD_EXIT;
-  }
-
+  std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList();
 
   if (obsolete>0)
   {
@@ -901,7 +893,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   /* unpack messages */
   STAT_RESET;
-  UnpackPhase1Msgs(recvMsgs1, nRecvMsgs1, localCplObjs, NCpl_Get,
+  UnpackPhase1Msgs(recvMsgs1, nRecvMsgs1, localCplObjs.data(), NCpl_Get,
                    &joinObjs, &nJoinObjs);
   LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
@@ -999,7 +991,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* unpack messages */
   STAT_RESET;
   UnpackPhase2Msgs(recvMsgs2, nRecvMsgs2, joinObjs, nJoinObjs,
-                   localCplObjs, NCpl_Get);
+                   localCplObjs.data(), NCpl_Get);
 
   LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
@@ -1119,8 +1111,6 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   JIAddCplSet_Reset(joinGlobals.setJIAddCpl2);
 
   JIAddCplSet_Reset(joinGlobals.setJIAddCpl3);
-
-  if (localCplObjs!=NULL) FreeTmp(localCplObjs, 0);
 
   if (joinObjs!=NULL) FreeTmp(joinObjs, 0);
 

@@ -44,6 +44,7 @@
 
 #include <climits>
 #include <memory>
+#include <vector>
 
 #include <cassert>
 
@@ -721,10 +722,8 @@ void      DDD_DisplayTopo(const DDD::DDDContext& context);
 /* mgr/objmgr.c */
 void      DDD_HdrConstructorCopy (DDD_HDR, DDD_PRIO);
 void      ObjCopyGlobalData (TYPE_DESC *, DDD_OBJ, DDD_OBJ, size_t);
-DDD_HDR  *LocalObjectsList (void);
-void      FreeLocalObjectsList (DDD_HDR *);
-DDD_HDR  *LocalCoupledObjectsList (void);
-void      FreeLocalCoupledObjectsList (DDD_HDR *);
+std::vector<DDD_HDR> LocalObjectsList();
+std::vector<DDD_HDR> LocalCoupledObjectsList();
 
 /* basic/reduct.c */
 int       ddd_GlobalSumInt(const DDD::DDDContext& context, int);

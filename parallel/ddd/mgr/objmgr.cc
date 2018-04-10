@@ -85,63 +85,26 @@ static bool sort_ObjListGID (const DDD_HDR& a, const DDD_HDR& b)
 }
 
 
-DDD_HDR *LocalObjectsList (void)
+std::vector<DDD_HDR> LocalObjectsList()
 {
-  DDD_HDR   *locObjs;
+  std::vector<DDD_HDR> locObjs(ddd_nObjs);
 
-  if (ddd_nObjs==0)
-    return(NULL);
+  std::copy(ddd_ObjTable, ddd_ObjTable + ddd_nObjs, locObjs.begin());
+  std::sort(locObjs.begin(), locObjs.end(), sort_ObjListGID);
 
-  locObjs = (DDD_HDR *) AllocTmpReq (ddd_nObjs*sizeof(DDD_HDR), TMEM_OBJLIST);
-  if (locObjs==NULL) {
-    DDD_PrintError('E', 2210,  STR_NOMEM " in LocalObjectsList");
-    return(NULL);
-  }
-
-  memcpy(locObjs, ddd_ObjTable, ddd_nObjs*sizeof(DDD_HDR));
-  std::sort(locObjs, locObjs + ddd_nObjs, sort_ObjListGID);
-
-  return(locObjs);
-}
-
-void FreeLocalObjectsList (DDD_HDR *locObjs)
-{
-  if (locObjs==NULL)
-    return;
-
-  FreeTmpReq(locObjs, ddd_nObjs*sizeof(DDD_HDR), TMEM_OBJLIST);
+  return locObjs;
 }
 
 
-
-DDD_HDR *LocalCoupledObjectsList (void)
+std::vector<DDD_HDR> LocalCoupledObjectsList()
 {
-  DDD_HDR   *locObjs;
+  std::vector<DDD_HDR> locObjs(NCpl_Get);
 
-  if (NCpl_Get==0)
-    return(NULL);
+  std::copy(ddd_ObjTable, ddd_ObjTable + NCpl_Get, locObjs.begin());
+  std::sort(locObjs.begin(), locObjs.end(), sort_ObjListGID);
 
-  locObjs = (DDD_HDR *) AllocTmpReq (NCpl_Get*sizeof(DDD_HDR), TMEM_OBJLIST);
-  if (locObjs==NULL) {
-    DDD_PrintError('E', 2211, STR_NOMEM " in LocalCoupledObjectsList");
-    return(NULL);
-  }
-
-  memcpy(locObjs, ddd_ObjTable, NCpl_Get*sizeof(DDD_HDR));
-  std::sort(locObjs, locObjs + NCpl_Get, sort_ObjListGID);
-
-  return(locObjs);
+  return locObjs;
 }
-
-
-void FreeLocalCoupledObjectsList (DDD_HDR *locObjs)
-{
-  if (locObjs==NULL)
-    return;
-
-  FreeTmpReq(locObjs, NCpl_Get*sizeof(DDD_HDR), TMEM_OBJLIST);
-}
-
 
 
 /****************************************************************************/
