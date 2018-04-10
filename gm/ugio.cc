@@ -1162,6 +1162,9 @@ static INT WriteElementParInfo (GRID *theGrid,
   NODE *theNode;
   VERTEX *theVertex;
   EDGE *theEdge;
+#ifdef ModelP
+  auto& dddContext = theGrid->dddContext();
+#endif
 
   memset(pinfo,0,sizeof(MGIO_PARINFO));
 
@@ -1177,7 +1180,7 @@ static INT WriteElementParInfo (GRID *theGrid,
   }
   if (pinfo->ncopies_elem>0)
   {
-    pl = EPROCLIST(theElement);
+    pl = EPROCLIST(dddContext, theElement);
     for (i=0,j=2; i<pinfo->ncopies_elem; i++,j+=2)
       ActProcListPos[s++] = pl[j];
   }
@@ -1194,7 +1197,7 @@ static INT WriteElementParInfo (GRID *theGrid,
     }
     if (pinfo->ncopies_node[k]>0)
     {
-      pl = PROCLIST(theNode);
+      pl = PROCLIST(dddContext, theNode);
       for (i=0,j=2; i<pinfo->ncopies_node[k]; i++,j+=2)
         ActProcListPos[s++] = pl[j];
     }
@@ -1212,7 +1215,7 @@ static INT WriteElementParInfo (GRID *theGrid,
     }
     if (pinfo->ncopies_vertex[k]>0)
     {
-      pl = VXPROCLIST(theVertex);
+      pl = VXPROCLIST(dddContext, theVertex);
       for (i=0,j=2; i<pinfo->ncopies_vertex[k]; i++,j+=2)
         ActProcListPos[s++] = pl[j];
     }
@@ -1236,7 +1239,7 @@ static INT WriteElementParInfo (GRID *theGrid,
       }
       pinfo->ed_ident[k] = GID(v);
       if (pinfo->ncopies_edge[k]>0) {
-        pl = PROCLIST(v);
+        pl = PROCLIST(dddContext, v);
         for (i=0,j=2; i<pinfo->ncopies_edge[k]; i++,j+=2)
           ActProcListPos[s++] = pl[j];
       }
@@ -1257,7 +1260,7 @@ static INT WriteElementParInfo (GRID *theGrid,
       REP_ERR_RETURN(1);
     }
     if (pinfo->ncopies_edge[k]>0) {
-      pl = PROCLIST(theEdge);
+      pl = PROCLIST(dddContext, theEdge);
       for (i=0,j=2; i<pinfo->ncopies_edge[k]; i++,j+=2)
         ActProcListPos[s++] = pl[j];
     }
@@ -1985,6 +1988,9 @@ static INT IO_GridCons(MULTIGRID *theMG)
   GRID    *theGrid;
   ELEMENT *theElement;
   VECTOR  *theVector;
+#ifdef ModelP
+  auto& dddContext = theMG->dddContext();
+#endif
   const auto& me = theMG->ppifContext().me();
 
   for (i=TOPLEVEL(theMG); i>=0; i--)         /* propagate information top-down */
@@ -1992,7 +1998,7 @@ static INT IO_GridCons(MULTIGRID *theMG)
     theGrid = GRID_ON_LEVEL(theMG,i);
     for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
     {
-      proclist = EPROCLIST(theElement);
+      proclist = EPROCLIST(dddContext, theElement);
       while (proclist[0] != -1)
       {
         if (EMASTERPRIO(proclist[1])) PARTITION(theElement) = proclist[0];
