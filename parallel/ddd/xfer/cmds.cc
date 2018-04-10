@@ -414,7 +414,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   int obsolete, nRecvMsgs, nSendMsgs;
   XFERMSG     *sendMsgs=NULL, *sm=NULL;
   LC_MSGHANDLE *recvMsgs            = NULL;
-  DDD_HDR     *localCplObjs         = NULL;
+  std::vector<DDD_HDR> localCplObjs;
   size_t sendMem=0, recvMem=0;
   int DelCmds_were_pruned;
 
@@ -710,18 +710,12 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
   /* get sorted list of local objects with couplings */
   localCplObjs = LocalCoupledObjectsList();
-  if (localCplObjs==NULL && ddd_nCpls>0)
-  {
-    DDD_PrintError('E', 6020,
-                   "Cannot get list of coupled objects in DDD_XferEnd(). Aborted.");
-    HARD_EXIT;
-  }
 
 
   /* unpack messages */
   STAT_RESET;
   XferUnpack(context, recvMsgs, nRecvMsgs,
-             localCplObjs, NCpl_Get,
+             localCplObjs.data(), NCpl_Get,
              arrayXISetPrio,
              arrayXIDelObj, nXIDelObj,
              arrayXICopyObj,
@@ -732,14 +726,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* recreate sorted list of local coupled objects,
      old list might be corrupt due to creation of new objects */
   STAT_RESET;
-  FreeLocalCoupledObjectsList(localCplObjs);
   localCplObjs = LocalCoupledObjectsList();
-  if (localCplObjs==NULL && ddd_nCpls>0)
-  {
-    DDD_PrintError('E', 6021,
-                   "Cannot get list of coupled objects in DDD_XferEnd(). Aborted.");
-    HARD_EXIT;
-  }
 
 
   /* create sorted array of XIDelCpl-, XIModCpl- and XIAddCpl-items.
@@ -773,7 +760,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
                      arrayXIDelCpl, remXIDelCpl,
                      arrayXIModCpl, remXIModCpl,
                      arrayXIAddCpl, nXIAddCpl,
-                     localCplObjs, NCpl_Get);
+                     localCplObjs.data(), NCpl_Get);
   STAT_TIMER(T_XFER_CPLMSG);
 
 
@@ -810,8 +797,6 @@ exit:
 
   if (arrayXIAddCpl!=NULL) OO_Free (arrayXIAddCpl /*,0*/);
   FreeAllXIAddCpl();
-
-  FreeLocalCoupledObjectsList(localCplObjs);
 
   for(; sendMsgs!=NULL; sendMsgs=sm)
   {
