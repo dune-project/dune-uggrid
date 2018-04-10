@@ -306,6 +306,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
 
   auto& ctx = context.consContext();
   const auto procs = context.procs();
+  const auto& objTable = context.objTable();
 
   /* count overall number of couplings */
   for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
@@ -324,7 +325,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
         error_cnt++;
         sprintf(cBuffer, "%4d: DDD-GCC Warning: invalid proc=%d (" OBJ_GID_FMT "/" OBJ_GID_FMT ")\n",
                 me, CPL_PROC(cpl), OBJ_GID(cpl->obj),
-                OBJ_GID(ddd_ObjTable[i])
+                OBJ_GID(objTable[i])
                 );
         DDD_PrintLine(cBuffer);
       }
@@ -363,7 +364,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
   /* perform checking of received data */
   if (nRecvMsgs>0)
   {
-    std::vector<DDD_HDR> locObjs = LocalObjectsList();
+    std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
 
     for(i=0; i<nRecvMsgs; i++)
     {
@@ -500,7 +501,7 @@ static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_H
                       me, theCplBuf[i].gid, theCplBuf[i2].proc, theCplBuf[i2].prio);
               DDD_PrintLine(cBuffer);
 
-              AddCoupling(locObjs[j], theCplBuf[i2].proc, theCplBuf[i2].prio);
+              AddCoupling(context, locObjs[j], theCplBuf[i2].proc, theCplBuf[i2].prio);
             }
           }
         }
@@ -597,7 +598,7 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
   /* perform checking of received data */
   if (nRecvMsgs>0)
   {
-    std::vector<DDD_HDR> locObjs = LocalObjectsList();
+    std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
 
     for(i=0; i<nRecvMsgs; i++) {
       error_cnt += Cons2CheckSingleMsg(context, recvMsgs[i], locObjs.data());
@@ -623,9 +624,9 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
 
 /****************************************************************************/
 
-static int ConsCheckDoubleObj (void)
+static int ConsCheckDoubleObj(const DDD::DDDContext& context)
 {
-  std::vector<DDD_HDR> locObjs = LocalObjectsList();
+  std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
 
   int error_cnt = 0;
   for(int i=1; i<ddd_nObjs; i++)
@@ -688,7 +689,7 @@ int DDD_ConsCheck(DDD::DDDContext& context)
       DDD_PrintLine("   DDD-GCC (Global Consistency Check)\n");
   }
 
-  total_errors += ConsCheckDoubleObj();
+  total_errors += ConsCheckDoubleObj(context);
 
         #ifdef CHECK_CPL_PAIRS
   cpl_errors = ConsCheckGlobalCpl(context);

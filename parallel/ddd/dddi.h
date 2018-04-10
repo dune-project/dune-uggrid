@@ -265,8 +265,6 @@ struct TYPE_DESC
 
 extern TYPE_DESC theTypeDefs[MAX_TYPEDESC];
 
-extern DDD_HDR   *ddd_ObjTable;
-extern int ddd_ObjTabSize;
 extern int ddd_nObjs;
 
 extern COUPLING   **ddd_CplTable;
@@ -644,15 +642,15 @@ int       ddd_TypeDefined (TYPE_DESC *);
 /* objmgr.c */
 void      ddd_ObjMgrInit(DDD::DDDContext& context);
 void      ddd_ObjMgrExit(DDD::DDDContext& context);
-void      ddd_EnsureObjTabSize(int);
+void      ddd_EnsureObjTabSize(DDD::DDDContext& context, int);
 
 
 /* cplmgr.c */
 void      ddd_CplMgrInit(DDD::DDDContext& context);
 void      ddd_CplMgrExit(DDD::DDDContext& context);
-COUPLING *AddCoupling (DDD_HDR, DDD_PROC, DDD_PRIO);
-COUPLING *ModCoupling (DDD_HDR, DDD_PROC, DDD_PRIO);
-void      DelCoupling (DDD_HDR, DDD_PROC);
+COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
+COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
+void      DelCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC);
 void      DisposeCouplingList (COUPLING *);
 void      DDD_InfoCoupling (DDD_HDR);
 
@@ -720,10 +718,10 @@ void      DDD_DisplayTopo(const DDD::DDDContext& context);
 
 
 /* mgr/objmgr.c */
-void      DDD_HdrConstructorCopy (DDD_HDR, DDD_PRIO);
+void      DDD_HdrConstructorCopy(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 void      ObjCopyGlobalData (TYPE_DESC *, DDD_OBJ, DDD_OBJ, size_t);
-std::vector<DDD_HDR> LocalObjectsList();
-std::vector<DDD_HDR> LocalCoupledObjectsList();
+std::vector<DDD_HDR> LocalObjectsList(const DDD::DDDContext& context);
+std::vector<DDD_HDR> LocalCoupledObjectsList(const DDD::DDDContext& context);
 
 /* basic/reduct.c */
 int       ddd_GlobalSumInt(const DDD::DDDContext& context, int);
