@@ -550,7 +550,7 @@ static enum BTreeConstant Method(Insert) (ParamThis,
   if (nData < 4)
   {
     /* only a few entries -> use linear search */
-    int found=false;
+    bool found=false;
 
     for(i=0; i<nData && !found; i++)
     {
@@ -568,7 +568,7 @@ static enum BTreeConstant Method(Insert) (ParamThis,
 
       if (cmp>0) found = true;
     }
-    if (found==true) i--;
+    if (found) i--;
   }
   else
   {
