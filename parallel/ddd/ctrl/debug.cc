@@ -113,7 +113,7 @@ void DDD_ListLocalObjects(const DDD::DDDContext& context)
 
   std::sort(locObjs.begin(), locObjs.end(), sort_LocalObjs);
 
-  for(int i=0; i<ddd_nObjs; i++)
+  for(int i=0; i < context.nObjs(); i++)
   {
     const auto& o = locObjs[i];
     sprintf(cBuffer, "%4d: #%04d  adr=%p gid=0x" OBJ_GID_FMT " type=0x%02x"
