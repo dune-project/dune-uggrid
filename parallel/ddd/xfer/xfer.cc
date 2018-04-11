@@ -353,7 +353,8 @@ static XFERMSG *CreateXferMsg (DDD_PROC dest, XFERMSG *lastxm)
 
 
 
-static XFERMSG *AccumXICopyObj (XFERMSG *currxm, int *nMsgs, int *nItems,
+static XFERMSG *AccumXICopyObj (const DDD::DDDContext& context,
+                                XFERMSG *currxm, int *nMsgs, int *nItems,
                                 XICopyObj **items, DDD_PROC dest, int nmax)
 {
   XFERMSG *xm;
@@ -382,7 +383,7 @@ static XFERMSG *AccumXICopyObj (XFERMSG *currxm, int *nMsgs, int *nItems,
   {
     XICopyObj *xi = items[i];
     DDD_HDR hdr = xi->hdr;
-    TYPE_DESC  *desc = &theTypeDefs[OBJ_TYPE(hdr)];
+    const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(hdr)];
 
 #               if DebugXfer<=0
     sprintf(cBuffer, "%4d: PrepareObjMsgs, proc=%d"
@@ -396,7 +397,7 @@ static XFERMSG *AccumXICopyObj (XFERMSG *currxm, int *nMsgs, int *nItems,
 
     /* length of object itself, possibly variable  */
     xm->size += CEIL(xi->size);
-    xm->nPointers += desc->nPointers;
+    xm->nPointers += desc.nPointers;
 
     if (xi->add != NULL)
       BuildDepDataInfo(xm, xi);
@@ -544,7 +545,7 @@ int PrepareObjMsgs (DDD::DDDContext& context,
 
     if (pO<=pNC && pO<=pOC && pO<procs)
     {
-      xm = AccumXICopyObj(xm, &nMsgs, &n, itemsO+iO, pO, nO-iO);
+      xm = AccumXICopyObj(context, xm, &nMsgs, &n, itemsO+iO, pO, nO-iO);
       xm->xferObjArray = itemsO+iO;
       xm->nObjItems = n;
       iO += n;
@@ -650,14 +651,14 @@ void ExecLocalXISetPrio (
     {
       /* SetPrio, but _no_ DelObj: execute SetPrio */
       DDD_TYPE typ   = OBJ_TYPE(hdr);
-      TYPE_DESC  *desc = &(theTypeDefs[typ]);
+      const TYPE_DESC& desc = context.typeDefs()[typ];
 
       /* call application handler for changing prio of dependent objects */
-      if (desc->handlerSETPRIORITY)
+      if (desc.handlerSETPRIORITY)
       {
-        DDD_OBJ obj = HDR2OBJ(hdr,desc);
+        DDD_OBJ obj = HDR2OBJ(hdr, &desc);
 
-        desc->handlerSETPRIORITY(context, obj, newprio);
+        desc.handlerSETPRIORITY(context, obj, newprio);
       }
 
       /* change actual priority to new value */
@@ -737,24 +738,24 @@ void ExecLocalXIDelCmd (DDD::DDDContext& context, XIDelCmd  **itemsD, int nD)
   {
     DDD_HDR hdr = origD[iD]->hdr;
     DDD_TYPE typ   = OBJ_TYPE(hdr);
-    TYPE_DESC  *desc = &(theTypeDefs[typ]);
-    DDD_OBJ obj   = HDR2OBJ(hdr,desc);
+    const TYPE_DESC& desc = context.typeDefs()[typ];
+    DDD_OBJ obj   = HDR2OBJ(hdr, &desc);
 
     /* do deletion */
-    if (desc->handlerDELETE)
-      desc->handlerDELETE(context, obj);
+    if (desc.handlerDELETE)
+      desc.handlerDELETE(context, obj);
     else
     {
       /* TODO the following three calls should be collected in
          one ObjMgr function */
 
       /* destruct LDATA and GDATA */
-      if (desc->handlerDESTRUCTOR!=NULL)
-        desc->handlerDESTRUCTOR(context, obj);
+      if (desc.handlerDESTRUCTOR)
+        desc.handlerDESTRUCTOR(context, obj);
 
       /* HdrDestructor will call ddd_XferRegisterDelete() */
       DDD_HdrDestructor(context, hdr);
-      DDD_ObjDelete(obj, desc->size, typ);
+      DDD_ObjDelete(obj, desc.size, typ);
     }
   }
 
@@ -1031,7 +1032,9 @@ void ddd_XferInit(DDD::DDDContext& context)
 
   /* init control structures for XferInfo-items in first (?) message */
   xferGlobals.setXICopyObj = New_XICopyObjSet();
+  xferGlobals.setXICopyObj->tree->context = &context;
   xferGlobals.setXISetPrio = New_XISetPrioSet();
+  xferGlobals.setXISetPrio->tree->context = &context;
   InitXIDelCmd();
   InitXIDelObj();
   InitXINewCpl();

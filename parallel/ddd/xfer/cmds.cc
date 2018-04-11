@@ -229,7 +229,7 @@ static int sort_XIAddCpl (const void *e1, const void *e2)
 
         the number of valid items is returned.
  */
-static int unify_XIDelCmd (XIDelCmd **i1, XIDelCmd **i2)
+static int unify_XIDelCmd (const DDD::DDDContext&, XIDelCmd **i1, XIDelCmd **i2)
 {
   return ((*i1)->hdr != (*i2)->hdr);
 }
@@ -250,7 +250,7 @@ static int unify_XIDelCmd (XIDelCmd **i1, XIDelCmd **i2)
         if second item wins, first item is rejected.
         in both cases, we use the new priority for next comparison.
  */
-static int unify_XIModCpl (XIModCpl **i1p, XIModCpl **i2p)
+static int unify_XIModCpl (const DDD::DDDContext& context, XIModCpl **i1p, XIModCpl **i2p)
 {
   XIModCpl *i1 = *i1p, *i2 = *i2p;
   DDD_PRIO newprio;
@@ -261,7 +261,7 @@ static int unify_XIModCpl (XIModCpl **i1p, XIModCpl **i2p)
     return true;
 
   /* items have equal to and gid, we must check priority */
-  ret = PriorityMerge(&theTypeDefs[i1->typ],
+  ret = PriorityMerge(&context.typeDefs()[i1->typ],
                       i1->te.prio, i2->te.prio, &newprio);
 
   if (ret==PRIO_FIRST || ret==PRIO_UNKNOWN)
@@ -474,7 +474,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
       LC_Abort(context, EXCEPTION_LOWCOMM_USER);
       goto exit;
     }
-    remXIDelCmd   = UnifyXIDelCmd(arrayXIDelCmd, unify_XIDelCmd);
+    remXIDelCmd   = UnifyXIDelCmd(context, arrayXIDelCmd, unify_XIDelCmd);
     obsolete += (nXIDelCmd-remXIDelCmd);
 
     /* do communication and actual pruning */
@@ -615,7 +615,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
       ret_code = DDD_RET_ERROR_NOMEM;
       goto exit;
     }
-    remXIDelCmd   = UnifyXIDelCmd(arrayXIDelCmd, unify_XIDelCmd);
+    remXIDelCmd   = UnifyXIDelCmd(context, arrayXIDelCmd, unify_XIDelCmd);
     obsolete += (nXIDelCmd-remXIDelCmd);
   }
 
@@ -743,7 +743,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   while (remXIDelCpl>0 && arrayXIDelCpl[remXIDelCpl-1]->to == procs)
     remXIDelCpl--;
 
-  remXIModCpl   = UnifyXIModCpl(arrayXIModCpl, unify_XIModCpl);
+  remXIModCpl   = UnifyXIModCpl(context, arrayXIModCpl, unify_XIModCpl);
   STAT_TIMER(T_XFER_PREP_CPL);
 
   /*
@@ -1058,7 +1058,7 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
 
 void DDD_XferCopyObj (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
-TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
+  TYPE_DESC *desc =  &context.typeDefs()[OBJ_TYPE(hdr)];
 
 #       if DebugXfer<=2
 sprintf(cBuffer, "%4d: DDD_XferCopyObj %08x, proc=%d prio=%d\n",
@@ -1095,7 +1095,7 @@ XferInitCopyInfo(context, hdr, desc, desc->size, proc, prio);
  */
 void DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio, size_t size)
 {
-  TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
+  TYPE_DESC *desc =  &context.typeDefs()[OBJ_TYPE(hdr)];
 
 #       if DebugXfer<=2
   sprintf(cBuffer, "%4d: DDD_XferCopyObjX %08x, proc=%d prio=%d size=%d\n",
@@ -1155,10 +1155,9 @@ void DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD
         but without including the DDD object header.
  */
 
-void DDD_XferAddData (int cnt, DDD_TYPE typ)
+void DDD_XferAddData (DDD::DDDContext& context, int cnt, DDD_TYPE typ)
 {
   XFERADDDATA *xa;
-  TYPE_DESC   *descDepTyp;
 
 #       if DebugXfer<=2
   sprintf(cBuffer, "%4d: DDD_XferAddData cnt=%d typ=%d\n", me, cnt, typ);
@@ -1178,10 +1177,10 @@ void DDD_XferAddData (int cnt, DDD_TYPE typ)
   if (typ<DDD_USER_DATA || typ>DDD_USER_DATA_MAX)
   {
     /* normal dependent object */
-    descDepTyp =  &(theTypeDefs[typ]);
+    const TYPE_DESC& descDepTyp = context.typeDefs()[typ];
 
-    xa->addLen       = CEIL(descDepTyp->size)   * cnt;
-    xa->addNPointers = (descDepTyp->nPointers) * cnt;
+    xa->addLen       = CEIL(descDepTyp.size)   * cnt;
+    xa->addNPointers = (descDepTyp.nPointers) * cnt;
   }
   else
   {
@@ -1207,7 +1206,7 @@ void DDD_XferAddData (int cnt, DDD_TYPE typ)
         \todo{not documented yet.}
  */
 
-void DDD_XferAddDataX (int cnt, DDD_TYPE typ, size_t *sizes)
+void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *sizes)
 {
   XFERADDDATA *xa;
   TYPE_DESC   *descDepTyp;
@@ -1234,14 +1233,14 @@ void DDD_XferAddDataX (int cnt, DDD_TYPE typ, size_t *sizes)
     memcpy(xa->sizes, sizes, sizeof(int)*cnt);
 
     /* normal dependent object */
-    descDepTyp =  &(theTypeDefs[typ]);
+    const TYPE_DESC& descDepTyp = context.typeDefs()[typ];
 
     xa->addLen = 0;
     for (i=0; i<cnt; i++)
     {
       xa->addLen += CEIL(sizes[i]);
     }
-    xa->addNPointers = (descDepTyp->nPointers) * cnt;
+    xa->addNPointers = descDepTyp.nPointers * cnt;
   }
   else
   {
@@ -1304,7 +1303,7 @@ bool DDD_XferWithAddData()
 
 void DDD_XferDeleteObj (DDD::DDDContext& context, DDD_HDR hdr)
 {
-  TYPE_DESC *desc =  &(theTypeDefs[OBJ_TYPE(hdr)]);
+  TYPE_DESC *desc =  &context.typeDefs()[OBJ_TYPE(hdr)];
   XIDelCmd  *dc = NewXIDelCmd(SLLNewArgs);
 
   if (dc==NULL)

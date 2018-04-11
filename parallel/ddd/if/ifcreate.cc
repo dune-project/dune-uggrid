@@ -442,7 +442,7 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
 
   /* establish obj-table as an addressing shortcut */
   STAT_RESET1;
-  IFCreateObjShortcut(ifId);
+  IFCreateObjShortcut(context, ifId);
   STAT_TIMER1(T_CREATE_SHORTCUT);
 
 
@@ -589,7 +589,7 @@ strncpy(theIF[ifId].name, name, IF_NAMELEN-1);
 
 /****************************************************************************/
 
-void DDD_InfoIFImpl (DDD_IF ifId)
+void DDD_InfoIFImpl(DDD::DDDContext& context, DDD_IF ifId)
 {
   IF_PROC    *ifh;
 
@@ -616,7 +616,7 @@ void DDD_InfoIFImpl (DDD_IF ifId)
       sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
               "osc=%p/%p\n",
               OBJ_GID(c->obj), CPL_PROC(c), c->prio,
-              ifh->objAB[i], OBJ_OBJ(c->obj)
+              ifh->objAB[i], OBJ_OBJ(context, c->obj)
               );
       DDD_PrintLine(cBuffer);
     }
@@ -629,7 +629,7 @@ void DDD_InfoIFImpl (DDD_IF ifId)
       sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
               "osc=%p/%p\n",
               OBJ_GID(c->obj), CPL_PROC(c), c->prio,
-              ifh->objBA[i], OBJ_OBJ(c->obj)
+              ifh->objBA[i], OBJ_OBJ(context, c->obj)
               );
       DDD_PrintLine(cBuffer);
     }
@@ -642,7 +642,7 @@ void DDD_InfoIFImpl (DDD_IF ifId)
       sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
               "osc=%p/%p\n",
               OBJ_GID(c->obj), CPL_PROC(c), c->prio,
-              ifh->objABA[i], OBJ_OBJ(c->obj)
+              ifh->objABA[i], OBJ_OBJ(context, c->obj)
               );
       DDD_PrintLine(cBuffer);
     }
@@ -652,7 +652,7 @@ void DDD_InfoIFImpl (DDD_IF ifId)
 
 
 
-static void IFDisplay (const DDD::DDDContext&, DDD_IF i)
+static void IFDisplay (const DDD::DDDContext& context, DDD_IF i)
 {
   IF_PROC    *ifh;
   IF_ATTR    *ifr;
@@ -671,7 +671,7 @@ static void IFDisplay (const DDD::DDDContext&, DDD_IF i)
     strcat(cBuffer, "including ");
     for(j=0; j<theIF[i].nObjStruct; j++)
     {
-      sprintf(buf, "%s ", theTypeDefs[theIF[i].O[j]].name);
+      sprintf(buf, "%s ", context.typeDefs()[theIF[i].O[j]].name);
       strcat(cBuffer, buf);
     }
     sprintf(buf, "(%08x)\n|       prio ", theIF[i].maskO);
@@ -833,7 +833,7 @@ static void IFRebuildAll(DDD::DDDContext& context)
         }
 
         /*
-           DDD_InfoIFImpl(i);
+           DDD_InfoIFImpl(context, i);
          */
       }
     }

@@ -491,7 +491,7 @@ struct OBJTAB_ENTRY
          directly into the message! (with its LDATA!) */
 
 #define OTE_HDR(objmem,ote)    ((DDD_HDR)(((char *)(objmem))+((ote)->h_offset)))
-#define OTE_OBJ(objmem,ote)    OBJ_OBJ(OTE_HDR(objmem,ote))
+#define OTE_OBJ(context, objmem,ote)    OBJ_OBJ(context, OTE_HDR(objmem,ote))
 #define OTE_GID(objmem,ote)    OBJ_GID(OTE_HDR(objmem,ote))
 #define OTE_PRIO(objmem,ote)   OBJ_PRIO(OTE_HDR(objmem,ote))
 #define OTE_TYPE(objmem,ote)   OBJ_TYPE(OTE_HDR(objmem,ote))
@@ -617,7 +617,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *, int, const DDD_HDR *,
 
 
 /* ctrl.c */
-void XferDisplayMsg (const char *comment, LC_MSGHANDLE);
+void XferDisplayMsg(DDD::DDDContext& context, const char *comment, LC_MSGHANDLE);
 
 END_UGDIM_NAMESPACE
 
