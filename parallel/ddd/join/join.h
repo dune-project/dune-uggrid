@@ -102,7 +102,7 @@ DDD_PROC dest;                  /* proc for joining                             
 DDD_GID new_gid;                /* gid of object on dest which should be joined */
 Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 
 #undef ClassName
 
@@ -148,7 +148,7 @@ DDD_PROC dest;                  /* receiver of this item                        
 TEAddCpl te;                    /* table entry (for message)                    */
 Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 
 #undef ClassName
 
