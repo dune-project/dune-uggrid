@@ -200,7 +200,7 @@ static SizesSegm   *segmSizes   = NULL;
 
         this implements rule XFER-C1.
  */
-int Method(Compare) (ClassPtr item1, ClassPtr item2)
+int Method(Compare) (ClassPtr item1, ClassPtr item2, const DDD::DDDContext* context)
 {
   DDD_PRIO newprio;
   int ret;
@@ -261,7 +261,7 @@ void Method(Print) (ParamThis _PRINTPARAMS)
 
         this implements rule XFER-P1.
  */
-int Method(Compare) (ClassPtr item1, ClassPtr item2)
+int Method(Compare) (ClassPtr item1, ClassPtr item2, const DDD::DDDContext* context)
 {
   DDD_PRIO newprio;
   int ret;
