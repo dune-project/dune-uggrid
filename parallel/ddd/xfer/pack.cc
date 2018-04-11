@@ -148,7 +148,7 @@ static int BuildSymTab (DDD::DDDContext& context,
       if (! rt_on_the_fly)
       {
         /* we know the reftype of this element in advance */
-        refdesc = &theTypeDefs[EDESC_REFTYPE(theElem)];
+        refdesc = &context.typeDefs()[EDESC_REFTYPE(theElem)];
       }
       /* else: determine reftype on the fly by calling handler */
 
@@ -180,7 +180,7 @@ static int BuildSymTab (DDD::DDDContext& context,
                              "returned by handler");
               HARD_EXIT;
             }
-            refdesc = &theTypeDefs[rt];
+            refdesc = &context.typeDefs()[rt];
           }
 
           /* get header of referenced object */
@@ -229,7 +229,6 @@ static int GetDepData (DDD::DDDContext& context,
                        XICopyObj *xi)
 {
   XFERADDDATA  *xa;
-  TYPE_DESC    *descDep;
   char         *chunk, *adr, **table1, *next_chunk;
   int chunks, i, actSym, *table2;
 
@@ -265,7 +264,7 @@ static int GetDepData (DDD::DDDContext& context,
       if (xa->addTyp<DDD_USER_DATA || xa->addTyp>DDD_USER_DATA_MAX)
       {
         /* insert pointers into symtab */
-        descDep = &theTypeDefs[xa->addTyp];
+        TYPE_DESC* descDep = &context.typeDefs()[xa->addTyp];
         for(i=0; i<xa->addCnt; i++)
         {
           actSym += BuildSymTab(context, descDep, NULL,
@@ -304,7 +303,7 @@ static int GetDepData (DDD::DDDContext& context,
 
       /* convert pointer table into offset table */
       table2 = (int *)table1;
-      descDep = &theTypeDefs[xa->addTyp];
+      TYPE_DESC* descDep = &context.typeDefs()[xa->addTyp];
       adr = chunk;
       for(i=0; i<xa->addCnt; i++)
       {
@@ -375,7 +374,7 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
   {
     XICopyObj *xi = msg->xferObjArray[i];
     DDD_HDR hdr   = xi->hdr;
-    TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(hdr)];
+    TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(hdr)];
     DDD_OBJ obj   = HDR2OBJ(hdr,desc);
     /*COUPLING  *cpl;*/
     DDD_HDR copyhdr;
@@ -454,7 +453,7 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
       desc->handlerXFERCOPYMANIP(context, currObj);
 
       /* adjust new description according to new type */
-      desc = &(theTypeDefs[OBJ_TYPE((DDD_HDR)(currObj+offset))]);
+      desc = &context.typeDefs()[OBJ_TYPE((DDD_HDR)(currObj+offset))];
     }
 
     /* build symbol table portion from object copy */
@@ -524,7 +523,7 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
 #if DebugXfer>1
   if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
-  XferDisplayMsg("OS", msg->msg_h);
+    XferDisplayMsg(context, "OS", msg->msg_h);
 }
 
 

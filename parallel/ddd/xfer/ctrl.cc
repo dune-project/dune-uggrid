@@ -61,7 +61,7 @@ START_UGDIM_NAMESPACE
 
 #ifdef DebugAllPointers
 
-static void XferPtr (LC_MSGHANDLE xm, char *buf)
+static void XferPtr (DDD::DDDContext& context, LC_MSGHANDLE xm, char *buf)
 {
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
@@ -81,13 +81,12 @@ static void XferPtr (LC_MSGHANDLE xm, char *buf)
   for(i=0; i<lenObjTab; i++)            /* for all objects in message */
   {
     DDD_HDR hdr   = (DDD_HDR)(theObjects+theObjTab[i].offset);
-    TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(hdr)];
-    DDD_OBJ obj   = HDR2OBJ(hdr,desc);
-    int e;
-    ELEM_DESC  *theElem = desc->element;
+    const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(hdr)];
+    DDD_OBJ obj   = HDR2OBJ(hdr, &desc);
+    const ELEM_DESC* theElem = desc.element;
 
     /* loop over all pointers inside of object with DDD_HEADER hdr */
-    for(e=0; e<desc->nElements; e++, theElem++)
+    for(int e=0; e < desc.nElements; ++e, ++theElem)
     {
       if (theElem->type==EL_OBJPTR)
       {
@@ -120,7 +119,7 @@ static void XferPtr (LC_MSGHANDLE xm, char *buf)
 #endif
 
 
-void XferDisplayMsg (const char *comment, LC_MSGHANDLE xm)
+void XferDisplayMsg (DDD::DDDContext& context, const char *comment, LC_MSGHANDLE xm)
 {
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
@@ -173,7 +172,7 @@ void XferDisplayMsg (const char *comment, LC_MSGHANDLE xm)
   for(i=0; i<lenObjTab; i++)
   {
 
-    DDD_OBJ obj = OTE_OBJ(theObjects, &(theObjTab[i]));
+    DDD_OBJ obj = OTE_OBJ(context, theObjects, &(theObjTab[i]));
 
     sprintf(cBuffer, "%s 10 objtab    %06d typ=%1d gid=" OTE_GID_FMT
             " hdr=%p size=%05d add=%05d\n",
