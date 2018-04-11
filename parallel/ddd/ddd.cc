@@ -83,8 +83,6 @@ static unsigned int dddUsers = 0;
 /*                                                                          */
 /****************************************************************************/
 
-int ddd_nObjs;
-
 COUPLING **ddd_CplTable;
 short     *ddd_NCplTable;
 int ddd_CplTabSize;
@@ -182,7 +180,7 @@ void DDD_Init(DDD::DDDContext& context)
   ddd_ConsInit(context);
 
   /* reset all global counters */
-  ddd_nObjs  = 0;
+  context.nObjs(0);
   NCpl_Init;
   nCplItems  = 0;
 
@@ -276,7 +274,7 @@ void DDD_Exit(DDD::DDDContext& context)
         \end{tabular}
  */
 
-void DDD_Status(const DDD::DDDContext&)
+void DDD_Status(const DDD::DDDContext& context)
 {
   sprintf(cBuffer, "| DDD_Status for proc=%03d, DDD-Version %s\n", me,
           DDD_VERSION);
@@ -295,7 +293,7 @@ void DDD_Status(const DDD::DDDContext&)
   DDD_PrintLine(cBuffer);
 
   sprintf(cBuffer, "|     nObjs   = %8d  nCpls   = %8d  nCplItems = %8d\n",
-          ddd_nObjs, NCpl_Get, nCplItems);
+          context.nObjs(), NCpl_Get, nCplItems);
   DDD_PrintLine(cBuffer);
   DDD_PrintLine("|\n|     Timeouts:\n");
   sprintf(cBuffer, "|        IFComm:  %12ld\n", (unsigned long)MAX_TRIES);

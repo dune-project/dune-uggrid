@@ -87,10 +87,11 @@ static bool sort_ObjListGID (const DDD_HDR& a, const DDD_HDR& b)
 
 std::vector<DDD_HDR> LocalObjectsList(const DDD::DDDContext& context)
 {
-  std::vector<DDD_HDR> locObjs(ddd_nObjs);
+  const int nObjs = context.nObjs();
+  std::vector<DDD_HDR> locObjs(nObjs);
 
   const auto& objTable = context.objTable();
-  std::copy(objTable.begin(), objTable.begin() + ddd_nObjs, locObjs.begin());
+  std::copy(objTable.begin(), objTable.begin() + nObjs, locObjs.begin());
   std::sort(locObjs.begin(), locObjs.end(), sort_ObjListGID);
 
   return locObjs;
@@ -303,7 +304,7 @@ if (aPrio>=MAX_PRIO)
    global ddd_ObjTable. */
 
 /* check whether there are available objects */
-if (ddd_nObjs == objTable.size())
+if (context.nObjs() == objTable.size())
 {
   /* TODO update docu */
   /* this is a fatal case. we cant register more objects here */
@@ -313,9 +314,9 @@ if (ddd_nObjs == objTable.size())
 }
 
 /* insert into theObj array */
-objTable[ddd_nObjs] = aHdr;
-OBJ_INDEX(aHdr) = ddd_nObjs;
-ddd_nObjs++;
+objTable[context.nObjs()] = aHdr;
+OBJ_INDEX(aHdr) = context.nObjs();
+context.nObjs(context.nObjs() + 1);
         #else
 /* if we dont have WithFullObjectTable, pure local objects without
    copies on other processors aren't registered by DDD. Therefore,
@@ -444,7 +445,7 @@ if (objIndex<NCpl_Get)
   }
 
   NCpl_Decrement;
-  ddd_nObjs--;
+  context.nObjs(context.nObjs() - 1);
 
   /* fill slot of deleted obj with last cpl-obj */
   objTable[objIndex] = objTable[NCpl_Get];
@@ -454,13 +455,13 @@ if (objIndex<NCpl_Get)
 
                 #ifdef WithFullObjectTable
   /* fill slot of last cpl-obj with last obj */
-  if (NCpl_Get<ddd_nObjs)
+  if (NCpl_Get < context.nObjs())
   {
-    objTable[NCpl_Get] = objTable[ddd_nObjs];
+    objTable[NCpl_Get] = objTable[context.nObjs()];
     OBJ_INDEX(objTable[NCpl_Get]) = NCpl_Get;
   }
                 #else
-  assert(NCpl_Get==ddd_nObjs);
+  assert(NCpl_Get == context.nObjs());
                 #endif
 
   /* dispose all couplings */
@@ -471,10 +472,10 @@ else
                 #ifdef WithFullObjectTable
   /* this is an object without couplings */
   /* deletion is not dangerous (no consistency problem) */
-  ddd_nObjs--;
+  context.nObjs(context.nObjs() - 1);
 
   /* fill slot of deleted obj with last obj */
-  objTable[objIndex] = objTable[ddd_nObjs];
+  objTable[objIndex] = objTable[context.nObjs()];
   OBJ_INDEX(objTable[objIndex]) = objIndex;
                 #endif
 }
@@ -605,7 +606,7 @@ void DDD_HdrConstructorCopy (DDD::DDDContext& context, DDD_HDR newhdr, DDD_PRIO 
 
         #ifdef WithFullObjectTable
   /* check whether there are available objects */
-  if (ddd_nObjs == context.objTable().size())
+  if (context.nObjs() == context.objTable().size())
   {
     /* TODO update docu */
     /* this is a fatal case. we cant register more objects here */
@@ -614,12 +615,12 @@ void DDD_HdrConstructorCopy (DDD::DDDContext& context, DDD_HDR newhdr, DDD_PRIO 
   }
 
   /* insert into theObj array */
-  objTable[ddd_nObjs] = newhdr;
-  OBJ_INDEX(newhdr) = ddd_nObjs;
-  ddd_nObjs++;
+  objTable[context.nObjs()] = newhdr;
+  OBJ_INDEX(newhdr) = context.nObjs();
+  context.nObjs(context.nObjs() + 1);
         #else
   MarkHdrLocal(newhdr);
-  assert(ddd_nObjs==NCpl_Get);
+  assert(context.nObjs() == NCpl_Get);
         #endif
 
   /* init LDATA components. GDATA components will be copied elsewhere */
@@ -776,13 +777,14 @@ void ObjCopyGlobalData (TYPE_DESC *desc,
 DDD_HDR DDD_SearchHdr(DDD::DDDContext& context, DDD_GID gid)
 {
   auto& objTable = context.objTable();
+  const int nObjs = context.nObjs();
 int i;
 
 i=0;
-while (i<ddd_nObjs && OBJ_GID(objTable[i])!=gid)
+while (i < nObjs && OBJ_GID(objTable[i])!=gid)
   i++;
 
-if (i<ddd_nObjs)
+if (i < nObjs)
 {
   return(objTable[i]);
 }

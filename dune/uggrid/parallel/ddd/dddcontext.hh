@@ -154,6 +154,12 @@ public:
   std::vector<DDD_HDR>& objTable()
     { return objTable_; }
 
+  int nObjs() const
+    { return nObjs_; }
+
+  void nObjs(int n)
+    { nObjs_ = n; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
@@ -166,6 +172,7 @@ protected:
   Prio::PrioContext prioContext_;
 
   std::vector<DDD_HDR> objTable_;
+  int nObjs_;
 };
 
 } /* namespace DDD */
