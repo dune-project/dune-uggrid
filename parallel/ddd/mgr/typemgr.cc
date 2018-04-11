@@ -76,16 +76,6 @@ enum DDD_TypeModes
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-/* global table of DDD_TYPE definitions */
-TYPE_DESC theTypeDefs[MAX_TYPEDESC];
-
-
-/****************************************************************************/
-/*                                                                          */
 /* definition of variables global to this source file only                  */
 /*                                                                          */
 /****************************************************************************/
@@ -242,15 +232,15 @@ static void ConstructEl (ELEM_DESC *elem, int t, int o, size_t s, DDD_TYPE rt)
         register previously defined TYPE_DESC during TypeDefine
  */
 
-static int RecursiveRegister (TYPE_DESC *desc,
+static int RecursiveRegister (DDD::DDDContext& context, TYPE_DESC *desc,
                               int i, DDD_TYPE typ, int offs, int argno)
 {
-  TYPE_DESC *d2 = &(theTypeDefs[typ]);
+  TYPE_DESC *d2 = &context.typeDefs()[typ];
   int j;
   char       *errtxt;
 
   /* inherit elements of other ddd-type */
-  for(j=0; j<d2->nElements && i<MAX_ELEMDESC; j++, i++)
+  for(j=0; j<d2->nElements && i < TYPE_DESC::MAX_ELEMDESC; j++, i++)
   {
     ConstructEl(&desc->element[i],
                 d2->element[j].type,
@@ -508,7 +498,6 @@ static void AttachMask(const DDD::DDDContext& context, TYPE_DESC *desc)
 
 void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 {
-  TYPE_DESC *desc;
   size_t argsize;
   char      *argp;
   int argtyp, argno;
@@ -533,7 +522,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
   }
 
   /* get object description */
-  desc = &(theTypeDefs[typ]);
+  TYPE_DESC* desc = &context.typeDefs()[typ];
   desc->currTypeDefCall++;
 
   if (desc->mode!=DDD_TYPE_DECLARED && desc->mode!=DDD_TYPE_CONTDEF)
@@ -580,7 +569,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
   /* loop over variable argument list */
 
   i = desc->nElements;
-  while ((i<MAX_ELEMDESC) &&
+  while ((i < TYPE_DESC::MAX_ELEMDESC) &&
          ((argtyp= va_arg(ap, int))!=EL_END) && (argtyp!=EL_CONTINUE))
   {
     HandlerGetRefType arg_rt_handler = NULL;
@@ -617,7 +606,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
         {
           /* check whether target type is valid */
           if (argrefs>=nDescr ||
-              theTypeDefs[argrefs].mode==DDD_TYPE_INVALID)
+              context.typeDefs()[argrefs].mode==DDD_TYPE_INVALID)
           {
             errtxt=RegisterError(desc,argno,
                                  "referencing invalid DDD_TYPE");
@@ -748,16 +737,16 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
       }
 
       /* check whether given DDD_TYPE has been defined already */
-      if (theTypeDefs[argtyp].mode==DDD_TYPE_DEFINED)
+      if (context.typeDefs()[argtyp].mode==DDD_TYPE_DEFINED)
       {
         /* do recursive TypeDefine */
-        i = RecursiveRegister(desc,
+        i = RecursiveRegister(context, desc,
                               i, argtyp, (int)(argp-adr), argno);
         if (i==ERROR) HARD_EXIT;                                       /* return; */
 
 #ifdef DebugTypeDefine
         sprintf(cBuffer,"    %3d, %05d, %06d\n",
-                argtyp, argp-adr, theTypeDefs[argtyp].size);
+                argtyp, argp-adr, context.typeDefs()[argtyp].size);
         DDD_PrintDebug(cBuffer);
 #endif
       }
@@ -765,7 +754,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
       {
         char buf[40];
         sprintf(buf,"undefined DDD_TYPE %s",
-                theTypeDefs[argtyp].name);
+                context.typeDefs()[argtyp].name);
         errtxt=RegisterError(desc,argno-1,buf);
         DDD_PrintError('E', 2421, errtxt);
         HARD_EXIT;                                 /*return;*/
@@ -778,7 +767,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 
 
   /* check whether loop has come to a correct end */
-  if (i>=MAX_ELEMDESC && argtyp!=EL_END && argtyp!=EL_CONTINUE)
+  if (i >= TYPE_DESC::MAX_ELEMDESC && argtyp!=EL_END && argtyp!=EL_CONTINUE)
   {
     errtxt=RegisterError(desc,0, "too many elements");
     DDD_PrintError('E', 2423, errtxt);
@@ -831,9 +820,9 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 /*                                                                          */
 /****************************************************************************/
 
-DDD_TYPE DDD_TypeDeclare(DDD::DDDContext&, const char *name)
+DDD_TYPE DDD_TypeDeclare(DDD::DDDContext& context, const char *name)
 {
-  TYPE_DESC *desc = &(theTypeDefs[nDescr]);
+  TYPE_DESC* desc = &context.typeDefs()[nDescr];
 
   /* check whether there is one more DDD_TYPE */
   if (nDescr==MAX_TYPEDESC)
@@ -870,7 +859,6 @@ DDD_TYPE DDD_TypeDeclare(DDD::DDDContext&, const char *name)
 void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
 {
   int i;
-  TYPE_DESC *desc;
 
   /* only master should display DDD_TYPEs */
   if (context.isMaster())
@@ -883,7 +871,7 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
       HARD_EXIT;                   /*return;*/
     }
 
-    desc = &(theTypeDefs[id]);
+    const TYPE_DESC* desc = &context.typeDefs()[id];
     if (desc->mode != DDD_TYPE_DEFINED)
     {
       sprintf(cBuffer, "undefined DDD_TYPE %d in DDD_TypeDisplay", id);
@@ -903,7 +891,7 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
     /* print one line for each element */
     for(i=0; i<desc->nElements; i++)
     {
-      ELEM_DESC *e = &desc->element[i];
+      const ELEM_DESC *e = &desc->element[i];
 
       int realnext = (i==desc->nElements-1) ? desc->size : (e+1)->offset;
       int estinext = e->offset+e->size;
@@ -920,7 +908,7 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
       if (id==EL_DDDHDR ||
           (!desc->hasHeader) ||
           e->offset < desc->offsetHeader ||
-          e->offset >= desc->offsetHeader+theTypeDefs[EL_DDDHDR].size)
+          e->offset >= desc->offsetHeader + context.typeDefs()[EL_DDDHDR].size)
       {
         sprintf(cBuffer, "|%5d %5zd    ", e->offset, e->size);
 
@@ -936,7 +924,7 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
           {
             sprintf(cBuffer, "%sobj pointer (refs %s)\n",
                     cBuffer,
-                    theTypeDefs[EDESC_REFTYPE(e)].name);
+                    context.typeDefs()[EDESC_REFTYPE(e)].name);
           }
           else
           {
@@ -976,7 +964,7 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
         if (e->offset == desc->offsetHeader)
         {
           sprintf(cBuffer, "|%5d %5zd    ddd-header\n",
-                  e->offset, theTypeDefs[EL_DDDHDR].size);
+                  e->offset, context.typeDefs()[EL_DDDHDR].size);
           DDD_PrintLine(cBuffer);
         }
       }
@@ -1009,8 +997,8 @@ static void InitHandlers (TYPE_DESC *desc)
 }
 
 #define DEFINE_DDD_SETHANDLER(name)                                     \
-  void DDD_SetHandler##name(DDD::DDDContext&, DDD_TYPE type_id, Handler##name funcptr) { \
-    TYPE_DESC& desc = theTypeDefs[type_id];                             \
+  void DDD_SetHandler##name(DDD::DDDContext& context, DDD_TYPE type_id, Handler##name funcptr) { \
+    TYPE_DESC& desc = context.typeDefs()[type_id];                      \
     assert(desc.mode == DDD_TYPE_DEFINED);                              \
     desc.handler##name = funcptr;                                       \
   }
@@ -1064,11 +1052,11 @@ int DDD_InfoTypes(const DDD::DDDContext&)
 /****************************************************************************/
 
 
-int DDD_InfoHdrOffset(const DDD::DDDContext&, DDD_TYPE typeId)
+int DDD_InfoHdrOffset(const DDD::DDDContext& context, DDD_TYPE typeId)
 {
-  TYPE_DESC *desc = &(theTypeDefs[typeId]);
+  const TYPE_DESC& desc = context.typeDefs()[typeId];
 
-  return desc->offsetHeader;
+  return desc.offsetHeader;
 }
 
 
@@ -1087,13 +1075,10 @@ int DDD_InfoHdrOffset(const DDD::DDDContext&, DDD_TYPE typeId)
 
 void ddd_TypeMgrInit(DDD::DDDContext& context)
 {
-  int i;
-
   /* set all theTypeDefs to INVALID, i.e., no DDD_TYPE has been defined */
-  for(i=0; i<MAX_TYPEDESC; i++)
-  {
-    theTypeDefs[i].mode = DDD_TYPE_INVALID;
-    theTypeDefs[i].currTypeDefCall = 0;
+  for (TYPE_DESC& typeDef : context.typeDefs()) {
+    typeDef.mode = DDD_TYPE_INVALID;
+    typeDef.currTypeDefCall = 0;
   }
 
 
@@ -1135,14 +1120,11 @@ void ddd_TypeMgrInit(DDD::DDDContext& context)
 /*                                                                          */
 /****************************************************************************/
 
-void ddd_TypeMgrExit(DDD::DDDContext&)
+void ddd_TypeMgrExit(DDD::DDDContext& context)
 {
-  int i;
-
   /* free memory */
-  for(i=0; i<nDescr; i++)
-  {
-    theTypeDefs[i].cmask = nullptr;
+  for (auto& typeDef : context.typeDefs()) {
+    typeDef.cmask = nullptr;
   }
 }
 
