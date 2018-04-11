@@ -167,7 +167,7 @@ XFERADDDATA *add;               /* additional data items                   */
 int flags;
 Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext* context);
 
 #undef ClassName
 
@@ -250,7 +250,7 @@ DDD_PRIO prio;                  /* new priority                                 
 int is_valid;                   /* invalid iff there's a DelObj for same gid    */
 Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 
 #undef ClassName
 

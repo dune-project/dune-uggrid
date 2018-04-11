@@ -540,7 +540,8 @@ static void Method(FreeIndex)  (ParamThis, int idx)
 
 static enum BTreeConstant Method(Insert) (ParamThis,
                            /*Compare_Method cmp_func,*/
-                           CN(BTreeOf) *item)
+                           CN(BTreeOf) *item,
+                           const DDD::DDDContext* context)
 {
   int i, nData = This->nSons-1;
   enum BTreeConstant ret;
@@ -558,7 +559,7 @@ static enum BTreeConstant Method(Insert) (ParamThis,
 
       /* NOTE: the order of arguments for Compare is crucial!
                        first comes the existing key/item, 2nd the new one. */
-      int cmp = CALL(CN(BTreeOf), Compare) (This->data[i], item);
+      int cmp = CALL(CN(BTreeOf), Compare) (This->data[i], item, context);
       if (cmp==0)
       {
         /* already inserted, return and report FOUND */
@@ -579,7 +580,7 @@ static enum BTreeConstant Method(Insert) (ParamThis,
 
       /* NOTE: the order of arguments for Compare is crucial!
                        first comes the existing key/item, 2nd the new one. */
-      int cmp = CALL(CN(BTreeOf), Compare) (This->data[m], item);
+      int cmp = CALL(CN(BTreeOf), Compare) (This->data[m], item, context);
       if (cmp==0)
       {
         /* already inserted, return and report FOUND */
@@ -603,7 +604,7 @@ static enum BTreeConstant Method(Insert) (ParamThis,
   {
     /* case A: key must be in subtree i, recurse into it */
 
-    ret = Method(Insert) (This->sons[i], /*cmp_func,*/ item);
+    ret = Method(Insert) (This->sons[i], /*cmp_func,*/ item, context);
 
     if (ret==BTREE_SPLIT_ME)
     {
@@ -731,6 +732,7 @@ static void Method(GetResources) (ParamThis,
 Class_Data_Begin
 CN(CBTreeNode) *root;
 int nItems;
+const DDD::DDDContext* context;
 
 /*Compare_Method compare_func;*/
 Class_Data_End
@@ -750,6 +752,7 @@ Method_New_ (/*Compare_Method compare_func*/ _NEWPARAMS_OR_VOID)
   Construct(This, _CHECKALLOC(This));
   This->root   = NULL;
   This->nItems = 0;
+  This->context = nullptr;
   /*This->compare_func = compare_func;*/
   return(This);
 }
@@ -792,7 +795,7 @@ int Method(Insert) (ParamThis, CN(BTreeOf) *item)
     return(true);
   }
 
-  ret = CALL(CBTreeNode,Insert) (This->root, /*This->compare_func,*/ item);
+  ret = CALL(CBTreeNode,Insert) (This->root, /*This->compare_func,*/ item, This->context);
 
   if (ret==BTREE_SPLIT_ME)
   {
