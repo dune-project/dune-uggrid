@@ -393,7 +393,7 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
 
     /* hdr has been local, therefore not known by DDD, we have
        to register it now. */
-    ddd_nObjs++;
+    context.nObjs(context.nObjs() + 1);
                 #endif
 
 
@@ -571,7 +571,8 @@ void DelCoupling (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc)
                                         #else
           /* we will not register objects without coupling,
              so we have to forget about hdr and mark it as local. */
-          ddd_nObjs--; assert(ddd_nObjs==NCpl_Get);
+          context.nObjs(context.nObjs() - 1);
+          assert(context.nObjs() == NCpl_Get);
 
           objTable[objIndex] = objTable[NCpl_Get];
           OBJ_INDEX(objTable[NCpl_Get]) = objIndex;
