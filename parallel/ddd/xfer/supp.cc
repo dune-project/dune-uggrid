@@ -215,7 +215,7 @@ int Method(Compare) (ClassPtr item1, ClassPtr item2, const DDD::DDDContext* cont
   /* items have equal gid and dest, so they are considered as equal. */
   /* however, we must check priority, and patch both items with
      the new priority after merge. */
-  ret = PriorityMerge(&theTypeDefs[OBJ_TYPE(item1->hdr)],
+  ret = PriorityMerge(&context->typeDefs()[OBJ_TYPE(item1->hdr)],
                       item1->prio, item2->prio, &newprio);
 
   item1->prio = newprio;
@@ -274,7 +274,7 @@ int Method(Compare) (ClassPtr item1, ClassPtr item2, const DDD::DDDContext* cont
   /* items have equal gid and dest, so they are considered as equal. */
   /* however, we must check priority, and patch both items with
      the new priority after merge. */
-  ret = PriorityMerge(&theTypeDefs[OBJ_TYPE(item1->hdr)],
+  ret = PriorityMerge(&context->typeDefs()[OBJ_TYPE(item1->hdr)],
                       item1->prio, item2->prio, &newprio);
 
   item1->prio = item2->prio = newprio;

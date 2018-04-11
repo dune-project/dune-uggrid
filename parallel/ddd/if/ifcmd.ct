@@ -210,7 +210,7 @@ void IF_FUNCNAME (
 	/* shortcuts can only be used without extended handler arguments */
 	#ifndef IF_WITH_XARGS
 		/* if shortcut tables are invalid -> recompute */
-		NS_DIM_PREFIX IFCheckShortcuts(aIF);
+		NS_DIM_PREFIX IFCheckShortcuts(context, aIF);
 	#endif
 
 

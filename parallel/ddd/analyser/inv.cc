@@ -60,7 +60,7 @@ struct TYPE_EDGE
 
 struct TYPE_NODE
 {
-  TYPE_DESC *def;          /* pointer to DDD_TYPE */
+  const TYPE_DESC *def;          /* pointer to DDD_TYPE */
   TYPE_EDGE *refs;         /* linked list of referenced types */
 };
 
@@ -99,7 +99,7 @@ static void AnalyseTypes(const DDD::DDDContext& context)
   /* create graph of DDD_TYPE ref-relations */
   for(i=0; i<DDD_InfoTypes(context); i++)
   {
-    TYPE_DESC *td = &(theTypeDefs[i]);
+    const TYPE_DESC *td = &context.typeDefs()[i];
     TYPE_NODE tn;
     int e;
 
@@ -108,7 +108,7 @@ static void AnalyseTypes(const DDD::DDDContext& context)
 
     for(e=0; e<td->nElements; e++)
     {
-      ELEM_DESC *el = &(td->element[e]);
+      const ELEM_DESC *el = &(td->element[e]);
 
       if (el->type==EL_OBJPTR)
       {
@@ -117,13 +117,13 @@ static void AnalyseTypes(const DDD::DDDContext& context)
       }
     }
 
-    printf("%4d: type %s (%03d) refs:\n", context.me(), theTypeDefs[i].name, i);
+    printf("%4d: type %s (%03d) refs:\n", context.me(), td->name, i);
     {
       TYPE_EDGE *te;
       for(te=tn.refs; te!=NULL; te=te->next)
       {
         printf("         %s (%03d), n=%d\n",
-               theTypeDefs[te->reftype].name, te->reftype, te->n);
+               context.typeDefs()[te->reftype].name, te->reftype, te->n);
       }
     }
   }

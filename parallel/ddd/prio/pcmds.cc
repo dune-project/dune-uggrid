@@ -191,7 +191,7 @@ void DDD_PrioChange (const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
   {
     /*
                     DDD_PRIO newprio;
-                    PriorityMerge(&theTypeDefs[OBJ_TYPE(hdr)],
+                    PriorityMerge(&context.typeDefs()[OBJ_TYPE(hdr)],
                             OBJ_PRIO(hdr), prio, &newprio);
                     OBJ_PRIO(hdr) = newprio;
      */

@@ -53,6 +53,10 @@
 /*                                                                          */
 /****************************************************************************/
 
+#ifdef ModelP
+#  include <dune/uggrid/parallel/ddd/dddtypes.hh>
+#endif
+
 #include "ugtypes.h"
 #include "ugenv.h"
 #include "heaps.h"
@@ -653,11 +657,11 @@ INT         BNDP_SurfaceId        (BNDP *aBndP, INT *n, INT i);
 void DomInitParallel     (INT TypeBndP, INT TypeBndS);
 void DomHandlerInit      (INT handlerSet);
 
-void BElementXferBndS    (BNDS **bnds, int n, int proc, int prio);
+void BElementXferBndS    (DDD::DDDContext& context, BNDS **bnds, int n, int proc, int prio);
 void BElementGatherBndS  (BNDS **bnds, int n, int cnt, char *data);
 void BElementScatterBndS (BNDS **bnds, int n, int cnt, char *data);
 
-void BVertexXferBndP     (BNDP *bndp, int proc, int prio);
+void BVertexXferBndP     (DDD::DDDContext& context, BNDP *bndp, int proc, int prio);
 void BVertexGatherBndP   (BNDP *bndp, int cnt, char *data);
 void BVertexScatterBndP  (BNDP **bndp, int cnt, char *data);
 

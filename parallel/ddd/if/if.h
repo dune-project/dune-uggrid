@@ -198,8 +198,8 @@ void    IFExecHdrLoopCplX (DDD::DDDContext& context, ExecProcHdrXPtr, COUPLING *
 
 
 /* ifobjsc.c */
-void IFCreateObjShortcut (DDD_IF);
-void IFCheckShortcuts (DDD_IF);
+void IFCreateObjShortcut(DDD::DDDContext& context, DDD_IF);
+void IFCheckShortcuts(DDD::DDDContext& context, DDD_IF);
 
 
 /****************************************************************************/

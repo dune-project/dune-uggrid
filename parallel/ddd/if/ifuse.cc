@@ -290,7 +290,7 @@ char *IFCommLoopCpl (DDD::DDDContext& context,
 
   for(i=0; i<nItems; i++, buffer+=itemSize)
   {
-    error = (*LoopProc)(context, OBJ_OBJ(cpl[i]->obj), buffer);
+    error = (*LoopProc)(context, OBJ_OBJ(context, cpl[i]->obj), buffer);
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
 
@@ -320,7 +320,7 @@ char *IFCommLoopCplX (DDD::DDDContext& context,
 
   for(i=0; i<nItems; i++, buffer+=itemSize)
   {
-    error = (*LoopProc)(context, OBJ_OBJ(cpl[i]->obj),
+    error = (*LoopProc)(context, OBJ_OBJ(context, cpl[i]->obj),
                         buffer, CPL_PROC(cpl[i]), cpl[i]->prio);
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
@@ -340,7 +340,7 @@ void IFExecLoopCplX (DDD::DDDContext& context, ExecProcXPtr LoopProc, COUPLING *
 
   for(i=0; i<nItems; i++)
   {
-    error = (*LoopProc)(context, OBJ_OBJ(cpl[i]->obj), CPL_PROC(cpl[i]), cpl[i]->prio);
+    error = (*LoopProc)(context, OBJ_OBJ(context, cpl[i]->obj), CPL_PROC(cpl[i]), cpl[i]->prio);
     /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
   }
 }

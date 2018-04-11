@@ -103,7 +103,7 @@ void DomInitParallel (INT TypeBndP, INT TypeBndS)
 void DomHandlerInit (INT handlerSet)
 {}
 
-void BElementXferBndS (BNDS **bnds, int n, int proc, int prio)
+void BElementXferBndS(DDD::DDDContext& context, BNDS **bnds, int n, int proc, int prio)
 {
   INT size,i,size0;
 
@@ -114,7 +114,7 @@ void BElementXferBndS (BNDS **bnds, int n, int proc, int prio)
       size += CEIL(size0) + CEIL(sizeof(INT));
     }
 
-  DDD_XferAddData(size,DDD_DOMAIN_DATA);
+  DDD_XferAddData(context, size, DDD_DOMAIN_DATA);
 }
 
 void BElementGatherBndS (BNDS **bnds, int n, int cnt, char *data)
@@ -153,14 +153,14 @@ void BElementScatterBndS (BNDS **bnds, int n, int cnt, char *data)
   }
 }
 
-void BVertexXferBndP (BNDP *bndp, int proc, int prio)
+void BVertexXferBndP(DDD::DDDContext& context, BNDP *bndp, int proc, int prio)
 {
   BP *bp = (BP *)bndp;
   INT size;
 
   size = sizeof(BP)+(bp->n-1)*sizeof(int);
 
-  DDD_XferAddData(size,DDD_DOMAIN_DATA);
+  DDD_XferAddData(context, size, DDD_DOMAIN_DATA);
 }
 
 void BVertexGatherBndP (BNDP *bndp, int cnt, char *data)

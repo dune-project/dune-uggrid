@@ -57,6 +57,8 @@
 
 START_UGDIM_NAMESPACE
 
+using namespace DDD;
+
 #define DDD_VERSION    "1.9"
 
 /* F77SYM(lsym,usym) macro is defined in compiler.h. 961127 KB */
@@ -262,37 +264,6 @@ using DDD_HDR = DDD::DDD_HDR;
 #define DDD_ATTR_NULL  0
 
 
-/* handler prototypes */
-
-/* handlers related to certain DDD_TYPE (i.e., member functions) */
-typedef void (*HandlerLDATACONSTRUCTOR)(DDD::DDDContext& context, DDD_OBJ);
-typedef void (*HandlerDESTRUCTOR)(DDD::DDDContext& context, DDD_OBJ);
-typedef void (*HandlerDELETE)(DDD::DDDContext& context, DDD_OBJ);
-typedef void (*HandlerUPDATE)(DDD::DDDContext& context, DDD_OBJ);
-typedef void (*HandlerOBJMKCONS)(DDD::DDDContext& context, DDD_OBJ, int);
-typedef void (*HandlerSETPRIORITY)(DDD::DDDContext& context, DDD_OBJ, DDD_PRIO);
-typedef void (*HandlerXFERCOPY)(DDD::DDDContext& context, DDD_OBJ, DDD_PROC, DDD_PRIO);
-typedef void (*HandlerXFERDELETE)(DDD::DDDContext& context, DDD_OBJ);
-typedef void (*HandlerXFERGATHER)(DDD::DDDContext& context, DDD_OBJ, int, DDD_TYPE, void *);
-typedef void (*HandlerXFERSCATTER)(DDD::DDDContext& context, DDD_OBJ, int, DDD_TYPE, void *, int);
-typedef void (*HandlerXFERGATHERX)(DDD::DDDContext& context, DDD_OBJ, int, DDD_TYPE, char **);
-typedef void (*HandlerXFERSCATTERX)(DDD::DDDContext& context, DDD_OBJ, int, DDD_TYPE, char **, int);
-typedef void (*HandlerXFERCOPYMANIP)(DDD::DDDContext& context, DDD_OBJ);
-
-
-
-/* handlers not related to DDD_TYPE (i.e., global functions) */
-typedef DDD_TYPE (*HandlerGetRefType)(DDD::DDDContext& context, DDD_OBJ, DDD_OBJ);
-
-
-
-typedef int (*ExecProcPtr)(DDD::DDDContext& context, DDD_OBJ);
-typedef int (*ExecProcXPtr)(DDD::DDDContext& context, DDD_OBJ, DDD_PROC, DDD_PRIO);
-typedef int (*ComProcPtr2)(DDD::DDDContext& context, DDD_OBJ, void *);
-typedef int (*ComProcXPtr)(DDD::DDDContext& context, DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
-
-
-
 /* special feature: hybrid reftype at TypeDefine-time */
 #define DDD_TYPE_BY_HANDLER   127   /* must be > MAX_TYPEDESC */
 
@@ -422,8 +393,8 @@ void     DDD_IFAExecLocalX(DDD::DDDContext& context, DDD_IF,DDD_ATTR,           
         Transfer Environment Module
  */
 bool     DDD_XferWithAddData();
-void     DDD_XferAddData (int, DDD_TYPE);
-void     DDD_XferAddDataX (int, DDD_TYPE, size_t sizes[]);
+void     DDD_XferAddData(DDD::DDDContext& context, int, DDD_TYPE);
+void     DDD_XferAddDataX(DDD::DDDContext& context, int, DDD_TYPE, size_t sizes[]);
 int      DDD_XferIsPrunedDelete (DDD_HDR);
 int      DDD_XferObjIsResent (DDD_HDR);
 void     DDD_XferBegin(DDD::DDDContext& context);
