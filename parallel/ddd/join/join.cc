@@ -109,7 +109,7 @@ JOIN_GLOBALS joinGlobals;
         the items are sorted according to key (dest,remote_gid),
         all in ascending order.
  */
-int Method(Compare) (ClassPtr item1, ClassPtr item2)
+int Method(Compare) (ClassPtr item1, ClassPtr item2, const DDD::DDDContext*)
 {
   if (item1->dest < item2->dest) return(-1);
   if (item1->dest > item2->dest) return(1);
@@ -142,7 +142,7 @@ void Method(Print) (ParamThis _PRINTPARAMS)
         the items are sorted according to key (dest,gid),
         all in ascending order.
  */
-int Method(Compare) (ClassPtr item1, ClassPtr item2)
+int Method(Compare) (ClassPtr item1, ClassPtr item2, const DDD::DDDContext*)
 {
   if (item1->dest < item2->dest) return(-1);
   if (item1->dest > item2->dest) return(1);
