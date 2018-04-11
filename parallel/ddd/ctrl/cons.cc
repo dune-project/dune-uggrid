@@ -254,14 +254,15 @@ static int ConsCheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_HD
           DDD_PrintDebug(cBuffer);
    */
 
+  const int nObjs = context.nObjs();
 
   /* test whether there are consistent objects for all couplings */
   for(i=0, j=0; i<nItems; i++)
   {
-    while ((j<ddd_nObjs) && (OBJ_GID(locObjs[j]) < theCplBuf[i].gid))
+    while ((j < nObjs) && (OBJ_GID(locObjs[j]) < theCplBuf[i].gid))
       j++;
 
-    if ((j<ddd_nObjs) && (OBJ_GID(locObjs[j])==theCplBuf[i].gid))
+    if ((j < nObjs) && (OBJ_GID(locObjs[j])==theCplBuf[i].gid))
     {
       if (OBJ_PRIO(locObjs[j])!=theCplBuf[i].prio)
       {
@@ -414,16 +415,17 @@ static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_H
           DDD_PrintDebug(cBuffer);
    */
 
+  const int nObjs = context.nObjs();
 
   /* test whether there are consistent objects for all couplings */
   for(i=0, j=0; i<nItems; i=inext)
   {
     inext = i+1;
 
-    while ((j<ddd_nObjs) && (OBJ_GID(locObjs[j]) < theCplBuf[i].gid))
+    while ((j < nObjs) && (OBJ_GID(locObjs[j]) < theCplBuf[i].gid))
       j++;
 
-    if ((j<ddd_nObjs) && (OBJ_GID(locObjs[j])==theCplBuf[i].gid))
+    if ((j < nObjs) && (OBJ_GID(locObjs[j])==theCplBuf[i].gid))
     {
       if (theCplBuf[i].proc == me)
       {
@@ -627,9 +629,10 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
 static int ConsCheckDoubleObj(const DDD::DDDContext& context)
 {
   std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
+  const int nObjs = context.nObjs();
 
   int error_cnt = 0;
-  for(int i=1; i<ddd_nObjs; i++)
+  for(int i=1; i < nObjs; i++)
   {
     if (OBJ_GID(locObjs[i-1])==OBJ_GID(locObjs[i]))
     {

@@ -265,8 +265,6 @@ struct TYPE_DESC
 
 extern TYPE_DESC theTypeDefs[MAX_TYPEDESC];
 
-extern int ddd_nObjs;
-
 extern COUPLING   **ddd_CplTable;
 extern short      *ddd_NCplTable;
 extern int ddd_CplTabSize;
