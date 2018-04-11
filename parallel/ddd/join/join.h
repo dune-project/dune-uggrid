@@ -308,7 +308,7 @@ int JoinStepMode(int);
 
 /* ctrl.c */
 /*
-   void XferDisplayMsg (char *comment, LC_MSGHANDLE);
+   void XferDisplayMsg (DDD::DDDContext& context, char *comment, LC_MSGHANDLE);
  */
 
 END_UGDIM_NAMESPACE

@@ -139,7 +139,7 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
       /* determine reftype of this elem */
       if (! rt_on_the_fly)
       {
-        refdesc = &theTypeDefs[EDESC_REFTYPE(theElem)];
+        refdesc = &context.typeDefs()[EDESC_REFTYPE(theElem)];
       }
       /* else determine reftype on the fly */
 
@@ -176,7 +176,7 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
               HARD_EXIT;
             }
 
-            refdesc = &theTypeDefs[rt];
+            refdesc = &context.typeDefs()[rt];
           }
 
           /* if we are in merge_mode, we do not update
@@ -255,7 +255,7 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
               }
               else
               {
-                *ref = OBJ_OBJ(st->adr.hdr);
+                *ref = OBJ_OBJ(context, st->adr.hdr);
               }
             }
 
@@ -283,7 +283,7 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
               }
               else
               {
-                *ref = OBJ_OBJ(st->adr.hdr);
+                *ref = OBJ_OBJ(context, st->adr.hdr);
               }
             }
             else
@@ -349,7 +349,7 @@ static void PutDepData (DDD::DDDContext& context,
       if (addTyp<DDD_USER_DATA || addTyp>DDD_USER_DATA_MAX)
       {
         /* convert pointers using SymTab */
-        descDep = &theTypeDefs[addTyp];
+        descDep = &context.typeDefs()[addTyp];
         curr = chunk;
         for(i=0; i<addCnt; i++)
         {
@@ -383,7 +383,7 @@ static void PutDepData (DDD::DDDContext& context,
       addCnt *= -1;
 
       /* convert offset table into pointer table */
-      descDep = &theTypeDefs[addTyp];
+      descDep = &context.typeDefs()[addTyp];
       table = (char **)chunk;
       chunk += CEIL(sizeof(int)*addCnt);
       for(i=0, adr=chunk; i<addCnt; i++)
@@ -430,7 +430,7 @@ static void AcceptObjFromMsg (
   for(i=0, j=0; i<lenObjTab; i++)
   {
     OBJTAB_ENTRY *ote = &theObjTab[i];
-    TYPE_DESC    *desc = &theTypeDefs[OBJ_TYPE(ote->hdr)];
+    TYPE_DESC    *desc = &context.typeDefs()[OBJ_TYPE(ote->hdr)];
 
     if (ote->is_new == OTHERMSG)
     {
@@ -486,7 +486,7 @@ static void AcceptObjFromMsg (
 
           /* new priority wins -> recreate */
           /* all GDATA-parts are overwritten by contents of message */
-          copy = OTE_OBJ(theObjects,ote);
+          copy = OTE_OBJ(context, theObjects,ote);
           ObjCopyGlobalData(desc,
                             HDR2OBJ(localCplObjs[j],desc), copy, ote->size);
 
@@ -512,8 +512,8 @@ static void AcceptObjFromMsg (
         printf("%d: ERROR, copying changed the object type!\n", me);
         printf("%d: was: %s, becomes: %s\n",
                me,
-               theTypeDefs[OBJ_TYPE(ote->hdr)].name,
-               theTypeDefs[OBJ_TYPE(localCplObjs[j])].name);
+               context.typeDefs()[OBJ_TYPE(ote->hdr)].name,
+               context.typeDefs()[OBJ_TYPE(localCplObjs[j])].name);
         assert(OBJ_TYPE(ote->hdr) == OBJ_TYPE(localCplObjs[j]));
       }
       ote->hdr = localCplObjs[j];
@@ -539,7 +539,7 @@ static void AcceptObjFromMsg (
 #                       endif
 
       /* new object, create local copy */
-      msgcopy = OTE_OBJ(theObjects,ote);
+      msgcopy = OTE_OBJ(context, theObjects,ote);
       newcopy = DDD_ObjNew(ote->size,
                            OBJ_TYPE(ote->hdr), new_prio, OBJ_ATTR(ote->hdr));
 
@@ -599,7 +599,7 @@ static void AcceptReceivedObjects (DDD::DDDContext& context,
       DDD_PRIO newprio;
       int ret;
 
-      ret = PriorityMerge(&theTypeDefs[OBJ_TYPE(allRecObjs[i]->hdr)],
+      ret = PriorityMerge(&context.typeDefs()[OBJ_TYPE(allRecObjs[i]->hdr)],
                           OBJ_PRIO(allRecObjs[i]->hdr), OBJ_PRIO(allRecObjs[i-1]->hdr), &newprio);
 
       if (ret==PRIO_FIRST || ret==PRIO_UNKNOWN)
@@ -913,7 +913,7 @@ static void UpdateCouplings (
           /* found NewCpl-item */
           DDD_PRIO newprio;
 
-          PriorityMerge(&theTypeDefs[NewCpl_GetType(itemsNC[jNC])],
+          PriorityMerge(&context.typeDefs()[NewCpl_GetType(itemsNC[jNC])],
                         setNO[jNO]->prio, NewCpl_GetPrio(itemsNC[jNC]), &newprio);
 
           AddAndSpread(context, hdr, gidNO, setNO[jNO]->dest, newprio,
@@ -1098,13 +1098,13 @@ static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int requ
   {
     if (required_newness==TOTALNEW && theObjTab[i].is_new==TOTALNEW)
     {
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+      TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
       DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
 
       if (desc->nPointers>0)
       {
         LocalizeObject(context, false, desc,
-                       (char *)(OTE_OBJ(theObjects,&(theObjTab[i]))),
+                       (char *)(OTE_OBJ(context, theObjects,&(theObjTab[i]))),
                        obj,
                        theSymTab);
       }
@@ -1119,7 +1119,7 @@ static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int requ
               implemented merge_mode for Localize. references from all copies
               will be merged into the local copy. 960813 KB
        */
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+      TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
       DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
 
       if (desc->nPointers>0)
@@ -1131,7 +1131,7 @@ static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int requ
 
         /* execute Localize in merge_mode */
         LocalizeObject(context, true, desc,
-                       (char *)(OTE_OBJ(theObjects,&(theObjTab[i]))),
+                       (char *)(OTE_OBJ(context, theObjects,&(theObjTab[i]))),
                        obj,
                        theSymTab);
       }
@@ -1157,13 +1157,13 @@ static void CallUpdateHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
   {
     if (theObjTab[i].is_new == TOTALNEW)
     {
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+      const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
 
       /* call application handler for object updating */
-      if (desc->handlerUPDATE)
+      if (desc.handlerUPDATE)
       {
-        DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
-        desc->handlerUPDATE(context, obj);
+        DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, &desc);
+        desc.handlerUPDATE(context, obj);
       }
     }
   }
@@ -1217,7 +1217,7 @@ static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, int requir
 
       if (newness!=-1)
       {
-        TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+        TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
         DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
         char      *data;
 
@@ -1226,7 +1226,7 @@ static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, int requir
                 desc->len for fixed sized objects and different for variable
                 sized objects
          */
-        data = (char *)(OTE_OBJ(theObjects,&(theObjTab[i])) +
+        data = (char *)(OTE_OBJ(context, theObjects,&(theObjTab[i])) +
                         CEIL(theObjTab[i].size));
 
         PutDepData(context, data, desc, obj, theSymTab, newness);
@@ -1278,17 +1278,17 @@ static void CallSetPriorityHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
          theObjTab[i].is_new==PRUNEDNEW)
         /*	&& (theObjTab[i].oldprio != theObjTab[i].prio) */)
     {
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+      const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
 
       /* call application handler for object consistency */
-      if (desc->handlerSETPRIORITY)
+      if (desc.handlerSETPRIORITY)
       {
         /* restore old priority in object */
-        DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
+        DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, &desc);
         DDD_PRIO new_prio = OTE_PRIO(theObjects, &(theObjTab[i]));                        /* remember new prio */
         OBJ_PRIO(theObjTab[i].hdr) = theObjTab[i].oldprio;
 
-        desc->handlerSETPRIORITY(context, obj, new_prio);
+        desc.handlerSETPRIORITY(context, obj, new_prio);
 
         /* restore new priority */
         OBJ_PRIO(theObjTab[i].hdr) = new_prio;
@@ -1336,15 +1336,15 @@ static void CallObjMkConsHandler (DDD::DDDContext& context, LC_MSGHANDLE xm, int
 
     if (newness!=-1)
     {
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
-      DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
+      const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
+      DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, &desc);
 
       assert(theObjTab[i].is_new!=OTHERMSG);
 
       /* call application handler for object consistency */
-      if (desc->handlerOBJMKCONS)
+      if (desc.handlerOBJMKCONS)
       {
-        desc->handlerOBJMKCONS(context, obj, newness);
+        desc.handlerOBJMKCONS(context, obj, newness);
       }
     }
   }
@@ -1420,7 +1420,7 @@ static void UnpackOldCplTab (
         is determined and stored into table. the tablesize will be equal or
         smaller at the end of this function.
  */
-static int CompressNewCpl (TENewCpl *tabNC, int nNC)
+static int CompressNewCpl(DDD::DDDContext& context, TENewCpl *tabNC, int nNC)
 {
   int nNCnew;
   int iNC;
@@ -1431,7 +1431,7 @@ static int CompressNewCpl (TENewCpl *tabNC, int nNC)
   while (iNC<nNC)
   {
     /* TENewCpl.type component is needed here (for merging priorities)! */
-    TYPE_DESC *desc  = &theTypeDefs[NewCpl_GetType(tabNC[iNC])];
+    TYPE_DESC *desc  = &context.typeDefs()[NewCpl_GetType(tabNC[iNC])];
     DDD_PRIO newprio;
 
     newprio = NewCpl_GetPrio(tabNC[iNC]);
@@ -1563,7 +1563,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   if (nNewCpl>0)
   {
-    nNewCpl = CompressNewCpl(allNewCpl, nNewCpl);
+    nNewCpl = CompressNewCpl(context, allNewCpl, nNewCpl);
   }
 
   if (lenObjTab>0)
@@ -1660,7 +1660,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
    #	endif
           {
                   for(i=0; i<nRecvMsgs; i++)
-                          XferDisplayMsg("OR", theMsgs[i]);
+                          XferDisplayMsg(context, "OR", theMsgs[i]);
           }
    */
 

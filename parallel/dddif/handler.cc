@@ -233,7 +233,7 @@ static void VectorUpdate (DDD::DDDContext&, DDD_OBJ obj)
 
 
 
-static void VectorXferCopy (DDD::DDDContext&, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
+static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
   INT nmat    = 0;
   MATRIX  *mat;
@@ -264,7 +264,7 @@ static void VectorXferCopy (DDD::DDDContext&, DDD_OBJ obj, DDD_PROC proc, DDD_PR
       }
       PRINTDEBUG(dddif,2,(PFMT " VectorXferCopy(): v=" VINDEX_FMTX
                           " AddData nmat=%d\n",me,VINDEX_PRTX(pv),nmat))
-      DDD_XferAddDataX(nmat,TypeMatrix,sizeArray);
+      DDD_XferAddDataX(context, nmat,TypeMatrix,sizeArray);
     }
   }
   /*
@@ -773,7 +773,7 @@ static void VertexObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
 }
 
 
-static void BVertexXferCopy (DDD::DDDContext&, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
+static void BVertexXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
   VERTEX  *theVertex                      = (VERTEX *) obj;
 
@@ -781,7 +781,7 @@ static void BVertexXferCopy (DDD::DDDContext&, DDD_OBJ obj, DDD_PROC proc, DDD_P
                       " I/BVOBJ=%d proc=%d prio=%d \n",
                       me,VID_PRTX(theVertex),OBJT(theVertex),proc,prio))
 
-  BVertexXferBndP(V_BNDP(theVertex),proc,prio);
+  BVertexXferBndP(context, V_BNDP(theVertex),proc,prio);
 }
 
 
@@ -1065,7 +1065,7 @@ static void NodeXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, 
 
   if (DDD_XferWithAddData()) {
     /* Extra data for Dune */
-    DDD_XferAddData(sizeof(theNode->message_buffer_size()) + theNode->message_buffer_size(), DDD_USER_DATA);
+    DDD_XferAddData(context, sizeof(theNode->message_buffer_size()) + theNode->message_buffer_size(), DDD_USER_DATA);
   }
 
   DDD_XferCopyObj(context, PARHDRV(MYVERTEX(theNode)), proc, prio);
@@ -1301,17 +1301,17 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
                         "pe=" EID_FMTX " BElementXferBndS nsides=%d\n",
                         me,EID_PRTX(pe),nsides))
 
-    BElementXferBndS(bnds,nsides,proc,prio);
+    BElementXferBndS(context, bnds,nsides,proc,prio);
   }
 
   if (DDD_XferWithAddData()) {
-    DDD_XferAddData(sizeof(pe->message_buffer_size()) + pe->message_buffer_size(), DDD_USER_DATA);
+    DDD_XferAddData(context, sizeof(pe->message_buffer_size()) + pe->message_buffer_size(), DDD_USER_DATA);
 
     /* add edges of element */
     /* must be done before any XferCopyObj-call! herein    */
     /* or directly after XferCopyObj-call for this element */
             #ifdef __TWODIM__
-    DDD_XferAddData(EDGES_OF_ELEM(pe), TypeEdge);
+    DDD_XferAddData(context, EDGES_OF_ELEM(pe), TypeEdge);
             #endif
   }
 
