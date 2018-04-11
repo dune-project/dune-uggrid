@@ -172,7 +172,7 @@ else
                 PRIO_ERROR     an error has occurred.
  */
 
-enum PrioMergeVals PriorityMerge (TYPE_DESC *desc, DDD_PRIO p1, DDD_PRIO p2, DDD_PRIO *pres)
+enum PrioMergeVals PriorityMerge(const TYPE_DESC* desc, DDD_PRIO p1, DDD_PRIO p2, DDD_PRIO *pres)
 {
   /* check if matrix is available */
   if (desc->prioMatrix == nullptr)
@@ -278,9 +278,9 @@ static int CheckPrioMatrix (TYPE_DESC *desc)
 /****************************************************************************/
 
 
-void DDD_PrioMergeDefault (DDD::DDDContext&, DDD_TYPE type_id, int priomerge_mode)
+void DDD_PrioMergeDefault (DDD::DDDContext& context, DDD_TYPE type_id, int priomerge_mode)
 {
-  if (! SetPrioMatrix(&(theTypeDefs[type_id]), priomerge_mode))
+  if (! SetPrioMatrix(&context.typeDefs()[type_id], priomerge_mode))
   {
     DDD_PrintError('E', 2330,
                    "unknown default prio-mergemode in DDD_TYPE "
@@ -293,10 +293,10 @@ void DDD_PrioMergeDefault (DDD::DDDContext&, DDD_TYPE type_id, int priomerge_mod
 
 #define FUNCNAME "DDD_PrioMergeDefine()"
 
-void DDD_PrioMergeDefine (DDD::DDDContext&, DDD_TYPE type_id,
+void DDD_PrioMergeDefine (DDD::DDDContext& context, DDD_TYPE type_id,
                           DDD_PRIO p1, DDD_PRIO p2, DDD_PRIO pres)
 {
-  TYPE_DESC *desc = &(theTypeDefs[type_id]);
+  TYPE_DESC *desc = &context.typeDefs()[type_id];
 
   /* check for correct type */
   if (! ddd_TypeDefined(desc))
@@ -372,9 +372,9 @@ void DDD_PrioMergeDefine (DDD::DDDContext&, DDD_TYPE type_id,
 /*
         call merge operation from application program
  */
-DDD_PRIO DDD_PrioMerge (DDD::DDDContext&, DDD_TYPE type_id, DDD_PRIO p1, DDD_PRIO p2)
+DDD_PRIO DDD_PrioMerge (DDD::DDDContext& context, DDD_TYPE type_id, DDD_PRIO p1, DDD_PRIO p2)
 {
-  TYPE_DESC *desc = &(theTypeDefs[type_id]);
+  TYPE_DESC *desc = &context.typeDefs()[type_id];
   DDD_PRIO newprio;
 
   /* check for correct type */
@@ -414,9 +414,9 @@ DDD_PRIO DDD_PrioMerge (DDD::DDDContext&, DDD_TYPE type_id, DDD_PRIO p1, DDD_PRI
 
 #define FUNCNAME "DDD_PrioMergeDisplay()"
 
-void DDD_PrioMergeDisplay (const DDD::DDDContext&, DDD_TYPE type_id)
+void DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE type_id)
 {
-  TYPE_DESC *desc = &(theTypeDefs[type_id]);
+  TYPE_DESC* desc = &context.typeDefs()[type_id];
   int r, c, changed_rows[MAX_PRIO];
   char buf[20];
 

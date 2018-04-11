@@ -63,6 +63,8 @@
 
 START_UGDIM_NAMESPACE
 
+using namespace DDD;
+
 /*
         macro for exiting program in case of a severe error condition
  */
@@ -91,8 +93,6 @@ typedef int RETCODE;
 
 /*** DDD internal parameters ***/
 
-#define MAX_ELEMDESC   64     /* max. number of elements per TYPE_DESC      */
-#define MAX_TYPEDESC   32     /* max. number of TYPE_DESC                   */
 #define MAX_PRIO       32     /* max. number of DDD_PRIO                    */
 #define MAX_CPL_START  65536  /* max. number of local objects with coupling */
 
@@ -159,103 +159,13 @@ enum PrioMergeVals {
 /*                                                                          */
 /****************************************************************************/
 
-
-/****************************************************************************/
-/* COUPLING: record for coupling of local object with foreign objects       */
-/****************************************************************************/
-
-struct COUPLING
-{
-  COUPLING* _next;
-  unsigned short _proc;
-  unsigned char prio;
-  unsigned char _flags;
-  DDD_HDR obj;
-};
-
-
+/* macros for accessing COUPLING */
 #define CPL_NEXT(cpl)   ((cpl)->_next)
 #define CPL_PROC(cpl)   ((cpl)->_proc)
-
-
-
-/****************************************************************************/
-/* ELEM_DESC: description of one element in DDD object structure description */
-/****************************************************************************/
-
-/* TODO, in CPP_FRONTEND only one of the versions for C_FRONTEND and
-        F_FRONTEND is needed, depending on setting of desc->storage.
-        this should be a union for memory efficiency reasons.
- */
-struct ELEM_DESC
-{
-  int offset;                         /* element offset from object address     */
-  std::unique_ptr<unsigned char[]> gbits; /* gbits array, if type==EL_GBITS     */
-
-  size_t size;                        /* size of this element                   */
-  int type;                           /* type of element, one of EL_xxx         */
-
-
-  /* if type==EL_OBJPTR, the following entries will be used               */
-  DDD_TYPE _reftype;                        /* DDD_TYPE of ref. destination     */
-
-  /* if reftype==DDD_TYPE_BY_HANDLER, we must use a handler for
-     determining the reftype on-the-fly (additional parameter during
-     TypeDefine with EL_OBJPTR)                                        */
-  HandlerGetRefType reftypeHandler;
-};
-
 
 /* macros for accessing ELEM_DESC */
 #define EDESC_REFTYPE(ed)          ((ed)->_reftype)
 #define EDESC_SET_REFTYPE(ed,rt)   (ed)->_reftype=(rt)
-
-
-/****************************************************************************/
-/* TYPE_DESC: single DDD object structure description                       */
-/****************************************************************************/
-
-struct TYPE_DESC
-{
-  int mode;                             /* current TypeMode (DECLARE/DEFINE)    */
-  const char  *name;                       /* textual object description           */
-  int currTypeDefCall;                  /* number of current call to TypeDefine */
-
-  /* if C_FRONTEND or (CPP_FRONTEND and storage==STORAGE_STRUCT) */
-  bool hasHeader;                       /* flag: real ddd type (with header)?   */
-  int offsetHeader;                     /* offset of header from begin of obj   */
-
-
-  ELEM_DESC element[MAX_ELEMDESC];       /* element description array           */
-  int nElements;                        /* number of elements in object         */
-  size_t size;                          /* size of object, correctly aligned    */
-
-
-  /* pointer to handler functions */
-  HandlerLDATACONSTRUCTOR handlerLDATACONSTRUCTOR;
-  HandlerDESTRUCTOR handlerDESTRUCTOR;
-  HandlerDELETE handlerDELETE;
-  HandlerUPDATE handlerUPDATE;
-  HandlerOBJMKCONS handlerOBJMKCONS;
-  HandlerSETPRIORITY handlerSETPRIORITY;
-  HandlerXFERCOPY handlerXFERCOPY;
-  HandlerXFERDELETE handlerXFERDELETE;
-  HandlerXFERGATHER handlerXFERGATHER;
-  HandlerXFERSCATTER handlerXFERSCATTER;
-  HandlerXFERGATHERX handlerXFERGATHERX;
-  HandlerXFERSCATTERX handlerXFERSCATTERX;
-  HandlerXFERCOPYMANIP handlerXFERCOPYMANIP;
-
-
-  std::unique_ptr<DDD_PRIO[]> prioMatrix; /* 2D matrix for comparing priorities   */
-  int prioDefault;                      /* default mode for PrioMerge           */
-
-  /* redundancy for efficiency */
-  int nPointers;                        /* number of outside references         */
-  std::unique_ptr<unsigned char[]> cmask; /* mask for fast type-dependent copy    */
-};
-
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -377,8 +287,8 @@ extern int theOptions[OPT_END];
 
 #define OBJ2HDR(obj,desc)  ((DDD_HDR)(((char *)obj)+((desc)->offsetHeader)))
 #define HDR2OBJ(hdr,desc)  ((DDD_OBJ)(((char *)hdr)-((desc)->offsetHeader)))
-#define OBJ_OBJ(hdr)       ((DDD_OBJ)(((char *)hdr)- \
-                                      (theTypeDefs[OBJ_TYPE(hdr)].offsetHeader)))
+#define OBJ_OBJ(context, hdr) ((DDD_OBJ)(((char *)hdr)-            \
+                                      (context.typeDefs()[OBJ_TYPE(hdr)].offsetHeader)))
 
 
 /****************************************************************************/
@@ -654,14 +564,14 @@ void      DDD_InfoCoupling (DDD_HDR);
 
 
 /* mgr/prio.c */
-enum PrioMergeVals PriorityMerge (TYPE_DESC *, DDD_PRIO, DDD_PRIO, DDD_PRIO *);
+enum PrioMergeVals PriorityMerge (const TYPE_DESC*, DDD_PRIO, DDD_PRIO, DDD_PRIO *);
 
 
 /* if/if.c */
 void      ddd_IFInit(DDD::DDDContext& context);
 void      ddd_IFExit(DDD::DDDContext& context);
 void      IFAllFromScratch(DDD::DDDContext&);
-void      DDD_InfoIFImpl (DDD_IF);
+void      DDD_InfoIFImpl(DDD::DDDContext& context, DDD_IF);
 void      IFInvalidateShortcuts (DDD_TYPE);
 int       DDD_CheckInterfaces(DDD::DDDContext& context);
 

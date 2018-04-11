@@ -59,7 +59,7 @@ START_UGDIM_NAMESPACE
 /*
         convert cpl-IF-table into obj-IF-table
  */
-static void IFComputeShortcutTable (DDD_IF ifId)
+static void IFComputeShortcutTable(DDD::DDDContext& context, DDD_IF ifId)
 {
   int nItems = theIF[ifId].nItems;
   COUPLING  **cpls = theIF[ifId].cpl;
@@ -75,7 +75,7 @@ static void IFComputeShortcutTable (DDD_IF ifId)
   /* fill in object pointers, this is the 4-fold indirection step */
   for(i=0; i<nItems; i++)
   {
-    objs[i] = OBJ_OBJ(cpls[i]->obj);
+    objs[i] = OBJ_OBJ(context, cpls[i]->obj);
   }
 }
 
@@ -88,7 +88,7 @@ static void IFComputeShortcutTable (DDD_IF ifId)
         avoid one indirect addressing step across couplings.
         each cpl-entry in an interface has one corresponding obj-entry
  */
-void IFCreateObjShortcut (DDD_IF ifId)
+void IFCreateObjShortcut(DDD::DDDContext& context, DDD_IF ifId)
 {
   COUPLING    **cplarray = theIF[ifId].cpl;
   IFObjPtr     *objarray;
@@ -110,7 +110,7 @@ void IFCreateObjShortcut (DDD_IF ifId)
   }
   theIF[ifId].obj = objarray;
 
-  IFComputeShortcutTable(ifId);
+  IFComputeShortcutTable(context, ifId);
 
 
   ForIF(ifId,ifHead)
@@ -172,7 +172,7 @@ void IFInvalidateShortcuts (DDD_TYPE invalid_type)
 /*
         check if shortcut-table is valid and recompute, if necessary
  */
-void IFCheckShortcuts (DDD_IF ifId)
+void IFCheckShortcuts (DDD::DDDContext& context, DDD_IF ifId)
 {
   if (ifId==STD_INTERFACE)
     return;
@@ -184,7 +184,7 @@ void IFCheckShortcuts (DDD_IF ifId)
        DDD_PrintDebug(cBuffer);
      */
 
-    IFComputeShortcutTable(ifId);
+    IFComputeShortcutTable(context, ifId);
   }
 }
 

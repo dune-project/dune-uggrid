@@ -4,7 +4,9 @@
 #include <memory>
 #include <vector>
 
+#include <dune/uggrid/parallel/ddd/dddconstants.hh>
 #include <dune/uggrid/parallel/ddd/dddtypes.hh>
+#include <dune/uggrid/parallel/ddd/dddtypes_impl.hh>
 #include <dune/uggrid/parallel/ppif/ppiftypes.hh>
 
 namespace DDD {
@@ -160,6 +162,12 @@ public:
   void nObjs(int n)
     { nObjs_ = n; }
 
+  std::array<TYPE_DESC, MAX_TYPEDESC>& typeDefs()
+    { return typeDefs_; }
+
+  const std::array<TYPE_DESC, MAX_TYPEDESC>& typeDefs() const
+    { return typeDefs_; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
@@ -173,6 +181,8 @@ protected:
 
   std::vector<DDD_HDR> objTable_;
   int nObjs_;
+
+  std::array<TYPE_DESC, MAX_TYPEDESC> typeDefs_;
 };
 
 } /* namespace DDD */

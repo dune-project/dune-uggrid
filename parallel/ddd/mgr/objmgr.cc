@@ -505,7 +505,7 @@ MarkHdrInvalid(hdr);
 DDD_OBJ DDD_ObjGet (DDD::DDDContext& context, size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 {
   DDD_OBJ obj;
-  TYPE_DESC  *desc = &(theTypeDefs[typ]);
+  const TYPE_DESC& desc = context.typeDefs()[typ];
 
   /* check input parameters */
   if (prio<0 || prio>=MAX_PRIO)
@@ -523,13 +523,13 @@ DDD_OBJ DDD_ObjGet (DDD::DDDContext& context, size_t size, DDD_TYPE typ, DDD_PRI
     return(NULL);
   }
 
-  if ((desc->size != size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
+  if ((desc.size != size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
   {
     DDD_PrintError('W', 2200,
                    "object size differs from declared size in DDD_ObjGet");
   }
 
-  if ((desc->size > size) && (DDD_GetOption(OPT_WARNING_SMALLSIZE)==OPT_ON))
+  if ((desc.size > size) && (DDD_GetOption(OPT_WARNING_SMALLSIZE)==OPT_ON))
   {
     DDD_PrintError('W', 2201,
                    "object size smaller than declared size in DDD_ObjGet");
@@ -537,7 +537,7 @@ DDD_OBJ DDD_ObjGet (DDD::DDDContext& context, size_t size, DDD_TYPE typ, DDD_PRI
 
 
   /* call DDD_HdrConstructor */
-  DDD_HdrConstructor(context, OBJ2HDR(obj,desc), typ, prio, attr);
+  DDD_HdrConstructor(context, OBJ2HDR(obj, &desc), typ, prio, attr);
 
   return(obj);
 }
@@ -560,10 +560,10 @@ void DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR hdr, size_t size)
 
 {
   DDD_TYPE typ = OBJ_TYPE(hdr);
-  TYPE_DESC  *desc = &(theTypeDefs[typ]);
-  DDD_OBJ obj = HDR2OBJ(hdr,desc);
+  const TYPE_DESC& desc = context.typeDefs()[typ];
+  DDD_OBJ obj = HDR2OBJ(hdr, &desc);
 
-  if ((desc->size != size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
+  if ((desc.size != size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
   {
     DDD_PrintError('W', 2299,
                    "object size differs from declared size in DDD_ObjUnGet");

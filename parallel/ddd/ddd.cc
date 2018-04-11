@@ -279,7 +279,7 @@ void DDD_Status(const DDD::DDDContext& context)
   sprintf(cBuffer, "| DDD_Status for proc=%03d, DDD-Version %s\n", me,
           DDD_VERSION);
   DDD_PrintLine(cBuffer);
-  sprintf(cBuffer, "|\n|     MAX_ELEMDESC = %4d\n", MAX_ELEMDESC);
+  sprintf(cBuffer, "|\n|     MAX_ELEMDESC = %4d\n", TYPE_DESC::MAX_ELEMDESC);
   sprintf(cBuffer, "|     MAX_TYPEDESC = %4d\n", MAX_TYPEDESC);
   sprintf(cBuffer, "|     MAX_PROCS    = %4d\n", MAX_PROCS);
   sprintf(cBuffer, "|     MAX_PRIO     = %4d\n", MAX_PRIO);
