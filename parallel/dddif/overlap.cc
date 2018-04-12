@@ -170,7 +170,7 @@ static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
                 #endif
 
     PRINTDEBUG(gm,1,("%d: EID=%d side=%d NbID=%d " "NbPARTITION=%d\n",me,
-                     ID(theElement),i,ID(theNeighbor), EPROCPRIO(theNeighbor,PrioMaster)))
+                     ID(theElement),i,ID(theNeighbor), EPROCPRIO(context, theNeighbor,PrioMaster)))
 
     Get_Sons_of_ElementSide(theElement,i,&SonsOfSide,
                             SonList,SonSides,1,0);
@@ -183,13 +183,13 @@ static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
 
       PRINTDEBUG(gm,1,("%d: Sending Son=%08x/%x SonID=%d "
                        "SonLevel=%d to dest=%d\n", me,EGID(theSon),theSon,
-                       ID(theSon),LEVEL(theSon), EPROCPRIO(theNeighbor,PrioMaster)))
+                       ID(theSon),LEVEL(theSon), EPROCPRIO(context, theNeighbor,PrioMaster)))
 
       HEAPFAULT(theNeighbor);
 
-      if (EPROCPRIO(theNeighbor,PrioMaster)>=procs) break;
+      if (EPROCPRIO(context, theNeighbor,PrioMaster)>=procs) break;
 
-      XFERECOPYX(context, theSon,EPROCPRIO(theNeighbor,PrioMaster),PrioHGhost,
+      XFERECOPYX(context, theSon,EPROCPRIO(context, theNeighbor,PrioMaster),PrioHGhost,
                  (OBJT(theSon)==BEOBJ) ? BND_SIZE_TAG(TAG(theSon)) :
                  INNER_SIZE_TAG(TAG(theSon)));
       /* send son to all elements where theNeighbor is master, vghost or vhghost */

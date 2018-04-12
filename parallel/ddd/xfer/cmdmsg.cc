@@ -166,7 +166,7 @@ static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nC
 
     /* run through coupling list of corresponding obj,
        find coupling to destination of XferCopyObj command */
-    cpl = ObjCplList(co->hdr);
+    cpl = ObjCplList(context, co->hdr);
     while (cpl!=NULL && CPL_PROC(cpl)!=pCO)
       cpl=CPL_NEXT(cpl);
 

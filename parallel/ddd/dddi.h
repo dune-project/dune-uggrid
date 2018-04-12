@@ -173,9 +173,6 @@ enum PrioMergeVals {
 /*                                                                          */
 /****************************************************************************/
 
-extern COUPLING   **ddd_CplTable;
-extern short      *ddd_NCplTable;
-extern int ddd_CplTabSize;
 extern int ddd_nCpls;                    /* number of coupling lists */
 extern int nCplItems;                    /* number of couplings      */
 
@@ -296,15 +293,15 @@ extern int theOptions[OPT_END];
  */
 
 /* get boolean: does object have couplings? */
-#define ObjHasCpl(o)      (OBJ_INDEX(o)<ddd_nCpls)
+#define ObjHasCpl(context, o)      (OBJ_INDEX(o) < ddd_nCpls)
 
 /* get #couplings per object */
-#define ObjNCpl(o)        (ObjHasCpl(o) ? ddd_NCplTable[OBJ_INDEX(o)] : 0)
-#define IdxNCpl(i)        (ddd_NCplTable[i])
+#define ObjNCpl(context, o)        (ObjHasCpl(context, o) ? context.couplingContext().nCplTable[OBJ_INDEX(o)] : 0)
+#define IdxNCpl(context, i)        (context.couplingContext().nCplTable[i])
 
 /* get pointer to object's coupling list */
-#define ObjCplList(o)     (ObjHasCpl(o) ? ddd_CplTable[OBJ_INDEX(o)] : NULL)
-#define IdxCplList(i)     (ddd_CplTable[i])
+#define ObjCplList(context, o)     (ObjHasCpl(context, o) ? context.couplingContext().cplTable[OBJ_INDEX(o)] : nullptr)
+#define IdxCplList(context, i)     (context.couplingContext().cplTable[i])
 
 
 /* increment/decrement number of coupled objects */
@@ -558,7 +555,7 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
 COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
 void      DelCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC);
 void      DisposeCouplingList (COUPLING *);
-void      DDD_InfoCoupling (DDD_HDR);
+void      DDD_InfoCoupling(const DDD::DDDContext& context, DDD_HDR);
 
 
 /* mgr/prio.c */
@@ -585,7 +582,7 @@ void   ddd_StdIFExecLocalX (DDD::DDDContext& context,         ExecProcHdrXPtr);
 void      ddd_XferInit(DDD::DDDContext& context);
 void      ddd_XferExit(DDD::DDDContext& context);
 int       ddd_XferActive (void);
-void      ddd_XferRegisterDelete (DDD_HDR);
+void      ddd_XferRegisterDelete(DDD::DDDContext& context, DDD_HDR);
 
 
 /* xfer/cmds.c */

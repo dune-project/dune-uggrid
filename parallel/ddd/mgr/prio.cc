@@ -127,7 +127,7 @@ else if(ddd_PrioActive(context))
 }
 else
 {
-  if (! ObjHasCpl(hdr))
+  if (! ObjHasCpl(context, hdr))
   {
     /* just one local object, we can simply change its priority */
     OBJ_PRIO(hdr) = prio;
