@@ -105,7 +105,7 @@ static bool sort_NewOwners (const XICopyObj* a, const XICopyObj* b)
         XFER-P and XFER-D).
  */
 
-XICopyObj **CplClosureEstimate (const std::vector<XICopyObj*>& arrayItems, int *nRet)
+XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICopyObj*>& arrayItems, int *nRet)
 {
   int i, nNewOwners;
   XICopyObj **arrayNewOwners = NULL;
@@ -119,7 +119,7 @@ XICopyObj **CplClosureEstimate (const std::vector<XICopyObj*>& arrayItems, int *
   {
     XICopyObj *xi = items[i];
     DDD_PROC dest = xi->dest;              /* destination proc */
-    COUPLING *cpl, *xicpl = ObjCplList(xi->hdr);
+    COUPLING *cpl, *xicpl = ObjCplList(context, xi->hdr);
     DDD_GID xigid = xi->gid;
     DDD_TYPE xitype = OBJ_TYPE(xi->hdr);
 
@@ -668,7 +668,7 @@ void ExecLocalXISetPrio (
       /* generate XIModCpl-items */
 
       /* 1. for all existing couplings */
-      for(cpl=ObjCplList(hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
+      for(cpl=ObjCplList(context, hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
       {
         XIModCpl *xc = NewXIModCpl(SLLNewArgs);
         if (xc==NULL)
@@ -904,7 +904,7 @@ void PropagateCplInfos (
 /*
         this function is called by DDD_HdrDestructor!
  */
-void ddd_XferRegisterDelete (DDD_HDR hdr)
+void ddd_XferRegisterDelete (DDD::DDDContext& context, DDD_HDR hdr)
 {
   COUPLING *cpl;
   XIDelObj *xi;
@@ -925,7 +925,7 @@ void ddd_XferRegisterDelete (DDD_HDR hdr)
           coupling list, in case the object is received after deletion
           and the coupling list must be restored.
    */
-  for(cpl=ObjCplList(hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
+  for(cpl=ObjCplList(context, hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
   {
     XIDelCpl *xc = NewXIDelCpl(SLLNewArgs);
     if (xc==NULL)

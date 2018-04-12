@@ -200,7 +200,7 @@ static RETCODE update_channels(DDD::DDDContext& context, DDD_IF ifId)
 
 /* collect couplings into interface array, for standard interface */
 
-static COUPLING ** IFCollectStdCouplings (void)
+static COUPLING ** IFCollectStdCouplings(DDD::DDDContext& context)
 {
   COUPLING **cplarray;
   int index, n;
@@ -223,7 +223,7 @@ static COUPLING ** IFCollectStdCouplings (void)
   {
     COUPLING  *cpl;
 
-    for(cpl=IdxCplList(index); cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(cpl=IdxCplList(context, index); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       cplarray[n] = cpl;
       SETCPLDIR(cpl,0);
@@ -259,7 +259,7 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
   STAT_RESET1;
   if (ifId==STD_INTERFACE)
   {
-    theIF[ifId].cpl = IFCollectStdCouplings();
+    theIF[ifId].cpl = IFCollectStdCouplings(context);
     n = nCplItems;
   }
   else
@@ -284,7 +284,7 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
           COUPLING  *cpl;
 
           /* test coupling list */
-          for(cpl=IdxCplList(index); cpl!=NULL; cpl=CPL_NEXT(cpl))
+          for(cpl=IdxCplList(context, index); cpl!=NULL; cpl=CPL_NEXT(cpl))
           {
             const bool cplInA = is_elem(cpl->prio,
                                         theIF[ifId].nPrioA, theIF[ifId].A);

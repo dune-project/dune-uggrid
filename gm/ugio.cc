@@ -1172,7 +1172,7 @@ static INT WriteElementParInfo (GRID *theGrid,
 
   s=0;
   pinfo->prio_elem = EPRIO(theElement);
-  pinfo->ncopies_elem = ENCOPIES(theElement);
+  pinfo->ncopies_elem = ENCOPIES(dddContext, theElement);
   if (n_max<pinfo->ncopies_elem)
   {
     PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
@@ -1189,7 +1189,7 @@ static INT WriteElementParInfo (GRID *theGrid,
   {
     theNode = CORNER(theElement,k);
     pinfo->prio_node[k] = PRIO(theNode);
-    pinfo->ncopies_node[k] = NCOPIES(theNode);
+    pinfo->ncopies_node[k] = NCOPIES(dddContext, theNode);
     if (n_max<pinfo->ncopies_node[k]+s)
     {
       PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
@@ -1207,7 +1207,7 @@ static INT WriteElementParInfo (GRID *theGrid,
   {
     theVertex = MYVERTEX(CORNER(theElement,k));
     pinfo->prio_vertex[k] = VXPRIO(theVertex);
-    pinfo->ncopies_vertex[k] = VXNCOPIES(theVertex);
+    pinfo->ncopies_vertex[k] = VXNCOPIES(dddContext, theVertex);
     if (n_max<pinfo->ncopies_vertex[k]+s)
     {
       PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
@@ -1231,7 +1231,7 @@ static INT WriteElementParInfo (GRID *theGrid,
                       CORNER(theElement,CORNER_OF_EDGE(theElement,k,1)));
       v = EDVECTOR(theEdge);
       pinfo->prio_edge[k] = PRIO(v);
-      pinfo->ncopies_edge[k] = NCOPIES(v);
+      pinfo->ncopies_edge[k] = NCOPIES(dddContext, v);
       if (n_max<pinfo->ncopies_edge[k]+s)
       {
         PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
@@ -1253,7 +1253,7 @@ static INT WriteElementParInfo (GRID *theGrid,
     theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0)),
                       CORNER(theElement,CORNER_OF_EDGE(theElement,k,1)));
     pinfo->prio_edge[k] = PRIO(theEdge);
-    pinfo->ncopies_edge[k] = NCOPIES(theEdge);
+    pinfo->ncopies_edge[k] = NCOPIES(dddContext, theEdge);
     if (n_max<pinfo->ncopies_edge[k]+s)
     {
       PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");

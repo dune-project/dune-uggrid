@@ -501,7 +501,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
    */
   STAT_RESET;
   /* send Cpl-info about new objects to owners of other local copies */
-  arrayNewOwners = CplClosureEstimate(arrayXICopyObj, &nNewOwners);
+  arrayNewOwners = CplClosureEstimate(context, arrayXICopyObj, &nNewOwners);
   if (nNewOwners>0 && arrayNewOwners==NULL)
   {
     DDD_PrintError('W', 6082, "out of memory in DDD_XferEnd(), giving up.");

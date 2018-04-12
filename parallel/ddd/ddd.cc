@@ -83,9 +83,6 @@ static unsigned int dddUsers = 0;
 /*                                                                          */
 /****************************************************************************/
 
-COUPLING **ddd_CplTable;
-short     *ddd_NCplTable;
-int ddd_CplTabSize;
 int ddd_nCpls;
 int nCplItems;
 
@@ -285,10 +282,10 @@ void DDD_Status(const DDD::DDDContext& context)
   sprintf(cBuffer, "|     MAX_PRIO     = %4d\n", MAX_PRIO);
   DDD_PrintLine(cBuffer);
 #ifdef WithFullObjectTable
-  sprintf(cBuffer, "|\n|     MAX_OBJ = %8d  MAX_CPL = %8d\n",
-          (int) context.objTable().size(), ddd_CplTabSize);
+  sprintf(cBuffer, "|\n|     MAX_OBJ = %8d  MAX_CPL = %8zd\n",
+          (int) context.objTable().size(), context.couplingContext().cplTable.size());
 #else
-  sprintf(cBuffer, "|\n|     MAX_CPL = %8d\n", ddd_CplTabSize);
+  sprintf(cBuffer, "|\n|     MAX_CPL = %8zd\n", context.couplingContext().cplTable.size());
 #endif
   DDD_PrintLine(cBuffer);
 

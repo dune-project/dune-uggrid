@@ -593,7 +593,7 @@ void CmdMsgExit(DDD::DDDContext& context);
 
 
 /* xfer.c, used only by cmds.c */
-XICopyObj **CplClosureEstimate(const std::vector<XICopyObj*>&, int *);
+XICopyObj **CplClosureEstimate(DDD::DDDContext& context, const std::vector<XICopyObj*>&, int *);
 int  PrepareObjMsgs(DDD::DDDContext& context,
                     std::vector<XICopyObj*>&, XINewCpl **, int,
                     XIOldCpl **, int, XFERMSG **, size_t *);

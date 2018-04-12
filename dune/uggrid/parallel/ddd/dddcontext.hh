@@ -83,6 +83,12 @@ struct PrioContext
 
 } /* namespace Prio */
 
+struct CouplingContext
+{
+  std::vector<COUPLING*> cplTable;
+  std::vector<short> nCplTable;
+};
+
 class DDDContext {
 public:
   DDDContext(const std::shared_ptr<PPIF::PPIFContext>& ppifContext);
@@ -150,6 +156,12 @@ public:
   const Prio::PrioContext& prioContext() const
     { return prioContext_; }
 
+  CouplingContext& couplingContext()
+    { return couplingContext_; }
+
+  const CouplingContext& couplingContext() const
+    { return couplingContext_; }
+
   const std::vector<DDD_HDR>& objTable() const
     { return objTable_; }
 
@@ -178,6 +190,7 @@ protected:
   If::IfUseContext ifUseContext_;
   Mgr::ObjmgrContext objmgrContext_;
   Prio::PrioContext prioContext_;
+  CouplingContext couplingContext_;
 
   std::vector<DDD_HDR> objTable_;
   int nObjs_;
