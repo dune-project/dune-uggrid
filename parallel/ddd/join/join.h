@@ -278,7 +278,7 @@ extern JOIN_GLOBALS joinGlobals;
 
 /* join.c, used only by cmds.c */
 /*
-   XICopyObj **CplClosureEstimate(XICopyObjPtrArray *, int *);
+   XICopyObj **CplClosureEstimate(DDD::DDDContext& context, XICopyObjPtrArray *, int *);
    int  PrepareObjMsgs(XICopyObjPtrArray *, XINewCpl **, int,
                 XIOldCpl **, int, XFERMSG **, size_t *);
    void ExecLocalXIDelCmd(XIDelCmd  **, int);

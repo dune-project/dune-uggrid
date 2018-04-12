@@ -420,7 +420,7 @@ if (IsHdrInvalid(hdr))
 
 /* if currently in xfer, register deletion for other processors */
 if (xfer_active)
-  ddd_XferRegisterDelete(hdr);
+  ddd_XferRegisterDelete(context, hdr);
 
 
 objIndex = OBJ_INDEX(hdr);
@@ -428,7 +428,7 @@ objIndex = OBJ_INDEX(hdr);
 if (objIndex<NCpl_Get)
 {
   /* this is an object with couplings */
-  cpl = IdxCplList(objIndex);
+  cpl = IdxCplList(context, objIndex);
 
   /* if not during xfer, deletion may be inconsistent */
   if (!xfer_active)
@@ -449,8 +449,8 @@ if (objIndex<NCpl_Get)
 
   /* fill slot of deleted obj with last cpl-obj */
   objTable[objIndex] = objTable[NCpl_Get];
-  IdxCplList(objIndex) = IdxCplList(NCpl_Get);
-  IdxNCpl(objIndex) = IdxNCpl(NCpl_Get);
+  IdxCplList(context, objIndex) = IdxCplList(context, NCpl_Get);
+  IdxNCpl(context, objIndex) = IdxNCpl(context, NCpl_Get);
   OBJ_INDEX(objTable[objIndex]) = objIndex;
 
                 #ifdef WithFullObjectTable
@@ -679,7 +679,7 @@ void DDD_HdrConstructorMove (DDD::DDDContext& context, DDD_HDR newhdr, DDD_HDR o
   /* change pointers from couplings to object */
   if (objIndex<NCpl_Get)
   {
-    COUPLING *cpl = IdxCplList(objIndex);
+    COUPLING *cpl = IdxCplList(context, objIndex);
 
     for(; cpl!=NULL; cpl=CPL_NEXT(cpl)) {
       cpl->obj = newhdr;
