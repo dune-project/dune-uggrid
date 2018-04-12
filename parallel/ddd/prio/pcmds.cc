@@ -199,7 +199,7 @@ void DDD_PrioChange (const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
   }
 
   /* handle distributed objects
-     if (ObjHasCpl(hdr))
+     if (ObjHasCpl(context, hdr))
      {
           nothing to do here:
           for distributed objects, we will communicate the prio

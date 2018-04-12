@@ -960,6 +960,7 @@ static void UpdateCouplings (
    processor sent a copy during xfer.
  */
 static void PropagateIncomings (
+  DDD::DDDContext& context,
   XICopyObj **arrayNO, int nNO,
   OBJTAB_ENTRY **allRecObjs, int nRecObjs)
 {
@@ -999,7 +1000,7 @@ static void PropagateIncomings (
       }
 
       /* communicate to all procs in coupling */
-      for(cpl=ObjCplList(ote->hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
+      for(cpl=ObjCplList(context, ote->hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
       {
         /*
                                         if (newness==PARTNEW || newness==PRUNEDNEW)
@@ -1696,7 +1697,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
 
   /* create some more XIModCpl-items due to incoming objects */
-  PropagateIncomings(arrayNewOwners, nNewOwners, unionObjTab, lenObjTab);
+  PropagateIncomings(context, arrayNewOwners, nNewOwners, unionObjTab, lenObjTab);
 
 
   /* free temporary memory */
