@@ -114,7 +114,7 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
   /* and set local GID to invalid (will be set to new value lateron) */
   for(i=0; i<nJ; i++)
   {
-    if (ObjHasCpl(itemsJ[i]->hdr))
+    if (ObjHasCpl(context, itemsJ[i]->hdr))
     {
       sprintf(cBuffer, "cannot join " OBJ_GID_FMT ", object already distributed",
               OBJ_GID(itemsJ[i]->hdr));
@@ -279,7 +279,7 @@ static void UnpackPhase1Msgs (DDD::DDDContext& context,
         theJoin[i].hdr = localCplObjs[j];
 
         /* generate phase2-JIAddCpl for this object */
-        for(cpl=ObjCplList(localCplObjs[j]); cpl!=NULL; cpl=CPL_NEXT(cpl))
+        for(cpl=ObjCplList(context, localCplObjs[j]); cpl!=NULL; cpl=CPL_NEXT(cpl))
         {
           JIAddCpl *ji = JIAddCplSet_NewItem(joinGlobals.setJIAddCpl2);
           ji->dest    = CPL_PROC(cpl);
@@ -299,7 +299,7 @@ static void UnpackPhase1Msgs (DDD::DDDContext& context,
         }
 
         /* send phase3-JIAddCpl back to Join-proc */
-        for(cpl=ObjCplList(localCplObjs[j]); cpl!=NULL; cpl=CPL_NEXT(cpl))
+        for(cpl=ObjCplList(context, localCplObjs[j]); cpl!=NULL; cpl=CPL_NEXT(cpl))
         {
           JIAddCpl *ji = JIAddCplSet_NewItem(joinGlobals.setJIAddCpl3);
           ji->dest    = LC_MsgGetProc(jm);
@@ -1195,7 +1195,7 @@ void DDD_JoinObj(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC dest, DDD_GID n
     HARD_EXIT;
   }
 
-  if (ObjHasCpl(hdr))
+  if (ObjHasCpl(context, hdr))
   {
     sprintf(cBuffer, "cannot join " OBJ_GID_FMT ", object already distributed",
             OBJ_GID(hdr));

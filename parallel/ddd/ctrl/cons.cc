@@ -311,7 +311,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
 
   /* count overall number of couplings */
   for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
-    lenCplBuf += IdxNCpl(i);
+    lenCplBuf += IdxNCpl(context, i);
 
   /* get storage for messages */
   std::vector<CONS_INFO> cplBuf(lenCplBuf);
@@ -319,7 +319,7 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
   /* copy CONS_INFOs into message buffer */
   for(i=0, j=0; i<NCpl_Get; i++)
   {
-    for(cpl=IdxCplList(i); cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(cpl=IdxCplList(context, i); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       if ((DDD_PROC)CPL_PROC(cpl) >= procs)
       {
@@ -445,7 +445,7 @@ static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_H
         int i2;
         COUPLING *j2;
 
-        for(j2=ObjCplList(locObjs[j]); j2!=NULL; j2=CPL_NEXT(j2))
+        for(j2=ObjCplList(context, locObjs[j]); j2!=NULL; j2=CPL_NEXT(j2))
         {
           int ifound = -1;
 
@@ -488,7 +488,7 @@ static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_H
           {
             int ifound = -1;
 
-            for(j2=ObjCplList(locObjs[j]); j2!=NULL; j2=CPL_NEXT(j2))
+            for(j2=ObjCplList(context, locObjs[j]); j2!=NULL; j2=CPL_NEXT(j2))
             {
               if (theCplBuf[i2].proc==j2->proc)
               {
@@ -551,7 +551,7 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
 
   /* count overall number of couplings */
   for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
-    lenCplBuf += (IdxNCpl(i) * (IdxNCpl(i)+1));
+    lenCplBuf += (IdxNCpl(context, i) * (IdxNCpl(context, i)+1));
 
   /* get storage for messages */
   std::vector<CONS_INFO> cplBuf(lenCplBuf);
@@ -559,7 +559,7 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
   /* copy CONS_INFOs into message buffer */
   for(i=0, j=0; i<NCpl_Get; i++)
   {
-    for(cpl=IdxCplList(i); cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(cpl=IdxCplList(context, i); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       cplBuf[j].gid  = OBJ_GID(cpl->obj);
       cplBuf[j].typ  = OBJ_TYPE(cpl->obj);
@@ -568,7 +568,7 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
       cplBuf[j].prio = OBJ_PRIO(cpl->obj);
       j++;
 
-      for(cpl2=IdxCplList(i); cpl2!=NULL; cpl2=CPL_NEXT(cpl2))
+      for(cpl2=IdxCplList(context, i); cpl2!=NULL; cpl2=CPL_NEXT(cpl2))
       {
         cplBuf[j].gid  = OBJ_GID(cpl->obj);
         cplBuf[j].typ  = OBJ_TYPE(cpl->obj);
