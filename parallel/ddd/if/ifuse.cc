@@ -124,7 +124,7 @@ void IFExitComm(DDD::DDDContext& context, DDD_IF ifId)
 {
   IF_PROC   *ifHead;
 
-  if (DDD_GetOption(OPT_IF_REUSE_BUFFERS) == OPT_OFF)
+  if (DDD_GetOption(context, OPT_IF_REUSE_BUFFERS) == OPT_OFF)
   {
     ForIF(ifId,ifHead)
     {

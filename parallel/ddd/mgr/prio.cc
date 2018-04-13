@@ -135,7 +135,7 @@ else
   else
   {
     /* distributed object will get inconsistent here. issue warning. */
-    if (DDD_GetOption(OPT_WARNING_PRIOCHANGE)==OPT_ON)
+    if (DDD_GetOption(context, OPT_WARNING_PRIOCHANGE)==OPT_ON)
     {
       sprintf(cBuffer,
               "creating inconsistency for gid=" OBJ_GID_FMT " in DDD_PrioritySet",
