@@ -588,7 +588,7 @@ int PrepareObjMsgs (DDD::DDDContext& context,
     bufSize = LC_MsgFreeze(xm->msg_h);
     *memUsage += bufSize;
 
-    if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MEMUSAGE)
+    if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MEMUSAGE)
     {
       sprintf(cBuffer,
               "DDD MESG [%03d]: SHOW_MEM "

@@ -447,7 +447,7 @@ void CommunicateCplMsgs (
 
 
 #if DebugCplMsg>2
-  if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+  if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
   {
     for(sm=sendMsgs; sm!=NULL; sm=sm->next)
@@ -458,7 +458,7 @@ void CommunicateCplMsgs (
 
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -472,7 +472,7 @@ void CommunicateCplMsgs (
 
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -486,7 +486,7 @@ void CommunicateCplMsgs (
     CplMsgUnpackSingle(context, recvMsgs[i], localCplObjs, nLCO);
 
     /*
-                    if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+                    if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
                             CplMsgDisplay("CR", recvMsgs[i]);
      */
   }

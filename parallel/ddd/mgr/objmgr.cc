@@ -437,7 +437,7 @@ if (objIndex < nCpls)
   {
     /* deletion is dangerous, distributed object might get
        inconsistent. */
-    if (DDD_GetOption(OPT_WARNING_DESTRUCT_HDR)==OPT_ON)
+    if (DDD_GetOption(context, OPT_WARNING_DESTRUCT_HDR)==OPT_ON)
     {
       sprintf(cBuffer,
               "inconsistency by deleting gid=" OBJ_GID_FMT " in DDD_HdrDestructor",
@@ -525,13 +525,13 @@ DDD_OBJ DDD_ObjGet (DDD::DDDContext& context, size_t size, DDD_TYPE typ, DDD_PRI
     return(NULL);
   }
 
-  if ((desc.size != size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
+  if ((desc.size != size) && (DDD_GetOption(context, OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
   {
     DDD_PrintError('W', 2200,
                    "object size differs from declared size in DDD_ObjGet");
   }
 
-  if ((desc.size > size) && (DDD_GetOption(OPT_WARNING_SMALLSIZE)==OPT_ON))
+  if ((desc.size > size) && (DDD_GetOption(context, OPT_WARNING_SMALLSIZE)==OPT_ON))
   {
     DDD_PrintError('W', 2201,
                    "object size smaller than declared size in DDD_ObjGet");
@@ -565,7 +565,7 @@ void DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR hdr, size_t size)
   const TYPE_DESC& desc = context.typeDefs()[typ];
   DDD_OBJ obj = HDR2OBJ(hdr, &desc);
 
-  if ((desc.size != size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
+  if ((desc.size != size) && (DDD_GetOption(context, OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
   {
     DDD_PrintError('W', 2299,
                    "object size differs from declared size in DDD_ObjUnGet");
