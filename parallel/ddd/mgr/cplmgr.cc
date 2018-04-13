@@ -168,8 +168,10 @@ static void InitNewCoupling (COUPLING* cpl)
 }
 
 
-static COUPLING *NewCoupling (void)
+static COUPLING *NewCoupling (DDD::DDDContext& context)
 {
+  auto& ctx = context.couplingContext();
+
   COUPLING *cpl;
 
   if (DDD_GetOption(OPT_CPLMGR_USE_FREELIST)==OPT_ON)
@@ -218,14 +220,16 @@ static COUPLING *NewCoupling (void)
     SETCPLMEM_EXTERNAL(cpl);
   }
 
-  nCplItems++;
+  ctx.nCplItems += 1;
 
   return(cpl);
 }
 
 
-static void DisposeCoupling (COUPLING *cpl)
+static void DisposeCoupling (DDD::DDDContext& context, COUPLING *cpl)
 {
+  auto& ctx = context.couplingContext();
+
   if (CPLMEM(cpl)==CPLMEM_FREELIST)
   {
     CPL_NEXT(cpl) = memlistCpl;
@@ -236,7 +240,7 @@ static void DisposeCoupling (COUPLING *cpl)
     FreeTmpReq(cpl, sizeof(COUPLING), TMEM_CPL);
   }
 
-  nCplItems--;
+  ctx.nCplItems -= 1;
 }
 
 
@@ -297,7 +301,7 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
 
   COUPLING        *cp, *cp2;
   int objIndex;
-  int freeCplIdx = NCpl_Get;
+  int freeCplIdx = ctx.nCpls;
 
   assert(proc!=me);
 
@@ -343,7 +347,7 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
     IdxCplList(context, objIndex) = nullptr;
     IdxNCpl(context, objIndex) = 0;
 
-    NCpl_Increment;
+    ctx.nCpls += 1;
   }
   else
   {
@@ -368,7 +372,7 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   }
 
   /* create new coupling record */
-  cp = NewCoupling();
+  cp = NewCoupling(context);
   if (cp==NULL) {
     DDD_PrintError('E', 2500, STR_NOMEM " in AddCoupling");
     return(NULL);
@@ -473,8 +477,9 @@ void DelCoupling (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc)
   COUPLING        *cpl, *cplLast;
   auto& objTable = context.objTable();
   const int objIndex = OBJ_INDEX(hdr);
+  auto& ctx = context.couplingContext();
 
-  if (objIndex<NCpl_Get)
+  if (objIndex < ctx.nCpls)
   {
     for(cpl=IdxCplList(context, objIndex), cplLast=NULL; cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
@@ -493,33 +498,33 @@ void DelCoupling (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc)
         DDD_PrintDebug(cBuffer);
 #                               endif
 
-        DisposeCoupling(cpl);
+        DisposeCoupling(context, cpl);
 
         IdxNCpl(context, objIndex)--;
 
         if (IdxNCpl(context, objIndex)==0)
         {
-          NCpl_Decrement;
+          ctx.nCpls -= 1;
 
                                         #ifdef WithFullObjectTable
-          OBJ_INDEX(hdr) = NCpl_Get;
-          OBJ_INDEX(objTable[NCpl_Get]) = objIndex;
-          objTable[objIndex] = objTable[NCpl_Get];
-          objTable[NCpl_Get] = hdr;
+          OBJ_INDEX(hdr) = ctx.nCpls;
+          OBJ_INDEX(objTable[ctx.nCpls]) = objIndex;
+          objTable[objIndex] = objTable[ctx.nCpls];
+          objTable[ctx.nCpls] = hdr;
                                         #else
           /* we will not register objects without coupling,
              so we have to forget about hdr and mark it as local. */
           context.nObjs(context.nObjs() - 1);
-          assert(context.nObjs() == NCpl_Get);
+          assert(context.nObjs() == ctx.nCpls);
 
-          objTable[objIndex] = objTable[NCpl_Get];
-          OBJ_INDEX(objTable[NCpl_Get]) = objIndex;
+          objTable[objIndex] = objTable[ctx.nCpls];
+          OBJ_INDEX(objTable[ctx.nCpls]) = objIndex;
 
           MarkHdrLocal(hdr);
                                         #endif
 
-          IdxCplList(context, objIndex) = IdxCplList(context, NCpl_Get);
-          IdxNCpl(context, objIndex) = IdxNCpl(context, NCpl_Get);
+          IdxCplList(context, objIndex) = IdxCplList(context, ctx.nCpls);
+          IdxNCpl(context, objIndex) = IdxNCpl(context, ctx.nCpls);
         }
         break;
       }
@@ -541,7 +546,7 @@ void DelCoupling (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc)
 /*                                                                          */
 /****************************************************************************/
 
-void DisposeCouplingList (COUPLING *cpl)
+void DisposeCouplingList (DDD::DDDContext& context, COUPLING *cpl)
 {
   COUPLING *c, *next;
 
@@ -549,7 +554,7 @@ void DisposeCouplingList (COUPLING *cpl)
   while (c!=NULL)
   {
     next = CPL_NEXT(c);
-    DisposeCoupling(c);
+    DisposeCoupling(context, c);
     c = next;
   }
 }
@@ -586,7 +591,7 @@ localIBuffer[1] = OBJ_PRIO(hdr);
 i=2;
 
 /* append descriptions of foreign copies */
-if (objIndex<NCpl_Get)
+if (objIndex < context.couplingContext().nCpls)
 {
   for(cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl), i+=2) {
     localIBuffer[i]   = CPL_PROC(cpl);
@@ -622,7 +627,7 @@ DDD_PROC DDD_InfoProcPrio(const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO 
   int objIndex = OBJ_INDEX(hdr);
 
   /* append descriptions of foreign copies */
-  if (objIndex<NCpl_Get)
+  if (objIndex < context.couplingContext().nCpls)
   {
     for(cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
@@ -677,12 +682,13 @@ int DDD_InfoNCopies(const DDD::DDDContext& context, DDD_HDR hdr)
 void DDD_InfoCoupling(const DDD::DDDContext& context, DDD_HDR hdr)
 {
   int objIndex = OBJ_INDEX(hdr);
+  const auto& nCpls = context.couplingContext().nCpls;
 
   sprintf(cBuffer, "%4d: InfoCoupling for object " OBJ_GID_FMT " (%05d/%05d)\n",
-          me, OBJ_GID(hdr), objIndex, NCpl_Get);
+          me, OBJ_GID(hdr), objIndex, nCpls);
   DDD_PrintLine(cBuffer);
 
-  if (objIndex<NCpl_Get)
+  if (objIndex < nCpls)
   {
     for(const COUPLING* cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {

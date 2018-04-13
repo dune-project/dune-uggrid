@@ -308,7 +308,7 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
 
         #ifdef SUPPORT_RESENT_FLAG
   {
-    int iLCO, nLCO=NCpl_Get;
+    int iLCO, nLCO = context.couplingContext().nCpls;
     std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList(context);
 
     /* set RESENT flag for objects which will receive another copy */

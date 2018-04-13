@@ -87,6 +87,12 @@ struct CouplingContext
 {
   std::vector<COUPLING*> cplTable;
   std::vector<short> nCplTable;
+
+  /** number of coupling lists */
+  int nCpls;
+
+  /* number of couplings */
+  int nCplItems;
 };
 
 class DDDContext {

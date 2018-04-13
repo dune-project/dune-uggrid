@@ -83,10 +83,6 @@ static unsigned int dddUsers = 0;
 /*                                                                          */
 /****************************************************************************/
 
-int ddd_nCpls;
-int nCplItems;
-
-
 int        *iBuffer;        /* general bufferspace, integer */
 char       *cBuffer;        /* general bufferspace, integer */
 
@@ -178,8 +174,8 @@ void DDD_Init(DDD::DDDContext& context)
 
   /* reset all global counters */
   context.nObjs(0);
-  NCpl_Init;
-  nCplItems  = 0;
+  context.couplingContext().nCpls = 0;
+  context.couplingContext().nCplItems = 0;
 
   /* set options on default values */
   DDD_SetOption(context, OPT_WARNING_VARSIZE_OBJ,   OPT_ON);
@@ -290,7 +286,7 @@ void DDD_Status(const DDD::DDDContext& context)
   DDD_PrintLine(cBuffer);
 
   sprintf(cBuffer, "|     nObjs   = %8d  nCpls   = %8d  nCplItems = %8d\n",
-          context.nObjs(), NCpl_Get, nCplItems);
+          context.nObjs(), context.couplingContext().nCpls, context.couplingContext().nCplItems);
   DDD_PrintLine(cBuffer);
   DDD_PrintLine("|\n|     Timeouts:\n");
   sprintf(cBuffer, "|        IFComm:  %12ld\n", (unsigned long)MAX_TRIES);
