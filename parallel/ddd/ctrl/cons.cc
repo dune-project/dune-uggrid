@@ -310,14 +310,15 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
   const auto& objTable = context.objTable();
 
   /* count overall number of couplings */
-  for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
+  const auto& nCpls = context.couplingContext().nCpls;
+  for(i=0, lenCplBuf=0; i < nCpls; i++)
     lenCplBuf += IdxNCpl(context, i);
 
   /* get storage for messages */
   std::vector<CONS_INFO> cplBuf(lenCplBuf);
 
   /* copy CONS_INFOs into message buffer */
-  for(i=0, j=0; i<NCpl_Get; i++)
+  for(i=0, j=0; i < nCpls; i++)
   {
     for(cpl=IdxCplList(context, i); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
@@ -548,16 +549,17 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
   int error_cnt = 0;
 
   auto& ctx = context.consContext();
+  const auto& nCpls = context.couplingContext().nCpls;
 
   /* count overall number of couplings */
-  for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
+  for(i=0, lenCplBuf=0; i < nCpls; i++)
     lenCplBuf += (IdxNCpl(context, i) * (IdxNCpl(context, i)+1));
 
   /* get storage for messages */
   std::vector<CONS_INFO> cplBuf(lenCplBuf);
 
   /* copy CONS_INFOs into message buffer */
-  for(i=0, j=0; i<NCpl_Get; i++)
+  for(i=0, j=0; i < nCpls; i++)
   {
     for(cpl=IdxCplList(context, i); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {

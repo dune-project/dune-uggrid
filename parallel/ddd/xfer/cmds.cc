@@ -422,6 +422,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   STAT_ZEROALL;
 
   const auto procs = context.procs();
+  const auto& nCpls = context.couplingContext().nCpls;
 
   /* step mode and check whether call to XferEnd is valid */
   if (!XferStepMode(XMODE_CMDS))
@@ -715,7 +716,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* unpack messages */
   STAT_RESET;
   XferUnpack(context, recvMsgs, nRecvMsgs,
-             localCplObjs.data(), NCpl_Get,
+             localCplObjs.data(), nCpls,
              arrayXISetPrio,
              arrayXIDelObj, nXIDelObj,
              arrayXICopyObj,
@@ -760,7 +761,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
                      arrayXIDelCpl, remXIDelCpl,
                      arrayXIModCpl, remXIModCpl,
                      arrayXIAddCpl, nXIAddCpl,
-                     localCplObjs.data(), NCpl_Get);
+                     localCplObjs.data(), nCpls);
   STAT_TIMER(T_XFER_CPLMSG);
 
 
