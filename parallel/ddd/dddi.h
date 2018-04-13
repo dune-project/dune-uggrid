@@ -173,9 +173,6 @@ enum PrioMergeVals {
 /*                                                                          */
 /****************************************************************************/
 
-extern int ddd_nCpls;                    /* number of coupling lists */
-extern int nCplItems;                    /* number of couplings      */
-
 extern int        *iBuffer;
 extern char       *cBuffer;
 
@@ -293,7 +290,7 @@ extern int theOptions[OPT_END];
  */
 
 /* get boolean: does object have couplings? */
-#define ObjHasCpl(context, o)      (OBJ_INDEX(o) < ddd_nCpls)
+#define ObjHasCpl(context, o)      (OBJ_INDEX(o) < context.couplingContext().nCpls)
 
 /* get #couplings per object */
 #define ObjNCpl(context, o)        (ObjHasCpl(context, o) ? context.couplingContext().nCplTable[OBJ_INDEX(o)] : 0)
@@ -302,18 +299,6 @@ extern int theOptions[OPT_END];
 /* get pointer to object's coupling list */
 #define ObjCplList(context, o)     (ObjHasCpl(context, o) ? context.couplingContext().cplTable[OBJ_INDEX(o)] : nullptr)
 #define IdxCplList(context, i)     (context.couplingContext().cplTable[i])
-
-
-/* increment/decrement number of coupled objects */
-/*
-   #define NCpl_Increment    { ddd_nCpls++; printf("%4d: nCpls++ now %d, %s:%d\n",me,ddd_nCpls,__FILE__,__LINE__); }
-   #define NCpl_Decrement    { ddd_nCpls--; printf("%4d: nCpls-- now %d, %s:%d\n",me,ddd_nCpls,__FILE__,__LINE__); }
- */
-#define NCpl_Increment    ddd_nCpls++;
-#define NCpl_Decrement    ddd_nCpls--;
-
-#define NCpl_Get          ddd_nCpls
-#define NCpl_Init         ddd_nCpls=0
 
 
 /* DDD_HDR may be invalid */
@@ -554,7 +539,7 @@ void      ddd_CplMgrExit(DDD::DDDContext& context);
 COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
 COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
 void      DelCoupling(DDD::DDDContext& context, DDD_HDR, DDD_PROC);
-void      DisposeCouplingList (COUPLING *);
+void      DisposeCouplingList(DDD::DDDContext& context, COUPLING *);
 void      DDD_InfoCoupling(const DDD::DDDContext& context, DDD_HDR);
 
 
