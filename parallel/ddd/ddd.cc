@@ -157,6 +157,11 @@ void DDD_Init(DDD::DDDContext& context)
   /* overlay with other buffers */
   cBuffer = (char *)iBuffer;
 
+  /* reset all global counters */
+  context.nObjs(0);
+  context.couplingContext().nCpls = 0;
+  context.couplingContext().nCplItems = 0;
+
   /* init all DDD components */
   NotifyInit(context);
   LC_Init(context, LowComm_DefaultAlloc, LowComm_DefaultFree);
@@ -171,11 +176,6 @@ void DDD_Init(DDD::DDDContext& context)
   ddd_PrioInit(context);
   ddd_JoinInit(context);
   ddd_ConsInit(context);
-
-  /* reset all global counters */
-  context.nObjs(0);
-  context.couplingContext().nCpls = 0;
-  context.couplingContext().nCplItems = 0;
 
   /* set options on default values */
   DDD_SetOption(context, OPT_WARNING_VARSIZE_OBJ,   OPT_ON);
