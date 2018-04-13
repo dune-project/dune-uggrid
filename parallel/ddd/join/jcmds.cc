@@ -775,6 +775,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   size_t sendMem=0, recvMem=0;
   JIPartner   *joinObjs = NULL;
   int nJoinObjs;
+  const auto& nCpls = context.couplingContext().nCpls;
 
 
 
@@ -896,7 +897,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   /* unpack messages */
   STAT_RESET;
-  UnpackPhase1Msgs(context, recvMsgs1, nRecvMsgs1, localCplObjs.data(), NCpl_Get,
+  UnpackPhase1Msgs(context, recvMsgs1, nRecvMsgs1, localCplObjs.data(), nCpls,
                    &joinObjs, &nJoinObjs);
   LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
@@ -994,7 +995,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   /* unpack messages */
   STAT_RESET;
   UnpackPhase2Msgs(context, recvMsgs2, nRecvMsgs2, joinObjs, nJoinObjs,
-                   localCplObjs.data(), NCpl_Get);
+                   localCplObjs.data(), nCpls);
 
   LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);

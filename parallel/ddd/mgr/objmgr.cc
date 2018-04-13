@@ -100,10 +100,11 @@ std::vector<DDD_HDR> LocalObjectsList(const DDD::DDDContext& context)
 
 std::vector<DDD_HDR> LocalCoupledObjectsList(const DDD::DDDContext& context)
 {
-  std::vector<DDD_HDR> locObjs(NCpl_Get);
+  const auto& nCpls = context.couplingContext().nCpls;
+  std::vector<DDD_HDR> locObjs(nCpls);
 
   const auto& objTable = context.objTable();
-  std::copy(objTable.begin(), objTable.begin() + NCpl_Get, locObjs.begin());
+  std::copy(objTable.begin(), objTable.begin() + nCpls, locObjs.begin());
   std::sort(locObjs.begin(), locObjs.end(), sort_ObjListGID);
 
   return locObjs;
@@ -396,6 +397,7 @@ DDD_PrintDebug(cBuffer);
 void DDD_HdrDestructor(DDD::DDDContext& context, DDD_HDR hdr)
 {
   auto& objTable = context.objTable();
+  auto& nCpls = context.couplingContext().nCpls;
 COUPLING   *cpl;
 int objIndex, xfer_active = ddd_XferActive();
 
@@ -425,7 +427,7 @@ if (xfer_active)
 
 objIndex = OBJ_INDEX(hdr);
 
-if (objIndex<NCpl_Get)
+if (objIndex < nCpls)
 {
   /* this is an object with couplings */
   cpl = IdxCplList(context, objIndex);
@@ -444,28 +446,28 @@ if (objIndex<NCpl_Get)
     }
   }
 
-  NCpl_Decrement;
+  nCpls -= 1;
   context.nObjs(context.nObjs() - 1);
 
   /* fill slot of deleted obj with last cpl-obj */
-  objTable[objIndex] = objTable[NCpl_Get];
-  IdxCplList(context, objIndex) = IdxCplList(context, NCpl_Get);
-  IdxNCpl(context, objIndex) = IdxNCpl(context, NCpl_Get);
+  objTable[objIndex] = objTable[nCpls];
+  IdxCplList(context, objIndex) = IdxCplList(context, nCpls);
+  IdxNCpl(context, objIndex) = IdxNCpl(context, nCpls);
   OBJ_INDEX(objTable[objIndex]) = objIndex;
 
                 #ifdef WithFullObjectTable
   /* fill slot of last cpl-obj with last obj */
-  if (NCpl_Get < context.nObjs())
+  if (nCpls < context.nObjs())
   {
-    objTable[NCpl_Get] = objTable[context.nObjs()];
-    OBJ_INDEX(objTable[NCpl_Get]) = NCpl_Get;
+    objTable[nCpls] = objTable[context.nObjs()];
+    OBJ_INDEX(objTable[nCpls]) = nCpls;
   }
                 #else
-  assert(NCpl_Get == context.nObjs());
+  assert(nCpls == context.nObjs());
                 #endif
 
   /* dispose all couplings */
-  DisposeCouplingList(cpl);
+  DisposeCouplingList(context, cpl);
 }
 else
 {
@@ -620,7 +622,7 @@ void DDD_HdrConstructorCopy (DDD::DDDContext& context, DDD_HDR newhdr, DDD_PRIO 
   context.nObjs(context.nObjs() + 1);
         #else
   MarkHdrLocal(newhdr);
-  assert(context.nObjs() == NCpl_Get);
+  assert(context.nObjs() == context.couplingContext().nCpls);
         #endif
 
   /* init LDATA components. GDATA components will be copied elsewhere */
@@ -654,6 +656,7 @@ void DDD_HdrConstructorCopy (DDD::DDDContext& context, DDD_HDR newhdr, DDD_PRIO 
 void DDD_HdrConstructorMove (DDD::DDDContext& context, DDD_HDR newhdr, DDD_HDR oldhdr)
 {
   int objIndex = OBJ_INDEX(oldhdr);
+  const auto& nCpls = context.couplingContext().nCpls;
 
 
   /* copy all components */
@@ -672,12 +675,12 @@ void DDD_HdrConstructorMove (DDD::DDDContext& context, DDD_HDR newhdr, DDD_HDR o
         #ifdef WithFullObjectTable
   objTable[objIndex] = newhdr;
         #else
-  if (objIndex<NCpl_Get)
+  if (objIndex < nCpls)
     objTable[objIndex] = newhdr;
         #endif
 
   /* change pointers from couplings to object */
-  if (objIndex<NCpl_Get)
+  if (objIndex < nCpls)
   {
     COUPLING *cpl = IdxCplList(context, objIndex);
 

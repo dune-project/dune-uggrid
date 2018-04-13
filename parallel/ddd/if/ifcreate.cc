@@ -202,28 +202,24 @@ static RETCODE update_channels(DDD::DDDContext& context, DDD_IF ifId)
 
 static COUPLING ** IFCollectStdCouplings(DDD::DDDContext& context)
 {
-  COUPLING **cplarray;
-  int index, n;
+  const auto& nCplItems = context.couplingContext().nCplItems;
 
-  if (nCplItems==0)
-  {
-    return(NULL);
-  }
+  if (nCplItems == 0)
+    return nullptr;
 
   /* get memory for couplings inside STD_IF */
-  cplarray = (COUPLING **) AllocIF(sizeof(COUPLING *)*nCplItems);
+  COUPLING** cplarray = (COUPLING **) AllocIF(sizeof(COUPLING *)*nCplItems);
   if (cplarray==NULL) {
     DDD_PrintError('E', 4000, STR_NOMEM " in IFCreateFromScratch");
     HARD_EXIT;
   }
 
   /* collect couplings */
-  n=0;
-  for(index=0; index<NCpl_Get; index++)
+  int n = 0;
+  const auto& nCpls = context.couplingContext().nCpls;
+  for(int index=0; index < nCpls; index++)
   {
-    COUPLING  *cpl;
-
-    for(cpl=IdxCplList(context, index); cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(COUPLING* cpl=IdxCplList(context, index); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       cplarray[n] = cpl;
       SETCPLDIR(cpl,0);
@@ -234,7 +230,7 @@ static COUPLING ** IFCollectStdCouplings(DDD::DDDContext& context)
      printf("%04d: n=%d, nCplItems=%d\n",me,n,nCplItems);
    */
   assert(n==nCplItems);
-  return(cplarray);
+  return cplarray;
 }
 
 
@@ -260,7 +256,7 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
   if (ifId==STD_INTERFACE)
   {
     theIF[ifId].cpl = IFCollectStdCouplings(context);
-    n = nCplItems;
+    n = context.couplingContext().nCplItems;
   }
   else
   {
@@ -269,7 +265,8 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
 
     /* collect relevant couplings into tmpcpl array */
     n=0;
-    for(index=0; index<NCpl_Get; index++)
+    const auto& nCpls = context.couplingContext().nCpls;
+    for(index=0; index < nCpls; index++)
     {
       /* determine whether object belongs to IF */
       if ((1<<OBJ_TYPE(objTable[index])) & theIF[ifId].maskO)
@@ -525,7 +522,8 @@ for(i=0; i<nO; i++)
 
 /* create initial interface state */
 theIF[nIFs].ifHead = NULL;
-if (nCplItems>0)
+const auto& nCplItems = context.couplingContext().nCplItems;
+if (nCplItems > 0)
 {
   /* allocate temporary cpl-list, this will be too large for
      average interfaces. */
@@ -816,7 +814,8 @@ static void IFRebuildAll(DDD::DDDContext& context)
   {
     int i;
 
-    if (nCplItems>0)
+    const auto& nCplItems = context.couplingContext().nCplItems;
+    if (nCplItems > 0)
     {
       /* allocate temporary cpl-list, this will be too large for
               average interfaces. */
