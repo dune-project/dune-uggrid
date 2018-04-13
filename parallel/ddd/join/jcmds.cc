@@ -180,7 +180,7 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
     bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
-    if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+    if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
       sprintf(cBuffer,
               "DDD MESG [%03d]: SHOW_MEM "
@@ -447,7 +447,7 @@ static int PreparePhase2Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
     bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
-    if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+    if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
       sprintf(cBuffer,
               "DDD MESG [%03d]: SHOW_MEM "
@@ -641,7 +641,7 @@ static int PreparePhase3Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
     bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
-    if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+    if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
       sprintf(cBuffer,
               "DDD MESG [%03d]: SHOW_MEM "
@@ -836,7 +836,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   if (obsolete>0)
   {
-    if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_OBSOLETE)
+    if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_OBSOLETE)
     {
       int all = JIJoinSet_GetNItems(joinGlobals.setJIJoin);
 
@@ -853,7 +853,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
    */
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -869,7 +869,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
 
   /* display information about message buffer sizes */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
   {
     int k;
 
@@ -887,7 +887,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   }
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -950,7 +950,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
    */
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -966,7 +966,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
 
   /* display information about message buffer sizes */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
   {
     int k;
 
@@ -984,7 +984,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   }
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -1048,7 +1048,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
    */
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -1064,7 +1064,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
 
   /* display information about message buffer sizes */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
   {
     int k;
 
@@ -1082,7 +1082,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   }
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())

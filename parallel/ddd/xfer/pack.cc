@@ -521,7 +521,7 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
 
 
 #if DebugXfer>1
-  if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+  if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
     XferDisplayMsg(context, "OS", msg->msg_h);
 }

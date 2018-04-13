@@ -378,7 +378,7 @@ if (option>=OPT_END)
 /*                                                                          */
 /****************************************************************************/
 
-int DDD_GetOption (DDD_OPTION option)
+int DDD_GetOption(const DDD::DDDContext& context, DDD_OPTION option)
 {
   if (option>=OPT_END)
   {
