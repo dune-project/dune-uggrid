@@ -194,7 +194,7 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
            */
 
           if (stIdx>=0 &&
-              DDD_GetOption(OPT_WARNING_REF_COLLISION)==OPT_ON)
+              DDD_GetOption(context, OPT_WARNING_REF_COLLISION)==OPT_ON)
           {
             /* get corresponding symtab entry */
             if (theSymTab[stIdx].adr.hdr!=OBJ2HDR(*ref,refdesc))
@@ -1657,7 +1657,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   /*
    #	if DebugXfer>1
-          if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+          if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
    #	endif
           {
                   for(i=0; i<nRecvMsgs; i++)

@@ -698,7 +698,7 @@ static void IFDisplay (const DDD::DDDContext& context, DDD_IF i)
 
   for(ifh=theIF[i].ifHead; ifh!=NULL; ifh=ifh->next)
   {
-    if (DDD_GetOption(OPT_INFO_IF_WITH_ATTR)==OPT_OFF)
+    if (DDD_GetOption(context, OPT_INFO_IF_WITH_ATTR)==OPT_OFF)
     {
       sprintf(cBuffer, "|        %3d=%3d,%3d,%3d - %02d\n",
               ifh->nItems, ifh->nAB, ifh->nBA, ifh->nABA, ifh->proc);
@@ -851,7 +851,7 @@ static void IFRebuildAll(DDD::DDDContext& context)
 
 void IFAllFromScratch(DDD::DDDContext& context)
 {
-  if (DDD_GetOption(OPT_IF_CREATE_EXPLICIT)==OPT_ON)
+  if (DDD_GetOption(context, OPT_IF_CREATE_EXPLICIT)==OPT_ON)
   {
     /* interfaces must be created explicitly by calling
        DDD_IFRefreshAll(). This is for doing timings from
@@ -866,7 +866,7 @@ void IFAllFromScratch(DDD::DDDContext& context)
 
 void DDD_IFRefreshAll(DDD::DDDContext& context)
 {
-  if (DDD_GetOption(OPT_IF_CREATE_EXPLICIT)==OPT_OFF)
+  if (DDD_GetOption(context, OPT_IF_CREATE_EXPLICIT)==OPT_OFF)
   {
     /* if interfaces are not created explicit, then they
        are always kept consistent automatically. therefore,
