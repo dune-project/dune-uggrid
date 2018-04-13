@@ -174,7 +174,7 @@ static COUPLING *NewCoupling (DDD::DDDContext& context)
 
   COUPLING *cpl;
 
-  if (DDD_GetOption(OPT_CPLMGR_USE_FREELIST)==OPT_ON)
+  if (DDD_GetOption(context, OPT_CPLMGR_USE_FREELIST)==OPT_ON)
   {
     /* allocate coupling from segments (which are allocated
        from segment-freelists) */

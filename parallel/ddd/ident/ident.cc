@@ -729,7 +729,8 @@ static void TupelInit (ID_TUPEL *tupel, IDENTINFO **id, int nIds)
 
 
 
-static int IdentifySort (IDENTINFO **id, int nIds,
+static int IdentifySort (const DDD::DDDContext& context,
+                         IDENTINFO **id, int nIds,
                          int nIdentObjs, MSGITEM *items_out, ID_TUPEL **indexmap_out,
                          DDD_PROC dest
                          )
@@ -744,7 +745,7 @@ static int IdentifySort (IDENTINFO **id, int nIds,
      inside each tupel is kept. for IDMODE_SETS, each tupel
      is sorted according to the identificators themselves. */
   STAT_RESET3;
-  switch (DDD_GetOption(OPT_IDENTIFY_MODE))
+  switch (DDD_GetOption(context, OPT_IDENTIFY_MODE))
   {
   case IDMODE_LISTS :
     std::sort(id, id + nIds, sort_intoTupelsLists);
@@ -1118,7 +1119,8 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 
     /* sort outgoing items */
     STAT_RESET2;
-    plist->nEntries = IdentifySort(plist->local_ids, plist->nEntries,
+    plist->nEntries = IdentifySort(context,
+                                   plist->local_ids, plist->nEntries,
                                    plist->nIdentObjs,
                                    plist->msgout,  /* output: msgbuffer outgoing */
                                    &plist->indexmap, /* output: mapping of indices to local_ids array */

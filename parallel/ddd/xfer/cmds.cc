@@ -453,7 +453,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /*
           (OPTIONAL) COMMUNICATION PHASE 0
    */
-  if (DDD_GetOption(OPT_XFER_PRUNE_DELETE)==OPT_ON)
+  if (DDD_GetOption(context, OPT_XFER_PRUNE_DELETE)==OPT_ON)
   {
     /*
             for each XferDelete-Cmd: if there exists at least
@@ -648,7 +648,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
   if (obsolete>0)
   {
-    if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_OBSOLETE)
+    if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_OBSOLETE)
     {
       int all = nXIDelObj+
                 XISetPrioSet_GetNItems(xferGlobals.setXISetPrio)+
@@ -666,7 +666,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
    */
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -682,7 +682,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
 
   /* display information about message buffer sizes */
-  if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MEMUSAGE)
+  if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MEMUSAGE)
   {
     int k;
 
@@ -700,7 +700,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   }
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
@@ -1104,13 +1104,13 @@ void DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD
   DDD_PrintDebug(cBuffer);
 #       endif
 
-  if ((desc->size!=size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
+  if ((desc->size!=size) && (DDD_GetOption(context, OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
   {
     DDD_PrintError('W', 6001,
                    "object size differs from declared size in DDD_XferCopyObjX");
   }
 
-  if ((desc->size>size) && (DDD_GetOption(OPT_WARNING_SMALLSIZE)==OPT_ON))
+  if ((desc->size>size) && (DDD_GetOption(context, OPT_WARNING_SMALLSIZE)==OPT_ON))
   {
     DDD_PrintError('W', 6002,
                    "object size smaller than declared size in DDD_XferCopyObjX");
@@ -1429,14 +1429,14 @@ int DDD_XferIsPrunedDelete (DDD_HDR hdr)
    @return  one of #XFER_RESENT_xxx#
  */
 
-int DDD_XferObjIsResent (DDD_HDR hdr)
+int DDD_XferObjIsResent(const DDD::DDDContext& context, DDD_HDR hdr)
 {
   if (XferMode() != XMODE_BUSY)
   {
     return(XFER_RESENT_ERROR);
   }
 
-  if (DDD_GetOption(OPT_XFER_PRUNE_DELETE)==OPT_OFF)
+  if (DDD_GetOption(context, OPT_XFER_PRUNE_DELETE)==OPT_OFF)
   {
     return(XFER_RESENT_ERROR);
   }

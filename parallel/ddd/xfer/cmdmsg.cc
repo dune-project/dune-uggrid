@@ -453,7 +453,7 @@ int PruneXIDelCmd (
   nSendMsgs = PrepareCmdMsgs(context, itemsCO, nCO, &sendMsgs);
 
 #if DebugCmdMsg>2
-  if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+  if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
   {
     for(sm=sendMsgs; sm!=NULL; sm=sm->next)
@@ -479,7 +479,7 @@ int PruneXIDelCmd (
           for(int i=0; i<nRecvMsgs; i++)
           {
      #if DebugCmdMsg>=2
-                  if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+                  if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
      #endif
                           CmdMsgDisplay("PR", recvMsgs[i]);
           }

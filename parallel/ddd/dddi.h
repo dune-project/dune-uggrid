@@ -518,7 +518,7 @@ static char *mem_ptr;
 /****************************************************************************/
 
 /* ddd.c */
-int DDD_GetOption (DDD_OPTION);
+int DDD_GetOption(const DDD::DDDContext& context, DDD_OPTION);
 
 
 /* typemgr.c */

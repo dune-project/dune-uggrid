@@ -688,7 +688,7 @@ int DDD_ConsCheck(DDD::DDDContext& context)
 
   DDD_Flush();
   Synchronize(context.ppifContext());
-  if (DDD_GetOption(OPT_QUIET_CONSCHECK)==OPT_OFF)
+  if (DDD_GetOption(context, OPT_QUIET_CONSCHECK)==OPT_OFF)
   {
     if (context.isMaster())
       DDD_PrintLine("   DDD-GCC (Global Consistency Check)\n");
@@ -719,7 +719,7 @@ int DDD_ConsCheck(DDD::DDDContext& context)
 
   DDD_Flush();
   Synchronize(context.ppifContext());
-  if (DDD_GetOption(OPT_QUIET_CONSCHECK)==OPT_OFF)
+  if (DDD_GetOption(context, OPT_QUIET_CONSCHECK)==OPT_OFF)
   {
     if (context.isMaster())
     {
