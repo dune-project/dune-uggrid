@@ -63,6 +63,8 @@ START_UGDIM_NAMESPACE
 
 static int DDD_CheckInterface(DDD::DDDContext& context, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   int errors=0;
   IF_PROC *h;
   NOTIFY_DESC *msgs = DDD_NotifyBegin(context, theIF[ifId].nIfHeads);
@@ -70,7 +72,7 @@ static int DDD_CheckInterface(DDD::DDDContext& context, DDD_IF ifId)
 
   /* fill NOTIFY_DESCS */
   k=0;
-  ForIF(ifId,h)
+  ForIF(context, ifId, h)
   {
     msgs[k].proc = h->proc;
     msgs[k].size = h->nItems;
@@ -94,7 +96,7 @@ static int DDD_CheckInterface(DDD::DDDContext& context, DDD_IF ifId)
       errors++;
     }
 
-    ForIF(ifId,h)
+    ForIF(context, ifId, h)
     {
       for(k=0; k<nRecvs; k++)
       {
@@ -123,11 +125,10 @@ static int DDD_CheckInterface(DDD::DDDContext& context, DDD_IF ifId)
 
 int DDD_CheckInterfaces(DDD::DDDContext& context)
 {
-  int i;
-  int errors;
+  const auto& nIFs = context.ifCreateContext().nIfs;
 
-  errors = 0;
-  for(i=0; i<nIFs; i++)
+  int errors = 0;
+  for(int i = 0; i < nIFs; ++i)
   {
     errors += DDD_CheckInterface(context, i);
   }
