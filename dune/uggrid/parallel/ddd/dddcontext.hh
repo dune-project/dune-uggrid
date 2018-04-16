@@ -58,6 +58,12 @@ struct ConsContext
 
 namespace If {
 
+struct IfCreateContext
+{
+  IF_DEF theIf[MAX_IF];
+  int nIfs;
+};
+
 struct IfUseContext
 {
   int send_mesgs;
@@ -150,6 +156,12 @@ public:
   Ctrl::ConsContext& consContext()
     { return consContext_; }
 
+  If::IfCreateContext& ifCreateContext()
+    { return ifCreateContext_; }
+
+  const If::IfCreateContext& ifCreateContext() const
+    { return ifCreateContext_; }
+
   If::IfUseContext& ifUseContext()
     { return ifUseContext_; }
 
@@ -193,6 +205,7 @@ protected:
   Basic::NotifyContext notifyContext_;
   Basic::TopoContext topoContext_;
   Ctrl::ConsContext consContext_;
+  If::IfCreateContext ifCreateContext_;
   If::IfUseContext ifUseContext_;
   Mgr::ObjmgrContext objmgrContext_;
   Prio::PrioContext prioContext_;
