@@ -220,7 +220,7 @@ struct IF_DEF
   IFObjPtr  *obj = nullptr;
 
   /* flag: is obj-table valid? */
-  int objValid = false;
+  bool objValid = false;
 
   int nIfHeads = 0;
 
