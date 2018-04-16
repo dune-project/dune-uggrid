@@ -57,16 +57,6 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported variables                                         */
-/*                                                                          */
-/****************************************************************************/
-
-IF_DEF theIF[MAX_IF];
-int nIFs;
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -103,8 +93,10 @@ static bool sort_IFCouplings (const COUPLING* a, const COUPLING* b)
 
 
 
-void IFDeleteAll (DDD_IF ifId)
+static void IFDeleteAll(DDD::DDDContext& context, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   IF_PROC  *ifh, *ifhNext;
   IF_ATTR *ifr, *ifrNext;
 
@@ -164,6 +156,8 @@ static bool is_elem (DDD_PRIO el, int n, DDD_PRIO *set)
 
 static RETCODE update_channels(DDD::DDDContext& context, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   IF_PROC *ifh;
   int i;
   DDD_PROC *partners = DDD_ProcArray(context);
@@ -238,6 +232,8 @@ static COUPLING ** IFCollectStdCouplings(DDD::DDDContext& context)
 
 static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   IF_PROC     *ifHead = nullptr, *lastIfHead;
   IF_ATTR    *ifAttr = nullptr, *lastIfAttr = nullptr;
   int n, i;
@@ -250,7 +246,7 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
   STAT_SET_MODULE(DDD_MODULE_IF);
 
   /* first delete possible old interface */
-  IFDeleteAll(ifId);
+  IFDeleteAll(context, ifId);
 
   STAT_RESET1;
   if (ifId==STD_INTERFACE)
@@ -493,6 +489,10 @@ DDD_IF DDD_IFDefine (
   int nA, DDD_PRIO A[],
   int nB, DDD_PRIO B[])
 {
+  auto& ctx = context.ifCreateContext();
+  auto& theIF = ctx.theIf;
+  auto& nIFs = ctx.nIfs;
+
 int i;
 
 if (nIFs==MAX_IF) {
@@ -554,6 +554,8 @@ return(nIFs-1);
 
 static void StdIFDefine(DDD::DDDContext& context)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   /* exception: no OBJSTRUCT or priority entries */
   theIF[STD_INTERFACE].nObjStruct = 0;
   theIF[STD_INTERFACE].nPrioA     = 0;
@@ -563,7 +565,7 @@ static void StdIFDefine(DDD::DDDContext& context)
 
 
   /* reset name string */
-  theIF[nIFs].name[0] = 0;
+  theIF[STD_INTERFACE].name[0] = '\0';
 
 
   /* create initial interface state */
@@ -578,8 +580,10 @@ static void StdIFDefine(DDD::DDDContext& context)
 
 
 
-void DDD_IFSetName(DDD::DDDContext&, DDD_IF ifId, const char *name)
+void DDD_IFSetName(DDD::DDDContext& context, DDD_IF ifId, const char *name)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
 /* copy name string */
 strncpy(theIF[ifId].name, name, IF_NAMELEN-1);
 }
@@ -589,6 +593,8 @@ strncpy(theIF[ifId].name, name, IF_NAMELEN-1);
 
 void DDD_InfoIFImpl(DDD::DDDContext& context, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   IF_PROC    *ifh;
 
   sprintf(cBuffer, "|\n| DDD_IFInfoImpl for proc=%03d, IF %02d\n", me, ifId);
@@ -652,6 +658,9 @@ void DDD_InfoIFImpl(DDD::DDDContext& context, DDD_IF ifId)
 
 static void IFDisplay (const DDD::DDDContext& context, DDD_IF i)
 {
+  const auto& ctx = context.ifCreateContext();
+  const auto& theIF = ctx.theIf;
+
   IF_PROC    *ifh;
   IF_ATTR    *ifr;
   int j;
@@ -745,7 +754,7 @@ static void IFDisplay (const DDD::DDDContext& context, DDD_IF i)
 
 void DDD_IFDisplay(const DDD::DDDContext& context, DDD_IF aIF)
 {
-if (aIF>=nIFs)
+if (aIF >= context.ifCreateContext().nIfs)
 {
   sprintf(cBuffer, "invalid IF %02d in DDD_IFDisplay", aIF);
   DDD_PrintError('W', 4050, cBuffer);
@@ -784,12 +793,11 @@ DDD_PrintLine("|\n");
 
 void DDD_IFDisplayAll(const DDD::DDDContext& context)
 {
-  int i;
-
   sprintf(cBuffer, "|\n| DDD_IF-Info for proc=%03d (all)\n", me);
   DDD_PrintLine(cBuffer);
 
-  for(i=0; i<nIFs; i++)
+  const auto& nIFs = context.ifCreateContext().nIfs;
+  for(int i=0; i < nIFs; ++i)
   {
     IFDisplay(context, i);
   }
@@ -810,6 +818,7 @@ static void IFRebuildAll(DDD::DDDContext& context)
   }
 
 
+  const auto& nIFs = context.ifCreateContext().nIfs;
   if (nIFs>1)
   {
     int i;
@@ -842,7 +851,7 @@ static void IFRebuildAll(DDD::DDDContext& context)
       for(i=1; i<nIFs; i++)
       {
         /* delete possible old interface */
-        IFDeleteAll(i);
+        IFDeleteAll(context, i);
       }
     }
   }
@@ -883,40 +892,42 @@ void DDD_IFRefreshAll(DDD::DDDContext& context)
 
 void ddd_IFInit(DDD::DDDContext& context)
 {
+  auto& ctx = context.ifCreateContext();
+
   /* init lists of unused items */
-  theIF[0].ifHead = NULL;
-  theIF[0].cpl    = NULL;
+  ctx.theIf[0].ifHead = nullptr;
+  ctx.theIf[0].cpl    = nullptr;
 
   /* init standard interface */
   StdIFDefine(context);
 
   /* no other interfaces yet */
-  nIFs = 1;
+  ctx.nIfs = 1;
 }
 
 
 void ddd_IFExit(DDD::DDDContext& context)
 {
-  int i;
-
-  for(i=0; i<nIFs; i++)
-    IFDeleteAll(i);
+  const auto& nIFs = context.ifCreateContext().nIfs;
+  for(int i=0; i < nIFs; i++)
+    IFDeleteAll(context, i);
 }
 
 
 /****************************************************************************/
 
 
-static size_t IFInfoMemory(const DDD::DDDContext&, DDD_IF ifId)
+static size_t IFInfoMemory(const DDD::DDDContext& context, DDD_IF ifId)
 {
-  IF_PROC *ifp;
+  const auto& theIF = context.ifCreateContext().theIf;
+
   size_t sum=0;
 
   sum += sizeof(IF_PROC)    * theIF[ifId].nIfHeads;         /* component ifHead */
   sum += sizeof(COUPLING *) * theIF[ifId].nItems;           /* component cpl    */
   sum += sizeof(IFObjPtr)   * theIF[ifId].nItems;           /* component obj    */
 
-  for(ifp=theIF[ifId].ifHead; ifp!=NULL; ifp=ifp->next)
+  for(const IF_PROC* ifp=theIF[ifId].ifHead; ifp != nullptr; ifp=ifp->next)
   {
     sum += sizeof(IF_ATTR) * ifp->nAttrs;              /* component ifAttr */
   }
@@ -928,7 +939,7 @@ static size_t IFInfoMemory(const DDD::DDDContext&, DDD_IF ifId)
 
 size_t DDD_IFInfoMemory(const DDD::DDDContext& context, DDD_IF ifId)
 {
-if (ifId>=nIFs)
+if (ifId >= context.ifCreateContext().nIfs)
 {
   sprintf(cBuffer, "invalid IF %02d in DDD_IFInfoMemory", ifId);
   DDD_PrintError('W', 4051, cBuffer);
@@ -941,11 +952,10 @@ return(IFInfoMemory(context, ifId));
 
 size_t DDD_IFInfoMemoryAll(const DDD::DDDContext& context)
 {
-  int i;
+  const auto& nIFs = context.ifCreateContext().nIfs;
+
   size_t sum = 0;
-
-
-  for(i=0; i<nIFs; i++)
+  for(int i = 0; i < nIFs; ++i)
   {
     sum += IFInfoMemory(context, i);
   }

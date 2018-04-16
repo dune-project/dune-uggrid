@@ -552,7 +552,7 @@ void      ddd_IFInit(DDD::DDDContext& context);
 void      ddd_IFExit(DDD::DDDContext& context);
 void      IFAllFromScratch(DDD::DDDContext&);
 void      DDD_InfoIFImpl(DDD::DDDContext& context, DDD_IF);
-void      IFInvalidateShortcuts (DDD_TYPE);
+void      IFInvalidateShortcuts(DDD::DDDContext& context, DDD_TYPE);
 int       DDD_CheckInterfaces(DDD::DDDContext& context);
 
 /* if/ifcmds.c */
