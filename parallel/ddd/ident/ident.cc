@@ -54,6 +54,7 @@
 #include <cstring>
 
 #include <algorithm>
+#include <iterator>
 #include <tuple>
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
@@ -561,31 +562,25 @@ static void ResolveDependencies (
   ID_TUPEL  *tupels, int nTupels,
   IDENTINFO **id, int nIds, int nIdentObjs)
 {
-  IDENTINFO **refd;
   int i, j;
 
   if (nIdentObjs==0)
     return;
 
-  refd = (IDENTINFO **) AllocTmp(sizeof(IDENTINFO *)*nIdentObjs);
-  if (refd==NULL) {
-    DDD_PrintError('E', 3300, ERR_ID_NOMEM_RESOLV);
-    return;
-  }
+  std::vector<IDENTINFO*> refd;
+  refd.reserve(nIdentObjs);
 
   /* build array of pointers to objects being used for identification */
-  for(i=0, j=0; i<nIds; i++)
-  {
-    if (id[i]->typeId==ID_OBJECT)
-    {
-      refd[j] = id[i];
-      j++;
-    }
-  }
+  std::copy_if(
+    id, id + nIds,
+    std::back_inserter(refd),
+    [](const IDENTINFO* ii) { return ii->typeId == ID_OBJECT; }
+    );
+  assert(refd.size() == nIdentObjs);
 
   /* sort it according to GID of referenced objects */
   std::sort(
-    refd, refd + nIdentObjs,
+    refd.begin(), refd.end(),
     [](const IDENTINFO* a, const IDENTINFO* b) {
       return a->id.object < b->id.object;
     });
@@ -620,8 +615,6 @@ static void ResolveDependencies (
       j++;
     }
   }
-
-  FreeTmp(refd,0);
 
 
   for(i=0; i<nTupels; i++)
