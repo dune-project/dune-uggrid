@@ -1,6 +1,11 @@
 #ifndef DUNE_UGGRID_PARALLEL_DDD_DDDTYPES_IMPL_HH
 #define DUNE_UGGRID_PARALLEL_DDD_DDDTYPES_IMPL_HH 1
 
+#include <vector>
+
+#include <dune/uggrid/parallel/ppif/ppiftypes.hh>
+
+#include "dddconstants.hh"
 #include "dddtypes.hh"
 
 namespace DDD {
@@ -148,6 +153,93 @@ struct TYPE_DESC
   /** mask for fast type-dependent copy    */
   std::unique_ptr<unsigned char[]> cmask;
 };
+
+namespace If {
+
+using IFObjPtr = DDD_OBJ;
+
+/**
+ * single part of interface, all couplings have same attr
+ */
+struct IF_ATTR
+{
+  IF_ATTR* next = nullptr;
+
+  /* note: the cplXX resp. objXX arrays are NOT contiguous in memory */
+  COUPLING   **cplAB = nullptr, **cplBA = nullptr, **cplABA = nullptr;
+  /* object shortcut */
+  IFObjPtr   *objAB,  *objBA,  *objABA;
+  int nItems = 0;
+  int nAB = 0;
+  int nBA = 0;
+  int nABA = 0;
+  DDD_ATTR attr;
+
+  explicit IF_ATTR(DDD_ATTR attr)
+  : attr(attr)
+    { /* Nothing */ }
+};
+
+/**
+ * descriptor of message and its contents/buffers for IF-communic.
+ */
+struct IF_PROC
+{
+  IF_PROC* next;
+  IF_ATTR    *ifAttr;
+  int nAttrs;
+
+  /* note: the cplXX resp. objXX arrays ARE contiguous in memory */
+  COUPLING   **cpl, **cplAB = nullptr, **cplBA = nullptr, **cplABA = nullptr;
+  /* object shortcut */
+  IFObjPtr   *obj = nullptr,  *objAB,  *objBA,  *objABA;
+  int nItems = 0, nAB = 0, nBA = 0, nABA = 0;
+  DDD_PROC proc;
+
+  PPIF::VChannelPtr vc;
+  PPIF::msgid msgIn;
+  PPIF::msgid msgOut;
+  std::vector<char> bufIn;
+  std::vector<char> bufOut;
+};
+
+/**
+ * descriptor for one single interface
+ */
+struct IF_DEF
+{
+  IF_PROC   *ifHead = nullptr;
+
+  /** list of couplings belonging to interface */
+  COUPLING  **cpl = nullptr;
+
+  /** overall number of items in this interface    */
+  int nItems = 0;
+
+  /** shortcut: list of object addresses in interf */
+  IFObjPtr  *obj = nullptr;
+
+  /* flag: is obj-table valid? */
+  int objValid = false;
+
+  int nIfHeads = 0;
+
+  int nObjStruct;
+  int nPrioA;
+  int nPrioB;
+  DDD_TYPE O[16];
+  DDD_PRIO A[16];
+  DDD_PRIO B[16];
+
+  /* data for efficiency tuning */
+  int maskO;
+
+  /* data for nice user interaction */
+  /** string for interface identification */
+  char name[IF_NAMELEN+1];
+};
+
+} /* namespace If */
 
 } /* namespace DDD */
 
