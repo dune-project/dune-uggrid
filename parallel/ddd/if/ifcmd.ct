@@ -216,7 +216,7 @@ void IF_FUNCNAME (
 
 #ifdef IF_EXECLOCAL
 
-	ForIF(aIF,ifHead)
+	ForIF(context, aIF, ifHead)
 	{
 		#ifdef IF_WITH_ATTR
 			NS_DIM_PREFIX IF_ATTR	    *ifAttr;
@@ -239,7 +239,7 @@ void IF_FUNCNAME (
 	*/
 
 	/* allocate storage for in and out buffers */
-	ForIF(aIF,ifHead)
+	ForIF(context, aIF, ifHead)
 	{
 		#ifdef IF_WITH_ATTR
 			NS_DIM_PREFIX IF_ATTR	    *ifAttr;
@@ -286,7 +286,7 @@ void IF_FUNCNAME (
 
 
 	/* build messages using gather-handler and send them away */
-	ForIF(aIF,ifHead)
+	ForIF(context, aIF, ifHead)
 	{
 		char   *buffer;
 		#ifdef IF_WITH_ATTR
@@ -335,7 +335,7 @@ void IF_FUNCNAME (
 	for(tries=0; tries<MAX_TRIES && recv_mesgs>0; tries++)
 	{
 		/* poll receive calls */
-		ForIF(aIF,ifHead)
+		ForIF(context, aIF, ifHead)
 		{
 			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
@@ -413,7 +413,7 @@ void IF_FUNCNAME (
 		sprintf(NS_DIM_PREFIX cBuffer, CONCAT("receive-timeout for IF %02d in ",IF_FUNCNAME), aIF);
 		DDD_PrintError('E', 4200, NS_DIM_PREFIX cBuffer);
 
-		ForIF(aIF,ifHead)
+		ForIF(context, aIF, ifHead)
 		{
 			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
@@ -436,7 +436,7 @@ void IF_FUNCNAME (
 			sprintf(NS_DIM_PREFIX cBuffer, CONCAT("send-timeout for IF %02d in ",IF_FUNCNAME), aIF);
 			DDD_PrintError('E', 4210, NS_DIM_PREFIX cBuffer);
 
-			ForIF(aIF,ifHead)
+			ForIF(context, aIF, ifHead)
 			{
 				if (not ifHead->bufOut.empty() && ifHead->msgOut!=NO_MSGID)
 				{

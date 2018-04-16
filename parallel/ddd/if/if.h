@@ -26,6 +26,8 @@
 
 #include <vector>
 
+#include <dune/uggrid/parallel/ddd/dddtypes_impl.hh>
+
 /****************************************************************************/
 /*                                                                          */
 /* defines in the following order                                           */
@@ -38,19 +40,12 @@
 
 START_UGDIM_NAMESPACE
 
+using namespace DDD::If;
+
 /*
    #define CtrlTimeouts
    #define CtrlTimeoutsDetailed
  */
-
-
-/* maximum number of interfaces */
-#define MAX_IF                  32
-
-
-/* maximum length of interface description string */
-#define IF_NAMELEN      80
-
 
 
 enum CplDir {
@@ -66,111 +61,10 @@ enum CplDir {
 /* macros for easier coding of replicated source code */
 
 /* loop over one interface (all ifHeads) */
-#define ForIF(id,iter)  for((iter)=NS_DIM_PREFIX theIF[(id)].ifHead;  \
-                            (iter)!=NULL;  \
-                            (iter)=(iter)->next)
-
-
-typedef DDD_OBJ IFObjPtr;
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-
-/****************************************************************************/
-/* IF_ATTR: single part of interface, all couplings have same attr          */
-/****************************************************************************/
-
-struct IF_ATTR
-{
-  IF_ATTR* next = nullptr;
-
-  /* note: the cplXX resp. objXX arrays are NOT contiguous in memory */
-  COUPLING   **cplAB = nullptr, **cplBA = nullptr, **cplABA = nullptr;
-  IFObjPtr   *objAB,  *objBA,  *objABA;       /* object shortcut */
-  int nItems = 0;
-  int nAB = 0;
-  int nBA = 0;
-  int nABA = 0;
-  DDD_ATTR attr;
-
-  explicit IF_ATTR(DDD_ATTR attr)
-  : attr(attr)
-    { /* Nothing */ }
-};
-
-
-
-/****************************************************************************/
-/* IF_PROC: descriptor of message and its contents/buffers for IF-communic. */
-/****************************************************************************/
-
-struct IF_PROC
-{
-  IF_PROC* next;
-  IF_ATTR    *ifAttr;
-  int nAttrs;
-
-  /* note: the cplXX resp. objXX arrays ARE contiguous in memory */
-  COUPLING   **cpl, **cplAB = nullptr, **cplBA = nullptr, **cplABA = nullptr;
-  IFObjPtr   *obj = nullptr,  *objAB,  *objBA,  *objABA; /* object shortcut */
-  int nItems = 0, nAB = 0, nBA = 0, nABA = 0;
-  DDD_PROC proc;
-
-  VChannelPtr vc;
-  msgid msgIn;
-  msgid msgOut;
-  std::vector<char> bufIn;
-  std::vector<char> bufOut;
-};
-
-
-
-/****************************************************************************/
-/* IF_DEF: descriptor for one single interface                              */
-/****************************************************************************/
-
-struct IF_DEF
-{
-  IF_PROC   *ifHead;
-  COUPLING  **cpl;              /* list of couplings belonging to interface     */
-  int nItems;                   /* overall number of items in this interface    */
-
-  IFObjPtr  *obj;              /* shortcut: list of object addresses in interf */
-  int objValid;                 /* flag: is obj-table valid?                    */
-
-  int nIfHeads;
-
-  int nObjStruct;
-  int nPrioA;
-  int nPrioB;
-  DDD_TYPE O[16];
-  DDD_PRIO A[16];
-  DDD_PRIO B[16];
-
-  /* data for efficiency tuning */
-  int maskO;
-
-  /* data for nice user interaction */
-  char name[IF_NAMELEN+1];            /* string for interface identification */
-};
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables for corresponding module                         */
-/*                                                                          */
-/****************************************************************************/
-
-extern IF_DEF theIF[MAX_IF];
-extern int nIFs;
-
+#define ForIF(context, id, iter)                            \
+  for((iter)=context.ifCreateContext().theIf[(id)].ifHead;  \
+      (iter)!=NULL;                                         \
+      (iter)=(iter)->next)
 
 
 /****************************************************************************/

@@ -689,7 +689,7 @@ void DDD_HdrConstructorMove (DDD::DDDContext& context, DDD_HDR newhdr, DDD_HDR o
     }
 
     /* invalidate update obj-shortcut tables from IF module */
-    IFInvalidateShortcuts(OBJ_TYPE(newhdr));
+    IFInvalidateShortcuts(context, OBJ_TYPE(newhdr));
   }
 
   /* invalidate old DDD_HDR */

@@ -92,7 +92,7 @@ int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
   recv_mesgs = 0;
 
   /* get memory and initiate receive calls */
-  ForIF(ifId,ifHead)
+  ForIF(context, ifId, ifHead)
   {
     if (not ifHead->bufIn.empty())
     {
@@ -126,7 +126,7 @@ void IFExitComm(DDD::DDDContext& context, DDD_IF ifId)
 
   if (DDD_GetOption(context, OPT_IF_REUSE_BUFFERS) == OPT_OFF)
   {
-    ForIF(ifId,ifHead)
+    ForIF(context, ifId, ifHead)
     {
       ifHead->bufIn.clear();
       ifHead->bufIn.shrink_to_fit();
@@ -183,7 +183,7 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
     IF_PROC   *ifHead;
 
     /* poll send calls */
-    ForIF(ifId,ifHead)
+    ForIF(context, ifId, ifHead)
     {
       if (not ifHead->bufOut.empty() && ifHead->msgOut!= NO_MSGID)
       {

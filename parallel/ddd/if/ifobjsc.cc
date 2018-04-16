@@ -61,10 +61,11 @@ START_UGDIM_NAMESPACE
  */
 static void IFComputeShortcutTable(DDD::DDDContext& context, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   int nItems = theIF[ifId].nItems;
   COUPLING  **cpls = theIF[ifId].cpl;
   IFObjPtr   *objs = theIF[ifId].obj;
-  int i;
 
   /* mark obj-shortcut-table as valid */
   theIF[ifId].objValid = true;
@@ -73,7 +74,7 @@ static void IFComputeShortcutTable(DDD::DDDContext& context, DDD_IF ifId)
     return;
 
   /* fill in object pointers, this is the 4-fold indirection step */
-  for(i=0; i<nItems; i++)
+  for(int i = 0; i < nItems; ++i)
   {
     objs[i] = OBJ_OBJ(context, cpls[i]->obj);
   }
@@ -90,6 +91,8 @@ static void IFComputeShortcutTable(DDD::DDDContext& context, DDD_IF ifId)
  */
 void IFCreateObjShortcut(DDD::DDDContext& context, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   COUPLING    **cplarray = theIF[ifId].cpl;
   IFObjPtr     *objarray;
   IF_PROC     *ifHead;
@@ -113,7 +116,7 @@ void IFCreateObjShortcut(DDD::DDDContext& context, DDD_IF ifId)
   IFComputeShortcutTable(context, ifId);
 
 
-  ForIF(ifId,ifHead)
+  ForIF(context, ifId, ifHead)
   {
     IF_ATTR  *ifAttr;
 
@@ -142,12 +145,13 @@ void IFCreateObjShortcut(DDD::DDDContext& context, DDD_IF ifId)
         if object addresses in memory are changed, then the shortcut-tables
         will get invalid. this routine does the invalidation.
  */
-void IFInvalidateShortcuts (DDD_TYPE invalid_type)
+void IFInvalidateShortcuts(DDD::DDDContext& context, DDD_TYPE invalid_type)
 {
-  int i;
+  auto& theIF = context.ifCreateContext().theIf;
+  const auto& nIFs = context.ifCreateContext().nIfs;
 
   /* test all interfaces */
-  for(i=0; i<nIFs; i++)
+  for(int i = 0; i < nIFs; ++i)
   {
     if (i==STD_INTERFACE)
       continue;
@@ -177,6 +181,7 @@ void IFCheckShortcuts (DDD::DDDContext& context, DDD_IF ifId)
   if (ifId==STD_INTERFACE)
     return;
 
+  auto& theIF = context.ifCreateContext().theIf;
   if (! theIF[ifId].objValid)
   {
     /*
