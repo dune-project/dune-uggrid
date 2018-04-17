@@ -241,6 +241,19 @@ struct IF_DEF
 
 } /* namespace If */
 
+namespace Mgr {
+
+/** segment of Cpls */
+struct CplSegm
+{
+  CplSegm *next;
+  int nItems;
+
+  COUPLING item[CPLSEGM_SIZE];
+};
+
+} /* namespace Mgr */
+
 } /* namespace DDD */
 
 #endif
