@@ -12,6 +12,9 @@ static const std::size_t MAX_IF = 32;
 /** maximum length of interface description string */
 static const std::size_t IF_NAMELEN = 80;
 
+/** size of segment of couplings (for memory allocation) */
+static const std::size_t CPLSEGM_SIZE = 512;
+
 } /* namespace DDD */
 
 #endif

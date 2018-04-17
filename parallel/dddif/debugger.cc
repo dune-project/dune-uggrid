@@ -53,7 +53,7 @@ static void dddif_DisplayMemoryUsage (const DDD::DDDContext& context)
              );
 
   UserWriteF("mem for couplings:   %8ld bytes\n",
-             (unsigned long) DDD_InfoCplMemory()
+             (unsigned long) DDD_InfoCplMemory(context)
              );
 }
 

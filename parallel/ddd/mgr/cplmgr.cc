@@ -48,26 +48,7 @@ using namespace PPIF;
 
 START_UGDIM_NAMESPACE
 
-/****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*        compile time constants defining static data size (i.e. arrays)    */
-/*        other constants                                                   */
-/*        macros                                                            */
-/*                                                                          */
-/****************************************************************************/
-
-/* size of segment of couplings (for memory allocation) */
-#define CPLSEGM_SIZE 512
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data types                                                               */
-/*                                                                          */
-/****************************************************************************/
+using CplSegm = DDD::Mgr::CplSegm;
 
 /*
         the storage of COUPLING items is done with the following scheme:
@@ -80,42 +61,10 @@ START_UGDIM_NAMESPACE
         FREE:   put coupling into freelist.
  */
 
-
-/* segment of Cpls */
-struct CplSegm
+static CplSegm *NewCplSegm(DDD::DDDContext& context)
 {
-  CplSegm *next;
-  int nItems;
+  auto& mctx = context.cplmgrContext();
 
-  COUPLING item[CPLSEGM_SIZE];
-};
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-static CplSegm *segmCpl = NULL;
-static COUPLING *memlistCpl = NULL;
-static int *localIBuffer;
-static int nCplSegms;
-
-
-/****************************************************************************/
-/*                                                                          */
-/* routines                                                                 */
-/*                                                                          */
-/****************************************************************************/
-
-
-static CplSegm *NewCplSegm (void)
-{
   CplSegm *segm;
 
   segm = (CplSegm *) AllocTmpReq(sizeof(CplSegm), TMEM_CPL);
@@ -126,18 +75,20 @@ static CplSegm *NewCplSegm (void)
     HARD_EXIT;
   }
 
-  segm->next   = segmCpl;
-  segmCpl      = segm;
+  segm->next   = mctx.segmCpl;
+  mctx.segmCpl = segm;
   segm->nItems = 0;
-  nCplSegms++;
+  mctx.nCplSegms++;
 
   return(segm);
 }
 
 
-static void FreeCplSegms (void)
+static void FreeCplSegms(DDD::DDDContext& context)
 {
-  CplSegm *segm = segmCpl;
+  auto& mctx = context.cplmgrContext();
+
+  CplSegm *segm = mctx.segmCpl;
   CplSegm *next = NULL;
 
   while (segm!=NULL)
@@ -148,9 +99,9 @@ static void FreeCplSegms (void)
     segm = next;
   }
 
-  segmCpl = NULL;
-  nCplSegms = 0;
-  memlistCpl = NULL;
+  mctx.segmCpl = nullptr;
+  mctx.nCplSegms = 0;
+  mctx.memlistCpl = nullptr;
 }
 
 
@@ -171,6 +122,7 @@ static void InitNewCoupling (COUPLING* cpl)
 static COUPLING *NewCoupling (DDD::DDDContext& context)
 {
   auto& ctx = context.couplingContext();
+  auto& mctx = context.cplmgrContext();
 
   COUPLING *cpl;
 
@@ -179,21 +131,21 @@ static COUPLING *NewCoupling (DDD::DDDContext& context)
     /* allocate coupling from segments (which are allocated
        from segment-freelists) */
 
-    if (memlistCpl==NULL)
+    if (mctx.memlistCpl == nullptr)
     {
-      CplSegm *segm = segmCpl;
+      CplSegm *segm = mctx.segmCpl;
 
       if (segm==NULL || segm->nItems==CPLSEGM_SIZE)
       {
-        segm = NewCplSegm();
+        segm = NewCplSegm(context);
       }
 
       cpl = &(segm->item[segm->nItems++]);
     }
     else
     {
-      cpl = memlistCpl;
-      memlistCpl = CPL_NEXT(cpl);
+      cpl = mctx.memlistCpl;
+      mctx.memlistCpl = CPL_NEXT(cpl);
     }
 
     /* init coupling memory and its private data */
@@ -229,11 +181,12 @@ static COUPLING *NewCoupling (DDD::DDDContext& context)
 static void DisposeCoupling (DDD::DDDContext& context, COUPLING *cpl)
 {
   auto& ctx = context.couplingContext();
+  auto& mctx = context.cplmgrContext();
 
   if (CPLMEM(cpl)==CPLMEM_FREELIST)
   {
-    CPL_NEXT(cpl) = memlistCpl;
-    memlistCpl = cpl;
+    CPL_NEXT(cpl) = mctx.memlistCpl;
+    mctx.memlistCpl = cpl;
   }
   else
   {
@@ -581,12 +534,14 @@ void DisposeCouplingList (DDD::DDDContext& context, COUPLING *cpl)
 
 int *DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR hdr)
 {
+  auto& mctx = context.cplmgrContext();
+
 COUPLING *cpl;
 int i, objIndex = OBJ_INDEX(hdr);
 
 /* insert description of own (i.e. local) copy */
-localIBuffer[0] = me;
-localIBuffer[1] = OBJ_PRIO(hdr);
+mctx.localIBuffer[0] = me;
+mctx.localIBuffer[1] = OBJ_PRIO(hdr);
 
 i=2;
 
@@ -594,15 +549,15 @@ i=2;
 if (objIndex < context.couplingContext().nCpls)
 {
   for(cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl), i+=2) {
-    localIBuffer[i]   = CPL_PROC(cpl);
-    localIBuffer[i+1] = cpl->prio;
+    mctx.localIBuffer[i]   = CPL_PROC(cpl);
+    mctx.localIBuffer[i+1] = cpl->prio;
   }
 }
 
 /* append end mark */
-localIBuffer[i] = -1;
+mctx.localIBuffer[i] = -1;
 
-return(localIBuffer);
+return(mctx.localIBuffer);
 }
 
 
@@ -714,13 +669,9 @@ void DDD_InfoCoupling(const DDD::DDDContext& context, DDD_HDR hdr)
 /*                                                                          */
 /****************************************************************************/
 
-size_t DDD_InfoCplMemory (void)
+size_t DDD_InfoCplMemory(const DDD::DDDContext& context)
 {
-  size_t sum = 0;
-
-  sum += sizeof(CplSegm) * nCplSegms;
-
-  return(sum);
+  return sizeof(CplSegm) * context.cplmgrContext().nCplSegms;
 }
 
 
@@ -739,29 +690,32 @@ size_t DDD_InfoCplMemory (void)
 
 void ddd_CplMgrInit(DDD::DDDContext& context)
 {
+  auto& mctx = context.cplmgrContext();
+
   /* allocate first (smallest) coupling tables */
   AllocCplTables(context, MAX_CPL_START);
 
 
-  localIBuffer = (int*)AllocFix((2*context.procs()+1)*sizeof(int));
-  if (localIBuffer==NULL)
+  mctx.localIBuffer = (int*)AllocFix((2*context.procs()+1)*sizeof(int));
+  if (mctx.localIBuffer == nullptr)
   {
     DDD_PrintError('E', 2532, STR_NOMEM " for DDD_InfoProcList()");
     HARD_EXIT;
   }
 
-  memlistCpl = NULL;
-  segmCpl    = NULL;
-  nCplSegms  = 0;
+  mctx.memlistCpl = nullptr;
+  mctx.segmCpl    = nullptr;
+  mctx.nCplSegms  = 0;
 }
 
 
 void ddd_CplMgrExit(DDD::DDDContext& context)
 {
   auto& ctx = context.couplingContext();
+  auto& mctx = context.cplmgrContext();
 
-  FreeFix(localIBuffer);
-  FreeCplSegms();
+  FreeFix(mctx.localIBuffer);
+  FreeCplSegms(context);
 
   ctx.cplTable.clear();
   ctx.nCplTable.clear();
