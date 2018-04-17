@@ -348,7 +348,7 @@ int  *   DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR);
 DDD_PROC DDD_InfoProcPrio(const DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 bool     DDD_InfoIsLocal(const DDD::DDDContext& context, DDD_HDR);
 int      DDD_InfoNCopies(const DDD::DDDContext& context, DDD_HDR);
-size_t   DDD_InfoCplMemory (void);
+size_t   DDD_InfoCplMemory(const DDD::DDDContext& context);
 
 
 
