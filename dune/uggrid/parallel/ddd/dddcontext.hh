@@ -86,6 +86,11 @@ struct ObjmgrContext
   DDD_GID theIdCount;
 };
 
+struct TypemgrContext
+{
+  int nDescr;
+};
+
 } /* namespace Mgr */
 
 namespace Prio {
@@ -182,6 +187,12 @@ public:
   Mgr::ObjmgrContext& objmgrContext()
     { return objmgrContext_; }
 
+  Mgr::TypemgrContext& typemgrContext()
+    { return typemgrContext_; }
+
+  const Mgr::TypemgrContext& typemgrContext() const
+    { return typemgrContext_; }
+
   Prio::PrioContext& prioContext()
     { return prioContext_; }
 
@@ -223,6 +234,7 @@ protected:
   If::IfUseContext ifUseContext_;
   Mgr::CplmgrContext cplmgrContext_;
   Mgr::ObjmgrContext objmgrContext_;
+  Mgr::TypemgrContext typemgrContext_;
   Prio::PrioContext prioContext_;
   CouplingContext couplingContext_;
 
