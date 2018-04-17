@@ -86,8 +86,6 @@ static unsigned int dddUsers = 0;
 int        *iBuffer;        /* general bufferspace, integer */
 char       *cBuffer;        /* general bufferspace, integer */
 
-int theOptions[OPT_END];
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -353,7 +351,7 @@ void DDD_LineOutRegister (void (*func)(const char *s))
    @param value    option value, possible values depend on option specifier
  */
 
-void DDD_SetOption (DDD::DDDContext&, DDD_OPTION option, int value)
+void DDD_SetOption (DDD::DDDContext& context, DDD_OPTION option, int value)
 {
 if (option>=OPT_END)
 {
@@ -361,7 +359,7 @@ if (option>=OPT_END)
   return;
 }
 
-  theOptions[option] = value;
+  context.options()[option] = value;
 }
 
 
@@ -386,7 +384,7 @@ int DDD_GetOption(const DDD::DDDContext& context, DDD_OPTION option)
     return 0;
   }
 
-  return theOptions[option];
+  return context.options()[option];
 }
 
 END_UGDIM_NAMESPACE
