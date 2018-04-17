@@ -73,6 +73,14 @@ struct IfUseContext
 
 namespace Mgr {
 
+struct CplmgrContext
+{
+  CplSegm *segmCpl = nullptr;
+  COUPLING *memlistCpl = nullptr;
+  int *localIBuffer;
+  int nCplSegms;
+};
+
 struct ObjmgrContext
 {
   DDD_GID theIdCount;
@@ -165,6 +173,12 @@ public:
   If::IfUseContext& ifUseContext()
     { return ifUseContext_; }
 
+  Mgr::CplmgrContext& cplmgrContext()
+    { return cplmgrContext_; }
+
+  const Mgr::CplmgrContext& cplmgrContext() const
+    { return cplmgrContext_; }
+
   Mgr::ObjmgrContext& objmgrContext()
     { return objmgrContext_; }
 
@@ -207,6 +221,7 @@ protected:
   Ctrl::ConsContext consContext_;
   If::IfCreateContext ifCreateContext_;
   If::IfUseContext ifUseContext_;
+  Mgr::CplmgrContext cplmgrContext_;
   Mgr::ObjmgrContext objmgrContext_;
   Prio::PrioContext prioContext_;
   CouplingContext couplingContext_;
