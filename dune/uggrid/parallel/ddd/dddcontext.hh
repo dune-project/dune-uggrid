@@ -223,6 +223,12 @@ public:
   const std::array<TYPE_DESC, MAX_TYPEDESC>& typeDefs() const
     { return typeDefs_; }
 
+  std::array<int, OPT_END>& options()
+    { return options_; }
+
+  const std::array<int, OPT_END>& options() const
+    { return options_; }
+
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
   void* data_ = nullptr;
@@ -242,6 +248,8 @@ protected:
   int nObjs_;
 
   std::array<TYPE_DESC, MAX_TYPEDESC> typeDefs_;
+
+  std::array<int, OPT_END> options_;
 };
 
 } /* namespace DDD */
