@@ -176,9 +176,6 @@ enum PrioMergeVals {
 extern int        *iBuffer;
 extern char       *cBuffer;
 
-extern int theOptions[OPT_END];
-
-
 /****************************************************************************/
 /*                                                                          */
 /* definitions previously hold in misc.h                                    */
