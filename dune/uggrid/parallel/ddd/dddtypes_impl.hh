@@ -10,6 +10,33 @@
 
 namespace DDD {
 
+/** options for DDD_SetOption */
+enum DDD_OPTION {
+  OPT_IDENTIFY_MODE=0,             ///< one of the IDMODE_xxx constants
+
+  OPT_WARNING_VARSIZE_OBJ=8,       ///< warning on differing obj sizes
+  OPT_WARNING_SMALLSIZE,           ///< warning on obj sizes smaller than declared
+  OPT_WARNING_PRIOCHANGE,          ///< warning on inconsistency in prio-change
+  OPT_WARNING_DESTRUCT_HDR,        ///< warning on inconsistency in HdrDestructor
+  OPT_WARNING_REF_COLLISION,       ///< warning on collision in reference-localize
+  OPT_WARNING_OLDSTYLE,            ///< warning on usage of old-style ddd-funcs
+
+  OPT_QUIET_CONSCHECK=16,          ///< do ConsCheck in a quiet manner
+  OPT_DEBUG_XFERMESGS,             ///< print debug info for xfer messages
+  OPT_INFO_XFER,                   ///< display some statistical info during xfer
+  OPT_INFO_JOIN,                   ///< display some statistical info during join
+  OPT_INFO_IF_WITH_ATTR,           ///< display interfaces detailed (with attrs)
+
+  OPT_XFER_PRUNE_DELETE,           ///< prune del-cmd in del/xfercopy-combination
+
+  OPT_IF_REUSE_BUFFERS,            ///< reuse interface buffs as long as possible
+  OPT_IF_CREATE_EXPLICIT,          ///< dont (re-)create interfaces automatically
+
+  OPT_CPLMGR_USE_FREELIST,         ///< use freelist for coupling-memory (default)
+
+  OPT_END
+};
+
 /**
  * \brief DDD object header, include this into all parallel object structures
  *
