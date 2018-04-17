@@ -76,22 +76,6 @@ enum DDD_TypeModes
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of variables global to this source file only                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-
-/* overall number of DDD_TYPE definitions */
-static int nDescr;
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -498,6 +482,8 @@ static void AttachMask(const DDD::DDDContext& context, TYPE_DESC *desc)
 
 void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 {
+  auto& nDescr = context.typemgrContext().nDescr;
+
   size_t argsize;
   char      *argp;
   int argtyp, argno;
@@ -822,6 +808,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 
 DDD_TYPE DDD_TypeDeclare(DDD::DDDContext& context, const char *name)
 {
+  auto& nDescr = context.typemgrContext().nDescr;
   TYPE_DESC* desc = &context.typeDefs()[nDescr];
 
   /* check whether there is one more DDD_TYPE */
@@ -864,7 +851,7 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
   if (context.isMaster())
   {
     /* check for plausibility */
-    if (id>=nDescr)
+    if (id >= context.typemgrContext().nDescr)
     {
       sprintf(cBuffer, "invalid DDD_TYPE %d in DDD_TypeDisplay", id);
       DDD_PrintError('E', 2427, cBuffer);
@@ -1031,9 +1018,9 @@ DEFINE_DDD_SETHANDLER(XFERCOPYMANIP)
 /*                                                                          */
 /****************************************************************************/
 
-int DDD_InfoTypes(const DDD::DDDContext&)
+int DDD_InfoTypes(const DDD::DDDContext& context)
 {
-  return nDescr;
+  return context.typemgrContext().nDescr;
 }
 
 
@@ -1083,7 +1070,7 @@ void ddd_TypeMgrInit(DDD::DDDContext& context)
 
 
   /* reset declared types */
-  nDescr = 0;
+  context.typemgrContext().nDescr = 0;
 
 
   /* init DDD_HEADER as first type, with DDD_TYPE=0 */
