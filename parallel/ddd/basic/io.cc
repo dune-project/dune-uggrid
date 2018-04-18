@@ -38,7 +38,7 @@
 /* PPIF namespace: */
 using namespace PPIF;
 
-START_UGDIM_NAMESPACE
+namespace DDD {
 
 void (*DDD_UserLineOutFunction)(const char *s);
 
@@ -182,4 +182,4 @@ void DDD_PrintError (char error_class, int error_no, const char *text)
   DDD_PrintLine(buffer);
 }
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */

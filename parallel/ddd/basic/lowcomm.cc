@@ -188,7 +188,7 @@ struct TABLE_DESC
 /*                                                                          */
 /****************************************************************************/
 
-START_UGDIM_NAMESPACE
+namespace DDD {
 
 using namespace DDD::Basic;
 
@@ -227,7 +227,7 @@ void LC_Exit(DDD::DDDContext& context)
     auto md = lcContext.FreeMsgDescs;
     while (md != nullptr) {
       const auto next = md->next;
-      FreeCom(md);
+      delete md;
       md = next;
     }
     lcContext.FreeMsgDescs = nullptr;
@@ -237,7 +237,7 @@ void LC_Exit(DDD::DDDContext& context)
     auto mt = lcContext.MsgTypes;
     while (mt != nullptr) {
       const auto next = mt->next;
-      FreeCom(mt);
+      delete mt;
       mt = next;
     }
     lcContext.MsgTypes = nullptr;
@@ -308,7 +308,7 @@ static MSG_DESC *NewMsgDesc (DDD::DDDContext& context)
   else
   {
     /* freelist is empty */
-    md = (MSG_DESC *) AllocCom(sizeof(MSG_DESC));
+    md = new MSG_DESC;
   }
 
   return(md);
@@ -349,7 +349,7 @@ static LC_MSGHANDLE LC_NewRecvMsg (DDD::DDDContext& context, LC_MSGTYPE mtyp, DD
   msg->bufferSize = size;
 
   /* allocate chunks array */
-  msg->chunks = (CHUNK_DESC *) AllocTmpReq(sizeof(CHUNK_DESC)*mtyp->nComps, TMEM_LOWCOMM);
+  msg->chunks = new CHUNK_DESC[mtyp->nComps];
 
   /* enter message into recv queue */
   msg->next = lcContext.RecvQueue;
@@ -363,9 +363,7 @@ static LC_MSGHANDLE LC_NewRecvMsg (DDD::DDDContext& context, LC_MSGTYPE mtyp, DD
 
 static void LC_DeleteMsg (DDD::DDDContext& context, LC_MSGHANDLE md)
 {
-  DUNE_UNUSED size_t size = sizeof(CHUNK_DESC) * md->msgType->nComps;
-
-  FreeTmpReq(md->chunks,size,TMEM_LOWCOMM);
+  delete[] md->chunks;
   FreeMsgDesc(context, md);
 }
 
@@ -767,10 +765,7 @@ LC_MSGTYPE LC_NewMsgType(DDD::DDDContext& context, const char *aName)
   auto& lcContext = context.lowCommContext();
   MSG_TYPE *mt;
 
-  mt = (MSG_TYPE *) AllocCom(sizeof(MSG_TYPE));
-  if (mt==NULL)
-    throw std::bad_alloc();
-
+  mt = new MSG_TYPE;
   mt->name   = aName;
   mt->nComps = 0;
 
@@ -910,9 +905,7 @@ LC_MSGHANDLE LC_NewSendMsg(DDD::DDDContext& context, LC_MSGTYPE mtyp, DDD_PROC a
   msg->bufferSize = 0;
 
   /* allocate chunks array */
-  msg->chunks = (CHUNK_DESC *) AllocTmpReq(sizeof(CHUNK_DESC)*mtyp->nComps, TMEM_LOWCOMM);
-  if (msg->chunks==NULL)
-    throw std::bad_alloc();
+  msg->chunks = new CHUNK_DESC[mtyp->nComps];
 
   /* enter message into send queue */
   msg->next = lcContext.SendQueue;
@@ -1092,15 +1085,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
   /* create array of receive message handles */
   if (lcContext.nRecvs>0)
-  {
-    lcContext.theRecvArray = (LC_MSGHANDLE *)AllocTmpReq(sizeof(LC_MSGHANDLE)*lcContext.nRecvs, TMEM_ANY);
-    if (lcContext.theRecvArray == nullptr)
-    {
-      DDD_PrintError('E', 6623, "out of memory in LC_Connect()");
-      DDD_NotifyEnd(context);
-      return(EXCEPTION_LOWCOMM_CONNECT);
-    }
-  }
+    lcContext.theRecvArray = new LC_MSGHANDLE[lcContext.nRecvs];
 
 
   /* create recv messages from notify array */
@@ -1246,8 +1231,7 @@ void LC_Cleanup(DDD::DDDContext& context)
 
   if (lcContext.theRecvArray != nullptr)
   {
-    DUNE_UNUSED size_t size = sizeof(LC_MSGHANDLE)*lcContext.nRecvs;
-    FreeTmpReq(lcContext.theRecvArray,size,TMEM_ANY);
+    delete[] lcContext.theRecvArray;
     lcContext.theRecvArray = nullptr;
   }
 
@@ -1371,4 +1355,4 @@ void LC_PrintRecvMsgs(const DDD::DDDContext& context)
 
 /****************************************************************************/
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */
