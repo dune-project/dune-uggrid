@@ -76,7 +76,8 @@ USING_UG_NAMESPACE
 /* PPIF namespace: */
 using namespace PPIF;
 
-  START_UGDIM_NAMESPACE
+namespace DDD {
+namespace Ident {
 
 /****************************************************************************/
 /*                                                                          */
@@ -99,7 +100,7 @@ using namespace PPIF;
 
 
 /* overall mode of identification */
-enum IdentMode {
+enum class IdentMode : unsigned char {
   IMODE_IDLE = 0,          /* waiting for next DDD_IdentifyBegin() */
   IMODE_CMDS,              /* after DDD_IdentifyBegin(), before DDD_IdentifyEnd() */
   IMODE_BUSY               /* during DDD_IdentifyEnd() */
@@ -228,13 +229,14 @@ struct IdEntry {
   IDENTINFO msg;
 };
 
+namespace {
 
 /* define container class */
 #define SegmListOf   IdEntry
 #define SegmSize     128
 #include "basic/ooppcc.h"
 
-
+} /* namespace */
 
 
 /****************************************************************************/
@@ -256,35 +258,18 @@ struct ID_PLIST {
   msgid idin, idout;
 };
 
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-static ID_PLIST   *thePLists;
-static int cntIdents, nPLists;
-
-static enum IdentMode identMode;
-
-
+} /* namespace Ident */
+} /* namespace DDD */
 
 /****************************************************************************/
 /*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
+
+START_UGDIM_NAMESPACE
+
+using namespace DDD::Ident;
 
 /****************************************************************************/
 /*
@@ -296,37 +281,37 @@ static enum IdentMode identMode;
         and recovery.
  */
 
-static const char *IdentModeName (enum IdentMode mode)
+static const char *IdentModeName(IdentMode mode)
 {
   switch(mode)
   {
-  case IMODE_IDLE : return "idle-mode";
-  case IMODE_CMDS : return "commands-mode";
-  case IMODE_BUSY : return "busy-mode";
+  case IdentMode::IMODE_IDLE : return "idle-mode";
+  case IdentMode::IMODE_CMDS : return "commands-mode";
+  case IdentMode::IMODE_BUSY : return "busy-mode";
   }
   return "unknown-mode";
 }
 
 
-static void IdentSetMode (enum IdentMode mode)
+static void IdentSetMode(DDD::DDDContext& context, IdentMode mode)
 {
-  identMode = mode;
+  context.identContext().identMode = mode;
 
 #       if DebugIdent<=8
-  Dune::dinfo << "IdentMode=" << IdentModeName(identMode) << "\n";
+  Dune::dinfo << "IdentMode=" << IdentModeName(mode) << "\n";
 #       endif
 }
 
 
-static enum IdentMode IdentSuccMode (enum IdentMode mode)
+static IdentMode IdentSuccMode(IdentMode mode)
 {
   switch(mode)
   {
-  case IMODE_IDLE : return IMODE_CMDS;
-  case IMODE_CMDS : return IMODE_BUSY;
-  case IMODE_BUSY : return IMODE_IDLE;
+  case IdentMode::IMODE_IDLE : return IdentMode::IMODE_CMDS;
+  case IdentMode::IMODE_CMDS : return IdentMode::IMODE_BUSY;
+  case IdentMode::IMODE_BUSY : return IdentMode::IMODE_IDLE;
   }
-  return IMODE_IDLE;
+  DUNE_THROW(Dune::InvalidStateException, "invalid IdentMode");
 }
 
 
@@ -339,20 +324,22 @@ static enum IdentMode IdentSuccMode (enum IdentMode mode)
  */
 
 
-static int IdentActive (void)
+static bool IdentActive(const DDD::DDDContext& context)
 {
-  return identMode!=IMODE_IDLE;
+  return context.identContext().identMode != IdentMode::IMODE_IDLE;
 }
 
 
-static int IdentStepMode (enum IdentMode old)
+static bool IdentStepMode(DDD::DDDContext& context, IdentMode old)
 {
-  if (identMode!=old)
+  auto& identMode = context.identContext().identMode;
+
+  if (identMode != old)
     DUNE_THROW(Dune::Exception,
                "wrong Ident-mode (currently in " << IdentModeName(identMode)
                << ", expected " << IdentModeName(old) << ")");
 
-  IdentSetMode(IdentSuccMode(identMode));
+  IdentSetMode(context, IdentSuccMode(identMode));
   return true;
 }
 
@@ -883,12 +870,14 @@ static int IdentifySort (const DDD::DDDContext& context,
 
 static int InitComm(DDD::DDDContext& context, int nPartners)
 {
+  auto& ctx = context.identContext();
+
   ID_PLIST  *plist;
   int i, err;
   DDD_PROC  *partners = DDD_ProcArray(context);
 
   /* fill partner processor numbers into array */
-  for(plist=thePLists, i=0; i<nPartners; i++, plist=plist->next)
+  for(plist=ctx.thePLists, i=0; i<nPartners; i++, plist=plist->next)
     partners[i] = plist->proc;
 
   if (! IS_OK(DDD_GetChannels(context, nPartners)))
@@ -898,7 +887,7 @@ static int InitComm(DDD::DDDContext& context, int nPartners)
 
 
   /* initiate asynchronous receives and sends */
-  for(plist=thePLists; plist!=NULL; plist=plist->next)
+  for(plist=ctx.thePLists; plist!=NULL; plist=plist->next)
   {
     long *len_adr;
 
@@ -927,11 +916,13 @@ static int InitComm(DDD::DDDContext& context, int nPartners)
 
 static void idcons_CheckPairs(DDD::DDDContext& context)
 {
-  NOTIFY_DESC *msgs = DDD_NotifyBegin(context, nPLists);
+  auto& ctx = context.identContext();
+
+  NOTIFY_DESC *msgs = DDD_NotifyBegin(context, ctx.nPLists);
   ID_PLIST        *plist;
   int i, j, nRecvs, err=false;
 
-  for(i=0, plist=thePLists; plist!=NULL; plist=plist->next, i++)
+  for(i=0, plist=ctx.thePLists; plist!=NULL; plist=plist->next, i++)
   {
     msgs[i].proc = plist->proc;
     msgs[i].size = plist->nEntries;
@@ -944,7 +935,7 @@ static void idcons_CheckPairs(DDD::DDDContext& context)
 
 
   /* perform checking */
-  for(plist=thePLists; plist!=NULL; plist=plist->next)
+  for(plist=ctx.thePLists; plist!=NULL; plist=plist->next)
   {
     for(j=0; j<nRecvs; j++)
     {
@@ -998,6 +989,8 @@ static void idcons_CheckPairs(DDD::DDDContext& context)
 
 DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 {
+  auto& ctx = context.identContext();
+
   ID_PLIST        *plist, *pnext=NULL;
   int cnt, j;
 
@@ -1013,7 +1006,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 #       endif
 
   /* step mode and check whether call to IdentifyEnd is valid */
-  if (!IdentStepMode(IMODE_CMDS))
+  if (!IdentStepMode(context, IdentMode::IMODE_CMDS))
     DUNE_THROW(Dune::Exception, "DDD_IdentifyEnd() aborted");
 
 
@@ -1025,7 +1018,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
   STAT_RESET1;
 
   /* for each id_plist entry */
-  for(plist=thePLists, cnt=0; plist!=NULL; plist=plist->next, cnt++)
+  for(plist=ctx.thePLists, cnt=0; plist!=NULL; plist=plist->next, cnt++)
   {
     /* allocate message buffers */
     /* use one alloc for three buffers */
@@ -1103,7 +1096,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 
 
   /* poll receives */
-  for(plist=thePLists, j=0; j<cnt; )
+  for(plist=ctx.thePLists, j=0; j<cnt; )
   {
     if (plist->msgin!=NULL)
     {
@@ -1166,12 +1159,12 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
     }
 
     /* next plist, perhaps restart */
-    plist=plist->next; if (plist==NULL) plist=thePLists;
+    plist=plist->next; if (plist==NULL) plist=ctx.thePLists;
   };
   STAT_TIMER1(T_COMM_AND_IDENT);
 
   /* poll sends */
-  for(plist=thePLists; plist!=0; plist=pnext)
+  for(plist=ctx.thePLists; plist!=0; plist=pnext)
   {
     pnext = plist->next;
 
@@ -1204,7 +1197,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
   printf("%4d: DDD_IdentifyEnd. Ready.\n", me); fflush(stdout);
 #       endif
 
-  IdentStepMode(IMODE_BUSY);
+  IdentStepMode(context, IdentMode::IMODE_BUSY);
 
   return(DDD_RET_OK);
 }
@@ -1214,13 +1207,15 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 /****************************************************************************/
 
 
-static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
+static IdEntry *IdentifyIdEntry(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, int typeId)
 {
+  auto& ctx = context.identContext();
+
   IdEntry     *id;
   ID_PLIST        *plist;
 
   /* check whether Identify-call is valid */
-  if (!IdentActive())
+  if (!IdentActive(context))
     DUNE_THROW(Dune::Exception, "Missing DDD_IdentifyBegin(), aborted");
 
   if (proc==me)
@@ -1235,7 +1230,7 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
 
 
   /* search current plist entries */
-  for(plist=thePLists; plist!=NULL; plist=plist->next) {
+  for(plist=ctx.thePLists; plist!=NULL; plist=plist->next) {
     if (plist->proc==proc)
       break;
   }
@@ -1249,9 +1244,9 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
     plist->nEntries = 0;
     plist->entries = New_IdEntrySegmList();
     plist->nIdentObjs = 0;
-    plist->next = thePLists;
-    thePLists = plist;
-    nPLists++;
+    plist->next = ctx.thePLists;
+    ctx.thePLists = plist;
+    ctx.nPLists++;
   }
 
 
@@ -1273,7 +1268,7 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
           id->msg.msg.prio = OBJ_PRIO(hdr);
    */
 
-  id->msg.entry = cntIdents++;
+  id->msg.entry = ctx.cntIdents++;
 
   return(id);
 }
@@ -1311,7 +1306,7 @@ void DDD_IdentifyNumber(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, in
 {
 IdEntry *id;
 
-id = IdentifyIdEntry(hdr, proc, ID_NUMBER);
+id = IdentifyIdEntry(context, hdr, proc, ID_NUMBER);
 if (id==NULL)
   throw std::bad_alloc();
 
@@ -1356,7 +1351,7 @@ void DDD_IdentifyString(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, ch
 {
 IdEntry *id;
 
-id = IdentifyIdEntry(hdr, proc, ID_STRING);
+id = IdentifyIdEntry(context, hdr, proc, ID_STRING);
 if (id==NULL)
   throw std::bad_alloc();
 
@@ -1407,7 +1402,7 @@ void DDD_IdentifyObject(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DD
 {
 IdEntry *id;
 
-id = IdentifyIdEntry(hdr, proc, ID_OBJECT);
+id = IdentifyIdEntry(context, hdr, proc, ID_OBJECT);
 if (id==NULL)
   throw std::bad_alloc();
 
@@ -1464,13 +1459,15 @@ printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", me,
 
 void DDD_IdentifyBegin(DDD::DDDContext& context)
 {
+  auto& ctx = context.identContext();
+
   /* step mode and check whether call to IdentifyBegin is valid */
-  if (!IdentStepMode(IMODE_IDLE))
+  if (!IdentStepMode(context, IdentMode::IMODE_IDLE))
     DUNE_THROW(Dune::Exception, "DDD_IdentifyBegin() aborted");
 
-  thePLists    = NULL;
-  nPLists      = 0;
-  cntIdents    = 0;
+  ctx.thePLists = nullptr;
+  ctx.nPLists   = 0;
+  ctx.cntIdents = 0;
 }
 
 
@@ -1479,7 +1476,7 @@ void DDD_IdentifyBegin(DDD::DDDContext& context)
 
 void ddd_IdentInit(DDD::DDDContext& context)
 {
-  IdentSetMode(IMODE_IDLE);
+  IdentSetMode(context, IdentMode::IMODE_IDLE);
 }
 
 
