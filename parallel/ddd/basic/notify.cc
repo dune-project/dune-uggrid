@@ -81,7 +81,7 @@ struct NOTIFY_INFO {
 /*                                                                          */
 /****************************************************************************/
 
-START_UGDIM_NAMESPACE
+namespace DDD {
 
 using namespace DDD::Basic;
 
@@ -490,4 +490,4 @@ int DDD_Notify(DDD::DDDContext& context)
 
 /****************************************************************************/
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */

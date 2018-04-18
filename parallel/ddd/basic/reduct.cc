@@ -38,7 +38,7 @@
 
 #include "namespace.h"
 
-START_UGDIM_NAMESPACE
+namespace DDD {
 
 /****************************************************************************/
 /*                                                                          */
@@ -68,4 +68,4 @@ int ddd_GlobalSumInt(const DDD::DDDContext& context, int x)
   return x;
 }
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */

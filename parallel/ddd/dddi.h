@@ -78,7 +78,6 @@ using namespace DDD;
 #define RET_ON_OK      return (true)
 #define RET_ON_ERROR   return (false)
 #define IS_OK(p)       ((p)==true)
-typedef int RETCODE;
 
 
 /****************************************************************************/
@@ -349,7 +348,6 @@ static char *mem_ptr;
 /*** mapping memory allocation calls to memmgr_ calls ***/
 
 #define AllocObj(s,t,p,a) memmgr_AllocOMEM((size_t)s,(int)t,(int)p,(int)a)
-#define AllocCom(s)       memmgr_AllocAMEM((size_t)s)
 
 
 #ifdef CheckHeapMem
@@ -438,7 +436,6 @@ static char *mem_ptr;
 /*** mapping memory free calls to memmgr calls ***/
 
 #define FreeObj(mem,s,t)  memmgr_FreeOMEM(mem,(size_t)s,(int)t)
-#define FreeCom(mem)      memmgr_FreeAMEM(mem)
 
 
 
@@ -592,14 +589,16 @@ void      ddd_IdentExit (void);
 void      ddd_ConsInit(DDD::DDDContext& context);
 void      ddd_ConsExit(DDD::DDDContext& context);
 
-
+END_UGDIM_NAMESPACE
+namespace DDD {
 /* basic/topo.c */
 void      ddd_TopoInit(DDD::DDDContext& context);
 void      ddd_TopoExit(DDD::DDDContext& context);
 DDD_PROC* DDD_ProcArray(DDD::DDDContext& context);
 RETCODE   DDD_GetChannels(DDD::DDDContext& context, int);
 void      DDD_DisplayTopo(const DDD::DDDContext& context);
-
+} /* namespace DDD */
+START_UGDIM_NAMESPACE
 
 
 /* mgr/objmgr.c */
@@ -608,10 +607,14 @@ void      ObjCopyGlobalData (TYPE_DESC *, DDD_OBJ, DDD_OBJ, size_t);
 std::vector<DDD_HDR> LocalObjectsList(const DDD::DDDContext& context);
 std::vector<DDD_HDR> LocalCoupledObjectsList(const DDD::DDDContext& context);
 
+END_UGDIM_NAMESPACE
+namespace DDD {
 /* basic/reduct.c */
 int       ddd_GlobalSumInt(const DDD::DDDContext& context, int);
 int       ddd_GlobalMaxInt(const DDD::DDDContext& context, int);
 int       ddd_GlobalMinInt(const DDD::DDDContext& context, int);
+} /* namespace DDD */
+START_UGDIM_NAMESPACE
 
 
 /* ctrl/stat.c */
