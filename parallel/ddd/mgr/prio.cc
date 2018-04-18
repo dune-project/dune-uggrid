@@ -114,7 +114,7 @@ void DDD_PrioritySet(DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
               << " old=" << OBJ_PRIO(hdr) << " new=" << prio << "\n";
 #       endif
 
-if (ddd_XferActive())
+if (ddd_XferActive(context))
 {
   /* we are during Xfer, therefore initiate PrioChange operation */
   DDD_XferPrioChange(hdr, prio);

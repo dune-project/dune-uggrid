@@ -998,7 +998,7 @@ enum XferMode XferMode (void)
 }
 
 
-int ddd_XferActive (void)
+int ddd_XferActive(const DDD::DDDContext& context)
 {
   return xferGlobals.xferMode!=XMODE_IDLE;
 }
