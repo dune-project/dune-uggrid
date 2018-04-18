@@ -124,8 +124,8 @@ enum IdentMode {
 
 
 /* map memory allocation calls */
-#define OO_Allocate  ident_AllocTmp
-#define OO_Free      ident_FreeTmp
+#define OO_Allocate  std::malloc
+#define OO_Free      std::free
 
 
 /* extra prefix for all xfer-related data structures and/or typedefs */
@@ -139,24 +139,6 @@ enum IdentMode {
  */
 #define ContainerImplementation
 #define _CHECKALLOC(ptr)   assert(ptr!=NULL)
-
-
-/***/
-
-
-static int TmpMem_kind = TMEM_ANY;
-
-static void *ident_AllocTmp (size_t size)
-{
-  return AllocTmpReq(size, TmpMem_kind);
-}
-
-static void ident_FreeTmp (void *buffer)
-{
-  FreeTmpReq(buffer, 0, TmpMem_kind);
-}
-
-
 
 
 /****************************************************************************/
@@ -599,9 +581,7 @@ static void ResolveDependencies (
     while (j<nIdentObjs &&
            refd[j]->id.object == tupels[i].infos[0]->msg.gid)
     {
-      ID_REFDBY *rby = (ID_REFDBY *)AllocTmpReq(sizeof(ID_REFDBY),TMEM_IDENT);
-      if (rby==NULL)
-        throw std::bad_alloc();
+      ID_REFDBY *rby = new ID_REFDBY;
 
       /* remember that idp[i] is referenced by refd[j] */
       rby->by        = refd[j];
@@ -659,7 +639,7 @@ static void CleanupLOI (ID_TUPEL *tupels, int nTupels)
       next = rby->next;
 
       /* TODO use freelists */
-      FreeTmpReq(rby, sizeof(ID_REFDBY), TMEM_IDENT);
+      delete rby;
     }
   }
 }
@@ -724,7 +704,6 @@ static int IdentifySort (const DDD::DDDContext& context,
                          DDD_PROC dest
                          )
 {
-  ID_TUPEL *tupels;
   int i, j, last, nTupels;
   int keep_order_inside_tupel;
 
@@ -761,9 +740,7 @@ static int IdentifySort (const DDD::DDDContext& context,
       last=i;
     }
   }
-  tupels = (ID_TUPEL *) AllocTmp(sizeof(ID_TUPEL)*nTupels);
-  if (tupels==NULL)
-    throw std::bad_alloc();
+  ID_TUPEL* tupels = new ID_TUPEL[nTupels];
 
   /* init tupels (e.g., compute tupel ids) */
   for(i=0, last=0, j=0; i<nIds; i++)
@@ -1052,7 +1029,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
   {
     /* allocate message buffers */
     /* use one alloc for three buffers */
-    plist->local_ids = (IDENTINFO **) AllocTmp(
+    plist->local_ids = (IDENTINFO **) std::malloc(
       sizeof(IDENTINFO *)*plist->nEntries +                    /* for local id-infos  */
       sizeof(long) +                                           /* len of incoming msg */
       sizeof(MSGITEM)    *plist->nEntries +                    /* for incoming msg    */
@@ -1174,7 +1151,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
         }
 
         /* free indexmap (=tupel) array */
-        FreeTmp(plist->indexmap,0);
+        delete[] plist->indexmap;
 
         /* mark plist as finished */
         plist->msgin=NULL;
@@ -1205,8 +1182,8 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
     /* now, the plist->entries list isn't needed anymore, free */
     IdEntrySegmList_Free(plist->entries);
 
-    FreeTmp(plist->local_ids,0);
-    FreeTmpReq(plist, sizeof(ID_PLIST), TMEM_IDENT);
+    std::free(plist->local_ids);
+    delete plist;
   };
 
 
@@ -1266,9 +1243,7 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
   if (plist==NULL)
   {
     /* get new id_plist record */
-    plist = (ID_PLIST *) AllocTmpReq(sizeof(ID_PLIST),TMEM_IDENT);
-    if (plist==NULL)
-      throw std::bad_alloc();
+    plist = new ID_PLIST;
 
     plist->proc = proc;
     plist->nEntries = 0;
