@@ -42,6 +42,8 @@
 /*#include "xfer/xfer.h"*/
 #include "basic/lowcomm.h"
 
+#include <dune/common/stdstreams.hh>
+
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 USING_UG_NAMESPACES
@@ -266,21 +268,21 @@ static int ConsCheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_HD
     {
       if (OBJ_PRIO(locObjs[j])!=theCplBuf[i].prio)
       {
-        sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " type %d on %d"
-                " has prio %d, cpl from %d has prio %d!\n",
-                OBJ_GID(locObjs[j]), OBJ_TYPE(locObjs[j]), me, OBJ_PRIO(locObjs[j]),
-                LC_MsgGetProc(xm), theCplBuf[i].prio);
-        DDD_PrintLine(cBuffer);
+        Dune::dwarn
+          << "    DDD-CCC Warning: obj " << OBJ_GID(locObjs[j]) << " type "
+          << OBJ_TYPE(locObjs[j]) << " on " << me << " has prio "
+          << OBJ_PRIO(locObjs[j]) << ", cpl from " << LC_MsgGetProc(xm)
+          << " has prio " << theCplBuf[i].prio << "!\n";
 
         error_cnt++;
       }
     }
     else
     {
-      sprintf(cBuffer, "    DDD-GCC Warning: obj " DDD_GID_FMT " type %d on %d for cpl"
-              " from %3d missing!\n",
-              theCplBuf[i].gid, theCplBuf[i].typ, me, LC_MsgGetProc(xm));
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn
+        << "    DDD-GCC Warning: obj " << theCplBuf[i].gid << " type "
+        << theCplBuf[i].typ << " on " << me << " for cpl from "
+        << LC_MsgGetProc(xm) << "missing!\n";
 
       error_cnt++;
     }
@@ -325,11 +327,8 @@ static int ConsCheckGlobalCpl(DDD::DDDContext& context)
       if ((DDD_PROC)CPL_PROC(cpl) >= procs)
       {
         error_cnt++;
-        sprintf(cBuffer, "%4d: DDD-GCC Warning: invalid proc=%d (" OBJ_GID_FMT "/" OBJ_GID_FMT ")\n",
-                me, CPL_PROC(cpl), OBJ_GID(cpl->obj),
-                OBJ_GID(objTable[i])
-                );
-        DDD_PrintLine(cBuffer);
+        Dune::dwarn << "DDD-GCC Warning: invalid proc=" << CPL_PROC(cpl)
+                    << " (" << OBJ_GID(cpl->obj) << "/" << OBJ_GID(objTable[i]) << ")\n";
       }
       cplBuf[j].gid  = OBJ_GID(cpl->obj);
       cplBuf[j].typ  = OBJ_TYPE(cpl->obj);
@@ -432,11 +431,11 @@ static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_H
       {
         if (OBJ_PRIO(locObjs[j])!=theCplBuf[i].prio)
         {
-          sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " type %d on %d"
-                  " has prio %d, cpl from %d has prio %d!\n",
-                  OBJ_GID(locObjs[j]), OBJ_TYPE(locObjs[j]), me, OBJ_PRIO(locObjs[j]),
-                  LC_MsgGetProc(xm), theCplBuf[i].prio);
-          DDD_PrintLine(cBuffer);
+          Dune::dwarn
+            << "    DDD-GCC Warning: obj " << OBJ_GID(locObjs[j]) << " type "
+            << OBJ_TYPE(locObjs[j]) << " on " << me << " has prio "
+            << OBJ_PRIO(locObjs[j]) << ", cpl from " << LC_MsgGetProc(xm)
+            << " has prio " << theCplBuf[i].prio << "!\n";
 
           error_cnt++;
         }
@@ -462,11 +461,10 @@ static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_H
 
           if (ifound==-1)
           {
-            sprintf(cBuffer, "    DDD-GCC Warning: obj " DDD_GID_FMT " type %d on %d has cpl"
-                    " from%4d, but %d hasn't!\n",
-                    theCplBuf[i].gid, theCplBuf[i].typ, me,
-                    CPL_PROC(j2), LC_MsgGetProc(xm));
-            DDD_PrintLine(cBuffer);
+            Dune::dwarn
+              << "    DDD-GCC Warning: obj " << theCplBuf[i].gid << " type "
+              << theCplBuf[i].typ << " on " << me << " has cpl from "
+              << CPL_PROC(j2) << ", but " << LC_MsgGetProc(xm) << " hasn't!\n";
 
             error_cnt++;
           }
@@ -500,9 +498,9 @@ static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_H
 
             if (ifound==-1)
             {
-              sprintf(cBuffer, "%4d: healing with AddCpl(%08x, %4d, %d)\n",
-                      me, theCplBuf[i].gid, theCplBuf[i2].proc, theCplBuf[i2].prio);
-              DDD_PrintLine(cBuffer);
+              Dune::dwarn
+                << "healing with AddCpl(" << theCplBuf[i].gid << ", "
+                << theCplBuf[i2].proc << ", " << theCplBuf[i2].prio << ")\n";
 
               AddCoupling(context, locObjs[j], theCplBuf[i2].proc, theCplBuf[i2].prio);
             }
@@ -639,9 +637,8 @@ static int ConsCheckDoubleObj(const DDD::DDDContext& context)
     if (OBJ_GID(locObjs[i-1])==OBJ_GID(locObjs[i]))
     {
       error_cnt++;
-      sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " on %d doubled\n",
-              OBJ_GID(locObjs[i]), me);
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn << "    DDD-GCC Warning: obj " << OBJ_GID(locObjs[i])
+                  << " on " << me << " doubled\n";
     }
   }
 
@@ -705,7 +702,7 @@ int DDD_ConsCheck(DDD::DDDContext& context)
 
   if (cpl_errors==-1)
   {
-    DDD_PrintLine("    DDD-GCC Error: out of memory in ConsCheckGlobalCpl()\n");
+    Dune::dgrave << "    DDD-GCC Error: out of memory in ConsCheckGlobalCpl()\n";
     total_errors++;
   }
   else
@@ -722,10 +719,7 @@ int DDD_ConsCheck(DDD::DDDContext& context)
   if (DDD_GetOption(context, OPT_QUIET_CONSCHECK)==OPT_OFF)
   {
     if (context.isMaster())
-    {
-      sprintf(cBuffer, "   DDD-GCC ready (%d errors)\n", total_errors);
-      DDD_PrintLine(cBuffer);
-    }
+      Dune::dwarn << "   DDD-GCC ready (" << total_errors << " errors)\n";
   }
 
 
