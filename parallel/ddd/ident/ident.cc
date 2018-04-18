@@ -1332,7 +1332,7 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
    @param ident Identification value. This is an arbitrary number to identify two corresponding operations on different processors.
  */
 
-void DDD_IdentifyNumber (DDD_HDR hdr, DDD_PROC proc, int ident)
+void DDD_IdentifyNumber(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, int ident)
 {
 IdEntry *id;
 
@@ -1377,7 +1377,7 @@ printf("%4d: IdentifyNumber %08x %02d with %4d num %d\n", me,
    @param ident Identification value. This is an arbitrary string to identify two corresponding operations on different processors.
  */
 
-void DDD_IdentifyString (DDD_HDR hdr, DDD_PROC proc, char *ident)
+void DDD_IdentifyString(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, char *ident)
 {
 IdEntry *id;
 
@@ -1428,7 +1428,7 @@ printf("%4d: IdentifyString %08x %02d with %4d str %s\n", me,
    @param ident Identification object. This is an arbitrary global object which is known to both processors involved to identify the two corresponding operations on these processors.
  */
 
-void DDD_IdentifyObject (DDD_HDR hdr, DDD_PROC proc, DDD_HDR ident)
+void DDD_IdentifyObject(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_HDR ident)
 {
 IdEntry *id;
 
@@ -1487,7 +1487,7 @@ printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", me,
         \end{description}
  */
 
-void DDD_IdentifyBegin(DDD::DDDContext&)
+void DDD_IdentifyBegin(DDD::DDDContext& context)
 {
   /* step mode and check whether call to IdentifyBegin is valid */
   if (!IdentStepMode(IMODE_IDLE))
@@ -1502,13 +1502,13 @@ void DDD_IdentifyBegin(DDD::DDDContext&)
 /****************************************************************************/
 
 
-void ddd_IdentInit (void)
+void ddd_IdentInit(DDD::DDDContext& context)
 {
   IdentSetMode(IMODE_IDLE);
 }
 
 
-void ddd_IdentExit (void)
+void ddd_IdentExit(DDD::DDDContext&)
 {}
 
 /****************************************************************************/

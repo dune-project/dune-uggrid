@@ -580,8 +580,8 @@ int       ddd_JoinActive (void);
 
 
 /* ident/ident.c */
-void      ddd_IdentInit (void);
-void      ddd_IdentExit (void);
+void      ddd_IdentInit(DDD::DDDContext& context);
+void      ddd_IdentExit(DDD::DDDContext& context);
 
 
 /* basic/cons.c */
