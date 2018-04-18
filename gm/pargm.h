@@ -349,7 +349,7 @@ enum {VERTEX_LISTPARTS = 1};
 #define DDD_OBJ                 void *
 #define DDD_IdentifyBegin(context)
 #define DDD_IdentifyEnd(context)
-#define DDD_IdentifyNumber(o,p,n)
+#define DDD_IdentifyNumber(context, o,p,n)
 #define DDD_IFAOneway(context, p1,p2,p3,p4,p5,p6)
 
 /* ppif dummies */
