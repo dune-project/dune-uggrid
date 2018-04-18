@@ -36,6 +36,10 @@
 #include <cstring>
 
 #include <algorithm>
+#include <iomanip>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
@@ -115,12 +119,9 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
   for(i=0; i<nJ; i++)
   {
     if (ObjHasCpl(context, itemsJ[i]->hdr))
-    {
-      sprintf(cBuffer, "cannot join " OBJ_GID_FMT ", object already distributed",
-              OBJ_GID(itemsJ[i]->hdr));
-      DDD_PrintError('E', 7006, cBuffer);
-      HARD_EXIT;
-    }
+      DUNE_THROW(Dune::Exception,
+                 "cannot join " << OBJ_GID(itemsJ[i]->hdr)
+                 << ", object already distributed");
 
     OBJ_GID(itemsJ[i]->hdr) = GID_INVALID;
   }
@@ -133,13 +134,9 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
 
     /* check for double Joins with different new_gid */
     if (local_gid!=GID_INVALID && local_gid!=itemsJ[i]->new_gid)
-    {
-      sprintf(cBuffer,
-              "several (inconsistent) DDD_JoinObj-commands for local object " DDD_GID_FMT,
-              local_gid);
-      DDD_PrintError('E', 7007, cBuffer);
-      HARD_EXIT;
-    }
+      DUNE_THROW(Dune::Exception,
+                 "several (inconsistent) DDD_JoinObj-commands "
+                 "for local object " << local_gid);
 
     OBJ_GID(itemsJ[i]->hdr) = itemsJ[i]->new_gid;
   }
@@ -159,10 +156,8 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
     /* create new message */
     jm = (JOINMSG1 *) AllocTmp(sizeof(JOINMSG1));
     if (jm==NULL)
-    {
-      DDD_PrintError('E', 7900, STR_NOMEM " in PreparePhase1Msgs");
-      HARD_EXIT;
-    }
+      throw std::bad_alloc();
+
     jm->nJoins = i-last_i;
     jm->arrayJoin = &(itemsJ[last_i]);
     jm->dest = itemsJ[last_i]->dest;
@@ -182,11 +177,10 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
 
     if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
-      sprintf(cBuffer,
-              "DDD MESG [%03d]: SHOW_MEM "
-              "send msg phase1   dest=%04d size=%010ld\n",
-              me, jm->dest, (long)bufSize);
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn
+        << "DDD MESG [" << std::setw(3) << me << "]: SHOW_MEM "
+        << "send msg phase1   dest=" << std::setw(4) << jm->dest
+        << " size=" << std::setw(10) << bufSize << "\n";
     }
 
     last_i = i;
@@ -313,10 +307,9 @@ static void UnpackPhase1Msgs (DDD::DDDContext& context,
       }
       else
       {
-        sprintf(cBuffer, "no object " DDD_GID_FMT " for join from %d",
-                theJoin[i].gid, LC_MsgGetProc(jm));
-        DDD_PrintError('E', 7300, cBuffer);
-        HARD_EXIT;
+        DUNE_THROW(Dune::Exception,
+                   "no object " << theJoin[i].gid
+                   << " for join from " << LC_MsgGetProc(jm));
       }
     }
   }
@@ -330,10 +323,7 @@ static void UnpackPhase1Msgs (DDD::DDDContext& context,
   /* allocate array of objects, which has been contacted by a join */
   joinObjs = (JIPartner *) AllocTmp(sizeof(JIPartner) * nJoinObjs);
   if (joinObjs==NULL)
-  {
-    DDD_PrintError('E', 7903, STR_NOMEM " in UnpackPhase1Msgs");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   /* set return values */
   *p_joinObjs  = joinObjs;
@@ -426,10 +416,8 @@ static int PreparePhase2Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
     /* create new message */
     jm = (JOINMSG2 *) AllocTmp(sizeof(JOINMSG2));
     if (jm==NULL)
-    {
-      DDD_PrintError('E', 7901, STR_NOMEM " in PreparePhase2Msgs");
-      HARD_EXIT;
-    }
+      throw std::bad_alloc();
+
     jm->nAddCpls = i-last_i;
     jm->arrayAddCpl = &(itemsAC[last_i]);
     jm->dest = itemsAC[last_i]->dest;
@@ -449,11 +437,10 @@ static int PreparePhase2Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
 
     if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
-      sprintf(cBuffer,
-              "DDD MESG [%03d]: SHOW_MEM "
-              "send msg phase2   dest=%04d size=%010ld\n",
-              me, jm->dest, (long)bufSize);
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn
+        << "DDD MESG [" << std::setw(3) << me << "]: SHOW_MEM "
+        << "send msg phase2   dest=" << std::setw(4) << jm->dest
+        << " size=" << std::setw(10) << bufSize << "\n";
     }
 
     last_i = i;
@@ -620,10 +607,8 @@ static int PreparePhase3Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
     /* create new message */
     jm = (JOINMSG3 *) AllocTmp(sizeof(JOINMSG3));
     if (jm==NULL)
-    {
-      DDD_PrintError('E', 7902, STR_NOMEM " in PreparePhase3Msgs");
-      HARD_EXIT;
-    }
+      throw std::bad_alloc();
+
     jm->nAddCpls = i-last_i;
     jm->arrayAddCpl = &(itemsAC[last_i]);
     jm->dest = itemsAC[last_i]->dest;
@@ -643,11 +628,10 @@ static int PreparePhase3Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
 
     if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
-      sprintf(cBuffer,
-              "DDD MESG [%03d]: SHOW_MEM "
-              "send msg phase3   dest=%04d size=%010ld\n",
-              me, jm->dest, (long)bufSize);
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn
+        << "DDD MESG [" << std::setw(3) << me << "]: SHOW_MEM "
+        << "send msg phase3   dest=" << std::setw(4) << jm->dest
+        << " size=" << std::setw(10) << bufSize << "\n";
     }
 
     last_i = i;
@@ -791,10 +775,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   /* step mode and check whether call to JoinEnd is valid */
   if (!JoinStepMode(JMODE_CMDS))
-  {
-    DDD_PrintError('E', 7011, "DDD_JoinEnd() aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD_JoinEnd() aborted");
 
 
   /*
@@ -840,9 +821,10 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
     {
       int all = JIJoinSet_GetNItems(joinGlobals.setJIJoin);
 
-      sprintf(cBuffer, "DDD MESG [%03d]: %4d from %4d join-cmds obsolete.\n",
-              me, obsolete, all);
-      DDD_PrintLine(cBuffer);
+      using std::setw;
+      Dune::dwarn
+        << "DDD MESG [" << setw(3) << me << "]: " << setw(4) << obsolete
+        << " from " << setw(4) << all << " join-cmds obsolete.\n";
     }
   }
   STAT_TIMER(T_JOIN);
@@ -857,7 +839,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Send\n");
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase1Msg.Send\n";
     LC_PrintSendMsgs(context);
   }
 
@@ -879,11 +861,12 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
       recvMem += LC_GetBufferSize(recvMsgs1[k]);
     }
 
-    sprintf(cBuffer,
-            "DDD MESG [%03d]: SHOW_MEM "
-            "msgs  send=%010ld recv=%010ld all=%010ld\n",
-            me, (long)sendMem, (long)recvMem, (long)(sendMem+recvMem));
-    DDD_PrintLine(cBuffer);
+    using std::setw;
+    Dune::dwarn
+      << "DDD MESG [" << setw(3) << me << "]: SHOW_MEM msgs "
+      << " send=" << setw(10) << sendMem
+      << " recv=" << setw(10) << recvMem
+      << " all=" << setw(10) << (sendMem+recvMem) << "\n";
   }
 
   /* display information about recv-messages on lowcomm-level */
@@ -891,7 +874,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Recv\n");
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase1Msg.Recv\n";
     LC_PrintRecvMsgs(context);
   }
 
@@ -954,7 +937,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Send\n");
+      Dune::dwarn <<"DDD JOIN_SHOW_MSGSALL: Phase2Msg.Send\n";
     LC_PrintSendMsgs(context);
   }
 
@@ -976,11 +959,12 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
       recvMem += LC_GetBufferSize(recvMsgs2[k]);
     }
 
-    sprintf(cBuffer,
-            "DDD MESG [%03d]: SHOW_MEM "
-            "msgs  send=%010ld recv=%010ld all=%010ld\n",
-            me, (long)sendMem, (long)recvMem, (long)(sendMem+recvMem));
-    DDD_PrintLine(cBuffer);
+    using std::setw;
+    Dune::dwarn
+      << "DDD MESG [" << setw(3) << me << "]: SHOW_MEM msgs "
+      << " send=" << setw(10) << sendMem
+      << " recv=" << setw(10) << recvMem
+      << " all=" << setw(10) << (sendMem+recvMem) << "\n";
   }
 
   /* display information about recv-messages on lowcomm-level */
@@ -988,7 +972,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Recv\n");
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase2Msg.Recv\n";
     LC_PrintRecvMsgs(context);
   }
 
@@ -1052,7 +1036,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Send\n");
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase3Msg.Send\n";
     LC_PrintSendMsgs(context);
   }
 
@@ -1074,11 +1058,12 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
       recvMem += LC_GetBufferSize(recvMsgs3[k]);
     }
 
-    sprintf(cBuffer,
-            "DDD MESG [%03d]: SHOW_MEM "
-            "msgs  send=%010ld recv=%010ld all=%010ld\n",
-            me, (long)sendMem, (long)recvMem, (long)(sendMem+recvMem));
-    DDD_PrintLine(cBuffer);
+    using std::setw;
+    Dune::dwarn
+      << "DDD MESG [" << setw(3) << me << "]: SHOW_MEM msgs "
+      << " send=" << setw(10) << sendMem
+      << " recv=" << setw(10) << recvMem
+      << " all=" << setw(10) << (sendMem+recvMem) << "\n";
   }
 
   /* display information about recv-messages on lowcomm-level */
@@ -1086,7 +1071,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Recv\n");
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase3Msg.Recv\n";
     LC_PrintRecvMsgs(context);
   }
 
@@ -1134,8 +1119,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
         #endif
 
 #       if DebugJoin<=4
-  sprintf(cBuffer,"%4d: JoinEnd, before IFAllFromScratch().\n", me);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "JoinEnd, before IFAllFromScratch().\n";
 #       endif
 
   /* re-create all interfaces and step JMODE */
@@ -1176,33 +1160,21 @@ void DDD_JoinObj(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC dest, DDD_GID n
   const auto procs = context.procs();
 
   if (!ddd_JoinActive())
-  {
-    DDD_PrintError('E', 7012, "Missing DDD_JoinBegin(). aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "Missing DDD_JoinBegin()");
 
   if (dest>=procs)
-  {
-    sprintf(cBuffer, "cannot join " OBJ_GID_FMT " with " DDD_GID_FMT " on processor %d (procs=%d)",
-            OBJ_GID(hdr), new_gid, dest, procs);
-    DDD_PrintError('E', 7003, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "cannot join " << OBJ_GID(hdr) << " with " << new_gid
+               << " on processor " << dest << " (procs=" << procs << ")");
 
   if (dest==context.me())
-  {
-    sprintf(cBuffer, "cannot join " OBJ_GID_FMT " with myself", OBJ_GID(hdr));
-    DDD_PrintError('E', 7004, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "cannot join " << OBJ_GID(hdr) << " with myself");
 
   if (ObjHasCpl(context, hdr))
-  {
-    sprintf(cBuffer, "cannot join " OBJ_GID_FMT ", object already distributed",
-            OBJ_GID(hdr));
-    DDD_PrintError('E', 7005, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "cannot join " << OBJ_GID(hdr)
+               << ", object already distributed");
 
 
 
@@ -1215,9 +1187,8 @@ void DDD_JoinObj(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC dest, DDD_GID n
     return;
 
 #       if DebugJoin<=2
-  sprintf(cBuffer, "%4d: DDD_JoinObj " OBJ_GID_FMT ", dest=%d, new_gid=" DDD_GID_FMT "\n",
-          me, OBJ_GID(hdr), dest, new_gid);
-  DDD_PrintDebug(cBuffer);
+  Dune:dvverb << "DDD_JoinObj " << OBJ_GID(hdr)
+              << ", dest=" << dest << ", new_gid=" << new_gid << "\n";
 #       endif
 }
 
@@ -1242,10 +1213,7 @@ void DDD_JoinBegin(DDD::DDDContext&)
 {
   /* step mode and check whether call to JoinBegin is valid */
   if (!JoinStepMode(JMODE_IDLE))
-  {
-    DDD_PrintError('E', 7010, "DDD_JoinBegin() aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD_JoinBegin() aborted");
 
 
   /* set kind of TMEM alloc/free requests */

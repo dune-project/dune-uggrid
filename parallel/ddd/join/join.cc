@@ -35,6 +35,7 @@
 #include <cstdio>
 #include <cstring>
 
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 
@@ -203,9 +204,7 @@ static void JoinSetMode (int mode)
   joinGlobals.joinMode = mode;
 
 #       if DebugJoin<=8
-  sprintf(cBuffer, "%4d: JoinMode=%s.\n",
-          me, JoinModeName(joinGlobals.joinMode));
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "JoinMode=" << JoinModeName(joinGlobals.joinMode) << "\n";
 #       endif
 }
 
@@ -239,9 +238,9 @@ int JoinStepMode (int old)
 {
   if (joinGlobals.joinMode!=old)
   {
-    sprintf(cBuffer, "wrong join-mode (currently in %s, expected %s)",
-            JoinModeName(joinGlobals.joinMode), JoinModeName(old));
-    DDD_PrintError('E', 7200, cBuffer);
+    Dune::dwarn
+      << "wrong join-mode (currently in " << JoinModeName(joinGlobals.joinMode)
+      << ", expected " << JoinModeName(old) << ")\n";
     return false;
   }
 
