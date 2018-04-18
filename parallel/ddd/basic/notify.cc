@@ -36,7 +36,10 @@
 #include <cstdio>
 
 #include <algorithm>
+#include <new>
 #include <tuple>
+
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 #include "basic/notify.h"
@@ -95,10 +98,7 @@ void NotifyInit(DDD::DDDContext& context)
   /* allocate memory */
   ctx.theRouting = (int *) AllocFix(procs*sizeof(int));
   if (ctx.theRouting == nullptr)
-  {
-    DDD_PrintError('E', 6301, STR_NOMEM " in NotifyInit");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
 
   ctx.maxInfos = MAX_INFOS(procs);     /* TODO maximum value, just for testing */
@@ -107,10 +107,7 @@ void NotifyInit(DDD::DDDContext& context)
   /* init local array for all Info records */
   ctx.allInfoBuffer = (NOTIFY_INFO *) AllocFix(ctx.maxInfos*sizeof(NOTIFY_INFO));
   if (ctx.allInfoBuffer == nullptr)
-  {
-    DDD_PrintError('E', 6300, STR_NOMEM " in NotifyInit");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
 
   /* allocate array of NOTIFY_DESCs */
@@ -438,9 +435,9 @@ int DDD_Notify(DDD::DDDContext& context)
        message. this is necessary for communicating fatal error
        conditions to all other processors. */
 
-    sprintf(cBuffer, "proc %d is sending global exception #%d"
-            " in DDD_Notify()", me, -ctx.nSendDescs);
-    DDD_PrintError('W', 6312, cBuffer);
+    Dune::dwarn
+      << "DDD_Notify: proc " << me
+      << " is sending global exception #" << (-ctx.nSendDescs) << "\n";
 
     /* notify partners */
     nRecvMsgs = NotifyTwoWave(context, allInfos, ctx.lastInfo, -ctx.nSendDescs);
@@ -456,15 +453,14 @@ int DDD_Notify(DDD::DDDContext& context)
                         #endif
 
       if (ctx.theDescs[i].proc==me) {
-        sprintf(cBuffer, "proc %d is trying to send message to itself"
-                " in DDD_Notify()", me);
-        DDD_PrintError('E', 6310, cBuffer);
+        Dune::dwarn << "DDD_Notify: proc " << me
+                    << " is trying to send message to itself\n";
         return(ERROR);
       }
       if (ctx.theDescs[i].proc>=procs) {
-        sprintf(cBuffer, "proc %d is trying to send message to proc %d"
-                " in DDD_Notify()", me, ctx.theDescs[i].proc);
-        DDD_PrintError('E', 6311, cBuffer);
+        Dune::dwarn
+          << "DDD_Notify: proc " << me << " is trying to send message to proc "
+          << ctx.theDescs[i].proc << "\n";
         return(ERROR);
       }
 
