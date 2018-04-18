@@ -35,6 +35,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 
@@ -96,9 +98,7 @@ static void PrioSetMode (DDD::DDDContext& context, PrioMode mode)
   ctx.prioMode = mode;
 
 #       if DebugPrio<=8
-  sprintf(cBuffer, "%4d: PrioMode=%s.\n",
-          me, PrioModeName(ctx.prioMode));
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "PrioMode=" << PrioModeName(ctx.prioMode) << "\n";
 #       endif
 }
 
@@ -126,9 +126,9 @@ static bool PrioStepMode(DDD::DDDContext& context, PrioMode old)
   auto& ctx = context.prioContext();
   if (ctx.prioMode!=old)
   {
-    sprintf(cBuffer, "wrong prio-mode (currently in %s, expected %s)",
-            PrioModeName(ctx.prioMode), PrioModeName(old));
-    DDD_PrintError('E', 8200, cBuffer);
+    Dune::dwarn
+      << "wrong prio-mode (currently in " << PrioModeName(ctx.prioMode)
+      << ", expected " << PrioModeName(old) << ")\n";
     return false;
   }
 
@@ -180,10 +180,7 @@ void DDD_PrioChange (const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 #endif
 
   if (!ddd_PrioActive(context))
-  {
-    DDD_PrintError('E', 8030, "Missing DDD_PrioBegin(). aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "Missing DDD_PrioBegin()");
 
 
   /* change priority of object directly, for local objects this
@@ -209,9 +206,9 @@ void DDD_PrioChange (const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 
 
 #       if DebugPrio<=2
-  sprintf(cBuffer, "%4d: DDD_PrioChange %08x, old_prio=%d. new_prio=%d\n",
-          me, OBJ_GID(hdr), old_prio, OBJ_PRIO(hdr));
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb
+    << "DDD_PrioChange " << OBJ_GID(hdr)
+    << ", old_prio=" << old_prio << ", new_prio=" << OBJ_PRIO(hdr) << "\n";
 #       endif
 }
 
@@ -226,9 +223,9 @@ void DDD_PrioChange (const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 static int GatherPrio (DDD::DDDContext&, DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
 #       if DebugPrio<=1
-  sprintf(cBuffer, "%4d: DDD_PrioEnd/GatherPrio %08x, prio=%d. Send to copy on proc %3d/p%d)\n",
-          me, OBJ_GID(obj), OBJ_PRIO(obj), proc, prio);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb
+    << "DDD_PrioEnd/GatherPrio " << OBJ_GID(obj) << ", prio=" << OBJ_PRIO(obj)
+    << ". Send to copy on proc " << proc << "/p" << prio << "\n";
 #       endif
 
   *((DDD_PRIO *)data) = OBJ_PRIO(obj);
@@ -243,11 +240,10 @@ static int ScatterPrio (DDD::DDDContext& context, DDD_HDR obj, void *data, DDD_P
   if (real_prio!=prio)
   {
 #               if DebugPrio<=1
-    sprintf(cBuffer, "%4d: DDD_PrioEnd/ScatterPrio %08x/%d, "
-            "copy on proc %3d/p%d changed prio %d -> %d\n",
-            me, OBJ_GID(obj), OBJ_PRIO(obj),
-            proc, prio, prio, real_prio);
-    DDD_PrintDebug(cBuffer);
+    Dune::dvverb
+      << "DDD_PrioEnd/ScatterPrio " << OBJ_GID(obj) << "/" << OBJ_PRIO(obj)
+      << ", copy on proc " << proc << "/p" << prio
+      << " changed prio " << prio << " -> " << real_prio << "\n";
 #               endif
 
     ModCoupling(context, obj, proc, real_prio);
@@ -255,11 +251,10 @@ static int ScatterPrio (DDD::DDDContext& context, DDD_HDR obj, void *data, DDD_P
 #       if DebugPrio<=1
   else
   {
-    sprintf(cBuffer, "%4d: DDD_PrioEnd/ScatterPrio %08x/%d, "
-            "copy on proc %3d/p%d keeps prio %d\n",
-            me, OBJ_GID(obj), OBJ_PRIO(obj),
-            proc, prio, prio);
-    DDD_PrintDebug(cBuffer);
+    Dune::dvverb
+      << "DDD_PrioEnd/ScatterPrio " << OBJ_GID(obj) << "/" << OBJ_PRIO(obj)
+      << ", copy on proc " << proc << "/p" << prio
+      << " keeps prio " << prio << "\n";
   }
 #       endif
 
@@ -280,10 +275,7 @@ DDD_RET DDD_PrioEnd(DDD::DDDContext& context)
 {
   /* step mode and check whether call to PrioEnd is valid */
   if (!PrioStepMode(context, PrioMode::PMODE_CMDS))
-  {
-    DDD_PrintError('E', 8011, "DDD_PrioEnd() aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD_PrioEnd() aborted");
 
 
   ddd_StdIFExchangeX(context, sizeof(DDD_PRIO), GatherPrio, ScatterPrio);
@@ -323,10 +315,7 @@ void DDD_PrioBegin(DDD::DDDContext& context)
 {
   /* step mode and check whether call to JoinBegin is valid */
   if (!PrioStepMode(context, PrioMode::PMODE_IDLE))
-  {
-    DDD_PrintError('E', 8010, "DDD_PrioBegin() aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD_PrioBegin() aborted");
 }
 
 
