@@ -94,6 +94,14 @@ struct NOTIFY_INFO;
 
 } /* namespace Basic */
 
+namespace Ident {
+
+enum class IdentMode : unsigned char;
+
+struct ID_PLIST;
+
+} /* namespace Ident */
+
 namespace Prio {
 
 enum class PrioMode : unsigned char;
