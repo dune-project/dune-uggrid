@@ -35,6 +35,11 @@
 #include <cstring>
 #include <cassert>
 
+#include <new>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
@@ -68,12 +73,8 @@ static CplSegm *NewCplSegm(DDD::DDDContext& context)
   CplSegm *segm;
 
   segm = (CplSegm *) AllocTmpReq(sizeof(CplSegm), TMEM_CPL);
-
   if (segm==NULL)
-  {
-    DDD_PrintError('F', 2550, STR_NOMEM " during NewCoupling()");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   segm->next   = mctx.segmCpl;
   mctx.segmCpl = segm;
@@ -160,10 +161,7 @@ static COUPLING *NewCoupling (DDD::DDDContext& context)
     cpl = (COUPLING *) AllocTmpReq(sizeof(COUPLING), TMEM_CPL);
 
     if (cpl==NULL)
-    {
-      DDD_PrintError('F', 2551, STR_NOMEM " during NewCoupling()");
-      HARD_EXIT;
-    }
+      throw std::bad_alloc();
 
     /* init coupling memory and its private data */
     InitNewCoupling(cpl);
@@ -222,8 +220,7 @@ static void IncreaseCplTabSize(DDD::DDDContext& context)
   ctx.nCplTable.resize(n);
 
   /* issue a warning in order to inform user */
-  sprintf(cBuffer, "increased coupling table, now %zd entries", n);
-  DDD_PrintError('W', 2514, cBuffer);
+  Dune::dwarn << "increased coupling table, now " << n << " entries\n";
 
   ddd_EnsureObjTabSize(context, n);
 }
@@ -259,9 +256,8 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   assert(proc!=me);
 
 #       if DebugCoupling<=1
-  sprintf(cBuffer, "%4d: AddCoupling %08x proc=%d prio=%d\n",
-          me, OBJ_GID(hdr), proc, prio);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "AddCoupling " << OBJ_GID(hdr)
+               << " proc=" << proc << " prio=" << prio << "\n";
 #       endif
 
   /* find or free position in coupling array */
@@ -373,9 +369,8 @@ COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   assert(proc!=me);
 
 #       if DebugCoupling<=1
-  sprintf(cBuffer, "%4d: ModCoupling %08x proc=%d prio=%d\n",
-          me, OBJ_GID(hdr), proc, prio);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "ModCoupling " << OBJ_GID(hdr)
+               << " proc=" << proc << " prio=" << prio << "\n";
 #       endif
 
   /* find or free position in coupling array */
@@ -383,8 +378,7 @@ COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   if (! ObjHasCpl(context, hdr))
   {
     /* there are no couplings for this object! */
-    sprintf(cBuffer, "no couplings for " OBJ_GID_FMT " in ModCoupling", OBJ_GID(hdr));
-    DDD_PrintError('E', 2530, cBuffer);
+    Dune::dwarn << "ModCoupling: no couplings for " << OBJ_GID(hdr) << "\n";
     return(NULL);
   }
   else
@@ -401,12 +395,8 @@ COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   }
 
   /* coupling not found */
-  sprintf(cBuffer, "no coupling from %d for " OBJ_GID_FMT " in ModCoupling",
-          proc, OBJ_GID(hdr));
-  DDD_PrintError('E', 2531, cBuffer);
-  HARD_EXIT;
-
-  return(NULL);         /* never reach this */
+  DUNE_THROW(Dune::Exception,
+             "no coupling from " << proc << " for " << OBJ_GID(hdr));
 }
 
 
@@ -446,9 +436,8 @@ void DelCoupling (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc)
           CPL_NEXT(cplLast) = CPL_NEXT(cpl);
         }
 #                               if DebugCoupling<=1
-        sprintf(cBuffer,"%4d: DelCoupling %07x on proc=%d, now %d cpls\n",
-                me, OBJ_GID(hdr), proc, IdxNCpl(context, objIndex)-1);
-        DDD_PrintDebug(cBuffer);
+        Dune::dvverb << "DelCoupling " << OBJ_GID(hdr) << " on proc=" << proc
+                     << ", now " << (IdxNCpl(context, objIndex)-1) << " cpls\n";
 #                               endif
 
         DisposeCoupling(context, cpl);
@@ -639,18 +628,14 @@ void DDD_InfoCoupling(const DDD::DDDContext& context, DDD_HDR hdr)
   int objIndex = OBJ_INDEX(hdr);
   const auto& nCpls = context.couplingContext().nCpls;
 
-  sprintf(cBuffer, "%4d: InfoCoupling for object " OBJ_GID_FMT " (%05d/%05d)\n",
-          me, OBJ_GID(hdr), objIndex, nCpls);
-  DDD_PrintLine(cBuffer);
+  std::cout << "InfoCoupling for object " << OBJ_GID(hdr)
+            << " (" << objIndex << "/" << nCpls << ")\n";
 
   if (objIndex < nCpls)
   {
     for(const COUPLING* cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl))
-    {
-      sprintf(cBuffer, "%4d:    cpl %08x proc=%4d prio=%4d\n",
-              me, cpl, CPL_PROC(cpl), cpl->prio);
-      DDD_PrintLine(cBuffer);
-    }
+      std::cout << "    cpl " << cpl << " proc=" << CPL_PROC(cpl)
+                << " prio=" << cpl->prio << "\n";
   }
 }
 
@@ -698,10 +683,7 @@ void ddd_CplMgrInit(DDD::DDDContext& context)
 
   mctx.localIBuffer = (int*)AllocFix((2*context.procs()+1)*sizeof(int));
   if (mctx.localIBuffer == nullptr)
-  {
-    DDD_PrintError('E', 2532, STR_NOMEM " for DDD_InfoProcList()");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   mctx.memlistCpl = nullptr;
   mctx.segmCpl    = nullptr;
