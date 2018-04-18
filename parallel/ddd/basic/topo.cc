@@ -54,7 +54,7 @@ USING_UG_NAMESPACES
 /* PPIF namespace: */
 using namespace PPIF;
 
-START_UGDIM_NAMESPACE
+namespace DDD {
 
 /****************************************************************************/
 /*                                                                          */
@@ -235,4 +235,4 @@ void DDD_DisplayTopo (const DDD::DDDContext& context)
 
 /****************************************************************************/
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */
