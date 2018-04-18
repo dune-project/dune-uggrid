@@ -54,8 +54,13 @@
 #include <cstring>
 
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <tuple>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
@@ -326,9 +331,7 @@ static void IdentSetMode (enum IdentMode mode)
   identMode = mode;
 
 #       if DebugIdent<=8
-  sprintf(cBuffer, "%4d: IdentMode=%s.\n",
-          me, IdentModeName(identMode));
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "IdentMode=" << IdentModeName(identMode) << "\n";
 #       endif
 }
 
@@ -363,12 +366,9 @@ static int IdentActive (void)
 static int IdentStepMode (enum IdentMode old)
 {
   if (identMode!=old)
-  {
-    sprintf(cBuffer, ERR_ID_WRONG_MODE,
-            IdentModeName(identMode), IdentModeName(old));
-    DDD_PrintError('E', 3070, cBuffer);
-    return false;
-  }
+    DUNE_THROW(Dune::Exception,
+               "wrong Ident-mode (currently in " << IdentModeName(identMode)
+               << ", expected " << IdentModeName(old) << ")");
 
   IdentSetMode(IdentSuccMode(identMode));
   return true;
@@ -380,9 +380,11 @@ static int IdentStepMode (enum IdentMode old)
 
 static void PrintPList (ID_PLIST *plist)
 {
-  sprintf(cBuffer, "%d: PList proc=%04d entries=%05d\n",
-          me, plist->proc, plist->nEntries);
-  DDD_PrintDebug(cBuffer);
+  using std::setw;
+  std::ostream& out = std::cout;
+
+  out << "PList proc=" << setw(4) << plist->proc
+      << " entries=" << setw(5) << plist->nEntries << "\n";
 }
 
 
@@ -504,11 +506,7 @@ static int sort_tupelOrder (const void *e1, const void *e2)
   if (OBJ_TYPE(el1hdr) > OBJ_TYPE(el2hdr)) return(1);
 
 
-  if (el1hdr!=el2hdr)
-  {
-    sprintf(cBuffer, ERR_ID_SAME_TUPEL, OBJ_GID(el1hdr), OBJ_GID(el2hdr));
-    DDD_PrintError('E', 3030, cBuffer);
-
+  if (el1hdr!=el2hdr) {
     /*
        for(i=0; i<nIds; i++) {
             printf("%4d: tupel[%d]  %08x/%d  %08x/%d   (id/loi)\n",
@@ -518,7 +516,9 @@ static int sort_tupelOrder (const void *e1, const void *e2)
        }
      */
 
-    HARD_EXIT;
+    DUNE_THROW(Dune::Exception,
+               "same identification tupel for objects "
+               << OBJ_GID(el1hdr) << " and " << OBJ_GID(el2hdr));
   }
 
   return(0);
@@ -541,11 +541,9 @@ static void SetLOI (IDENTINFO *ii, int loi)
 
   /* primitive cycle detection */
   if (tupel->loi > 64)
-  {
-    sprintf(cBuffer, ERR_ID_OBJ_CYCLE, ii->msg.gid, ii->id.object);
-    DDD_PrintError('E', 3310, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "IdentifyObject-cycle, objects "
+               << ii->msg.gid << " and " << ii->id.object);
 
 
   for(rby=tupel->refd; rby!=NULL; rby=rby->next)
@@ -602,10 +600,8 @@ static void ResolveDependencies (
            refd[j]->id.object == tupels[i].infos[0]->msg.gid)
     {
       ID_REFDBY *rby = (ID_REFDBY *)AllocTmpReq(sizeof(ID_REFDBY),TMEM_IDENT);
-      if (rby==NULL) {
-        DDD_PrintError('E', 3301, ERR_ID_NOMEM_RESOLV);
-        return;
-      }
+      if (rby==NULL)
+        throw std::bad_alloc();
 
       /* remember that idp[i] is referenced by refd[j] */
       rby->by        = refd[j];
@@ -751,8 +747,7 @@ static int IdentifySort (const DDD::DDDContext& context,
     break;
 
   default :
-    DDD_PrintError('E', 3330, ERR_ID_UNKNOWN_OPT);
-    HARD_EXIT;
+    DUNE_THROW(Dune::Exception, "unknown OPT_IDENTIFY_MODE");
   }
   STAT_INCTIMER3(T_QSORT_TUPEL);
 
@@ -767,10 +762,8 @@ static int IdentifySort (const DDD::DDDContext& context,
     }
   }
   tupels = (ID_TUPEL *) AllocTmp(sizeof(ID_TUPEL)*nTupels);
-  if (tupels==NULL) {
-    DDD_PrintError('E', 3000, ERR_ID_NOMEM_SORT);
-    return(0);
-  }
+  if (tupels==NULL)
+    throw std::bad_alloc();
 
   /* init tupels (e.g., compute tupel ids) */
   for(i=0, last=0, j=0; i<nIds; i++)
@@ -970,10 +963,7 @@ static void idcons_CheckPairs(DDD::DDDContext& context)
   /* communicate */
   nRecvs = DDD_Notify(context);
   if (nRecvs==ERROR)
-  {
-    DDD_PrintError('E', 3907, ERR_ID_NOTIFY_FAILED);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "Notify failed in Ident-ConsCheck");
 
 
   /* perform checking */
@@ -987,19 +977,15 @@ static void idcons_CheckPairs(DDD::DDDContext& context)
 
     if (j==nRecvs)
     {
-      sprintf(cBuffer, ERR_ID_DIFF_IDENT, plist->proc, plist->nEntries);
-      DDD_PrintError('E', 3900, cBuffer);
+      Dune::dgrave << "Identify: no Ident-calls from proc " << plist->proc
+                   << ", expected " << plist->nEntries << "\n";
       err=true;
     }
-    else
+    else if (msgs[j].size!=plist->nEntries)
     {
-      if (msgs[j].size!=plist->nEntries)
-      {
-        sprintf(cBuffer, ERR_ID_DIFF_N_IDENT,
-                msgs[j].size, plist->proc, plist->nEntries);
-        DDD_PrintError('E', 3901, cBuffer);
-        err=true;
-      }
+      Dune::dgrave << "Identify: " << msgs[j].size << " Ident-calls from proc "
+                   << plist->proc << ", expected " << plist->nEntries << "\n";
+      err=true;
     }
   }
 
@@ -1007,12 +993,11 @@ static void idcons_CheckPairs(DDD::DDDContext& context)
 
   if (err)
   {
-    DDD_PrintError('E', 3908, ERR_ID_ERRORS);
-    HARD_EXIT;
+    DUNE_THROW(Dune::Exception, "found errors in IdentifyEnd()");
   }
   else
   {
-    DDD_PrintError('W', 3909, ERR_ID_OK);
+    Dune::dwarn << "Ident-ConsCheck level 0: ok\n";
   }
 }
 
@@ -1052,10 +1037,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 
   /* step mode and check whether call to IdentifyEnd is valid */
   if (!IdentStepMode(IMODE_CMDS))
-  {
-    DDD_PrintError('E', 3071, ERR_ID_ABORT_END);
-    HARD_EXIT;
-  };
+    DUNE_THROW(Dune::Exception, "DDD_IdentifyEnd() aborted");
 
 
 #   if DebugIdent<=9
@@ -1079,10 +1061,8 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
       );
 
     if (plist->local_ids==NULL)
-    {
-      DDD_PrintError('F',3100, ERR_ID_NOMEM_IDENT_END);
-      HARD_EXIT;
-    }
+      throw std::bad_alloc();
+
     plist->msgin  = (MSGITEM *)
                     (((char *)&plist->local_ids[plist->nEntries]) + sizeof(long));
     plist->msgout = (MSGITEM *)
@@ -1131,10 +1111,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
   /* initiate comm-channels and send/receive calls */
   STAT_RESET1;
   if (!InitComm(context, cnt))
-  {
-    DDD_PrintError('E', 3074, ERR_ID_ABORT_END);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD_IdentifyEnd() aborted");
 
 
   /*
@@ -1164,12 +1141,10 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
         /* check control data */
         long *len_adr = (long *) (((char *)msgin) - sizeof(long));
         if (*len_adr != plist->nEntries)
-        {
-          sprintf(cBuffer, ERR_ID_DIFF_N_OBJECTS,
-                  (int)*len_adr, plist->proc, plist->nEntries);
-          DDD_PrintError('E', 3902, cBuffer);
-          HARD_EXIT;
-        }
+          DUNE_THROW(Dune::Exception,
+                     "Identify: " << ((int) *len_adr) << " identified objects"
+                     << " from proc " << plist->proc << ", expected "
+                     << plist->nEntries);
 
         for(i=0; i<plist->nEntries; i++, msgin++, msgout++)
         {
@@ -1183,11 +1158,10 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 #                                       if DebugIdent<=DebugIdentCons
           if (msgout->tId != msgin->tupel)
           {
-            sprintf(cBuffer, ERR_ID_INCONS_TUPELS,
-                    OBJ_GID(msgout->infos[0]->hdr), me,
-                    msgin->gid, plist->proc);
-            DDD_PrintError('E', 3920, cBuffer);
-            HARD_EXIT;
+            DUNE_THROW(Dune::Exception,
+                       "inconsistent tupels, gid "
+                       << OBJ_GID(msgout->infos[0]->hdr) << " on " << me
+                       << ", gid " << msgin->gid << " on " << plist->proc);
           }
 #                                       endif
 
@@ -1209,11 +1183,8 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
       else
       {
         if (ret==-1)
-        {
-          sprintf(cBuffer, ERR_ID_CANT_RECV, plist->proc);
-          DDD_PrintError('E', 3921, cBuffer);
-          HARD_EXIT;
-        }
+          DUNE_THROW(Dune::Exception,
+                     "couldn't receive message from " << plist->proc);
       }
     }
 
@@ -1273,24 +1244,16 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
 
   /* check whether Identify-call is valid */
   if (!IdentActive())
-  {
-    DDD_PrintError('E', 3072, ERR_ID_NO_BEGIN);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "Missing DDD_IdentifyBegin(), aborted");
 
   if (proc==me)
-  {
-    sprintf(cBuffer, ERR_ID_NOT_WITH_ME, OBJ_GID(hdr));
-    DDD_PrintError('E', 3060, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "cannot identify " << OBJ_GID(hdr) << " with myself");
 
   if (proc>=procs)
-  {
-    sprintf(cBuffer, ERR_ID_NOT_WITH_PROC, OBJ_GID(hdr), proc);
-    DDD_PrintError('E', 3061, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "cannot identify " << OBJ_GID(hdr)
+               << " with processor " << proc);
 
 
 
@@ -1304,10 +1267,8 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
   {
     /* get new id_plist record */
     plist = (ID_PLIST *) AllocTmpReq(sizeof(ID_PLIST),TMEM_IDENT);
-    if (plist==NULL) {
-      DDD_PrintError('F', 3210, ERR_ID_NOMEM_IDENTRY);
-      return(NULL);
-    }
+    if (plist==NULL)
+      throw std::bad_alloc();
 
     plist->proc = proc;
     plist->nEntries = 0;
@@ -1376,10 +1337,8 @@ void DDD_IdentifyNumber (DDD_HDR hdr, DDD_PROC proc, int ident)
 IdEntry *id;
 
 id = IdentifyIdEntry(hdr, proc, ID_NUMBER);
-if (id==NULL) {
-  DDD_PrintError('F', 3200, ERR_ID_NOMEM_IDNUMBER);
-  return;
-}
+if (id==NULL)
+  throw std::bad_alloc();
 
 id->msg.id.number = ident;
 
@@ -1423,10 +1382,8 @@ void DDD_IdentifyString (DDD_HDR hdr, DDD_PROC proc, char *ident)
 IdEntry *id;
 
 id = IdentifyIdEntry(hdr, proc, ID_STRING);
-if (id==NULL) {
-  DDD_PrintError('F', 3201, ERR_ID_NOMEM_IDSTRING);
-  return;
-}
+if (id==NULL)
+  throw std::bad_alloc();
 
 id->msg.id.string = ident;
 
@@ -1476,10 +1433,8 @@ void DDD_IdentifyObject (DDD_HDR hdr, DDD_PROC proc, DDD_HDR ident)
 IdEntry *id;
 
 id = IdentifyIdEntry(hdr, proc, ID_OBJECT);
-if (id==NULL) {
-  DDD_PrintError('F', 3202, ERR_ID_NOMEM_IDOBJ);
-  return;
-}
+if (id==NULL)
+  throw std::bad_alloc();
 
 /* use OBJ_GID as estimate for identification value, this estimate
    might be replaced when the corresponding object is identified
@@ -1536,10 +1491,7 @@ void DDD_IdentifyBegin(DDD::DDDContext&)
 {
   /* step mode and check whether call to IdentifyBegin is valid */
   if (!IdentStepMode(IMODE_IDLE))
-  {
-    DDD_PrintError('E', 3073, ERR_ID_ABORT_BEGIN);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD_IdentifyBegin() aborted");
 
   thePLists    = NULL;
   nPLists      = 0;
