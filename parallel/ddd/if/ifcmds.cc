@@ -39,6 +39,11 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <iomanip>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"

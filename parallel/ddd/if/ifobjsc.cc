@@ -107,10 +107,9 @@ void IFCreateObjShortcut(DDD::DDDContext& context, DDD_IF ifId)
 
   /* get memory for addresses of objects inside IF */
   objarray = (IFObjPtr *) AllocIF(sizeof(IFObjPtr)*theIF[ifId].nItems);
-  if (objarray==NULL) {
-    DDD_PrintError('E', 4000, STR_NOMEM " in IFCreateObjShortcut");
-    HARD_EXIT;
-  }
+  if (objarray==NULL)
+    throw std::bad_alloc();
+
   theIF[ifId].obj = objarray;
 
   IFComputeShortcutTable(context, ifId);
