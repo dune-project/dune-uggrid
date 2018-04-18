@@ -380,7 +380,7 @@ void DDD_HdrDestructor(DDD::DDDContext& context, DDD_HDR hdr)
   auto& objTable = context.objTable();
   auto& nCpls = context.couplingContext().nCpls;
 COUPLING   *cpl;
-int objIndex, xfer_active = ddd_XferActive();
+int objIndex, xfer_active = ddd_XferActive(context);
 
 #       ifdef DebugDeletion
   Dune::dinfo
