@@ -65,6 +65,12 @@
 #include <cstring>
 #include <cassert>
 
+#include <iomanip>
+#include <iostream>
+#include <new>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
 #include <dune/common/unused.hh>
 
 #include "dddi.h"
@@ -334,9 +340,7 @@ static LC_MSGHANDLE LC_NewRecvMsg (DDD::DDDContext& context, LC_MSGTYPE mtyp, DD
   MSG_DESC *msg = NewMsgDesc(context);
 
 #       if DebugLowComm<=6
-  sprintf(cBuffer, "%4d: LC_NewRecvMsg(%s) source=%d\n",
-          me, mtyp->name, source);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "LC_NewRecvMsg(" << mtyp->name << ") source=" << source << "\n";
 #       endif
 
   msg->msgState = MSTATE_NEW;
@@ -388,24 +392,14 @@ static void LC_MsgRecv (MSG_DESC *md)
   int n = (int)(hdr[1]);
 
   /* magic number is hdr[0] */
-  if (hdr[0]!=MAGIC_DUMMY)
-  {
-    sprintf(cBuffer,
-            "invalid magic number for message from %d in LC_MsgRecv()",
-            md->proc);
-    DDD_PrintError('E', 6680, cBuffer);
-    HARD_EXIT;
-  }
+  if (hdr[0] != MAGIC_DUMMY)
+    DUNE_THROW(Dune::Exception, "invalid magic number for message from " << md->proc);
 
   /* number of chunks must be consistent with message type */
   if (n!=md->msgType->nComps)
-  {
-    sprintf(cBuffer,
-            "wrong number of chunks (%d!=%d) in msg from %d in LC_MsgRecv()",
-            n, md->msgType->nComps, md->proc);
-    DDD_PrintError('E', 6681, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "wrong number of chunks (got " << n << ", expected "
+               << md->msgType->nComps << ") in message from " << md->proc);
 
   /* get chunk descriptions from message header */
   for(j=2, i=0; i<n; i++)
@@ -416,9 +410,7 @@ static void LC_MsgRecv (MSG_DESC *md)
   }
 
         #if     DebugLowComm<=2
-  sprintf(cBuffer, "%4d: LC_MsgRecv(). from=%d ready.\n",
-          me, md->proc);
-  DDD_PrintDebug(cBuffer);
+  Dune:dvverb << "LC_MsgRecv() from=" << md->proc << " ready\n";
         #endif
 }
 
@@ -452,13 +444,7 @@ static int LC_PollSend(const DDD::DDDContext& context)
     {
       error = InfoASend(context.ppifContext(), VCHAN_TO(context, md->proc), md->msgId);
       if (error==-1)
-      {
-        sprintf(cBuffer,
-                "PPIF's InfoASend() failed for send to proc=%d in LowComm",
-                md->proc);
-        DDD_PrintError('E', 6640, cBuffer);
-        HARD_EXIT;
-      }
+        DUNE_THROW(Dune::Exception, "InfoASend() failed for message to proc=" << md->proc);
 
       if (error==1)
       {
@@ -476,8 +462,7 @@ static int LC_PollSend(const DDD::DDDContext& context)
   }
 
         #if     DebugLowComm<=3
-  sprintf(cBuffer, "%4d: LC_PollSend, %d msgs remaining\n",me,remaining);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "LC_PollSend, " << remaining << " msgs remaining\n";
         #endif
 
   return(remaining);
@@ -513,13 +498,8 @@ static int LC_PollRecv(const DDD::DDDContext& context)
     {
       error = InfoARecv(context.ppifContext(), VCHAN_TO(context, md->proc), md->msgId);
       if (error==-1)
-      {
-        sprintf(cBuffer,
-                "PPIF's InfoARecv() failed for recv from proc=%d in LowComm",
-                md->proc);
-        DDD_PrintError('E', 6641, cBuffer);
-        HARD_EXIT;
-      }
+        DUNE_THROW(Dune::Exception,
+                   "InfoARecv() failed for recv from proc=" << md->proc);
 
       if (error==1)
       {
@@ -535,8 +515,7 @@ static int LC_PollRecv(const DDD::DDDContext& context)
   }
 
         #if     DebugLowComm<=3
-  sprintf(cBuffer, "%4d: LC_PollRecv, %d msgs remaining\n",me,remaining);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "LC_PollRecv, " << remaining << " msgs remaining\n";
         #endif
 
   return(remaining);
@@ -652,9 +631,8 @@ int LC_MsgAlloc(DDD::DDDContext& context, LC_MSGHANDLE md)
       else
       {
 #                               if DebugLowComm<=7
-        sprintf(cBuffer, "%4d: LC_MsgAlloc(%s) detected low memory.\n",
-                me, md->msgType->name);
-        DDD_PrintDebug(cBuffer);
+        Dune::dinfo << "LC_MsgAlloc(" << md->msgType->name
+                    << ") detected low memory.\n";
 #                               endif
 
         /* couldn't get msg-buffer. try to poll previous messages. */
@@ -665,10 +643,8 @@ int LC_MsgAlloc(DDD::DDDContext& context, LC_MSGHANDLE md)
         remaining  = LC_PollSend(context);
 
 #                               if DebugLowComm<=6
-        sprintf(cBuffer,
-                "%4d: LC_MsgAlloc(%s) preliminary poll, sends_left=%d.\n",
-                me, md->msgType->name, remaining);
-        DDD_PrintDebug(cBuffer);
+        Dune::dverb << "LC_MsgAlloc(" << md->msgType->name
+                    << ") preliminary poll, sends_left=" << remaining << "\n";
 #                               endif
       }
     }
@@ -677,9 +653,7 @@ int LC_MsgAlloc(DDD::DDDContext& context, LC_MSGHANDLE md)
   if (give_up)
   {
 #               if DebugLowComm<=7
-    sprintf(cBuffer, "%4d: LC_MsgAlloc(%s) giving up, no memory.\n",
-            me, md->msgType->name);
-    DDD_PrintDebug(cBuffer);
+    Dune::dinfo << "LC_MsgAlloc(" << md->msgType->name << ") giving up, no memory.\n";
 #               endif
     return(false);
   }
@@ -732,9 +706,8 @@ static RETCODE LC_PrepareRecv(DDD::DDDContext& context)
   lcContext.theRecvBuffer = (char *) (*lcContext.RecvAlloc)(sumSize);
   if (lcContext.theRecvBuffer == nullptr)
   {
-    DDD_PrintError('E', 6610, STR_NOMEM " in LC_PrepareRecv");
-    sprintf(cBuffer, "(size of message buffer: %ld)", sumSize);
-    DDD_PrintError('E', 6610, cBuffer);
+    Dune::dwarn << "Out of memory in LC_PrepareRecv "
+                << "(size of message buffer: " << sumSize << ")";
     RET_ON_ERROR;
   }
 
@@ -796,10 +769,7 @@ LC_MSGTYPE LC_NewMsgType(DDD::DDDContext& context, const char *aName)
 
   mt = (MSG_TYPE *) AllocCom(sizeof(MSG_TYPE));
   if (mt==NULL)
-  {
-    DDD_PrintError('E', 6601, STR_NOMEM " in LC_NewMsgType()");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   mt->name   = aName;
   mt->nComps = 0;
@@ -840,12 +810,8 @@ LC_MSGCOMP LC_NewMsgChunk (const char *aName, LC_MSGTYPE mtyp)
   LC_MSGCOMP id = mtyp->nComps++;
 
   if (id>=MAX_COMPONENTS)
-  {
-    sprintf(cBuffer, "too many message components (max. %d)",
-            MAX_COMPONENTS);
-    DDD_PrintError('E', 6630, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "too many message components (max. " << MAX_COMPONENTS << ")");
 
   mtyp->comp[id].type = CT_CHUNK;
   mtyp->comp[id].name = aName;
@@ -888,12 +854,8 @@ LC_MSGCOMP LC_NewMsgTable (const char *aName, LC_MSGTYPE mtyp, size_t aSize)
   LC_MSGCOMP id = mtyp->nComps++;
 
   if (id>=MAX_COMPONENTS)
-  {
-    sprintf(cBuffer, "too many message components (max. %d)",
-            MAX_COMPONENTS);
-    DDD_PrintError('E', 6631, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "too many message components (max. " << MAX_COMPONENTS << ")");
 
   mtyp->comp[id].type = CT_TABLE;
   mtyp->comp[id].entry_size = aSize;
@@ -937,9 +899,8 @@ LC_MSGHANDLE LC_NewSendMsg(DDD::DDDContext& context, LC_MSGTYPE mtyp, DDD_PROC a
   MSG_DESC *msg = NewMsgDesc(context);
 
 #       if DebugLowComm<=6
-  sprintf(cBuffer, "%4d: LC_NewSendMsg(%s) dest=%d nSends=%d\n",
-          me, mtyp->name, aDest, lcContext.nSends+1);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "LC_NewSendMsg(" << mtyp->name << ") dest="
+              << aDest << " nSends=" << (lcContext.nSends+1) << "\n";
 #       endif
 
 
@@ -951,11 +912,7 @@ LC_MSGHANDLE LC_NewSendMsg(DDD::DDDContext& context, LC_MSGTYPE mtyp, DDD_PROC a
   /* allocate chunks array */
   msg->chunks = (CHUNK_DESC *) AllocTmpReq(sizeof(CHUNK_DESC)*mtyp->nComps, TMEM_LOWCOMM);
   if (msg->chunks==NULL)
-  {
-    DDD_PrintError('E', 6602, STR_NOMEM " in LC_NewSendMsg()");
-    HARD_EXIT;
-  }
-
+    throw std::bad_alloc();
 
   /* enter message into send queue */
   msg->next = lcContext.SendQueue;
@@ -1002,12 +959,7 @@ size_t LC_MsgPrepareSend (DDD::DDDContext& context, LC_MSGHANDLE msg)
 {
   size_t size = LC_MsgFreeze(msg);
   if (! LC_MsgAlloc(context, msg))
-  {
-    sprintf(cBuffer, STR_NOMEM " in LC_MsgPrepareSend (size=%ld)",
-            (unsigned long)size);
-    DDD_PrintError('E', 6600, cBuffer);
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   return(size);
 }
@@ -1083,17 +1035,13 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
   const auto procs = context.procs();
 
   if (lcContext.nSends<0 || lcContext.nSends>procs-1)
-  {
-    sprintf(cBuffer, "cannot send %d messages (must be less than %d)",
-            lcContext.nSends, procs-1);
-    DDD_PrintError('E', 6620, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "cannot send " << lcContext.nSends << "messages "
+               "(must be less than " << (procs-1) << ")");
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Connect(%s) nSends=%d ...\n",
-          me, mtyp->name, lcContext.nSends);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "LC_Connect(" << mtyp->name
+              << ") nSends=" << lcContext.nSends << " ...\n";
 #       endif
 
 
@@ -1115,10 +1063,8 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
   if (lcContext.nRecvs<0)
   {
     /* some processor raised an exception */
-    sprintf(cBuffer,
-            "Notify() raised exception #%d in LC_Connect()",
-            -lcContext.nRecvs);
-    DDD_PrintError('E', 6624, cBuffer);
+    Dune::dwarn << "Notify() raised exception #"
+                << (-lcContext.nRecvs) << " in LC_Connect()\n";
 
     /* automatically call LC_Cleanup() */
     DDD_NotifyEnd(context);
@@ -1130,9 +1076,8 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
   if (lcContext.nRecvs>procs-1)
   {
-    sprintf(cBuffer, "cannot receive %d messages (must be less than %d)",
-            lcContext.nRecvs, procs-1);
-    DDD_PrintError('E', 6622, cBuffer);
+    Dune::dwarn << "cannot receive " << lcContext.nRecvs
+                << " messages (must be less than " << (procs-1) << ")\n";
     DDD_NotifyEnd(context);
     return(EXCEPTION_LOWCOMM_CONNECT);
   }
@@ -1140,9 +1085,8 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
 
 #       if DebugLowComm<=7
-  sprintf(cBuffer, "%4d: LC_Connect() nSends=%d nRecvs=%d\n",
-          me, lcContext.nSends, lcContext.nRecvs);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "LC_Connect() nSends=" << lcContext.nSends
+              << " nRecvs=" << lcContext.nRecvs << "\n";
 #       endif
 
 
@@ -1198,8 +1142,7 @@ int LC_Connect(DDD::DDDContext& context, LC_MSGTYPE mtyp)
 
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Connect() ready\n", me);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "LC_Connect() ready\n";
 #       endif
 
   return lcContext.nRecvs;
@@ -1218,19 +1161,13 @@ int LC_Abort(DDD::DDDContext& context, int exception)
   int retException;
 
   if (exception>EXCEPTION_LOWCOMM_USER)
-  {
-    DDD_PrintError('E', 6626,
-                   "exception must be <=EXCEPTION_LOWCOMM_USER in LC_Abort()");
-    HARD_EXIT;
-  }
-
+    DUNE_THROW(Dune::Exception,
+               "exception must be <= EXCEPTION_LOWCOMM_USER");
 
   DDD_NotifyBegin(context, exception);
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Abort() exception=%d ...\n",
-          me, exception);
-  DDD_PrintDebug(cBuffer);
+  Dune::dwarn << "LC_Abort() exception=" << exception << " ...\n";
 #       endif
 
 
@@ -1241,9 +1178,7 @@ int LC_Abort(DDD::DDDContext& context, int exception)
 
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Abort() ready, exception=%d.\n",
-          me, retException);
-  DDD_PrintDebug(cBuffer);
+  Dune::dwarn << "LC_Abort() ready, exception=" << retException << "\n";
 #       endif
 
 
@@ -1266,8 +1201,7 @@ LC_MSGHANDLE *LC_Communicate(const DDD::DDDContext& context)
   auto& lcContext = context.lowCommContext();
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Communicate() ...\n", me);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "LC_Communicate() ...\n";
 #       endif
 
 
@@ -1281,8 +1215,7 @@ LC_MSGHANDLE *LC_Communicate(const DDD::DDDContext& context)
 
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Communicate() ready\n", me);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "LC_Communicate() ready\n";
 #       endif
 
   return lcContext.theRecvArray;
@@ -1300,8 +1233,7 @@ void LC_Cleanup(DDD::DDDContext& context)
   auto& lcContext = context.lowCommContext();
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Cleanup() ...\n", me);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "LC_Cleanup() ...\n";
 #       endif
 
   if (lcContext.nRecvs>0)
@@ -1327,8 +1259,7 @@ void LC_Cleanup(DDD::DDDContext& context)
 
 
 #       if DebugLowComm<=9
-  sprintf(cBuffer, "%4d: LC_Cleanup() ready\n", me);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "LC_Cleanup() ready\n";
 #       endif
 }
 
@@ -1347,7 +1278,9 @@ static const char* LC_Name(const char* name)
 
 static void LC_PrintMsgList (MSG_DESC *list)
 {
-  char buf[LC_COLWIDTH*2];
+  using std::setw;
+
+  std::ostream& out = std::cout;
   MSG_DESC *md;
   MSG_TYPE *last_mt=NULL;
   size_t sum, comp_size[MAX_COMPONENTS];
@@ -1364,66 +1297,62 @@ static void LC_PrintMsgList (MSG_DESC *list)
       /* first, close part of msg-list with summary */
       if (last_mt!=NULL)
       {
-        sprintf(cBuffer, "%4d:        = |", me);
+        out << "        = |";
         sum = 0;
         for(i=0; i<last_mt->nComps; i++)
         {
-          sprintf(buf, "%9ld", comp_size[i]);
-          strcat(cBuffer, buf);
-
+          out << setw(9) << comp_size[i];
           sum += comp_size[i];                                 /* horizontal sum */
         }
-        sprintf(buf, "%9ld\n", sum); strcat(cBuffer, buf);
-        DDD_PrintLine(cBuffer);
+        out << setw(9) << sum << "\n";
       }
 
       /* then, construct header */
-      sprintf(cBuffer, "%4d:%9.9s |", me, LC_Name(mt->name));
+      {
+        std::string name = LC_Name(mt->name);
+        out << setw(9) << name.substr(0, 9) << " |";
+      }
       for(i=0; i<mt->nComps; i++)
       {
-        if (mt->comp[i].name!=NULL)
-          sprintf(buf, "%9.9s", LC_Name(mt->comp[i].name));
+        if (mt->comp[i].name!=NULL) {
+          std::string name = LC_Name(mt->comp[i].name);
+          out << setw(9) << name.substr(0, 9);
+        }
         else
-          sprintf(buf, "%9d", i);
-        strcat(cBuffer, buf);
+          out << setw(9) << i;
 
         comp_size[i] = 0;
       }
-      strcat(cBuffer, "        =\n"); DDD_PrintLine(cBuffer);
+      out << "        =\n";
       last_mt = mt;
     }
 
     /* construct info about message components */
-    sprintf(cBuffer, "%4d:%9d |", me, md->proc);
+    out << setw(9) << md->proc << " |";
     sum = 0;
     for(i=0; i<mt->nComps; i++)
     {
       size_t s = md->chunks[i].size;
 
-      sprintf(buf, "%9ld", s);
-      strcat(cBuffer, buf);
+      out << setw(9) << s;
 
       sum          += s;                     /* horizontal sum */
       comp_size[i] += s;                     /* vertical sum */
     }
-    sprintf(buf, "%9ld\n", sum); strcat(cBuffer, buf);
-    DDD_PrintLine(cBuffer);
+    out << setw(9) << sum << "\n";
   }
 
   /* close last part of msg-list with summary */
   if (last_mt!=NULL)
   {
-    sprintf(cBuffer, "%4d:        = |", me);
+    out << "        = |";
     sum = 0;
     for(i=0; i<last_mt->nComps; i++)
     {
-      sprintf(buf, "%9ld", comp_size[i]);
-      strcat(cBuffer, buf);
-
+      out << setw(9) << comp_size[i];
       sum += comp_size[i];                     /* horizontal sum */
     }
-    sprintf(buf, "%9ld\n", sum); strcat(cBuffer, buf);
-    DDD_PrintLine(cBuffer);
+    out << setw(9) << sum << "\n";
   }
 
 }

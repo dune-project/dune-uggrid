@@ -35,7 +35,11 @@
 #include <cstdio>
 #include <cstring>
 
+#include <iomanip>
+#include <iostream>
 #include <vector>
+
+#include <dune/common/stdstreams.hh>
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
@@ -142,10 +146,8 @@ RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
 
       if (vc==NULL)
       {
-        sprintf(cBuffer,
-                "can't connect to proc=%d in DDD_GetChannels",
-                ctx.theProcArray[i]);
-        DDD_PrintError('E', 1521, cBuffer);
+        Dune::dwarn << "DDD_GetChannels: can't connect to proc="
+                    << ctx.theProcArray[i] << "\n";
         RET_ON_ERROR;
       }
 
@@ -170,11 +172,8 @@ RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
         int ret = InfoAConn(context.ppifContext(), ctx.theTopology[ctx.theProcArray[i]]);
         if (ret==-1)
         {
-          sprintf(cBuffer,
-                  "PPIF's InfoAConn() failed for connect to proc=%d"
-                  " in DDD_GetChannels",
-                  ctx.theProcArray[i]);
-          DDD_PrintError('E', 1530, cBuffer);
+          Dune::dwarn << "DDD_GetChannels: InfoAConn() failed for connect to proc="
+                      << ctx.theProcArray[i] << "\n";
           RET_ON_ERROR;
         }
 
@@ -195,50 +194,38 @@ RETCODE DDD_GetChannels(DDD::DDDContext& context, int nPartners)
 
 void DDD_DisplayTopo (const DDD::DDDContext& context)
 {
-  int p, i;
-  char buf[20];
+  using std::setw;
 
+  std::ostream& out = std::cout;
   const auto& ctx = context.topoContext();
   const auto me = context.me();
   const auto procs = context.procs();
 
   DDD_SyncAll(context);
 
-  if (me==0)
-  {
-    sprintf(cBuffer, "      ");
-    for(p=0; p<procs; p++)
-    {
-      sprintf(buf, "%2d", p);
-      strcat(cBuffer, buf);
-    }
-    strcat(cBuffer,"\n");
-    DDD_PrintLine(cBuffer); fflush(stdout);
+  if (me == 0) {
+    out << "      ";
+    for(int p=0; p < procs; ++p)
+      out << setw(2) << p;
+    out << std::endl;
   }
 
-  for(p=0; p<procs; p++)
+  for(int p = 0; p < procs; ++p)
   {
     Synchronize(context.ppifContext());
-    if (p==me)
-    {
-      sprintf(cBuffer, "%4d: ", me);
-      for(i=0; i<procs; i++)
-      {
+    if (p == me) {
+      out << setw(4) << me << ": ";
+      for(int i = 0; i < procs; ++i) {
         if (ctx.theTopology[i]!=NULL)
-        {
-          strcat(cBuffer,"<>");
-        }
-        else
-        {
+          out << "<>";
+        else {
           if (i==p)
-            strcat(cBuffer,"--");
+            out << "--";
           else
-            strcat(cBuffer,"  ");
+            out << "  ";
         }
       }
-      strcat(cBuffer,"\n");
-      DDD_PrintLine(cBuffer);
-      DDD_Flush();
+      out << std::endl;
     }
   }
 
