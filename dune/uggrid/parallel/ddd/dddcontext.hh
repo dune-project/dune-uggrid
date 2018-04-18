@@ -56,6 +56,18 @@ struct ConsContext
 
 } /* namespace Ctrl */
 
+namespace Ident {
+
+struct IdentContext
+{
+  ID_PLIST* thePLists;
+  int cntIdents;
+  int nPLists;
+  IdentMode identMode;
+};
+
+} /* namespace Ident */
+
 namespace If {
 
 struct IfCreateContext
@@ -169,6 +181,12 @@ public:
   Ctrl::ConsContext& consContext()
     { return consContext_; }
 
+  Ident::IdentContext& identContext()
+    { return identContext_; }
+
+  const Ident::IdentContext& identContext() const
+    { return identContext_; }
+
   If::IfCreateContext& ifCreateContext()
     { return ifCreateContext_; }
 
@@ -236,6 +254,7 @@ protected:
   Basic::NotifyContext notifyContext_;
   Basic::TopoContext topoContext_;
   Ctrl::ConsContext consContext_;
+  Ident::IdentContext identContext_;
   If::IfCreateContext ifCreateContext_;
   If::IfUseContext ifUseContext_;
   Mgr::CplmgrContext cplmgrContext_;
