@@ -8804,7 +8804,7 @@ static int GetMatchingProcs (PERIODIC_ENTRIES *coordlist, INT i, int *np, int *t
   return(0);
 }
 
-static INT Identify_PeriodicVectorX (PERIODIC_ENTRIES *coordlist, INT i, INT p)
+static INT Identify_PeriodicVectorX (DDD::DDDContext& dddContext, PERIODIC_ENTRIES *coordlist, INT i, INT p)
 {
   int j;
 
@@ -8818,7 +8818,7 @@ static INT Identify_PeriodicVectorX (PERIODIC_ENTRIES *coordlist, INT i, INT p)
     PRINTDEBUG(gm,1,(" GID=%08x",
                      GID(coordlist[i].vp[j])))
 
-    DDD_IdentifyNumber(PARHDR(NVECTOR(coordlist[i].node)),p,
+    DDD_IdentifyNumber(dddContext, PARHDR(NVECTOR(coordlist[i].node)),p,
                        GID(coordlist[i].vp[j]));
   }
         #ifdef Debug
@@ -8831,7 +8831,7 @@ static INT Identify_PeriodicVectorX (PERIODIC_ENTRIES *coordlist, INT i, INT p)
   return(0);
 }
 
-static INT Identify_PeriodicVector (PERIODIC_ENTRIES *coordlist, INT i)
+static INT Identify_PeriodicVector (DDD::DDDContext& dddContext, PERIODIC_ENTRIES *coordlist, INT i)
 {
   int p,j,theprocs[MAX_PERIODIC_PROCS],np;
 
@@ -8861,10 +8861,10 @@ static INT Identify_PeriodicVector (PERIODIC_ENTRIES *coordlist, INT i)
                        GID(coordlist[i].vp[j])))
 
       if (0)
-        DDD_IdentifyObject(PARHDR(NVECTOR(coordlist[i].node)),theprocs[p],
+        DDD_IdentifyObject(dddContext, PARHDR(NVECTOR(coordlist[i].node)),theprocs[p],
                            PARHDR(coordlist[i].vp[j]));
       else
-        DDD_IdentifyNumber(PARHDR(NVECTOR(coordlist[i].node)),theprocs[p],
+        DDD_IdentifyNumber(dddContext, PARHDR(NVECTOR(coordlist[i].node)),theprocs[p],
                            GID(coordlist[i].vp[j]));
     }
                 #ifdef Debug
@@ -8973,7 +8973,7 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
                                         PrintListEntry(i,coordlist);
          */
 
-        Identify_PeriodicVectorX(coordlist,i,p);
+        Identify_PeriodicVectorX(g->dddContext(), coordlist,i,p);
         recv_tplscur[p]++;
         nidv[p]++;
       }
@@ -9015,7 +9015,7 @@ static void IdentList (const GRID* g, INT nn, PERIODIC_ENTRIES *coordlist)
 
     if (coordlist[i].node != (NODE *)VOBJECT(NVECTOR(coordlist[i].node))) continue;
 
-    Identify_PeriodicVector(coordlist,i);
+    Identify_PeriodicVector(g->dddContext(), coordlist,i);
   }
 
   if (1)

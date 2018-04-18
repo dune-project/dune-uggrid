@@ -1798,9 +1798,9 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
   }
   for (i=0; i<pinfo->ncopies_elem; i++)
   {
-    DDD_IdentifyNumber(PARHDRE(theElement),pinfo->proclist[s],pinfo->e_ident);
+    DDD_IdentifyNumber(dddContext, PARHDRE(theElement),pinfo->proclist[s],pinfo->e_ident);
     if (evec)
-      DDD_IdentifyNumber(PARHDR(EVECTOR(theElement)),pinfo->proclist[s],pinfo->e_ident);
+      DDD_IdentifyNumber(dddContext, PARHDR(EVECTOR(theElement)),pinfo->proclist[s],pinfo->e_ident);
     s++;
   }
 
@@ -1825,9 +1825,9 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
       PRINTDEBUG(gm,1,("Evaluate-pinfo():nid=%d prio=%d\n",ID(theNode),prio);fflush(stdout));
       for (i=0; i<pinfo->ncopies_node[j]; i++)
       {
-        DDD_IdentifyNumber(PARHDR(theNode),pinfo->proclist[s],pinfo->n_ident[j]);
+        DDD_IdentifyNumber(dddContext, PARHDR(theNode),pinfo->proclist[s],pinfo->n_ident[j]);
         if (nvec)
-          DDD_IdentifyNumber(PARHDR(NVECTOR(theNode)),pinfo->proclist[s],pinfo->n_ident[j]);
+          DDD_IdentifyNumber(dddContext, PARHDR(NVECTOR(theNode)),pinfo->proclist[s],pinfo->n_ident[j]);
         s++;
       }
       SETUSED(theNode,1);
@@ -1850,7 +1850,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
       PRINTDEBUG(gm,1,("Evaluate-pinfo():vid=%d prio=%d\n",ID(theVertex),prio);fflush(stdout));
       for (i=0; i<pinfo->ncopies_vertex[j]; i++)
       {
-        DDD_IdentifyNumber(PARHDRV(theVertex),pinfo->proclist[s],pinfo->v_ident[j]);
+        DDD_IdentifyNumber(dddContext, PARHDRV(theVertex),pinfo->proclist[s],pinfo->v_ident[j]);
         s++;
       }
       SETUSED(theVertex,1);
@@ -1872,7 +1872,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
           GRID_LINK_VECTOR(theGrid,theVector,prio);
         }
         for (i=0; i<pinfo->ncopies_edge[j]; i++) {
-          DDD_IdentifyNumber(PARHDR(theVector),
+          DDD_IdentifyNumber(dddContext, PARHDR(theVector),
                              pinfo->proclist[s],pinfo->ed_ident[j]);
           s++;
         }
@@ -1904,9 +1904,9 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
       }
       for (i=0; i<pinfo->ncopies_edge[j]; i++)
       {
-        DDD_IdentifyNumber(PARHDR(theEdge),pinfo->proclist[s],pinfo->ed_ident[j]);
+        DDD_IdentifyNumber(dddContext, PARHDR(theEdge),pinfo->proclist[s],pinfo->ed_ident[j]);
         if (edvec)
-          DDD_IdentifyNumber(PARHDR(EDVECTOR(theEdge)),pinfo->proclist[s],pinfo->ed_ident[j]);
+          DDD_IdentifyNumber(dddContext, PARHDR(EDVECTOR(theEdge)),pinfo->proclist[s],pinfo->ed_ident[j]);
         s++;
       }
       SETUSED(theEdge,1);
