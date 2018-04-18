@@ -33,6 +33,12 @@
 #include <cstdio>
 #include <cstring>
 
+#include <iomanip>
+#include <iostream>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
 #include "dddi.h"
 
 USING_UG_NAMESPACE
@@ -100,19 +106,12 @@ START_UGDIM_NAMESPACE
 void DDD_PrioritySet(DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 {
 /* check input parameters */
-if (prio>=MAX_PRIO)
-{
-  sprintf(cBuffer,
-          "priority must be less than %d in DDD_PrioritySet", MAX_PRIO);
-  DDD_PrintError('E', 2305, cBuffer);
-  HARD_EXIT;
-}
-
+  if (prio>=MAX_PRIO)
+    DUNE_THROW(Dune::Exception, "priority must be less than " << MAX_PRIO);
 
 #       ifdef LogObjects
-sprintf(cBuffer, "%4d: LOG DDD_PrioritySet %08x old=%d new=%d\n",
-        me, OBJ_GID(hdr), OBJ_PRIO(hdr), prio);
-DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "LOG DDD_PrioritySet " << OBJ_GID(hdr)
+              << " old=" << OBJ_PRIO(hdr) << " new=" << prio << "\n";
 #       endif
 
 if (ddd_XferActive())
@@ -136,12 +135,8 @@ else
   {
     /* distributed object will get inconsistent here. issue warning. */
     if (DDD_GetOption(context, OPT_WARNING_PRIOCHANGE)==OPT_ON)
-    {
-      sprintf(cBuffer,
-              "creating inconsistency for gid=" OBJ_GID_FMT " in DDD_PrioritySet",
-              OBJ_GID(hdr));
-      DDD_PrintError('W', 2300, cBuffer);
-    }
+      Dune::dwarn << "DDD_PrioritySet: creating inconsistency for gid="
+                  << OBJ_GID(hdr) << "\n";
 
     /* change priority, nevertheless */
     OBJ_PRIO(hdr) = prio;
@@ -257,12 +252,9 @@ static int CheckPrioMatrix (TYPE_DESC *desc)
       DDD_PRIO p = PM_ENTRY(desc->prioMatrix,r,c);
 
       if (p>=MAX_PRIO)
-      {
-        sprintf(cBuffer, "PriorityMerge(%d,%d) yields %d larger than %d!",
-                r, c, p, MAX_PRIO-1);
-        DDD_PrintError('E', 2340, cBuffer);
-        HARD_EXIT;
-      }
+        DUNE_THROW(Dune::Exception,
+                   "PriorityMerge(" << r << "," << c << ") yields"
+                   << p << " larger than " << (MAX_PRIO-1));
     }
   }
 
@@ -281,17 +273,10 @@ static int CheckPrioMatrix (TYPE_DESC *desc)
 void DDD_PrioMergeDefault (DDD::DDDContext& context, DDD_TYPE type_id, int priomerge_mode)
 {
   if (! SetPrioMatrix(&context.typeDefs()[type_id], priomerge_mode))
-  {
-    DDD_PrintError('E', 2330,
-                   "unknown default prio-mergemode in DDD_TYPE "
-                   "in DDD_PrioMergeDefault()");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "unknown defaultprio-mergemode in DDD_TYPE " << type_id);
 }
 
 
-
-#define FUNCNAME "DDD_PrioMergeDefine()"
 
 void DDD_PrioMergeDefine (DDD::DDDContext& context, DDD_TYPE type_id,
                           DDD_PRIO p1, DDD_PRIO p2, DDD_PRIO pres)
@@ -300,46 +285,25 @@ void DDD_PrioMergeDefine (DDD::DDDContext& context, DDD_TYPE type_id,
 
   /* check for correct type */
   if (! ddd_TypeDefined(desc))
-  {
-    DDD_PrintError('E', 2331, "undefined DDD_TYPE in " FUNCNAME);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "undefined DDD_TYPE");
 
 
   /* create prioMatrix on demand */
   if (desc->prioMatrix == nullptr)
   {
     if (! SetPrioMatrix(desc, PRIOMERGE_DEFAULT))
-    {
-      sprintf(cBuffer,
-              "error for DDD_TYPE %d during " FUNCNAME,
-              type_id);
-      DDD_PrintError('E', 2332, cBuffer);
-      HARD_EXIT;
-    }
+      DUNE_THROW(Dune::Exception, "error for DDD_TYPE " << type_id);
   }
 
 
   /* check input priorities */
 
   if (p1>=MAX_PRIO)
-  {
-    sprintf(cBuffer, "invalid priority %d in " FUNCNAME, p1);
-    DDD_PrintError('E', 2333, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "invalid priority p1=" << p1);
   if (p2>=MAX_PRIO)
-  {
-    sprintf(cBuffer, "invalid priority %d in " FUNCNAME, p2);
-    DDD_PrintError('E', 2333, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "invalid priority p2=" << p2);
   if (pres>=MAX_PRIO)
-  {
-    sprintf(cBuffer, "invalid priority %d in " FUNCNAME, pres);
-    DDD_PrintError('E', 2333, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "invalid priority pres=" << pres);
 
 
   /* set prioMatrix entry */
@@ -355,15 +319,9 @@ void DDD_PrioMergeDefine (DDD::DDDContext& context, DDD_TYPE type_id,
 
   /* finally always check prioMatrix, just to be sure */
   if (!CheckPrioMatrix(desc))
-  {
-    sprintf(cBuffer,
-            "error(s) in merge-check for DDD_TYPE %d during " FUNCNAME,
-            type_id);
-    DDD_PrintError('E', 2334, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "error(s) in merge-check for DDD_TYPE " << type_id);
 }
-#undef FUNCNAME
 
 
 /****************************************************************************/
@@ -379,32 +337,15 @@ DDD_PRIO DDD_PrioMerge (DDD::DDDContext& context, DDD_TYPE type_id, DDD_PRIO p1,
 
   /* check for correct type */
   if (! ddd_TypeDefined(desc))
-  {
-    DDD_PrintError('E', 2350, "undefined DDD_TYPE in DDD_PrioMerge()");
-    HARD_EXIT;
-  }
-
+    DUNE_THROW(Dune::Exception, "undefined DDD_TYPE");
 
   if (p1>=MAX_PRIO)
-  {
-    sprintf(cBuffer, "invalid priority %d in DDD_PrioMerge()", p1);
-    DDD_PrintError('E', 2351, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "invalid priority p1=" << p1);
   if (p2>=MAX_PRIO)
-  {
-    sprintf(cBuffer, "invalid priority %d in DDD_PrioMerge()", p2);
-    DDD_PrintError('E', 2351, cBuffer);
-    HARD_EXIT;
-  }
-
+    DUNE_THROW(Dune::Exception, "invalid priority p2=" << p2);
 
   if (PriorityMerge(desc, p1, p2, &newprio) == PRIO_ERROR)
-  {
-    DDD_PrintError('E', 2352, "cannot merge priorities in DDD_PrioMerge()");
-    HARD_EXIT;
-  }
-
+    DUNE_THROW(Dune::Exception, "cannot merge priorities");
 
   return newprio;
 }
@@ -412,44 +353,39 @@ DDD_PRIO DDD_PrioMerge (DDD::DDDContext& context, DDD_TYPE type_id, DDD_PRIO p1,
 
 /****************************************************************************/
 
-#define FUNCNAME "DDD_PrioMergeDisplay()"
+static const char* prioMergeDefaultName(int prioDefault)
+{
+  switch (prioDefault) {
+  case PRIOMERGE_MAXIMUM:
+    return "MAX";
+  case PRIOMERGE_MINIMUM:
+    return "MIN";
+  default:
+    return "(ERROR)";
+  }
+}
 
 void DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE type_id)
 {
+  std::ostream& out = std::cout;
   TYPE_DESC* desc = &context.typeDefs()[type_id];
   int r, c, changed_rows[MAX_PRIO];
-  char buf[20];
 
   if (me!=0)
     return;
 
   /* check for correct type */
   if (! ddd_TypeDefined(desc))
-  {
-    DDD_PrintError('E', 2360, "undefined DDD_TYPE in " FUNCNAME);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "undefined DDD_TYPE");
 
-  sprintf(cBuffer, "/ PrioMergeDisplay for '%s', default mode ",
-          desc->name);
-
-  switch (desc->prioDefault)
-  {
-  case PRIOMERGE_MAXIMUM :  strcat(cBuffer, "MAX");  break;
-  case PRIOMERGE_MINIMUM :  strcat(cBuffer, "MIN");  break;
-  default :                 strcat(cBuffer, "ERROR!"); break;
-  }
-
-  strcat(cBuffer, "\n");
-  DDD_PrintLine(cBuffer);
+  out << "/ PrioMergeDisplay for '" << desc->name << "', default mode "
+      << prioMergeDefaultName(desc->prioDefault) << "\n";
 
   if (desc->prioMatrix == nullptr)
   {
-    sprintf(cBuffer, "\\ \t(no special cases defined)\n");
-    DDD_PrintLine(cBuffer);
+    out << "\\ \t(no special cases defined)\n";
     return;
   }
-
 
   /* find out which rows/columns we will have to print */
   for(r=0; r<MAX_PRIO; r++)
@@ -469,24 +405,23 @@ void DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE type_id)
   }
 
   /* print */
-  sprintf(cBuffer, "|\t     ");
+  using std::setw;
+  out << "|\t     ";
   for(c=0; c<MAX_PRIO; c++)
   {
     if (! changed_rows[c])
       continue;
 
-    sprintf(buf, " %3d  ", c);
-    strcat(cBuffer, buf);
+    out << " " << setw(3) << c << "  ";
   }
-  strcat(cBuffer, "\n");
-  DDD_PrintLine(cBuffer);
+  out << "\n";
 
   for(r=0; r<MAX_PRIO; r++)
   {
     if (! changed_rows[r])
       continue;
 
-    sprintf(cBuffer, "|\t%2d :  ", r);
+    out << "|\t" << setw(2) << r << " :  ";
     for(c=0; c<MAX_PRIO; c++)
     {
       DDD_PRIO p_dflt, p_actual;
@@ -498,24 +433,16 @@ void DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE type_id)
       PriorityMerge(desc, r, c, &p_actual);
 
       if (p_dflt != p_actual)
-      {
-        sprintf(buf, " %3d  ", p_actual);
-        strcat(cBuffer, buf);
-      }
+        out << " " << setw(3) << p_actual << "  ";
       else
-      {
-        sprintf(buf, "(%3d) ", p_actual);
-        strcat(cBuffer, buf);
-      }
+        out << "(" << setw(3) << p_actual << ") ";
     }
 
-    strcat(cBuffer, "\n");
-    DDD_PrintLine(cBuffer);
+    out << "\n";
   }
 
-  DDD_PrintLine("\\\n");
+  out << "\\\n";
 }
-#undef FUNCNAME
 
 /****************************************************************************/
 
