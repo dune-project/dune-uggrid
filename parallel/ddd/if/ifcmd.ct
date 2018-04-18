@@ -193,6 +193,8 @@ void IF_FUNCNAME (
 		#endif
 	#endif
 {
+	using std::setw;
+
 	NS_DIM_PREFIX IF_PROC		  *ifHead;
 	unsigned long tries;
 	int           recv_mesgs;
@@ -200,11 +202,7 @@ void IF_FUNCNAME (
 
 	/* prohibit using standard interface (IF0) */
 	if (aIF==NS_DIM_PREFIX STD_INTERFACE)
-	{
-		DDD_PrintError('E', 4300,
-			CONCAT("cannot use standard interface in ",IF_FUNCNAME));
-		HARD_EXIT;
-	}
+		DUNE_THROW(Dune::Exception, "cannot use standard interface");
 
 
 	/* shortcuts can only be used without extended handler arguments */
@@ -341,13 +339,8 @@ void IF_FUNCNAME (
 			{
 				int error = InfoARecv(context.ppifContext(), ifHead->vc, ifHead->msgIn);
 				if (error==-1)
-				{
-					sprintf(NS_DIM_PREFIX cBuffer,
-							"PPIF's InfoARecv() failed for recv to proc=%d in IF-Comm",
-						ifHead->proc);
-					DDD_PrintError('E', 4221, NS_DIM_PREFIX cBuffer);
-					HARD_EXIT;
-				}
+					DUNE_THROW(Dune::Exception,
+					           "InfoARecv failed for recv to proc=" << ifHead->proc);
 
 				if (error==1)
 				{
@@ -410,17 +403,15 @@ void IF_FUNCNAME (
 	/* finally poll send completion */
 	if (recv_mesgs>0)
 	{
-		sprintf(NS_DIM_PREFIX cBuffer, CONCAT("receive-timeout for IF %02d in ",IF_FUNCNAME), aIF);
-		DDD_PrintError('E', 4200, NS_DIM_PREFIX cBuffer);
+		Dune::dwarn << FUNCNAME_STR(IF_FUNCNAME) ": receive-timeout for IF " << setw(2) << aIF << "\n";
 
 		ForIF(context, aIF, ifHead)
 		{
 			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
-				sprintf(NS_DIM_PREFIX cBuffer,
-					"  waiting for message (from proc %d, size %ld)",
-					ifHead->proc, (unsigned long)ifHead->bufIn.size());
-				DDD_PrintError('E', 4201, NS_DIM_PREFIX cBuffer);
+	                        Dune::dwarn
+				  << "  waiting for message (from proc " << ifHead->proc
+				  << ", size " << ifHead->bufIn.size() << ")\n";
 			}
 		}
 	}
@@ -433,17 +424,15 @@ void IF_FUNCNAME (
 
 		if (! NS_DIM_PREFIX IFPollSend(context, aIF))
 		{
-			sprintf(NS_DIM_PREFIX cBuffer, CONCAT("send-timeout for IF %02d in ",IF_FUNCNAME), aIF);
-			DDD_PrintError('E', 4210, NS_DIM_PREFIX cBuffer);
+			Dune::dwarn << FUNCNAME_STR(IF_FUNCNAME) ": send-timeout for IF " << setw(2) << aIF << "\n";
 
 			ForIF(context, aIF, ifHead)
 			{
 				if (not ifHead->bufOut.empty() && ifHead->msgOut!=NO_MSGID)
 				{
-					sprintf(NS_DIM_PREFIX cBuffer,
-						"  waiting for send completion (to proc %d, size %ld)",
-						ifHead->proc, (unsigned long)ifHead->bufOut.size());
-					DDD_PrintError('E', 4211, NS_DIM_PREFIX cBuffer);
+                                        Dune::dwarn
+                                          << "  waiting for send completion (to proc " << ifHead->proc
+                                          << ", size " << ifHead->bufOut.size() << ")\n";
 				}
 			}
 		}

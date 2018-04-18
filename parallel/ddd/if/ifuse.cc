@@ -39,6 +39,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <dune/common/exceptions.hh>
+
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
@@ -101,10 +103,7 @@ int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
                   ifHead->bufIn.data(), ifHead->bufIn.size(),
                   &error);
       if (ifHead->msgIn==0)
-      {
-        DDD_PrintError('E', 4225, "PPIF's RecvASync() failed in IF-Comm");
-        HARD_EXIT;
-      }
+        DUNE_THROW(Dune::Exception, "RecvASync() failed");
 
       recv_mesgs++;
     }
@@ -157,10 +156,7 @@ void IFInitSend(DDD::DDDContext& context, IF_PROC *ifHead)
                 ifHead->bufOut.data(), ifHead->bufOut.size(),
                 &error);
     if (ifHead->msgOut==0)
-    {
-      DDD_PrintError('E', 4226, "PPIF's SendASync() failed in IF-Comm");
-      HARD_EXIT;
-    }
+      DUNE_THROW(Dune::Exception, "SendASync() failed");
 
     ctx.send_mesgs++;
   }
@@ -189,13 +185,8 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
       {
         int error = InfoASend(context.ppifContext(), ifHead->vc, ifHead->msgOut);
         if (error==-1)
-        {
-          sprintf(cBuffer,
-                  "PPIF's InfoASend() failed for send to proc=%d in IF-Comm",
-                  ifHead->proc);
-          DDD_PrintError('E', 4220, cBuffer);
-          HARD_EXIT;
-        }
+          DUNE_THROW(Dune::Exception,
+                     "InfoASend() failed for send to proc=" << ifHead->proc);
 
         if (error==1)
         {
