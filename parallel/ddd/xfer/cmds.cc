@@ -891,7 +891,7 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
                               DDD_PROC dest,
                               DDD_PRIO prio)
 {
-  if (!ddd_XferActive())
+  if (!ddd_XferActive(context))
   {
     DDD_PrintError('E', 6012, "Missing DDD_XferBegin(). aborted");
     HARD_EXIT;

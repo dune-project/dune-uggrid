@@ -559,7 +559,7 @@ void   ddd_StdIFExecLocalX (DDD::DDDContext& context,         ExecProcHdrXPtr);
 /* xfer/xfer.c */
 void      ddd_XferInit(DDD::DDDContext& context);
 void      ddd_XferExit(DDD::DDDContext& context);
-int       ddd_XferActive (void);
+int       ddd_XferActive(const DDD::DDDContext& context);
 void      ddd_XferRegisterDelete(DDD::DDDContext& context, DDD_HDR);
 
 
