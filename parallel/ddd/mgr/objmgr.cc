@@ -277,7 +277,6 @@ void DDD_HdrConstructor (DDD::DDDContext& context,
                          DDD_HDR aHdr, DDD_TYPE aType,
                          DDD_PRIO aPrio, DDD_ATTR aAttr)
 {
-  auto& objTable = context.objTable();
   auto& ctx = context.objmgrContext();
 
   /* check input parameters */
@@ -287,6 +286,7 @@ void DDD_HdrConstructor (DDD::DDDContext& context,
         #ifdef WithFullObjectTable
 /* in case of FullObjectTable, we register each header in the
    global ddd_ObjTable. */
+  auto& objTable = context.objTable();
 
 /* check whether there are available objects */
 if (context.nObjs() == objTable.size())
@@ -563,13 +563,13 @@ void DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR hdr, size_t size)
 
 void DDD_HdrConstructorCopy (DDD::DDDContext& context, DDD_HDR newhdr, DDD_PRIO prio)
 {
-  auto& objTable = context.objTable();
-
   /* check input parameters */
   if (prio>=MAX_PRIO)
     DUNE_THROW(Dune::Exception, "priority must be less than " << MAX_PRIO);
 
         #ifdef WithFullObjectTable
+  auto& objTable = context.objTable();
+
   /* check whether there are available objects */
   if (context.nObjs() == context.objTable().size())
   {
