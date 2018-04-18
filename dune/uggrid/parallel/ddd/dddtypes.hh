@@ -46,6 +46,8 @@ using ComProcXPtr  = int (*)(DDDContext& context, DDD_OBJ, void *, DDD_PROC, DDD
 
 /* PRIVATE INTERFACE */
 
+using RETCODE = int;
+
 struct COUPLING;
 struct ELEM_DESC;
 struct TYPE_DESC;

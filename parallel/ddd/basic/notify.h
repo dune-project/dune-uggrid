@@ -46,7 +46,7 @@ struct NOTIFY_DESC
 } /* namespace Basic */
 } /* namespace DDD */
 
-START_UGDIM_NAMESPACE
+namespace DDD {
 
 /****************************************************************************/
 /*                                                                          */
@@ -78,6 +78,6 @@ NOTIFY_DESC *DDD_NotifyBegin(DDD::DDDContext& context, int);
 void         DDD_NotifyEnd(DDD::DDDContext& context);
 int          DDD_Notify(DDD::DDDContext& context);
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */
 
 #endif

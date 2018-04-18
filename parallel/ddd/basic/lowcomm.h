@@ -32,7 +32,7 @@
 
 #include <dune/uggrid/parallel/ddd/dddtypes.hh>
 
-START_UGDIM_NAMESPACE
+namespace DDD {
 
 /****************************************************************************/
 /*                                                                          */
@@ -118,6 +118,6 @@ size_t   LC_GetBufferSize (LC_MSGHANDLE);
 void LC_PrintSendMsgs(const DDD::DDDContext& context);
 void LC_PrintRecvMsgs(const DDD::DDDContext& context);
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */
 
 #endif
