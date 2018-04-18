@@ -37,9 +37,16 @@
 #include <stdarg.h>
 #include <cstring>
 
+#include <iomanip>
+#include <iostream>
+#include <new>
+
 #include "dddi.h"
 #include "basic/notify.h"
 #include "basic/lowcomm.h"
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
@@ -133,11 +140,9 @@ void DDD_Init(DDD::DDDContext& context)
   DDD_UserLineOutFunction = NULL;
 
   /* check max. number of procs (limited by GID construction) */
-  if (context.procs() > MAX_PROCS) {
-    DDD_PrintError('E', 1010,
-                   "too many processors, cannot construct global IDs in DDD_Init");
-    HARD_EXIT;
-  }
+  if (context.procs() > MAX_PROCS)
+    DUNE_THROW(Dune::Exception,
+               "too many processors, cannot construct global IDs");
 
   /* compute size for general buffer */
   buffsize = (context.procs()+1)*(sizeof(int)*BUFFER_SIZE_FACTOR);
@@ -148,10 +153,8 @@ void DDD_Init(DDD::DDDContext& context)
 
   /* get bufferspace */
   iBuffer = (int *)AllocFix(buffsize);
-  if (iBuffer==NULL) {
-    DDD_PrintError('E', 1000, "not enough memory in DDD_Init");
-    HARD_EXIT;
-  }
+  if (iBuffer==NULL)
+    throw std::bad_alloc();
   /* overlay with other buffers */
   cBuffer = (char *)iBuffer;
 
@@ -267,37 +270,38 @@ void DDD_Exit(DDD::DDDContext& context)
 
 void DDD_Status(const DDD::DDDContext& context)
 {
-  sprintf(cBuffer, "| DDD_Status for proc=%03d, DDD-Version %s\n", me,
-          DDD_VERSION);
-  DDD_PrintLine(cBuffer);
-  sprintf(cBuffer, "|\n|     MAX_ELEMDESC = %4d\n", TYPE_DESC::MAX_ELEMDESC);
-  sprintf(cBuffer, "|     MAX_TYPEDESC = %4d\n", MAX_TYPEDESC);
-  sprintf(cBuffer, "|     MAX_PROCS    = %4d\n", MAX_PROCS);
-  sprintf(cBuffer, "|     MAX_PRIO     = %4d\n", MAX_PRIO);
-  DDD_PrintLine(cBuffer);
+  using std::setw;
+  std::ostream& out = std::cout;
+
+  out << "| DDD_Status for proc=" << setw(3) << context.me()
+      << ", DDD-Version " << DDD_VERSION << "\n"
+      << "|\n"
+      << "|     MAX_ELEMDESC = " << setw(4) << TYPE_DESC::MAX_ELEMDESC << "\n"
+      << "|     MAX_TYPEDESC = " << setw(4) << MAX_TYPEDESC << "\n"
+      << "|     MAX_PROCS    = " << setw(4) << MAX_PROCS << "\n"
+      << "|     MAX_PRIO     = " << setw(4) << MAX_PRIO << "\n"
+      << "|\n";
 #ifdef WithFullObjectTable
-  sprintf(cBuffer, "|\n|     MAX_OBJ = %8d  MAX_CPL = %8zd\n",
-          (int) context.objTable().size(), context.couplingContext().cplTable.size());
+  out << "|     MAX_OBJ = " << setw(8) << context.objTable().size()
+      << "  MAX_CPL = " << context.couplingContext().cplTable.size() << "\n";
 #else
-  sprintf(cBuffer, "|\n|     MAX_CPL = %8zd\n", context.couplingContext().cplTable.size());
+  out << "|     MAX_CPL = " << context.couplingContext().cplTable.size() << "\n";
 #endif
-  DDD_PrintLine(cBuffer);
 
-  sprintf(cBuffer, "|     nObjs   = %8d  nCpls   = %8d  nCplItems = %8d\n",
-          context.nObjs(), context.couplingContext().nCpls, context.couplingContext().nCplItems);
-  DDD_PrintLine(cBuffer);
-  DDD_PrintLine("|\n|     Timeouts:\n");
-  sprintf(cBuffer, "|        IFComm:  %12ld\n", (unsigned long)MAX_TRIES);
-  DDD_PrintLine(cBuffer);
-
-  sprintf(cBuffer, "|\n|     Compile-Time Options: ");
+  out << "|     nObjs   = " << setw(8) << context.nObjs()
+      << "  nCpls   = " << setw(8) << context.couplingContext().nCpls
+      << "  nCplItems = " << setw(8) << context.couplingContext().nCplItems << "\n"
+      << "|\n"
+      << "|     Timeouts:\n"
+      << "|        IFComm:  " << setw(12) << MAX_TRIES << "\n"
+      << "|\n"
+      << "|     Compile-Time Options: ";
 
 #       ifdef Statistics
-  strcat(cBuffer, "Statistics ");
+  out << "Statistics ";
 #       endif
 
-  strcat(cBuffer, "\n");
-  DDD_PrintLine(cBuffer);
+  out << "\n";
 }
 
 
@@ -353,11 +357,11 @@ void DDD_LineOutRegister (void (*func)(const char *s))
 
 void DDD_SetOption (DDD::DDDContext& context, DDD_OPTION option, int value)
 {
-if (option>=OPT_END)
-{
-  DDD_PrintError('E', 1090, "invalid DDD_OPTION in DDD_SetOption()");
-  return;
-}
+  if (option>=OPT_END)
+  {
+    Dune::dwarn << "DDD_SetOption: invalid DDD_OPTION\n";
+    return;
+  }
 
   context.options()[option] = value;
 }
@@ -380,7 +384,7 @@ int DDD_GetOption(const DDD::DDDContext& context, DDD_OPTION option)
 {
   if (option>=OPT_END)
   {
-    DDD_PrintError('E', 1091, "invalid DDD_OPTION in DDD_GetOption()");
+    Dune::dwarn << "DDD_GetOption: invalid DDD_OPTION\n";
     return 0;
   }
 
