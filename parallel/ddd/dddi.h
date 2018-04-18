@@ -57,7 +57,6 @@
 #include "ppif.h"
 #include "ctrl/stat.h"
 
-#include "dddstr.h"
 #include "include/ddd.h"
 #include "include/dddio.h"
 
