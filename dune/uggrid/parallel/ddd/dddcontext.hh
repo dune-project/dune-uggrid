@@ -122,6 +122,14 @@ struct CmdmsgContext
   Basic::LC_MSGCOMP undelete_id;
 };
 
+struct CplmsgContext
+{
+  Basic::LC_MSGTYPE cplmsg_t;
+  Basic::LC_MSGCOMP delcpl_id;
+  Basic::LC_MSGCOMP modcpl_id;
+  Basic::LC_MSGCOMP addcpl_id;
+};
+
 } /* namespace Xfer */
 
 struct CouplingContext
@@ -233,6 +241,12 @@ public:
   const Xfer::CmdmsgContext& cmdmsgContext() const
     { return cmdmsgContext_; }
 
+  Xfer::CplmsgContext& cplmsgContext()
+    { return cplmsgContext_; }
+
+  const Xfer::CplmsgContext& cplmsgContext() const
+    { return cplmsgContext_; }
+
   CouplingContext& couplingContext()
     { return couplingContext_; }
 
@@ -279,6 +293,7 @@ protected:
   Prio::PrioContext prioContext_;
   CouplingContext couplingContext_;
   Xfer::CmdmsgContext cmdmsgContext_;
+  Xfer::CplmsgContext cplmsgContext_;
 
   std::vector<DDD_HDR> objTable_;
   int nObjs_;

@@ -83,21 +83,6 @@ struct CPLMSG
 
 /****************************************************************************/
 /*                                                                          */
-/* variables global to this source file only (static)                       */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-static LC_MSGTYPE cplmsg_t;
-static LC_MSGCOMP delcpl_id, modcpl_id, addcpl_id;
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -105,10 +90,12 @@ static LC_MSGCOMP delcpl_id, modcpl_id, addcpl_id;
 
 void CplMsgInit(DDD::DDDContext& context)
 {
-  cplmsg_t = LC_NewMsgType(context, "CplMsg");
-  delcpl_id = LC_NewMsgTable("DelCpl", cplmsg_t, sizeof(TEDelCpl));
-  modcpl_id = LC_NewMsgTable("ModCpl", cplmsg_t, sizeof(TEModCpl));
-  addcpl_id = LC_NewMsgTable("AddCpl", cplmsg_t, sizeof(TEAddCpl));
+  auto& ctx = context.cplmsgContext();
+
+  ctx.cplmsg_t = LC_NewMsgType(context, "CplMsg");
+  ctx.delcpl_id = LC_NewMsgTable("DelCpl", ctx.cplmsg_t, sizeof(TEDelCpl));
+  ctx.modcpl_id = LC_NewMsgTable("ModCpl", ctx.cplmsg_t, sizeof(TEModCpl));
+  ctx.addcpl_id = LC_NewMsgTable("AddCpl", ctx.cplmsg_t, sizeof(TEAddCpl));
 }
 
 
@@ -146,6 +133,8 @@ static int PrepareCplMsgs (
   XIAddCpl **itemsAC, int nAC,
   CPLMSG **theMsgs)
 {
+  auto& ctx = context.cplmsgContext();
+
   CPLMSG    *xm=NULL;
   int iDC, iMC, iAC, nMsgs=0;
 
@@ -241,12 +230,12 @@ static int PrepareCplMsgs (
   for(xm=*theMsgs; xm!=NULL; xm=xm->next)
   {
     /* create new send message */
-    xm->msg_h = LC_NewSendMsg(context, cplmsg_t, xm->proc);
+    xm->msg_h = LC_NewSendMsg(context, ctx.cplmsg_t, xm->proc);
 
     /* init tables inside message */
-    LC_SetTableSize(xm->msg_h, delcpl_id, xm->nDelCpl);
-    LC_SetTableSize(xm->msg_h, modcpl_id, xm->nModCpl);
-    LC_SetTableSize(xm->msg_h, addcpl_id, xm->nAddCpl);
+    LC_SetTableSize(xm->msg_h, ctx.delcpl_id, xm->nDelCpl);
+    LC_SetTableSize(xm->msg_h, ctx.modcpl_id, xm->nModCpl);
+    LC_SetTableSize(xm->msg_h, ctx.addcpl_id, xm->nAddCpl);
 
     /* prepare message for sending away */
     LC_MsgPrepareSend(context, xm->msg_h);
@@ -258,14 +247,16 @@ static int PrepareCplMsgs (
 
 static void CplMsgSend(DDD::DDDContext& context, CPLMSG *theMsgs)
 {
+  auto& ctx = context.cplmsgContext();
+
   CPLMSG *m;
 
   for(m=theMsgs; m!=NULL; m=m->next)
   {
     int i;
-    TEDelCpl *arrayDC = (TEDelCpl *)LC_GetPtr(m->msg_h, delcpl_id);
-    TEModCpl *arrayMC = (TEModCpl *)LC_GetPtr(m->msg_h, modcpl_id);
-    TEAddCpl *arrayAC = (TEAddCpl *)LC_GetPtr(m->msg_h, addcpl_id);
+    TEDelCpl *arrayDC = (TEDelCpl *)LC_GetPtr(m->msg_h, ctx.delcpl_id);
+    TEModCpl *arrayMC = (TEModCpl *)LC_GetPtr(m->msg_h, ctx.modcpl_id);
+    TEAddCpl *arrayAC = (TEAddCpl *)LC_GetPtr(m->msg_h, ctx.addcpl_id);
 
     /* copy data into message */
     for(i=0; i<m->nDelCpl; i++)
@@ -305,6 +296,8 @@ static void CplMsgSend(DDD::DDDContext& context, CPLMSG *theMsgs)
 static void CplMsgUnpackSingle (DDD::DDDContext& context, LC_MSGHANDLE xm,
                                 DDD_HDR *localCplObjs, int nLCO)
 {
+  auto& ctx = context.cplmsgContext();
+
   TEDelCpl  *theDelCpl;
   TEModCpl  *theModCpl;
   TEAddCpl  *theAddCpl;
@@ -312,12 +305,12 @@ static void CplMsgUnpackSingle (DDD::DDDContext& context, LC_MSGHANDLE xm,
   DDD_PROC proc = LC_MsgGetProc(xm);
 
   /* get number and address of del-items */
-  nDelCpl = (int) LC_GetTableLen(xm, delcpl_id);
-  nModCpl = (int) LC_GetTableLen(xm, modcpl_id);
-  nAddCpl = (int) LC_GetTableLen(xm, addcpl_id);
-  theDelCpl = (TEDelCpl *) LC_GetPtr(xm, delcpl_id);
-  theModCpl = (TEModCpl *) LC_GetPtr(xm, modcpl_id);
-  theAddCpl = (TEAddCpl *) LC_GetPtr(xm, addcpl_id);
+  nDelCpl = (int) LC_GetTableLen(xm, ctx.delcpl_id);
+  nModCpl = (int) LC_GetTableLen(xm, ctx.modcpl_id);
+  nAddCpl = (int) LC_GetTableLen(xm, ctx.addcpl_id);
+  theDelCpl = (TEDelCpl *) LC_GetPtr(xm, ctx.delcpl_id);
+  theModCpl = (TEModCpl *) LC_GetPtr(xm, ctx.modcpl_id);
+  theAddCpl = (TEAddCpl *) LC_GetPtr(xm, ctx.addcpl_id);
 
 
   /* modify couplings according to mod-list */
@@ -363,19 +356,20 @@ static void CplMsgUnpackSingle (DDD::DDDContext& context, LC_MSGHANDLE xm,
 /****************************************************************************/
 
 
-static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
+static void CplMsgDisplay (DDD::DDDContext& context, const char *comment, LC_MSGHANDLE xm)
 {
   using std::setw;
 
   std::ostream& out = std::cout;
+  auto& ctx = context.cplmsgContext();
   TEDelCpl     *theDelCpl;
   TEModCpl     *theModCpl;
   TEAddCpl     *theAddCpl;
   char buf[30];
   int i, proc = LC_MsgGetProc(xm);
-  int lenDelCpl = (int) LC_GetTableLen(xm, delcpl_id);
-  int lenModCpl = (int) LC_GetTableLen(xm, modcpl_id);
-  int lenAddCpl = (int) LC_GetTableLen(xm, addcpl_id);
+  int lenDelCpl = (int) LC_GetTableLen(xm, ctx.delcpl_id);
+  int lenModCpl = (int) LC_GetTableLen(xm, ctx.modcpl_id);
+  int lenAddCpl = (int) LC_GetTableLen(xm, ctx.addcpl_id);
 
   std::ostringstream prefixStream;
   prefixStream
@@ -383,9 +377,9 @@ static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
   const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */
-  theDelCpl = (TEDelCpl *)    LC_GetPtr(xm, delcpl_id);
-  theModCpl = (TEModCpl *)    LC_GetPtr(xm, modcpl_id);
-  theAddCpl = (TEAddCpl *)    LC_GetPtr(xm, addcpl_id);
+  theDelCpl = (TEDelCpl *)    LC_GetPtr(xm, ctx.delcpl_id);
+  theModCpl = (TEModCpl *)    LC_GetPtr(xm, ctx.modcpl_id);
+  theAddCpl = (TEAddCpl *)    LC_GetPtr(xm, ctx.addcpl_id);
 
 
   out << prefix << " 04 DelCpl.size=" << setw(5) << lenDelCpl << "\n";
@@ -423,6 +417,8 @@ void CommunicateCplMsgs (
   XIAddCpl **itemsAC, int nAC,
   DDD_HDR *localCplObjs, int nLCO)
 {
+  auto& ctx = context.cplmsgContext();
+
   CPLMSG    *sendMsgs, *sm=0;
   LC_MSGHANDLE *recvMsgs;
   int i, nSendMsgs, nRecvMsgs;
@@ -436,7 +432,7 @@ void CommunicateCplMsgs (
                              &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(context, cplmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.cplmsg_t);
 
   /* build and send messages */
   CplMsgSend(context, sendMsgs);
@@ -448,7 +444,7 @@ void CommunicateCplMsgs (
   {
     for(sm=sendMsgs; sm!=NULL; sm=sm->next)
     {
-      CplMsgDisplay("CS", sm->msg_h);
+      CplMsgDisplay(context, "CS", sm->msg_h);
     }
   }
 
@@ -483,7 +479,7 @@ void CommunicateCplMsgs (
 
     /*
                     if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
-                            CplMsgDisplay("CR", recvMsgs[i]);
+                            CplMsgDisplay(context, "CR", recvMsgs[i]);
      */
   }
 
