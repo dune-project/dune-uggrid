@@ -40,7 +40,12 @@
 #include <cassert>
 
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 #include <vector>
+
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -117,10 +122,7 @@ static CMDMSG *CreateCmdMsg (DDD_PROC dest, CMDMSG *lastxm)
 
   xm = (CMDMSG *) AllocTmp(sizeof(CMDMSG));
   if (xm==NULL)
-  {
-    DDD_PrintError('E', 6500, STR_NOMEM " in PrepareCmdMsgs");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   xm->aUnDelete = NULL;
   xm->nUnDelete = 0;
@@ -147,8 +149,7 @@ static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nC
     return(0);
 
 #       if DebugCmdMsg<=3
-  sprintf(cBuffer,"%4d: PreparePrune, nCopyObj=%d\n", me, nCO);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "PreparePrune, nCopyObj=" << nCO << "\n";
 #       endif
 
 
@@ -189,10 +190,7 @@ static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nC
 
   gids = (DDD_GID *) AllocTmp(sizeof(DDD_GID) * markedCO);
   if (gids==NULL)
-  {
-    DDD_PrintError('E', 6501, STR_NOMEM " in PrepareCmdMsgs");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
 
   /*
@@ -321,8 +319,7 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
         SET_OBJ_RESENT(localCplObjs[iLCO], 0);
 
 #                               if DebugCmdMsg<=0
-        sprintf(cBuffer,"%4d: PruneDelCmds. %08x without resent1.\n", me, OBJ_GID(localCplObjs[iLCO]));
-        DDD_PrintDebug(cBuffer);
+        Dune::dvverb << "PruneDelCmds. " << OBJ_GID(localCplObjs[iLCO]) << " without resent1.\n";
 #                               endif
 
         iLCO++;
@@ -333,8 +330,7 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
         SET_OBJ_RESENT(localCplObjs[iLCO], 1);
 
 #                               if DebugCmdMsg<=1
-        sprintf(cBuffer,"%4d: PruneDelCmds. %08x will be resent.\n", me, OBJ_GID(localCplObjs[iLCO]));
-        DDD_PrintDebug(cBuffer);
+        Dune::dvverb << "PruneDelCmds. " << OBJ_GID(localCplObjs[iLCO]) << " will be resent.\n";
 #                               endif
 
         iLCO++;
@@ -347,8 +343,7 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
       SET_OBJ_RESENT(localCplObjs[iLCO], 0);
 
 #                       if DebugCmdMsg<=0
-      sprintf(cBuffer,"%4d: PruneDelCmds. %08x without resent2.\n", me, OBJ_GID(localCplObjs[iLCO]));
-      DDD_PrintDebug(cBuffer);
+      Dune::dvverb << "PruneDelCmds. " << OBJ_GID(localCplObjs[iLCO]) << " without resent2.\n";
 #                       endif
 
       iLCO++;
@@ -371,8 +366,7 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
       SET_OBJ_PRUNED(itemsDC[iDC]->hdr, 1);
 
 #                       if DebugCmdMsg<=1
-      sprintf(cBuffer,"%4d: PruneDelCmds. pruned %08x\n", me, gidDC);
-      DDD_PrintDebug(cBuffer);
+      Dune::dvverb << "PruneDelCmds. pruned " << gidDC << "\n";
 #                       endif
     }
     else
@@ -384,8 +378,7 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
   nPruned = nDC-jDC;
 
 #       if DebugCmdMsg<=3
-  sprintf(cBuffer,"%4d: PruneDelCmds. nPruned=%d/%d\n", me, nPruned, nDC);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "PruneDelCmds. nPruned=" << nPruned << "/" << nDC << "\n";
 #       endif
 
   return(nPruned);
@@ -397,26 +390,26 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
 
 static void CmdMsgDisplay (const char *comment, LC_MSGHANDLE xm)
 {
+  using std::setw;
+  std::ostream& out = std::cout;
+
   DDD_GID      *theGid;
   char buf[30];
-  int i, proc = LC_MsgGetProc(xm);
+  int proc = LC_MsgGetProc(xm);
   int lenGid = (int) LC_GetTableLen(xm, undelete_id);
 
-  sprintf(buf, " %03d-%s-%03d ", me, comment, proc);
+  std::ostringstream prefixStream;
+  prefixStream << setw(3) << me << "-" << comment << setw(3) << proc << " ";
+  const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */
   theGid = (DDD_GID *)    LC_GetPtr(xm, undelete_id);
 
+  out << prefix << " 04 Gid.size=" << setw(5) << lenGid << "\n";
 
-  sprintf(cBuffer, "%s 04 Gid.size=%05d\n", buf, lenGid);
-  DDD_PrintDebug(cBuffer);
-
-  for(i=0; i<lenGid; i++)
-  {
-    sprintf(cBuffer, "%s 14 gid    %04d - " DDD_GID_FMT "\n",
-            buf, i, DDD_GID_TO_INT(theGid[i]));
-    DDD_PrintDebug(cBuffer);
-  }
+  for(int i=0; i<lenGid; i++)
+    out << prefix << " 14 gid    " << setw(4) << i << " - "
+        << DDD_GID_TO_INT(theGid[i]) << "\n";
 }
 
 
