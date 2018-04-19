@@ -114,6 +114,16 @@ struct PrioContext
 
 } /* namespace Prio */
 
+namespace Xfer {
+
+struct CmdmsgContext
+{
+  Basic::LC_MSGTYPE cmdmsg_t;
+  Basic::LC_MSGCOMP undelete_id;
+};
+
+} /* namespace Xfer */
+
 struct CouplingContext
 {
   std::vector<COUPLING*> cplTable;
@@ -217,6 +227,12 @@ public:
   const Prio::PrioContext& prioContext() const
     { return prioContext_; }
 
+  Xfer::CmdmsgContext& cmdmsgContext()
+    { return cmdmsgContext_; }
+
+  const Xfer::CmdmsgContext& cmdmsgContext() const
+    { return cmdmsgContext_; }
+
   CouplingContext& couplingContext()
     { return couplingContext_; }
 
@@ -262,6 +278,7 @@ protected:
   Mgr::TypemgrContext typemgrContext_;
   Prio::PrioContext prioContext_;
   CouplingContext couplingContext_;
+  Xfer::CmdmsgContext cmdmsgContext_;
 
   std::vector<DDD_HDR> objTable_;
   int nObjs_;
