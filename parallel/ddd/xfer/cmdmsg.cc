@@ -82,21 +82,6 @@ struct CMDMSG
 
 /****************************************************************************/
 /*                                                                          */
-/* variables global to this source file only (static)                       */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-static LC_MSGTYPE cmdmsg_t;
-static LC_MSGCOMP undelete_id;
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -104,8 +89,10 @@ static LC_MSGCOMP undelete_id;
 
 void CmdMsgInit(DDD::DDDContext& context)
 {
-  cmdmsg_t = LC_NewMsgType(context, "CmdMsg");
-  undelete_id = LC_NewMsgTable("UndelTab", cmdmsg_t, sizeof(DDD_GID));
+  auto& ctx = context.cmdmsgContext();
+
+  ctx.cmdmsg_t = LC_NewMsgType(context, "CmdMsg");
+  ctx.undelete_id = LC_NewMsgTable("UndelTab", ctx.cmdmsg_t, sizeof(DDD_GID));
 }
 
 
@@ -136,6 +123,8 @@ static CMDMSG *CreateCmdMsg (DDD_PROC dest, CMDMSG *lastxm)
 
 static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
 {
+  auto& ctx = context.cmdmsgContext();
+
   CMDMSG    *xm=NULL;
   int j, iCO, markedCO, nMsgs=0;
   DDD_GID   *gids;
@@ -231,15 +220,15 @@ static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nC
     DDD_GID *array;
 
     /* create new send message */
-    xm->msg_h = LC_NewSendMsg(context, cmdmsg_t, xm->proc);
+    xm->msg_h = LC_NewSendMsg(context, ctx.cmdmsg_t, xm->proc);
 
     /* init tables inside message */
-    LC_SetTableSize(xm->msg_h, undelete_id, xm->nUnDelete);
+    LC_SetTableSize(xm->msg_h, ctx.undelete_id, xm->nUnDelete);
 
     /* prepare message for sending away */
     LC_MsgPrepareSend(context, xm->msg_h);
 
-    array = (DDD_GID *)LC_GetPtr(xm->msg_h, undelete_id);
+    array = (DDD_GID *)LC_GetPtr(xm->msg_h, ctx.undelete_id);
     memcpy((char *)array,
            (char *)xm->aUnDelete,
            sizeof(DDD_GID)*xm->nUnDelete);
@@ -272,13 +261,15 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
                          LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                          XIDelCmd  **itemsDC, int nDC)
 {
+  auto& ctx = context.cmdmsgContext();
+
   int i, k, jDC, iDC, pos, nPruned;
 
   int lenGidTab = 0;
   for(i=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
-    lenGidTab += (int)LC_GetTableLen(xm, undelete_id);
+    lenGidTab += (int)LC_GetTableLen(xm, ctx.undelete_id);
   }
 
   if (lenGidTab==0)
@@ -289,12 +280,12 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
   for(i=0, pos=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
-    int len = LC_GetTableLen(xm, undelete_id);
+    int len = LC_GetTableLen(xm, ctx.undelete_id);
 
     if (len>0)
     {
       memcpy((char *) (unionGidTab.data()+pos),
-             (char *)    LC_GetPtr(xm, undelete_id),
+             (char *)    LC_GetPtr(xm, ctx.undelete_id),
              sizeof(DDD_GID) * len);
       pos += len;
     }
@@ -388,22 +379,24 @@ static int CmdMsgUnpack (DDD::DDDContext& context,
 /****************************************************************************/
 
 
-static void CmdMsgDisplay (const char *comment, LC_MSGHANDLE xm)
+static void CmdMsgDisplay(DDD::DDDContext& context, const char *comment, LC_MSGHANDLE xm)
 {
+  auto& ctx = context.cmdmsgContext();
+
   using std::setw;
   std::ostream& out = std::cout;
 
   DDD_GID      *theGid;
   char buf[30];
   int proc = LC_MsgGetProc(xm);
-  int lenGid = (int) LC_GetTableLen(xm, undelete_id);
+  int lenGid = (int) LC_GetTableLen(xm, ctx.undelete_id);
 
   std::ostringstream prefixStream;
   prefixStream << setw(3) << me << "-" << comment << setw(3) << proc << " ";
   const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */
-  theGid = (DDD_GID *)    LC_GetPtr(xm, undelete_id);
+  theGid = (DDD_GID *)    LC_GetPtr(xm, ctx.undelete_id);
 
   out << prefix << " 04 Gid.size=" << setw(5) << lenGid << "\n";
 
@@ -434,6 +427,8 @@ int PruneXIDelCmd (
   XIDelCmd  **itemsDC, int nDC,
   std::vector<XICopyObj*>& arrayCO)
 {
+  auto& ctx = context.cmdmsgContext();
+
   CMDMSG    *sendMsgs, *sm=0;
   LC_MSGHANDLE *recvMsgs;
   int nSendMsgs, nRecvMsgs;
@@ -451,12 +446,12 @@ int PruneXIDelCmd (
   {
     for(sm=sendMsgs; sm!=NULL; sm=sm->next)
     {
-      CmdMsgDisplay("PS", sm->msg_h);
+      CmdMsgDisplay(context, "PS", sm->msg_h);
     }
   }
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(context, cmdmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.cmdmsg_t);
 
   /* build and send messages */
   CmdMsgSend(context, sendMsgs);
@@ -474,7 +469,7 @@ int PruneXIDelCmd (
      #if DebugCmdMsg>=2
                   if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
      #endif
-                          CmdMsgDisplay("PR", recvMsgs[i]);
+                          CmdMsgDisplay(context, "PR", recvMsgs[i]);
           }
    */
 
