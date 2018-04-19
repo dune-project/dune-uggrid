@@ -84,15 +84,6 @@ START_UGDIM_NAMESPACE
  */
 static unsigned int dddUsers = 0;
 
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-int        *iBuffer;        /* general bufferspace, integer */
-char       *cBuffer;        /* general bufferspace, integer */
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -150,13 +141,6 @@ void DDD_Init(DDD::DDDContext& context)
   {
     buffsize = MIN_BUFFER_SIZE;
   }
-
-  /* get bufferspace */
-  iBuffer = (int *)AllocFix(buffsize);
-  if (iBuffer==NULL)
-    throw std::bad_alloc();
-  /* overlay with other buffers */
-  cBuffer = (char *)iBuffer;
 
   /* reset all global counters */
   context.nObjs(0);
@@ -221,9 +205,6 @@ void DDD_Exit(DDD::DDDContext& context)
   dddUsers -= 1;
   if (dddUsers > 0)
     return;
-
-  /* free bufferspace */
-  FreeFix(iBuffer);
 
   /* close up all DDD components */
   ddd_ConsExit(context);
