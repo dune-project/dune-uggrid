@@ -39,7 +39,10 @@
 #include <cstring>
 
 #include <algorithm>
+#include <iomanip>
 #include <tuple>
+
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -165,7 +168,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
       {
         XINewCpl *xc = NewXINewCpl(SLLNewArgs);
         if (xc==NULL)
-          HARD_EXIT;
+          throw std::bad_alloc();
 
         xc->to      = CPL_PROC(cpl);                         /* receiver of XINewCpl    */
         NewCpl_SetDest(xc->te,dest);                         /* destination of XICopyObj*/
@@ -182,7 +185,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
       {
         XIOldCpl *xc = NewXIOldCpl(SLLNewArgs);
         if (xc==NULL)
-          HARD_EXIT;
+          throw std::bad_alloc();
 
         xc->to      = dest;                                    /* receiver of XIOldCpl */
         xc->te.gid  = xigid;                                   /* the object's gid     */
@@ -194,7 +197,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
       {
         XIOldCpl *xc = NewXIOldCpl(SLLNewArgs);
         if (xc==NULL)
-          HARD_EXIT;
+          throw std::bad_alloc();
 
         xc->to      = dest;                                     /* receiver of XIOldCpl */
         xc->te.gid  = xigid;                                    /* the object's gid     */
@@ -259,7 +262,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
         {
           XINewCpl *xc = NewXINewCpl(SLLNewArgs);
           if (xc==NULL)
-            HARD_EXIT;
+            throw std::bad_alloc();
 
           xc->to      = no1->dest;                                 /* receiver of XINewCpl     */
           NewCpl_SetDest(xc->te,no2->dest);                               /* dest of XICopyObj */
@@ -271,7 +274,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
         {
           XINewCpl *xc = NewXINewCpl(SLLNewArgs);
           if (xc==NULL)
-            HARD_EXIT;
+            throw std::bad_alloc();
 
           xc->to      = no2->dest;                                 /* receiver of XINewCpl     */
           NewCpl_SetDest(xc->te,no1->dest);                               /* dest of XICopyObj */
@@ -373,9 +376,8 @@ static XFERMSG *AccumXICopyObj (const DDD::DDDContext& context,
   }
 
 #       if DebugXfer<=2
-  sprintf(cBuffer, "%4d: PrepareObjMsgs, XferMsg proc=%d"
-          " nmax=%d\n", me, dest, nmax);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "PrepareObjMsgs, XferMsg"
+               << " proc=" << dest << " nmax=" << nmax << "\n";
 #       endif
 
 
@@ -386,10 +388,9 @@ static XFERMSG *AccumXICopyObj (const DDD::DDDContext& context,
     const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(hdr)];
 
 #               if DebugXfer<=0
-    sprintf(cBuffer, "%4d: PrepareObjMsgs, proc=%d"
-            " i=%d/%d (%08x)\n",
-            me, dest, i, nmax, xi->gid);
-    DDD_PrintDebug(cBuffer);
+    Dune::dvverb
+      << "PrepareObjMsgs, proc=" << dest
+      << " i=" i << "/" << nmax << " (" << xi->gid << ")\n";
 #               endif
 
     /* accumulate xfer-items in message-info */
@@ -429,24 +430,20 @@ static XFERMSG *AccumXINewCpl (XFERMSG *currxm, int *nMsgs, int *nItems,
   }
 
 #       if DebugXfer<=2
-  sprintf(cBuffer, "%4d: PrepareObjMsgs, XferMsg proc=%d"
-          " nmax=%d\n", me, dest, nmax);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "PrepareObjMsgs, XferMsg"
+               << " proc=" << dest << " nmax=" << nmax << "\n";
 #       endif
 
 
   for (i=0; i<nmax && items[i]->to==dest; i++)
-#               if DebugXfer<=0
   {
+#               if DebugXfer<=0
     XINewCpl *xi = items[i];
-    sprintf(cBuffer, "%4d: PrepareObjMsgs, proc=%d"
-            " i=%d/%d (%08x)\n",
-            me, dest, i, nmax, NewCpl_GetGid(xi->te));
-    DDD_PrintDebug(cBuffer);
-  }
-#               else
-    ;
+    Dune::dvverb
+      << "PrepareObjMsgs, proc=" << dest
+      << " i=" i << "/" << nmax << " (" << NewCpl_GetGid(xi->te) << ")\n";
 #               endif
+  }
 
   *nItems = i;
   return xm;
@@ -473,24 +470,20 @@ static XFERMSG *AccumXIOldCpl (XFERMSG *currxm, int *nMsgs, int *nItems,
   }
 
 #       if DebugXfer<=2
-  sprintf(cBuffer, "%4d: PrepareObjMsgs, XferMsg proc=%d"
-          " nmax=%d\n", me, dest, nmax);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "PrepareObjMsgs, XferMsg"
+               << " proc=" << dest << " nmax=" << nmax << "\n";
 #       endif
 
 
   for (i=0; i<nmax && items[i]->to==dest; i++)
-#               if DebugXfer<=0
   {
+#               if DebugXfer<=0
     XIOldCpl *xi = items[i];
-    sprintf(cBuffer, "%4d: PrepareObjMsgs, proc=%d"
-            " i=%d/%d (%08x)\n",
-            me, dest, i, nmax, xi->te.gid);
-    DDD_PrintDebug(cBuffer);
-  }
-#               else
-    ;
+    Dune::dvverb
+      << "PrepareObjMsgs, proc=" << dest
+      << " i=" i << "/" << nmax << " (" << xi->te.gid << ")\n";
 #               endif
+  }
 
   *nItems = i;
   return xm;
@@ -521,9 +514,10 @@ int PrepareObjMsgs (DDD::DDDContext& context,
 
 
 #       if DebugXfer<=3
-  sprintf(cBuffer,"%4d: PrepareObjMsgs, nXICopyObj=%d nXINewCpl=%d nXIOldCpl=%d\n",
-          me, nO, nNC, nOC);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "PrepareObjMsgs,"
+              << " nXICopyObj=" << nO
+              << " nXINewCpl=" << nNC
+              << " nXIOldCpl=" << nOC << "\n";
 #       endif
 
 
@@ -590,18 +584,17 @@ int PrepareObjMsgs (DDD::DDDContext& context,
 
     if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MEMUSAGE)
     {
-      sprintf(cBuffer,
-              "DDD MESG [%03d]: SHOW_MEM "
-              "send msg  dest=%04d size=%010ld\n",
-              me, xm->proc, (long)bufSize);
-      DDD_PrintLine(cBuffer);
+      using std::setw;
+      Dune::dwarn
+        << "DDD MESG [" << setw(3) << "]: SHOW_MEM send msg "
+        << " dest=" << setw(4) << xm->proc
+        << " size=" << setw(10) << bufSize << "\n";
     }
   }
 
 
 #       if DebugXfer<=3
-  sprintf(cBuffer,"%4d: PrepareObjMsgs, nMsgs=%d\n", me, nMsgs);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "PrepareObjMsgs, nMsgs=" << nMsgs << "\n";
 #       endif
 
   return(nMsgs);
@@ -672,7 +665,7 @@ void ExecLocalXISetPrio (
       {
         XIModCpl *xc = NewXIModCpl(SLLNewArgs);
         if (xc==NULL)
-          HARD_EXIT;
+          throw std::bad_alloc();
 
         xc->to      = CPL_PROC(cpl);                           /* receiver of XIModCpl  */
         xc->te.gid  = gid;                                     /* the object's gid      */
@@ -684,7 +677,7 @@ void ExecLocalXISetPrio (
       {
         XIModCpl *xc = NewXIModCpl(SLLNewArgs);
         if (xc==NULL)
-          HARD_EXIT;
+          throw std::bad_alloc();
 
         xc->to      = itemsNO[iNO]->dest;                        /* receiver of XIModCpl */
         xc->te.gid  = gid;                                       /* the object's gid     */
@@ -723,10 +716,7 @@ void ExecLocalXIDelCmd (DDD::DDDContext& context, XIDelCmd  **itemsD, int nD)
   /* reconstruct original order of DelObj commands */
   origD = (XIDelCmd **) OO_Allocate (sizeof(XIDelCmd *) * nD);
   if (origD==NULL)
-  {
-    DDD_PrintError('E', 6101, STR_NOMEM " in XferEnd()");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   /* copy pointer array and resort it */
   memcpy(origD, itemsD, sizeof(XIDelCmd *) * nD);
@@ -792,7 +782,7 @@ void ExecLocalXIDelObj (
     {
       XIDelCpl *xc = NewXIDelCpl(SLLNewArgs);
       if (xc==NULL)
-        HARD_EXIT;
+        throw std::bad_alloc();
 
       xc->to      = itemsNO[iNO]->dest;                  /* receiver of XIDelCpl */
       xc->prio    = PRIO_INVALID;                        /* dont remember priority   */
@@ -849,7 +839,7 @@ void PropagateCplInfos (
       {
         XIModCpl *xc = NewXIModCpl(SLLNewArgs);
         if (xc==NULL)
-          HARD_EXIT;
+          throw std::bad_alloc();
 
         /* receiver of XIModCpl */
         xc->to      = NewCpl_GetDest(arrayNC[iNC]);
@@ -880,7 +870,7 @@ void PropagateCplInfos (
     {
       XIDelCpl *xc = NewXIDelCpl(SLLNewArgs);
       if (xc==NULL)
-        HARD_EXIT;
+        throw std::bad_alloc();
 
       xc->to      = NewCpl_GetDest(arrayNC[iNC]);                   /* receiver of XIDelCpl */
       xc->prio    = PRIO_INVALID;
@@ -912,7 +902,7 @@ void ddd_XferRegisterDelete (DDD::DDDContext& context, DDD_HDR hdr)
   /* create new XIDelObj */
   xi      = NewXIDelObj(SLLNewArgs);
   if (xi==NULL)
-    HARD_EXIT;
+    throw std::bad_alloc();
 
   xi->gid = OBJ_GID(hdr);
   xi->delcpls = NULL;
@@ -929,7 +919,7 @@ void ddd_XferRegisterDelete (DDD::DDDContext& context, DDD_HDR hdr)
   {
     XIDelCpl *xc = NewXIDelCpl(SLLNewArgs);
     if (xc==NULL)
-      HARD_EXIT;
+      throw std::bad_alloc();
 
     xc->to      = CPL_PROC(cpl);                 /* receiver of XIDelCpl */
     xc->prio    = cpl->prio;                     /* remember priority    */
@@ -972,9 +962,7 @@ static void XferSetMode (enum XferMode mode)
   xferGlobals.xferMode = mode;
 
 #       if DebugXfer<=8
-  sprintf(cBuffer, "%4d: XferMode=%s.\n",
-          me, XferModeName(xferGlobals.xferMode));
-  DDD_PrintDebug(cBuffer);
+  Dune::dwarn << "XferMode=" << XferModeName(xferGlobals.xferMode) << "\n";
 #       endif
 }
 
@@ -1008,9 +996,9 @@ int XferStepMode (enum XferMode old)
 {
   if (xferGlobals.xferMode!=old)
   {
-    sprintf(cBuffer, "wrong xfer-mode (currently in %s, expected %s)",
-            XferModeName(xferGlobals.xferMode), XferModeName(old));
-    DDD_PrintError('E', 6200, cBuffer);
+    Dune::dwarn
+      << "wrong xfer-mode (currently in " << XferModeName(xferGlobals.xferMode)
+      << ", expected " << XferModeName(old) << ")\n";
     return false;
   }
 

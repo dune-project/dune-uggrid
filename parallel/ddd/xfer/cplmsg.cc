@@ -34,6 +34,12 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
+#include <dune/common/stdstreams.hh>
+
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
@@ -118,10 +124,7 @@ static CPLMSG *CreateCplMsg (DDD_PROC dest, CPLMSG *lastxm)
 
   xm = (CPLMSG *) AllocTmpReq(sizeof(CPLMSG), TMEM_XFER);
   if (xm==NULL)
-  {
-    DDD_PrintError('E', 6400, STR_NOMEM " in PrepareCplMsgs");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   xm->nDelCpl    = 0;
   xm->xferDelCpl = NULL;
@@ -149,9 +152,8 @@ static int PrepareCplMsgs (
   const auto procs = context.procs();
 
 #       if DebugCplMsg<=3
-  sprintf(cBuffer,"%4d: PrepareCplMsgs, nXIDelCpl=%d nXIModCpl=%d nXIAddCpl=%d\n",
-          me, nDC, nMC, nAC);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "PrepareCplMsgs, nXIDelCpl=" << nDC << " nXIModCpl=" << nMC
+              << " nXIAddCpl=" << nAC << "\n";
 #       endif
 
 
@@ -278,10 +280,10 @@ static void CplMsgSend(DDD::DDDContext& context, CPLMSG *theMsgs)
       {
         XIModCpl *mc = m->xferModCpl[i];
 
-        sprintf(cBuffer, "%4d: send modcpl to %d (%08x, %3d)  %s:%d\n",
-                me, m->proc,
-                mc->te.gid, mc->te.prio, mc->sll_file, mc->sll_line);
-        DDD_PrintDebug(cBuffer);
+        Dune::dwarn
+          << "send modcpl to " << m->proc << " (" << mc->te.gid
+          << ", " << mc->te.prio << ")  "
+          << mc->sll_file << ":" << mc->sll_line << "\n";
       }
 #                       endif
     }
@@ -363,6 +365,9 @@ static void CplMsgUnpackSingle (DDD::DDDContext& context, LC_MSGHANDLE xm,
 
 static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
 {
+  using std::setw;
+
+  std::ostream& out = std::cout;
   TEDelCpl     *theDelCpl;
   TEModCpl     *theModCpl;
   TEAddCpl     *theAddCpl;
@@ -372,7 +377,10 @@ static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
   int lenModCpl = (int) LC_GetTableLen(xm, modcpl_id);
   int lenAddCpl = (int) LC_GetTableLen(xm, addcpl_id);
 
-  sprintf(buf, " %03d-%s-%03d ", me, comment, proc);
+  std::ostringstream prefixStream;
+  prefixStream
+    << " " << setw(3) << me << "-" << comment << "-" << setw(3) << proc << " ";
+  const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */
   theDelCpl = (TEDelCpl *)    LC_GetPtr(xm, delcpl_id);
@@ -380,34 +388,22 @@ static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
   theAddCpl = (TEAddCpl *)    LC_GetPtr(xm, addcpl_id);
 
 
-  sprintf(cBuffer, "%s 04 DelCpl.size=%05d\n", buf, lenDelCpl);
-  DDD_PrintDebug(cBuffer);
-  sprintf(cBuffer, "%s 05 ModCpl.size=%05d\n", buf, lenModCpl);
-  DDD_PrintDebug(cBuffer);
-  sprintf(cBuffer, "%s 06 AddCpl.size=%05d\n", buf, lenAddCpl);
-  DDD_PrintDebug(cBuffer);
-
+  out << prefix << " 04 DelCpl.size=" << setw(5) << lenDelCpl << "\n";
+  out << prefix << " 05 ModCpl.size=" << setw(5) << lenModCpl << "\n";
+  out << prefix << " 06 AddCpl.size=" << setw(5) << lenAddCpl << "\n";
 
   for(i=0; i<lenDelCpl; i++)
-  {
-    sprintf(cBuffer, "%s 14 delcpl %04d - " DDD_GID_FMT "\n",
-            buf, i, theDelCpl[i].gid);
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << " 14 delcpl " << setw(4) << i << " - "
+        << theDelCpl[i].gid << "\n";
 
   for(i=0; i<lenModCpl; i++)
-  {
-    sprintf(cBuffer, "%s 15 modcpl %04d - " DDD_GID_FMT " %3d\n",
-            buf, i, theModCpl[i].gid, theModCpl[i].prio);
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << " 15 modcpl " << setw(4) << i << " - "
+        << theModCpl[i].gid << " " << setw(3) << theModCpl[i].prio << "\n";
 
   for(i=0; i<lenAddCpl; i++)
-  {
-    sprintf(cBuffer, "%s 16 addcpl %04d - " DDD_GID_FMT " %4d %3d\n",
-            buf, i, theAddCpl[i].gid, theAddCpl[i].proc, theAddCpl[i].prio);
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << " 16 addcpl " << setw(4) << i << " - "
+        << theAddCpl[i].gid << " " << setw(4) << theAddCpl[i].proc
+        << " " << setw(3) << theAddCpl[i].prio << "\n";
 }
 
 
@@ -462,7 +458,7 @@ void CommunicateCplMsgs (
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Send\n");
+      Dune::dwarn << "DDD XFER_SHOW_MSGSALL: CplMsg.Send\n";
     LC_PrintSendMsgs(context);
   }
 
@@ -476,7 +472,7 @@ void CommunicateCplMsgs (
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Recv\n");
+      Dune::dwarn << "DDD XFER_SHOW_MSGSALL: CplMsg.Recv\n";
     LC_PrintRecvMsgs(context);
   }
 

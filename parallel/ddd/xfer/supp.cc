@@ -35,6 +35,8 @@
 #include <cstdio>
 #include <cassert>
 
+#include <new>
+
 #include "dddi.h"
 
 USING_UG_NAMESPACE
@@ -351,10 +353,7 @@ static AddDataSegm *NewAddDataSegm (void)
 
   segm = (AddDataSegm *) OO_Allocate(sizeof(AddDataSegm));
   if (segm==NULL)
-  {
-    DDD_PrintError('F', 9999, STR_NOMEM " during XferEnd()");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   segm->next   = segmAddData;
   segmAddData  = segm;
@@ -390,10 +389,7 @@ static SizesSegm *NewSizesSegm (void)
 
   segm = (SizesSegm *) OO_Allocate (sizeof(SizesSegm));
   if (segm==NULL)
-  {
-    DDD_PrintError('F', 9999, STR_NOMEM " during XferEnd()");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   segm->next    = segmSizes;
   segmSizes     = segm;
