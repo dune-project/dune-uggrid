@@ -37,6 +37,9 @@
 
 #include <algorithm>
 
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
 #include "dddi.h"
 #include "xfer.h"
 
@@ -174,12 +177,9 @@ static int BuildSymTab (DDD::DDDContext& context,
 
             rt = theElem->reftypeHandler(context, obj, *ref);
             if (rt>=MAX_TYPEDESC)
-            {
-              DDD_PrintError('E', 6520,
-                             "invalid referenced DDD_TYPE "
-                             "returned by handler");
-              HARD_EXIT;
-            }
+              DUNE_THROW(Dune::Exception,
+                         "invalid referenced DDD_TYPE returned by handler");
+
             refdesc = &context.typeDefs()[rt];
           }
 
@@ -548,9 +548,7 @@ RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
   XFERMSG      *xm;
 
 #if     DebugPack<=3
-  sprintf(cBuffer, "%d: XferPackMsgs\n", me);
-  DDD_PrintDebug(cBuffer);
-  fflush(stdout);
+  Dune::dverb << "XferPackMsgs" << std::endl;
 #endif
 
   /* sort messages according to decreasing size. i.e., send
@@ -596,9 +594,8 @@ RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
   {
     if (! LC_MsgAlloc(context, xm->msg_h))
     {
-      sprintf(cBuffer, STR_NOMEM " in XferPackMsgs (size=%ld)",
-              (unsigned long) LC_GetBufferSize(xm->msg_h));
-      DDD_PrintError('E', 6522, cBuffer);
+      Dune::dwarn << STR_NOMEM " in XferPackMsgs (size="
+                  << LC_GetBufferSize(xm->msg_h) << ")\n";
       RET_ON_ERROR;
     }
     XferPackSingleMsg(context, xm);

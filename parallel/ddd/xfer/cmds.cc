@@ -37,6 +37,11 @@
 #include <cstdio>
 #include <cstring>
 
+#include <iomanip>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
@@ -426,10 +431,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
   /* step mode and check whether call to XferEnd is valid */
   if (!XferStepMode(XMODE_CMDS))
-  {
-    DDD_PrintError('E', 6011, "DDD_XferEnd() aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD_XferEnd() aborted");
 
 
   /*
@@ -470,7 +472,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     arrayXIDelCmd = SortedArrayXIDelCmd(sort_XIDelCmd);
     if (arrayXIDelCmd==NULL && nXIDelCmd>0)
     {
-      DDD_PrintError('W', 6081, "out of memory in DDD_XferEnd(), giving up.");
+      Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
       ret_code = DDD_RET_ERROR_NOMEM;
       LC_Abort(context, EXCEPTION_LOWCOMM_USER);
       goto exit;
@@ -505,7 +507,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   arrayNewOwners = CplClosureEstimate(context, arrayXICopyObj, &nNewOwners);
   if (nNewOwners>0 && arrayNewOwners==NULL)
   {
-    DDD_PrintError('W', 6082, "out of memory in DDD_XferEnd(), giving up.");
+    Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
     ret_code = DDD_RET_ERROR_NOMEM;
     LC_Abort(context, EXCEPTION_LOWCOMM_USER);
     goto exit;
@@ -517,7 +519,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   arrayXINewCpl = SortedArrayXINewCpl(sort_XINewCpl);
   if (arrayXINewCpl==NULL && nXINewCpl>0)
   {
-    DDD_PrintError('W', 6083, "out of memory in DDD_XferEnd(), giving up.");
+    Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
     ret_code = DDD_RET_ERROR_NOMEM;
     LC_Abort(context, EXCEPTION_LOWCOMM_USER);
     goto exit;
@@ -526,7 +528,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   arrayXIOldCpl = SortedArrayXIOldCpl(sort_XIOldCpl);
   if (arrayXIOldCpl==NULL && nXIOldCpl>0)
   {
-    DDD_PrintError('W', 6084, "out of memory in DDD_XferEnd(), giving up.");
+    Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
     ret_code = DDD_RET_ERROR_NOMEM;
     LC_Abort(context, EXCEPTION_LOWCOMM_USER);
     goto exit;
@@ -555,8 +557,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     {
       /* the dangerous exception: it occured only locally,
          the other procs doesn't know about it */
-      DDD_PrintError('W', 6089,
-                     "local exception during LC_Connect() in DDD_XferEnd(), giving up.");
+      Dune::dwarn << "local exception during LC_Connect() in DDD_XferEnd(), giving up.\n";
 
       /* in this state the local processor hasn't initiated any send
          or receive calls. however, there may be (and almost ever:
@@ -569,8 +570,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     else
     {
       /* all other exceptions are known globally, shutdown safely */
-      DDD_PrintError('W', 6085,
-                     "error during LC_Connect() in DDD_XferEnd(), giving up.");
+      Dune::dwarn << "error during LC_Connect() in DDD_XferEnd(), giving up.\n";
       ret_code = DDD_RET_ERROR_UNKNOWN;
       goto exit;
     }
@@ -587,8 +587,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* build obj msgs on sender side and start send */
   if (! IS_OK(XferPackMsgs(context, sendMsgs)))
   {
-    DDD_PrintError('W', 6086,
-                   "error during message packing in DDD_XferEnd(), giving up.");
+    Dune::dwarn << "error during message packing in DDD_XferEnd(), giving up.\n";
     LC_Cleanup(context);
     ret_code = DDD_RET_ERROR_UNKNOWN;
     goto exit;
@@ -611,7 +610,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     arrayXIDelCmd = SortedArrayXIDelCmd(sort_XIDelCmd);
     if (arrayXIDelCmd==NULL && nXIDelCmd>0)
     {
-      DDD_PrintError('W', 6088, "out of memory in DDD_XferEnd(), giving up.");
+      Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
       LC_Cleanup(context);
       ret_code = DDD_RET_ERROR_NOMEM;
       goto exit;
@@ -654,9 +653,10 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
                 XISetPrioSet_GetNItems(xferGlobals.setXISetPrio)+
                 XICopyObjSet_GetNItems(xferGlobals.setXICopyObj);
 
-      sprintf(cBuffer, "DDD MESG [%03d]: %4d from %4d xfer-cmds obsolete.\n",
-              me, obsolete, all);
-      DDD_PrintLine(cBuffer);
+      using std::setw;
+      Dune::dwarn
+        << "DDD MESG [" << setw(3) << me << "]: " << setw(4) << obsolete
+        << " from " << setw(4) << all << " xfer-cmds obsolete.\n";
     }
   }
   STAT_TIMER(T_XFER_WHILE_COMM);
@@ -670,7 +670,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD XFER_SHOW_MSGSALL: ObjMsg.Send\n");
+      Dune::dwarn << "DDD XFER_SHOW_MSGSALL: ObjMsg.Send\n";
     LC_PrintSendMsgs(context);
   }
 
@@ -692,11 +692,12 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
       recvMem += LC_GetBufferSize(recvMsgs[k]);
     }
 
-    sprintf(cBuffer,
-            "DDD MESG [%03d]: SHOW_MEM "
-            "msgs  send=%010ld recv=%010ld all=%010ld\n",
-            me, (long)sendMem, (long)recvMem, (long)(sendMem+recvMem));
-    DDD_PrintLine(cBuffer);
+    using std::setw;
+    Dune::dwarn
+      << "DDD MESG [" << setw(3) << me << "]: SHOW_MEM msgs "
+      << " send=" << setw(10) << sendMem
+      << " recv=" << setw(10) << recvMem
+      << " all=" << setw(10) << (sendMem+recvMem) << "\n";
   }
 
   /* display information about recv-messages on lowcomm-level */
@@ -704,7 +705,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   {
     DDD_SyncAll(context);
     if (context.isMaster())
-      DDD_PrintLine("DDD XFER_SHOW_MSGSALL: ObjMsg.Recv\n");
+      Dune::dwarn << "DDD XFER_SHOW_MSGSALL: ObjMsg.Recv\n";
     LC_PrintRecvMsgs(context);
   }
 
@@ -812,8 +813,7 @@ exit:
         #endif
 
 #       if DebugXfer<=4
-  sprintf(cBuffer,"%4d: XferEnd, before IFAllFromScratch().\n", me);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "XferEnd, before IFAllFromScratch().\n";
 #       endif
 
   if (ret_code==DDD_RET_OK)
@@ -876,9 +876,7 @@ void DDD_XferPrioChange (DDD_HDR hdr, DDD_PRIO prio)
     return;
 
 #       if DebugXfer<=2
-  sprintf(cBuffer, "%4d: DDD_XferPrioChange %08x, prio=%d\n",
-          me, OBJ_GID(hdr), prio);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "DDD_XferPrioChange " << OBJ_GID(hdr) << ", prio=" << prio << "\n";
 #       endif
 }
 
@@ -892,26 +890,17 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
                               DDD_PRIO prio)
 {
   if (!ddd_XferActive(context))
-  {
-    DDD_PrintError('E', 6012, "Missing DDD_XferBegin(). aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "Missing DDD_XferBegin()");
 
   if (dest>=procs)
-  {
-    sprintf(cBuffer, "cannot transfer " OBJ_GID_FMT " to processor %d (procs=%d)",
-            OBJ_GID(hdr), dest, procs);
-    DDD_PrintError('E', 6003, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "cannot transfer " << OBJ_GID(hdr) << " to processor " << dest
+               << " (procs=" << procs << ")");
 
   if (prio>=MAX_PRIO)
-  {
-    sprintf(cBuffer, "priority must be less than %d (prio=%d) in xfer-cmd",
-            MAX_PRIO, prio);
-    DDD_PrintError('E', 6004, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "priority must be less than " << MAX_PRIO
+               << " (prio=" << prio << ")");
 
   if (dest==me)
   {
@@ -1062,9 +1051,8 @@ void DDD_XferCopyObj (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   TYPE_DESC *desc =  &context.typeDefs()[OBJ_TYPE(hdr)];
 
 #       if DebugXfer<=2
-sprintf(cBuffer, "%4d: DDD_XferCopyObj %08x, proc=%d prio=%d\n",
-        me, OBJ_GID(hdr), proc, prio);
-DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "DDD_XferCopyObj " << OBJ_GID(hdr)
+               << ", proc=" << proc << " prio=" << prio << "\n";
 #       endif
 
 XferInitCopyInfo(context, hdr, desc, desc->size, proc, prio);
@@ -1099,22 +1087,16 @@ void DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD
   TYPE_DESC *desc =  &context.typeDefs()[OBJ_TYPE(hdr)];
 
 #       if DebugXfer<=2
-  sprintf(cBuffer, "%4d: DDD_XferCopyObjX %08x, proc=%d prio=%d size=%d\n",
-          me, OBJ_GID(hdr), proc, prio, size);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb
+    << "DDD_XferCopyObjX " << OBJ_GID(hdr) << ", proc=" << proc
+    << " prio=" << prio << " size=" << size << "\n";
 #       endif
 
   if ((desc->size!=size) && (DDD_GetOption(context, OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
-  {
-    DDD_PrintError('W', 6001,
-                   "object size differs from declared size in DDD_XferCopyObjX");
-  }
+    Dune::dwarn << "object size differs from declared size in DDD_XferCopyObjX\n";
 
   if ((desc->size>size) && (DDD_GetOption(context, OPT_WARNING_SMALLSIZE)==OPT_ON))
-  {
-    DDD_PrintError('W', 6002,
-                   "object size smaller than declared size in DDD_XferCopyObjX");
-  }
+    Dune::dwarn << "object size smaller than declared size in DDD_XferCopyObjX\n";
 
   XferInitCopyInfo(context, hdr, desc, size, proc, prio);
 }
@@ -1161,15 +1143,14 @@ void DDD_XferAddData (DDD::DDDContext& context, int cnt, DDD_TYPE typ)
   XFERADDDATA *xa;
 
 #       if DebugXfer<=2
-  sprintf(cBuffer, "%4d: DDD_XferAddData cnt=%d typ=%d\n", me, cnt, typ);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "DDD_XferAddData cnt=" << cnt << " typ=" << typ << "\n";
 #       endif
 
   if (theXIAddData==NULL) return;
 
   xa = NewXIAddData();
   if (xa==NULL)
-    HARD_EXIT;
+    throw std::bad_alloc();
 
   xa->addCnt = cnt;
   xa->addTyp = typ;
@@ -1214,8 +1195,7 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
   int i;
 
 #       if DebugXfer<=2
-  sprintf(cBuffer,"%4d: DDD_XferAddData cnt=%d typ=%d\n", me, cnt, typ);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "DDD_XferAddData cnt=" << cnt << " typ=" << typ << "\n";
 #       endif
 
   if (theXIAddData==NULL) return;
@@ -1313,9 +1293,7 @@ void DDD_XferDeleteObj (DDD::DDDContext& context, DDD_HDR hdr)
   dc->hdr = hdr;
 
 #       if DebugXfer<=2
-  sprintf(cBuffer,"%4d: DDD_XferDeleteObj %08x\n",
-          me, OBJ_GID(hdr));
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "DDD_XferDeleteObj " << OBJ_GID(hdr) << "\n";
 #       endif
 
 
@@ -1349,10 +1327,7 @@ void DDD_XferBegin(DDD::DDDContext& context)
 
   /* step mode and check whether call to XferBegin is valid */
   if (!XferStepMode(XMODE_IDLE))
-  {
-    DDD_PrintError('E', 6010, "DDD_XferBegin() aborted");
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD_XferBegin() aborted");
 
 
   /* set kind of TMEM alloc/free requests */

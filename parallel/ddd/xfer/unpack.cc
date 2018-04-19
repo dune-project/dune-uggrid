@@ -36,7 +36,11 @@
 #include <cassert>
 
 #include <algorithm>
+#include <iomanip>
 #include <tuple>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -169,12 +173,8 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
             rt = theElem->reftypeHandler(context, obj, *ref);
 
             if (rt>=MAX_TYPEDESC)
-            {
-              DDD_PrintError('E', 6570,
-                             "invalid referenced DDD_TYPE "
-                             "returned by handler");
-              HARD_EXIT;
-            }
+              DUNE_THROW(Dune::Exception,
+                         "invalid referenced DDD_TYPE returned by handler");
 
             refdesc = &context.typeDefs()[rt];
           }
@@ -199,13 +199,11 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
             /* get corresponding symtab entry */
             if (theSymTab[stIdx].adr.hdr!=OBJ2HDR(*ref,refdesc))
             {
-              sprintf(cBuffer,
-                      "reference collision in " OBJ_GID_FMT " "
-                      "(old=" OBJ_GID_FMT ", inc=" OBJ_GID_FMT ") in LocalizeObject\n",
-                      OBJ_GID(OBJ2HDR(obj,desc)),
-                      OBJ_GID(OBJ2HDR(*ref,refdesc)),
-                      OBJ_GID(theSymTab[stIdx].adr.hdr));
-              DDD_PrintError('W', 6540, cBuffer);
+              Dune::dwarn
+                << "LocalizeObject: "
+                << "reference collision in " << OBJ_GID(OBJ2HDR(obj,desc))
+                << " (old=" << OBJ_GID(OBJ2HDR(*ref,refdesc))
+                << ", inc=" << OBJ_GID(theSymTab[stIdx].adr.hdr) << ")\n";
               /* assert(0);  ??? */
             }
           }
@@ -456,9 +454,8 @@ static void AcceptObjFromMsg (
       if (OBJ_PRUNED(localCplObjs[j]))
       {
 #                               if DebugUnpack<=1
-        sprintf(cBuffer, "%4d: NewPrio wins due to PruneDel. "
-                "%08x\n", me, OBJ_GID(ote->hdr));
-        DDD_PrintDebug(cBuffer);
+        Dune::dvverb << "NewPrio wins due to PruneDel. "
+                     << OBJ_GID(ote->hdr) << "\n";
 #                               endif
 
         /* reset flag */
@@ -479,9 +476,7 @@ static void AcceptObjFromMsg (
           DDD_OBJ copy;
 
 #                               if DebugUnpack<=1
-          sprintf(cBuffer, "%4d: NewPrio wins. %07x\n",me,
-                  OBJ_GID(ote->hdr));
-          DDD_PrintDebug(cBuffer);
+          Dune::dvverb << "NewPrio wins. " << OBJ_GID(ote->hdr) << "\n";
 #                               endif
 
           /* new priority wins -> recreate */
@@ -495,9 +490,7 @@ static void AcceptObjFromMsg (
         else                          /* existing is higher than incoming */
         {
 #                                       if DebugUnpack<=1
-          sprintf(cBuffer, "%4d: OldPrio wins. %07x\n",me,
-                  OBJ_GID(ote->hdr));
-          DDD_PrintDebug(cBuffer);
+          Dune::dvverb << "OldPrio wins. " << OBJ_GID(ote->hdr) << "\n";
 #                                       endif
 
           /* new priority loses -> keep existing obj */
@@ -533,9 +526,8 @@ static void AcceptObjFromMsg (
       DDD_PRIO new_prio = OBJ_PRIO(ote->hdr);
 
 #                       if DebugUnpack<=1
-      sprintf(cBuffer, "%4d: NewObject       %08x, prio=%d\n",me,
-              OBJ_GID(ote->hdr), new_prio);
-      DDD_PrintDebug(cBuffer);
+      Dune::dvverb << "NewObject       " << OBJ_GID(ote->hdr)
+                   << ", prio=" << new_prio << "\n";
 #                       endif
 
       /* new object, create local copy */
@@ -988,7 +980,7 @@ static void PropagateIncomings (
         {
           XIModCpl *xc = NewXIModCpl(SLLNewArgs);
           if (xc==NULL)
-            HARD_EXIT;
+            throw std::bad_alloc();
 
           xc->to      = arrayNO[iNO]->dest;                               /* receiver of XIModCpl*/
           xc->te.gid  = OBJ_GID(ote->hdr);                                /* the object's gid    */
@@ -1008,7 +1000,7 @@ static void PropagateIncomings (
          */
         XIModCpl *xc = NewXIModCpl(SLLNewArgs);
         if (xc==NULL)
-          HARD_EXIT;
+          throw std::bad_alloc();
 
         xc->to      = CPL_PROC(cpl);                                      /* receiver of XIModCpl*/
         xc->te.gid  = OBJ_GID(ote->hdr);                                  /* the object's gid   */
@@ -1494,9 +1486,11 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   }
 
 #       if DebugUnpack<=4
-  sprintf(cBuffer, "%4d: SUM OF OBJ=%3d SYM=%3d NEW=%3d FROM %2d MSGS\n",
-          me, lenObjTab, lenSymTab, nNewCpl, nRecvMsgs);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "SUM OF"
+              << " OBJ=" << std::setw(3) << lenObjTab
+              << " SYM=" << std::setw(3) << lenSymTab
+              << " NEW=" << std::setw(3) << nNewCpl
+              << " FROM " << std::setw(2) << nRecvMsgs << " MSGS\n";
 #       endif
 
   /*STAT_RESET3;*/
@@ -1504,10 +1498,8 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   if (nNewCpl>0)
   {
     allNewCpl = (TENewCpl *) OO_Allocate (sizeof(TENewCpl)*nNewCpl);
-    if (allNewCpl==NULL) {
-      DDD_PrintError('E', 6560, STR_NOMEM " in XferUnpack");
-      return;
-    }
+    if (allNewCpl == nullptr)
+      throw std::bad_alloc();
   } else {
     allNewCpl = NULL;
   }
@@ -1516,11 +1508,8 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   if (lenObjTab>0)
   {
     unionObjTab = (OBJTAB_ENTRY **) OO_Allocate (sizeof(OBJTAB_ENTRY *)*lenObjTab);
-
-    if (unionObjTab==NULL) {
-      DDD_PrintError('E', 6562, STR_NOMEM " in XferUnpack");
-      return;
-    }
+    if (unionObjTab == nullptr)
+      throw std::bad_alloc();
   } else {
     unionObjTab = NULL;
   }
@@ -1576,9 +1565,9 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 #       if DebugUnpack<=2
   for(i=0; i<nNewCpl; i++)
   {
-    sprintf(cBuffer, "%4d: TAB allNewCpl %08x on %4d/%d\n",me,
-            NewCpl_GetGid(allNewCpl[i]),NewCpl_GetDest(allNewCpl[i]),NewCpl_GetPrio(allNewCpl[i]));
-    DDD_PrintDebug(cBuffer);
+    Dune::dvverb << " TAB allNewCpl " << NewCpl_GetGid(allNewCpl[i])
+                 << " on " << std::setw(4) NewCpl_GetDest(allNewCpl[i])
+                 << "/" << NewCpl_GetPrio(allNewCpl[i]) << "\n";
   }
 #       endif
 
