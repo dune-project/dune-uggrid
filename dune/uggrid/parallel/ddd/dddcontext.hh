@@ -83,6 +83,33 @@ struct IfUseContext
 
 } /* namespace If */
 
+namespace Join {
+
+struct JoinContext
+{
+  /** mode of join module */
+  JoinMode joinMode;
+
+  /* description for phase1 message */
+  Basic::LC_MSGTYPE phase1msg_t;
+  Basic::LC_MSGCOMP jointab_id;
+
+  /* description for phase2 message */
+  Basic::LC_MSGTYPE phase2msg_t;
+  Basic::LC_MSGCOMP addtab_id;
+
+  /* description for phase3 message */
+  Basic::LC_MSGTYPE phase3msg_t;
+  Basic::LC_MSGCOMP cpltab_id;
+
+  /* entry points for global sets */
+  JIJoinSet   *setJIJoin;
+  JIAddCplSet *setJIAddCpl2;
+  JIAddCplSet *setJIAddCpl3;
+};
+
+} /* namespace Join */
+
 namespace Mgr {
 
 struct CplmgrContext
@@ -214,6 +241,12 @@ public:
   If::IfUseContext& ifUseContext()
     { return ifUseContext_; }
 
+  Join::JoinContext& joinContext()
+    { return joinContext_; }
+
+  const Join::JoinContext& joinContext() const
+    { return joinContext_; }
+
   Mgr::CplmgrContext& cplmgrContext()
     { return cplmgrContext_; }
 
@@ -287,6 +320,7 @@ protected:
   Ident::IdentContext identContext_;
   If::IfCreateContext ifCreateContext_;
   If::IfUseContext ifUseContext_;
+  Join::JoinContext joinContext_;
   Mgr::CplmgrContext cplmgrContext_;
   Mgr::ObjmgrContext objmgrContext_;
   Mgr::TypemgrContext typemgrContext_;

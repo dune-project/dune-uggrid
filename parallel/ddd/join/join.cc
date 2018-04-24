@@ -58,27 +58,6 @@ END_UGDIM_NAMESPACE
 START_UGDIM_NAMESPACE
 
 
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-JOIN_GLOBALS joinGlobals;
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
 /****************************************************************************/
 /*                                                                          */
 /* class member function implementations                                    */
@@ -184,10 +163,12 @@ const char *JoinModeName(JoinMode mode)
 
 static void JoinSetMode (DDD::DDDContext& context, JoinMode mode)
 {
-  joinGlobals.joinMode = mode;
+  auto& ctx = context.joinContext();
+
+  ctx.joinMode = mode;
 
 #       if DebugJoin<=8
-  Dune::dinfo << "JoinMode=" << JoinModeName(joinGlobals.joinMode) << "\n";
+  Dune::dinfo << "JoinMode=" << JoinModeName(ctx.joinMode) << "\n";
 #       endif
 }
 
@@ -206,21 +187,22 @@ static JoinMode JoinSuccMode (JoinMode mode)
 
 bool ddd_JoinActive(const DDD::DDDContext& context)
 {
-  return joinGlobals.joinMode != JoinMode::JMODE_IDLE;
+  return context.joinContext().joinMode != JoinMode::JMODE_IDLE;
 }
 
 
 bool JoinStepMode(DDD::DDDContext& context, JoinMode old)
 {
-  if (joinGlobals.joinMode!=old)
+  auto& ctx = context.joinContext();
+  if (ctx.joinMode != old)
   {
     Dune::dwarn
-      << "wrong join-mode (currently in " << JoinModeName(joinGlobals.joinMode)
+      << "wrong join-mode (currently in " << JoinModeName(ctx.joinMode)
       << ", expected " << JoinModeName(old) << ")\n";
     return false;
   }
 
-  JoinSetMode(context, JoinSuccMode(joinGlobals.joinMode));
+  JoinSetMode(context, JoinSuccMode(ctx.joinMode));
   return true;
 }
 
@@ -230,32 +212,36 @@ bool JoinStepMode(DDD::DDDContext& context, JoinMode old)
 
 void ddd_JoinInit(DDD::DDDContext& context)
 {
+  auto& ctx = context.joinContext();
+
   /* init control structures for JoinInfo-items in messages */
-  joinGlobals.setJIJoin    = New_JIJoinSet();
-  joinGlobals.setJIAddCpl2 = New_JIAddCplSet();
-  joinGlobals.setJIAddCpl3 = New_JIAddCplSet();
+  ctx.setJIJoin    = reinterpret_cast<DDD::Join::JIJoinSet*>(New_JIJoinSet());
+  ctx.setJIAddCpl2 = reinterpret_cast<DDD::Join::JIAddCplSet*>(New_JIAddCplSet());
+  ctx.setJIAddCpl3 = reinterpret_cast<DDD::Join::JIAddCplSet*>(New_JIAddCplSet());
 
   JoinSetMode(context, JoinMode::JMODE_IDLE);
 
-  joinGlobals.phase1msg_t = LC_NewMsgType(context, "Join1Msg");
-  joinGlobals.jointab_id = LC_NewMsgTable("GidTab",
-                                          joinGlobals.phase1msg_t, sizeof(TEJoin));
+  ctx.phase1msg_t = LC_NewMsgType(context, "Join1Msg");
+  ctx.jointab_id = LC_NewMsgTable("GidTab",
+                                  ctx.phase1msg_t, sizeof(TEJoin));
 
-  joinGlobals.phase2msg_t = LC_NewMsgType(context, "Join2Msg");
-  joinGlobals.addtab_id = LC_NewMsgTable("AddCplTab",
-                                         joinGlobals.phase2msg_t, sizeof(TEAddCpl));
+  ctx.phase2msg_t = LC_NewMsgType(context, "Join2Msg");
+  ctx.addtab_id = LC_NewMsgTable("AddCplTab",
+                                 ctx.phase2msg_t, sizeof(TEAddCpl));
 
-  joinGlobals.phase3msg_t = LC_NewMsgType(context, "Join3Msg");
-  joinGlobals.cpltab_id = LC_NewMsgTable("AddCplTab",
-                                         joinGlobals.phase3msg_t, sizeof(TEAddCpl));
+  ctx.phase3msg_t = LC_NewMsgType(context, "Join3Msg");
+  ctx.cpltab_id = LC_NewMsgTable("AddCplTab",
+                                 ctx.phase3msg_t, sizeof(TEAddCpl));
 }
 
 
-void ddd_JoinExit(DDD::DDDContext&)
+void ddd_JoinExit(DDD::DDDContext& context)
 {
-  JIJoinSet_Free(joinGlobals.setJIJoin);
-  JIAddCplSet_Free(joinGlobals.setJIAddCpl2);
-  JIAddCplSet_Free(joinGlobals.setJIAddCpl3);
+  auto& ctx = context.joinContext();
+
+  JIJoinSet_Free(reinterpret_cast<JIJoinSet*>(ctx.setJIJoin));
+  JIAddCplSet_Free(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl2));
+  JIAddCplSet_Free(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
 }
 
 
