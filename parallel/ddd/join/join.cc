@@ -170,19 +170,19 @@ void Method(Print) (ParamThis _PRINTPARAMS)
         and recovery.
  */
 
-const char *JoinModeName (int mode)
+const char *JoinModeName(JoinMode mode)
 {
   switch(mode)
   {
-  case JMODE_IDLE : return "idle-mode";
-  case JMODE_CMDS : return "commands-mode";
-  case JMODE_BUSY : return "busy-mode";
+  case JoinMode::JMODE_IDLE : return "idle-mode";
+  case JoinMode::JMODE_CMDS : return "commands-mode";
+  case JoinMode::JMODE_BUSY : return "busy-mode";
   }
   return "unknown-mode";
 }
 
 
-static void JoinSetMode (int mode)
+static void JoinSetMode (DDD::DDDContext& context, JoinMode mode)
 {
   joinGlobals.joinMode = mode;
 
@@ -192,32 +192,25 @@ static void JoinSetMode (int mode)
 }
 
 
-static int JoinSuccMode (int mode)
+static JoinMode JoinSuccMode (JoinMode mode)
 {
   switch(mode)
   {
-  case JMODE_IDLE : return JMODE_CMDS;
-  case JMODE_CMDS : return JMODE_BUSY;
-  case JMODE_BUSY : return JMODE_IDLE;
+  case JoinMode::JMODE_IDLE : return JoinMode::JMODE_CMDS;
+  case JoinMode::JMODE_CMDS : return JoinMode::JMODE_BUSY;
+  case JoinMode::JMODE_BUSY : return JoinMode::JMODE_IDLE;
   }
-  return JMODE_IDLE;
+  DUNE_THROW(Dune::InvalidStateException, "invalid JoinMode");
 }
 
 
-
-int JoinMode (void)
+bool ddd_JoinActive(const DDD::DDDContext& context)
 {
-  return joinGlobals.joinMode;
+  return joinGlobals.joinMode != JoinMode::JMODE_IDLE;
 }
 
 
-int ddd_JoinActive (void)
-{
-  return joinGlobals.joinMode!=JMODE_IDLE;
-}
-
-
-int JoinStepMode (int old)
+bool JoinStepMode(DDD::DDDContext& context, JoinMode old)
 {
   if (joinGlobals.joinMode!=old)
   {
@@ -227,7 +220,7 @@ int JoinStepMode (int old)
     return false;
   }
 
-  JoinSetMode(JoinSuccMode(joinGlobals.joinMode));
+  JoinSetMode(context, JoinSuccMode(joinGlobals.joinMode));
   return true;
 }
 
@@ -242,7 +235,7 @@ void ddd_JoinInit(DDD::DDDContext& context)
   joinGlobals.setJIAddCpl2 = New_JIAddCplSet();
   joinGlobals.setJIAddCpl3 = New_JIAddCplSet();
 
-  JoinSetMode(JMODE_IDLE);
+  JoinSetMode(context, JoinMode::JMODE_IDLE);
 
   joinGlobals.phase1msg_t = LC_NewMsgType(context, "Join1Msg");
   joinGlobals.jointab_id = LC_NewMsgTable("GidTab",
