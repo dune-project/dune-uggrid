@@ -51,23 +51,6 @@ USING_UG_NAMESPACE
 #define _CHECKALLOC(ptr)   assert(ptr!=NULL)
 
 
-static int TmpMem_kind = TMEM_ANY;
-
-static void *join_AllocTmp (size_t size)
-{
-  return AllocTmpReq(size, TmpMem_kind);
-}
-
-static void join_FreeTmp (void *buffer)
-{
-  FreeTmpReq(buffer, 0, TmpMem_kind);
-}
-
-void join_SetTmpMem (int kind)
-{
-  TmpMem_kind = kind;
-}
-
 END_UGDIM_NAMESPACE
 
 #include "join.h"
@@ -254,9 +237,6 @@ int JoinStepMode (int old)
 
 void ddd_JoinInit(DDD::DDDContext& context)
 {
-  /* set kind of TMEM alloc/free requests */
-  join_SetTmpMem(TMEM_ANY);
-
   /* init control structures for JoinInfo-items in messages */
   joinGlobals.setJIJoin    = New_JIJoinSet();
   joinGlobals.setJIAddCpl2 = New_JIAddCplSet();
@@ -280,9 +260,6 @@ void ddd_JoinInit(DDD::DDDContext& context)
 
 void ddd_JoinExit(DDD::DDDContext&)
 {
-  /* set kind of TMEM alloc/free requests */
-  join_SetTmpMem(TMEM_ANY);
-
   JIJoinSet_Free(joinGlobals.setJIJoin);
   JIAddCplSet_Free(joinGlobals.setJIAddCpl2);
   JIAddCplSet_Free(joinGlobals.setJIAddCpl3);
