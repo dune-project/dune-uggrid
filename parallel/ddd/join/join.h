@@ -40,9 +40,6 @@
 #include "basic/lowcomm.h"
 #include "basic/oopp.h"    /* for object-orientated style via preprocessor */
 
-
-START_UGDIM_NAMESPACE
-
 /****************************************************************************/
 /*                                                                          */
 /* defines in the following order                                           */
@@ -74,6 +71,8 @@ START_UGDIM_NAMESPACE
 /* extra prefix for all join-related data structures and/or typedefs */
 /*#define ClassPrefix*/
 
+namespace DDD {
+namespace Join {
 
 /* overall mode of Join */
 enum class JoinMode : unsigned char {
@@ -82,7 +81,8 @@ enum class JoinMode : unsigned char {
   JMODE_BUSY                     /* during DDD_JoinEnd() */
 };
 
-
+} /* namespace Join */
+} /* namespace DDD */
 
 /****************************************************************************/
 /*                                                                          */
@@ -90,6 +90,9 @@ enum class JoinMode : unsigned char {
 /*                                                                          */
 /****************************************************************************/
 
+START_UGDIM_NAMESPACE
+
+using JoinMode = DDD::Join::JoinMode;
 
 /****************************************************************************/
 /* JIJoin: represents JoinObj command from application                      */
@@ -227,47 +230,6 @@ struct JOINMSG3
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
 };
-
-
-
-
-/****************************************************************************/
-/* JOIN_GLOBALS: global data for join module                                */
-/****************************************************************************/
-
-struct JOIN_GLOBALS
-{
-  /* mode of join module */
-  JoinMode joinMode;
-
-  /* description for phase1 message */
-  LC_MSGTYPE phase1msg_t;
-  LC_MSGCOMP jointab_id;
-
-  /* description for phase2 message */
-  LC_MSGTYPE phase2msg_t;
-  LC_MSGCOMP addtab_id;
-
-  /* description for phase3 message */
-  LC_MSGTYPE phase3msg_t;
-  LC_MSGCOMP cpltab_id;
-
-
-  /* entry points for global sets */
-  JIJoinSet   *setJIJoin;
-  JIAddCplSet *setJIAddCpl2;
-  JIAddCplSet *setJIAddCpl3;
-
-};
-
-
-/* one instance of JOIN_GLOBALS */
-extern JOIN_GLOBALS joinGlobals;
-
-
-/****************************************************************************/
-
-
 
 /****************************************************************************/
 /*                                                                          */
