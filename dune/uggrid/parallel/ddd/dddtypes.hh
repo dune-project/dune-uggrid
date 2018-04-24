@@ -102,6 +102,15 @@ struct ID_PLIST;
 
 } /* namespace Ident */
 
+namespace Join {
+
+enum class JoinMode : unsigned char;
+
+struct JIJoinSet;
+struct JIAddCplSet;
+
+} /* namespace Join */
+
 namespace Prio {
 
 enum class PrioMode : unsigned char;
