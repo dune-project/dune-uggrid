@@ -146,7 +146,6 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
   last_i = i = 0;
   do
   {
-    JOINMSG1  *jm;
     size_t bufSize;
 
     /* skip until dest-processor is different */
@@ -154,10 +153,7 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
       i++;
 
     /* create new message */
-    jm = (JOINMSG1 *) AllocTmp(sizeof(JOINMSG1));
-    if (jm==NULL)
-      throw std::bad_alloc();
-
+    JOINMSG1* jm = new JOINMSG1;
     jm->nJoins = i-last_i;
     jm->arrayJoin = &(itemsJ[last_i]);
     jm->dest = itemsJ[last_i]->dest;
@@ -321,9 +317,7 @@ static void UnpackPhase1Msgs (DDD::DDDContext& context,
 
 
   /* allocate array of objects, which has been contacted by a join */
-  joinObjs = (JIPartner *) AllocTmp(sizeof(JIPartner) * nJoinObjs);
-  if (joinObjs==NULL)
-    throw std::bad_alloc();
+  joinObjs = new JIPartner[nJoinObjs];
 
   /* set return values */
   *p_joinObjs  = joinObjs;
@@ -406,7 +400,6 @@ static int PreparePhase2Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
   last_i = i = 0;
   do
   {
-    JOINMSG2  *jm;
     size_t bufSize;
 
     /* skip until dest-processor is different */
@@ -414,10 +407,7 @@ static int PreparePhase2Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
       i++;
 
     /* create new message */
-    jm = (JOINMSG2 *) AllocTmp(sizeof(JOINMSG2));
-    if (jm==NULL)
-      throw std::bad_alloc();
-
+    JOINMSG2* jm = new JOINMSG2;
     jm->nAddCpls = i-last_i;
     jm->arrayAddCpl = &(itemsAC[last_i]);
     jm->dest = itemsAC[last_i]->dest;
@@ -597,7 +587,6 @@ static int PreparePhase3Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
   last_i = i = 0;
   do
   {
-    JOINMSG3  *jm;
     size_t bufSize;
 
     /* skip until dest-processor is different */
@@ -605,10 +594,7 @@ static int PreparePhase3Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
       i++;
 
     /* create new message */
-    jm = (JOINMSG3 *) AllocTmp(sizeof(JOINMSG3));
-    if (jm==NULL)
-      throw std::bad_alloc();
-
+    JOINMSG3* jm = new JOINMSG3;
     jm->nAddCpls = i-last_i;
     jm->arrayAddCpl = &(itemsAC[last_i]);
     jm->dest = itemsAC[last_i]->dest;
@@ -987,7 +973,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   for(; sendMsgs2!=NULL; sendMsgs2=sm2)
   {
     sm2 = sendMsgs2->next;
-    FreeTmp(sendMsgs2, 0);
+    delete sendMsgs2;
   }
 
 
@@ -1084,7 +1070,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   for(; sendMsgs3!=NULL; sendMsgs3=sm3)
   {
     sm3 = sendMsgs3->next;
-    FreeTmp(sendMsgs3, 0);
+    delete sendMsgs3;
   }
 
 
@@ -1101,12 +1087,13 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
   JIAddCplSet_Reset(joinGlobals.setJIAddCpl3);
 
-  if (joinObjs!=NULL) FreeTmp(joinObjs, 0);
+  if (joinObjs!=NULL)
+    delete[] joinObjs;
 
   for(; sendMsgs1!=NULL; sendMsgs1=sm1)
   {
     sm1 = sendMsgs1->next;
-    FreeTmp(sendMsgs1, 0);
+    delete sendMsgs1;
   }
 
 
@@ -1214,10 +1201,6 @@ void DDD_JoinBegin(DDD::DDDContext&)
   /* step mode and check whether call to JoinBegin is valid */
   if (!JoinStepMode(JMODE_IDLE))
     DUNE_THROW(Dune::Exception, "DDD_JoinBegin() aborted");
-
-
-  /* set kind of TMEM alloc/free requests */
-  join_SetTmpMem(TMEM_JOIN);
 }
 
 
