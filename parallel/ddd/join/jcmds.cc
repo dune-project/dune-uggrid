@@ -760,7 +760,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   STAT_ZEROALL;
 
   /* step mode and check whether call to JoinEnd is valid */
-  if (!JoinStepMode(JMODE_CMDS))
+  if (!JoinStepMode(context, JoinMode::JMODE_CMDS))
     DUNE_THROW(Dune::Exception, "DDD_JoinEnd() aborted");
 
 
@@ -1115,7 +1115,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   STAT_TIMER(T_JOIN_BUILD_IF);
 
 
-  JoinStepMode(JMODE_BUSY);
+  JoinStepMode(context, JoinMode::JMODE_BUSY);
 
   return(DDD_RET_OK);
 }
@@ -1146,7 +1146,7 @@ void DDD_JoinObj(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC dest, DDD_GID n
 
   const auto procs = context.procs();
 
-  if (!ddd_JoinActive())
+  if (!ddd_JoinActive(context))
     DUNE_THROW(Dune::Exception, "Missing DDD_JoinBegin()");
 
   if (dest>=procs)
@@ -1196,10 +1196,10 @@ void DDD_JoinObj(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC dest, DDD_GID n
         is carried out via a \funk{JoinEnd} call on each processor.
  */
 
-void DDD_JoinBegin(DDD::DDDContext&)
+void DDD_JoinBegin(DDD::DDDContext& context)
 {
   /* step mode and check whether call to JoinBegin is valid */
-  if (!JoinStepMode(JMODE_IDLE))
+  if (!JoinStepMode(context, JoinMode::JMODE_IDLE))
     DUNE_THROW(Dune::Exception, "DDD_JoinBegin() aborted");
 }
 
