@@ -76,7 +76,7 @@ START_UGDIM_NAMESPACE
 
 
 /* overall mode of Join */
-enum JoinMode {
+enum class JoinMode : unsigned char {
   JMODE_IDLE = 0,                /* waiting for next DDD_JoinBegin() */
   JMODE_CMDS,                    /* after DDD_JoinBegin(), before DDD_JoinEnd() */
   JMODE_BUSY                     /* during DDD_JoinEnd() */
@@ -238,7 +238,7 @@ struct JOINMSG3
 struct JOIN_GLOBALS
 {
   /* mode of join module */
-  int joinMode;
+  JoinMode joinMode;
 
   /* description for phase1 message */
   LC_MSGTYPE phase1msg_t;
@@ -287,8 +287,7 @@ extern JOIN_GLOBALS joinGlobals;
    void PropagateCplInfos(XISetPrio **, int, XIDelObj  **, int,
                 TENewCpl *, int);
  */
-int JoinMode (void);
-int JoinStepMode(int);
+bool JoinStepMode(DDD::DDDContext& context, JoinMode);
 
 
 /* pack.c,   used only by cmds.c */

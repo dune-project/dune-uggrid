@@ -567,7 +567,7 @@ bool      ddd_PrioActive(const DDD::DDDContext& context);
 /* join/join.c */
 void      ddd_JoinInit(DDD::DDDContext& context);
 void      ddd_JoinExit(DDD::DDDContext& context);
-int       ddd_JoinActive (void);
+bool      ddd_JoinActive(const DDD::DDDContext& context);
 
 
 /* ident/ident.c */
