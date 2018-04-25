@@ -1,5 +1,5 @@
 Module: dune-uggrid
-Version: 2.5.2
+Version: 2.5.3-git
 Depends: dune-common (>= 2.5.0)
 Maintainer: dune-devel@lists.dune-project.org
 Whitespace-Hook: Yes
