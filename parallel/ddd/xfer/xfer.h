@@ -118,6 +118,7 @@ START_UGDIM_NAMESPACE
 
 using DDD::Xfer::XferMode;
 
+END_UGDIM_NAMESPACE
 
 /****************************************************************************/
 
@@ -136,6 +137,8 @@ using DDD::Xfer::XferMode;
 /*                                                                          */
 /****************************************************************************/
 
+namespace DDD {
+namespace Xfer {
 
 /****************************************************************************/
 /* XFERADDDATA: description of additional data on sender side               */
@@ -156,22 +159,31 @@ struct XFERADDDATA {
 /* XICopyObj:                                                               */
 /****************************************************************************/
 
+struct XICopyObj
+{
+  DDD_HDR hdr;                    /* local obj for which a copy should be created */
+  DDD_GID gid;                    /* gid of local object                          */
+  DDD_PROC dest;                  /* proc involved with operation, me -> proc     */
+  DDD_PRIO prio;                  /* priority for new object copy                 */
+  size_t size;                    /* V1.2: needed for variable-sized objects      */
+
+  int addLen;
+  XFERADDDATA *add;               /* additional data items                   */
+
+  int flags;
+};
+
+} /* namespace Xfer */
+} /* namespace DDD */
+
+START_UGDIM_NAMESPACE
+
+using DDD::Xfer::XFERADDDATA;
+using DDD::Xfer::XICopyObj;
+
 #define ClassName XICopyObj
-Class_Data_Begin
-DDD_HDR hdr;                    /* local obj for which a copy should be created */
-DDD_GID gid;                    /* gid of local object                          */
-DDD_PROC dest;                  /* proc involved with operation, me -> proc     */
-DDD_PRIO prio;                  /* priority for new object copy                 */
-size_t size;                    /* V1.2: needed for variable-sized objects      */
-
-int addLen;
-XFERADDDATA *add;               /* additional data items                   */
-
-int flags;
-Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
 int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext* context);
-
 #undef ClassName
 
 
@@ -532,9 +544,9 @@ struct XFER_PER_PROC
 
 
 /* supp.c */
-XFERADDDATA *NewXIAddData (void);
-void FreeAllXIAddData (void);
-int *AddDataAllocSizes(int);
+XFERADDDATA *NewXIAddData(DDD::DDDContext& context);
+void FreeAllXIAddData(DDD::DDDContext& context);
+int *AddDataAllocSizes(DDD::DDDContext& context, int);
 void xfer_SetTmpMem (int);
 void *xfer_AllocTmp (size_t);
 void xfer_FreeTmp (void *);

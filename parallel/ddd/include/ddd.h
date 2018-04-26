@@ -365,7 +365,7 @@ void     DDD_IFAExecLocalX(DDD::DDDContext& context, DDD_IF,DDD_ATTR,           
 /*
         Transfer Environment Module
  */
-bool     DDD_XferWithAddData();
+bool     DDD_XferWithAddData(const DDD::DDDContext& context);
 void     DDD_XferAddData(DDD::DDDContext& context, int, DDD_TYPE);
 void     DDD_XferAddDataX(DDD::DDDContext& context, int, DDD_TYPE, size_t sizes[]);
 int      DDD_XferIsPrunedDelete(const DDD::DDDContext& context, DDD_HDR);

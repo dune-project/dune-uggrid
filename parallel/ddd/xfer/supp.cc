@@ -90,10 +90,6 @@ void xfer_FreeSend (void *buffer)
 
 
 
-/* defined in cmds.c */
-extern XICopyObj *theXIAddData;
-
-
 /****************************************************************************/
 /*                                                                          */
 /* definition of constants, macros                                          */
@@ -111,6 +107,10 @@ extern XICopyObj *theXIAddData;
 /* data types                                                               */
 /*                                                                          */
 /****************************************************************************/
+
+END_UGDIM_NAMESPACE
+namespace DDD {
+namespace Xfer {
 
 /* segment of AddDatas */
 struct AddDataSegm
@@ -131,21 +131,11 @@ struct SizesSegm
   int data[SIZESSEGM_SIZE];
 };
 
+} /* namespace Xfer */
+} /* namespace DDD */
+START_UGDIM_NAMESPACE
 
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of static variables                                           */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-static AddDataSegm *segmAddData = NULL;
-static SizesSegm   *segmSizes   = NULL;
-
+using namespace DDD::Xfer;
 
 /****************************************************************************/
 /*                                                                          */
@@ -312,25 +302,27 @@ void Method(Print) (ParamThis _PRINTPARAMS)
 /****************************************************************************/
 
 
-static AddDataSegm *NewAddDataSegm (void)
+static AddDataSegm *NewAddDataSegm(DDD::DDDContext& context)
 {
+  auto& ctx = context.xferContext();
   AddDataSegm *segm;
 
   segm = (AddDataSegm *) OO_Allocate(sizeof(AddDataSegm));
   if (segm==NULL)
     throw std::bad_alloc();
 
-  segm->next   = segmAddData;
-  segmAddData  = segm;
-  segm->nItems = 0;
+  segm->next      = ctx.segmAddData;
+  ctx.segmAddData = segm;
+  segm->nItems    = 0;
 
   return(segm);
 }
 
 
-static void FreeAddDataSegms (void)
+static void FreeAddDataSegms(DDD::DDDContext& context)
 {
-  AddDataSegm *segm = segmAddData;
+  auto& ctx = context.xferContext();
+  AddDataSegm *segm = ctx.segmAddData;
   AddDataSegm *next = NULL;
 
   while (segm!=NULL)
@@ -341,32 +333,34 @@ static void FreeAddDataSegms (void)
     segm = next;
   }
 
-  segmAddData = NULL;
+  ctx.segmAddData = nullptr;
 }
 
 
 /****************************************************************************/
 
 
-static SizesSegm *NewSizesSegm (void)
+static SizesSegm *NewSizesSegm(DDD::DDDContext& context)
 {
+  auto& ctx = context.xferContext();
   SizesSegm *segm;
 
   segm = (SizesSegm *) OO_Allocate (sizeof(SizesSegm));
   if (segm==NULL)
     throw std::bad_alloc();
 
-  segm->next    = segmSizes;
-  segmSizes     = segm;
+  segm->next    = ctx.segmSizes;
+  ctx.segmSizes = segm;
   segm->current = 0;
 
   return(segm);
 }
 
 
-static void FreeSizesSegms (void)
+static void FreeSizesSegms(DDD::DDDContext& context)
 {
-  SizesSegm *segm = segmSizes;
+  auto& ctx = context.xferContext();
+  SizesSegm *segm = ctx.segmSizes;
   SizesSegm *next = NULL;
 
   while (segm!=NULL)
@@ -377,49 +371,51 @@ static void FreeSizesSegms (void)
     segm = next;
   }
 
-  segmSizes = NULL;
+  ctx.segmSizes = nullptr;
 }
 
 
 /****************************************************************************/
 
 
-XFERADDDATA *NewXIAddData (void)
+XFERADDDATA *NewXIAddData(DDD::DDDContext& context)
 {
-  AddDataSegm *segm = segmAddData;
+  auto& ctx = context.xferContext();
+  AddDataSegm *segm = ctx.segmAddData;
   XFERADDDATA *xa;
 
   if (segm==NULL || segm->nItems==ADDDATASEGM_SIZE)
   {
-    segm = NewAddDataSegm();
+    segm = NewAddDataSegm(context);
   }
 
   xa = &(segm->item[segm->nItems++]);
-  xa->next = theXIAddData->add;
-  theXIAddData->add = xa;
+  xa->next = ctx.theXIAddData->add;
+  ctx.theXIAddData->add = xa;
 
   return(xa);
 }
 
 
 
-void FreeAllXIAddData (void)
+void FreeAllXIAddData(DDD::DDDContext& context)
 {
-  FreeAddDataSegms();
-  FreeSizesSegms();
+  FreeAddDataSegms(context);
+  FreeSizesSegms(context);
 }
 
 
 /****************************************************************************/
 
-int *AddDataAllocSizes (int cnt)
+int *AddDataAllocSizes (DDD::DDDContext& context, int cnt)
 {
-  SizesSegm *segm = segmSizes;
+  auto& ctx = context.xferContext();
+  SizesSegm *segm = ctx.segmSizes;
   int *pos;
 
   if (segm==NULL || segm->current+cnt>=SIZESSEGM_SIZE)
   {
-    segm = NewSizesSegm();
+    segm = NewSizesSegm(context);
   }
 
   pos = segm->data + segm->current;
@@ -435,14 +431,14 @@ int *AddDataAllocSizes (int cnt)
 /*
         get quantitative resource usage
  */
-void GetSizesXIAddData (int *nSegms, int *nItems, size_t *alloc_mem, size_t *used_mem)
+void GetSizesXIAddData(const DDD::DDDContext& context, int *nSegms, int *nItems, size_t *alloc_mem, size_t *used_mem)
 {
+  const auto& ctx = context.xferContext();
   size_t allocated=0, used=0;
   int ns=0, ni=0;
 
   {
-    AddDataSegm  *segm;
-    for (segm=segmAddData; segm!=NULL; segm=segm->next)
+    for (const AddDataSegm* segm=ctx.segmAddData; segm!=NULL; segm=segm->next)
     {
       /* count number of segments and number of items */
       ns++;
