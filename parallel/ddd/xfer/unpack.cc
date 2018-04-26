@@ -68,9 +68,9 @@ START_UGDIM_NAMESPACE
  */
 
 
-static void NEW_AddCpl(DDD_PROC destproc, DDD_GID objgid, DDD_PROC cplproc, DDD_PRIO cplprio)
+static void NEW_AddCpl(DDD::DDDContext& context, DDD_PROC destproc, DDD_GID objgid, DDD_PROC cplproc, DDD_PRIO cplprio)
 {
-  XIAddCpl *xc = NewXIAddCpl(SLLNewArgs);
+  XIAddCpl *xc = NewXIAddCpl(context);
   assert(xc);
   xc->to      = destproc;
   xc->te.gid  = objgid;
@@ -667,7 +667,7 @@ static void AddAndSpread (DDD::DDDContext& context,
   for(k=0; k<nNO; k++)
   {
     if (itemsNO[k]->dest != dest)
-      NEW_AddCpl(itemsNO[k]->dest, gid, dest, prio);
+      NEW_AddCpl(context, itemsNO[k]->dest, gid, dest, prio);
   }
 }
 
@@ -752,7 +752,7 @@ static void UpdateCouplings (
       AddCoupling(context, hdr,
                   NewCpl_GetDest(itemsNC[iNC]),
                   NewCpl_GetPrio(itemsNC[iNC]));
-      NEW_AddCpl(NewCpl_GetDest(itemsNC[iNC]), gid, me, OBJ_PRIO(hdr));
+      NEW_AddCpl(context, NewCpl_GetDest(itemsNC[iNC]), gid, me, OBJ_PRIO(hdr));
 
       iNC++;
     }
@@ -979,7 +979,7 @@ static void PropagateIncomings (
       {
         if (newness==PARTNEW || newness==PRUNEDNEW)
         {
-          XIModCpl *xc = NewXIModCpl(SLLNewArgs);
+          XIModCpl *xc = NewXIModCpl(context);
           if (xc==NULL)
             throw std::bad_alloc();
 
@@ -999,7 +999,7 @@ static void PropagateIncomings (
                                         if (newness==PARTNEW || newness==PRUNEDNEW)
                                         {
          */
-        XIModCpl *xc = NewXIModCpl(SLLNewArgs);
+        XIModCpl *xc = NewXIModCpl(context);
         if (xc==NULL)
           throw std::bad_alloc();
 
@@ -1692,7 +1692,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   /* create new XI???Cpl-infos depending on allNewCpls for existing
      objects */
-  PropagateCplInfos(arraySP, nSP, arrayDO, nDO, allNewCpl, nNewCpl);
+  PropagateCplInfos(context, arraySP, nSP, arrayDO, nDO, allNewCpl, nNewCpl);
 
 
   /* create some more XIModCpl-items due to incoming objects */

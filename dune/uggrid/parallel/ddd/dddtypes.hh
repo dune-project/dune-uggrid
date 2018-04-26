@@ -128,6 +128,17 @@ struct XICopyObj;
 struct XICopyObjSet;
 struct XISetPrioSet;
 
+// From sll.ht instances:
+#define SLL_TYPES(T) struct Segm##T; struct T;
+SLL_TYPES(XIDelCmd)
+SLL_TYPES(XIDelObj)
+SLL_TYPES(XINewCpl)
+SLL_TYPES(XIOldCpl)
+SLL_TYPES(XIAddCpl)
+SLL_TYPES(XIDelCpl)
+SLL_TYPES(XIModCpl)
+#undef SLL_TYPES
+
 } /* namespace Xfer */
 
 } /* namespace DDD */
