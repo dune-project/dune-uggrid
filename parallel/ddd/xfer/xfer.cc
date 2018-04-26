@@ -995,9 +995,6 @@ void ddd_XferInit(DDD::DDDContext& context)
 {
   auto& ctx = context.xferContext();
 
-  /* set kind of TMEM alloc/free requests */
-  xfer_SetTmpMem(TMEM_ANY);
-
   /* init control structures for XferInfo-items in first (?) message */
   ctx.setXICopyObj = reinterpret_cast<DDD::Xfer::XICopyObjSet*>(New_XICopyObjSet());
   reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj)->tree->context = &context;
@@ -1043,9 +1040,6 @@ void ddd_XferInit(DDD::DDDContext& context)
 void ddd_XferExit(DDD::DDDContext& context)
 {
   auto& ctx = context.xferContext();
-
-  /* set kind of TMEM alloc/free requests */
-  xfer_SetTmpMem(TMEM_ANY);
 
   CmdMsgExit(context);
   CplMsgExit(context);
