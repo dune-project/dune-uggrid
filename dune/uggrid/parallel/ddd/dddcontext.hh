@@ -157,6 +157,26 @@ struct CplmsgContext
   Basic::LC_MSGCOMP addcpl_id;
 };
 
+/**
+ * global data for xfer module
+ */
+struct XferContext
+{
+  /** mode of xfer module */
+  XferMode xferMode;
+
+  /* description for object message */
+  Basic::LC_MSGTYPE objmsg_t;
+  Basic::LC_MSGCOMP symtab_id, objtab_id;
+  Basic::LC_MSGCOMP newcpl_id, oldcpl_id;
+  Basic::LC_MSGCOMP objmem_id;
+
+
+  /* entry points for global sets */
+  XICopyObjSet *setXICopyObj;
+  XISetPrioSet *setXISetPrio;
+};
+
 } /* namespace Xfer */
 
 struct CouplingContext
@@ -280,6 +300,12 @@ public:
   const Xfer::CplmsgContext& cplmsgContext() const
     { return cplmsgContext_; }
 
+  Xfer::XferContext& xferContext()
+    { return xferContext_; }
+
+  const Xfer::XferContext& xferContext() const
+    { return xferContext_; }
+
   CouplingContext& couplingContext()
     { return couplingContext_; }
 
@@ -328,6 +354,7 @@ protected:
   CouplingContext couplingContext_;
   Xfer::CmdmsgContext cmdmsgContext_;
   Xfer::CplmsgContext cplmsgContext_;
+  Xfer::XferContext xferContext_;
 
   std::vector<DDD_HDR> objTable_;
   int nObjs_;

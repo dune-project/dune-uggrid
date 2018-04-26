@@ -352,6 +352,8 @@ static int GetDepData (DDD::DDDContext& context,
 
 static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
 {
+  auto& ctx = context.xferContext();
+
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
   TENewCpl     *theNewCpl;
@@ -360,11 +362,11 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
   int i, actSym, actNewCpl, actOldCpl, actObj;
 
   /* get table addresses inside message */
-  theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(msg->msg_h, xferGlobals.symtab_id);
-  theObjTab = (OBJTAB_ENTRY *)LC_GetPtr(msg->msg_h, xferGlobals.objtab_id);
-  theNewCpl = (TENewCpl *)    LC_GetPtr(msg->msg_h, xferGlobals.newcpl_id);
-  theOldCpl = (TEOldCpl *)    LC_GetPtr(msg->msg_h, xferGlobals.oldcpl_id);
-  theObjects= (char *)LC_GetPtr(msg->msg_h, xferGlobals.objmem_id);
+  theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(msg->msg_h, ctx.symtab_id);
+  theObjTab = (OBJTAB_ENTRY *)LC_GetPtr(msg->msg_h, ctx.objtab_id);
+  theNewCpl = (TENewCpl *)    LC_GetPtr(msg->msg_h, ctx.newcpl_id);
+  theOldCpl = (TEOldCpl *)    LC_GetPtr(msg->msg_h, ctx.oldcpl_id);
+  theObjects= (char *)LC_GetPtr(msg->msg_h, ctx.objmem_id);
 
 
   /* build several tables inside message */
@@ -514,10 +516,10 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
 
 
   /* set valid table entries */
-  LC_SetTableLen(msg->msg_h, xferGlobals.symtab_id, actSym);
-  LC_SetTableLen(msg->msg_h, xferGlobals.objtab_id, msg->nObjects);
-  LC_SetTableLen(msg->msg_h, xferGlobals.newcpl_id, actNewCpl);
-  LC_SetTableLen(msg->msg_h, xferGlobals.oldcpl_id, actOldCpl);
+  LC_SetTableLen(msg->msg_h, ctx.symtab_id, actSym);
+  LC_SetTableLen(msg->msg_h, ctx.objtab_id, msg->nObjects);
+  LC_SetTableLen(msg->msg_h, ctx.newcpl_id, actNewCpl);
+  LC_SetTableLen(msg->msg_h, ctx.oldcpl_id, actOldCpl);
 
 
 #if DebugXfer>1
