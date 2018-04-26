@@ -175,6 +175,11 @@ struct XferContext
   /* entry points for global sets */
   XICopyObjSet *setXICopyObj;
   XISetPrioSet *setXISetPrio;
+
+  XICopyObj* theXIAddData;
+
+  AddDataSegm* segmAddData = nullptr;
+  SizesSegm* segmSizes = nullptr;
 };
 
 } /* namespace Xfer */
