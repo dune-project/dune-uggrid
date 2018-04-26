@@ -330,47 +330,20 @@ static void DisplayMemResources(const DDD::DDDContext& context)
   }
 
 
-  GetSizesXIDelCmd(&nSegms, &nItems, &memAllocated, &memUsed);
-  if (nSegms>0)
-    printf("%4d: XferEnd, XIDelCmd  segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
-
-  GetSizesXIDelObj(&nSegms, &nItems, &memAllocated, &memUsed);
-  if (nSegms>0)
-    printf("%4d: XferEnd, XIDelObj  segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
-
-  GetSizesXINewCpl(&nSegms, &nItems, &memAllocated, &memUsed);
-  if (nSegms>0)
-    printf("%4d: XferEnd, XINewCpl  segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
-
-  GetSizesXIOldCpl(&nSegms, &nItems, &memAllocated, &memUsed);
-  if (nSegms>0)
-    printf("%4d: XferEnd, XIOldCpl  segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
-
-  GetSizesXIDelCpl(&nSegms, &nItems, &memAllocated, &memUsed);
-  if (nSegms>0)
-    printf("%4d: XferEnd, XIDelCpl  segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
-
-  GetSizesXIModCpl(&nSegms, &nItems, &memAllocated, &memUsed);
-  if (nSegms>0)
-    printf("%4d: XferEnd, XIModCpl  segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
-
-  GetSizesXIAddCpl(&nSegms, &nItems, &memAllocated, &memUsed);
-  if (nSegms>0)
-    printf("%4d: XferEnd, XIAddCpl  segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
-
-
-  /*
-          sprintf(cBuffer, "%4d: XferEnd, segms=%d items=%d allocated=%ld used=%ld\n",
-                  me, nSegms, nItems, (long)memAllocated, (long)memUsed);
-          DDD_PrintDebug(cBuffer);
-   */
+#define SLL_GET_SIZES(T) do {                                           \
+    GetSizes##T(context, &nSegms, &nItems, &memAllocated, &memUsed);    \
+    if (nSegms>0)                                                       \
+      printf("%4d: XferEnd, " #T "  segms=%d items=%d allocated=%ld used=%ld\n", \
+             me, nSegms, nItems, (long)memAllocated, (long)memUsed);    \
+  } while(false)
+  SLL_GET_SIZES(XIDelCmd);
+  SLL_GET_SIZES(XIDelObj);
+  SLL_GET_SIZES(XINewCpl);
+  SLL_GET_SIZES(XIOldCpl);
+  SLL_GET_SIZES(XIDelCpl);
+  SLL_GET_SIZES(XIModCpl);
+  SLL_GET_SIZES(XIAddCpl);
+#undef SLL_GET_SIZES(T)
 }
 
 
@@ -459,8 +432,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     /* create sorted array of XIDelCmd-items, and unify it */
     /* in case of pruning set to OPT_OFF, this sorting/unifying
        step is done lateron. */
-    arrayXIDelCmd = SortedArrayXIDelCmd(sort_XIDelCmd);
-    if (arrayXIDelCmd==NULL && nXIDelCmd>0)
+    arrayXIDelCmd = SortedArrayXIDelCmd(context, sort_XIDelCmd);
+    if (arrayXIDelCmd==NULL && ctx.nXIDelCmd>0)
     {
       Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
       ret_code = DDD_RET_ERROR_NOMEM;
@@ -468,7 +441,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
       goto exit;
     }
     remXIDelCmd   = UnifyXIDelCmd(context, arrayXIDelCmd, unify_XIDelCmd);
-    obsolete += (nXIDelCmd-remXIDelCmd);
+    obsolete += (ctx.nXIDelCmd-remXIDelCmd);
 
     /* do communication and actual pruning */
     prunedXIDelCmd = PruneXIDelCmd(context, arrayXIDelCmd, remXIDelCmd, arrayXICopyObj);
@@ -506,8 +479,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* create sorted array of XINewCpl- and XIOldCpl-items.
      TODO. if efficiency is a problem here, use b-tree or similar
            data structure to improve performance. */
-  arrayXINewCpl = SortedArrayXINewCpl(sort_XINewCpl);
-  if (arrayXINewCpl==NULL && nXINewCpl>0)
+  arrayXINewCpl = SortedArrayXINewCpl(context, sort_XINewCpl);
+  if (arrayXINewCpl==NULL && ctx.nXINewCpl>0)
   {
     Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
     ret_code = DDD_RET_ERROR_NOMEM;
@@ -515,8 +488,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     goto exit;
   }
 
-  arrayXIOldCpl = SortedArrayXIOldCpl(sort_XIOldCpl);
-  if (arrayXIOldCpl==NULL && nXIOldCpl>0)
+  arrayXIOldCpl = SortedArrayXIOldCpl(context, sort_XIOldCpl);
+  if (arrayXIOldCpl==NULL && ctx.nXIOldCpl>0)
   {
     Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
     ret_code = DDD_RET_ERROR_NOMEM;
@@ -528,8 +501,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* prepare msgs for objects and XINewCpl-items */
   nSendMsgs = PrepareObjMsgs(context,
                              arrayXICopyObj,
-                             arrayXINewCpl, nXINewCpl,
-                             arrayXIOldCpl, nXIOldCpl,
+                             arrayXINewCpl, ctx.nXINewCpl,
+                             arrayXIOldCpl, ctx.nXIOldCpl,
                              &sendMsgs, &sendMem);
 
 
@@ -597,8 +570,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   if (!DelCmds_were_pruned)
   {
     /* create sorted array of XIDelCmd-items, and unify it */
-    arrayXIDelCmd = SortedArrayXIDelCmd(sort_XIDelCmd);
-    if (arrayXIDelCmd==NULL && nXIDelCmd>0)
+    arrayXIDelCmd = SortedArrayXIDelCmd(context, sort_XIDelCmd);
+    if (arrayXIDelCmd==NULL && ctx.nXIDelCmd>0)
     {
       Dune::dwarn << "out of memory in DDD_XferEnd(), giving up.\n";
       LC_Cleanup(context);
@@ -606,7 +579,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
       goto exit;
     }
     remXIDelCmd   = UnifyXIDelCmd(context, arrayXIDelCmd, unify_XIDelCmd);
-    obsolete += (nXIDelCmd-remXIDelCmd);
+    obsolete += (ctx.nXIDelCmd-remXIDelCmd);
   }
 
 
@@ -626,12 +599,13 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
    */
 
   /* create sorted array of XIDelObj-items */
-  arrayXIDelObj = SortedArrayXIDelObj(sort_XIDelObj);
+  arrayXIDelObj = SortedArrayXIDelObj(context, sort_XIDelObj);
 
   ExecLocalXISetPrio(context, arrayXISetPrio,
-                     arrayXIDelObj,  nXIDelObj,
+                     arrayXIDelObj,  ctx.nXIDelObj,
                      arrayNewOwners, nNewOwners);
-  ExecLocalXIDelObj(arrayXIDelObj,  nXIDelObj,
+  ExecLocalXIDelObj(context,
+                    arrayXIDelObj,  ctx.nXIDelObj,
                     arrayNewOwners, nNewOwners);
 
 
@@ -639,7 +613,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   {
     if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_OBSOLETE)
     {
-      int all = nXIDelObj+
+      int all = ctx.nXIDelObj+
                 XISetPrioSet_GetNItems(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio))+
                 XICopyObjSet_GetNItems(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj));
 
@@ -709,7 +683,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   XferUnpack(context, recvMsgs, nRecvMsgs,
              localCplObjs.data(), nCpls,
              arrayXISetPrio,
-             arrayXIDelObj, nXIDelObj,
+             arrayXIDelObj, ctx.nXIDelObj,
              arrayXICopyObj,
              arrayNewOwners, nNewOwners);
   LC_Cleanup(context);
@@ -724,14 +698,14 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   /* create sorted array of XIDelCpl-, XIModCpl- and XIAddCpl-items.
      TODO. if efficiency is a problem here, use b-tree or similar
            data structure to improve performance. */
-  arrayXIDelCpl = SortedArrayXIDelCpl(sort_XIDelCpl);
-  arrayXIModCpl = SortedArrayXIModCpl(sort_XIModCpl);
-  arrayXIAddCpl = SortedArrayXIAddCpl(sort_XIAddCpl);
+  arrayXIDelCpl = SortedArrayXIDelCpl(context, sort_XIDelCpl);
+  arrayXIModCpl = SortedArrayXIModCpl(context, sort_XIModCpl);
+  arrayXIAddCpl = SortedArrayXIAddCpl(context, sort_XIAddCpl);
 
 
   /* some XIDelCpls have been invalidated by UpdateCoupling(),
      decrease list size to avoid sending them */
-  remXIDelCpl = nXIDelCpl;
+  remXIDelCpl = ctx.nXIDelCpl;
   while (remXIDelCpl>0 && arrayXIDelCpl[remXIDelCpl-1]->to == procs)
     remXIDelCpl--;
 
@@ -751,7 +725,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   CommunicateCplMsgs(context,
                      arrayXIDelCpl, remXIDelCpl,
                      arrayXIModCpl, remXIModCpl,
-                     arrayXIAddCpl, nXIAddCpl,
+                     arrayXIAddCpl, ctx.nXIAddCpl,
                      localCplObjs.data(), nCpls);
   STAT_TIMER(T_XFER_CPLMSG);
 
@@ -770,25 +744,25 @@ exit:
   XISetPrioSet_Reset(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));
 
   if (arrayXIDelCmd!=NULL) OO_Free (arrayXIDelCmd /*,0*/);
-  FreeAllXIDelCmd();
+  FreeAllXIDelCmd(context);
 
   if (arrayXIDelObj!=NULL) OO_Free (arrayXIDelObj /*,0*/);
-  FreeAllXIDelObj();
+  FreeAllXIDelObj(context);
 
   if (arrayXINewCpl!=NULL) OO_Free (arrayXINewCpl /*,0*/);
-  FreeAllXINewCpl();
+  FreeAllXINewCpl(context);
 
   if (arrayXIOldCpl!=NULL) OO_Free (arrayXIOldCpl /*,0*/);
-  FreeAllXIOldCpl();
+  FreeAllXIOldCpl(context);
 
   if (arrayXIDelCpl!=NULL) OO_Free (arrayXIDelCpl /*,0*/);
-  FreeAllXIDelCpl();
+  FreeAllXIDelCpl(context);
 
   if (arrayXIModCpl!=NULL) OO_Free (arrayXIModCpl /*,0*/);
-  FreeAllXIModCpl();
+  FreeAllXIModCpl(context);
 
   if (arrayXIAddCpl!=NULL) OO_Free (arrayXIAddCpl /*,0*/);
-  FreeAllXIAddCpl();
+  FreeAllXIAddCpl(context);
 
   for(; sendMsgs!=NULL; sendMsgs=sm)
   {
@@ -1277,7 +1251,7 @@ bool DDD_XferWithAddData(const DDD::DDDContext& context)
 void DDD_XferDeleteObj (DDD::DDDContext& context, DDD_HDR hdr)
 {
   TYPE_DESC *desc =  &context.typeDefs()[OBJ_TYPE(hdr)];
-  XIDelCmd  *dc = NewXIDelCmd(SLLNewArgs);
+  XIDelCmd  *dc = NewXIDelCmd(context);
 
   if (dc==NULL)
     HARD_EXIT;

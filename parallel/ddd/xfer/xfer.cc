@@ -141,7 +141,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
       /* inform other owners of local copies (XINewCpl) */
       for(cpl=xicpl; cpl!=NULL; cpl=CPL_NEXT(cpl))
       {
-        XINewCpl *xc = NewXINewCpl(SLLNewArgs);
+        XINewCpl *xc = NewXINewCpl(context);
         if (xc==NULL)
           throw std::bad_alloc();
 
@@ -158,7 +158,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
                with same gid (from different senders)  */
       for(cpl=xicpl; cpl!=NULL; cpl=CPL_NEXT(cpl))
       {
-        XIOldCpl *xc = NewXIOldCpl(SLLNewArgs);
+        XIOldCpl *xc = NewXIOldCpl(context);
         if (xc==NULL)
           throw std::bad_alloc();
 
@@ -170,7 +170,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
 
       /* send one coupling (XIOldCpl) for local copy */
       {
-        XIOldCpl *xc = NewXIOldCpl(SLLNewArgs);
+        XIOldCpl *xc = NewXIOldCpl(context);
         if (xc==NULL)
           throw std::bad_alloc();
 
@@ -235,7 +235,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
         /* inform other new-owners of same obj (also XINewCpl!)    */
         /* tell no1-dest that no2-dest gets a copy with no2->prio  */
         {
-          XINewCpl *xc = NewXINewCpl(SLLNewArgs);
+          XINewCpl *xc = NewXINewCpl(context);
           if (xc==NULL)
             throw std::bad_alloc();
 
@@ -247,7 +247,7 @@ XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICo
         }
         /* tell no2->dest that no1-dest gets a copy with no1->prio */
         {
-          XINewCpl *xc = NewXINewCpl(SLLNewArgs);
+          XINewCpl *xc = NewXINewCpl(context);
           if (xc==NULL)
             throw std::bad_alloc();
 
@@ -640,7 +640,7 @@ void ExecLocalXISetPrio (
       /* 1. for all existing couplings */
       for(cpl=ObjCplList(context, hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
       {
-        XIModCpl *xc = NewXIModCpl(SLLNewArgs);
+        XIModCpl *xc = NewXIModCpl(context);
         if (xc==NULL)
           throw std::bad_alloc();
 
@@ -652,7 +652,7 @@ void ExecLocalXISetPrio (
       /* 2. for all CopyObj-items with new-owner destinations */
       while (iNO<nNO && itemsNO[iNO]->gid==gid)
       {
-        XIModCpl *xc = NewXIModCpl(SLLNewArgs);
+        XIModCpl *xc = NewXIModCpl(context);
         if (xc==NULL)
           throw std::bad_alloc();
 
@@ -697,7 +697,7 @@ void ExecLocalXIDelCmd (DDD::DDDContext& context, XIDelCmd  **itemsD, int nD)
 
   /* copy pointer array and resort it */
   memcpy(origD, itemsD, sizeof(XIDelCmd *) * nD);
-  OrigOrderXIDelCmd(origD, nD);
+  OrigOrderXIDelCmd(context, origD, nD);
 
 
   /* loop in original order (order of Del-cmd issueing) */
@@ -733,6 +733,7 @@ void ExecLocalXIDelCmd (DDD::DDDContext& context, XIDelCmd  **itemsD, int nD)
 
 
 void ExecLocalXIDelObj (
+  DDD::DDDContext& context,
   XIDelObj  **itemsD, int nD,
   XICopyObj  **itemsNO, int nNO)
 {
@@ -757,7 +758,7 @@ void ExecLocalXIDelObj (
     /* 2. for all CopyObj-items with new-owner destinations */
     while (iNO<nNO && itemsNO[iNO]->gid==gid)
     {
-      XIDelCpl *xc = NewXIDelCpl(SLLNewArgs);
+      XIDelCpl *xc = NewXIDelCpl(context);
       if (xc==NULL)
         throw std::bad_alloc();
 
@@ -787,6 +788,7 @@ void ExecLocalXIDelObj (
         sent by other procs during first message phase.
  */
 void PropagateCplInfos (
+  DDD::DDDContext& context,
   XISetPrio **itemsP, int nP,
   XIDelObj  **itemsD, int nD,
   TENewCpl  *arrayNC, int nNC)
@@ -814,7 +816,7 @@ void PropagateCplInfos (
       /* generate additional XIModCpl-items for all valid NewCpl-items */
       while (iNC<nNC && NewCpl_GetGid(arrayNC[iNC])==gid)
       {
-        XIModCpl *xc = NewXIModCpl(SLLNewArgs);
+        XIModCpl *xc = NewXIModCpl(context);
         if (xc==NULL)
           throw std::bad_alloc();
 
@@ -845,7 +847,7 @@ void PropagateCplInfos (
     /* generate additional XIDelCpl-items for all valid NewCpl-items */
     while (iNC<nNC && NewCpl_GetGid(arrayNC[iNC])==gid)
     {
-      XIDelCpl *xc = NewXIDelCpl(SLLNewArgs);
+      XIDelCpl *xc = NewXIDelCpl(context);
       if (xc==NULL)
         throw std::bad_alloc();
 
@@ -877,7 +879,7 @@ void ddd_XferRegisterDelete (DDD::DDDContext& context, DDD_HDR hdr)
   XIDelObj *xi;
 
   /* create new XIDelObj */
-  xi      = NewXIDelObj(SLLNewArgs);
+  xi      = NewXIDelObj(context);
   if (xi==NULL)
     throw std::bad_alloc();
 
@@ -894,7 +896,7 @@ void ddd_XferRegisterDelete (DDD::DDDContext& context, DDD_HDR hdr)
    */
   for(cpl=ObjCplList(context, hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
   {
-    XIDelCpl *xc = NewXIDelCpl(SLLNewArgs);
+    XIDelCpl *xc = NewXIDelCpl(context);
     if (xc==NULL)
       throw std::bad_alloc();
 
@@ -1000,15 +1002,15 @@ void ddd_XferInit(DDD::DDDContext& context)
   reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj)->tree->context = &context;
   ctx.setXISetPrio = reinterpret_cast<DDD::Xfer::XISetPrioSet*>(New_XISetPrioSet());
   reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio)->tree->context = &context;
-  InitXIDelCmd();
-  InitXIDelObj();
-  InitXINewCpl();
-  InitXIOldCpl();
+  InitXIDelCmd(context);
+  InitXIDelObj(context);
+  InitXINewCpl(context);
+  InitXIOldCpl(context);
 
   /* init control structures for XferInfo-items for second (?) message */
-  InitXIDelCpl();
-  InitXIModCpl();
-  InitXIAddCpl();
+  InitXIDelCpl(context);
+  InitXIModCpl(context);
+  InitXIAddCpl(context);
 
 
   XferSetMode(context, XferMode::XMODE_IDLE);

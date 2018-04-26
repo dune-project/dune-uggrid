@@ -180,6 +180,16 @@ struct XferContext
 
   AddDataSegm* segmAddData = nullptr;
   SizesSegm* segmSizes = nullptr;
+
+#define SLL_MEMBERS(T) Segm##T* segms##T; T* list##T; int n##T;
+  SLL_MEMBERS(XIDelCmd)
+  SLL_MEMBERS(XIDelObj)
+  SLL_MEMBERS(XINewCpl)
+  SLL_MEMBERS(XIOldCpl)
+  SLL_MEMBERS(XIAddCpl)
+  SLL_MEMBERS(XIDelCpl)
+  SLL_MEMBERS(XIModCpl)
+#undef SLL_MEMBERS
 };
 
 } /* namespace Xfer */

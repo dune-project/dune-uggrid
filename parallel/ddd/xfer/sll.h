@@ -47,38 +47,12 @@
 /****************************************************************************/
 
 
-#ifdef SLL_DebugNew
-
-#define SLLNewArgProtos     char * file, int line
-#define SLLNewArgs          __FILE__, __LINE__
-
-#define SLL_NAMELEN    30
-
-#define SLL_INFO(T)   \
-  T *sll_next;                            /* linked list          */  \
-  char sll_file[SLL_NAMELEN];             /* filename of New-call */  \
-  int sll_line                            /* lineno of New-call   */
-
-#define SLL_INFO_WITH_COUNTER(T)   \
-  int sll_n;                              /* unique index number  */  \
-  T* sll_next;                            /* linked list          */  \
-  char sll_file[SLL_NAMELEN];             /* filename of New-call */  \
-  int sll_line                            /* lineno of New-call   */
-
-#else
-
-#define SLLNewArgProtos     void  /* none */
-#define SLLNewArgs                /* none */
-
-
 #define SLL_INFO(T)   \
   T* sll_next                   /* linked list         */
 
 #define SLL_INFO_WITH_COUNTER(T)   \
   int sll_n;                    /* unique index number */  \
   T* sll_next                   /* linked list         */
-
-#endif
 
 
 /****************************************************************************/
