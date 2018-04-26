@@ -1012,9 +1012,6 @@ int XferStepMode (enum XferMode old)
 
 void ddd_XferInit(DDD::DDDContext& context)
 {
-  /* switch off heap usage, will be switched on during XferBegin/End */
-  xferGlobals.useHeap = false;
-
   /* set kind of TMEM alloc/free requests */
   xfer_SetTmpMem(TMEM_ANY);
 
