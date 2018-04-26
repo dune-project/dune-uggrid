@@ -806,12 +806,6 @@ exit:
     OO_Free (sendMsgs /*,0*/);
   }
 
-        #ifdef XferMemFromHeap
-  xferGlobals.useHeap = false;
-  ReleaseHeap(xferGlobals.theMarkKey);
-  LC_SetMemMgrDefault(context);
-        #endif
-
 #       if DebugXfer<=4
   Dune::dverb << "XferEnd, before IFAllFromScratch().\n";
 #       endif
@@ -1332,13 +1326,6 @@ void DDD_XferBegin(DDD::DDDContext& context)
 
   /* set kind of TMEM alloc/free requests */
   xfer_SetTmpMem(TMEM_XFER);
-
-        #ifdef XferMemFromHeap
-  MarkHeap(&xferGlobals.theMarkKey);
-  xferGlobals.useHeap = true;
-  LC_SetMemMgrRecv(context, xfer_AllocHeap, NULL);
-  LC_SetMemMgrSend(context, xfer_AllocSend, xfer_FreeSend);
-        #endif
 }
 
 
