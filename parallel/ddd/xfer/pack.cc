@@ -551,44 +551,6 @@ RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
   Dune::dverb << "XferPackMsgs" << std::endl;
 #endif
 
-  /* sort messages according to decreasing size. i.e., send
-     biggest message first. LowComm will use this to handle
-     situations with little memory ressources. */
-  {
-    int i, n;
-    XFERMSG **xm_array;
-
-    /* count number of messages */
-    for(n=0, xm=theMsgs; xm!=NULL; xm=xm->next) n++;
-
-    if (n>0)
-    {
-      /* alloc array of pointers to messages */
-      xm_array = (XFERMSG **) OO_Allocate (sizeof(XFERMSG *) * n);
-      if (xm_array!=NULL)
-      {
-        for(i=0, xm=theMsgs; i<n; xm=xm->next, i++) xm_array[i] = xm;
-
-        /* sort array and relink list */
-        std::sort(xm_array, xm_array + n, sort_MsgSize);
-        theMsgs = xm_array[0];
-        for(i=0; i<n-1; i++) xm_array[i]->next = xm_array[i+1];
-        if (n>1) xm_array[n-1]->next = NULL;
-
-        /* free array */
-        OO_Free (xm_array /*,0*/);
-      }
-      /* else
-         {
-              resorting msg-list is not possible due to memory shortage.
-              simply don't do it.
-         }
-       */
-    }
-  }
-
-
-
   /* allocate buffer, pack messages and send away */
   for(xm=theMsgs; xm!=NULL; xm=xm->next)
   {
