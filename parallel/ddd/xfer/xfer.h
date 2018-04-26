@@ -572,8 +572,9 @@ int  PrepareObjMsgs(DDD::DDDContext& context,
                     XIOldCpl **, int, XFERMSG **, size_t *);
 void ExecLocalXIDelCmd(DDD::DDDContext& context, XIDelCmd  **, int);
 void ExecLocalXISetPrio(DDD::DDDContext& context, const std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
-void ExecLocalXIDelObj(XIDelObj  **, int, XICopyObj **,int);
-void PropagateCplInfos(XISetPrio **, int, XIDelObj  **, int,
+void ExecLocalXIDelObj(DDD::DDDContext& context, XIDelObj  **, int, XICopyObj **,int);
+void PropagateCplInfos(DDD::DDDContext& context,
+                       XISetPrio **, int, XIDelObj  **, int,
                        TENewCpl *, int);
 enum XferMode XferMode (const DDD::DDDContext& context);
 int XferStepMode(DDD::DDDContext& context, enum XferMode);
