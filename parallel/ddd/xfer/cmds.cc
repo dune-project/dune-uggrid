@@ -297,8 +297,10 @@ void GetSizesXIAddData (int *, int *, size_t *, size_t *);
 /*
         compute and display memory resources used
  */
-static void DisplayMemResources (void)
+static void DisplayMemResources(const DDD::DDDContext& context)
 {
+  const auto& ctx = context.xferContext();
+
   int nSegms=0, nItems=0, nNodes=0;
   size_t memAllocated=0, memUsed=0;
 
@@ -308,7 +310,7 @@ static void DisplayMemResources (void)
            me, nSegms, nItems, (long)memAllocated, (long)memUsed);
 
 
-  XICopyObjSet_GetResources(xferGlobals.setXICopyObj,
+  XICopyObjSet_GetResources(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj),
                             &nSegms, &nItems, &nNodes, &memAllocated, &memUsed);
   if (nSegms>0) {
     printf("%4d: XferEnd, XICopyObj "
@@ -319,13 +321,13 @@ static void DisplayMemResources (void)
 
         #ifdef XICOPYOBJ_DETAILED_RESOURCES
   /* this is a different version, split up into BTree and SegmList */
-  XICopyObjSegmList_GetResources(xferGlobals.setXICopyObj->list,
+  XICopyObjSegmList_GetResources(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj)->list,
                                  &nSegms, &nItems, &memAllocated, &memUsed);
   if (nSegms>0)
     printf("%4d: XferEnd, XICopyObj segms=%d items=%d allocated=%ld used=%ld\n",
            me, nSegms, nItems, (long)memAllocated, (long)memUsed);
 
-  XICopyObjBTree_GetResources(xferGlobals.setXICopyObj->tree,
+  XICopyObjBTree_GetResources(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj)->tree,
                               &nNodes, &nItems, &memAllocated, &memUsed);
   if (nItems>0)
     printf("%4d: XferEnd, XICopyObj nodes=%d items=%d allocated=%ld used=%ld\n",
@@ -333,7 +335,7 @@ static void DisplayMemResources (void)
         #endif
 
 
-  XISetPrioSet_GetResources(xferGlobals.setXISetPrio,
+  XISetPrioSet_GetResources(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio),
                             &nSegms, &nItems, &nNodes, &memAllocated, &memUsed);
   if (nSegms>0) {
     printf("%4d: XferEnd, XISetPrio "
@@ -402,6 +404,8 @@ static void DisplayMemResources (void)
 
 DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 {
+  auto& ctx = context.xferContext();
+
   DDD_RET ret_code              = DDD_RET_OK;
   XICopyObj   **arrayNewOwners      = NULL;
   int nNewOwners;
@@ -430,7 +434,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   const auto& nCpls = context.couplingContext().nCpls;
 
   /* step mode and check whether call to XferEnd is valid */
-  if (!XferStepMode(XMODE_CMDS))
+  if (!XferStepMode(context, XferMode::XMODE_CMDS))
     DUNE_THROW(Dune::Exception, "DDD_XferEnd() aborted");
 
 
@@ -439,14 +443,14 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
    */
   STAT_RESET;
   /* get sorted array of XICopyObj-items */
-  std::vector<XICopyObj*> arrayXICopyObj = XICopyObjSet_GetArray(xferGlobals.setXICopyObj);
-  obsolete = XICopyObjSet_GetNDiscarded(xferGlobals.setXICopyObj);
+  std::vector<XICopyObj*> arrayXICopyObj = XICopyObjSet_GetArray(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj));
+  obsolete = XICopyObjSet_GetNDiscarded(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj));
 
   /* debugging output, write all XICopyObjs to file
-     if (XICopyObjSet_GetNItems(xferGlobals.setXICopyObj)>0)
+     if (XICopyObjSet_GetNItems(ctx.setXICopyObj)>0)
      {
           FILE *ff = fopen("xfer.dump","w");
-          XICopyObjSet_Print(xferGlobals.setXICopyObj, 2, ff);
+          XICopyObjSet_Print(ctx.setXICopyObj, 2, ff);
           fclose(ff);
      }
    */
@@ -544,11 +548,11 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
 
   /*
-     DisplayMemResources();
+     DisplayMemResources(context);
    */
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(context, xferGlobals.objmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.objmsg_t);
   STAT_TIMER(T_XFER_PREP_MSGS);
   if (nRecvMsgs<0)
   {
@@ -600,8 +604,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
   /* create sorted array of XISetPrio-items, and unify it */
   STAT_RESET;
-  arrayXISetPrio = XISetPrioSet_GetArray(xferGlobals.setXISetPrio);
-  obsolete += XISetPrioSet_GetNDiscarded(xferGlobals.setXISetPrio);
+  arrayXISetPrio = XISetPrioSet_GetArray(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));
+  obsolete += XISetPrioSet_GetNDiscarded(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));
 
 
   if (!DelCmds_were_pruned)
@@ -650,8 +654,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_OBSOLETE)
     {
       int all = nXIDelObj+
-                XISetPrioSet_GetNItems(xferGlobals.setXISetPrio)+
-                XICopyObjSet_GetNItems(xferGlobals.setXICopyObj);
+                XISetPrioSet_GetNItems(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio))+
+                XICopyObjSet_GetNItems(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj));
 
       using std::setw;
       Dune::dwarn
@@ -772,12 +776,12 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 exit:
 
   /* free temporary storage */
-  XICopyObjSet_Reset(xferGlobals.setXICopyObj);
+  XICopyObjSet_Reset(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj));
 
   if (arrayNewOwners!=NULL) OO_Free (arrayNewOwners /*,0*/);
   FreeAllXIAddData();
 
-  XISetPrioSet_Reset(xferGlobals.setXISetPrio);
+  XISetPrioSet_Reset(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));
 
   if (arrayXIDelCmd!=NULL) OO_Free (arrayXIDelCmd /*,0*/);
   FreeAllXIDelCmd();
@@ -818,7 +822,7 @@ exit:
     STAT_TIMER(T_XFER_BUILD_IF);
   }
 
-  XferStepMode(XMODE_BUSY);
+  XferStepMode(context, XferMode::XMODE_BUSY);
   return(ret_code);
 }
 
@@ -859,14 +863,16 @@ exit:
    @param prio new priority of that local object.
  */
 
-void DDD_XferPrioChange (DDD_HDR hdr, DDD_PRIO prio)
+void DDD_XferPrioChange (DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 {
-  XISetPrio *xi = XISetPrioSet_NewItem(xferGlobals.setXISetPrio);
+  auto& ctx = context.xferContext();
+
+  XISetPrio *xi = XISetPrioSet_NewItem(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));
   xi->hdr  = hdr;
   xi->gid  = OBJ_GID(hdr);
   xi->prio = prio;
 
-  if (! XISetPrioSet_ItemOK(xferGlobals.setXISetPrio))
+  if (! XISetPrioSet_ItemOK(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio)))
     return;
 
 #       if DebugXfer<=2
@@ -883,6 +889,8 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
                               DDD_PROC dest,
                               DDD_PRIO prio)
 {
+  auto& ctx = context.xferContext();
+
   if (!ddd_XferActive(context))
     DUNE_THROW(Dune::Exception, "Missing DDD_XferBegin()");
 
@@ -899,12 +907,12 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
   if (dest==me)
   {
     /* XFER-C4: XferCopyObj degrades to SetPrio command */
-    XISetPrio *xi = XISetPrioSet_NewItem(xferGlobals.setXISetPrio);
+    XISetPrio *xi = XISetPrioSet_NewItem(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));
     xi->hdr  = hdr;
     xi->gid  = OBJ_GID(hdr);
     xi->prio = prio;
 
-    if (! XISetPrioSet_ItemOK(xferGlobals.setXISetPrio))
+    if (! XISetPrioSet_ItemOK(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio)))
     {
       /* item has been inserted already, don't store it twice. */
       /* even don't call XFERCOPY-handler, this is a real API change! */
@@ -941,13 +949,13 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
   else
   {
     /* this is a real transfer to remote proc */
-    XICopyObj  *xi = XICopyObjSet_NewItem(xferGlobals.setXICopyObj);
+    XICopyObj  *xi = XICopyObjSet_NewItem(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj));
     xi->hdr  = hdr;
     xi->gid  = OBJ_GID(hdr);
     xi->dest = dest;
     xi->prio = prio;
 
-    if (! XICopyObjSet_ItemOK(xferGlobals.setXICopyObj))
+    if (! XICopyObjSet_ItemOK(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj)))
     {
       /* item has been inserted already, don't store it twice. */
       /* even don't call XFERCOPY-handler, this is a real API change! */
@@ -1320,7 +1328,7 @@ void DDD_XferBegin(DDD::DDDContext& context)
 
 
   /* step mode and check whether call to XferBegin is valid */
-  if (!XferStepMode(XMODE_IDLE))
+  if (!XferStepMode(context, XferMode::XMODE_IDLE))
     DUNE_THROW(Dune::Exception, "DDD_XferBegin() aborted");
 
 
@@ -1351,9 +1359,9 @@ void DDD_XferBegin(DDD::DDDContext& context)
  */
 
 
-int DDD_XferIsPrunedDelete (DDD_HDR hdr)
+int DDD_XferIsPrunedDelete(const DDD::DDDContext& context, DDD_HDR hdr)
 {
-  if (XferMode() != XMODE_BUSY)
+  if (XferMode(context) != XferMode::XMODE_BUSY)
   {
     return(XFER_PRUNED_ERROR);
   }
@@ -1393,7 +1401,7 @@ int DDD_XferIsPrunedDelete (DDD_HDR hdr)
 
 int DDD_XferObjIsResent(const DDD::DDDContext& context, DDD_HDR hdr)
 {
-  if (XferMode() != XMODE_BUSY)
+  if (XferMode(context) != XferMode::XMODE_BUSY)
   {
     return(XFER_RESENT_ERROR);
   }

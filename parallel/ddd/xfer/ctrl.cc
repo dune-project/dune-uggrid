@@ -70,14 +70,14 @@ static void XferPtr (DDD::DDDContext& context, LC_MSGHANDLE xm, const std::strin
   OBJTAB_ENTRY *theObjTab;
   char         *theObjects;
   int i;
-  int lenSymTab = (int) LC_GetTableLen(xm, xferGlobals.symtab_id);
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenSymTab = (int) LC_GetTableLen(xm, ctx.symtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
 
 
   /* get table addresses inside message buffer */
-  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.symtab_id);
-  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
-  theObjects = (char *)        LC_GetPtr(xm, xferGlobals.objmem_id);
+  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, ctx.symtab_id);
+  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
+  theObjects = (char *)        LC_GetPtr(xm, ctx.objmem_id);
 
 
   /* build symbol table */
@@ -130,16 +130,17 @@ void XferDisplayMsg (DDD::DDDContext& context, const char *comment, LC_MSGHANDLE
   using std::setw;
 
   std::ostream& out = std::cout;
+  auto& ctx = context.xferContext();
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
   TENewCpl     *theNewCpl;
   TEOldCpl     *theOldCpl;
   char         *theObjects;
   int i, proc = LC_MsgGetProc(xm);
-  int lenSymTab = (int) LC_GetTableLen(xm, xferGlobals.symtab_id);
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
-  int lenNewCpl = (int) LC_GetTableLen(xm, xferGlobals.newcpl_id);
-  int lenOldCpl = (int) LC_GetTableLen(xm, xferGlobals.oldcpl_id);
+  int lenSymTab = (int) LC_GetTableLen(xm, ctx.symtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
+  int lenNewCpl = (int) LC_GetTableLen(xm, ctx.newcpl_id);
+  int lenOldCpl = (int) LC_GetTableLen(xm, ctx.oldcpl_id);
 
   std::ostringstream prefixStream;
   prefixStream << " " << setw(3) << me << "-" << comment
@@ -147,11 +148,11 @@ void XferDisplayMsg (DDD::DDDContext& context, const char *comment, LC_MSGHANDLE
   const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */
-  theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(xm, xferGlobals.symtab_id);
-  theObjTab = (OBJTAB_ENTRY *)LC_GetPtr(xm, xferGlobals.objtab_id);
-  theNewCpl = (TENewCpl *)    LC_GetPtr(xm, xferGlobals.newcpl_id);
-  theOldCpl = (TEOldCpl *)    LC_GetPtr(xm, xferGlobals.oldcpl_id);
-  theObjects= (char *)LC_GetPtr(xm, xferGlobals.objmem_id);
+  theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(xm, ctx.symtab_id);
+  theObjTab = (OBJTAB_ENTRY *)LC_GetPtr(xm, ctx.objtab_id);
+  theNewCpl = (TENewCpl *)    LC_GetPtr(xm, ctx.newcpl_id);
+  theOldCpl = (TEOldCpl *)    LC_GetPtr(xm, ctx.oldcpl_id);
+  theObjects= (char *)LC_GetPtr(xm, ctx.objmem_id);
 
 
   /* because of LC layer, this data can't be accessed anymore. KB 960718

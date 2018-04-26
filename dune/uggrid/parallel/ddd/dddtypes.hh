@@ -117,6 +117,15 @@ enum class PrioMode : unsigned char;
 
 } /* namespace Prio */
 
+namespace Xfer {
+
+enum class XferMode : unsigned char;
+
+struct XICopyObjSet;
+struct XISetPrioSet;
+
+} /* namespace Xfer */
+
 } /* namespace DDD */
 
 #endif

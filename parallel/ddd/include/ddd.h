@@ -368,14 +368,14 @@ void     DDD_IFAExecLocalX(DDD::DDDContext& context, DDD_IF,DDD_ATTR,           
 bool     DDD_XferWithAddData();
 void     DDD_XferAddData(DDD::DDDContext& context, int, DDD_TYPE);
 void     DDD_XferAddDataX(DDD::DDDContext& context, int, DDD_TYPE, size_t sizes[]);
-int      DDD_XferIsPrunedDelete (DDD_HDR);
+int      DDD_XferIsPrunedDelete(const DDD::DDDContext& context, DDD_HDR);
 int      DDD_XferObjIsResent(const DDD::DDDContext& context, DDD_HDR);
 void     DDD_XferBegin(DDD::DDDContext& context);
 DDD_RET  DDD_XferEnd(DDD::DDDContext& context);
 void     DDD_XferCopyObj (DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
 void     DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO, size_t);
 void     DDD_XferDeleteObj (DDD::DDDContext& context, DDD_HDR);
-void     DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
+void     DDD_XferPrioChange(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 
 
 /*
