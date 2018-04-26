@@ -60,20 +60,6 @@ using namespace PPIF;
 /****************************************************************************/
 
 
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-XICopyObj *theXIAddData;
-
-
 /****************************************************************************/
 /*                                                                          */
 /* definition of variables global to this source file only (static!)        */
@@ -291,7 +277,7 @@ static int unify_XIModCpl (const DDD::DDDContext& context, XIModCpl **i1p, XIMod
 
 
 /* TODO remove this */
-void GetSizesXIAddData (int *, int *, size_t *, size_t *);
+void GetSizesXIAddData (const DDD::DDDContext& context, int *, int *, size_t *, size_t *);
 
 
 /*
@@ -304,7 +290,7 @@ static void DisplayMemResources(const DDD::DDDContext& context)
   int nSegms=0, nItems=0, nNodes=0;
   size_t memAllocated=0, memUsed=0;
 
-  GetSizesXIAddData(&nSegms, &nItems, &memAllocated, &memUsed);
+  GetSizesXIAddData(context, &nSegms, &nItems, &memAllocated, &memUsed);
   if (nSegms>0)
     printf("%4d: XferEnd, XIAddData segms=%d items=%d allocated=%ld used=%ld\n",
            me, nSegms, nItems, (long)memAllocated, (long)memUsed);
@@ -779,7 +765,7 @@ exit:
   XICopyObjSet_Reset(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj));
 
   if (arrayNewOwners!=NULL) OO_Free (arrayNewOwners /*,0*/);
-  FreeAllXIAddData();
+  FreeAllXIAddData(context);
 
   XISetPrioSet_Reset(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));
 
@@ -933,7 +919,7 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
     /* although XferCopyObj degrades to SetPrio, call XFERCOPY-handler! */
 
     /* reset for eventual AddData-calls during handler execution */
-    theXIAddData = NULL;
+    ctx.theXIAddData = nullptr;
 
     /* call application handler for xfer of dependent objects */
     if (desc->handlerXFERCOPY)
@@ -944,7 +930,7 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
     }
 
     /* theXIAddData might be changed during handler execution */
-    theXIAddData = NULL;
+    ctx.theXIAddData = nullptr;
   }
   else
   {
@@ -977,7 +963,7 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
     xi->addLen = 0;
 
     /* set XferAddInfo for evtl AddData-calls during handler execution */
-    theXIAddData = xi;
+    ctx.theXIAddData = xi;
 
     /* call application handler for xfer of dependent objects */
     if (desc->handlerXFERCOPY)
@@ -988,7 +974,7 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
     }
 
     /* theXIAddData might be changed during handler execution */
-    theXIAddData = xi;
+    ctx.theXIAddData = xi;
   }
 }
 
@@ -1142,15 +1128,17 @@ void DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD
 
 void DDD_XferAddData (DDD::DDDContext& context, int cnt, DDD_TYPE typ)
 {
+  auto& ctx = context.xferContext();
   XFERADDDATA *xa;
 
 #       if DebugXfer<=2
   Dune::dvverb << "DDD_XferAddData cnt=" << cnt << " typ=" << typ << "\n";
 #       endif
 
-  if (theXIAddData==NULL) return;
+  if (not ctx.theXIAddData)
+    return;
 
-  xa = NewXIAddData();
+  xa = NewXIAddData(context);
   if (xa==NULL)
     throw std::bad_alloc();
 
@@ -1174,7 +1162,7 @@ void DDD_XferAddData (DDD::DDDContext& context, int cnt, DDD_TYPE typ)
     xa->addNPointers = 0;
   }
 
-  theXIAddData->addLen += xa->addLen;
+  ctx.theXIAddData->addLen += xa->addLen;
 }
 
 
@@ -1192,6 +1180,7 @@ void DDD_XferAddData (DDD::DDDContext& context, int cnt, DDD_TYPE typ)
 
 void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *sizes)
 {
+  auto& ctx = context.xferContext();
   XFERADDDATA *xa;
   TYPE_DESC   *descDepTyp;
   int i;
@@ -1200,9 +1189,10 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
   Dune::dvverb << "DDD_XferAddData cnt=" << cnt << " typ=" << typ << "\n";
 #       endif
 
-  if (theXIAddData==NULL) return;
+  if (not ctx.theXIAddData)
+    return;
 
-  xa = NewXIAddData();
+  xa = NewXIAddData(context);
   if (xa==NULL)
     HARD_EXIT;
 
@@ -1212,7 +1202,7 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
   if (typ<DDD_USER_DATA || typ>DDD_USER_DATA_MAX)
   {
     /* copy sizes array */
-    xa->sizes = AddDataAllocSizes(cnt);
+    xa->sizes = AddDataAllocSizes(context, cnt);
     memcpy(xa->sizes, sizes, sizeof(int)*cnt);
 
     /* normal dependent object */
@@ -1233,7 +1223,7 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
     xa->addNPointers = 0;
   }
 
-  theXIAddData->addLen += xa->addLen;
+  ctx.theXIAddData->addLen += xa->addLen;
 }
 
 
@@ -1255,12 +1245,12 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
    @return #true# if additional data objects will be gathered, sent
                 and scattered; #false# otherwise.
  */
-bool DDD_XferWithAddData()
+bool DDD_XferWithAddData(const DDD::DDDContext& context)
 {
   /* if theXIAddData==NULL, the XferAddData-functions will
      do nothing -> the Gather/Scatter-handlers will not be
      called. */
-  return theXIAddData != nullptr;
+  return context.xferContext().theXIAddData != nullptr;
 }
 
 
@@ -1324,7 +1314,8 @@ void DDD_XferDeleteObj (DDD::DDDContext& context, DDD_HDR hdr)
 
 void DDD_XferBegin(DDD::DDDContext& context)
 {
-  theXIAddData = NULL;
+  auto& ctx = context.xferContext();
+  ctx.theXIAddData = nullptr;
 
 
   /* step mode and check whether call to XferBegin is valid */

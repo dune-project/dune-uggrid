@@ -121,6 +121,10 @@ namespace Xfer {
 
 enum class XferMode : unsigned char;
 
+struct AddDataSegm;
+struct SizesSegm;
+
+struct XICopyObj;
 struct XICopyObjSet;
 struct XISetPrioSet;
 

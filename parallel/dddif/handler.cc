@@ -257,7 +257,7 @@ static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc,
 #endif
 
   if (flag) {
-    if (DDD_XferWithAddData()) {
+    if (DDD_XferWithAddData(context)) {
       for(mat=VSTART(pv); mat!=NULL; mat=MNEXT(mat)) {
         ASSERT(nmat<256);
         sizeArray[nmat++] = UG_MSIZE(mat);
@@ -1063,7 +1063,7 @@ static void NodeXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, 
   }
         #endif
 
-  if (DDD_XferWithAddData()) {
+  if (DDD_XferWithAddData(context)) {
     /* Extra data for Dune */
     DDD_XferAddData(context, sizeof(theNode->message_buffer_size()) + theNode->message_buffer_size(), DDD_USER_DATA);
   }
@@ -1304,7 +1304,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
     BElementXferBndS(context, bnds,nsides,proc,prio);
   }
 
-  if (DDD_XferWithAddData()) {
+  if (DDD_XferWithAddData(context)) {
     DDD_XferAddData(context, sizeof(pe->message_buffer_size()) + pe->message_buffer_size(), DDD_USER_DATA);
 
     /* add edges of element */
