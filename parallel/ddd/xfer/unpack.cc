@@ -574,6 +574,7 @@ static void AcceptReceivedObjects (DDD::DDDContext& context,
           3. propagate hdr-pointer to all OBJTAB_ENTRYs with equal gid.
    */
 
+  auto& ctx = context.xferContext();
   int i;
 
   if (nRecObjs==0)
@@ -630,9 +631,9 @@ static void AcceptReceivedObjects (DDD::DDDContext& context,
 
     AcceptObjFromMsg(
       context,
-      (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id),
-      (int)    LC_GetTableLen(xm, xferGlobals.objtab_id),
-      (char *) LC_GetPtr(xm, xferGlobals.objmem_id),
+      (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id),
+      (int)    LC_GetTableLen(xm, ctx.objtab_id),
+      (char *) LC_GetPtr(xm, ctx.objmem_id),
       localCplObjs, nLocalCplObjs
       );
   }
@@ -1019,17 +1020,19 @@ static void PropagateIncomings (
 
 
 
-static void LocalizeSymTab (LC_MSGHANDLE xm,
+static void LocalizeSymTab (DDD::DDDContext& context, LC_MSGHANDLE xm,
                             OBJTAB_ENTRY **allRecObjs, int nRecObjs,
                             const DDD_HDR *localCplObjs, int nLocalCplObjs)
 {
+  auto& ctx = context.xferContext();
+
   SYMTAB_ENTRY *theSymTab;
   int i, j;
-  int lenSymTab = (int) LC_GetTableLen(xm, xferGlobals.symtab_id);
+  int lenSymTab = (int) LC_GetTableLen(xm, ctx.symtab_id);
 
 
   /* get table addresses inside message buffer */
-  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.symtab_id);
+  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, ctx.symtab_id);
 
 
   /* insert pointers to known objects into SymTab */
@@ -1074,17 +1077,18 @@ static void LocalizeSymTab (LC_MSGHANDLE xm,
 
 static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
+  auto& ctx = context.xferContext();
   const SYMTAB_ENTRY *theSymTab;
   const OBJTAB_ENTRY *theObjTab;
   const char         *theObjects;
   int i;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
 
 
   /* get table addresses inside message buffer */
-  theSymTab = (const SYMTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.symtab_id);
-  theObjTab = (const OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
-  theObjects = (const char *)        LC_GetPtr(xm, xferGlobals.objmem_id);
+  theSymTab = (const SYMTAB_ENTRY *) LC_GetPtr(xm, ctx.symtab_id);
+  theObjTab = (const OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
+  theObjects = (const char *)        LC_GetPtr(xm, ctx.objmem_id);
 
 
   for(i=0; i<lenObjTab; i++)               /* for all message items */
@@ -1138,12 +1142,13 @@ static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int requ
 
 static void CallUpdateHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 {
+  auto& ctx = context.xferContext();
   OBJTAB_ENTRY *theObjTab;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
   int i;
 
   /* get table addresses inside message buffer */
-  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
+  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
 
   /* initialize new objects corresponding to application: update */
   for(i=0; i<lenObjTab; i++)               /* for all message items */
@@ -1166,17 +1171,18 @@ static void CallUpdateHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 
 static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
+  auto& ctx = context.xferContext();
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
   char         *theObjects;
   int i;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
 
 
   /* get table addresses inside message buffer */
-  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.symtab_id);
-  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
-  theObjects = (char *)        LC_GetPtr(xm, xferGlobals.objmem_id);
+  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, ctx.symtab_id);
+  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
+  theObjects = (char *)        LC_GetPtr(xm, ctx.objmem_id);
 
 
   /* scatter additional data via handler */
@@ -1246,14 +1252,15 @@ static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, int requir
  */
 static void CallSetPriorityHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 {
+  auto& ctx = context.xferContext();
   OBJTAB_ENTRY *theObjTab;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
   int i;
   char         *theObjects;
 
   /* get table addresses inside message buffer */
-  theObjTab  = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
-  theObjects = (char *)         LC_GetPtr(xm, xferGlobals.objmem_id);
+  theObjTab  = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
+  theObjects = (char *)         LC_GetPtr(xm, ctx.objmem_id);
 
   for(i=0; i<lenObjTab; i++)               /* for all message items */
   {
@@ -1294,14 +1301,15 @@ static void CallSetPriorityHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 
 static void CallObjMkConsHandler (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
+  auto& ctx = context.xferContext();
   OBJTAB_ENTRY *theObjTab;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
   int i;
 
   /*STAT_RESET4;*/
 
   /* get table addresses inside message buffer */
-  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
+  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
 
 
   /* initialize new objects corresponding to application: consistency */
@@ -1466,6 +1474,8 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                  const std::vector<XICopyObj*>& arrayCO,
                  XICopyObj **arrayNewOwners, int nNewOwners)
 {
+  auto& ctx = context.xferContext();
+
   TENewCpl     *allNewCpl;
   OBJTAB_ENTRY **unionObjTab;
   int lenObjTab, lenSymTab, nNewCpl;
@@ -1480,9 +1490,9 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   for(i=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
-    lenObjTab += (int)LC_GetTableLen(xm, xferGlobals.objtab_id);
-    lenSymTab += (int)LC_GetTableLen(xm, xferGlobals.symtab_id);
-    nNewCpl += (int)LC_GetTableLen(xm, xferGlobals.newcpl_id);
+    lenObjTab += (int)LC_GetTableLen(xm, ctx.objtab_id);
+    lenSymTab += (int)LC_GetTableLen(xm, ctx.symtab_id);
+    nNewCpl += (int)LC_GetTableLen(xm, ctx.newcpl_id);
   }
 
 #       if DebugUnpack<=4
@@ -1522,21 +1532,21 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   for(i=0, pos1=pos2=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
-    char *theObjects = (char *) LC_GetPtr(xm, xferGlobals.objmem_id);
+    char *theObjects = (char *) LC_GetPtr(xm, ctx.objmem_id);
 
-    len = (int) LC_GetTableLen(xm, xferGlobals.newcpl_id);
+    len = (int) LC_GetTableLen(xm, ctx.newcpl_id);
     if (len>0)
     {
-      memcpy(allNewCpl+pos1, LC_GetPtr(xm,xferGlobals.newcpl_id),
+      memcpy(allNewCpl+pos1, LC_GetPtr(xm,ctx.newcpl_id),
              sizeof(TENewCpl)*len);
       pos1 += len;
     }
 
-    len = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+    len = (int) LC_GetTableLen(xm, ctx.objtab_id);
     if (len>0)
     {
       OBJTAB_ENTRY *msg_ot = (OBJTAB_ENTRY *)
-                             LC_GetPtr(xm,xferGlobals.objtab_id);
+                             LC_GetPtr(xm,ctx.objtab_id);
       OBJTAB_ENTRY **all_ot = unionObjTab+pos2;
       int oti;
       for(oti=0; oti<len; oti++, all_ot++, msg_ot++)
@@ -1595,7 +1605,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   /* insert local references into symtabs */
   for(i=0; i<nRecvMsgs; i++)
-    LocalizeSymTab(theMsgs[i], unionObjTab, lenObjTab,
+    LocalizeSymTab(context, theMsgs[i], unionObjTab, lenObjTab,
                    localCplObjs, nLocalCplObjs);
 
 
@@ -1662,10 +1672,10 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
     LC_MSGHANDLE xm = theMsgs[i];
     UnpackOldCplTab(
       context,
-      (TEOldCpl *)     LC_GetPtr(xm,xferGlobals.oldcpl_id),
-      (int)            LC_GetTableLen(xm, xferGlobals.oldcpl_id),
-      (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id),
-      (int)            LC_GetTableLen(xm, xferGlobals.objtab_id) );
+      (TEOldCpl *)     LC_GetPtr(xm,ctx.oldcpl_id),
+      (int)            LC_GetTableLen(xm, ctx.oldcpl_id),
+      (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id),
+      (int)            LC_GetTableLen(xm, ctx.objtab_id) );
   }
 
 

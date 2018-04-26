@@ -52,31 +52,6 @@ using namespace PPIF;
   START_UGDIM_NAMESPACE
 
 
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-XFER_GLOBALS xferGlobals;
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-
-
 /****************************************************************************/
 /*                                                                          */
 /* routines                                                                 */
@@ -506,6 +481,8 @@ int PrepareObjMsgs (DDD::DDDContext& context,
                     XIOldCpl **itemsOC, int nOC,
                     XFERMSG **theMsgs, size_t *memUsage)
 {
+  auto& ctx = context.xferContext();
+
   XFERMSG    *xm=NULL;
   int iO, iNC, iOC, nMsgs=0;
 
@@ -572,12 +549,12 @@ int PrepareObjMsgs (DDD::DDDContext& context,
   for(xm=*theMsgs; xm!=NULL; xm=xm->next)
   {
     size_t bufSize;
-    xm->msg_h = LC_NewSendMsg(context, xferGlobals.objmsg_t, xm->proc);
-    LC_SetTableSize(xm->msg_h, xferGlobals.symtab_id, xm->nPointers);
-    LC_SetTableSize(xm->msg_h, xferGlobals.objtab_id, xm->nObjects);
-    LC_SetTableSize(xm->msg_h, xferGlobals.newcpl_id, xm->nNewCpl);
-    LC_SetTableSize(xm->msg_h, xferGlobals.oldcpl_id, xm->nOldCpl);
-    LC_SetChunkSize(xm->msg_h, xferGlobals.objmem_id, xm->size);
+    xm->msg_h = LC_NewSendMsg(context, ctx.objmsg_t, xm->proc);
+    LC_SetTableSize(xm->msg_h, ctx.symtab_id, xm->nPointers);
+    LC_SetTableSize(xm->msg_h, ctx.objtab_id, xm->nObjects);
+    LC_SetTableSize(xm->msg_h, ctx.newcpl_id, xm->nNewCpl);
+    LC_SetTableSize(xm->msg_h, ctx.oldcpl_id, xm->nOldCpl);
+    LC_SetChunkSize(xm->msg_h, ctx.objmem_id, xm->size);
 
     bufSize = LC_MsgFreeze(xm->msg_h);
     *memUsage += bufSize;
@@ -949,20 +926,22 @@ const char *XferModeName (enum XferMode mode)
 {
   switch(mode)
   {
-  case XMODE_IDLE : return "idle-mode";
-  case XMODE_CMDS : return "commands-mode";
-  case XMODE_BUSY : return "busy-mode";
+  case XferMode::XMODE_IDLE : return "idle-mode";
+  case XferMode::XMODE_CMDS : return "commands-mode";
+  case XferMode::XMODE_BUSY : return "busy-mode";
   }
   return "unknown-mode";
 }
 
 
-static void XferSetMode (enum XferMode mode)
+static void XferSetMode(DDD::DDDContext& context, enum XferMode mode)
 {
-  xferGlobals.xferMode = mode;
+  auto& ctx = context.xferContext();
+
+  ctx.xferMode = mode;
 
 #       if DebugXfer<=8
-  Dune::dwarn << "XferMode=" << XferModeName(xferGlobals.xferMode) << "\n";
+  Dune::dwarn << "XferMode=" << XferModeName(ctx.xferMode) << "\n";
 #       endif
 }
 
@@ -971,38 +950,40 @@ static enum XferMode XferSuccMode (enum XferMode mode)
 {
   switch(mode)
   {
-  case XMODE_IDLE : return XMODE_CMDS;
-  case XMODE_CMDS : return XMODE_BUSY;
-  case XMODE_BUSY : return XMODE_IDLE;
+  case XferMode::XMODE_IDLE : return XferMode::XMODE_CMDS;
+  case XferMode::XMODE_CMDS : return XferMode::XMODE_BUSY;
+  case XferMode::XMODE_BUSY : return XferMode::XMODE_IDLE;
   }
-  return XMODE_IDLE;
+  DUNE_THROW(Dune::InvalidStateException, "invalid XferMode");
 }
 
 
 
-enum XferMode XferMode (void)
+enum XferMode XferMode (const DDD::DDDContext& context)
 {
-  return xferGlobals.xferMode;
+  return context.xferContext().xferMode;
 }
 
 
 int ddd_XferActive(const DDD::DDDContext& context)
 {
-  return xferGlobals.xferMode!=XMODE_IDLE;
+  return context.xferContext().xferMode != XferMode::XMODE_IDLE;
 }
 
 
-int XferStepMode (enum XferMode old)
+int XferStepMode (DDD::DDDContext& context, enum XferMode old)
 {
-  if (xferGlobals.xferMode!=old)
+  const auto& ctx = context.xferContext();
+
+  if (ctx.xferMode!=old)
   {
     Dune::dwarn
-      << "wrong xfer-mode (currently in " << XferModeName(xferGlobals.xferMode)
+      << "wrong xfer-mode (currently in " << XferModeName(ctx.xferMode)
       << ", expected " << XferModeName(old) << ")\n";
     return false;
   }
 
-  XferSetMode(XferSuccMode(xferGlobals.xferMode));
+  XferSetMode(context, XferSuccMode(ctx.xferMode));
   return true;
 }
 
@@ -1012,14 +993,16 @@ int XferStepMode (enum XferMode old)
 
 void ddd_XferInit(DDD::DDDContext& context)
 {
+  auto& ctx = context.xferContext();
+
   /* set kind of TMEM alloc/free requests */
   xfer_SetTmpMem(TMEM_ANY);
 
   /* init control structures for XferInfo-items in first (?) message */
-  xferGlobals.setXICopyObj = New_XICopyObjSet();
-  xferGlobals.setXICopyObj->tree->context = &context;
-  xferGlobals.setXISetPrio = New_XISetPrioSet();
-  xferGlobals.setXISetPrio->tree->context = &context;
+  ctx.setXICopyObj = reinterpret_cast<DDD::Xfer::XICopyObjSet*>(New_XICopyObjSet());
+  reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj)->tree->context = &context;
+  ctx.setXISetPrio = reinterpret_cast<DDD::Xfer::XISetPrioSet*>(New_XISetPrioSet());
+  reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio)->tree->context = &context;
   InitXIDelCmd();
   InitXIDelObj();
   InitXINewCpl();
@@ -1031,25 +1014,25 @@ void ddd_XferInit(DDD::DDDContext& context)
   InitXIAddCpl();
 
 
-  XferSetMode(XMODE_IDLE);
+  XferSetMode(context, XferMode::XMODE_IDLE);
 
-  xferGlobals.objmsg_t = LC_NewMsgType(context, "XferMsg");
-  xferGlobals.symtab_id = LC_NewMsgTable("SymTab",
-                                         xferGlobals.objmsg_t, sizeof(SYMTAB_ENTRY));
-  xferGlobals.objtab_id = LC_NewMsgTable("ObjTab",
-                                         xferGlobals.objmsg_t, sizeof(OBJTAB_ENTRY));
-  xferGlobals.newcpl_id = LC_NewMsgTable("NewCpl",
-                                         xferGlobals.objmsg_t, sizeof(TENewCpl));
-  xferGlobals.oldcpl_id = LC_NewMsgTable("OldCpl",
-                                         xferGlobals.objmsg_t, sizeof(TEOldCpl));
-  xferGlobals.objmem_id = LC_NewMsgChunk("ObjMem",
-                                         xferGlobals.objmsg_t);
+  ctx.objmsg_t = LC_NewMsgType(context, "XferMsg");
+  ctx.symtab_id = LC_NewMsgTable("SymTab",
+                                 ctx.objmsg_t, sizeof(SYMTAB_ENTRY));
+  ctx.objtab_id = LC_NewMsgTable("ObjTab",
+                                 ctx.objmsg_t, sizeof(OBJTAB_ENTRY));
+  ctx.newcpl_id = LC_NewMsgTable("NewCpl",
+                                 ctx.objmsg_t, sizeof(TENewCpl));
+  ctx.oldcpl_id = LC_NewMsgTable("OldCpl",
+                                 ctx.objmsg_t, sizeof(TEOldCpl));
+  ctx.objmem_id = LC_NewMsgChunk("ObjMem",
+                                 ctx.objmsg_t);
 
   /* not used anymore
-          xferGlobals.deltab_id =
-                  LC_NewMsgTable(xferGlobals.objmsg_t, sizeof(DELTAB_ENTRY));
-          xferGlobals.priotab_id =
-                  LC_NewMsgTable(xferGlobals.objmsg_t, sizeof(CPLTAB_ENTRY));
+          ctx.deltab_id =
+                  LC_NewMsgTable(ctx.objmsg_t, sizeof(DELTAB_ENTRY));
+          ctx.priotab_id =
+                  LC_NewMsgTable(ctx.objmsg_t, sizeof(CPLTAB_ENTRY));
    */
 
   CplMsgInit(context);
@@ -1059,14 +1042,16 @@ void ddd_XferInit(DDD::DDDContext& context)
 
 void ddd_XferExit(DDD::DDDContext& context)
 {
+  auto& ctx = context.xferContext();
+
   /* set kind of TMEM alloc/free requests */
   xfer_SetTmpMem(TMEM_ANY);
 
   CmdMsgExit(context);
   CplMsgExit(context);
 
-  XICopyObjSet_Free(xferGlobals.setXICopyObj);
-  XISetPrioSet_Free(xferGlobals.setXISetPrio);
+  XICopyObjSet_Free(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj));
+  XISetPrioSet_Free(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));
 }
 
 
