@@ -71,46 +71,11 @@ void xfer_SetTmpMem (int kind)
   TmpMem_kind = kind;
 }
 
-
-
-/* forward declaration */
-void *xfer_AllocHeap (size_t);
-void xfer_FreeHeap (void *);
-
 END_UGDIM_NAMESPACE
 
 #include "xfer.h"
 
 START_UGDIM_NAMESPACE
-
-#ifdef XferMemFromHeap
-void *xfer_AllocHeap (size_t size)
-{
-  void *buffer;
-
-  if (xferGlobals.useHeap)
-  {
-    buffer = AllocHeap(size, xferGlobals.theMarkKey);
-  }
-  else
-  {
-    buffer = AllocTmp(size);
-  }
-
-  return(buffer);
-}
-
-void xfer_FreeHeap (void *buffer)
-{
-  if (!xferGlobals.useHeap)
-  {
-    FreeTmp(buffer,0);
-  }
-  /* else: do nothing for heap-allocated memory */
-}
-
-#endif
-
 
 void *xfer_AllocSend (size_t size)
 {

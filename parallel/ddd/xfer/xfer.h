@@ -82,14 +82,8 @@ START_UGDIM_NAMESPACE
 #define _PRINTSAME    , indent, fp
 
 /* map memory allocation calls */
-/* activate this to allocate memory from freelists */
-#ifdef XferMemFromHeap
-#define OO_Allocate  xfer_AllocHeap
-#define OO_Free      xfer_FreeHeap
-#else
-#define OO_Allocate  xfer_AllocTmp
-#define OO_Free      xfer_FreeTmp
-#endif
+#define OO_Allocate  std::malloc
+#define OO_Free      std::free
 
 
 /* extra prefix for all xfer-related data structures and/or typedefs */
@@ -540,11 +534,6 @@ struct XFER_GLOBALS
   /* entry points for global sets */
   XICopyObjSet *setXICopyObj;
   XISetPrioSet *setXISetPrio;
-
-  /* flag for memory control (heap or no heap) */
-  int useHeap;
-  /* MarkKey for memory management */
-  long theMarkKey;
 };
 
 
@@ -569,9 +558,7 @@ void FreeAllXIAddData (void);
 int *AddDataAllocSizes(int);
 void xfer_SetTmpMem (int);
 void *xfer_AllocTmp (size_t);
-void *xfer_AllocHeap (size_t);
 void xfer_FreeTmp (void *);
-void xfer_FreeHeap (void *);
 void *xfer_AllocSend (size_t);
 void xfer_FreeSend (void *);
 /* and others, via template mechanism */
