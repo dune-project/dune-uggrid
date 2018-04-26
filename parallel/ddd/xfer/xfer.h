@@ -547,11 +547,6 @@ struct XFER_PER_PROC
 XFERADDDATA *NewXIAddData(DDD::DDDContext& context);
 void FreeAllXIAddData(DDD::DDDContext& context);
 int *AddDataAllocSizes(DDD::DDDContext& context, int);
-void xfer_SetTmpMem (int);
-void *xfer_AllocTmp (size_t);
-void xfer_FreeTmp (void *);
-void *xfer_AllocSend (size_t);
-void xfer_FreeSend (void *);
 /* and others, via template mechanism */
 
 

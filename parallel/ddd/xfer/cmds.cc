@@ -1321,10 +1321,6 @@ void DDD_XferBegin(DDD::DDDContext& context)
   /* step mode and check whether call to XferBegin is valid */
   if (!XferStepMode(context, DDD::Xfer::XferMode::XMODE_IDLE))
     DUNE_THROW(Dune::Exception, "DDD_XferBegin() aborted");
-
-
-  /* set kind of TMEM alloc/free requests */
-  xfer_SetTmpMem(TMEM_XFER);
 }
 
 
