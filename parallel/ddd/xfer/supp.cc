@@ -51,44 +51,7 @@ USING_UG_NAMESPACE
  */
 #define _CHECKALLOC(ptr)   if (ptr==NULL) return (NULL)
 
-START_UGDIM_NAMESPACE
-
-static int TmpMem_kind = TMEM_ANY;
-
-void *xfer_AllocTmp (size_t size)
-{
-  void *buffer = AllocTmpReq(size, TmpMem_kind);
-  return(buffer);
-}
-
-void xfer_FreeTmp (void *buffer)
-{
-  FreeTmpReq(buffer, 0, TmpMem_kind);
-}
-
-void xfer_SetTmpMem (int kind)
-{
-  TmpMem_kind = kind;
-}
-
-END_UGDIM_NAMESPACE
-
 #include "xfer.h"
-
-START_UGDIM_NAMESPACE
-
-void *xfer_AllocSend (size_t size)
-{
-  void *buffer = AllocTmpReq(size, TMEM_ANY);
-  return(buffer);
-}
-
-void xfer_FreeSend (void *buffer)
-{
-  FreeTmpReq(buffer, 0, TMEM_ANY);
-}
-
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -108,7 +71,6 @@ void xfer_FreeSend (void *buffer)
 /*                                                                          */
 /****************************************************************************/
 
-END_UGDIM_NAMESPACE
 namespace DDD {
 namespace Xfer {
 
