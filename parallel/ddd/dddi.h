@@ -555,7 +555,7 @@ void      ddd_XferRegisterDelete(DDD::DDDContext& context, DDD_HDR);
 
 
 /* xfer/cmds.c */
-void      DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
+void      DDD_XferPrioChange(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 
 
 /* prio/pcmds.c */

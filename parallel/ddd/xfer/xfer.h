@@ -100,14 +100,23 @@ enum XferNewType {
   THISMSG    = 0x10              /* object is taken from this msg, temp setting */
 };
 
+END_UGDIM_NAMESPACE
+namespace DDD {
+namespace Xfer {
 
 /* overall mode of transfer */
-enum XferMode {
+enum class XferMode : unsigned char
+{
   XMODE_IDLE = 0,                /* waiting for next DDD_XferBegin() */
   XMODE_CMDS,                    /* after DDD_XferBegin(), before DDD_XferEnd() */
   XMODE_BUSY                     /* during DDD_XferEnd() */
 };
 
+} /* namespace Xfer */
+} /* namespace DDD */
+START_UGDIM_NAMESPACE
+
+using DDD::Xfer::XferMode;
 
 
 /****************************************************************************/
@@ -516,36 +525,6 @@ struct XFER_PER_PROC
 
 
 /****************************************************************************/
-/* XFER_GLOBALS: global data for xfer module                                */
-/****************************************************************************/
-
-struct XFER_GLOBALS
-{
-  /* mode of xfer module */
-  XferMode xferMode;
-
-  /* description for object message */
-  LC_MSGTYPE objmsg_t;
-  LC_MSGCOMP symtab_id, objtab_id;
-  LC_MSGCOMP newcpl_id, oldcpl_id;
-  LC_MSGCOMP objmem_id;
-
-
-  /* entry points for global sets */
-  XICopyObjSet *setXICopyObj;
-  XISetPrioSet *setXISetPrio;
-};
-
-
-/* one instance of XFER_GLOBALS */
-extern XFER_GLOBALS xferGlobals;
-
-
-/****************************************************************************/
-
-
-
-/****************************************************************************/
 /*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
@@ -589,8 +568,8 @@ void ExecLocalXISetPrio(DDD::DDDContext& context, const std::vector<XISetPrio*>&
 void ExecLocalXIDelObj(XIDelObj  **, int, XICopyObj **,int);
 void PropagateCplInfos(XISetPrio **, int, XIDelObj  **, int,
                        TENewCpl *, int);
-enum XferMode XferMode (void);
-int XferStepMode(enum XferMode);
+enum XferMode XferMode (const DDD::DDDContext& context);
+int XferStepMode(DDD::DDDContext& context, enum XferMode);
 
 
 /* pack.c,   used only by cmds.c */
