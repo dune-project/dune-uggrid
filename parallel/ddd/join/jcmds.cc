@@ -769,13 +769,6 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
 
 
-        #ifdef JoinMemFromHeap
-  MarkHeap();
-  LC_SetMemMgr(context,
-               memmgr_AllocTMEM, memmgr_FreeTMEM,
-               memmgr_AllocHMEM, NULL);
-        #endif
-
   STAT_SET_MODULE(DDD_MODULE_JOIN);
   STAT_ZEROALL;
 
@@ -1117,13 +1110,6 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
   }
 
 
-
-        #ifdef JoinMemFromHeap
-  ReleaseHeap();
-  LC_SetMemMgr(context,
-               memmgr_AllocTMEM, memmgr_FreeTMEM,
-               memmgr_AllocTMEM, memmgr_FreeTMEM);
-        #endif
 
 #       if DebugJoin<=4
   Dune::dverb << "JoinEnd, before IFAllFromScratch().\n";
