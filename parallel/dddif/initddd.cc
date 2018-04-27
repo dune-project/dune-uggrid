@@ -1026,8 +1026,6 @@ int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
   INT err;
   int i;
 
-  memmgr_Init();
-
   /* init DDD and set options */
   DDD_Init(context);
 
