@@ -108,27 +108,6 @@ struct CONSMSG
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-#ifdef ConsMemFromHeap
-static long theMarkKey;
-#endif
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -144,26 +123,6 @@ void ddd_ConsInit(DDD::DDDContext& context)
 
 void ddd_ConsExit(DDD::DDDContext&)
 {}
-
-
-#ifdef ConsMemFromHeap
-static void *cons_AllocHeap (size_t size)
-{
-  void *buffer = AllocHeap(size, theMarkKey);
-  return(buffer);
-}
-
-static void *cons_AllocSend (size_t size)
-{
-  void *buffer = AllocTmpReq(size, TMEM_ANY);
-  return(buffer);
-}
-
-static void cons_FreeSend (void *buffer)
-{
-  FreeTmpReq(buffer, 0, TMEM_ANY);
-}
-#endif
 
 
 /****************************************************************************/
@@ -677,12 +636,6 @@ int DDD_ConsCheck(DDD::DDDContext& context)
   int cpl_errors;
   int total_errors=0;
 
-        #ifdef ConsMemFromHeap
-  MarkHeap(&theMarkKey);
-  LC_SetMemMgrRecv(context, cons_AllocHeap, NULL);
-  LC_SetMemMgrSend(context, cons_AllocSend, cons_FreeSend);
-        #endif
-
   DDD_Flush();
   Synchronize(context.ppifContext());
   if (DDD_GetOption(context, OPT_QUIET_CONSCHECK)==OPT_OFF)
@@ -722,11 +675,6 @@ int DDD_ConsCheck(DDD::DDDContext& context)
       Dune::dwarn << "   DDD-GCC ready (" << total_errors << " errors)\n";
   }
 
-
-        #ifdef ConsMemFromHeap
-  ReleaseHeap(theMarkKey);
-  LC_SetMemMgrDefault(context);
-        #endif
 
   return(total_errors);
 }

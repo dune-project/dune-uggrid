@@ -386,28 +386,6 @@ void memmgr_FreeTMEM (void *buffer, int kind)
 
 
 /****************************************************************************/
-
-void memmgr_MarkHMEM (long *theMarkKey)
-{
-  INT myMarkKey;
-  MarkTmpMem(MGHEAP(dddctrl.currMG), &myMarkKey);
-  *theMarkKey = (long)myMarkKey;
-}
-
-void* memmgr_AllocHMEM (size_t size, long theMarkKey)
-{
-  void *buffer;
-  buffer = GetTmpMem(MGHEAP(dddctrl.currMG), size, (INT)theMarkKey);
-  return(buffer);
-}
-
-void memmgr_ReleaseHMEM (long theMarkKey)
-{
-  ReleaseTmpMem(MGHEAP(dddctrl.currMG), (INT)theMarkKey);
-}
-
-
-/****************************************************************************/
 /*
    memmgr_Init -
 
