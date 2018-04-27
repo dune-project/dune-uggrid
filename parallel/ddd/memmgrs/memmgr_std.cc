@@ -145,30 +145,6 @@ void memmgr_FreeTMEM (void *buffer)
 }
 
 
-void *memmgr_AllocHMEM (size_t size)
-{
-  void   *buffer;
-
-  buffer = malloc(size);
-  return(buffer);
-}
-
-
-void memmgr_FreeHMEM (void *buffer)
-{
-  free(buffer);
-}
-
-
-void memmgr_MarkHMEM (void)
-{}
-
-
-void memmgr_ReleaseHMEM (void)
-{}
-
-
-
 void memmgr_Init (void)
 {}
 

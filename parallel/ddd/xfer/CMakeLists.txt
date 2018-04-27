@@ -7,8 +7,6 @@ set(SOURCES  cmds.cc
   unpack.cc
   xfer.cc)
 
-add_definitions(-DXferMemFromHeap)
-
 if(MPI_C_FOUND)
   ug_add_dim_libs(xfer OBJECT SOURCES ${SOURCES})
 endif()
