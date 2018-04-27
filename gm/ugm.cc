@@ -278,9 +278,9 @@ static void ConstructDDDObject (DDD::DDDContext& context, void *obj, INT size, I
   {
     memset(obj,0,size);
     /* link this object to DDD management */
-    if (HAS_DDDHDR(type))
+    if (HAS_DDDHDR(context, type))
     {
-      DDD_TYPE dddtype = DDDTYPE(type);
+      DDD_TYPE dddtype = DDDTYPE(context, type);
       DDD_HDR dddhdr = (DDD_HDR)(((char *)obj) + DDD_InfoHdrOffset(context, dddtype));
       DDD_HdrConstructor(context, dddhdr, dddtype, PrioMaster, 0);
     }
@@ -326,10 +326,10 @@ static void DestructDDDObject(DDD::DDDContext& context, void *object, INT type)
   if (type!=NOOBJ)
   {
     /* unlink object from DDD management */
-    if (HAS_DDDHDR(type))
+    if (HAS_DDDHDR(context, type))
     {
       DDD_HDR dddhdr = (DDD_HDR)
-                       (((char *)object)+DDD_InfoHdrOffset(context, DDDTYPE(type)));
+                       (((char *)object)+DDD_InfoHdrOffset(context, DDDTYPE(context, type)));
       DDD_HdrDestructor(context, dddhdr);
     }
   }

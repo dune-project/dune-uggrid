@@ -217,11 +217,11 @@ static GRID *GetGridOnDemand (MULTIGRID *mg, int level)
 /****************************************************************************/
 /****************************************************************************/
 
-static void VectorUpdate (DDD::DDDContext&, DDD_OBJ obj)
+static void VectorUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 {
   VECTOR  *pv                     = (VECTOR *)obj;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(pv)));
-  GRID    *theGrid        = GRID_ON_LEVEL(dddctrl.currMG,level);
+  GRID    *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
   INT prio            = PRIO(pv);
 
   PRINTDEBUG(dddif,1,(PFMT " VectorUpdate(): v=" VINDEX_FMTX
@@ -270,7 +270,7 @@ static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc,
   /*
           else
           {
-                  GRID *theGrid = GRID_ON_LEVEL(dddctrl.currMG,level);
+                  GRID *theGrid = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
                   MATRIX *theMatrix,*next;
 
                   for (theMatrix=VSTART(pv); theMatrix!=NULL; theMatrix = next) {
@@ -321,13 +321,13 @@ static void VectorGatherMatX (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE t
 }
 
 
-static void VectorScatterConnX (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **Data, int newness)
+static void VectorScatterConnX (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **Data, int newness)
 {
   VECTOR          *vec            = (VECTOR *)obj;
   CONNECTION      *first          = NULL,
   *last           = NULL;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(vec)));
-  GRID            *theGrid        = GRID_ON_LEVEL(dddctrl.currMG,level);
+  GRID            *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
   INT prio            = PRIO(vec);
   INT i;
   INT nconn           = 0;
@@ -398,7 +398,7 @@ static void VectorScatterConnX (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE
         {
           /* matrix diagonal entry, no other vector is involved */
           CONNECTION *conn = (CONNECTION *)
-                             GetMemoryForObject(dddctrl.currMG,UG_MSIZE(mcopy),MAOBJ);
+                             GetMemoryForObject(ddd_ctrl(context).currMG,UG_MSIZE(mcopy),MAOBJ);
 
           nconn++; newconn++;
 
@@ -445,7 +445,7 @@ static void VectorScatterConnX (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE
           {
             MATRIX *otherm;
             CONNECTION *conn = (CONNECTION *)
-                               GetMemoryForObject(dddctrl.currMG,2*UG_MSIZE(mcopy),MAOBJ);
+                               GetMemoryForObject(ddd_ctrl(context).currMG,2*UG_MSIZE(mcopy),MAOBJ);
 
             nconn++; newconn++;
 
@@ -584,12 +584,12 @@ static void VectorScatterConnX (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE
 
 
 
-static void VectorObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
+static void VectorObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
 {
   VECTOR          *vec            = (VECTOR *) obj;
   MATRIX          *theMatrix,*Prev,*Next;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(vec)));
-  GRID        *theGrid    = GRID_ON_LEVEL(dddctrl.currMG,level);
+  GRID        *theGrid    = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
 
 
   PRINTDEBUG(dddif,2,(PFMT " VectorObjMkCons(): v=" VINDEX_FMTX
@@ -626,7 +626,7 @@ static void VectorObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
 
       {
         INT size = ((MDIAG(theMatrix)) ? UG_MSIZE(theMatrix) : 2*UG_MSIZE(theMatrix));
-        PutFreeObject(dddctrl.currMG,MMYCON(theMatrix),size,MAOBJ);
+        PutFreeObject(ddd_ctrl(context).currMG,MMYCON(theMatrix),size,MAOBJ);
       }
 
 
@@ -639,11 +639,11 @@ static void VectorObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
   }
 }
 
-static void VectorPriorityUpdate (DDD::DDDContext&, DDD_OBJ obj, DDD_PRIO isnew)
+static void VectorPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO isnew)
 {
   VECTOR  *pv                     = (VECTOR *)obj;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(pv)));
-  GRID    *theGrid        = GRID_ON_LEVEL(dddctrl.currMG,level);
+  GRID    *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
   INT old                     = PRIO(pv);
 
   PRINTDEBUG(dddif,2,(PFMT " VectorPriorityUpdate(): v=" VINDEX_FMTX
@@ -739,11 +739,11 @@ static void BVertexLDataConstructor (DDD::DDDContext&, DDD_OBJ obj)
 }
 
 
-static void VertexUpdate (DDD::DDDContext&, DDD_OBJ obj)
+static void VertexUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 {
   VERTEX  *theVertex      = (VERTEX *) obj;
   INT level           = LEVEL(theVertex);
-  GRID    *theGrid        = GRID_ON_LEVEL(dddctrl.currMG,level);
+  GRID    *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
   INT prio            = VXPRIO(theVertex);
 
   PRINTDEBUG(dddif,1,(PFMT " VertexUpdate(): v=" VID_FMTX " I/BVOBJ=%d\n",
@@ -830,11 +830,11 @@ static void BVertexScatter (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE typ
 }
 
 
-static void VertexPriorityUpdate (DDD::DDDContext&, DDD_OBJ obj, DDD_PRIO new_)
+static void VertexPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO new_)
 {
   VERTEX      *theVertex                      = (VERTEX *)obj;
   INT level           = LEVEL(theVertex);
-  GRID        *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
+  GRID        *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
   INT old                     = VXPRIO(theVertex);
 
   PRINTDEBUG(dddif,2,(PFMT " VertexPriorityUpdate(): v=" VID_FMTX
@@ -940,7 +940,7 @@ static void NodeObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
         #endif
 
   /* set pointer of vector to its node */
-  if (dddctrl.nodeData && NVECTOR(theNode))
+  if (ddd_ctrl(context).nodeData && NVECTOR(theNode))
 #ifdef __PERIODIC_BOUNDARY__
     if (VOBJECT(NVECTOR(theNode))==NULL || PRIO((NODE *)VOBJECT(NVECTOR(theNode)))<PRIO(theNode))
 #endif
@@ -962,12 +962,12 @@ static void NodeObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
 /*																			*/
 /****************************************************************************/
 
-static void NodeUpdate (DDD::DDDContext&, DDD_OBJ obj)
+static void NodeUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 {
   NODE    *theNode        = (NODE *)obj;
   VERTEX  *theVertex      = MYVERTEX(theNode);
   INT level           = LEVEL(theNode);
-  GRID    *theGrid        = GRID_ON_LEVEL(dddctrl.currMG,level);
+  GRID    *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
   INT prio            = PRIO(theNode);
 
   PRINTDEBUG(dddif,1,(PFMT " NodeUpdate(): n=" ID_FMTX " NDOBJ=%d\n",
@@ -1071,12 +1071,12 @@ static void NodeXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, 
   DDD_XferCopyObj(context, PARHDRV(MYVERTEX(theNode)), proc, prio);
 
   /* copy vector if defined */
-  if (dddctrl.nodeData)
+  if (ddd_ctrl(context).nodeData)
   {
     vec = NVECTOR(theNode);
     if (vec != NULL) {
       INT Size = sizeof(VECTOR)-sizeof(DOUBLE)
-             +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
+             +FMT_S_VEC_TP(MGFORMAT(ddd_ctrl(context).currMG),VTYPE(vec));
 
       PRINTDEBUG(dddif,2,(PFMT " NodeXferCopy(): n=" ID_FMTX
                           " Xfer NODEVEC=" VINDEX_FMTX " size=%d\n",
@@ -1092,7 +1092,7 @@ static void NodePriorityUpdate (DDD::DDDContext&, DDD_OBJ obj, DDD_PRIO new_)
 {
   NODE    *pn                     = (NODE *)obj;
   INT level           = LEVEL(pn);
-  GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
+  GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
   INT old                     = PRIO(pn);
 
   PRINTDEBUG(dddif,2,(PFMT " NodePriorityUpdate(): n=" ID_FMTX " old=%d new=%d "
@@ -1174,12 +1174,12 @@ DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD::DDDContext&, DDD_OBJ obj, DDD_OBJ ref
 /*																			*/
 /****************************************************************************/
 
-static void ElementLDataConstructor (DDD::DDDContext&, DDD_OBJ obj)
+static void ElementLDataConstructor (DDD::DDDContext& context, DDD_OBJ obj)
 {
   INT i;
   ELEMENT *pe                     = (ELEMENT *)obj;
   INT level           = LEVEL(pe);
-  GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
+  GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
   INT prio            = EPRIO(pe);
 
   pe->message_buffer(nullptr, 0);
@@ -1245,11 +1245,11 @@ static void ElementUpdate (DDD::DDDContext&, DDD_OBJ obj)
 /*																			*/
 /****************************************************************************/
 
-static void ElementDelete (DDD::DDDContext&, DDD_OBJ obj)
+static void ElementDelete (DDD::DDDContext& context, DDD_OBJ obj)
 {
   ELEMENT *pe                     = (ELEMENT *)obj;
   INT level           = LEVEL(pe);
-  GRID    *theGrid        = GRID_ON_LEVEL(dddctrl.currMG,level);
+  GRID    *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
 
   PRINTDEBUG(dddif,1,(PFMT " ElementDelete(): e=" EID_FMTX " EOBJ=%d l=%d "
                       "ncon=%d\n",
@@ -1342,12 +1342,12 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
 
     DDD_XferCopyObj(context, PARHDR(edge), proc, prio);
 
-    if (dddctrl.edgeData) {
+    if (ddd_ctrl(context).edgeData) {
       VECTOR *vec = EDVECTOR(edge);
 
       if (vec != NULL) {
         int Size = sizeof(VECTOR)-sizeof(DOUBLE)
-               +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
+               +FMT_S_VEC_TP(MGFORMAT(ddd_ctrl(context).currMG),VTYPE(vec));
         PRINTDEBUG(dddif,3,(PFMT " ElementXferCopy():  e=" EID_FMTX
                             " EDGEVEC=" VINDEX_FMTX " size=%d\n",
                             me,EID_PRTX(pe),VINDEX_PRTX(vec),Size))
@@ -1359,13 +1359,13 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
 
 
   /* copy element vector */
-  if (dddctrl.elemData)
+  if (ddd_ctrl(context).elemData)
   {
     vec = EVECTOR(pe);
 
     if (vec != NULL) {
       Size = sizeof(VECTOR)-sizeof(DOUBLE)
-             +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
+             +FMT_S_VEC_TP(MGFORMAT(ddd_ctrl(context).currMG),VTYPE(vec));
 
       PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                           " ELEMVEC=" VINDEX_FMTX " size=%d\n",
@@ -1376,7 +1376,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
   }
 
   /* copy sidevectors */
-  if (dddctrl.sideData)
+  if (ddd_ctrl(context).sideData)
   {
     for (i=0; i<SIDES_OF_ELEM(pe); i++)
     {
@@ -1384,7 +1384,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
 
       if (vec != NULL) {
         Size = sizeof(VECTOR)-sizeof(DOUBLE)
-               +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
+               +FMT_S_VEC_TP(MGFORMAT(ddd_ctrl(context).currMG),VTYPE(vec));
 
         PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                             " SIDEVEC=" VINDEX_FMTX " size=%d\n",
@@ -1399,10 +1399,10 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
 /****************************************************************************/
 
 #ifdef __TWODIM__
-static void ElemGatherEdge (DDD::DDDContext&, ELEMENT *pe, int cnt, char *data)
+static void ElemGatherEdge (DDD::DDDContext& context, ELEMENT *pe, int cnt, char *data)
 {
   INT i;
-  INT size = sizeof(EDGE) - ((dddctrl.edgeData) ? 0 : sizeof(VECTOR*));
+  INT size = sizeof(EDGE) - ((ddd_ctrl(context).edgeData) ? 0 : sizeof(VECTOR*));
 
   PRINTDEBUG(dddif,3,(PFMT " ElemGatherEdge(): pe=" EID_FMTX " cnt=%d size=%d\n",
                       me,EID_PRTX(pe),cnt,size))
@@ -1425,12 +1425,12 @@ static void ElemGatherEdge (DDD::DDDContext&, ELEMENT *pe, int cnt, char *data)
 }
 
 
-static void ElemScatterEdge (DDD::DDDContext&, ELEMENT *pe, int cnt, char *data, int newness)
+static void ElemScatterEdge (DDD::DDDContext& context, ELEMENT *pe, int cnt, char *data, int newness)
 {
   INT i;
-  INT size    = sizeof(EDGE) - ((dddctrl.edgeData) ? 0 : sizeof(VECTOR*));
+  INT size    = sizeof(EDGE) - ((ddd_ctrl(context).edgeData) ? 0 : sizeof(VECTOR*));
   INT level   = LEVEL(pe);
-  GRID    *theGrid = GetGridOnDemand(dddctrl.currMG,level);
+  GRID    *theGrid = GetGridOnDemand(ddd_ctrl(context).currMG,level);
 
   PRINTDEBUG(dddif,3,(PFMT " ElemScatterEdge(): pe=" EID_FMTX
                       " cnt=%d newness=%d\n",
@@ -1558,7 +1558,7 @@ static void ElemScatterEdge (DDD::DDDContext&, ELEMENT *pe, int cnt, char *data,
 
     /* copy edge vector pointer */
     if (newness == XFER_NEW)
-      if (dddctrl.edgeData)
+      if (ddd_ctrl(context).edgeData)
         if (EDVECTOR(ecopy) != NULL) {
           EDVECTOR(enew) = EDVECTOR(ecopy);
           VOBJECT(EDVECTOR(enew)) = (GEOM_OBJECT *)enew;
@@ -1667,7 +1667,7 @@ static void ElemScatterB (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TY
 /****************************************************************************/
 
 
-static void ElementObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
+static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
 {
   INT i,j;
   INT lostson         = 0;
@@ -1678,7 +1678,7 @@ static void ElementObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
   ELEMENT *theFather      = EFATHER(pe);
   ELEMENT *NbElement;
   INT level           = LEVEL(pe);
-  GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
+  GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
 
 
   PRINTDEBUG(dddif,1,(PFMT " ElementObjMkCons(): pe=" EID_FMTX
@@ -1704,9 +1704,9 @@ static void ElementObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
   }
 
   /* reconstruct pointer from vectors */
-  if (dddctrl.elemData) VOBJECT(EVECTOR(pe)) = (GEOM_OBJECT*)pe;
+  if (ddd_ctrl(context).elemData) VOBJECT(EVECTOR(pe)) = (GEOM_OBJECT*)pe;
 
-  if (dddctrl.sideData)
+  if (ddd_ctrl(context).sideData)
     for (i=0; i<SIDES_OF_ELEM(pe); i++) {
       VOBJECT(SVECTOR(pe,i)) = (GEOM_OBJECT*)pe;
       SETVECTORSIDE(SVECTOR(pe,i), i);
@@ -1849,13 +1849,13 @@ static void ElementObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
 }
 
 
-static void ElementPriorityUpdate (DDD::DDDContext&, DDD_OBJ obj, DDD_PRIO new_)
+static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO new_)
 {
   ELEMENT *pe                     = (ELEMENT *)obj;
   ELEMENT *theFather      = EFATHER(pe);
   ELEMENT *succe          = SUCCE(pe);
   INT level           = LEVEL(pe);
-  GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
+  GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
   INT old                     = EPRIO(pe);
   INT lostson         = 1;
 
@@ -1996,7 +1996,7 @@ static void EdgeUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 {
   EDGE    *pe                     = (EDGE *)obj;
   INT level           = LEVEL(NBNODE(LINK0(pe)));
-  GRID    *theGrid        = GetGridOnDemand(dddctrl.currMG,level);
+  GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
 
   PRINTDEBUG(dddif,1,(PFMT " EdgeUpdate(): edge=%x/%08x EDOBJT=%d "
                       " NO_OF_ELEM=%d\n",
@@ -2044,7 +2044,7 @@ static void EdgePriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO 
   INT level           = LEVEL(theEdge);
   DUNE_UNUSED INT old                     = PRIO(theEdge);
 
-  GetGridOnDemand(dddctrl.currMG,level);
+  GetGridOnDemand(ddd_ctrl(context).currMG,level);
 
   PRINTDEBUG(dddif,2,(PFMT " EdgePriorityUpdate(): n=" ID_FMTX " old=%d new_=%d "
                       "level=%d\n",me,ID_PRTX(theEdge),old,new_,level))
@@ -2058,7 +2058,7 @@ static void EdgeObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
                       me,ID_PRTX(theEdge),OBJT(theEdge)))
 
   /* set pointer of vector to its edge */
-  if (dddctrl.edgeData && EDVECTOR(theEdge))
+  if (ddd_ctrl(context).edgeData && EDVECTOR(theEdge))
     VOBJECT(EDVECTOR(theEdge)) = (GEOM_OBJECT*)theEdge;
 
   ASSERT(OBJT(theEdge) == EDOBJ);
