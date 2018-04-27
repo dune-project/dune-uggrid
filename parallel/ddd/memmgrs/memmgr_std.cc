@@ -39,42 +39,6 @@
 
 /****************************************************************************/
 /*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*        compile time constants defining static data size (i.e. arrays)    */
-/*        other constants                                                   */
-/*        macros                                                            */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -83,16 +47,13 @@ START_UGDIM_NAMESPACE
 
 void *memmgr_AllocPMEM (size_t size)
 {
-  void   *buffer;
-
-  buffer = malloc(size);
-  return(buffer);
+  return std::malloc(size);
 }
 
 
 void memmgr_FreePMEM (void *buffer)
 {
-  free(buffer);
+  std::free(buffer);
 }
 
 
@@ -100,16 +61,13 @@ void memmgr_FreePMEM (void *buffer)
 
 void *memmgr_AllocOMEM (size_t size, int ddd_typ, int proc, int attr)
 {
-  void   *buffer;
-
-  buffer = malloc(size);
-  return(buffer);
+  return std::malloc(size);
 }
 
 
 void memmgr_FreeOMEM (void *buffer, size_t size, int ddd_typ)
 {
-  free(buffer);
+  std::free(buffer);
 }
 
 
@@ -117,35 +75,26 @@ void memmgr_FreeOMEM (void *buffer, size_t size, int ddd_typ)
 
 void *memmgr_AllocAMEM (size_t size)
 {
-  void   *buffer;
-
-  buffer = malloc(size);
-  return(buffer);
+  return std::malloc(size);
 }
 
 
 void memmgr_FreeAMEM (void *buffer)
 {
-  free(buffer);
+  std::free(buffer);
 }
 
 
 void *memmgr_AllocTMEM (size_t size)
 {
-  void   *buffer;
-
-  buffer = malloc(size);
-  return(buffer);
+  return std::malloc(size);
 }
 
 
 void memmgr_FreeTMEM (void *buffer)
 {
-  free(buffer);
+  std::free(buffer);
 }
 
-
-void memmgr_Init (void)
-{}
 
 END_UGDIM_NAMESPACE
