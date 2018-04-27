@@ -252,8 +252,6 @@ struct DDD_CTRL
   bool allTypesDefined;
 };
 
-extern DDD_CTRL dddctrl;
-
 #endif
 
 /****************************************************************************/
@@ -270,8 +268,7 @@ extern DDD_CTRL dddctrl;
 inline
 const DDD_CTRL& ddd_ctrl(const DDD::DDDContext& context)
 {
-  return dddctrl;
-  // return *static_cast<const DDD_CTRL*>(context.data());
+  return *static_cast<const DDD_CTRL*>(context.data());
 }
 
 /**
@@ -280,8 +277,7 @@ const DDD_CTRL& ddd_ctrl(const DDD::DDDContext& context)
 inline
 DDD_CTRL& ddd_ctrl(DDD::DDDContext& context)
 {
-  return dddctrl;
-  // return *static_cast<DDD_CTRL*>(context.data());
+  return *static_cast<DDD_CTRL*>(context.data());
 }
 
 /* from initddd.c */
