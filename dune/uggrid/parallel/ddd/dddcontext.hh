@@ -208,7 +208,7 @@ struct CouplingContext
 
 class DDDContext {
 public:
-  DDDContext(const std::shared_ptr<PPIF::PPIFContext>& ppifContext);
+  DDDContext(const std::shared_ptr<PPIF::PPIFContext>& ppifContext, const std::shared_ptr<void>& data);
 
   const PPIF::PPIFContext& ppifContext() const
     { return *ppifContext_; }
@@ -235,13 +235,13 @@ public:
    * return pointer to user data
    */
   void* data()
-    { return data_; }
+    { return data_.get(); }
 
   /**
    * return const pointer to user data
    */
   const void* data() const
-    { return data_; }
+    { return data_.get(); }
 
   Basic::LowCommContext& lowCommContext()
     { return lowCommContext_; }
@@ -353,7 +353,7 @@ public:
 
 protected:
   std::shared_ptr<PPIF::PPIFContext> ppifContext_;
-  void* data_ = nullptr;
+  std::shared_ptr<void> data_;
   Basic::LowCommContext lowCommContext_;
   Basic::NotifyContext notifyContext_;
   Basic::TopoContext topoContext_;
