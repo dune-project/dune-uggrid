@@ -61,8 +61,8 @@ using namespace PPIF;
 
 /* macro for easy definition of type mapping UG<->DDD */
 #define MAP_TYPES(ugt,dddt)   { int _ugt=(ugt); \
-                                dddctrl.ugtypes[(dddt)] = _ugt;     \
-                                dddctrl.types[_ugt] = (dddt);       \
+                                ddd_ctrl(context).ugtypes[(dddt)] = _ugt;     \
+                                ddd_ctrl(context).types[_ugt] = (dddt);       \
 }
 
 
@@ -220,13 +220,13 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
 
   /* optional components */
 
-  if (dddctrl.elemData)
+  if (ddd_ctrl(context).elemData)
     DDD_TypeDefine(context, dddType, ge,
                    EL_OBJPTR, r+evector_offset[tag], ps*1,     TypeVector,
                    EL_CONTINUE);
 
         #ifdef __THREEDIM__
-  if (dddctrl.sideData)
+  if (ddd_ctrl(context).sideData)
     DDD_TypeDefine(context, dddType, ge,
                    EL_OBJPTR, r+svector_offset[tag], ps*desc->sides_of_elem, TypeVector,
                    EL_CONTINUE);
@@ -238,7 +238,7 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
 
     /* init type mapping arrays */
     MAP_TYPES(MAPPED_INNER_OBJT_TAG(tag), dddType);
-    dddctrl.dddObj[MAPPED_INNER_OBJT_TAG(tag)] = true;
+    ddd_ctrl(context).dddObj[MAPPED_INNER_OBJT_TAG(tag)] = true;
   }
   else
   {
@@ -248,7 +248,7 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
 
     /* init type mapping arrays */
     MAP_TYPES(MAPPED_BND_OBJT_TAG(tag), dddType);
-    dddctrl.dddObj[MAPPED_BND_OBJT_TAG(tag)] = true;
+    ddd_ctrl(context).dddObj[MAPPED_BND_OBJT_TAG(tag)] = true;
   }
 
   /* set mergemode to maximum */
@@ -314,10 +314,10 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
           - variables TypeXXXX containing the proper DDD_TYPEs may be
             superfluous. it would be possible to replace all occurences
             by macros like DDDType(VEOBJ), which would be implemented as
-     #define DDDType(ugtype)  (dddctrl.types[ugtype])
+     #define DDDType(ugtype)  (ddd_ctrl(context).types[ugtype])
             TODO check this!
             pros: no double information. currently, TypeXXX may differ
-                  from corresponding dddctrl.types[] entry.
+                  from corresponding ddd_ctrl(context).types[] entry.
             cons: will this be compatible with alloc/dealloc and TypeDefine
                   of ug-general-elements?
    */
@@ -327,19 +327,19 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
 
   TypeVector      = DDD_TypeDeclare(context, "Vector");
   MAP_TYPES(VEOBJ, TypeVector);
-  dddctrl.dddObj[VEOBJ] = true;
+  ddd_ctrl(context).dddObj[VEOBJ] = true;
 
   TypeIVertex     = DDD_TypeDeclare(context, "IVertex");
   MAP_TYPES(IVOBJ, TypeIVertex);
-  dddctrl.dddObj[IVOBJ] = true;
+  ddd_ctrl(context).dddObj[IVOBJ] = true;
 
   TypeBVertex     = DDD_TypeDeclare(context, "BVertex");
   MAP_TYPES(BVOBJ, TypeBVertex);
-  dddctrl.dddObj[BVOBJ] = true;
+  ddd_ctrl(context).dddObj[BVOBJ] = true;
 
   TypeNode        = DDD_TypeDeclare(context, "Node");
   MAP_TYPES(NDOBJ, TypeNode);
-  dddctrl.dddObj[NDOBJ] = true;
+  ddd_ctrl(context).dddObj[NDOBJ] = true;
 
         #ifdef __TWODIM__
   TypeTrElem      = DDD_TypeDeclare(context, "TrElem");
@@ -364,7 +364,7 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
   /* edge is DDD data object for 2D           */
   TypeEdge        = DDD_TypeDeclare(context, "Edge");
   MAP_TYPES(EDOBJ, TypeEdge);
-  dddctrl.dddObj[EDOBJ] = true;
+  ddd_ctrl(context).dddObj[EDOBJ] = true;
 
   /* 2. DDD data objects (without DDD_HEADER) */
 
@@ -550,7 +550,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_OBJPTR, ELDEF(n.myvertex), TypeIVertex,
                  EL_CONTINUE);
 
-  if (dddctrl.nodeData)
+  if (ddd_ctrl(context).nodeData)
     DDD_TypeDefine(context, TypeNode, &n,
                    EL_OBJPTR, ELDEF(n.vector), TypeVector,
                    EL_CONTINUE);
@@ -561,7 +561,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
    * size of the NODE decreases by the size of one VECTOR*.
    * Compare the corresponding computation in the method CreateNode (in ugm.c)
    */
-  size = sizeof(NODE) - ((dddctrl.nodeData) ? 0 : sizeof(VECTOR*));
+  size = sizeof(NODE) - ((ddd_ctrl(context).nodeData) ? 0 : sizeof(VECTOR*));
   DDD_TypeDefine(context, TypeNode, &n,
                  EL_END, ((char *)&n)+size);
 
@@ -634,14 +634,14 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_OBJPTR, ELDEF(e.midnode),  TypeNode,
                  EL_CONTINUE);
 
-  if (dddctrl.edgeData)
+  if (ddd_ctrl(context).edgeData)
     DDD_TypeDefine(context, TypeEdge, &e,
                    EL_OBJPTR, ELDEF(e.vector), TypeVector,
                    EL_CONTINUE);
 
   /* See the corresponding line for TypeNode for an explanation of why
    * the object size is modified here. */
-  size = sizeof(EDGE) - ((dddctrl.edgeData) ? 0 : sizeof(VECTOR*));
+  size = sizeof(EDGE) - ((ddd_ctrl(context).edgeData) ? 0 : sizeof(VECTOR*));
   DDD_TypeDefine(context, TypeEdge, &e, EL_END, ((char *)&e)+size);
 
   /* set mergemode to maximum */
@@ -855,9 +855,9 @@ static void ddd_IfInit(DDD::DDDContext& context)
 static void InitDDDTypes(DDD::DDDContext& context)
 {
   /* prevent from multiple execution */
-  if (dddctrl.allTypesDefined)
+  if (ddd_ctrl(context).allTypesDefined)
     return;
-  dddctrl.allTypesDefined = true;
+  ddd_ctrl(context).allTypesDefined = true;
 
   ddd_DefineTypes(context);
 
@@ -921,6 +921,7 @@ static void InitDDDTypes(DDD::DDDContext& context)
 
 void NS_DIM_PREFIX InitCurrMG (MULTIGRID *MG)
 {
+  auto& dddctrl = ddd_ctrl(MG->dddContext());
   dddctrl.currMG = MG;
 
   dddctrl.nodeData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,NODEVEC);
@@ -966,7 +967,7 @@ void NS_DIM_PREFIX InitCurrMG (MULTIGRID *MG)
 /****************************************************************************/
 
 
-static int CheckInitParallel (void)
+static int CheckInitParallel(const DDD::DDDContext& context)
 {
   int i;
 
@@ -977,21 +978,21 @@ static int CheckInitParallel (void)
     return(__LINE__);
   }
 
-  for(i=1; i<MAXDDDTYPES && UGTYPE(i)>=0; i++)
+  for(i=1; i<MAXDDDTYPES && UGTYPE(context, i)>=0; i++)
   {
     /* check for valid UGTYPE for given DDD_TYPE */
-    if (UGTYPE(i) > OBJT_MAX)
+    if (UGTYPE(context, i) > OBJT_MAX)
     {
       printf("ERROR in InitParallel: OBJT=%d > OBJT_MAX=%d\n",
-             UGTYPE(i), OBJT_MAX);
+             UGTYPE(context, i), OBJT_MAX);
       return(__LINE__);
     }
 
     /* check for correct mapping and re-mapping */
-    if (DDDTYPE(UGTYPE(i))!=i)
+    if (DDDTYPE(context, UGTYPE(context, i))!=i)
     {
       printf("ERROR in InitParallel: invalid type mapping for OBJT=%d\n",
-             UGTYPE(i));
+             UGTYPE(context, i));
       return(__LINE__);
     }
   }
@@ -1052,25 +1053,25 @@ int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
   /* initialize type mapping arrays */
   for(i=0; i<MAXOBJECTS; i++)
   {
-    dddctrl.types[i] = -1;
-    dddctrl.dddObj[i] = false;
+    ddd_ctrl(context).types[i] = -1;
+    ddd_ctrl(context).dddObj[i] = false;
   }
   for(i=0; i<MAXDDDTYPES; i++)
   {
-    dddctrl.ugtypes[i] = -1;
+    ddd_ctrl(context).ugtypes[i] = -1;
   }
-  dddctrl.currFormat = NULL;
+  ddd_ctrl(context).currFormat = NULL;
 
   /* declare DDD_TYPES, definition must be done later */
   ddd_DeclareTypes(context);
-  dddctrl.allTypesDefined = false;
+  ddd_ctrl(context).allTypesDefined = false;
 
   DomInitParallel(TypeBndP,TypeBndS);
 
   ddd_IfInit(context);
 
   /* check for correct initialization */
-  if ((err=CheckInitParallel())!=0)
+  if ((err=CheckInitParallel(context))!=0)
   {
     SetHiWrd(err,__LINE__);
     return(err);

@@ -91,9 +91,9 @@ enum HandlerSets
 #define DDD_PrioritySet(context, h,p) {ObjectPriorityUpdate(context, (DDD_OBJ)h,p); DDD_PrioChange(context, h,p);}
 #endif
 
-#define UGTYPE(t)          (dddctrl.ugtypes[(t)])
-#define DDDTYPE(t)         (dddctrl.types[(t)])
-#define HAS_DDDHDR(t)      (dddctrl.dddObj[(t)])
+#define UGTYPE(context, t)     (ddd_ctrl(context).ugtypes[(t)])
+#define DDDTYPE(context, t)    (ddd_ctrl(context).types[(t)])
+#define HAS_DDDHDR(context, t) (ddd_ctrl(context).dddObj[(t)])
 
 #define DDD_DOMAIN_DATA    DDD_USER_DATA+1
 #define DDD_EXTRA_DATA     DDD_USER_DATA+2
@@ -260,6 +260,26 @@ extern DDD_CTRL dddctrl;
 /****************************************************************************/
 
 #ifdef ModelP
+
+/**
+ * accessor function for DDD user context
+ */
+inline
+const DDD_CTRL& ddd_ctrl(const DDD::DDDContext& context)
+{
+  return dddctrl;
+  // return *static_cast<const DDD_CTRL*>(context.data());
+}
+
+/**
+ * accessor function for DDD user context
+ */
+inline
+DDD_CTRL& ddd_ctrl(DDD::DDDContext& context)
+{
+  return dddctrl;
+  // return *static_cast<DDD_CTRL*>(context.data());
+}
 
 /* from initddd.c */
 int             InitDDD(DDD::DDDContext& context);
