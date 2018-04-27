@@ -326,7 +326,7 @@ static INT CheckNodePrio (DDD::DDDContext& context, ELEMENT *theElement, NODE *t
     nerrors++;
   }
 
-  if (dddctrl.nodeData)
+  if (ddd_ctrl(context).nodeData)
   {
     if (NVECTOR(theNode) != NULL)
     {
@@ -386,7 +386,7 @@ static INT CheckEdgePrio (DDD::DDDContext& context, ELEMENT *theElement, EDGE *t
   }
         #endif
 
-  if (dddctrl.edgeData)
+  if (ddd_ctrl(context).edgeData)
     if (EDVECTOR(theEdge) != NULL)
       nerrors += CheckVectorPrio(context, theElement,EDVECTOR(theEdge));
 
@@ -498,11 +498,11 @@ static INT CheckElementPrio (DDD::DDDContext& context, ELEMENT *theElement)
     }
   }
 
-  if (dddctrl.elemData)
+  if (ddd_ctrl(context).elemData)
     if (EVECTOR(theElement) != NULL)
       nerrors += CheckVectorPrio(context, theElement,EVECTOR(theElement));
 
-  if (dddctrl.sideData)
+  if (ddd_ctrl(context).sideData)
   {
     for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       if (SVECTOR(theElement,i) != NULL)
@@ -761,6 +761,9 @@ static INT CheckDistributedObjects (GRID *theGrid)
 
 INT NS_DIM_PREFIX CheckInterfaces (GRID *theGrid)
 {
+  auto& context = theGrid->dddContext();
+  auto& dddctrl = ddd_ctrl(context);
+
   INT i,j;
   ELEMENT *theElement;
   NODE    *theNode;

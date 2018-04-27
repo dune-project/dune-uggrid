@@ -512,6 +512,7 @@ static int ComputeGhostCmds (MULTIGRID *theMG)
 #ifdef __OVERLAP2__
 static int XferNodesForOverlap2 (GRID *theGrid)
 {
+  auto& dddctrl = ddd_ctrl(theGrid->dddContext());
   ELEMENT *theElement;
   NODE    *theNode;
   INT i,part;
