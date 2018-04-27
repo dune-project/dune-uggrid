@@ -340,18 +340,6 @@ static char *mem_ptr;
 #define AllocObj(s,t,p,a) memmgr_AllocOMEM((size_t)s,(int)t,(int)p,(int)a)
 
 
-#ifdef CheckHeapMem
-#define AllocHeap(s,key)  \
-  (dummy_ptr = (mem_ptr=(char *)memmgr_AllocHMEM(SST+(size_t)(s), key)) != NULL ? \
-               mem_ptr+SST : NULL);                                     \
-  if (mem_ptr!=NULL) GET_SSTVAL(dummy_ptr) = s;                            \
-  printf("%4d: MALL Heap adr=%08x size=%ld file=%s line=%d\n",             \
-         me,dummy_ptr,s,__FILE__,__LINE__)
-#else
-#define AllocHeap(s,key)    memmgr_AllocHMEM((size_t)(s), key)
-#endif
-
-
 #ifdef CheckPMEM
 #define AllocFix(s)  \
   (dummy_ptr = (mem_ptr=(char *)memmgr_AllocPMEM(SST+(size_t)s)) != NULL ? \
@@ -486,12 +474,6 @@ static char *mem_ptr;
 #else
 #define FreeIF(mem)       memmgr_FreeAMEM(mem)
 #endif
-
-
-
-/* mapping mark/release heap calls to memmgr calls */
-#define MarkHeap          memmgr_MarkHMEM
-#define ReleaseHeap       memmgr_ReleaseHMEM
 
 
 
