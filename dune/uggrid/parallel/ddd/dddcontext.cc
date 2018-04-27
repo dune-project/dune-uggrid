@@ -6,8 +6,11 @@
 
 namespace DDD {
 
-DDDContext::DDDContext(const std::shared_ptr<PPIF::PPIFContext>& ppifContext)
+DDDContext::DDDContext(
+  const std::shared_ptr<PPIF::PPIFContext>& ppifContext,
+  const std::shared_ptr<void>& data)
   : ppifContext_(ppifContext)
+  , data_(data)
 {
   /* Nothing. */
 }
