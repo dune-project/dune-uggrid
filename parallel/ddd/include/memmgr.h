@@ -33,68 +33,12 @@
 #include "namespace.h"
 
 START_UGDIM_NAMESPACE
-/*
-   #ifdef __cplusplus
-   extern "C" {
-   #endif
- */
-
-
-/****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*        compile time constants defining static data size (i.e. arrays)    */
-/*        other constants                                                   */
-/*        macros                                                            */
-/*                                                                          */
-/****************************************************************************/
-
-#define TMEM_STD  0
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures exported by the corresponding source file                */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures exported by the corresponding source file                */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* macros                                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-
-
 
 /****************************************************************************/
 /*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
 /****************************************************************************/
-
 
 void *memmgr_AllocOMEM (size_t size, int Typeid, int prio, int attr);
 void  memmgr_FreeOMEM (void *mem, size_t size, int Typeid);
@@ -108,14 +52,6 @@ void  memmgr_FreeAMEM (void *mem);
 void *memmgr_AllocTMEM (long unsigned int size, int kind);
 void  memmgr_FreeTMEM (void *mem, int kind);
 
-void  memmgr_Init ();
-void  memmgr_Report ();
-
-/*
-   #ifdef __cplusplus
-   }
-   #endif
- */
 END_UGDIM_NAMESPACE
 
 #endif

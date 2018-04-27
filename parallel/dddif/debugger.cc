@@ -46,8 +46,6 @@ using namespace PPIF;
 
 static void dddif_DisplayMemoryUsage (const DDD::DDDContext& context)
 {
-  memmgr_Report();
-
   UserWriteF("mem for interfaces:  %8ld bytes\n",
              (unsigned long) DDD_IFInfoMemoryAll(context)
              );
