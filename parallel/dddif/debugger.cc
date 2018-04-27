@@ -87,7 +87,7 @@ void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
   switch (cmd)
   {
   case 'X' :
-    dddif_PrintGridRelations(dddctrl.currMG);
+    dddif_PrintGridRelations(ddd_ctrl(context).currMG);
     break;
 
   case 'm' :
@@ -162,7 +162,7 @@ void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
     break;
 
   case 'b' :
-    buggy(dddctrl.currMG);
+    buggy(ddd_ctrl(context).currMG);
     UserWrite("BUGGY: returning control to caller\n");
     break;
   }
