@@ -253,7 +253,7 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   int objIndex;
   int freeCplIdx = ctx.nCpls;
 
-  assert(proc!=me);
+  assert(proc!=context.me());
 
 #       if DebugCoupling<=1
   Dune::dvverb << "AddCoupling " << OBJ_GID(hdr)
@@ -308,7 +308,7 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
         {
           /* coupling upgrades/downgrades, are they allowed?
                                                   printf("%4d: diff in cpl, %05x old %d-%d new %d-%d\n",
-                                                          me,OBJ_GID(hdr),cp2->proc,cp2->prio, proc, prio);
+                                                          context.me(),OBJ_GID(hdr),cp2->proc,cp2->prio, proc, prio);
            */
           cp2->prio = prio;
         }
@@ -366,7 +366,7 @@ COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   COUPLING        *cp2;
   int objIndex;
 
-  assert(proc!=me);
+  assert(proc!=context.me());
 
 #       if DebugCoupling<=1
   Dune::dvverb << "ModCoupling " << OBJ_GID(hdr)
@@ -529,7 +529,7 @@ COUPLING *cpl;
 int i, objIndex = OBJ_INDEX(hdr);
 
 /* insert description of own (i.e. local) copy */
-mctx.localIBuffer[0] = me;
+mctx.localIBuffer[0] = context.me();
 mctx.localIBuffer[1] = OBJ_PRIO(hdr);
 
 i=2;
@@ -582,7 +582,7 @@ DDD_PROC DDD_InfoProcPrio(const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO 
 
   /* eventually local copy has priority we are looking for */
   if (OBJ_PRIO(hdr)==prio)
-    return(me);
+    return context.me();
 
   return(procs);
 }

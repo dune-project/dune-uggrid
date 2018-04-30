@@ -360,7 +360,7 @@ void IF_FUNCNAME (
 					#ifdef CtrlTimeoutsDetailed
 					printf("%4d: IFCTRL %02d received msg    from "
 						"%4d after %10ld, size %ld\n",
-						me, aIF, ifHead->proc,
+						context.me(), aIF, ifHead->proc,
 						(unsigned long)tries,
 						(unsigned long)ifHead->bufIn.size());
 					#endif
@@ -419,7 +419,7 @@ void IF_FUNCNAME (
 	{
 		#ifdef CtrlTimeouts
 		printf("%4d: IFCTRL %02d received msg  all after %10ld tries\n",
-			me, aIF, (unsigned long)tries);
+			context.me(), aIF, (unsigned long)tries);
 		#endif
 
 		if (! NS_DIM_PREFIX IFPollSend(context, aIF))

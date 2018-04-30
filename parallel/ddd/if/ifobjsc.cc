@@ -184,7 +184,7 @@ void IFCheckShortcuts (DDD::DDDContext& context, DDD_IF ifId)
   if (! theIF[ifId].objValid)
   {
     /*
-       sprintf(cBuffer, "%04d: IFComputeShortcutTable IF=%d\n", me, ifId);
+       sprintf(cBuffer, "%04d: IFComputeShortcutTable IF=%d\n", context.me(), ifId);
        DDD_PrintDebug(cBuffer);
      */
 

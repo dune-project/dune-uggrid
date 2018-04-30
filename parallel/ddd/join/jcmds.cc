@@ -178,7 +178,7 @@ static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& ar
     if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
       Dune::dwarn
-        << "DDD MESG [" << std::setw(3) << me << "]: SHOW_MEM "
+        << "DDD MESG [" << std::setw(3) << context.me() << "]: SHOW_MEM "
         << "send msg phase1   dest=" << std::setw(4) << jm->dest
         << " size=" << std::setw(10) << bufSize << "\n";
     }
@@ -243,6 +243,7 @@ static void UnpackPhase1Msgs (DDD::DDDContext& context,
                               JIPartner **p_joinObjs, int *p_nJoinObjs)
 {
   auto& ctx = context.joinContext();
+  const auto& me = context.me();
   JIPartner *joinObjs;
   int nJoinObjs = 0;
   int m, jo;
@@ -383,6 +384,7 @@ static int PreparePhase2Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
                               JOINMSG2 **theMsgs, size_t *memUsage)
 {
   auto& ctx = context.joinContext();
+  const auto& me = context.me();
 
   int i, last_i, nMsgs;
   JIAddCpl** itemsAC = arrayAddCpl.data();
@@ -527,7 +529,7 @@ static void UnpackPhase2Msgs (DDD::DDDContext& context,
 
 #                               if DebugJoin<=1
         printf("%4d: Phase2 execute AddCpl(%08x,%d,%d) (from %d).\n",
-               me,
+               context.me(),
                theAC[i].gid, theAC[i].proc, theAC[i].prio,
                LC_MsgGetProc(jm));
 #                               endif
@@ -544,7 +546,7 @@ static void UnpackPhase2Msgs (DDD::DDDContext& context,
 
 #                                       if DebugJoin<=1
           printf("%4d: Phase2 forward AddCpl(%08x,%d,%d) to %d.\n",
-                 me,
+                 context.me(),
                  theAC[i].gid, theAC[i].proc, theAC[i].prio,
                  ji->dest);
 #                                       endif
@@ -576,6 +578,7 @@ static int PreparePhase3Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& 
                               JOINMSG3 **theMsgs, size_t *memUsage)
 {
   auto& ctx = context.joinContext();
+  const auto& me = context.me();
 
   int i, last_i, nMsgs;
   JIAddCpl** itemsAC = arrayAddCpl.data();
@@ -722,7 +725,7 @@ static void UnpackPhase3Msgs (DDD::DDDContext& context,
 
 #                               if DebugJoin<=1
         printf("%4d: Phase3 execute AddCpl(%08x,%d,%d) (from %d).\n",
-               me,
+               context.me(),
                OBJ_GID(itemsJ[j]->hdr), theAC[i].proc, theAC[i].prio,
                LC_MsgGetProc(jm));
 #                               endif
@@ -822,7 +825,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
       using std::setw;
       Dune::dwarn
-        << "DDD MESG [" << setw(3) << me << "]: " << setw(4) << obsolete
+        << "DDD MESG [" << setw(3) << context.me() << "]: " << setw(4) << obsolete
         << " from " << setw(4) << all << " join-cmds obsolete.\n";
     }
   }
@@ -862,7 +865,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
     using std::setw;
     Dune::dwarn
-      << "DDD MESG [" << setw(3) << me << "]: SHOW_MEM msgs "
+      << "DDD MESG [" << setw(3) << context.me() << "]: SHOW_MEM msgs "
       << " send=" << setw(10) << sendMem
       << " recv=" << setw(10) << recvMem
       << " all=" << setw(10) << (sendMem+recvMem) << "\n";
@@ -960,7 +963,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
     using std::setw;
     Dune::dwarn
-      << "DDD MESG [" << setw(3) << me << "]: SHOW_MEM msgs "
+      << "DDD MESG [" << setw(3) << context.me() << "]: SHOW_MEM msgs "
       << " send=" << setw(10) << sendMem
       << " recv=" << setw(10) << recvMem
       << " all=" << setw(10) << (sendMem+recvMem) << "\n";
@@ -1059,7 +1062,7 @@ DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 
     using std::setw;
     Dune::dwarn
-      << "DDD MESG [" << setw(3) << me << "]: SHOW_MEM msgs "
+      << "DDD MESG [" << setw(3) << context.me() << "]: SHOW_MEM msgs "
       << " send=" << setw(10) << sendMem
       << " recv=" << setw(10) << recvMem
       << " all=" << setw(10) << (sendMem+recvMem) << "\n";

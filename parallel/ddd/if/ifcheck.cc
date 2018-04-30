@@ -70,6 +70,7 @@ static int DDD_CheckInterface(DDD::DDDContext& context, DDD_IF ifId)
   using std::setw;
 
   auto& theIF = context.ifCreateContext().theIf;
+  const auto& me = context.me();
 
   int errors=0;
   IF_PROC *h;
