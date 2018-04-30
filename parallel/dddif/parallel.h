@@ -246,6 +246,18 @@ struct DDD_CTRL
   DDD_TYPE TypeBndP;
   DDD_TYPE TypeEdge;
   DDD_TYPE TypeBndS;
+
+  /* DDD Interfaces */
+  DDD_IF ElementIF, ElementSymmIF, ElementVIF, ElementSymmVIF,
+         ElementVHIF, ElementSymmVHIF;
+  DDD_IF BorderNodeIF, BorderNodeSymmIF, OuterNodeIF, NodeVIF,
+         NodeIF, NodeAllIF;
+  DDD_IF BorderVectorIF, BorderVectorSymmIF,
+         OuterVectorIF, OuterVectorSymmIF,
+         VectorVIF, VectorVAllIF, VectorIF;
+  DDD_IF VertexIF;
+  DDD_IF EdgeIF, BorderEdgeSymmIF, EdgeHIF, EdgeVHIF,
+         EdgeSymmVHIF;
 };
 
 #endif

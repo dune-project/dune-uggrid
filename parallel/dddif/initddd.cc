@@ -89,7 +89,6 @@ NS_DIM_PREFIX NodeIF, NS_DIM_PREFIX NodeAllIF;
 DDD_IF NS_DIM_PREFIX BorderVectorIF, NS_DIM_PREFIX BorderVectorSymmIF,
 NS_DIM_PREFIX OuterVectorIF, NS_DIM_PREFIX OuterVectorSymmIF,
 NS_DIM_PREFIX VectorVIF, NS_DIM_PREFIX VectorVAllIF, NS_DIM_PREFIX VectorIF;
-static DDD_IF VertexIF;
 /* DDD interfaces for edge communication */
 DDD_IF NS_DIM_PREFIX EdgeIF, NS_DIM_PREFIX BorderEdgeSymmIF, NS_DIM_PREFIX EdgeHIF, NS_DIM_PREFIX EdgeVHIF,
 NS_DIM_PREFIX EdgeSymmVHIF;
@@ -669,33 +668,33 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
   A[0] = PrioMaster;
   B[0] = PrioHGhost; B[1] = PrioVHGhost;
-  ElementIF = DDD_IFDefine(context, nO,O,1,A,2,B);
-  DDD_IFSetName(context, ElementIF, "ElementIF: Master->HGhost/VHGhost");
+  dddctrl.ElementIF = DDD_IFDefine(context, nO,O,1,A,2,B);
+  DDD_IFSetName(context, dddctrl.ElementIF, "ElementIF: Master->HGhost/VHGhost");
 
   A[0] = PrioMaster; A[1] = PrioHGhost; A[2] = PrioVHGhost;
   B[0] = PrioMaster; B[1] = PrioHGhost; B[2] = PrioVHGhost;
-  ElementSymmIF = DDD_IFDefine(context, nO,O,3,A,3,B);
-  DDD_IFSetName(context, ElementSymmIF, "ElementSymmIF: Master/HGhost/VHGhost");
+  dddctrl.ElementSymmIF = DDD_IFDefine(context, nO,O,3,A,3,B);
+  DDD_IFSetName(context, dddctrl.ElementSymmIF, "ElementSymmIF: Master/HGhost/VHGhost");
 
   A[0] = PrioMaster;
   B[0] = PrioVGhost; B[1] = PrioVHGhost;
-  ElementVIF = DDD_IFDefine(context, nO,O,1,A,2,B);
-  DDD_IFSetName(context, ElementVIF, "ElementVIF: Master->VGhost/VHGhost");
+  dddctrl.ElementVIF = DDD_IFDefine(context, nO,O,1,A,2,B);
+  DDD_IFSetName(context, dddctrl.ElementVIF, "ElementVIF: Master->VGhost/VHGhost");
 
   A[0] = PrioMaster; A[1] = PrioVGhost; A[2] = PrioVHGhost;
   B[0] = PrioMaster; B[1] = PrioVGhost; B[2] = PrioVHGhost;
-  ElementSymmVIF = DDD_IFDefine(context, nO,O,3,A,3,B);
-  DDD_IFSetName(context, ElementSymmVIF, "ElementSymmVIF: Master/VGhost/VHGhost");
+  dddctrl.ElementSymmVIF = DDD_IFDefine(context, nO,O,3,A,3,B);
+  DDD_IFSetName(context, dddctrl.ElementSymmVIF, "ElementSymmVIF: Master/VGhost/VHGhost");
 
   A[0] = PrioMaster;
   B[0] = PrioVGhost; B[1] = PrioHGhost; B[2] = PrioVHGhost;
-  ElementVHIF = DDD_IFDefine(context, nO,O,1,A,3,B);
-  DDD_IFSetName(context, ElementVHIF, "ElementVHIF: Master->VGhost/HGhost/VHGhost");
+  dddctrl.ElementVHIF = DDD_IFDefine(context, nO,O,1,A,3,B);
+  DDD_IFSetName(context, dddctrl.ElementVHIF, "ElementVHIF: Master->VGhost/HGhost/VHGhost");
 
   A[0] = PrioMaster; A[1] = PrioVGhost; A[2] = PrioHGhost; A[3] = PrioVHGhost;
   B[0] = PrioMaster; B[1] = PrioVGhost; B[2] = PrioHGhost; B[3] = PrioVHGhost;
-  ElementSymmVHIF = DDD_IFDefine(context, nO,O,4,A,4,B);
-  DDD_IFSetName(context, ElementSymmVHIF, "ElementSymmVHIF: Master/VGhost/HGhost/VHGhost");
+  dddctrl.ElementSymmVHIF = DDD_IFDefine(context, nO,O,4,A,4,B);
+  DDD_IFSetName(context, dddctrl.ElementSymmVHIF, "ElementSymmVHIF: Master/VGhost/HGhost/VHGhost");
 
 
   /* define node interfaces */
@@ -703,33 +702,33 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
   A[0] = PrioBorder;
   B[0] = PrioMaster;
-  BorderNodeIF = DDD_IFDefine(context, 1,O,1,A,1,B);
-  DDD_IFSetName(context, BorderNodeIF, "BorderNodeIF: Border->Master");
+  dddctrl.BorderNodeIF = DDD_IFDefine(context, 1,O,1,A,1,B);
+  DDD_IFSetName(context, dddctrl.BorderNodeIF, "BorderNodeIF: Border->Master");
 
   A[0] = PrioMaster; A[1] = PrioBorder;
   B[0] = PrioMaster; B[1] = PrioBorder;
-  BorderNodeSymmIF = DDD_IFDefine(context, 1,O,2,A,2,B);
-  DDD_IFSetName(context, BorderNodeSymmIF, "BorderNodeSymmIF: Border/Master");
+  dddctrl.BorderNodeSymmIF = DDD_IFDefine(context, 1,O,2,A,2,B);
+  DDD_IFSetName(context, dddctrl.BorderNodeSymmIF, "BorderNodeSymmIF: Border/Master");
 
   A[0] = PrioMaster;
   B[0] = PrioHGhost; B[1] = PrioVHGhost;
-  OuterNodeIF = DDD_IFDefine(context, 1,O,1,A,2,B);
-  DDD_IFSetName(context, OuterNodeIF, "OuterNodeIF: Master->HGhost/VGhost");
+  dddctrl.OuterNodeIF = DDD_IFDefine(context, 1,O,1,A,2,B);
+  DDD_IFSetName(context, dddctrl.OuterNodeIF, "OuterNodeIF: Master->HGhost/VGhost");
 
   A[0] = PrioMaster;
   B[0] = PrioVGhost; B[1] = PrioVHGhost;
-  NodeVIF = DDD_IFDefine(context, 1,O,1,A,2,B);
-  DDD_IFSetName(context, NodeVIF, "NodeVIF: Master->VGhost/VHGhost");
+  dddctrl.NodeVIF = DDD_IFDefine(context, 1,O,1,A,2,B);
+  DDD_IFSetName(context, dddctrl.NodeVIF, "NodeVIF: Master->VGhost/VHGhost");
 
   A[0] = PrioMaster;
   B[0] = PrioVGhost; B[1] = PrioHGhost; B[2] = PrioVHGhost;
-  NodeIF = DDD_IFDefine(context, 1,O,1,A,3,B);
-  DDD_IFSetName(context, NodeIF, "NodeIF: Master->VGhost/HGhost/VHGhost");
+  dddctrl.NodeIF = DDD_IFDefine(context, 1,O,1,A,3,B);
+  DDD_IFSetName(context, dddctrl.NodeIF, "NodeIF: Master->VGhost/HGhost/VHGhost");
 
   A[0] = PrioMaster; A[1] = PrioBorder; A[2] = PrioVGhost; A[3] = PrioHGhost; A[4] = PrioVHGhost;
   B[0] = PrioMaster; B[1] = PrioBorder; B[2] = PrioVGhost; B[3] = PrioHGhost; B[4] = PrioVHGhost;
-  NodeAllIF = DDD_IFDefine(context, 1,O,5,A,5,B);
-  DDD_IFSetName(context, NodeAllIF, "NodeAllIF: All/All");
+  dddctrl.NodeAllIF = DDD_IFDefine(context, 1,O,5,A,5,B);
+  DDD_IFSetName(context, dddctrl.NodeAllIF, "NodeAllIF: All/All");
 
 
   /* define vector interfaces */
@@ -737,46 +736,46 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
   A[0] = PrioBorder;
   B[0] = PrioMaster;
-  BorderVectorIF = DDD_IFDefine(context, 1,O,1,A,1,B);
-  DDD_IFSetName(context, BorderVectorIF, "BorderVectorIF: Border->Master");
+  dddctrl.BorderVectorIF = DDD_IFDefine(context, 1,O,1,A,1,B);
+  DDD_IFSetName(context, dddctrl.BorderVectorIF, "BorderVectorIF: Border->Master");
 
   A[0] = PrioMaster; A[1] = PrioBorder;
   B[0] = PrioMaster; B[1] = PrioBorder;
-  BorderVectorSymmIF = DDD_IFDefine(context, 1,O,2,A,2,B);
-  DDD_IFSetName(context, BorderVectorSymmIF, "BorderVectorSymmIF: Master/Border");
+  dddctrl.BorderVectorSymmIF = DDD_IFDefine(context, 1,O,2,A,2,B);
+  DDD_IFSetName(context, dddctrl.BorderVectorSymmIF, "BorderVectorSymmIF: Master/Border");
 
   A[0] = PrioMaster;
   B[0] = PrioHGhost; B[1] = PrioVHGhost;
-  OuterVectorIF = DDD_IFDefine(context, 1,O,1,A,2,B);
-  DDD_IFSetName(context, OuterVectorIF, "OuterVectorIF: Master->HGhost/VHGhost");
+  dddctrl.OuterVectorIF = DDD_IFDefine(context, 1,O,1,A,2,B);
+  DDD_IFSetName(context, dddctrl.OuterVectorIF, "OuterVectorIF: Master->HGhost/VHGhost");
 
   A[0] = PrioMaster; A[1] = PrioBorder; A[2] = PrioHGhost; A[3] = PrioVHGhost;
   B[0] = PrioMaster; B[1] = PrioBorder; B[2] = PrioHGhost; B[3] = PrioVHGhost;
-  OuterVectorSymmIF = DDD_IFDefine(context, 1,O,4,A,4,B);
-  DDD_IFSetName(context, OuterVectorSymmIF, "OuterVectorSymmIF: Master/Border/HGhost/VHGhost");
+  dddctrl.OuterVectorSymmIF = DDD_IFDefine(context, 1,O,4,A,4,B);
+  DDD_IFSetName(context, dddctrl.OuterVectorSymmIF, "OuterVectorSymmIF: Master/Border/HGhost/VHGhost");
 
   A[0] = PrioMaster;
   B[0] = PrioVGhost; B[1] = PrioVHGhost;
-  VectorVIF = DDD_IFDefine(context, 1,O,1,A,2,B);
-  DDD_IFSetName(context, VectorVIF, "VectorVIF: Master->VGhost/VHGhost");
+  dddctrl.VectorVIF = DDD_IFDefine(context, 1,O,1,A,2,B);
+  DDD_IFSetName(context, dddctrl.VectorVIF, "VectorVIF: Master->VGhost/VHGhost");
 
   A[0] = PrioMaster; A[1] = PrioBorder; A[2] = PrioVGhost; A[3] = PrioVHGhost;
   B[0] = PrioMaster; B[1] = PrioBorder;
-  VectorVAllIF = DDD_IFDefine(context, 1,O,4,A,2,B);
-  DDD_IFSetName(context, VectorVAllIF, "VectorVAllIF: Master/Border/VGhost/VHGhost->Master/Border");
+  dddctrl.VectorVAllIF = DDD_IFDefine(context, 1,O,4,A,2,B);
+  DDD_IFSetName(context, dddctrl.VectorVAllIF, "VectorVAllIF: Master/Border/VGhost/VHGhost->Master/Border");
 
   A[0] = PrioMaster;
   B[0] = PrioVGhost; B[1] = PrioVHGhost; B[2] = PrioHGhost;
-  VectorIF = DDD_IFDefine(context, 1,O,1,A,3,B);
-  DDD_IFSetName(context, VectorIF, "VectorIF: Master->VGhost/VHGhost/HGhost");
+  dddctrl.VectorIF = DDD_IFDefine(context, 1,O,1,A,3,B);
+  DDD_IFSetName(context, dddctrl.VectorIF, "VectorIF: Master->VGhost/VHGhost/HGhost");
 
   /* define vertex interfaces */
   O[0] = dddctrl.TypeIVertex; O[1] = dddctrl.TypeBVertex;
 
   A[0] = PrioMaster;
   B[0] = PrioMaster;
-  VertexIF = DDD_IFDefine(context, 2,O,1,A,1,B);
-  DDD_IFSetName(context, VertexIF, "VertexIF: Master<->Master");
+  dddctrl.VertexIF = DDD_IFDefine(context, 2,O,1,A,1,B);
+  DDD_IFSetName(context, dddctrl.VertexIF, "VertexIF: Master<->Master");
 
 
   /* define edge interfaces */
@@ -784,28 +783,28 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
   A[0] = PrioMaster;
   B[0] = PrioMaster;
-  EdgeIF = DDD_IFDefine(context, 1,O,1,A,1,B);
-  DDD_IFSetName(context, EdgeIF, "EdgeIF: Master<->Master");
+  dddctrl.EdgeIF = DDD_IFDefine(context, 1,O,1,A,1,B);
+  DDD_IFSetName(context, dddctrl.EdgeIF, "EdgeIF: Master<->Master");
 
   A[0] = PrioMaster; A[1] = PrioBorder;
   B[0] = PrioMaster; B[1] = PrioBorder;
-  BorderEdgeSymmIF = DDD_IFDefine(context, 1,O,2,A,2,B);
-  DDD_IFSetName(context, BorderEdgeSymmIF, "BorderEdgeSymmIF: Master/Border");
+  dddctrl.BorderEdgeSymmIF = DDD_IFDefine(context, 1,O,2,A,2,B);
+  DDD_IFSetName(context, dddctrl.BorderEdgeSymmIF, "BorderEdgeSymmIF: Master/Border");
 
   A[0] = PrioMaster; A[1] = PrioBorder;
   B[0] = PrioMaster; B[1] = PrioBorder; B[2] = PrioHGhost; B[3] = PrioVHGhost;
-  EdgeHIF = DDD_IFDefine(context, 1,O,2,A,4,B);
-  DDD_IFSetName(context, EdgeHIF, "EdgeHIF: Master/Border->Master/Border/PrioHGhost/PrioVHGhost");
+  dddctrl.EdgeHIF = DDD_IFDefine(context, 1,O,2,A,4,B);
+  DDD_IFSetName(context, dddctrl.EdgeHIF, "EdgeHIF: Master/Border->Master/Border/PrioHGhost/PrioVHGhost");
 
   A[0] = PrioMaster; A[1] = PrioBorder;
   B[0] = PrioMaster; B[1] = PrioBorder; B[2] = PrioVGhost; B[3] = PrioHGhost; B[4] = PrioVHGhost;
-  EdgeVHIF = DDD_IFDefine(context, 1,O,2,A,5,B);
-  DDD_IFSetName(context, EdgeVHIF, "EdgeVHIF: Master/Border->Master/Border/VGhost/HGhost/VHGhost");
+  dddctrl.EdgeVHIF = DDD_IFDefine(context, 1,O,2,A,5,B);
+  DDD_IFSetName(context, dddctrl.EdgeVHIF, "EdgeVHIF: Master/Border->Master/Border/VGhost/HGhost/VHGhost");
 
   A[0] = PrioMaster; A[1] = PrioBorder; A[2] = PrioVGhost; A[3] = PrioHGhost; A[4] = PrioVHGhost;
   B[0] = PrioMaster; B[1] = PrioBorder; B[2] = PrioVGhost; B[3] = PrioHGhost; B[4] = PrioVHGhost;
-  EdgeSymmVHIF = DDD_IFDefine(context, 1,O,5,A,5,B);
-  DDD_IFSetName(context, EdgeSymmVHIF, "EdgeSymmVHIF: Master/Border/VGhost/HGhost/VHGhost");
+  dddctrl.EdgeSymmVHIF = DDD_IFDefine(context, 1,O,5,A,5,B);
+  DDD_IFSetName(context, dddctrl.EdgeSymmVHIF, "EdgeSymmVHIF: Master/Border/VGhost/HGhost/VHGhost");
 
 }
 

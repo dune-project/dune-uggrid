@@ -522,8 +522,11 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
 
 INT NS_DIM_PREFIX SetBorderPriorities (GRID *theGrid)
 {
-  DDD_IFAExecLocal(theGrid->dddContext(),
-                   BorderNodeSymmIF,GRID_ATTR(theGrid),
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFAExecLocal(context,
+                   dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),
                    ComputeNodeBorderPrios);
 
   /* TODO: distinguish two cases:
@@ -532,12 +535,12 @@ INT NS_DIM_PREFIX SetBorderPriorities (GRID *theGrid)
      2. with other vectortypes (side and/or edgevectors) use
           ComputeVectorBorderPrios
    */
-  DDD_IFAExecLocal(theGrid->dddContext(),
-                   BorderVectorSymmIF,GRID_ATTR(theGrid),
+  DDD_IFAExecLocal(context,
+                   dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),
                    ComputeVectorBorderPrios);
 
-  DDD_IFAExecLocal(theGrid->dddContext(),
-                   BorderEdgeSymmIF,GRID_ATTR(theGrid),
+  DDD_IFAExecLocal(context,
+                   dddctrl.BorderEdgeSymmIF,GRID_ATTR(theGrid),
                    ComputeEdgeBorderPrios);
 
   return(GM_OK);

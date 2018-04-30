@@ -994,6 +994,9 @@ static int ExtractInterfaceERule (DDD::DDDContext&, DDD_OBJ obj)
 
 static INT ExtractInterfaceRules (MULTIGRID *mg)
 {
+  auto& context = mg->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   int lev;
 
   /* TODO (HRR 971211): don't include TOPLEVEL (no elem refined there) */
@@ -1003,7 +1006,7 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
 
     /* count interface master and vhghost elements */
     global.if_elems = 1;
-    DDD_IFAExecLocal(grid->dddContext(), ElementVHIF, GRID_ATTR(grid), CountIFElements);
+    DDD_IFAExecLocal(context, dddctrl.ElementVHIF, GRID_ATTR(grid), CountIFElements);
 
     if (global.if_elems>1)
     {
@@ -1021,18 +1024,18 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
         REP_ERR_RETURN(1);
 
       /* init rules of masters */
-      DDD_IFAExecLocal(grid->dddContext(), ElementIF, GRID_ATTR(grid), InitMasterRules);
+      DDD_IFAExecLocal(context, dddctrl.ElementIF, GRID_ATTR(grid), InitMasterRules);
 
       /* communicate VHghosts --> master */
-      DDD_IFAOneway(grid->dddContext(), ElementVHIF, GRID_ATTR(grid), IF_BACKWARD, sizeof(ERULE),
+      DDD_IFAOneway(context, dddctrl.ElementVHIF, GRID_ATTR(grid), IF_BACKWARD, sizeof(ERULE),
                     Gather_ERULE, Scatter_partial_ERULE);
 
       /* communicate master --> VHghosts */
-      DDD_IFAOneway(grid->dddContext(), ElementVHIF, GRID_ATTR(grid), IF_FORWARD, sizeof(ERULE),
+      DDD_IFAOneway(context, dddctrl.ElementVHIF, GRID_ATTR(grid), IF_FORWARD, sizeof(ERULE),
                     Gather_ERULE, Scatter_ERULE);
 
       /* extract rules from interface elements */
-      DDD_IFAExecLocal(grid->dddContext(), ElementVHIF, GRID_ATTR(grid), ExtractInterfaceERule);
+      DDD_IFAExecLocal(context, dddctrl.ElementVHIF, GRID_ATTR(grid), ExtractInterfaceERule);
 
       IFDEBUG(gm,ER_DBG_GENERAL)
       long N_er = 0;

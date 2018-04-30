@@ -1890,33 +1890,35 @@ static int Scatter_SonEdgeInfo (DDD::DDDContext& context, DDD_OBJ obj, void *dat
 
 static INT Identify_SonNodes (GRID *theGrid)
 {
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
 
 #ifdef IDENT_ONLY_NEW
-  DDD_IFAOnewayX(theGrid->dddContext(),
-                 NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_NewNodeInfo,Scatter_NewNodeInfo);
 
   if (UPGRID(theGrid) != NULL)
   {
     check_nodetype = CORNER_NODE;
     if (NIDENTASSERT)
-      DDD_IFAOnewayX(theGrid->dddContext(),
-                     NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+      DDD_IFAOnewayX(context,
+                     dddctrl.NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                      Gather_NodeInfo,Scatter_NodeInfo);
     if (0)
-      DDD_IFAOnewayX(theGrid->dddContext(),
-                     NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+      DDD_IFAOnewayX(context,
+                     dddctrl.NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                      Gather_TestNodeInfo,Scatter_TestNodeInfo);
   }
 
-  DDD_IFAOnewayX(theGrid->dddContext(),
-                 NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,2*sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,2*sizeof(int),
                  Gather_IdentSonNode,Scatter_IdentSonNode);
 
 #else
 
-  DDD_IFAOnewayX(theGrid->dddContext(),
-                 NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_SonNodeInfo,Scatter_SonNodeInfo);
 
 #endif
@@ -1943,38 +1945,40 @@ static INT Identify_SonNodes (GRID *theGrid)
 
 INT Identify_SonEdges (GRID *theGrid)
 {
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
 
 #ifdef IDENT_ONLY_NEW
 
-  DDD_IFAOnewayX(theGrid->dddContext(),
-                 EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_NewObjectInfo,Scatter_NewObjectInfo);
 
   if (UPGRID(theGrid) != NULL)
   {
     check_nodetype = MID_NODE;
-    DDD_IFAOnewayX(theGrid->dddContext(),
-                   NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+    DDD_IFAOnewayX(context,
+                   dddctrl.NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                    Gather_NodeInfo,Scatter_NodeInfo);
     if (EDIDENTASSERT)
-      DDD_IFAOnewayX(theGrid->dddContext(),
-                     EdgeSymmVHIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+      DDD_IFAOnewayX(context,
+                     dddctrl.EdgeSymmVHIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                      Gather_EdgeInfo,Scatter_EdgeInfo);
     if (0)
-      DDD_IFAOnewayX(theGrid->dddContext(),
-                     EdgeSymmVHIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+      DDD_IFAOnewayX(context,
+                     dddctrl.EdgeSymmVHIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                      Gather_TestEdgeInfo,Scatter_TestEdgeInfo);
   }
 
-  DDD_IFAOnewayX(theGrid->dddContext(),
-                 EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_IdentSonObjects,Scatter_IdentSonObjects);
 
 #else
 
   /* identify the sonedges */
-  DDD_IFAOnewayX(theGrid->dddContext(),
-                 EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_SonEdgeInfo,Scatter_SonEdgeInfo);
 
 #endif

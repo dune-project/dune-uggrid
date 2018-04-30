@@ -17,6 +17,36 @@ DDD::DDDContext& globalDDDContext()
 void globalDDDContext(const std::shared_ptr<DDD::DDDContext>& context)
 {
   globalDDDContext_ = context;
+
+  auto& dddctrl = ddd_ctrl(*context);
+
+  ElementIF = dddctrl.ElementIF;
+  ElementSymmIF = dddctrl.ElementSymmIF;
+  ElementVIF = dddctrl.ElementVIF;
+  ElementSymmVIF = dddctrl.ElementSymmVIF;
+  ElementVHIF = dddctrl.ElementVHIF;
+  ElementSymmVHIF = dddctrl.ElementSymmVHIF;
+
+  BorderNodeIF = dddctrl.BorderNodeIF;
+  BorderNodeSymmIF = dddctrl.BorderNodeSymmIF;
+  OuterNodeIF = dddctrl.OuterNodeIF;
+  NodeVIF = dddctrl.NodeVIF;
+  NodeIF = dddctrl.NodeIF;
+  NodeAllIF = dddctrl.NodeAllIF;
+
+  BorderVectorIF = dddctrl.BorderVectorIF;
+  BorderVectorSymmIF = dddctrl.BorderVectorSymmIF;
+  OuterVectorIF = dddctrl.OuterVectorIF;
+  OuterVectorSymmIF = dddctrl.OuterVectorSymmIF;
+  VectorVIF = dddctrl.VectorVIF;
+  VectorVAllIF = dddctrl.VectorVAllIF;
+  VectorIF = dddctrl.VectorIF;
+
+  EdgeIF = dddctrl.EdgeIF;
+  BorderEdgeSymmIF = dddctrl.BorderEdgeSymmIF;
+  EdgeHIF = dddctrl.EdgeHIF;
+  EdgeVHIF = dddctrl.EdgeVHIF;
+  EdgeSymmVHIF = dddctrl.EdgeSymmVHIF;
 }
 
 void globalDDDContext(std::nullptr_t)

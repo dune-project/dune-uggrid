@@ -7200,11 +7200,14 @@ static INT PropagatePeriodicNodeClass (GRID *theGrid, INT nclass)
 INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 {
     #ifdef ModelP
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses():"
                    " 1. communication on level %d\n",theGrid->ppifContext().me(),GLEVEL(theGrid)))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(theGrid->dddContext(),
-                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
     #endif
 
@@ -7215,8 +7218,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 2. communication\n",
                    theGrid->ppifContext().me()))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(theGrid->dddContext(),
-                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
     #endif
 
@@ -7227,8 +7230,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 3. communication\n",
                    theGrid->ppifContext().me()))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(theGrid->dddContext(),
-                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
         #endif
 
@@ -7241,8 +7244,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
     PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 4. communication\n",
                      theGrid->ppifContext().me()))
     /* exchange NCLASS of Nodes */
-    DDD_IFAExchange(theGrid->dddContext(),
-                    BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+    DDD_IFAExchange(context,
+                    dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                     Gather_NodeClass, Scatter_NodeClass);
         #endif
   }
@@ -7250,8 +7253,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 
         #ifdef ModelP
   /* send NCLASS to ghosts */
-  DDD_IFAOneway(theGrid->dddContext(),
-                NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(context,
+                dddctrl.NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_NodeClass, Scatter_GhostNodeClass);
     #endif
 
@@ -7422,10 +7425,13 @@ static INT PropagatePeriodicNextNodeClass (GRID *theGrid, INT nnclass)
 INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
 {
     #ifdef ModelP
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 1. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(theGrid->dddContext(),
-                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
     #endif
 
@@ -7434,8 +7440,8 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 2. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(theGrid->dddContext(),
-                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
     #endif
 
@@ -7444,8 +7450,8 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 3. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(theGrid->dddContext(),
-                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
         #endif
 
@@ -7456,16 +7462,16 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 4. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(theGrid->dddContext(),
-                  BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
         #endif
 #endif
 
         #ifdef ModelP
   /* send NNCLASSn to ghosts */
-  DDD_IFAOneway(theGrid->dddContext(),
-                NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(context,
+                dddctrl.NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_NextNodeClass, Scatter_GhostNextNodeClass);
     #endif
 

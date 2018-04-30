@@ -355,6 +355,9 @@ static int Scatter_RestrictedPartition (DDD::DDDContext&, DDD_OBJ obj, void *dat
 
 INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
 {
+  auto& context = theMG->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   INT i,j;
   ELEMENT *theElement;
   ELEMENT *theFather;
@@ -409,8 +412,8 @@ INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
       }
     }
     /* transfer restriction flags to master copies of father */
-    DDD_IFAOneway(theGrid->dddContext(),
-                  ElementVHIF,GRID_ATTR(theGrid),IF_BACKWARD,sizeof(INT),
+    DDD_IFAOneway(context,
+                  dddctrl.ElementVHIF,GRID_ATTR(theGrid),IF_BACKWARD,sizeof(INT),
                   Gather_ElementRestriction, Scatter_ElementRestriction);
   }
 
@@ -420,8 +423,8 @@ INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
     theGrid = GRID_ON_LEVEL(theMG,i);
 
     /* transfer (new) partitions of elements to non master copies */
-    DDD_IFAOnewayX(theGrid->dddContext(),
-                   ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+    DDD_IFAOnewayX(context,
+                   dddctrl.ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                    Gather_RestrictedPartition, Scatter_RestrictedPartition);
 
     for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
