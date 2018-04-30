@@ -194,31 +194,6 @@ enum HandlerSets
 /****************************************************************************/
 
 #ifdef ModelP
-/* DDD objects */
-extern DDD_TYPE TypeVector;
-extern DDD_TYPE TypeIVertex, TypeBVertex;
-extern DDD_TYPE TypeNode;
-
-extern DDD_TYPE TypeUnknown;
-
-#ifdef __TWODIM__
-extern DDD_TYPE TypeTrElem, TypeTrBElem,
-                TypeQuElem, TypeQuBElem;
-#endif
-
-#ifdef __THREEDIM__
-extern DDD_TYPE TypeTeElem, TypeTeBElem;
-extern DDD_TYPE TypePyElem, TypePyBElem;
-extern DDD_TYPE TypePrElem, TypePrBElem;
-extern DDD_TYPE TypeHeElem, TypeHeBElem;
-#endif
-
-/* DDD data objects */
-extern DDD_TYPE TypeMatrix;
-extern DDD_TYPE TypeBndP;
-extern DDD_TYPE TypeEdge;
-extern DDD_TYPE TypeBndS;
-
 /* DDD Interfaces */
 extern DDD_IF ElementIF, ElementSymmIF, ElementVIF, ElementSymmVIF,
               ElementVHIF, ElementSymmVHIF;
@@ -247,6 +222,30 @@ struct DDD_CTRL
 
   /* status of DDDIF */
   bool allTypesDefined;
+
+  /* DDD objects */
+  DDD_TYPE TypeVector;
+  DDD_TYPE TypeIVertex, TypeBVertex;
+  DDD_TYPE TypeNode;
+
+  DDD_TYPE TypeUnknown;
+
+#ifdef __TWODIM__
+  DDD_TYPE TypeTrElem, TypeTrBElem, TypeQuElem, TypeQuBElem;
+#endif
+
+#ifdef __THREEDIM__
+  DDD_TYPE TypeTeElem, TypeTeBElem;
+  DDD_TYPE TypePyElem, TypePyBElem;
+  DDD_TYPE TypePrElem, TypePrBElem;
+  DDD_TYPE TypeHeElem, TypeHeBElem;
+#endif
+
+  /* DDD data objects */
+  DDD_TYPE TypeMatrix;
+  DDD_TYPE TypeBndP;
+  DDD_TYPE TypeEdge;
+  DDD_TYPE TypeBndS;
 };
 
 #endif

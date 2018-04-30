@@ -81,32 +81,6 @@ using namespace PPIF;
 /*																			*/
 /****************************************************************************/
 
-/* DDD objects */
-DDD_TYPE NS_DIM_PREFIX TypeVector;
-DDD_TYPE NS_DIM_PREFIX TypeIVertex, NS_DIM_PREFIX TypeBVertex;
-DDD_TYPE NS_DIM_PREFIX TypeNode;
-DDD_TYPE NS_DIM_PREFIX TypeEdge;
-
-DDD_TYPE NS_DIM_PREFIX TypeUnknown;
-
-#ifdef __TWODIM__
-DDD_TYPE NS_DIM_PREFIX TypeTrElem, NS_DIM_PREFIX TypeTrBElem;
-DDD_TYPE NS_DIM_PREFIX TypeQuElem, NS_DIM_PREFIX TypeQuBElem;
-#endif
-
-#ifdef __THREEDIM__
-DDD_TYPE NS_DIM_PREFIX TypeTeElem, NS_DIM_PREFIX TypeTeBElem;
-DDD_TYPE NS_DIM_PREFIX TypePyElem, NS_DIM_PREFIX TypePyBElem;
-DDD_TYPE NS_DIM_PREFIX TypePrElem, NS_DIM_PREFIX TypePrBElem;
-DDD_TYPE NS_DIM_PREFIX TypeHeElem, NS_DIM_PREFIX TypeHeBElem;
-#endif
-
-
-/* DDD data objects */
-DDD_TYPE NS_DIM_PREFIX TypeMatrix;
-DDD_TYPE NS_DIM_PREFIX TypeBndP;
-DDD_TYPE NS_DIM_PREFIX TypeBndS;
-
 /* DDD interfaces needed for distributed computation */
 DDD_IF NS_DIM_PREFIX ElementIF, NS_DIM_PREFIX ElementSymmIF, NS_DIM_PREFIX ElementVIF, NS_DIM_PREFIX ElementSymmVIF,
 NS_DIM_PREFIX ElementVHIF, NS_DIM_PREFIX ElementSymmVHIF;
@@ -158,6 +132,7 @@ enum ElemTypeFlag { Inside, Boundary };
 
 static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE dddType, int etype)
 {
+  auto& dddctrl = ddd_ctrl(context);
   struct generic_element  *ge=0;
   GENERAL_ELEMENT                 *desc = element_descriptors[tag];
   UINT gbits = 0;
@@ -199,7 +174,7 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
      later versions (code would be more readable). */
 
   DDD_TypeDefine(context, dddType, ge,
-                 EL_OBJPTR, r+n_offset[tag],       ps*desc->corners_of_elem, TypeNode,
+                 EL_OBJPTR, r+n_offset[tag],       ps*desc->corners_of_elem, dddctrl.TypeNode,
                  EL_OBJPTR, r+father_offset[tag],  ps,                       dddType,
                  /* TODO: delete
                     #ifdef __TWODIM__
@@ -218,13 +193,13 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
 
   if (ddd_ctrl(context).elemData)
     DDD_TypeDefine(context, dddType, ge,
-                   EL_OBJPTR, r+evector_offset[tag], ps*1,     TypeVector,
+                   EL_OBJPTR, r+evector_offset[tag], ps*1,     dddctrl.TypeVector,
                    EL_CONTINUE);
 
         #ifdef __THREEDIM__
   if (ddd_ctrl(context).sideData)
     DDD_TypeDefine(context, dddType, ge,
-                   EL_OBJPTR, r+svector_offset[tag], ps*desc->sides_of_elem, TypeVector,
+                   EL_OBJPTR, r+svector_offset[tag], ps*desc->sides_of_elem, dddctrl.TypeVector,
                    EL_CONTINUE);
         #endif
 
@@ -319,59 +294,61 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
    */
 
 
+  auto& dddctrl = ddd_ctrl(context);
+
   /* 1. DDD objects (with DDD_HEADER) */
 
-  TypeVector      = DDD_TypeDeclare(context, "Vector");
-  MAP_TYPES(VEOBJ, TypeVector);
-  ddd_ctrl(context).dddObj[VEOBJ] = true;
+  dddctrl.TypeVector = DDD_TypeDeclare(context, "Vector");
+  MAP_TYPES(VEOBJ, dddctrl.TypeVector);
+  dddctrl.dddObj[VEOBJ] = true;
 
-  TypeIVertex     = DDD_TypeDeclare(context, "IVertex");
-  MAP_TYPES(IVOBJ, TypeIVertex);
-  ddd_ctrl(context).dddObj[IVOBJ] = true;
+  dddctrl.TypeIVertex = DDD_TypeDeclare(context, "IVertex");
+  MAP_TYPES(IVOBJ, dddctrl.TypeIVertex);
+  dddctrl.dddObj[IVOBJ] = true;
 
-  TypeBVertex     = DDD_TypeDeclare(context, "BVertex");
-  MAP_TYPES(BVOBJ, TypeBVertex);
-  ddd_ctrl(context).dddObj[BVOBJ] = true;
+  dddctrl.TypeBVertex = DDD_TypeDeclare(context, "BVertex");
+  MAP_TYPES(BVOBJ, dddctrl.TypeBVertex);
+  dddctrl.dddObj[BVOBJ] = true;
 
-  TypeNode        = DDD_TypeDeclare(context, "Node");
-  MAP_TYPES(NDOBJ, TypeNode);
-  ddd_ctrl(context).dddObj[NDOBJ] = true;
+  dddctrl.TypeNode = DDD_TypeDeclare(context, "Node");
+  MAP_TYPES(NDOBJ, dddctrl.TypeNode);
+  dddctrl.dddObj[NDOBJ] = true;
 
         #ifdef __TWODIM__
-  TypeTrElem      = DDD_TypeDeclare(context, "TrElem");
-  TypeTrBElem     = DDD_TypeDeclare(context, "TrBElem");
-  TypeQuElem      = DDD_TypeDeclare(context, "QuElem");
-  TypeQuBElem     = DDD_TypeDeclare(context, "QuBElem");
+  dddctrl.TypeTrElem  = DDD_TypeDeclare(context, "TrElem");
+  dddctrl.TypeTrBElem = DDD_TypeDeclare(context, "TrBElem");
+  dddctrl.TypeQuElem  = DDD_TypeDeclare(context, "QuElem");
+  dddctrl.TypeQuBElem = DDD_TypeDeclare(context, "QuBElem");
         #endif /* TWODIM */
 
         #ifdef __THREEDIM__
-  TypeTeElem      = DDD_TypeDeclare(context, "TeElem");
-  TypeTeBElem     = DDD_TypeDeclare(context, "TeBElem");
-  TypePyElem      = DDD_TypeDeclare(context, "PyElem");
-  TypePyBElem     = DDD_TypeDeclare(context, "PyBElem");
-  TypePrElem      = DDD_TypeDeclare(context, "PrElem");
-  TypePrBElem     = DDD_TypeDeclare(context, "PrBElem");
-  TypeHeElem      = DDD_TypeDeclare(context, "HeElem");
-  TypeHeBElem     = DDD_TypeDeclare(context, "HeBElem");
+  dddctrl.TypeTeElem  = DDD_TypeDeclare(context, "TeElem");
+  dddctrl.TypeTeBElem = DDD_TypeDeclare(context, "TeBElem");
+  dddctrl.TypePyElem  = DDD_TypeDeclare(context, "PyElem");
+  dddctrl.TypePyBElem = DDD_TypeDeclare(context, "PyBElem");
+  dddctrl.TypePrElem  = DDD_TypeDeclare(context, "PrElem");
+  dddctrl.TypePrBElem = DDD_TypeDeclare(context, "PrBElem");
+  dddctrl.TypeHeElem  = DDD_TypeDeclare(context, "HeElem");
+  dddctrl.TypeHeBElem = DDD_TypeDeclare(context, "HeBElem");
         #endif /* THREEDIM */
 
   /* edge type not unique:                    */
   /* edge is DDD object for 2D and 3D         */
   /* edge is DDD data object for 2D           */
-  TypeEdge        = DDD_TypeDeclare(context, "Edge");
-  MAP_TYPES(EDOBJ, TypeEdge);
-  ddd_ctrl(context).dddObj[EDOBJ] = true;
+  dddctrl.TypeEdge = DDD_TypeDeclare(context, "Edge");
+  MAP_TYPES(EDOBJ, dddctrl.TypeEdge);
+  dddctrl.dddObj[EDOBJ] = true;
 
   /* 2. DDD data objects (without DDD_HEADER) */
 
-  TypeMatrix  = DDD_TypeDeclare(context, "Matrix");
-  MAP_TYPES(MAOBJ, TypeMatrix);
+  dddctrl.TypeMatrix = DDD_TypeDeclare(context, "Matrix");
+  MAP_TYPES(MAOBJ, dddctrl.TypeMatrix);
 
-  TypeBndP    = DDD_TypeDeclare(context, "BndP");
-  MAP_TYPES(GetFreeOBJT(), TypeBndP);
+  dddctrl.TypeBndP = DDD_TypeDeclare(context, "BndP");
+  MAP_TYPES(GetFreeOBJT(), dddctrl.TypeBndP);
 
-  TypeBndS = DDD_TypeDeclare(context, "BndS");
-  MAP_TYPES(GetFreeOBJT(), TypeBndS);
+  dddctrl.TypeBndS = DDD_TypeDeclare(context, "BndS");
+  MAP_TYPES(GetFreeOBJT(), dddctrl.TypeBndS);
 }
 
 
@@ -396,6 +373,7 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
 
 static void ddd_DefineTypes(DDD::DDDContext& context)
 {
+  auto& dddctrl = ddd_ctrl(context);
   INT size;
   VECTOR v;
   NODE n;
@@ -414,7 +392,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
    * place (`ElementObjMkCons`).
    */
   gbits = ~(((1 << VECTORSIDE_LEN)-1) << VECTORSIDE_SHIFT);
-  DDD_TypeDefine(context, TypeVector, &v,
+  DDD_TypeDefine(context, dddctrl.TypeVector, &v,
                  EL_DDDHDR, &v.ddd,
                  EL_GBITS,  ELDEF(v.control), &gbits,
 
@@ -438,7 +416,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  );
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(context, TypeVector, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, dddctrl.TypeVector, PRIOMERGE_MAXIMUM);
 
   /* compute global fields it control word entry */
   gbits = ~((((1<<ONEDGE_LEN)-1)<<ONEDGE_SHIFT) |
@@ -446,7 +424,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
   PRINTDEBUG(dddif,1,("ddd_DefineTypes(): TypeI/BVertex gbits=%08x size=%d\n",
                       gbits,sizeof(iv.control)));
 
-  DDD_TypeDefine(context, TypeIVertex, &iv,
+  DDD_TypeDefine(context, dddctrl.TypeIVertex, &iv,
                  EL_DDDHDR, &iv.ddd,
                  /* TODO: delete
                                  EL_GDATA,  ELDEF(iv.control),
@@ -467,7 +445,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  /* ist abhaengig von vertikaler Lastverteilung  */
                 #ifdef __TWODIM__
                  /* TODO: ref-typ muss eigentlich {TypeTrElem,TypeTrBElem} sein! */
-                 EL_OBJPTR, ELDEF(iv.father), TypeTrElem,
+                 EL_OBJPTR, ELDEF(iv.father), dddctrl.TypeTrElem,
                 #endif
                 #ifdef __THREEDIM__
                  EL_LDATA,  ELDEF(iv.father),
@@ -481,10 +459,10 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  );
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(context, TypeIVertex, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, dddctrl.TypeIVertex, PRIOMERGE_MAXIMUM);
 
 
-  DDD_TypeDefine(context, TypeBVertex, &bv,
+  DDD_TypeDefine(context, dddctrl.TypeBVertex, &bv,
                  EL_DDDHDR, &bv.ddd,
                  /* TODO: delete
                                  EL_GDATA,  ELDEF(bv.control),
@@ -505,7 +483,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  /* ist abhaengig von vertikaler Lastverteilung  */
                 #ifdef __TWODIM__
                  /* TODO: ref-typ muss eigentlich {TypeTrElem,TypeTrBElem} sein! */
-                 EL_OBJPTR, ELDEF(bv.father), TypeTrElem,
+                 EL_OBJPTR, ELDEF(bv.father), dddctrl.TypeTrElem,
                 #endif
                 #ifdef __THREEDIM__
                  EL_LDATA,  ELDEF(bv.father),
@@ -520,10 +498,10 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  );
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(context, TypeBVertex, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, dddctrl.TypeBVertex, PRIOMERGE_MAXIMUM);
 
 
-  DDD_TypeDefine(context, TypeNode, &n,
+  DDD_TypeDefine(context, dddctrl.TypeNode, &n,
                  EL_DDDHDR, &n.ddd,
                  EL_GDATA,  ELDEF(n.control),
 
@@ -540,15 +518,15 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  /* father may be one of node or edge */
                  EL_OBJPTR, ELDEF(n.father),   DDD_TYPE_BY_HANDLER, NFatherObjType,
 
-                 EL_OBJPTR, ELDEF(n.son),      TypeNode,
+                 EL_OBJPTR, ELDEF(n.son),      dddctrl.TypeNode,
 
                  /* TODO: ref-typ muss eigentlich {TypeIVertex,TypeBVertex} sein! */
-                 EL_OBJPTR, ELDEF(n.myvertex), TypeIVertex,
+                 EL_OBJPTR, ELDEF(n.myvertex), dddctrl.TypeIVertex,
                  EL_CONTINUE);
 
   if (ddd_ctrl(context).nodeData)
-    DDD_TypeDefine(context, TypeNode, &n,
-                   EL_OBJPTR, ELDEF(n.vector), TypeVector,
+    DDD_TypeDefine(context, dddctrl.TypeNode, &n,
+                   EL_OBJPTR, ELDEF(n.vector), dddctrl.TypeVector,
                    EL_CONTINUE);
 
   /* The size of a NODE object may be less than sizeof(NODE).
@@ -557,30 +535,30 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
    * size of the NODE decreases by the size of one VECTOR*.
    * Compare the corresponding computation in the method CreateNode (in ugm.c)
    */
-  size = sizeof(NODE) - ((ddd_ctrl(context).nodeData) ? 0 : sizeof(VECTOR*));
-  DDD_TypeDefine(context, TypeNode, &n,
+  size = sizeof(NODE) - (dddctrl.nodeData ? 0 : sizeof(VECTOR*));
+  DDD_TypeDefine(context, dddctrl.TypeNode, &n,
                  EL_END, ((char *)&n)+size);
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(context, TypeNode, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, dddctrl.TypeNode, PRIOMERGE_MAXIMUM);
 
 
         #ifdef __TWODIM__
-  ddd_InitGenericElement(context, TRIANGLE,      TypeTrElem,  Inside);
-  ddd_InitGenericElement(context, TRIANGLE,      TypeTrBElem, Boundary);
-  ddd_InitGenericElement(context, QUADRILATERAL, TypeQuElem,  Inside);
-  ddd_InitGenericElement(context, QUADRILATERAL, TypeQuBElem, Boundary);
+  ddd_InitGenericElement(context, TRIANGLE,      dddctrl.TypeTrElem,  Inside);
+  ddd_InitGenericElement(context, TRIANGLE,      dddctrl.TypeTrBElem, Boundary);
+  ddd_InitGenericElement(context, QUADRILATERAL, dddctrl.TypeQuElem,  Inside);
+  ddd_InitGenericElement(context, QUADRILATERAL, dddctrl.TypeQuBElem, Boundary);
         #endif /* TWODIM */
 
         #ifdef __THREEDIM__
-  ddd_InitGenericElement(context, TETRAHEDRON, TypeTeElem,  Inside);
-  ddd_InitGenericElement(context, TETRAHEDRON, TypeTeBElem, Boundary);
-  ddd_InitGenericElement(context, PYRAMID,     TypePyElem,  Inside);
-  ddd_InitGenericElement(context, PYRAMID,     TypePyBElem, Boundary);
-  ddd_InitGenericElement(context, PRISM,           TypePrElem,  Inside);
-  ddd_InitGenericElement(context, PRISM,           TypePrBElem, Boundary);
-  ddd_InitGenericElement(context, HEXAHEDRON,  TypeHeElem,  Inside);
-  ddd_InitGenericElement(context, HEXAHEDRON,  TypeHeBElem, Boundary);
+  ddd_InitGenericElement(context, TETRAHEDRON, dddctrl.TypeTeElem,  Inside);
+  ddd_InitGenericElement(context, TETRAHEDRON, dddctrl.TypeTeBElem, Boundary);
+  ddd_InitGenericElement(context, PYRAMID,     dddctrl.TypePyElem,  Inside);
+  ddd_InitGenericElement(context, PYRAMID,     dddctrl.TypePyBElem, Boundary);
+  ddd_InitGenericElement(context, PRISM,       dddctrl.TypePrElem,  Inside);
+  ddd_InitGenericElement(context, PRISM,       dddctrl.TypePrBElem, Boundary);
+  ddd_InitGenericElement(context, HEXAHEDRON,  dddctrl.TypeHeElem,  Inside);
+  ddd_InitGenericElement(context, HEXAHEDRON,  dddctrl.TypeHeBElem, Boundary);
         #endif /* THREEDIM */
 
   /* 2. DDD data objects (without DDD_HEADER) */
@@ -589,10 +567,10 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
      will not be the real size ued by DDD. this size has to be computed
      by UG_MSIZE(mat). this is relevant only in gather/scatter of matrices
      in handler.c. */
-  DDD_TypeDefine(context, TypeMatrix, &m,
+  DDD_TypeDefine(context, dddctrl.TypeMatrix, &m,
                  EL_GDATA,  ELDEF(m.control),
                  EL_LDATA,  ELDEF(m.next),
-                 EL_OBJPTR, ELDEF(m.vect),   TypeVector,
+                 EL_OBJPTR, ELDEF(m.vect),   dddctrl.TypeVector,
                  /* TODO: not needed
                     EL_LDATA,  ELDEF(m.value), */
                  EL_END,    &m+1
@@ -603,7 +581,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
   PRINTDEBUG(dddif,1,("ddd_DefineTypes(): TypeEdge gbits=%08x size=%d\n",
                       gbits,sizeof(e.links[0].control)));
 
-  DDD_TypeDefine(context, TypeEdge, &e,
+  DDD_TypeDefine(context, dddctrl.TypeEdge, &e,
                  /* link 0 data */
                  /*TODO: now unique
                     #ifdef __TWODIM__
@@ -615,33 +593,33 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                   */
                  EL_GBITS,  ELDEF(e.links[0].control), &gbits,
                  EL_LDATA,  ELDEF(e.links[0].next),
-                 EL_OBJPTR, ELDEF(e.links[0].nbnode), TypeNode,
+                 EL_OBJPTR, ELDEF(e.links[0].nbnode), dddctrl.TypeNode,
 
                  /* link 1 data */
                  EL_GDATA,  ELDEF(e.links[1].control),
                  EL_LDATA,  ELDEF(e.links[1].next),
-                 EL_OBJPTR, ELDEF(e.links[1].nbnode), TypeNode,
+                 EL_OBJPTR, ELDEF(e.links[1].nbnode), dddctrl.TypeNode,
 
                  EL_LDATA,  ELDEF(e.levelIndex),
                  EL_LDATA,  ELDEF(e.leafIndex),
                  EL_GDATA,  ELDEF(e.id),
                  EL_DDDHDR, &e.ddd,
 
-                 EL_OBJPTR, ELDEF(e.midnode),  TypeNode,
+                 EL_OBJPTR, ELDEF(e.midnode),  dddctrl.TypeNode,
                  EL_CONTINUE);
 
-  if (ddd_ctrl(context).edgeData)
-    DDD_TypeDefine(context, TypeEdge, &e,
-                   EL_OBJPTR, ELDEF(e.vector), TypeVector,
+  if (dddctrl.edgeData)
+    DDD_TypeDefine(context, dddctrl.TypeEdge, &e,
+                   EL_OBJPTR, ELDEF(e.vector), dddctrl.TypeVector,
                    EL_CONTINUE);
 
   /* See the corresponding line for TypeNode for an explanation of why
    * the object size is modified here. */
   size = sizeof(EDGE) - ((ddd_ctrl(context).edgeData) ? 0 : sizeof(VECTOR*));
-  DDD_TypeDefine(context, TypeEdge, &e, EL_END, ((char *)&e)+size);
+  DDD_TypeDefine(context, dddctrl.TypeEdge, &e, EL_END, ((char *)&e)+size);
 
   /* set mergemode to maximum */
-  DDD_PrioMergeDefault(context, TypeEdge, PRIOMERGE_MAXIMUM);
+  DDD_PrioMergeDefault(context, dddctrl.TypeEdge, PRIOMERGE_MAXIMUM);
 
 }
 
@@ -666,6 +644,8 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
 
 static void ddd_IfInit(DDD::DDDContext& context)
 {
+  auto& dddctrl = ddd_ctrl(context);
+
   DDD_TYPE O[8];
   int nO;
   DDD_PRIO A[8];
@@ -674,16 +654,16 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
   /* define element interfaces */
 #ifdef __TWODIM__
-  O[0] = TypeTrElem; O[1] = TypeTrBElem;
-  O[2] = TypeQuElem; O[3] = TypeQuBElem;
+  O[0] = dddctrl.TypeTrElem; O[1] = dddctrl.TypeTrBElem;
+  O[2] = dddctrl.TypeQuElem; O[3] = dddctrl.TypeQuBElem;
   nO = 4;
 #endif
 
 #ifdef __THREEDIM__
-  O[0] = TypeTeElem; O[1] = TypeTeBElem;
-  O[2] = TypePyElem; O[3] = TypePyBElem;
-  O[4] = TypePrElem; O[5] = TypePrBElem;
-  O[6] = TypeHeElem; O[7] = TypeHeBElem;
+  O[0] = dddctrl.TypeTeElem; O[1] = dddctrl.TypeTeBElem;
+  O[2] = dddctrl.TypePyElem; O[3] = dddctrl.TypePyBElem;
+  O[4] = dddctrl.TypePrElem; O[5] = dddctrl.TypePrBElem;
+  O[6] = dddctrl.TypeHeElem; O[7] = dddctrl.TypeHeBElem;
   nO = 8;
 #endif
 
@@ -719,7 +699,7 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
 
   /* define node interfaces */
-  O[0] = TypeNode;
+  O[0] = dddctrl.TypeNode;
 
   A[0] = PrioBorder;
   B[0] = PrioMaster;
@@ -753,7 +733,7 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
 
   /* define vector interfaces */
-  O[0] = TypeVector;
+  O[0] = dddctrl.TypeVector;
 
   A[0] = PrioBorder;
   B[0] = PrioMaster;
@@ -791,7 +771,7 @@ static void ddd_IfInit(DDD::DDDContext& context)
   DDD_IFSetName(context, VectorIF, "VectorIF: Master->VGhost/VHGhost/HGhost");
 
   /* define vertex interfaces */
-  O[0] = TypeIVertex; O[1] = TypeBVertex;
+  O[0] = dddctrl.TypeIVertex; O[1] = dddctrl.TypeBVertex;
 
   A[0] = PrioMaster;
   B[0] = PrioMaster;
@@ -800,7 +780,7 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
 
   /* define edge interfaces */
-  O[0] = TypeEdge;
+  O[0] = dddctrl.TypeEdge;
 
   A[0] = PrioMaster;
   B[0] = PrioMaster;
@@ -850,44 +830,46 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
 static void InitDDDTypes(DDD::DDDContext& context)
 {
+  auto& dddctrl = ddd_ctrl(context);
+
   /* prevent from multiple execution */
-  if (ddd_ctrl(context).allTypesDefined)
+  if (dddctrl.allTypesDefined)
     return;
-  ddd_ctrl(context).allTypesDefined = true;
+  dddctrl.allTypesDefined = true;
 
   ddd_DefineTypes(context);
 
 
   /* display ddd types */
   IFDEBUG(dddif,1)
-  DDD_TypeDisplay(context, TypeVector);
-  DDD_TypeDisplay(context, TypeIVertex);
-  DDD_TypeDisplay(context, TypeBVertex);
-  DDD_TypeDisplay(context, TypeNode);
-  DDD_TypeDisplay(context, TypeEdge);
+  DDD_TypeDisplay(context, dddctrl.TypeVector);
+  DDD_TypeDisplay(context, dddctrl.TypeIVertex);
+  DDD_TypeDisplay(context, dddctrl.TypeBVertex);
+  DDD_TypeDisplay(context, dddctrl.TypeNode);
+  DDD_TypeDisplay(context, dddctrl.TypeEdge);
 
         #ifdef __TWODIM__
-  DDD_TypeDisplay(context, TypeTrElem);
-  DDD_TypeDisplay(context, TypeTrBElem);
-  DDD_TypeDisplay(context, TypeQuElem);
-  DDD_TypeDisplay(context, TypeQuBElem);
+  DDD_TypeDisplay(context, dddctrl.TypeTrElem);
+  DDD_TypeDisplay(context, dddctrl.TypeTrBElem);
+  DDD_TypeDisplay(context, dddctrl.TypeQuElem);
+  DDD_TypeDisplay(context, dddctrl.TypeQuBElem);
         #endif
 
         #ifdef __THREEDIM__
-  DDD_TypeDisplay(context, TypeTeElem);
-  DDD_TypeDisplay(context, TypeTeBElem);
-  DDD_TypeDisplay(context, TypePyElem);
-  DDD_TypeDisplay(context, TypePyBElem);
-  DDD_TypeDisplay(context, TypePrElem);
-  DDD_TypeDisplay(context, TypePrBElem);
-  DDD_TypeDisplay(context, TypeHeElem);
-  DDD_TypeDisplay(context, TypeHeBElem);
+  DDD_TypeDisplay(context, dddctrl.TypeTeElem);
+  DDD_TypeDisplay(context, dddctrl.TypeTeBElem);
+  DDD_TypeDisplay(context, dddctrl.TypePyElem);
+  DDD_TypeDisplay(context, dddctrl.TypePyBElem);
+  DDD_TypeDisplay(context, dddctrl.TypePrElem);
+  DDD_TypeDisplay(context, dddctrl.TypePrBElem);
+  DDD_TypeDisplay(context, dddctrl.TypeHeElem);
+  DDD_TypeDisplay(context, dddctrl.TypeHeBElem);
         #endif
 
   /* display dependent types */
-  DDD_TypeDisplay(context, TypeMatrix);
+  DDD_TypeDisplay(context, dddctrl.TypeMatrix);
         #ifdef __TWODIM__
-  DDD_TypeDisplay(context, TypeEdge);
+  DDD_TypeDisplay(context, dddctrl.TypeEdge);
         #endif
   ENDDEBUG
 
@@ -1020,6 +1002,8 @@ static int CheckInitParallel(const DDD::DDDContext& context)
 
 int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
 {
+  auto& dddctrl = ddd_ctrl(context);
+
   INT err;
   int i;
 
@@ -1049,20 +1033,20 @@ int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
   /* initialize type mapping arrays */
   for(i=0; i<MAXOBJECTS; i++)
   {
-    ddd_ctrl(context).types[i] = -1;
-    ddd_ctrl(context).dddObj[i] = false;
+    dddctrl.types[i] = -1;
+    dddctrl.dddObj[i] = false;
   }
   for(i=0; i<MAXDDDTYPES; i++)
   {
-    ddd_ctrl(context).ugtypes[i] = -1;
+    dddctrl.ugtypes[i] = -1;
   }
-  ddd_ctrl(context).currFormat = NULL;
+  dddctrl.currFormat = NULL;
 
   /* declare DDD_TYPES, definition must be done later */
   ddd_DeclareTypes(context);
-  ddd_ctrl(context).allTypesDefined = false;
+  dddctrl.allTypesDefined = false;
 
-  DomInitParallel(TypeBndP,TypeBndS);
+  DomInitParallel(dddctrl.TypeBndP,dddctrl.TypeBndS);
 
   ddd_IfInit(context);
 

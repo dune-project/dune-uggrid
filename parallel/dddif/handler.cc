@@ -264,7 +264,7 @@ static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc,
       }
       PRINTDEBUG(dddif,2,(PFMT " VectorXferCopy(): v=" VINDEX_FMTX
                           " AddData nmat=%d\n",me,VINDEX_PRTX(pv),nmat))
-      DDD_XferAddDataX(context, nmat,TypeMatrix,sizeArray);
+      DDD_XferAddDataX(context, nmat, ddd_ctrl(context).TypeMatrix,sizeArray);
     }
   }
   /*
@@ -824,9 +824,9 @@ static void DuneEntityScatter (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE 
   entity->message_buffer(buffer, size);
 }
 
-static void BVertexScatter (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
+static void BVertexScatter (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TYPE type_id, void *Data, int newness)
 {
-  BVertexScatterBndP(&(V_BNDP((VERTEX *)obj)),cnt,(char*)Data);
+  BVertexScatterBndP(context, &(V_BNDP((VERTEX *)obj)),cnt,(char*)Data);
 }
 
 
@@ -1124,8 +1124,9 @@ static void NodePriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO 
   return;
 }
 
-DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD::DDDContext&, DDD_OBJ obj, DDD_OBJ ref)
+DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD::DDDContext& context, DDD_OBJ obj, DDD_OBJ ref)
 {
+  const auto& dddctrl = ddd_ctrl(context);
   NODE *theNode = (NODE *)obj;
 
   switch (NTYPE(theNode))
@@ -1137,7 +1138,7 @@ DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD::DDDContext&, DDD_OBJ obj, DDD_OBJ ref
                         #endif
     HEAPFAULT(ref);
     ASSERT(OBJT((NODE *)ref) == NDOBJ);
-    return(TypeNode);
+    return(dddctrl.TypeNode);
 
   case (MID_NODE) :
                         #ifdef Debug
@@ -1146,7 +1147,7 @@ DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD::DDDContext&, DDD_OBJ obj, DDD_OBJ ref
                         #endif
     HEAPFAULT(ref);
     ASSERT(OBJT((EDGE *)ref) == EDOBJ);
-    return(TypeEdge);
+    return(dddctrl.TypeEdge);
 
   default :
     abort();
@@ -1277,6 +1278,8 @@ static void ElementDelete (DDD::DDDContext& context, DDD_OBJ obj)
 
 static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
+  auto& dddctrl = ddd_ctrl(context);
+
   INT i,nsides;
   INT Size;
   ELEMENT *pe     =       (ELEMENT *)obj;
@@ -1311,7 +1314,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
     /* must be done before any XferCopyObj-call! herein    */
     /* or directly after XferCopyObj-call for this element */
             #ifdef __TWODIM__
-    DDD_XferAddData(context, EDGES_OF_ELEM(pe), TypeEdge);
+    DDD_XferAddData(context, EDGES_OF_ELEM(pe), dddctrl.TypeEdge);
             #endif
   }
 
@@ -1342,12 +1345,12 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
 
     DDD_XferCopyObj(context, PARHDR(edge), proc, prio);
 
-    if (ddd_ctrl(context).edgeData) {
+    if (dddctrl.edgeData) {
       VECTOR *vec = EDVECTOR(edge);
 
       if (vec != NULL) {
         int Size = sizeof(VECTOR)-sizeof(DOUBLE)
-               +FMT_S_VEC_TP(MGFORMAT(ddd_ctrl(context).currMG),VTYPE(vec));
+               +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
         PRINTDEBUG(dddif,3,(PFMT " ElementXferCopy():  e=" EID_FMTX
                             " EDGEVEC=" VINDEX_FMTX " size=%d\n",
                             me,EID_PRTX(pe),VINDEX_PRTX(vec),Size))
@@ -1365,7 +1368,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
 
     if (vec != NULL) {
       Size = sizeof(VECTOR)-sizeof(DOUBLE)
-             +FMT_S_VEC_TP(MGFORMAT(ddd_ctrl(context).currMG),VTYPE(vec));
+             +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
 
       PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                           " ELEMVEC=" VINDEX_FMTX " size=%d\n",
@@ -1376,7 +1379,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
   }
 
   /* copy sidevectors */
-  if (ddd_ctrl(context).sideData)
+  if (dddctrl.sideData)
   {
     for (i=0; i<SIDES_OF_ELEM(pe); i++)
     {
@@ -1384,7 +1387,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
 
       if (vec != NULL) {
         Size = sizeof(VECTOR)-sizeof(DOUBLE)
-               +FMT_S_VEC_TP(MGFORMAT(ddd_ctrl(context).currMG),VTYPE(vec));
+               +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
 
         PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                             " SIDEVEC=" VINDEX_FMTX " size=%d\n",
@@ -1623,7 +1626,7 @@ static void ElemGatherB (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TYP
 
   /* now: type_id is TypeEdge or other */
         #ifdef __TWODIM__
-  if (type_id==TypeEdge)
+  if (type_id==ddd_ctrl(context).TypeEdge)
   {
     ElemGatherEdge(context, pe, cnt, (char *)data);
   }
@@ -1643,7 +1646,7 @@ static void ElemScatterB (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TY
     nsides = SIDES_OF_ELEM(pe);
     for (i=0; i<nsides; i++)
       bnds[i] = ELEM_BNDS(pe,i);
-    BElementScatterBndS(bnds, nsides, cnt, (char *)data);
+    BElementScatterBndS(context, bnds, nsides, cnt, (char *)data);
     for (i=0; i<nsides; i++)
       SET_BNDS(pe,i,bnds[i]);
     return;
@@ -1656,7 +1659,7 @@ static void ElemScatterB (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TY
 
   /* now: type_id is TypeEdge or other */
         #ifdef __TWODIM__
-  if (type_id==TypeEdge)
+  if (type_id==ddd_ctrl(context).TypeEdge)
   {
     ElemScatterEdge(context, pe, cnt, (char *)data, newness);
   }
@@ -2173,64 +2176,66 @@ static void BElemHandlerInit (DDD::DDDContext& context, DDD_TYPE etype, INT hand
 /* init all handlers necessary for grid xfer */
 void NS_DIM_PREFIX ddd_HandlerInit (DDD::DDDContext& context, INT handlerSet)
 {
-  DDD_SetHandlerUPDATE           (context, TypeVector, VectorUpdate);
-  DDD_SetHandlerXFERCOPY         (context, TypeVector, VectorXferCopy);
-  DDD_SetHandlerXFERGATHERX      (context, TypeVector, VectorGatherMatX);
-  DDD_SetHandlerXFERSCATTERX     (context, TypeVector, VectorScatterConnX);
-  DDD_SetHandlerOBJMKCONS        (context, TypeVector, VectorObjMkCons);
-  DDD_SetHandlerSETPRIORITY      (context, TypeVector, VectorPriorityUpdate);
+  auto& dddctrl = ddd_ctrl(context);
+
+  DDD_SetHandlerUPDATE           (context, dddctrl.TypeVector, VectorUpdate);
+  DDD_SetHandlerXFERCOPY         (context, dddctrl.TypeVector, VectorXferCopy);
+  DDD_SetHandlerXFERGATHERX      (context, dddctrl.TypeVector, VectorGatherMatX);
+  DDD_SetHandlerXFERSCATTERX     (context, dddctrl.TypeVector, VectorScatterConnX);
+  DDD_SetHandlerOBJMKCONS        (context, dddctrl.TypeVector, VectorObjMkCons);
+  DDD_SetHandlerSETPRIORITY      (context, dddctrl.TypeVector, VectorPriorityUpdate);
   /* TODO: not used
-          DDD_SetHandlerDELETE           (context, TypeVector, VectorDelete);
+          DDD_SetHandlerDELETE           (context, dddctrl.TypeVector, VectorDelete);
    */
 
-  DDD_SetHandlerUPDATE           (context, TypeIVertex, VertexUpdate);
-  DDD_SetHandlerSETPRIORITY      (context, TypeIVertex, VertexPriorityUpdate);
+  DDD_SetHandlerUPDATE           (context, dddctrl.TypeIVertex, VertexUpdate);
+  DDD_SetHandlerSETPRIORITY      (context, dddctrl.TypeIVertex, VertexPriorityUpdate);
 
-  DDD_SetHandlerLDATACONSTRUCTOR (context, TypeBVertex, BVertexLDataConstructor);
-  DDD_SetHandlerUPDATE           (context, TypeBVertex, VertexUpdate);
-  DDD_SetHandlerXFERCOPY         (context, TypeBVertex, BVertexXferCopy);
-  DDD_SetHandlerXFERGATHER       (context, TypeBVertex, BVertexGather);
-  DDD_SetHandlerXFERSCATTER      (context, TypeBVertex, BVertexScatter);
-  DDD_SetHandlerSETPRIORITY      (context, TypeBVertex, VertexPriorityUpdate);
+  DDD_SetHandlerLDATACONSTRUCTOR (context, dddctrl.TypeBVertex, BVertexLDataConstructor);
+  DDD_SetHandlerUPDATE           (context, dddctrl.TypeBVertex, VertexUpdate);
+  DDD_SetHandlerXFERCOPY         (context, dddctrl.TypeBVertex, BVertexXferCopy);
+  DDD_SetHandlerXFERGATHER       (context, dddctrl.TypeBVertex, BVertexGather);
+  DDD_SetHandlerXFERSCATTER      (context, dddctrl.TypeBVertex, BVertexScatter);
+  DDD_SetHandlerSETPRIORITY      (context, dddctrl.TypeBVertex, VertexPriorityUpdate);
 
-  DDD_SetHandlerXFERGATHER       (context, TypeNode, DuneEntityGather<NODE>);
-  DDD_SetHandlerXFERSCATTER      (context, TypeNode, DuneEntityScatter<NODE>);
+  DDD_SetHandlerXFERGATHER       (context, dddctrl.TypeNode, DuneEntityGather<NODE>);
+  DDD_SetHandlerXFERSCATTER      (context, dddctrl.TypeNode, DuneEntityScatter<NODE>);
 
-  DDD_SetHandlerLDATACONSTRUCTOR (context, TypeNode, NodeObjInit);
-  DDD_SetHandlerDESTRUCTOR       (context, TypeNode, NodeDestructor);
-  DDD_SetHandlerOBJMKCONS        (context, TypeNode, NodeObjMkCons);
-  DDD_SetHandlerUPDATE           (context, TypeNode, NodeUpdate);
-  DDD_SetHandlerXFERCOPY         (context, TypeNode, NodeXferCopy);
-  DDD_SetHandlerSETPRIORITY      (context, TypeNode, NodePriorityUpdate);
+  DDD_SetHandlerLDATACONSTRUCTOR (context, dddctrl.TypeNode, NodeObjInit);
+  DDD_SetHandlerDESTRUCTOR       (context, dddctrl.TypeNode, NodeDestructor);
+  DDD_SetHandlerOBJMKCONS        (context, dddctrl.TypeNode, NodeObjMkCons);
+  DDD_SetHandlerUPDATE           (context, dddctrl.TypeNode, NodeUpdate);
+  DDD_SetHandlerXFERCOPY         (context, dddctrl.TypeNode, NodeXferCopy);
+  DDD_SetHandlerSETPRIORITY      (context, dddctrl.TypeNode, NodePriorityUpdate);
 
 
 
         #ifdef __TWODIM__
-  IElemHandlerInit(context, TypeTrElem, handlerSet);
-  BElemHandlerInit(context, TypeTrBElem, handlerSet);
+  IElemHandlerInit(context, dddctrl.TypeTrElem, handlerSet);
+  BElemHandlerInit(context, dddctrl.TypeTrBElem, handlerSet);
 
-  IElemHandlerInit(context, TypeQuElem, handlerSet);
-  BElemHandlerInit(context, TypeQuBElem, handlerSet);
+  IElemHandlerInit(context, dddctrl.TypeQuElem, handlerSet);
+  BElemHandlerInit(context, dddctrl.TypeQuBElem, handlerSet);
         #endif
 
         #ifdef __THREEDIM__
-  IElemHandlerInit(context, TypeTeElem, handlerSet);
-  BElemHandlerInit(context, TypeTeBElem, handlerSet);
+  IElemHandlerInit(context, dddctrl.TypeTeElem, handlerSet);
+  BElemHandlerInit(context, dddctrl.TypeTeBElem, handlerSet);
 
-  IElemHandlerInit(context, TypePyElem, handlerSet);
-  BElemHandlerInit(context, TypePyBElem, handlerSet);
+  IElemHandlerInit(context, dddctrl.TypePyElem, handlerSet);
+  BElemHandlerInit(context, dddctrl.TypePyBElem, handlerSet);
 
-  IElemHandlerInit(context, TypePrElem, handlerSet);
-  BElemHandlerInit(context, TypePrBElem, handlerSet);
+  IElemHandlerInit(context, dddctrl.TypePrElem, handlerSet);
+  BElemHandlerInit(context, dddctrl.TypePrBElem, handlerSet);
 
-  IElemHandlerInit(context, TypeHeElem, handlerSet);
-  BElemHandlerInit(context, TypeHeBElem, handlerSet);
+  IElemHandlerInit(context, dddctrl.TypeHeElem, handlerSet);
+  BElemHandlerInit(context, dddctrl.TypeHeBElem, handlerSet);
         #endif
 
-  DDD_SetHandlerUPDATE      (context, TypeEdge, EdgeUpdate);
-  DDD_SetHandlerOBJMKCONS   (context, TypeEdge, EdgeObjMkCons);
-  DDD_SetHandlerXFERCOPY    (context, TypeEdge, EdgeXferCopy);
-  DDD_SetHandlerSETPRIORITY (context, TypeEdge, EdgePriorityUpdate);
+  DDD_SetHandlerUPDATE      (context, dddctrl.TypeEdge, EdgeUpdate);
+  DDD_SetHandlerOBJMKCONS   (context, dddctrl.TypeEdge, EdgeObjMkCons);
+  DDD_SetHandlerXFERCOPY    (context, dddctrl.TypeEdge, EdgeXferCopy);
+  DDD_SetHandlerSETPRIORITY (context, dddctrl.TypeEdge, EdgePriorityUpdate);
 
   DomHandlerInit(handlerSet);
 }
