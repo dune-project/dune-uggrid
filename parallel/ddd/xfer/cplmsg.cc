@@ -373,7 +373,7 @@ static void CplMsgDisplay (DDD::DDDContext& context, const char *comment, LC_MSG
 
   std::ostringstream prefixStream;
   prefixStream
-    << " " << setw(3) << me << "-" << comment << "-" << setw(3) << proc << " ";
+    << " " << setw(3) << context.me() << "-" << comment << "-" << setw(3) << proc << " ";
   const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */

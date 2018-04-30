@@ -64,7 +64,7 @@ START_UGDIM_NAMESPACE
 
 
 /*
-   #define AddCoupling(context, a,b,c)  printf("%4d: AC %05d, %d/%d     %08x\n",me,__LINE__,b,c,(int) AddCoupling(context, a,b,c))
+   #define AddCoupling(context, a,b,c)  printf("%4d: AC %05d, %d/%d     %08x\n",context.me(),__LINE__,b,c,(int) AddCoupling(context, a,b,c))
  */
 
 
@@ -182,8 +182,8 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
           /* if we are in merge_mode, we do not update
              existing references. */
                                         #ifdef DEBUG_MERGE_MODE
-          printf("%4d: loc-merge curr=%08x keep     e=%d l=%d\n",
-                 me, OBJ_GID(OBJ2HDR(*ref,refdesc)), e,l);
+          printf("loc-merge curr=%08x keep     e=%d l=%d\n",
+                 OBJ_GID(OBJ2HDR(*ref,refdesc)), e,l);
                                         #endif
 
           /* it may happen here that different references
@@ -239,9 +239,9 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
             if (st->adr.hdr!=NULL)
             {
                                                         #ifdef DEBUG_MERGE_MODE
-              printf("%4d: loc-merge curr=%08x "
+              printf("loc-merge curr=%08x "
                      "have_sym e=%d l=%d to %08x\n",
-                     me, *ref, e,l,OBJ_GID(st->adr.hdr));
+                     *ref, e,l,OBJ_GID(st->adr.hdr));
                                                         #endif
 
               /* distinction for efficiency: if we know refdesc
@@ -261,9 +261,9 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
             else
             {
               printf(
-                "%4d: loc-merge curr=%08x "
+                "loc-merge curr=%08x "
                 "have_sym e=%d l=%d to NULL\n",
-                me, *ref, e, l);
+                *ref, e, l);
             }
                                                 #endif
           }
@@ -294,9 +294,9 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
           if (merge_mode)
           {
                                                 #ifdef DEBUG_MERGE_MODE
-            printf("%4d: loc-merge curr=%08x "
+            printf("loc-merge curr=%08x "
                    "no_sym   e=%d l=%d\n",
-                   me, *ref, e,l);
+                   *ref, e,l);
                                                 #endif
           }
           else
@@ -502,9 +502,8 @@ static void AcceptObjFromMsg (
       /* overwrite pointer to hdr inside message */
       if (OBJ_TYPE(ote->hdr) != OBJ_TYPE(localCplObjs[j]))
       {
-        printf("%d: ERROR, copying changed the object type!\n", me);
-        printf("%d: was: %s, becomes: %s\n",
-               me,
+        printf("ERROR, copying changed the object type!\n");
+        printf("    was: %s, becomes: %s\n",
                context.typeDefs()[OBJ_TYPE(ote->hdr)].name,
                context.typeDefs()[OBJ_TYPE(localCplObjs[j])].name);
         assert(OBJ_TYPE(ote->hdr) == OBJ_TYPE(localCplObjs[j]));
@@ -699,6 +698,7 @@ static void UpdateCouplings (
   XIDelObj  **itemsDO, int nDO,                   /* XIDelObj */
   XICopyObj **itemsNO, int nNO)                   /* NewOwners */
 {
+  const auto& me = context.me();
   int iNC, iO, iDO, iNO, iLCO;
 
   /*
@@ -1122,8 +1122,8 @@ static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int requ
       if (desc->nPointers>0)
       {
                                 #ifdef DEBUG_MERGE_MODE
-        printf("%4d: LocalizeObject in merge_mode, %08x prio %d\n",
-               me, OBJ_GID(theObjTab[i].hdr), OBJ_PRIO(theObjTab[i].hdr));
+        printf("LocalizeObject in merge_mode, %08x prio %d\n",
+               OBJ_GID(theObjTab[i].hdr), OBJ_PRIO(theObjTab[i].hdr));
                                 #endif
 
         /* execute Localize in merge_mode */

@@ -196,7 +196,7 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
                                         #ifdef CtrlTimeoutsDetailed
           printf("%4d: IFCTRL %02d send-completed    to "
                  "%4d after %10ld, size %ld\n",
-                 me, ifId, ifHead->proc,
+                 context.me(), ifId, ifHead->proc,
                  (unsigned long)tries,
                  (unsigned long)ifHead->bufOut.size());
                                         #endif
@@ -209,7 +209,7 @@ int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
   if (ctx.send_mesgs==0)
   {
     printf("%4d: IFCTRL %02d send-completed    all after %10ld tries\n",
-           me, ifId, (unsigned long)tries);
+           context.me(), ifId, (unsigned long)tries);
   }
         #endif
 

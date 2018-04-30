@@ -599,13 +599,13 @@ static void ResolveDependencies (
   {
     ID_REFDBY *rby;
 
-    printf("%4d: %08x has loi %d\n",
-           me, tupels[i].infos[0]->msg.gid, tupels[i].loi);
+    printf("%08x has loi %d\n",
+           tupels[i].infos[0]->msg.gid, tupels[i].loi);
 
     for(rby=tupels[i].refd; rby!=NULL; rby=rby->next)
     {
-      printf("%4d: %08x referenced by %08x\n",
-             me, tupels[i].infos[0]->msg.gid, rby->by->msg.gid);
+      printf("%08x referenced by %08x\n",
+             tupels[i].infos[0]->msg.gid, rby->by->msg.gid);
     }
   }
 #       endif
@@ -833,8 +833,8 @@ static int IdentifySort (const DDD::DDDContext& context,
        int k;
      */
 #               if DebugIdent<=1
-    printf("%4d: Ident dest=%d msg_idx[ %08x ] = %5d, loi=%d\n",
-           me, dest, tupels[j].infos[0]->msg.gid, j, tupels[j].loi);
+    printf("Ident dest=%d msg_idx[ %08x ] = %5d, loi=%d\n",
+           dest, tupels[j].infos[0]->msg.gid, j, tupels[j].loi);
 #               endif
 
     /*
@@ -1001,7 +1001,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
   STAT_ZEROALL;
 
 #       if DebugIdent<=9
-  printf("%4d: DDD_IdentifyEnd.\n", me);
+  printf("DDD_IdentifyEnd.\n");
   fflush(stdout);
 #       endif
 
@@ -1091,7 +1091,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
    */
 
 #       if DebugIdent<=4
-  printf("%4d: DDD_IdentifyEnd. PLists ready.\n", me); fflush(stdout);
+  printf("DDD_IdentifyEnd. PLists ready.\n"); fflush(stdout);
 #       endif
 
 
@@ -1119,7 +1119,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
         for(i=0; i<plist->nEntries; i++, msgin++, msgout++)
         {
 #                                       if DebugIdent<=1
-          printf("%4d: identifying %08x with %08x/%d to %08x\n", me,
+          printf("identifying %08x with %08x/%d to %08x\n",
                  OBJ_GID(msgout->infos[0]->hdr), msgin->gid,
                  plist->proc,
                  MIN(OBJ_GID(msgout->infos[0]->hdr), msgin->gid));
@@ -1130,7 +1130,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
           {
             DUNE_THROW(Dune::Exception,
                        "inconsistent tupels, gid "
-                       << OBJ_GID(msgout->infos[0]->hdr) << " on " << me
+                       << OBJ_GID(msgout->infos[0]->hdr) << " on " << context.me()
                        << ", gid " << msgin->gid << " on " << plist->proc);
           }
 #                                       endif
@@ -1181,7 +1181,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 
 
 #       if DebugIdent<=8
-  printf("%4d: DDD_IdentifyEnd. Rebuilding interfaces.\n", me);
+  printf("DDD_IdentifyEnd. Rebuilding interfaces.\n");
   fflush(stdout);
 #       endif
 
@@ -1194,7 +1194,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 
 
 #       if DebugIdent<=9
-  printf("%4d: DDD_IdentifyEnd. Ready.\n", me); fflush(stdout);
+  printf("DDD_IdentifyEnd. Ready.\n"); fflush(stdout);
 #       endif
 
   IdentStepMode(context, IdentMode::IMODE_BUSY);
@@ -1218,7 +1218,7 @@ static IdEntry *IdentifyIdEntry(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC 
   if (!IdentActive(context))
     DUNE_THROW(Dune::Exception, "Missing DDD_IdentifyBegin(), aborted");
 
-  if (proc==me)
+  if (proc == context.me())
     DUNE_THROW(Dune::Exception,
                "cannot identify " << OBJ_GID(hdr) << " with myself");
 
@@ -1313,7 +1313,7 @@ if (id==NULL)
 id->msg.id.number = ident;
 
         #if DebugIdent<=2
-printf("%4d: IdentifyNumber %08x %02d with %4d num %d\n", me,
+printf("%4d: IdentifyNumber %08x %02d with %4d num %d\n", context.me(),
        OBJ_GID(hdr), OBJ_TYPE(hdr), proc, id->msg.id.number);
         #endif
 }
@@ -1358,7 +1358,7 @@ if (id==NULL)
 id->msg.id.string = ident;
 
         #if DebugIdent<=2
-printf("%4d: IdentifyString %08x %02d with %4d str %s\n", me,
+printf("%4d: IdentifyString %08x %02d with %4d str %s\n", context.me(),
        OBJ_GID(hdr), OBJ_TYPE(hdr), proc, id->msg.id.string);
         #endif
 }
@@ -1414,7 +1414,7 @@ if (id==NULL)
 id->msg.id.object = OBJ_GID(ident);
 
         #if DebugIdent<=2
-printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", me,
+printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", context.me(),
        OBJ_GID(hdr), OBJ_TYPE(hdr), proc, id->msg.id.object);
         #endif
 }

@@ -67,7 +67,7 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-#define MakeUnique(n)  (((n)<<MAX_PROCBITS_IN_GID)+me)
+#define MakeUnique(context, n)  (((n)<<MAX_PROCBITS_IN_GID)+(context).me())
 #define ProcFromId(n)  ((n)& ((1<<MAX_PROCBITS_IN_GID)-1))
 #define CountFromId(n) (((n)-((n)& ((1<<MAX_PROCBITS_IN_GID)-1)))>>MAX_PROCBITS_IN_GID)
 
@@ -316,10 +316,10 @@ OBJ_ATTR(aHdr)  = aAttr;
 OBJ_FLAGS(aHdr) = 0;
 
 /* create unique GID */
-OBJ_GID(aHdr)   = MakeUnique(ctx.theIdCount++);
+OBJ_GID(aHdr)   = MakeUnique(context, ctx.theIdCount++);
 
 /* check overflow of global id numbering */
-if (MakeUnique(ctx.theIdCount) <= MakeUnique(ctx.theIdCount-1))
+if (MakeUnique(context, ctx.theIdCount) <= MakeUnique(context, ctx.theIdCount-1))
 {
   /* TODO update docu */
   /* TODO one could try to renumber all objects here. */

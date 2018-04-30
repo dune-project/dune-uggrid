@@ -204,6 +204,7 @@ static int ConsCheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_HD
   int error_cnt = 0;
 
   auto& ctx = context.consContext();
+  const auto& me = context.me();
 
   nItems = (int) LC_GetTableLen(xm, ctx.constab_id);
   theCplBuf = (CONS_INFO *) LC_GetPtr(xm, ctx.constab_id);
@@ -363,6 +364,7 @@ static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_H
   int error_cnt = 0;
 
   auto& ctx = context.consContext();
+  const auto& me = context.me();
 
   nItems = (int) LC_GetTableLen(xm, ctx.constab_id);
   theCplBuf = (CONS_INFO *) LC_GetPtr(xm, ctx.constab_id);
@@ -506,6 +508,7 @@ static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
   int error_cnt = 0;
 
   auto& ctx = context.consContext();
+  const auto& me = context.me();
   const auto& nCpls = context.couplingContext().nCpls;
 
   /* count overall number of couplings */
@@ -597,7 +600,7 @@ static int ConsCheckDoubleObj(const DDD::DDDContext& context)
     {
       error_cnt++;
       Dune::dwarn << "    DDD-GCC Warning: obj " << OBJ_GID(locObjs[i])
-                  << " on " << me << " doubled\n";
+                  << " on " << context.me() << " doubled\n";
     }
   }
 

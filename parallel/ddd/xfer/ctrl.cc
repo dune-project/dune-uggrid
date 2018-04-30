@@ -143,7 +143,7 @@ void XferDisplayMsg (DDD::DDDContext& context, const char *comment, LC_MSGHANDLE
   int lenOldCpl = (int) LC_GetTableLen(xm, ctx.oldcpl_id);
 
   std::ostringstream prefixStream;
-  prefixStream << " " << setw(3) << me << "-" << comment
+  prefixStream << " " << setw(3) << context.me() << "-" << comment
                << "-" << setw(3) << proc << " ";
   const std::string& prefix = prefixStream.str();
 
