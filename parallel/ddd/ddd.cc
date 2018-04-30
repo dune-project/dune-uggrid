@@ -220,9 +220,6 @@ void DDD_Exit(DDD::DDDContext& context)
   ddd_StatExit();
   LC_Exit(context);
   NotifyExit(context);
-
-  /* exit PPIF */
-  ExitPPIF(context.ppifContext());
 }
 
 

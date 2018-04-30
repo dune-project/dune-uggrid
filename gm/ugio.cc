@@ -2842,17 +2842,9 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   ugio_begin = CURRENT_TIME;
         #endif
 
-  if (not ppifContext) {
-    ppifContext = std::shared_ptr<PPIF::PPIFContext>(
-      new PPIF::PPIFContext
-#ifdef ModelP
-      , [](PPIF::PPIFContext* p) { ExitPPIF(*p); delete p; }
-#endif
-      );
-#ifdef ModelP
-    InitPPIF(*ppifContext);
-#endif
-  }
+  if (not ppifContext)
+    ppifContext = std::make_shared<PPIF::PPIFContext>();
+
   const auto& me = ppifContext->me();
   const auto& procs = ppifContext->procs();
 

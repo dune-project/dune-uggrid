@@ -3041,17 +3041,8 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   FORMAT *theFormat;
   INT MarkKey;
 
-  if (not ppifContext) {
-    ppifContext = std::shared_ptr<PPIF::PPIFContext>(
-      new PPIF::PPIFContext
-#ifdef ModelP
-      , [](PPIF::PPIFContext* p) { ExitPPIF(*p); delete p; }
-#endif
-      );
-#ifdef ModelP
-    InitPPIF(*ppifContext);
-#endif
-  }
+  if (not ppifContext)
+    ppifContext = std::make_shared<PPIF::PPIFContext>();
 
   theFormat = GetFormat(format);
   if (theFormat==NULL)

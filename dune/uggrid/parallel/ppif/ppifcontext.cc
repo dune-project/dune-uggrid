@@ -9,7 +9,7 @@ PPIFContext
 ::PPIFContext()
   : PPIFContext(MPI_COMM_WORLD)
 {
-  /* Nothing. */
+  InitPPIF(*this);
 }
 #else
 PPIFContext
@@ -23,6 +23,8 @@ PPIFContext
 ::~PPIFContext()
 {
 #if ModelP
+  ExitPPIF(*this);
+
   int finalized;
   MPI_Finalized(&finalized);
 

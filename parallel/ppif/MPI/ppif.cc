@@ -275,7 +275,6 @@ int PPIF::InitPPIF (int *, char ***)
   auto context = ppifContext();
   if (not context)
     context = std::make_shared<PPIFContext>();
-  InitPPIF(*context);
   ppifContext(context);
 
   return PPIF_SUCCESS;
@@ -296,7 +295,6 @@ void PPIF::ExitPPIF(PPIF::PPIFContext& context)
 int PPIF::ExitPPIF ()
 {
   if (ppifContext()) {
-    ExitPPIF(*ppifContext());
     ppifContext(nullptr);
   }
 
