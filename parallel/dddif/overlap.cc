@@ -187,7 +187,7 @@ static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
 
       HEAPFAULT(theNeighbor);
 
-      if (EPROCPRIO(context, theNeighbor,PrioMaster)>=procs) break;
+      if (EPROCPRIO(context, theNeighbor,PrioMaster)>=context.procs()) break;
 
       XFERECOPYX(context, theSon,EPROCPRIO(context, theNeighbor,PrioMaster),PrioHGhost,
                  (OBJT(theSon)==BEOBJ) ? BND_SIZE_TAG(TAG(theSon)) :
@@ -353,8 +353,8 @@ INT ConnectGridOverlap (GRID *theGrid)
     /* connect only FROM hgost copies */
     if (!IS_REFINED(theElement) || !EHGHOSTPRIO(prio)) continue;
 
-    PRINTDEBUG(gm,1,("%d: Connecting e=%08x/%x ID=%d eLevel=%d\n",
-                     me,DDD_InfoGlobalId(PARHDRE(theElement)),
+    PRINTDEBUG(gm,1,("Connecting e=%08x/%x ID=%d eLevel=%d\n",
+                     DDD_InfoGlobalId(PARHDRE(theElement)),
                      theElement,ID(theElement),
                      LEVEL(theElement)));
 
@@ -383,13 +383,13 @@ INT ConnectGridOverlap (GRID *theGrid)
                                   Sons_of_Side_List,SonSides,1,0)!=GM_OK) RETURN(GM_FATAL);
 
       IFDEBUG(gm,1)
-      UserWriteF(PFMT "                 side=%d NSONS=%d Sons_of_Side=%d:\n",
-                 me,i,NSONS(theElement),Sons_of_Side);
+      UserWriteF("                 side=%d NSONS=%d Sons_of_Side=%d:\n",
+                 i,NSONS(theElement),Sons_of_Side);
       for (j=0; j<Sons_of_Side; j++)
-        UserWriteF(PFMT "            son=%08x/%x sonside=%d\n",
-                   me,EGID(Sons_of_Side_List[j]),
+        UserWriteF("            son=%08x/%x sonside=%d\n",
+                   EGID(Sons_of_Side_List[j]),
                    Sons_of_Side_List[j],SonSides[j]);
-      printf("%d:         connecting ghostelements:\n",me);
+      printf("        connecting ghostelements:\n");
       ENDDEBUG
 
       /* the ioflag=1 is needed, since not all sended ghosts are needed! */
@@ -447,16 +447,16 @@ INT ConnectGridOverlap (GRID *theGrid)
         {
           if (ECLASS(theSon) == YELLOW_CLASS)
           {
-            UserWriteF(PFMT "ConnectGridOverlap(): disposing useless yellow ghost  e=" EID_FMTX
+            UserWriteF("ConnectGridOverlap(): disposing useless yellow ghost  e=" EID_FMTX
                        "f=" EID_FMTX "this ghost is useless!\n",
-                       me,EID_PRTX(theSon),EID_PRTX(theElement));
+                       EID_PRTX(theSon),EID_PRTX(theElement));
             DisposeElement(UPGRID(theGrid),theSon,true);
           }
           else
           {
-            UserWriteF(PFMT "ConnectGridOverlap(): ERROR e=" EID_FMTX
+            UserWriteF("ConnectGridOverlap(): ERROR e=" EID_FMTX
                        "f=" EID_FMTX "this ghost is useless!\n",
-                       me,EID_PRTX(theSon),EID_PRTX(theElement));
+                       EID_PRTX(theSon),EID_PRTX(theElement));
 
             /* TODO: better do this
                assert(0); */
@@ -687,10 +687,10 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
               assert(found == 0);
               assert (SONNODE(theNode)==NULL ||
                       SONNODE(theNode) == SonNode);
-              printf(PFMT "ConnectOverlapVerticalGrid(): new "
+              printf("ConnectOverlapVerticalGrid(): new "
                      " sonnode relation between theNode=" ID_FMTX
                      " SonNode=" ID_FMTX "\n",
-                     me,ID_PRTX(theNode),ID_PRTX(SonNode));
+                     ID_PRTX(theNode),ID_PRTX(SonNode));
               SETNFATHER(SonNode,(GEOM_OBJECT *)theNode);
               SONNODE(theNode) = SonNode;
               found ++;
@@ -727,18 +727,18 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
 
                                                                 #ifdef __TWODIM__
               IFDEBUG(dddif,1)
-              printf(PFMT "ConnectOverlapVerticalGrid(): new "
+              printf("ConnectOverlapVerticalGrid(): new "
                      " midnode relation between theEdge=%08x"
                      " SonNode=" ID_FMTX "Vertex=" VID_FMTX "\n",
-                     me,theEdge,ID_PRTX(SonNode),
+                     theEdge,ID_PRTX(SonNode),
                      VID_PRTX(MYVERTEX(SonNode)));
               ENDDEBUG
                                                                 #endif
                                                                 #ifdef __THREEDIM__
-              printf(PFMT "ConnectOverlapVerticalGrid(): new "
+              printf("ConnectOverlapVerticalGrid(): new "
                      " midnode relation between theEdge=" ID_FMTX
                      " SonNode=" ID_FMTX "\n",
-                     me,ID_PRTX(theEdge),ID_PRTX(SonNode));
+                     ID_PRTX(theEdge),ID_PRTX(SonNode));
                                                                 #endif
               SETNFATHER(SonNode,(GEOM_OBJECT *)theEdge);
               MIDNODE(theEdge) = SonNode;

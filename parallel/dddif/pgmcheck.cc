@@ -419,6 +419,8 @@ static INT CheckElementPrio (DDD::DDDContext& context, ELEMENT *theElement)
   EDGE    *theEdge;
   ELEMENT *SonList[MAX_SONS];
 
+  const auto& me = context.me();
+
   if (PARTITION(theElement)==me && !EMASTER(theElement))
   {
     UserWriteF(PFMT "#FATAL# MASTER ELEM=" EID_FMTX " has WRONG part=%d prio=%d\n",
@@ -580,8 +582,8 @@ static int Scatter_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DD
     NODE* theNode = CORNER(theElement,i);
     if (((DDD_GID *)data)[i] != GID(theNode))
     {
-      UserWriteF(PFMT "ELEM=" EID_FMTX " #ERROR#: NODE=" ID_FMTX " gids don't match "
-                 "local=%08x remote=%08x remoteproc/prio=%d/%d\n",me,EID_PRTX(theElement),ID_PRTX(theNode),
+      UserWriteF("ELEM=" EID_FMTX " #ERROR#: NODE=" ID_FMTX " gids don't match "
+                 "local=%08x remote=%08x remoteproc/prio=%d/%d\n",EID_PRTX(theElement),ID_PRTX(theNode),
                  GID(theNode),((DDD_GID *)data)[i],proc,prio);
       check_distributed_objects_errors++;
       assert(0);
@@ -597,8 +599,8 @@ static int Scatter_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DD
     assert(theEdge!=NULL);
     if (((DDD_GID *)data)[i] != GID(theEdge))
     {
-      UserWriteF(PFMT "ELEM=" EID_FMTX " #ERROR#: EDGE=" ID_FMTX " gids don't match "
-                 "local=%08x remote=%08x remoteproc/prio=%d/%d\n",me,EID_PRTX(theElement),ID_PRTX(theEdge),
+      UserWriteF("ELEM=" EID_FMTX " #ERROR#: EDGE=" ID_FMTX " gids don't match "
+                 "local=%08x remote=%08x remoteproc/prio=%d/%d\n",EID_PRTX(theElement),ID_PRTX(theEdge),
                  GID(theEdge),((DDD_GID *)data)[i],proc,prio);
       check_distributed_objects_errors++;
       assert(0);
@@ -659,9 +661,9 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
   /* compare node0 gids with buffer gids */
   if (((DDD_GID *)data)[i] != GID(theNode0))
   {
-    UserWriteF(PFMT "EDGE=" ID_FMTX " #ERROR#: NODE0=" ID_FMTX " gids don't match "
+    UserWriteF("EDGE=" ID_FMTX " #ERROR#: NODE0=" ID_FMTX " gids don't match "
                "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
-               me,ID_PRTX(theEdge),ID_PRTX(theNode0),
+               ID_PRTX(theEdge),ID_PRTX(theNode0),
                GID(theNode0),((DDD_GID *)data)[i],proc,prio);
     check_distributed_objects_errors++;
     assert(0);
@@ -671,9 +673,9 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
   /* compare node1 gids with buffer gids */
   if (((DDD_GID *)data)[i] != GID(theNode1))
   {
-    UserWriteF(PFMT "EDGE=" ID_FMTX " #ERROR#: NODE1=" ID_FMTX " gids don't match "
+    UserWriteF("EDGE=" ID_FMTX " #ERROR#: NODE1=" ID_FMTX " gids don't match "
                "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
-               me,ID_PRTX(theEdge),ID_PRTX(theNode1),
+               ID_PRTX(theEdge),ID_PRTX(theNode1),
                GID(theNode1),((DDD_GID *)data)[i],proc,prio);
     check_distributed_objects_errors++;
     assert(0);
@@ -688,9 +690,9 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
   {
     if (remotegid != GID(MidNode))
     {
-      UserWriteF(PFMT "EDGE=" ID_FMTX " #ERROR#: MIDNODE=" ID_FMTX " gids don't match "
+      UserWriteF("EDGE=" ID_FMTX " #ERROR#: MIDNODE=" ID_FMTX " gids don't match "
                  "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
-                 me,ID_PRTX(theEdge),ID_PRTX(MidNode),
+                 ID_PRTX(theEdge),ID_PRTX(MidNode),
                  GID(MidNode),remotegid,proc,prio);
       check_distributed_objects_errors++;
       assert(0);
@@ -701,9 +703,9 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
 
     if (remotegid != 0)
     {
-      UserWriteF(PFMT "EDGE=" ID_FMTX " #ERROR#: MIDNODE=NULL gids don't match "
+      UserWriteF("EDGE=" ID_FMTX " #ERROR#: MIDNODE=NULL gids don't match "
                  "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
-                 me,ID_PRTX(theEdge),0,remotegid,proc,prio);
+                 ID_PRTX(theEdge),0,remotegid,proc,prio);
       check_distributed_objects_errors++;
       assert(0);
     }

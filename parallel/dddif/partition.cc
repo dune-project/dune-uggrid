@@ -163,8 +163,8 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
         /* or is ghost -> partitioning must be restricted   */
         if (!EMASTER(theFather))
         {
-          UserWriteF(PFMT "elem=" EID_FMTX  " cannot be refined\n",
-                     me,EID_PRTX(theFather));
+          UserWriteF("elem=" EID_FMTX  " cannot be refined\n",
+                     EID_PRTX(theFather));
           _restrict_ = 1;
           continue;
         }
@@ -174,8 +174,8 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
           if (LEVEL(theFather)<=1) continue;
           if (!EMASTER(EFATHER(theFather)))
           {
-            UserWriteF(PFMT "elem=" EID_FMTX " cannot be coarsened\n",
-                       me,EID_PRTX(theFather));
+            UserWriteF("elem=" EID_FMTX " cannot be coarsened\n",
+                       EID_PRTX(theFather));
             _restrict_ = 1;
           }
         }

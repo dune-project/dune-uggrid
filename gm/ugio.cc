@@ -200,7 +200,7 @@ static INT RenumberNodes (MULTIGRID *theMG, INT *foid, INT *non)
   NODE *theNode;
 
   nid=0;
-  if (procs==1)
+  if (theMG->ppifContext().procs() == 1)
   {
     /* ids for all nodes */
     for (theNode=FIRSTNODE(GRID_ON_LEVEL(theMG,0)); theNode!=NULL; theNode=SUCCN(theNode))
@@ -1438,7 +1438,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
 
   /* parallel part */
   mg_general.nparfiles = nparfiles;
-  mg_general.me = me;
+  mg_general.me = theMG->ppifContext().me();
 #ifdef __MGIO_PE_INFO__
   mg_general.npe_info = nparfiles;
   npe_info = mg_general.npe_info;

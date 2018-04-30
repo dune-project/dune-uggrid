@@ -699,6 +699,7 @@ static void UpdateCouplings (
   XICopyObj **itemsNO, int nNO)                   /* NewOwners */
 {
   const auto& me = context.me();
+  const auto& procs = context.procs();
   int iNC, iO, iDO, iNO, iLCO;
 
   /*

@@ -368,7 +368,7 @@ static INT Identify_by_ObjectList (DDD::DDDContext& context, DDD_HDR *IdentObjec
   n = 0;
   while (*proclist != -1)
   {
-    ASSERT(n<procs);
+    ASSERT(n < context.procs());
 
     if (*(proclist+1) == skiptag)
     {
@@ -393,7 +393,7 @@ static INT Identify_by_ObjectList (DDD::DDDContext& context, DDD_HDR *IdentObjec
     }
 
     n++;
-    assert(n<procs);
+    assert(n < context.procs());
     proclist += 2;
   }
 
@@ -1136,8 +1136,8 @@ static int Gather_NewNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PR
   if (SonNode!=NULL && NEW_NIDENT(SonNode))
   {
     IFDEBUG(dddif,1)
-    UserWriteF(PFMT "new son node=" ID_FMTX  "node=" ID_FMTX "\n",
-               me,ID_PRTX(SonNode),ID_PRTX(theNode));
+    UserWriteF("new son node=" ID_FMTX  "node=" ID_FMTX "\n",
+               ID_PRTX(SonNode),ID_PRTX(theNode));
     ENDDEBUG
     *((int *)data) = 1;
   }
@@ -1196,8 +1196,8 @@ static int Scatter_NodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC
     if (0) SETNEW_NIDENT(theNode,1);
     if (NFATHER(theNode) == NULL)
     {
-      UserWriteF(PFMT "isolated node=" ID_FMTX "\n",
-                 me,ID_PRTX(theNode));
+      UserWriteF("isolated node=" ID_FMTX "\n",
+                 ID_PRTX(theNode));
       if (NIDENTASSERT) assert(0);
     }
     if (NIDENTASSERT) assert(NFATHER(theNode) != NULL);
@@ -1229,8 +1229,8 @@ static int Scatter_TestNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_
 
   if (NEW_NIDENT(theNode) != nprop)
   {
-    UserWriteF(PFMT "nprop wrong mynprop=%d hisnprop=%d theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d\n",
-               me,NEW_NIDENT(theNode),nprop,ID_PRTX(theNode),LEVEL(theNode),proc,prio);
+    UserWriteF("nprop wrong mynprop=%d hisnprop=%d theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d\n",
+               NEW_NIDENT(theNode),nprop,ID_PRTX(theNode),LEVEL(theNode),proc,prio);
     fflush(stdout);
     assert(0);
   }
@@ -1281,8 +1281,8 @@ static int Scatter_IdentSonNode (DDD::DDDContext& context, DDD_OBJ obj, void *da
       {
         if (!newsonnode)
         {
-          UserWriteF(PFMT "theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
-                     me,ID_PRTX(theNode),LEVEL(theNode),proc,prio,NEW_NIDENT(SonNode));
+          UserWriteF("theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
+                     ID_PRTX(theNode),LEVEL(theNode),proc,prio,NEW_NIDENT(SonNode));
           fflush(stdout);
           assert(0);
         }
@@ -1296,8 +1296,8 @@ static int Scatter_IdentSonNode (DDD::DDDContext& context, DDD_OBJ obj, void *da
     {
       if (newsonnode)
       {
-        UserWriteF(PFMT "theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
-                   me,ID_PRTX(theNode),LEVEL(theNode),proc,prio,NEW_NIDENT(SonNode));
+        UserWriteF("theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
+                   ID_PRTX(theNode),LEVEL(theNode),proc,prio,NEW_NIDENT(SonNode));
         fflush(stdout);
         assert(0);
       }
@@ -1410,8 +1410,8 @@ static int Scatter_EdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC
     if (0) SETNEW_EDIDENT(theEdge,1);
     if (GetFatherEdge(theEdge) == NULL)
     {
-      UserWriteF(PFMT "isolated edge=" ID_FMTX "\n",
-                 me,ID_PRTX(theEdge));
+      UserWriteF("isolated edge=" ID_FMTX "\n",
+                 ID_PRTX(theEdge));
       if (EDIDENTASSERT) assert(0);
     }
     if (EDIDENTASSERT) assert(GetFatherEdge(theEdge) != NULL);
@@ -1443,8 +1443,8 @@ static int Scatter_TestEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_
 
   if (NEW_EDIDENT(theEdge) != nprop)
   {
-    UserWriteF(PFMT "nprop wrong mynprop=%d hisnprop=%d theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d\n",
-               me,NEW_EDIDENT(theEdge),nprop,ID_PRTX(theEdge),LEVEL(theEdge),proc,prio);
+    UserWriteF("nprop wrong mynprop=%d hisnprop=%d theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d\n",
+               NEW_EDIDENT(theEdge),nprop,ID_PRTX(theEdge),LEVEL(theEdge),proc,prio);
     fflush(stdout);
     assert(0);
   }
@@ -1495,8 +1495,8 @@ static int Scatter_IdentSonEdge (DDD::DDDContext& context, DDD_OBJ obj, void *da
       {
         if (!newsonedge)
         {
-          UserWriteF(PFMT "theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
-                     me,ID_PRTX(theEdge),LEVEL(theEdge),proc,prio,NEW_EDIDENT(SonEdge));
+          UserWriteF("theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
+                     ID_PRTX(theEdge),LEVEL(theEdge),proc,prio,NEW_EDIDENT(SonEdge));
           fflush(stdout);
           assert(0);
         }
@@ -1510,8 +1510,8 @@ static int Scatter_IdentSonEdge (DDD::DDDContext& context, DDD_OBJ obj, void *da
     {
       if (newsonedge)
       {
-        UserWriteF(PFMT "theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
-                   me,ID_PRTX(theEdge),LEVEL(theEdge),proc,prio,NEW_EDIDENT(SonEdge));
+        UserWriteF("theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
+                   ID_PRTX(theEdge),LEVEL(theEdge),proc,prio,NEW_EDIDENT(SonEdge));
         fflush(stdout);
         assert(0);
       }

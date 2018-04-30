@@ -186,7 +186,7 @@ static void theRCB (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int
     break;
                 #endif
   default :
-    printf("%d: theRCB(): ERROR no valid sort dimension specified\n",me);
+    printf("%d: theRCB(): ERROR no valid sort dimension specified\n", ppifContext.me());
     std::abort();
     break;
   }

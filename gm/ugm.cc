@@ -6172,7 +6172,7 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
     {
       VChannelPtr mych;
 
-      mych = ConnSync(ppifContext, master,3917);
+      mych = ConnSync(ppifContext, ppifContext.master(), 3917);
       SendSync(ppifContext, mych,(void *)lbinfo[me],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
       Synchronize(ppifContext);
       DiscSync(ppifContext, mych);

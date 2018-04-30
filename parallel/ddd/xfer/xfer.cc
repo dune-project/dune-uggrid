@@ -484,6 +484,7 @@ int PrepareObjMsgs (DDD::DDDContext& context,
                     XFERMSG **theMsgs, size_t *memUsage)
 {
   auto& ctx = context.xferContext();
+  const auto& procs = context.procs();
 
   XFERMSG    *xm=NULL;
   int iO, iNC, iOC, nMsgs=0;

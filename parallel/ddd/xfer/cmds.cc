@@ -855,10 +855,10 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
   if (!ddd_XferActive(context))
     DUNE_THROW(Dune::Exception, "Missing DDD_XferBegin()");
 
-  if (dest>=procs)
+  if (dest >= context.procs())
     DUNE_THROW(Dune::Exception,
                "cannot transfer " << OBJ_GID(hdr) << " to processor " << dest
-               << " (procs=" << procs << ")");
+               << " (procs=" << context.procs() << ")");
 
   if (prio>=MAX_PRIO)
     DUNE_THROW(Dune::Exception,

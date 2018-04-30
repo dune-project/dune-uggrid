@@ -339,6 +339,8 @@ static int Scatter_GhostCmd (DDD::DDDContext& context, DDD_OBJ obj, void *data, 
   ELEMENT *SonList[MAX_SONS];
   INT i;
 
+  const auto& me = context.me();
+
   switch (*(int *)data)
   {
   case GC_Keep :
@@ -456,6 +458,8 @@ static int Gather_VHGhostCmd (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PRO
 
 static int Scatter_VHGhostCmd (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
+  const auto& me = context.me();
+
   ELEMENT *theElement = (ELEMENT *)obj;
   ELEMENT *SonList[MAX_SONS];
 
@@ -617,6 +621,7 @@ static int XferGridWithOverlap (GRID *theGrid)
   INT migrated = 0;
 
   DDD::DDDContext& context = theGrid->dddContext();
+  const auto& me = context.me();
 
   for(theElement=FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
   {

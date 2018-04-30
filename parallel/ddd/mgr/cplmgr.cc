@@ -584,7 +584,7 @@ DDD_PROC DDD_InfoProcPrio(const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO 
   if (OBJ_PRIO(hdr)==prio)
     return context.me();
 
-  return(procs);
+  return context.procs();
 }
 
 

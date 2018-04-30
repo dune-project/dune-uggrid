@@ -207,7 +207,7 @@ static void buggy_ShowCopies (DDD::DDDContext& context, DDD_HDR hdr)
   for(i=0; p[i]!=-1; i+=2)
   {
     printf("%4d:    copy on %3d with prio %d\n",
-           me, p[i], p[i+1]);
+           context.me(), p[i], p[i+1]);
   }
 }
 
@@ -238,26 +238,26 @@ static void buggy_ElemShow (ELEMENT *e)
   ELEMENT *SonList[MAX_SONS];
   int i;
 
-  printf("%4d:    ID=%06d LEVEL=%02d corners=%03d\n", me,
+  printf("    ID=%06d LEVEL=%02d corners=%03d\n",
          ID(e), LEVEL(e), CORNERS_OF_ELEM(e));
 
   if (EFATHER(e))
-    printf("%4d:    father=" DDD_GID_FMT "\n", me,
+    printf("    father=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDRE(EFATHER(e))));
 
   if (PREDE(e))
-    printf("%4d:    pred=" DDD_GID_FMT "\n", me,
+    printf("    pred=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDRE(PREDE(e))));
 
   if (SUCCE(e))
-    printf("%4d:    succ=" DDD_GID_FMT "\n", me,
+    printf("    succ=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDRE(SUCCE(e))));
 
   for(i=0; i<SIDES_OF_ELEM(e); i++)
   {
     if (NBELEM(e,i)!=NULL)
     {
-      printf("%4d:    nb[%d]=" DDD_GID_FMT "\n", me,
+      printf("    nb[%d]=" DDD_GID_FMT "\n",
              i, DDD_InfoGlobalId(PARHDRE(NBELEM(e,i))));
     }
   }
@@ -266,7 +266,7 @@ static void buggy_ElemShow (ELEMENT *e)
   {
     for(i=0; SonList[i]!=NULL; i++)
     {
-      printf("%4d:    son[%d]=" DDD_GID_FMT " prio=%d\n", me,
+      printf("    son[%d]=" DDD_GID_FMT " prio=%d\n",
              i,
              DDD_InfoGlobalId(PARHDRE(SonList[i])),
              DDD_InfoPriority(PARHDRE(SonList[i]))
@@ -297,11 +297,11 @@ static void buggy_NodeShow (NODE *n)
 {
   int i;
 
-  printf("%4d:    ID=%06d LEVEL=%02d\n", me,
+  printf("    ID=%06d LEVEL=%02d\n",
          ID(n), LEVEL(n));
 
   /* print coordinates of that node */
-  printf("%4d:    VERTEXID=%06d LEVEL=%02d", me,
+  printf("    VERTEXID=%06d LEVEL=%02d",
          ID(MYVERTEX(n)), LEVEL(MYVERTEX(n)));
   for(i=0; i<DIM; i++)
   {
@@ -311,15 +311,15 @@ static void buggy_NodeShow (NODE *n)
 
 
   if (NFATHER(n))
-    printf("%4d:    father=" DDD_GID_FMT "\n", me,
+    printf("    father=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDR((NODE *)NFATHER(n))));
 
   if (PREDN(n))
-    printf("%4d:    pred=" DDD_GID_FMT "\n", me,
+    printf("    pred=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDR(PREDN(n))));
 
   if (SUCCN(n))
-    printf("%4d:    succ=" DDD_GID_FMT "\n", me,
+    printf("    succ=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDR(SUCCN(n))));
 }
 
@@ -360,8 +360,8 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
     {
       if (DDD_InfoGlobalId(PARHDRE(e))==gid)
       {
-        printf("%4d: ELEMENT gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
-               me, gid, e, level);
+        printf("ELEMENT gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
+               gid, e, level);
         buggy_ShowCopies(context, PARHDRE(e));
         buggy_ElemShow(e);
         found = true;
@@ -374,8 +374,8 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
     {
       if (DDD_InfoGlobalId(PARHDR(n))==gid)
       {
-        printf("%4d: NODE gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
-               me, gid, n, level);
+        printf("NODE gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
+               gid, n, level);
         buggy_ShowCopies(context, PARHDR(n));
         buggy_NodeShow(n);
         found = true;
@@ -389,13 +389,13 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
 
     if (hdr!=NULL)
     {
-      printf("%4d: DDDOBJ gid=" DDD_GID_FMT ", typ=%d, level=%d\n",
-             me, gid, DDD_InfoType(hdr), DDD_InfoAttr(hdr));
+      printf("DDDOBJ gid=" DDD_GID_FMT ", typ=%d, level=%d\n",
+             gid, DDD_InfoType(hdr), DDD_InfoAttr(hdr));
       buggy_ShowCopies(context, hdr);
     }
     else
     {
-      printf("%4d: unknown gid=" DDD_GID_FMT "\n", me, gid);
+      printf("unknown gid=" DDD_GID_FMT "\n", gid);
     }
   }
 }
@@ -646,6 +646,8 @@ void NS_DIM_PREFIX dddif_PrintGridRelations (MULTIGRID *theMG)
   ELEMENT *e, *enb;
   GRID    *theGrid = GRID_ON_LEVEL(theMG,TOPLEVEL(theMG));
   INT j;
+
+  const auto& me = theMG->dddContext().me();
 
   for(e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
   {

@@ -114,6 +114,7 @@ static int TransferGridComplete (MULTIGRID *theMG, INT level)
 
   if (theGrid==NULL)
   {
+    const auto& me = theMG->dddContext().me();
     UserWriteF(PFMT "TransferGridComplete(): no grid on level=%d\n",me,level);
     return(0);
   }
@@ -327,6 +328,7 @@ void lbs (const char *argv, MULTIGRID *theMG)
 {
   int n,mode,param,fromlevel,tolevel,part,hor_boxes,vert_boxes,dest;
 
+  const auto& me = theMG->dddContext().me();
   const auto procs = theMG->dddContext().procs();
 
   mode = param = fromlevel = tolevel = 0;

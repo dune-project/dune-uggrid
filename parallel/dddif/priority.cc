@@ -159,7 +159,7 @@ static int ComputeNodeBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
 {
   NODE    *node  = (NODE *)obj;
   int     *plist = DDD_InfoProcList(context, PARHDR(node));
-  int i, min_proc = procs;
+  int i, min_proc = context.procs();
 
   /*
           minimum processor number will get Master-node,
@@ -171,10 +171,10 @@ static int ComputeNodeBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
       min_proc = plist[i];
   }
 
-  if (min_proc==procs)
+  if (min_proc == context.procs())
     return(0);
 
-  if (me!=min_proc)
+  if (context.me() != min_proc)
     SETPRIO(context, node, PrioBorder);
   return 0;
 }
@@ -201,7 +201,7 @@ static int ComputeVectorBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
 {
   VECTOR  *vector  = (VECTOR *)obj;
   int     *plist = DDD_InfoProcList(context, PARHDR(vector));
-  int i, min_proc = procs;
+  int i, min_proc = context.procs();
 
   /*
           minimum processor number will get Master-node,
@@ -213,10 +213,10 @@ static int ComputeVectorBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
       min_proc = plist[i];
   }
 
-  if (min_proc==procs)
+  if (min_proc == context.procs())
     return(0);
 
-  if (me!=min_proc)
+  if (context.me() != min_proc)
     SETPRIO(context, vector, PrioBorder);
   return 0;
 }
@@ -244,7 +244,7 @@ static int ComputeEdgeBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
 {
   EDGE    *edge  =        (EDGE *)obj;
   int             *plist =        DDD_InfoProcList(context, PARHDR(edge));
-  int i, min_proc     = procs;
+  int i, min_proc     = context.procs();
 
   /*
           minimum processor number will get Master-node,
@@ -256,10 +256,10 @@ static int ComputeEdgeBorderPrios (DDD::DDDContext& context, DDD_OBJ obj)
       min_proc = plist[i];
   }
 
-  if (min_proc==procs)
+  if (min_proc == context.procs())
     return(0);
 
-  if (me!=min_proc)
+  if (context.me() != min_proc)
     SETPRIO(context, edge, PrioBorder);
   return 0;
 }
@@ -291,6 +291,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
   INT i,prio,hghost,vghost;
 
   auto& context = theGrid->dddContext();
+  const auto& me = context.me();
 
   /* reset USED flag for objects of ghostelements */
   for (theElement=PFIRSTELEMENT(theGrid);

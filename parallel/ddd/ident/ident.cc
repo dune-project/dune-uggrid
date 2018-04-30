@@ -1222,7 +1222,7 @@ static IdEntry *IdentifyIdEntry(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC 
     DUNE_THROW(Dune::Exception,
                "cannot identify " << OBJ_GID(hdr) << " with myself");
 
-  if (proc>=procs)
+  if (proc >= context.procs())
     DUNE_THROW(Dune::Exception,
                "cannot identify " << OBJ_GID(hdr)
                << " with processor " << proc);
