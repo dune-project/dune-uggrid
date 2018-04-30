@@ -659,11 +659,11 @@ void DomHandlerInit      (INT handlerSet);
 
 void BElementXferBndS    (DDD::DDDContext& context, BNDS **bnds, int n, int proc, int prio);
 void BElementGatherBndS  (BNDS **bnds, int n, int cnt, char *data);
-void BElementScatterBndS (BNDS **bnds, int n, int cnt, char *data);
+void BElementScatterBndS (const DDD::DDDContext& context, BNDS **bnds, int n, int cnt, char *data);
 
 void BVertexXferBndP     (DDD::DDDContext& context, BNDP *bndp, int proc, int prio);
 void BVertexGatherBndP   (BNDP *bndp, int cnt, char *data);
-void BVertexScatterBndP  (BNDP **bndp, int cnt, char *data);
+void BVertexScatterBndP  (const DDD::DDDContext& context, BNDP **bndp, int cnt, char *data);
 
 #endif
 
