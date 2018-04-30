@@ -35,6 +35,8 @@
 #include <algorithm>
 #include <vector>
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
 #include "parallel.h"
 #include "evm.h"
 #include "general.h"
@@ -165,7 +167,7 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
  */
 /****************************************************************************/
 
-static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim)
+static void theRCB (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim)
 {
   int i, part0, part1, ni0, ni1;
   bool (*sort_function)(const LB_INFO&, const LB_INFO&);
@@ -196,7 +198,7 @@ static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int d
   {
     for(i=0; i<nItems; i++)
     {
-      int dest = py*DimX+px;
+      int dest = py*ppifContext.dimX()+px;
       PARTITION(theItems[i].elem) = dest;
     }
     return;
@@ -212,8 +214,8 @@ static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int d
     ni0 = (int)(((double)part0)/((double)(dx))*((double)nItems));
     ni1 = nItems-ni0;
 
-    theRCB(theItems,     ni0, px,       py, part0, dy,(dim+1)%DIM);
-    theRCB(theItems+ni0, ni1, px+part0, py, part1, dy,(dim+1)%DIM);
+    theRCB(ppifContext, theItems,     ni0, px,       py, part0, dy,(dim+1)%DIM);
+    theRCB(ppifContext, theItems+ni0, ni1, px+part0, py, part1, dy,(dim+1)%DIM);
 
   }
   else
@@ -226,8 +228,8 @@ static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int d
     ni0 = (int)(((double)part0)/((double)(dy))*((double)nItems));
     ni1 = nItems-ni0;
 
-    theRCB(theItems,     ni0, px, py      , dx, part0,(dim+1)%DIM);
-    theRCB(theItems+ni0, ni1, px, py+part0, dx, part1,(dim+1)%DIM);
+    theRCB(ppifContext, theItems,     ni0, px, py      , dx, part0,(dim+1)%DIM);
+    theRCB(ppifContext, theItems+ni0, ni1, px, py+part0, dx, part1,(dim+1)%DIM);
   }
 }
 
@@ -334,6 +336,7 @@ int BalanceGridRCB (MULTIGRID *theMG, int level)
   int i;
 
   DDD::DDDContext& context = theMG->dddContext();
+  const PPIF::PPIFContext& ppifContext = theMG->ppifContext();
 
   /* distributed grids cannot be redistributed by this function */
   if (not context.isMaster() && FIRSTELEMENT(theGrid) != NULL)
@@ -359,7 +362,7 @@ int BalanceGridRCB (MULTIGRID *theMG, int level)
     }
 
     /* apply coordinate bisection strategy */
-    theRCB(lbinfo.data(), lbinfo.size(), 0, 0, DimX, DimY, 0);
+    theRCB(ppifContext, lbinfo.data(), lbinfo.size(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
 
     IFDEBUG(dddif,1)
     for (e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
