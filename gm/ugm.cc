@@ -8495,6 +8495,7 @@ static void CommNTpls(GRID *g, int *send_ntpls, int *recv_ntpls)
 
   const int me = g->ppifContext().me();
   const int procs = g->ppifContext().procs();
+  const auto& degree = g->ppifContext().degree();
 
   std::vector<int> gntpls(procs*procs, 0);
   std::vector<int> lntpls(procs*procs, 0);
