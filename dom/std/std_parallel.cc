@@ -153,7 +153,7 @@ void NS_DIM_PREFIX BElementGatherBndS (BNDS **bnds, int n, int cnt, char *data)
   memcpy(data,&i,sizeof(INT));
 }
 
-void NS_DIM_PREFIX BElementScatterBndS (BNDS **bnds, int n, int cnt, char *data)
+void NS_DIM_PREFIX BElementScatterBndS (const DDD::DDDContext& context, BNDS **bnds, int n, int cnt, char *data)
 {
   INT size,i;
   BNDS *bs;
@@ -169,7 +169,7 @@ void NS_DIM_PREFIX BElementScatterBndS (BNDS **bnds, int n, int cnt, char *data)
 
     if (bnds[i] == NULL)
     {
-      bs = (BNDS *) memmgr_AllocOMEM((size_t)size,TypeBndS,0,0);
+      bs = (BNDS *) memmgr_AllocOMEM((size_t)size,ddd_ctrl(context).TypeBndS,0,0);
       memcpy(bs,data,size);
       bnds[i] = bs;
     }
@@ -203,11 +203,11 @@ void NS_DIM_PREFIX BVertexGatherBndP (BNDP *bndp, int cnt, char *data)
 }
 
 
-void NS_DIM_PREFIX BVertexScatterBndP (BNDP **bndp, int cnt, char *data)
+void NS_DIM_PREFIX BVertexScatterBndP (const DDD::DDDContext& context, BNDP **bndp, int cnt, char *data)
 {
   if (*bndp == NULL)
   {
-    *bndp = (BNDS *) memmgr_AllocOMEM((size_t)cnt,TypeBndP,0,0);
+    *bndp = (BNDS *) memmgr_AllocOMEM((size_t)cnt,ddd_ctrl(context).TypeBndP,0,0);
     memcpy(*bndp,data,cnt);
     PRINTDEBUG(dom,1,("BVertexScatterBndP():  pid "
                       "%d n %d size %d cnt %d\n",
