@@ -45,6 +45,7 @@
 #include "basic/notify.h"
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 USING_UG_NAMESPACES
 
@@ -195,6 +196,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
 {
   auto& ctx = context.notifyContext();
   const auto& me = context.me();
+  const auto& degree = context.ppifContext().degree();
 
   NOTIFY_INFO  *newInfos;
   int l, i, j, n, unknownInfos, myInfos;
