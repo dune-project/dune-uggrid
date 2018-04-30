@@ -59,15 +59,6 @@ extern int me;                     /* my processor id                       */
 extern int master;                 /* id of master processor                */
 extern int procs;                  /* number of processors in the network   */
 
-/* 3D array structure */
-extern int DimX,DimY,DimZ;         /* 3D array dimensions, may be 1 !       */
-
-/* Tree structure */
-extern int degree;                  /* degree of downtree nodes             */
-extern VChannelPtr uptree;          /* channel uptree                       */
-extern VChannelPtr const* downtree; /* channels downtree (may be empty)     */
-extern int const* slvcnt;           /* number of processors in subtree      */
-
 /****************************************************************************/
 /*                                                                          */
 /* function declarations                                                    */
@@ -77,8 +68,7 @@ extern int const* slvcnt;           /* number of processors in subtree      */
 /**
  * set context used by PPIF.
  *
- * This also updates the legacy global variables `me`, `master`, `procs`,
- * `DimX`, `DimY`, `DimZ`, `degree`, `uptree`, `downtree` and `slvcnt`.
+ * This also updates the legacy global variables `me`, `master`, and `procs`.
  *
  * \warn context should be managed by the caller
  */
