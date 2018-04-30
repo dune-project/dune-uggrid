@@ -716,6 +716,9 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
 
 static INT CheckDistributedObjects (GRID *theGrid)
 {
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   INT nerrors;
         #ifdef __TWODIM__
   INT size = MAX_CORNERS_OF_ELEM;       /* compare the 3/4 node ids */
@@ -727,14 +730,14 @@ static INT CheckDistributedObjects (GRID *theGrid)
   check_distributed_objects_errors = 0;
 
   // void DDD_IFAOnewayX (DDD::DDDContext&, DDD_IF, DDD_ATTR, DDD_IF_DIR, size_t, ComProcXPtr, ComProcXPtr);
-  DDD_IFAOnewayX(theGrid->dddContext(),
-                 ElementSymmVHIF,GRID_ATTR(theGrid),IF_BACKWARD,size*sizeof(DDD_GID),
+  DDD_IFAOnewayX(context,
+                 dddctrl.ElementSymmVHIF,GRID_ATTR(theGrid),IF_BACKWARD,size*sizeof(DDD_GID),
                  Gather_ElemObjectGids, Scatter_ElemObjectGids);
 
         #ifdef __THREEDIM__
   if (0)
-    DDD_IFAOnewayX(theGrid->dddContext(),
-                   BorderEdgeSymmIF,GRID_ATTR(theGrid),IF_BACKWARD,3*sizeof(DDD_GID),
+    DDD_IFAOnewayX(context,
+                   dddctrl.BorderEdgeSymmIF,GRID_ATTR(theGrid),IF_BACKWARD,3*sizeof(DDD_GID),
                    Gather_EdgeObjectGids, Scatter_EdgeObjectGids);
         #endif
 
