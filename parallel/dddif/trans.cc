@@ -237,12 +237,15 @@ static int Scatter_ElemDest (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
 static int UpdateGhostDests (MULTIGRID *theMG)
 {
-  DDD_IFOneway(theMG->dddContext(),
-               ElementIF, IF_FORWARD, sizeof(DDD_PROC),
+  auto& context = theMG->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFOneway(context,
+               dddctrl.ElementIF, IF_FORWARD, sizeof(DDD_PROC),
                Gather_ElemDest, Scatter_ElemDest);
 
-  DDD_IFOneway(theMG->dddContext(),
-               ElementVIF, IF_FORWARD, sizeof(DDD_PROC),
+  DDD_IFOneway(context,
+               dddctrl.ElementVIF, IF_FORWARD, sizeof(DDD_PROC),
                Gather_ElemDest, Scatter_ElemDest);
 
   return 0;
@@ -500,8 +503,11 @@ static int Scatter_VHGhostCmd (DDD::DDDContext& context, DDD_OBJ obj, void *data
 
 static int ComputeGhostCmds (MULTIGRID *theMG)
 {
-  DDD_IFOnewayX(theMG->dddContext(),
-                ElementVHIF, IF_FORWARD, sizeof(int),
+  auto& context = theMG->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFOnewayX(context,
+                dddctrl.ElementVHIF, IF_FORWARD, sizeof(int),
                 Gather_VHGhostCmd, Scatter_VHGhostCmd);
 
   return(0);

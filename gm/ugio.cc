@@ -1948,8 +1948,11 @@ static int Scatter_RefineInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
 static INT SpreadRefineInfo(GRID *theGrid)
 {
-  DDD_IFAOneway(theGrid->dddContext(),
-                ElementIF,GRID_ATTR(theGrid),IF_FORWARD,4*sizeof(INT),
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFAOneway(context,
+                dddctrl.ElementIF,GRID_ATTR(theGrid),IF_FORWARD,4*sizeof(INT),
                 Gather_RefineInfo,Scatter_RefineInfo);
   return(GM_OK);
 }
@@ -1974,8 +1977,11 @@ static int Scatter_NodeType (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
 static INT SpreadGridNodeTypes(GRID *theGrid)
 {
-  DDD_IFAOneway(theGrid->dddContext(),
-                NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFAOneway(context,
+                dddctrl.NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_NodeType,Scatter_NodeType);
   return(GM_OK);
 }
@@ -2672,8 +2678,11 @@ static int Scatter_EClasses(DDD::DDDContext&, DDD_OBJ obj, void *data)
 
 void CommunicateEClasses (MULTIGRID *theMG)
 {
-  DDD_IFOneway(theMG->dddContext(),
-               ElementVHIF,IF_FORWARD,sizeof(int),
+  auto& context = theMG->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFOneway(context,
+               dddctrl.ElementVHIF,IF_FORWARD,sizeof(int),
                Gather_EClasses, Scatter_EClasses);
   return;
 }
