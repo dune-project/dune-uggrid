@@ -317,22 +317,12 @@ int PPIF::Broadcast (const PPIFContext& context, void *data, int size)
   return (PPIF_SUCCESS);
 }
 
-int PPIF::Broadcast (void *data, int size)
-{
-  return Broadcast(*ppifContext(), data, size);
-}
-
 int PPIF::Concentrate (const PPIFContext& context, void *data, int size)
 {
   if (not context.isMaster())
     if (SendSync (context, context.uptree(), data, size) < 0) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
-}
-
-int PPIF::Concentrate (void *data, int size)
-{
-  return Concentrate(*ppifContext(), data, size);
 }
 
 int PPIF::GetConcentrate(const PPIFContext& context, int slave, void *data, int size)
@@ -343,22 +333,12 @@ int PPIF::GetConcentrate(const PPIFContext& context, int slave, void *data, int 
   return (PPIF_SUCCESS);
 }
 
-int PPIF::GetConcentrate(int slave, void *data, int size)
-{
-  return GetConcentrate(*ppifContext(), slave, data, size);
-}
-
 int PPIF::Spread(const PPIFContext& context, int slave, void *data, int size)
 {
   if (slave < context.degree())
     if (SendSync(context, context.downtree()[slave], data, size) < 0) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
-}
-
-int PPIF::Spread(int slave, void *data, int size)
-{
-  return Spread(*ppifContext(), slave, data, size);
 }
 
 int PPIF::GetSpread(const PPIFContext& context, void *data, int size)
@@ -369,21 +349,11 @@ int PPIF::GetSpread(const PPIFContext& context, void *data, int size)
   return (PPIF_SUCCESS);
 }
 
-int PPIF::GetSpread(void *data, int size)
-{
-  return GetSpread(*ppifContext(), data, size);
-}
-
 int PPIF::Synchronize(const PPIFContext& context)
 {
   if (MPI_SUCCESS != MPI_Barrier (context.comm()) ) return (PPIF_FAILURE);
 
   return (PPIF_SUCCESS);
-}
-
-int PPIF::Synchronize()
-{
-  return Synchronize(*ppifContext());
 }
 
 /****************************************************************************/
@@ -397,21 +367,11 @@ VChannelPtr PPIF::ConnSync(const PPIFContext&, int p, int id)
   return NewVChan(p, id);
 }
 
-VChannelPtr PPIF::ConnSync(int p, int id)
-{
-  return ConnSync(*ppifContext(), p, id);
-}
-
 int PPIF::DiscSync(const PPIFContext&, VChannelPtr v)
 {
   DeleteVChan(v);
 
   return (0);
-}
-
-int PPIF::DiscSync(VChannelPtr v)
-{
-  return DiscSync(*ppifContext(), v);
 }
 
 int PPIF::SendSync(const PPIFContext& context, VChannelPtr v, void *data, int size)
@@ -421,11 +381,6 @@ int PPIF::SendSync(const PPIFContext& context, VChannelPtr v, void *data, int si
     return (size);
   else
     return (-1);
-}
-
-int PPIF::SendSync(VChannelPtr v, void *data, int size)
-{
-  return SendSync(*ppifContext(), v, data, size);
 }
 
 int PPIF::RecvSync(const PPIFContext& context, VChannelPtr v, void *data, int size)
@@ -440,11 +395,6 @@ int PPIF::RecvSync(const PPIFContext& context, VChannelPtr v, void *data, int si
   return (count);
 }
 
-int PPIF::RecvSync(VChannelPtr v, void *data, int size)
-{
-  return RecvSync(*ppifContext(), v, data, size);
-}
-
 /****************************************************************************/
 /*                                                                          */
 /* Asynchronous communication                                               */
@@ -456,19 +406,9 @@ VChannelPtr PPIF::ConnASync(const PPIFContext&, int p, int id)
   return NewVChan(p, id);
 }
 
-VChannelPtr PPIF::ConnASync(int p, int id)
-{
-  return ConnASync(*ppifContext(), p, id);
-}
-
 int PPIF::InfoAConn(const PPIFContext&, VChannelPtr v)
 {
   return (v ? 1 : -1);
-}
-
-int PPIF::InfoAConn(VChannelPtr v)
-{
-  return InfoAConn(*ppifContext(), v);
 }
 
 int PPIF::DiscASync(const PPIFContext&, VChannelPtr v)
@@ -477,19 +417,9 @@ int PPIF::DiscASync(const PPIFContext&, VChannelPtr v)
   return (PPIF_SUCCESS);
 }
 
-int PPIF::DiscASync(VChannelPtr v)
-{
-  return DiscASync(*ppifContext(), v);
-}
-
 int PPIF::InfoADisc(const PPIFContext&, VChannelPtr v)
 {
   return (true);
-}
-
-int PPIF::InfoADisc(VChannelPtr v)
-{
-  return InfoADisc(*ppifContext(), v);
 }
 
 msgid PPIF::SendASync(const PPIFContext& context, VChannelPtr v, void *data, int size, int *error)
@@ -510,11 +440,6 @@ msgid PPIF::SendASync(const PPIFContext& context, VChannelPtr v, void *data, int
   return NULL;
 }
 
-msgid PPIF::SendASync(VChannelPtr v, void *data, int size, int *error)
-{
-  return SendASync(*ppifContext(), v, data, size, error);
-}
-
 msgid PPIF::RecvASync(const PPIFContext& context, VChannelPtr v, void *data, int size, int *error)
 {
   msgid m = new PPIF::Msg;
@@ -531,11 +456,6 @@ msgid PPIF::RecvASync(const PPIFContext& context, VChannelPtr v, void *data, int
 
   *error = true;
   return (NULL);
-}
-
-msgid PPIF::RecvASync(VChannelPtr v, void *data, int size, int *error)
-{
-  return RecvASync(*ppifContext(), v, data, size, error);
 }
 
 int PPIF::InfoASend(const PPIFContext&, VChannelPtr v, msgid m)
@@ -556,11 +476,6 @@ int PPIF::InfoASend(const PPIFContext&, VChannelPtr v, msgid m)
   return (-1);          /* return -1 for FAILURE */
 }
 
-int PPIF::InfoASend(VChannelPtr v, msgid m)
-{
-  return InfoASend(*ppifContext(), v, m);
-}
-
 int PPIF::InfoARecv(const PPIFContext&, VChannelPtr v, msgid m)
 {
   int complete;
@@ -577,9 +492,4 @@ int PPIF::InfoARecv(const PPIFContext&, VChannelPtr v, msgid m)
   }
 
   return (-1);          /* return -1 for FAILURE */
-}
-
-int PPIF::InfoARecv(VChannelPtr v, msgid m)
-{
-  return InfoARecv(*ppifContext(), v, m);
 }

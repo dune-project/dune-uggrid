@@ -94,45 +94,27 @@ int         ExitPPIF         (void);
 
 /* tree oriented functions */
 int         Broadcast        (const PPIFContext& context, void* data, int size);
-int         Broadcast        (void *data, int size);
 int         Concentrate      (const PPIFContext& context, void *data, int size);
-int         Concentrate      (void *data, int size);
 int         GetConcentrate   (const PPIFContext& context, int slave, void *data, int size);
-int         GetConcentrate   (int slave, void *data, int size);
 int         Spread           (const PPIFContext& context, int slave, void *data, int size);
-int         Spread           (int slave, void *data, int size);
 int         GetSpread        (const PPIFContext& context, void *data, int size);
-int         GetSpread        (void *data, int size);
 int         Synchronize      (const PPIFContext& context);
-int         Synchronize      (void);
 
 /* synchronous communication */
 VChannelPtr ConnSync         (const PPIFContext& context, int p, int id);
-VChannelPtr ConnSync         (int p, int id);
 int         DiscSync         (const PPIFContext& context, VChannelPtr vc);
-int         DiscSync         (VChannelPtr vc);
 int         SendSync         (const PPIFContext& context, VChannelPtr vc, void *data, int size);
-int         SendSync         (VChannelPtr vc, void *data, int size);
 int         RecvSync         (const PPIFContext& context, VChannelPtr vc, void *data, int size);
-int         RecvSync         (VChannelPtr vc, void *data, int size);
 
 /* asynchronous communication */
 VChannelPtr ConnASync        (const PPIFContext& context, int p, int id);
-VChannelPtr ConnASync        (int p, int id);
 int         DiscASync        (const PPIFContext& context, VChannelPtr vc);
-int         DiscASync        (VChannelPtr vc);
 msgid       SendASync        (const PPIFContext& context, VChannelPtr vc, void *data, int size, int *error);
-msgid       SendASync        (VChannelPtr vc, void *data, int size, int *error);
 msgid       RecvASync        (const PPIFContext& context, VChannelPtr vc, void *data, int size, int *error);
-msgid       RecvASync        (VChannelPtr vc, void *data, int size, int *error);
 int         InfoAConn        (const PPIFContext& context, VChannelPtr vc);
-int         InfoAConn        (VChannelPtr vc);
 int         InfoADisc        (const PPIFContext& context, VChannelPtr vc);
-int         InfoADisc        (VChannelPtr vc);
 int         InfoASend        (const PPIFContext& context, VChannelPtr vc, msgid m);
-int         InfoASend        (VChannelPtr vc, msgid m);
 int         InfoARecv        (const PPIFContext& context, VChannelPtr vc, msgid m);
-int         InfoARecv        (VChannelPtr vc, msgid m);
 
 }  // end namespace PPIF
 
