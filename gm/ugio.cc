@@ -2742,7 +2742,8 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
                                          unsigned long heapSize,
                                          INT force,
                                          INT optimizedIE,
-                                         INT autosave)
+                                         INT autosave,
+                                         std::shared_ptr<PPIF::PPIFContext> ppifContext)
 /* Documentation of the intended program flow resp. communication requirements.
    Functions introducing a global communication (all processors without any exception)
    are:
@@ -2817,6 +2818,17 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   ugio_begin = CURRENT_TIME;
         #endif
 
+  if (not ppifContext) {
+    ppifContext = std::shared_ptr<PPIF::PPIFContext>(
+      new PPIF::PPIFContext
+#ifdef ModelP
+      , [](PPIF::PPIFContext* p) { ExitPPIF(*p); delete p; }
+#endif
+      );
+#ifdef ModelP
+    InitPPIF(*ppifContext);
+#endif
+  }
   if (autosave)
   {
     if (name==NULL)
@@ -2934,7 +2946,7 @@ nparfiles = UG_GlobalMinINT(*PPIF::ppifContext(), nparfiles);
   if (heapSize==0) heapSize = mg_general.heapsize * KBYTE;
 
   /* create a virginenal multigrid on the BVP */
-  theMG = CreateMultiGrid(MGName,BndValName,FormatName,heapSize,true,false);
+  theMG = CreateMultiGrid(MGName,BndValName,FormatName,heapSize,true,false, ppifContext);
   if (theMG==NULL) {
     UserWrite("ERROR(ugio): cannot create multigrid\n");
     CloseMGFile ();
