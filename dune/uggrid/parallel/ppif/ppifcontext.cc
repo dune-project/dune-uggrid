@@ -9,7 +9,7 @@ PPIFContext
 ::PPIFContext()
   : PPIFContext(MPI_COMM_WORLD)
 {
-  /* Nothing. */
+  /* Nothing */
 }
 #else
 PPIFContext
@@ -23,6 +23,8 @@ PPIFContext
 ::~PPIFContext()
 {
 #if ModelP
+  ExitPPIF(*this);
+
   int finalized;
   MPI_Finalized(&finalized);
 
@@ -38,6 +40,8 @@ PPIFContext
   MPI_Comm_dup(comm, &comm_);
   MPI_Comm_rank(comm_, &me_);
   MPI_Comm_size(comm_, &procs_);
+
+  InitPPIF(*this);
 }
 #endif
 
