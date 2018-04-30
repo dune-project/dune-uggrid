@@ -3151,7 +3151,7 @@ enum {GM_PUT_AT_BEGIN = 1,               /*!< put skip vectors at begin of the l
 /*@}*/
 
 /* get/set current multigrid, loop through multigrids */
-MULTIGRID               *MakeMGItem                             (const char *name);
+MULTIGRID               *MakeMGItem                             (const char *name, std::shared_ptr<PPIF::PPIFContext> context);
 MULTIGRID               *GetMultigrid                           (const char *name);
 MULTIGRID               *GetFirstMultigrid                      (void);
 MULTIGRID               *GetNextMultigrid                       (const MULTIGRID *theMG);
@@ -3177,12 +3177,14 @@ FORMAT                   *CreateFormat (char *name, INT sVertex, INT sMultiGrid,
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
                             const char *format, NS_PREFIX MEM heapSize,
-                            INT optimizedIE, INT insertMesh);
+                            INT optimizedIE, INT insertMesh,
+                            std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
 MULTIGRID *OpenMGFromDataFile(MULTIGRID *theMG, INT number, char *type,
                               char *DataFileName, NS_PREFIX MEM heapSize);
 MULTIGRID       *LoadMultiGrid  (const char *MultigridName, const char *name, const char *type,
                                  const char *BndValProblem, const char *format,
-                                 unsigned long heapSize,INT force,INT optimizedIE, INT autosave);
+                                 unsigned long heapSize,INT force,INT optimizedIE, INT autosave,
+                                 std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
 INT             SaveMultiGrid (MULTIGRID *theMG, const char *name, const char *type, const char *comment, INT autosave, INT rename);
 INT         DisposeGrid             (GRID *theGrid);
 INT             DisposeMultiGrid                (MULTIGRID *theMG);

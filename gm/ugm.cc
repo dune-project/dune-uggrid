@@ -2823,7 +2823,7 @@ GRID * NS_DIM_PREFIX CreateNewLevelAMG (MULTIGRID *theMG)
    </ul> */
 /****************************************************************************/
 
-MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
+MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name, std::shared_ptr<PPIF::PPIFContext> ppifContext)
 {
   MULTIGRID *theMG;
 
@@ -2835,7 +2835,7 @@ MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
   new(theMG) multigrid;
 
 #if ModelP
-  theMG->ppifContext_ = PPIF::ppifContext();
+  theMG->ppifContext_ = ppifContext;
   theMG->dddContext_ = std::make_shared<DDD::DDDContext>(theMG->ppifContext_);
 
   InitDDD(theMG->dddContext());
@@ -3026,7 +3026,8 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
 /****************************************************************************/
 
 MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProblem,
-                                           const char *format, MEM heapSize, INT optimizedIE, INT insertMesh)
+                                           const char *format, MEM heapSize, INT optimizedIE, INT insertMesh,
+                                           std::shared_ptr<PPIF::PPIFContext> ppifContext)
 {
   HEAP *theHeap;
   MULTIGRID *theMG;
@@ -3037,6 +3038,14 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   FORMAT *theFormat;
   INT MarkKey;
 
+  if (not ppifContext) {
+    ppifContext = std::shared_ptr<PPIF::PPIFContext>(
+      new PPIF::PPIFContext,
+      [](PPIF::PPIFContext* p) { ExitPPIF(*p); delete p; }
+      );
+    InitPPIF(*ppifContext);
+  }
+
   theFormat = GetFormat(format);
   if (theFormat==NULL)
   {
@@ -3046,7 +3055,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
 
 
   /* allocate multigrid envitem */
-  theMG = MakeMGItem(MultigridName);
+  theMG = MakeMGItem(MultigridName, ppifContext);
   if (theMG==NULL) return(NULL);
   MGFORMAT(theMG) = theFormat;
   if (InitElementTypes(theMG)!=GM_OK)
