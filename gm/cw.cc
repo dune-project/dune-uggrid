@@ -610,8 +610,7 @@ static INT InitPredefinedControlEntries (void)
     }
 
   IFDEBUG(gm,1)
-  if (me == master)
-    ListAllCWsOfAllObjectTypes(printf);
+  ListAllCWsOfAllObjectTypes(printf);
   ENDDEBUG
 
   /* TODO: enable next lines for error control */
