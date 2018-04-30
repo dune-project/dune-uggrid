@@ -399,7 +399,7 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
     /* one coupling for object itself (send proc) */
     /*
                     theNewCpl[actNewCpl].gid  = OBJ_GID(hdr);
-                    theNewCpl[actNewCpl].proc = me;
+                    theNewCpl[actNewCpl].proc = context.me();
                     theNewCpl[actNewCpl].prio = OBJ_PRIO(hdr);
                     actNewCpl++;
      */

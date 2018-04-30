@@ -85,6 +85,8 @@ static bool sort_NewOwners (const XICopyObj* a, const XICopyObj* b)
 
 XICopyObj **CplClosureEstimate (DDD::DDDContext& context, const std::vector<XICopyObj*>& arrayItems, int *nRet)
 {
+  const auto& me = context.me();
+
   int i, nNewOwners;
   XICopyObj **arrayNewOwners = NULL;
   XICopyObj* const* items = arrayItems.data();

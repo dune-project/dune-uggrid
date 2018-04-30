@@ -345,8 +345,8 @@ static char *mem_ptr;
   (dummy_ptr = (mem_ptr=(char *)memmgr_AllocPMEM(SST+(size_t)s)) != NULL ? \
                mem_ptr+SST : NULL);                                     \
   if (mem_ptr!=NULL) GET_SSTVAL(dummy_ptr) = s;                            \
-  printf("%4d: MALL PFix adr=%08x size=%ld file=%s line=%d\n",             \
-         me,dummy_ptr,s,__FILE__,__LINE__)
+  printf("MALL PFix adr=%08x size=%ld file=%s line=%d\n",             \
+         dummy_ptr,s,__FILE__,__LINE__)
 #else
 #define AllocFix(s)       memmgr_AllocPMEM((size_t)s)
 #endif
@@ -358,8 +358,8 @@ static char *mem_ptr;
                != NULL ?                                                            \
                mem_ptr+SST : NULL);                                     \
   if (mem_ptr!=NULL) GET_SSTVAL(dummy_ptr) = s;                            \
-  printf("%4d: MALL TMsg adr=%08x size=%ld file=%s line=%d\n",             \
-         me,dummy_ptr,s,__FILE__,__LINE__)
+  printf("MALL TMsg adr=%08x size=%ld file=%s line=%d\n",             \
+         dummy_ptr,s,__FILE__,__LINE__)
 #else
 #define AllocMsg(s)       memmgr_AllocTMEM((size_t)s, TMEM_MSG)
 #endif
@@ -371,16 +371,16 @@ static char *mem_ptr;
                != NULL ?                                                            \
                mem_ptr+SST : NULL);                                     \
   if (mem_ptr!=NULL) GET_SSTVAL(dummy_ptr) = s;                            \
-  printf("%4d: MALL TTmp adr=%08x size=%ld file=%s line=%d\n",             \
-         me,dummy_ptr,s,__FILE__,__LINE__)
+  printf("MALL TTmp adr=%08x size=%ld file=%s line=%d\n",             \
+         dummy_ptr,s,__FILE__,__LINE__)
 
 #define AllocTmpReq(s,r)  \
   (dummy_ptr = (mem_ptr=(char *)memmgr_AllocTMEM(SST+(size_t)s, r))        \
                != NULL ?                                                            \
                mem_ptr+SST : NULL);                                     \
   if (mem_ptr!=NULL) GET_SSTVAL(dummy_ptr) = s;                            \
-  printf("%4d: MALL TTmp adr=%08x size=%ld kind=%d file=%s line=%d\n",     \
-         me,dummy_ptr,s,r,__FILE__,__LINE__)
+  printf("MALL TTmp adr=%08x size=%ld kind=%d file=%s line=%d\n",     \
+         dummy_ptr,s,r,__FILE__,__LINE__)
 #else
 #define AllocTmp(s)       memmgr_AllocTMEM((size_t)s, TMEM_ANY)
 #define AllocTmpReq(s,r)  memmgr_AllocTMEM((size_t)s, r)
@@ -392,8 +392,8 @@ static char *mem_ptr;
   (dummy_ptr = (mem_ptr=(char *)memmgr_AllocAMEM(SST+(size_t)s)) != NULL ? \
                mem_ptr+SST : NULL);                                     \
   if (mem_ptr!=NULL) GET_SSTVAL(dummy_ptr) = s;                            \
-  printf("%4d: MALL ACpl adr=%08x size=%ld file=%s line=%d\n",             \
-         me,dummy_ptr,s,__FILE__,__LINE__)
+  printf("MALL ACpl adr=%08x size=%ld file=%s line=%d\n",             \
+         dummy_ptr,s,__FILE__,__LINE__)
 #else
 #define AllocCpl(s)       memmgr_AllocAMEM((size_t)s)
 #endif
@@ -403,8 +403,8 @@ static char *mem_ptr;
   (dummy_ptr = (mem_ptr=(char *)memmgr_AllocAMEM(SST+(size_t)s)) != NULL ? \
                mem_ptr+SST : NULL);                                     \
   if (mem_ptr!=NULL) GET_SSTVAL(dummy_ptr) = s;                            \
-  printf("%4d: MALL AIF  adr=%08x size=%ld file=%s line=%d\n",             \
-         me,dummy_ptr,s,__FILE__,__LINE__)
+  printf("MALL AIF  adr=%08x size=%ld file=%s line=%d\n",             \
+         dummy_ptr,s,__FILE__,__LINE__)
 #else
 #define AllocIF(s)        memmgr_AllocAMEM((size_t)s)
 #endif
@@ -421,8 +421,8 @@ static char *mem_ptr;
 #define FreeFix(mem)      {               \
     size_t s=GET_SSTVAL(mem); \
     memmgr_FreePMEM(((char *)mem)-SST);  \
-    printf("%4d: FREE PFix adr=%08x size=%ld file=%s line=%d\n",\
-           me,mem,s,__FILE__,__LINE__); }
+    printf("FREE PFix adr=%08x size=%ld file=%s line=%d\n",\
+           mem,s,__FILE__,__LINE__); }
 #else
 #define FreeFix(mem)      memmgr_FreePMEM(mem)
 #endif
@@ -431,8 +431,8 @@ static char *mem_ptr;
 #define FreeMsg(mem,size)      {   \
     size_t s=GET_SSTVAL(mem); \
     memmgr_FreeTMEM(((char *)mem)-SST, TMEM_MSG);    \
-    printf("%4d: FREE TMsg adr=%08x size=%ld file=%s line=%d\n",\
-           me,mem,s,__FILE__,__LINE__); }
+    printf("FREE TMsg adr=%08x size=%ld file=%s line=%d\n",\
+           mem,s,__FILE__,__LINE__); }
 #else
 #define FreeMsg(mem,size)      memmgr_FreeTMEM(mem, TMEM_MSG)
 #endif
@@ -442,13 +442,13 @@ static char *mem_ptr;
 #define FreeTmp(mem,size)      {                  \
     size_t s=GET_SSTVAL(mem); \
     memmgr_FreeTMEM(((char *)mem)-SST,TMEM_ANY);       \
-    printf("%4d: FREE TTmp adr=%08x size=%ld file=%s line=%d\n",\
-           me,mem,s,__FILE__,__LINE__); }
+    printf("FREE TTmp adr=%08x size=%ld file=%s line=%d\n",\
+           mem,s,__FILE__,__LINE__); }
 #define FreeTmpReq(mem,size,r)      {                  \
     size_t s=GET_SSTVAL(mem); \
     memmgr_FreeTMEM(((char *)mem)-SST,r);       \
-    printf("%4d: FREE TTmp adr=%08x size=%ld kind=%d file=%s line=%d\n",\
-           me,mem,s,r,__FILE__,__LINE__); }
+    printf("FREE TTmp adr=%08x size=%ld kind=%d file=%s line=%d\n",\
+           mem,s,r,__FILE__,__LINE__); }
 #else
 #define FreeTmp(mem,size)      memmgr_FreeTMEM(mem,TMEM_ANY)
 #define FreeTmpReq(mem,size,r) memmgr_FreeTMEM(mem,r)
@@ -459,8 +459,8 @@ static char *mem_ptr;
 #define FreeCpl(mem)      {                   \
     size_t s=GET_SSTVAL(mem); \
     memmgr_FreeAMEM(((char *)mem)-SST);     \
-    printf("%4d: FREE ACpl adr=%08x size=%ld file=%s line=%d\n",\
-           me,mem,s,__FILE__,__LINE__); }
+    printf("FREE ACpl adr=%08x size=%ld file=%s line=%d\n",\
+           mem,s,__FILE__,__LINE__); }
 #else
 #define FreeCpl(mem)      memmgr_FreeAMEM(mem)
 #endif
@@ -469,8 +469,8 @@ static char *mem_ptr;
 #define FreeIF(mem)       { \
     size_t s=GET_SSTVAL(mem); \
     memmgr_FreeAMEM(((char *)mem)-SST);    \
-    printf("%4d: FREE AIF  adr=%08x size=%ld file=%s line=%d\n",\
-           me,mem,s,__FILE__,__LINE__); }
+    printf("FREE AIF  adr=%08x size=%ld file=%s line=%d\n",\
+           mem,s,__FILE__,__LINE__); }
 #else
 #define FreeIF(mem)       memmgr_FreeAMEM(mem)
 #endif

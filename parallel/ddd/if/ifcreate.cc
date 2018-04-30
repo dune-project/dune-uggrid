@@ -224,7 +224,7 @@ static COUPLING ** IFCollectStdCouplings(DDD::DDDContext& context)
     }
   }
   /*
-     printf("%04d: n=%d, nCplItems=%d\n",me,n,nCplItems);
+     printf("%04d: n=%d, nCplItems=%d\n",context.me(),n,nCplItems);
    */
   assert(n==nCplItems);
   return cplarray;

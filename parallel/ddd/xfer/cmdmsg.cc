@@ -392,7 +392,7 @@ static void CmdMsgDisplay(DDD::DDDContext& context, const char *comment, LC_MSGH
   int lenGid = (int) LC_GetTableLen(xm, ctx.undelete_id);
 
   std::ostringstream prefixStream;
-  prefixStream << setw(3) << me << "-" << comment << setw(3) << proc << " ";
+  prefixStream << setw(3) << context.me() << "-" << comment << setw(3) << proc << " ";
   const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */

@@ -292,16 +292,16 @@ static void DisplayMemResources(const DDD::DDDContext& context)
 
   GetSizesXIAddData(context, &nSegms, &nItems, &memAllocated, &memUsed);
   if (nSegms>0)
-    printf("%4d: XferEnd, XIAddData segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
+    printf("XferEnd, XIAddData segms=%d items=%d allocated=%ld used=%ld\n",
+           nSegms, nItems, (long)memAllocated, (long)memUsed);
 
 
   XICopyObjSet_GetResources(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj),
                             &nSegms, &nItems, &nNodes, &memAllocated, &memUsed);
   if (nSegms>0) {
-    printf("%4d: XferEnd, XICopyObj "
+    printf("XferEnd, XICopyObj "
            "segms=%d items=%d nodes=%ld allocated=%ld used=%ld\n",
-           me, nSegms, nItems, nNodes, (long)memAllocated, (long)memUsed);
+           nSegms, nItems, nNodes, (long)memAllocated, (long)memUsed);
   }
 
 
@@ -310,31 +310,31 @@ static void DisplayMemResources(const DDD::DDDContext& context)
   XICopyObjSegmList_GetResources(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj)->list,
                                  &nSegms, &nItems, &memAllocated, &memUsed);
   if (nSegms>0)
-    printf("%4d: XferEnd, XICopyObj segms=%d items=%d allocated=%ld used=%ld\n",
-           me, nSegms, nItems, (long)memAllocated, (long)memUsed);
+    printf("XferEnd, XICopyObj segms=%d items=%d allocated=%ld used=%ld\n",
+           nSegms, nItems, (long)memAllocated, (long)memUsed);
 
   XICopyObjBTree_GetResources(reinterpret_cast<XICopyObjSet*>(ctx.setXICopyObj)->tree,
                               &nNodes, &nItems, &memAllocated, &memUsed);
   if (nItems>0)
-    printf("%4d: XferEnd, XICopyObj nodes=%d items=%d allocated=%ld used=%ld\n",
-           me, nNodes, nItems, (long)memAllocated, (long)memUsed);
+    printf("XferEnd, XICopyObj nodes=%d items=%d allocated=%ld used=%ld\n",
+           nNodes, nItems, (long)memAllocated, (long)memUsed);
         #endif
 
 
   XISetPrioSet_GetResources(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio),
                             &nSegms, &nItems, &nNodes, &memAllocated, &memUsed);
   if (nSegms>0) {
-    printf("%4d: XferEnd, XISetPrio "
+    printf("XferEnd, XISetPrio "
            "segms=%d items=%d nodes=%ld allocated=%ld used=%ld\n",
-           me, nSegms, nItems, nNodes, (long)memAllocated, (long)memUsed);
+           nSegms, nItems, nNodes, (long)memAllocated, (long)memUsed);
   }
 
 
 #define SLL_GET_SIZES(T) do {                                           \
     GetSizes##T(context, &nSegms, &nItems, &memAllocated, &memUsed);    \
     if (nSegms>0)                                                       \
-      printf("%4d: XferEnd, " #T "  segms=%d items=%d allocated=%ld used=%ld\n", \
-             me, nSegms, nItems, (long)memAllocated, (long)memUsed);    \
+      printf("XferEnd, " #T "  segms=%d items=%d allocated=%ld used=%ld\n", \
+             nSegms, nItems, (long)memAllocated, (long)memUsed);    \
   } while(false)
   SLL_GET_SIZES(XIDelCmd);
   SLL_GET_SIZES(XIDelObj);
@@ -364,6 +364,7 @@ static void DisplayMemResources(const DDD::DDDContext& context)
 DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 {
   auto& ctx = context.xferContext();
+  const auto& me = context.me();
 
   DDD_RET ret_code              = DDD_RET_OK;
   XICopyObj   **arrayNewOwners      = NULL;
@@ -864,7 +865,7 @@ static void XferInitCopyInfo (DDD::DDDContext& context,
                "priority must be less than " << MAX_PRIO
                << " (prio=" << prio << ")");
 
-  if (dest==me)
+  if (dest==context.me())
   {
     /* XFER-C4: XferCopyObj degrades to SetPrio command */
     XISetPrio *xi = XISetPrioSet_NewItem(reinterpret_cast<XISetPrioSet*>(ctx.setXISetPrio));

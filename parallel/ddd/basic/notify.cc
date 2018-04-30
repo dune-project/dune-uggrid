@@ -153,6 +153,7 @@ static
 NOTIFY_INFO *NotifyPrepare (DDD::DDDContext& context)
 {
   auto& ctx = context.notifyContext();
+  const auto& me = context.me();
 
 #if     DebugNotify<=4
   printf("%4d:    NotifyPrepare\n", me);
@@ -193,6 +194,7 @@ static
 int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo, int exception)
 {
   auto& ctx = context.notifyContext();
+  const auto& me = context.me();
 
   NOTIFY_INFO  *newInfos;
   int l, i, j, n, unknownInfos, myInfos;

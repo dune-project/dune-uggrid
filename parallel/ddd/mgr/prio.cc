@@ -371,7 +371,7 @@ void DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE type_id)
   TYPE_DESC* desc = &context.typeDefs()[type_id];
   int r, c, changed_rows[MAX_PRIO];
 
-  if (me!=0)
+  if (context.me() != 0)
     return;
 
   /* check for correct type */
