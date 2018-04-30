@@ -434,7 +434,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   const auto& nCpls = context.couplingContext().nCpls;
 
   /* step mode and check whether call to XferEnd is valid */
-  if (!XferStepMode(context, XferMode::XMODE_CMDS))
+  if (!XferStepMode(context, DDD::Xfer::XferMode::XMODE_CMDS))
     DUNE_THROW(Dune::Exception, "DDD_XferEnd() aborted");
 
 
@@ -822,7 +822,7 @@ exit:
     STAT_TIMER(T_XFER_BUILD_IF);
   }
 
-  XferStepMode(context, XferMode::XMODE_BUSY);
+  XferStepMode(context, DDD::Xfer::XferMode::XMODE_BUSY);
   return(ret_code);
 }
 
@@ -1328,7 +1328,7 @@ void DDD_XferBegin(DDD::DDDContext& context)
 
 
   /* step mode and check whether call to XferBegin is valid */
-  if (!XferStepMode(context, XferMode::XMODE_IDLE))
+  if (!XferStepMode(context, DDD::Xfer::XferMode::XMODE_IDLE))
     DUNE_THROW(Dune::Exception, "DDD_XferBegin() aborted");
 
 
@@ -1361,7 +1361,7 @@ void DDD_XferBegin(DDD::DDDContext& context)
 
 int DDD_XferIsPrunedDelete(const DDD::DDDContext& context, DDD_HDR hdr)
 {
-  if (XferMode(context) != XferMode::XMODE_BUSY)
+  if (XferMode(context) != DDD::Xfer::XferMode::XMODE_BUSY)
   {
     return(XFER_PRUNED_ERROR);
   }
@@ -1401,7 +1401,7 @@ int DDD_XferIsPrunedDelete(const DDD::DDDContext& context, DDD_HDR hdr)
 
 int DDD_XferObjIsResent(const DDD::DDDContext& context, DDD_HDR hdr)
 {
-  if (XferMode(context) != XferMode::XMODE_BUSY)
+  if (XferMode(context) != DDD::Xfer::XferMode::XMODE_BUSY)
   {
     return(XFER_RESENT_ERROR);
   }

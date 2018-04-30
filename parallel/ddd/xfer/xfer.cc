@@ -926,9 +926,9 @@ const char *XferModeName (enum XferMode mode)
 {
   switch(mode)
   {
-  case XferMode::XMODE_IDLE : return "idle-mode";
-  case XferMode::XMODE_CMDS : return "commands-mode";
-  case XferMode::XMODE_BUSY : return "busy-mode";
+  case DDD::Xfer::XferMode::XMODE_IDLE : return "idle-mode";
+  case DDD::Xfer::XferMode::XMODE_CMDS : return "commands-mode";
+  case DDD::Xfer::XferMode::XMODE_BUSY : return "busy-mode";
   }
   return "unknown-mode";
 }
@@ -950,9 +950,9 @@ static enum XferMode XferSuccMode (enum XferMode mode)
 {
   switch(mode)
   {
-  case XferMode::XMODE_IDLE : return XferMode::XMODE_CMDS;
-  case XferMode::XMODE_CMDS : return XferMode::XMODE_BUSY;
-  case XferMode::XMODE_BUSY : return XferMode::XMODE_IDLE;
+  case DDD::Xfer::XferMode::XMODE_IDLE : return DDD::Xfer::XferMode::XMODE_CMDS;
+  case DDD::Xfer::XferMode::XMODE_CMDS : return DDD::Xfer::XferMode::XMODE_BUSY;
+  case DDD::Xfer::XferMode::XMODE_BUSY : return DDD::Xfer::XferMode::XMODE_IDLE;
   }
   DUNE_THROW(Dune::InvalidStateException, "invalid XferMode");
 }
@@ -967,7 +967,7 @@ enum XferMode XferMode (const DDD::DDDContext& context)
 
 int ddd_XferActive(const DDD::DDDContext& context)
 {
-  return context.xferContext().xferMode != XferMode::XMODE_IDLE;
+  return context.xferContext().xferMode != DDD::Xfer::XferMode::XMODE_IDLE;
 }
 
 
@@ -1014,7 +1014,7 @@ void ddd_XferInit(DDD::DDDContext& context)
   InitXIAddCpl();
 
 
-  XferSetMode(context, XferMode::XMODE_IDLE);
+  XferSetMode(context, DDD::Xfer::XferMode::XMODE_IDLE);
 
   ctx.objmsg_t = LC_NewMsgType(context, "XferMsg");
   ctx.symtab_id = LC_NewMsgTable("SymTab",
