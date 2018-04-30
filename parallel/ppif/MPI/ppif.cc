@@ -122,15 +122,6 @@ int PPIF::me;                          /* my processor id                       
 int PPIF::master;                      /* id of master processor                   */
 int PPIF::procs;                       /* number of processors in the network      */
 
-/* 3D array dimensions, may be 1 !          */
-int PPIF::DimX, PPIF::DimY, PPIF::DimZ;
-
-/* Tree structure */
-int PPIF::degree;                      /* degree of downtree nodes                 */
-VChannelPtr PPIF::uptree = nullptr;    /* channel uptree                           */
-VChannelPtr const* PPIF::downtree = nullptr; /* channels downtree (may be empty)   */
-int const* PPIF::slvcnt;                     /* number of processors in subtree    */
-
 /****************************************************************************/
 /*                                                                          */
 /* routines for handling virtual channels                                   */
@@ -164,15 +155,6 @@ void PPIF::ppifContext(const std::shared_ptr<PPIFContext>& context)
   me = context->me();
   master = context->master();
   procs = context->procs();
-
-  DimX = context->dimX();
-  DimY = context->dimY();
-  DimZ = context->dimZ();
-
-  degree = context->degree();
-  uptree = context->uptree();
-  downtree = context->downtree().data();
-  slvcnt = context->slvcnt().data();
 }
 
 void PPIF::ppifContext(std::nullptr_t)
@@ -182,15 +164,6 @@ void PPIF::ppifContext(std::nullptr_t)
   me = 0;
   master = 0;
   procs = 1;
-
-  DimX = 1;
-  DimY = 1;
-  DimZ = 1;
-
-  degree = 0;
-  uptree = nullptr;
-  downtree = nullptr;
-  slvcnt = nullptr;
 }
 
 const std::shared_ptr<PPIF::PPIFContext>& PPIF::ppifContext()
