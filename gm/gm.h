@@ -2655,8 +2655,8 @@ typedef struct {
   INT corner_of_edge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
 
   /* the following parameters are derived from data above */
-  INT mapped_inner_objt;                                    /* tag to objt mapping for free list*/
-  INT mapped_bnd_objt;                                      /* tag to objt mapping for free list*/
+  INT mapped_inner_objt = -1;                               /* tag to objt mapping for free list*/
+  INT mapped_bnd_objt = -1;                                 /* tag to objt mapping for free list*/
   INT inner_size, bnd_size;                                 /* size in bytes used for alloc     */
   INT edge_with_corners[MAX_CORNERS_OF_ELEM][MAX_CORNERS_OF_ELEM];
   INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
