@@ -344,10 +344,12 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
   MAP_TYPES(MAOBJ, dddctrl.TypeMatrix);
 
   dddctrl.TypeBndP = DDD_TypeDeclare(context, "BndP");
-  MAP_TYPES(GetFreeOBJT(), dddctrl.TypeBndP);
+  static const INT objtBndP = GetFreeOBJT();
+  MAP_TYPES(objtBndP, dddctrl.TypeBndP);
 
   dddctrl.TypeBndS = DDD_TypeDeclare(context, "BndS");
-  MAP_TYPES(GetFreeOBJT(), dddctrl.TypeBndS);
+  static const INT objtBndS = GetFreeOBJT();
+  MAP_TYPES(objtBndS, dddctrl.TypeBndS);
 }
 
 

@@ -863,12 +863,8 @@ static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
   el->bnd_size = sizeof(struct generic_element) + (p_count-1)*sizeof(void *);
 
   /* get a free object id for free list */
-  /** \todo OBJT is always allocated when this functions is called but never released
-                   this will probably cause problems when several mgs are open: switching between
-                   them will lead to an overflow of the UsedOBJT variable in ugm.c
-                   possible remedy: store element OBJT in mg and release when it is closed. Also
-                   don't reallocate them for a given mg */
-  el->mapped_inner_objt = GetFreeOBJT();
+  if (el->mapped_inner_objt < 0)
+    el->mapped_inner_objt = GetFreeOBJT();
   if (el->mapped_inner_objt < 0) return(GM_ERROR);
 
 #ifndef ModelP
@@ -876,7 +872,8 @@ static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
   OBJT4Elements[nOBJT++]=el->mapped_inner_objt;
 #endif
 
-  el->mapped_bnd_objt = GetFreeOBJT();
+  if (el->mapped_bnd_objt < 0)
+    el->mapped_bnd_objt = GetFreeOBJT();
   if (el->mapped_bnd_objt < 0) return(GM_ERROR);
 
 #ifndef ModelP
