@@ -1157,7 +1157,6 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
 {
   auto& ctx = context.xferContext();
   XFERADDDATA *xa;
-  TYPE_DESC   *descDepTyp;
   int i;
 
 #       if DebugXfer<=2

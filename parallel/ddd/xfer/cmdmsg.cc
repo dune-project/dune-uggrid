@@ -387,7 +387,6 @@ static void CmdMsgDisplay(DDD::DDDContext& context, const char *comment, LC_MSGH
   std::ostream& out = std::cout;
 
   DDD_GID      *theGid;
-  char buf[30];
   int proc = LC_MsgGetProc(xm);
   int lenGid = (int) LC_GetTableLen(xm, ctx.undelete_id);
 

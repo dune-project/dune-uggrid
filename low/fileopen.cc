@@ -133,7 +133,6 @@ static INT thePathsDirID;
 static INT thePathsVarID;
 
 
-static char OldBasePath[BASE_PATH_SIZE];
 static char BasePath[BASE_PATH_SIZE] = "./";
 
 REP_ERR_FILE
