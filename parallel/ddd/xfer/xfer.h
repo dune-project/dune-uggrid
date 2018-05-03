@@ -560,7 +560,7 @@ void CplMsgExit(DDD::DDDContext& context);
 
 
 /* cmdmsg.c */
-int  PruneXIDelCmd (DDD::DDDContext& context, XIDelCmd **, int, std::vector<XICopyObj*>&);
+int  PruneXIDelCmd (DDD::DDDContext& context, XIDelCmd **, int, const std::vector<XICopyObj*>&);
 void CmdMsgInit(DDD::DDDContext& context);
 void CmdMsgExit(DDD::DDDContext& context);
 

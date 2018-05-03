@@ -109,15 +109,15 @@ void CmdMsgExit(DDD::DDDContext& context)
 
 static
 std::pair<int, CmdmsgList>
-PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nCO)
+PrepareCmdMsgs (DDD::DDDContext& context, const std::vector<XICopyObj*>& arrayCO)
 {
   auto& ctx = context.cmdmsgContext();
 
-  if (nCO==0)
+  if (arrayCO.empty())
     return {0, {}};
 
 #       if DebugCmdMsg<=3
-  Dune::dvverb << "PreparePrune, nCopyObj=" << nCO << "\n";
+  Dune::dvverb << "PreparePrune, nCopyObj=" << arrayCO.size() << "\n";
 #       endif
 
 
@@ -127,9 +127,8 @@ PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nCO)
    */
 
   int markedCO = 0;
-  for(int iCO=0; iCO<nCO; iCO++)
+  for(auto co : arrayCO)
   {
-    XICopyObj *co = itemsCO[iCO];
     DDD_PROC pCO = co->dest;
     COUPLING *cpl;
 
@@ -167,10 +166,8 @@ PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nCO)
           (the lists have been sorted according to proc-nr previously.)
    */
   int j=0;
-  for(int iCO=0; iCO<nCO; iCO++)
+  for(auto co : arrayCO)
   {
-    XICopyObj *co = itemsCO[iCO];
-
     if (CO_SELF(co))
     {
       gids[j] = co->gid;
@@ -391,17 +388,14 @@ static void CmdMsgDisplay(DDD::DDDContext& context, const char *comment, LC_MSGH
 int PruneXIDelCmd (
   DDD::DDDContext& context,
   XIDelCmd  **itemsDC, int nDC,
-  std::vector<XICopyObj*>& arrayCO)
+  const std::vector<XICopyObj*>& arrayCO)
 {
   auto& ctx = context.cmdmsgContext();
-
-  XICopyObj** itemsCO = arrayCO.data();
-  const int nCO = arrayCO.size();
 
   /* accumulate messages (one for each partner) */
   int nSendMsgs;
   CmdmsgList sendMsgs;
-  std::tie(nSendMsgs, sendMsgs) = PrepareCmdMsgs(context, itemsCO, nCO);
+  std::tie(nSendMsgs, sendMsgs) = PrepareCmdMsgs(context, arrayCO);
 
 #if DebugCmdMsg>2
   if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
