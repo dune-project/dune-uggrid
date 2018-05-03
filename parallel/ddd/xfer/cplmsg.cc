@@ -235,17 +235,6 @@ static void CplMsgSend(DDD::DDDContext& context, const CplmsgList& msgs)
     for(int i=0; i < msg.nModCpl; i++)
     {
       arrayMC[i] = msg.xferModCpl[i]->te;
-
-#                       ifdef SLL_DebugNew
-      {
-        XIModCpl *mc = msg.xferModCpl[i];
-
-        Dune::dwarn
-          << "send modcpl to " << msg.proc << " (" << mc->te.gid
-          << ", " << mc->te.prio << ")  "
-          << mc->sll_file << ":" << mc->sll_line << "\n";
-      }
-#                       endif
     }
     for(int i=0; i < msg.nAddCpl; i++)
     {
