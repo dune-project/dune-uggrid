@@ -40,9 +40,6 @@
 #include "basic/lowcomm.h"
 #include "basic/oopp.h"    /* for object-orientated style via preprocessor */
 
-
-START_UGDIM_NAMESPACE
-
 /****************************************************************************/
 /*                                                                          */
 /* defines in the following order                                           */
@@ -67,22 +64,25 @@ START_UGDIM_NAMESPACE
 #define _PRINTSAME    , indent, fp
 
 /* map memory allocation calls */
-#define OO_Allocate  join_AllocTmp
-#define OO_Free      join_FreeTmp
+#define OO_Allocate  std::malloc
+#define OO_Free      std::free
 
 
 /* extra prefix for all join-related data structures and/or typedefs */
 /*#define ClassPrefix*/
 
+namespace DDD {
+namespace Join {
 
 /* overall mode of Join */
-enum JoinMode {
+enum class JoinMode : unsigned char {
   JMODE_IDLE = 0,                /* waiting for next DDD_JoinBegin() */
   JMODE_CMDS,                    /* after DDD_JoinBegin(), before DDD_JoinEnd() */
   JMODE_BUSY                     /* during DDD_JoinEnd() */
 };
 
-
+} /* namespace Join */
+} /* namespace DDD */
 
 /****************************************************************************/
 /*                                                                          */
@@ -90,6 +90,9 @@ enum JoinMode {
 /*                                                                          */
 /****************************************************************************/
 
+START_UGDIM_NAMESPACE
+
+using JoinMode = DDD::Join::JoinMode;
 
 /****************************************************************************/
 /* JIJoin: represents JoinObj command from application                      */
@@ -102,7 +105,7 @@ DDD_PROC dest;                  /* proc for joining                             
 DDD_GID new_gid;                /* gid of object on dest which should be joined */
 Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 
 #undef ClassName
 
@@ -148,7 +151,7 @@ DDD_PROC dest;                  /* receiver of this item                        
 TEAddCpl te;                    /* table entry (for message)                    */
 Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 
 #undef ClassName
 
@@ -228,47 +231,6 @@ struct JOINMSG3
   LC_MSGHANDLE msg_h;
 };
 
-
-
-
-/****************************************************************************/
-/* JOIN_GLOBALS: global data for join module                                */
-/****************************************************************************/
-
-struct JOIN_GLOBALS
-{
-  /* mode of join module */
-  int joinMode;
-
-  /* description for phase1 message */
-  LC_MSGTYPE phase1msg_t;
-  LC_MSGCOMP jointab_id;
-
-  /* description for phase2 message */
-  LC_MSGTYPE phase2msg_t;
-  LC_MSGCOMP addtab_id;
-
-  /* description for phase3 message */
-  LC_MSGTYPE phase3msg_t;
-  LC_MSGCOMP cpltab_id;
-
-
-  /* entry points for global sets */
-  JIJoinSet   *setJIJoin;
-  JIAddCplSet *setJIAddCpl2;
-  JIAddCplSet *setJIAddCpl3;
-
-};
-
-
-/* one instance of JOIN_GLOBALS */
-extern JOIN_GLOBALS joinGlobals;
-
-
-/****************************************************************************/
-
-
-
 /****************************************************************************/
 /*                                                                          */
 /* function declarations                                                    */
@@ -278,7 +240,7 @@ extern JOIN_GLOBALS joinGlobals;
 
 /* join.c, used only by cmds.c */
 /*
-   XICopyObj **CplClosureEstimate(XICopyObjPtrArray *, int *);
+   XICopyObj **CplClosureEstimate(DDD::DDDContext& context, XICopyObjPtrArray *, int *);
    int  PrepareObjMsgs(XICopyObjPtrArray *, XINewCpl **, int,
                 XIOldCpl **, int, XFERMSG **, size_t *);
    void ExecLocalXIDelCmd(XIDelCmd  **, int);
@@ -287,9 +249,7 @@ extern JOIN_GLOBALS joinGlobals;
    void PropagateCplInfos(XISetPrio **, int, XIDelObj  **, int,
                 TENewCpl *, int);
  */
-void join_SetTmpMem (int);
-int JoinMode (void);
-int JoinStepMode(int);
+bool JoinStepMode(DDD::DDDContext& context, JoinMode);
 
 
 /* pack.c,   used only by cmds.c */
@@ -308,7 +268,7 @@ int JoinStepMode(int);
 
 /* ctrl.c */
 /*
-   void XferDisplayMsg (char *comment, LC_MSGHANDLE);
+   void XferDisplayMsg (DDD::DDDContext& context, char *comment, LC_MSGHANDLE);
  */
 
 END_UGDIM_NAMESPACE

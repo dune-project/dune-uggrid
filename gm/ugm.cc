@@ -73,10 +73,12 @@
 
 #ifdef ModelP
 #include "identify.h"
+#include "parallel/ppif/ppif.h"
 #endif
 
 #include "cw.h"
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 USING_UG_NAMESPACE
 USING_UGDIM_NAMESPACE
@@ -270,17 +272,17 @@ INT NS_DIM_PREFIX ReleaseOBJT (INT type)
 /****************************************************************************/
 
 #ifdef ModelP
-static void ConstructDDDObject (void *obj, INT size, INT type)
+static void ConstructDDDObject (DDD::DDDContext& context, void *obj, INT size, INT type)
 {
   if (obj!=NULL && type!=NOOBJ)
   {
     memset(obj,0,size);
     /* link this object to DDD management */
-    if (HAS_DDDHDR(type))
+    if (HAS_DDDHDR(context, type))
     {
-      DDD_TYPE dddtype = DDDTYPE(type);
-      DDD_HDR dddhdr = (DDD_HDR)(((char *)obj) + DDD_InfoHdrOffset(dddtype));
-      DDD_HdrConstructor(dddhdr, dddtype, PrioMaster, 0);
+      DDD_TYPE dddtype = DDDTYPE(context, type);
+      DDD_HDR dddhdr = (DDD_HDR)(((char *)obj) + DDD_InfoHdrOffset(context, dddtype));
+      DDD_HdrConstructor(context, dddhdr, dddtype, PrioMaster, 0);
     }
   }
   return;
@@ -295,7 +297,7 @@ void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
 
   #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
-    ConstructDDDObject(obj,size,type);
+    ConstructDDDObject(theMG->dddContext(), obj,size,type);
   #endif
 
   return obj;
@@ -319,16 +321,16 @@ void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
 /****************************************************************************/
 
 #ifdef ModelP
-static void DestructDDDObject(void *object, INT type)
+static void DestructDDDObject(DDD::DDDContext& context, void *object, INT type)
 {
   if (type!=NOOBJ)
   {
     /* unlink object from DDD management */
-    if (HAS_DDDHDR(type))
+    if (HAS_DDDHDR(context, type))
     {
       DDD_HDR dddhdr = (DDD_HDR)
-                       (((char *)object)+DDD_InfoHdrOffset(DDDTYPE(type)));
-      DDD_HdrDestructor(dddhdr);
+                       (((char *)object)+DDD_InfoHdrOffset(context, DDDTYPE(context, type)));
+      DDD_HdrDestructor(context, dddhdr);
     }
   }
   return;
@@ -339,7 +341,7 @@ INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, INT t
 {
   #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
-    DestructDDDObject(object,type);
+    DestructDDDObject(theMG->dddContext(), object,type);
   #endif
 
   DisposeMem(MGHEAP(theMG), object);
@@ -702,7 +704,7 @@ NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *t
 
   PRINTDEBUG(dddif,1,(PFMT " CreateMidNode(): n=" ID_FMTX
                       " NTYPE=%d OBJT=%d father " ID_FMTX " \n",
-                      me,ID_PRTX(theNode),NTYPE(theNode),
+                      theGrid->ppifContext().me(),ID_PRTX(theNode),NTYPE(theNode),
                       OBJT(NFATHER(theNode)),NFATHER(theNode)));
 
   return(theNode);
@@ -1069,9 +1071,9 @@ NODE * NS_DIM_PREFIX GetSideNode (const ELEMENT *theElement, INT side)
     else return(NULL);
                 #endif
   }
-  PRINTDEBUG(gm,2,(PFMT " GetSideNode(): elem=" EID_FMTX
+  PRINTDEBUG(gm,2,("GetSideNode(): elem=" EID_FMTX
                    " side=%d nb. of midnodes=%d\n",
-                   me,EID_PRTX(theElement),side,n));
+                   EID_PRTX(theElement),side,n));
 #ifdef ModelP
   if (TAG(theElement)==PYRAMID && side!=0) return(NULL);
 #endif
@@ -2074,9 +2076,9 @@ EDGE * NS_DIM_PREFIX FatherEdge (NODE **SideNodes, INT ncorners, NODE **Nodes, E
                       SONNODE(NBNODE(LINK1(fatherEdge))));
 
     IFDEBUG(dddif,5)
-    UserWriteF("%4d: fatherEdge=%x theEdge=%x edge0=%x edge1=%x\n",me,
+    UserWriteF("fatherEdge=%x theEdge=%x edge0=%x edge1=%x\n",
                fatherEdge,theEdge,edge0,edge1);
-    UserWriteF("%4d: Nodes[0]=%d Nodes[1]=%d\n",me,ID(Nodes[0]),ID(Nodes[1]));
+    UserWriteF("Nodes[0]=%d Nodes[1]=%d\n",ID(Nodes[0]),ID(Nodes[1]));
 
     UserWriteF("SideNodes\n");
     for (i=0; i<MAX_SIDE_NODES; i++) UserWriteF(" %5d",i);
@@ -2201,11 +2203,11 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
   UGM_CDBG(pe,
            UserWriteF(PFMT "create edge=" EDID_FMTX " from=" ID_FMTX "tf=%d to=" ID_FMTX "tt=%d"
                       "elem=" EID_FMTX "edge=%d\n",
-                      me,EDID_PRTX(pe),ID_PRTX(from),NTYPE(from),ID_PRTX(to),NTYPE(to),
+                      theGrid->ppifContext().me(),EDID_PRTX(pe),ID_PRTX(from),NTYPE(from),ID_PRTX(to),NTYPE(to),
                       EID_PRTX(theElement),edge);
            if (0)
              UserWriteF(PFMT "nfatherf=" ID_FMTX "nfathert=" ID_FMTX " fatheredge=" EDID_FMTX "\n",
-                        me,ID_PRTX((NODE*)NFATHER(from)),ID_PRTX((NODE*)NFATHER(to)),
+                        theGrid->ppifContext().me(),ID_PRTX((NODE*)NFATHER(from)),ID_PRTX((NODE*)NFATHER(to)),
                         EDID_PRTX(GetEdge((NODE*)NFATHER(from),(NODE*)NFATHER(to))));)
 
   NBNODE(link0) = to;
@@ -2471,8 +2473,8 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
   SETLEVEL(pe,theGrid->level);
         #ifdef ModelP
   DDD_AttrSet(PARHDRE(pe),GRID_ATTR(theGrid));
-  /* SETEPRIO(pe,PrioMaster); */
-  PARTITION(pe) = me;
+  /* SETEPRIO(theGrid->dddContext(), pe,PrioMaster); */
+  PARTITION(pe) = theGrid->ppifContext().me();
         #endif
   SETEBUILDCON(pe,1);
   ID(pe) = (theGrid->mg->elemIdCounter)++;
@@ -2500,7 +2502,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
 
   UGM_CDBG(pe,
            UserWriteF(PFMT "create elem=" EID_FMTX,
-                      me,EID_PRTX(pe));
+                      theGrid->ppifContext().me(),EID_PRTX(pe));
            for (i=0; i<CORNERS_OF_ELEM(pe); i++)
              UserWriteF(" n%d=" ID_FMTX, i,ID_PRTX(CORNER(pe,i)));
            UserWriteF("\n");
@@ -2632,13 +2634,13 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
         printf("NTYPE = CORNER_NODE");
         break;
       case MID_NODE :
-        printf(PFMT "el " EID_FMTX " son " EID_FMTX " vertex " VID_FMTX "\n",me,EID_PRTX(theElement),EID_PRTX(theSon),VID_PRTX(MYVERTEX(CORNER(theSon,CORNER_OF_SIDE(theSon,son_side,i)))));
-        printf(PFMT "NTYPE = MID_NODE\n",me);
+        printf(PFMT "el " EID_FMTX " son " EID_FMTX " vertex " VID_FMTX "\n",theGrid->ppifContext().me(),EID_PRTX(theElement),EID_PRTX(theSon),VID_PRTX(MYVERTEX(CORNER(theSon,CORNER_OF_SIDE(theSon,son_side,i)))));
+        printf(PFMT "NTYPE = MID_NODE\n",theGrid->ppifContext().me());
         theFatherEdge = NFATHEREDGE(theNode);
-        printf(PFMT "EDSUBDOM = %d\n",me,(int)EDSUBDOM(theFatherEdge));
+        printf(PFMT "EDSUBDOM = %d\n",theGrid->ppifContext().me(),(int)EDSUBDOM(theFatherEdge));
         t1 = (OBJT(MYVERTEX(NBNODE(LINK0(theFatherEdge))))==BVOBJ);
         t2 = (OBJT(MYVERTEX(NBNODE(LINK1(theFatherEdge))))==BVOBJ);
-        printf(PFMT "BVOBJ(theFatherEdge): %d %d\n",me,(int)t1,(int)t2);
+        printf(PFMT "BVOBJ(theFatherEdge): %d %d\n",theGrid->ppifContext().me(),(int)t1,(int)t2);
         break;
       case SIDE_NODE :
         printf("NTYPE = SIDE_NODE");
@@ -2821,7 +2823,7 @@ GRID * NS_DIM_PREFIX CreateNewLevelAMG (MULTIGRID *theMG)
    </ul> */
 /****************************************************************************/
 
-MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
+MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name, std::shared_ptr<PPIF::PPIFContext> ppifContext)
 {
   MULTIGRID *theMG;
 
@@ -2831,6 +2833,20 @@ MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name)
   if (theMG == NULL) return(NULL);
 
   new(theMG) multigrid;
+
+#if ModelP
+  theMG->ppifContext_ = ppifContext;
+  theMG->dddContext_ = std::make_shared<DDD::DDDContext>(
+    theMG->ppifContext_,
+    std::make_shared<DDD_CTRL>()
+    );
+
+  InitDDD(theMG->dddContext());
+
+  globalDDDContext(theMG->dddContext_);
+#else
+  theMG->ppifContext_ = std::make_shared<PPIF::PPIFContext>();
+#endif
 
   return (theMG);
 }
@@ -3013,7 +3029,8 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
 /****************************************************************************/
 
 MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProblem,
-                                           const char *format, MEM heapSize, INT optimizedIE, INT insertMesh)
+                                           const char *format, MEM heapSize, INT optimizedIE, INT insertMesh,
+                                           std::shared_ptr<PPIF::PPIFContext> ppifContext)
 {
   HEAP *theHeap;
   MULTIGRID *theMG;
@@ -3024,6 +3041,9 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   FORMAT *theFormat;
   INT MarkKey;
 
+  if (not ppifContext)
+    ppifContext = std::make_shared<PPIF::PPIFContext>();
+
   theFormat = GetFormat(format);
   if (theFormat==NULL)
   {
@@ -3033,7 +3053,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
 
 
   /* allocate multigrid envitem */
-  theMG = MakeMGItem(MultigridName);
+  theMG = MakeMGItem(MultigridName, ppifContext);
   if (theMG==NULL) return(NULL);
   MGFORMAT(theMG) = theFormat;
   if (InitElementTypes(theMG)!=GM_OK)
@@ -3113,7 +3133,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   if (insertMesh)
   {
                 #ifdef ModelP
-    if (me==master)
+    if (theMG->ppifContext().isMaster())
     {
                 #endif
     if (InsertMesh(theMG,&mesh))
@@ -3375,7 +3395,7 @@ static INT DisposeVertex (GRID *theGrid, VERTEX *theVertex)
   HEAPFAULT(theVertex);
 
   PRINTDEBUG(gm,1,(PFMT "DisposeVertex(): Gridlevel=%d theVertex=" VID_FMTX "\n",
-                   me,GLEVEL(theGrid),VID_PRTX(theVertex)));
+                   theGrid->ppifContext().me(),GLEVEL(theGrid),VID_PRTX(theVertex)));
 
   theGrid = GRID_ON_LEVEL(MYMG(theGrid),LEVEL(theVertex));
 
@@ -3475,7 +3495,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
 
       PRINTDEBUG(gm,2,(PFMT "DisposeElement(): elem=" EID_FMTX
                        " father=" EID_FMTX " son0=%x son1=%x\n",
-                       me,EID_PRTX(theElement),EID_PRTX(theFather),
+                       theGrid->ppifContext().me(),EID_PRTX(theElement),EID_PRTX(theFather),
                        SON(theFather,0),SON(theFather,1)));
     }
   }
@@ -3497,7 +3517,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
     {
       PRINTDEBUG(gm,2,(PFMT "DisposeElement(): elem=" EID_FMTX
                        " deleting fatherpointer of son=" EID_FMTX "\n",
-                       me,EID_PRTX(theElement),EID_PRTX(SonList[i])));
+                       theGrid->ppifContext().me(),EID_PRTX(theElement),EID_PRTX(SonList[i])));
       SET_EFATHER(SonList[i],NULL);
 
       /* reset VFATHER of centernode vertex */
@@ -3775,7 +3795,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
     REP_ERR_RETURN(1);
 
 #ifdef ModelP
-  DDD_XferBegin();
+  DDD_XferBegin(theMG->dddContext());
     #ifdef DDDOBJMGR
   DDD_ObjMgrBegin();
     #endif
@@ -3826,7 +3846,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
     #ifdef DDDOBJMGR
   DDD_ObjMgrEnd();
     #endif
-  DDD_XferEnd();
+  DDD_XferEnd(theMG->dddContext());
 #endif
 
   /* move top level grid to bottom (level 0) */
@@ -3886,7 +3906,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
     DDD_AttrSet(PARHDR(vec),GRID_ATTR(theGrid));
 
   /* rebiuld all DDD interfaces due to removed objects and changed attributes */
-  DDD_IFRefreshAll();
+  DDD_IFRefreshAll(theGrid->dddContext());
         #endif
 
   if (MG_COARSE_FIXED(theMG))
@@ -3930,7 +3950,7 @@ INT NS_DIM_PREFIX DisposeTopLevel (MULTIGRID *theMG)
   if (PFIRSTNODE(theGrid)!=NULL) DO_NOT_DISPOSE;
 
         #ifdef ModelP
-  dispose = UG_GlobalMinINT(dispose);
+  dispose = UG_GlobalMinINT(theMG->ppifContext(), dispose);
   if (!dispose) return(2);
         #endif
 
@@ -4044,7 +4064,7 @@ static INT DisposeAMGLevel (MULTIGRID *theMG)
 
         #ifdef ModelP
   /* stop dangerous mode. from now on DDD will issue warnings again. */
-  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_ON);
+  DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_ON);
         #endif
 
   /* remove from grids array */
@@ -4080,7 +4100,7 @@ INT NS_DIM_PREFIX DisposeAMGLevels (MULTIGRID *theMG)
   /* tell DDD that we will 'inconsistently' delete objects.
      this is a dangerous mode as it switches DDD warnings off. */
   /** \briefDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_OFF);*/
-  DDD_XferBegin();
+  DDD_XferBegin(theMG->dddContext());
     #ifdef DDDOBJMGR
   DDD_ObjMgrBegin();
         #endif
@@ -4095,15 +4115,15 @@ INT NS_DIM_PREFIX DisposeAMGLevels (MULTIGRID *theMG)
 
         #ifdef ModelP
   /* stop dangerous mode. from now on DDD will issue warnings again. */
-  /*DDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_ON);*/
+  /*DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_ON);*/
 
   /* rebuild DDD-interfaces because distributed vectors have been
      deleted without communication */
-  /*DDD_IFRefreshAll();*/
+  /*DDD_IFRefreshAll(theMG->dddContext());*/
     #ifdef DDDOBJMGR
   DDD_ObjMgrEnd();
         #endif
-  DDD_XferEnd();
+  DDD_XferEnd(theMG->dddContext());
         #endif
 
   return(0);
@@ -4132,7 +4152,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
         #ifdef ModelP
   /* tell DDD that we will 'inconsistently' delete objects.
      this is a dangerous mode as it switches DDD warnings off. */
-  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_OFF);
+  DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_OFF);
         #endif
 
   for (level = TOPLEVEL(theMG); level >= 0; level --)
@@ -4141,11 +4161,11 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 
         #ifdef ModelP
   /* stop dangerous mode. from now on DDD will issue warnings again. */
-  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_ON);
+  DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_ON);
 
   /* rebuild DDD-interfaces because distributed vectors have been
      deleted without communication */
-  DDD_IFRefreshAll();
+  DDD_IFRefreshAll(theMG->dddContext());
         #endif
 
   /** \todo Normally the MG-heap should be cleaned-up before freeing.
@@ -4162,6 +4182,10 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
   /* first unlock the mg */
   ((ENVITEM*) theMG)->v.locked = false;
 
+#ifdef ModelP
+  ExitDDD(theMG->dddContext());
+  globalDDDContext(nullptr);
+#endif
   theMG->~multigrid();
 
   /* delete mg */
@@ -5877,8 +5901,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   GRID    *theGrid;
         #ifdef ModelP
   INT MarkKey;
-  INT             *infobuffer;
-  INT             **lbinfo;
   INT total_elements,sum_elements;
   INT master_elements,hghost_elements,vghost_elements,vhghost_elements;
         #endif
@@ -5888,6 +5910,10 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
 #else
   static const std::size_t elem_max_size = sizeof(struct hexahedron);
 #endif
+
+  const auto& ppifContext = theMG->ppifContext();
+  const int me = ppifContext.me();
+  const int procs = ppifContext.procs();
 
   mg_red = mg_green = mg_yellow = mg_sum = 0;
   mg_sum_div_red = mg_redplusgreen_div_red = 0.0;
@@ -5906,15 +5932,11 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
 
         #ifdef ModelP
   MarkTmpMem(MGHEAP(theMG),&MarkKey);
-  infobuffer      = (INT *) GetTmpMem(MGHEAP(theMG),(procs+1)*(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT),MarkKey);
-  if (infobuffer == NULL) assert(0);
-
-  lbinfo          = (INT **) GetTmpMem(MGHEAP(theMG),(procs+1)*sizeof(INT*),MarkKey);
-  if (lbinfo == NULL) assert(0);
-
-  memset((void *)infobuffer,0,(procs+1)*(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
+  std::vector<int> infobuffer((procs+1)*(MAXLEVEL+1)*ELEMENT_PRIOS, 0);
+  std::vector<int*> lbinfo(procs+1);
   for (i=0; i<procs+1; i++)
-    lbinfo[i] = infobuffer+(i*(MAXLEVEL+1)*ELEMENT_PRIOS);
+    lbinfo[i] = &infobuffer[i*(MAXLEVEL+1)*ELEMENT_PRIOS];
+
   total_elements = sum_elements = 0;
   master_elements = hghost_elements = vghost_elements = vhghost_elements = 0;
         #endif
@@ -6122,29 +6144,29 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   {
     UserWriteF("\nLB INFO:\n");
     /* now collect lb info on master */
-    if (me == master)
+    if (ppifContext.isMaster())
     {
       std::vector<VChannelPtr> mych(procs, nullptr);
 
       for (i=1; i<procs; i++)
       {
-        mych[i] =ConnSync(i,3917);
-        RecvSync(mych[i],(void *)lbinfo[i],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
+        mych[i] =ConnSync(ppifContext, i,3917);
+        RecvSync(ppifContext, mych[i],(void *)lbinfo[i],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
       }
-      Synchronize();
+      Synchronize(ppifContext);
       for (i=1; i<procs; i++)
       {
-        DiscSync(mych[i]);
+        DiscSync(ppifContext, mych[i]);
       }
     }
     else
     {
       VChannelPtr mych;
 
-      mych = ConnSync(master,3917);
-      SendSync(mych,(void *)lbinfo[me],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
-      Synchronize();
-      DiscSync(mych);
+      mych = ConnSync(ppifContext, ppifContext.master(), 3917);
+      SendSync(ppifContext, mych,(void *)lbinfo[me],(MAXLEVEL+1)*ELEMENT_PRIOS*sizeof(INT));
+      Synchronize(ppifContext);
+      DiscSync(ppifContext, mych);
       ReleaseTmpMem(MGHEAP(theMG),MarkKey);
       return(GM_OK);
     }
@@ -6492,14 +6514,14 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
         }
       }
   }
-  nn = UG_GlobalSumINT(nn);
-  ne = UG_GlobalSumINT(ne);
-  nt = UG_GlobalSumINT(nt);
-  ns = UG_GlobalSumINT(ns);
-  nvec = UG_GlobalSumINT(nvec);
-  nc = UG_GlobalSumINT(nc);
-  hmin = UG_GlobalMinDOUBLE(hmin);
-  hmax = UG_GlobalMaxDOUBLE(hmax);
+  nn = UG_GlobalSumINT(theMG->ppifContext(), nn);
+  ne = UG_GlobalSumINT(theMG->ppifContext(), ne);
+  nt = UG_GlobalSumINT(theMG->ppifContext(), nt);
+  ns = UG_GlobalSumINT(theMG->ppifContext(), ns);
+  nvec = UG_GlobalSumINT(theMG->ppifContext(), nvec);
+  nc = UG_GlobalSumINT(theMG->ppifContext(), nc);
+  hmin = UG_GlobalMinDOUBLE(theMG->ppifContext(), hmin);
+  hmax = UG_GlobalMaxDOUBLE(theMG->ppifContext(), hmax);
   UserWrite("\nsurface of all processors up to current level:\n");
   UserWriteF("%c %3d %8d %8s %8ld %8s %8ld %8ld %8ld %8s %9.3e %9.3e\n",
              ' ',minl,(int)cl,
@@ -7060,7 +7082,7 @@ INT NS_DIM_PREFIX ClearNodeClasses (GRID *theGrid)
 }
 
 #ifdef ModelP
-static int Gather_NodeClass (DDD_OBJ obj, void *data)
+static int Gather_NodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7069,7 +7091,7 @@ static int Gather_NodeClass (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_NodeClass (DDD_OBJ obj, void *data)
+static int Scatter_NodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7078,7 +7100,7 @@ static int Scatter_NodeClass (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_GhostNodeClass (DDD_OBJ obj, void *data)
+static int Scatter_GhostNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7171,10 +7193,14 @@ static INT PropagatePeriodicNodeClass (GRID *theGrid, INT nclass)
 INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 {
     #ifdef ModelP
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses():"
-                   " 1. communication on level %d\n",me,GLEVEL(theGrid)))
+                   " 1. communication on level %d\n",theGrid->ppifContext().me(),GLEVEL(theGrid)))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
     #endif
 
@@ -7183,9 +7209,10 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 2. communication\n",
-                   me))
+                   theGrid->ppifContext().me()))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
     #endif
 
@@ -7194,9 +7221,10 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 3. communication\n",
-                   me))
+                   theGrid->ppifContext().me()))
   /* exchange NCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NodeClass, Scatter_NodeClass);
         #endif
 
@@ -7207,9 +7235,10 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 
     #ifdef ModelP
     PRINTDEBUG(gm,1,("\n" PFMT "PropagateNodeClasses(): 4. communication\n",
-                     me))
+                     theGrid->ppifContext().me()))
     /* exchange NCLASS of Nodes */
-    DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+    DDD_IFAExchange(context,
+                    dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                     Gather_NodeClass, Scatter_NodeClass);
         #endif
   }
@@ -7217,7 +7246,8 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 
         #ifdef ModelP
   /* send NCLASS to ghosts */
-  DDD_IFAOneway(NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(context,
+                dddctrl.NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_NodeClass, Scatter_GhostNodeClass);
     #endif
 
@@ -7290,7 +7320,7 @@ INT NS_DIM_PREFIX SeedNextNodeClasses (ELEMENT *theElement)
 /****************************************************************************/
 
 #ifdef ModelP
-static int Gather_NextNodeClass (DDD_OBJ obj, void *data)
+static int Gather_NextNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7299,7 +7329,7 @@ static int Gather_NextNodeClass (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_NextNodeClass (DDD_OBJ obj, void *data)
+static int Scatter_NextNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7308,7 +7338,7 @@ static int Scatter_NextNodeClass (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_GhostNextNodeClass (DDD_OBJ obj, void *data)
+static int Scatter_GhostNextNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -7388,27 +7418,33 @@ static INT PropagatePeriodicNextNodeClass (GRID *theGrid, INT nnclass)
 INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
 {
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 1. communication\n",me))
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 1. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
     #endif
 
   if (PropagateNextNodeClass(theGrid,3)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 2. communication\n",me))
+  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 2. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
     #endif
 
   if (PropagateNextNodeClass(theGrid,2)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 3. communication\n",me))
+  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 3. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
         #endif
 
@@ -7417,16 +7453,18 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
   if (PropagatePeriodicNextNodeClass(theGrid,1)) REP_ERR_RETURN (1);
 
     #ifdef ModelP
-  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 4. communication\n",me))
+  PRINTDEBUG(gm,1,("\n" PFMT "PropagateNextNodeClasses(): 4. communication\n",theGrid->ppifContext().me()))
   /* exchange NNCLASS of Nodes */
-  DDD_IFAExchange(BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderNodeSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_NextNodeClass, Scatter_NextNodeClass);
         #endif
 #endif
 
         #ifdef ModelP
   /* send NNCLASSn to ghosts */
-  DDD_IFAOneway(NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(context,
+                dddctrl.NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_NextNodeClass, Scatter_GhostNextNodeClass);
     #endif
 
@@ -8217,7 +8255,7 @@ static INT DisposeAndModVector(GRID *g, PERIODIC_ENTRIES *list, INT i, INT j)
 
   PRINTDEBUG(gm,1,(PFMT "DisposeAndModVector perid=%d vtx=%d node="
                    ID_FMTX " vec(%08x)=" VINDEX_FMTX " partner vec(%08x)=" VINDEX_FMTX " pos %lf %lf %lf level %d\n",
-                   me,list[j].periodic_id,ID(MYVERTEX(list[j].node)),
+                   g->ppifContext().me(),list[j].periodic_id,ID(MYVERTEX(list[j].node)),
                    ID_PRTX(list[j].node),vec,VINDEX_PRTX(vec),(NVECTOR(list[i].node)),VINDEX_PRTX(NVECTOR(list[i].node)),
                    XC(MYVERTEX(list[j].node)),
                    YC(MYVERTEX(list[j].node)),
@@ -8387,7 +8425,7 @@ static void PrintListEntry (int i, PERIODIC_ENTRIES *coordlist)
 {
   INT j;
 
-  UserWriteF(PFMT " i=%d n=%d",me,i,coordlist[i].n);
+  UserWriteF("i=%d n=%d",i,coordlist[i].n);
   for (j=0; j<coordlist[i].n; j++)
     UserWriteF(" %08x",PVID(coordlist[i].vp[j]));
   UserWriteF("\n");
@@ -8419,14 +8457,14 @@ static void CountNTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *ntpls
   return;
 }
 
-static void MergeNTplsMax (int *gntpls, int *lntpls)
+static void MergeNTplsMax(std::vector<int>& gntpls, const std::vector<int>& lntpls)
 {
-  int i;
-  for (i=0; i<procs*procs; i++) gntpls[i] = MAX(gntpls[i],lntpls[i]);
-  return;
+  assert(gntpls.size() == lntpls.size());
+  for (std::size_t i = 0; i < gntpls.size(); ++i)
+    gntpls[i] = std::max(gntpls[i], lntpls[i]);
 }
 
-static void AddMyNTpls (int *gntpls, int *ntpls)
+static void AddMyNTpls (const int me, const int procs, int *gntpls, int *ntpls)
 {
   int i;
   for (i=0; i<procs; i++) gntpls[me*procs+i] = ntpls[i];
@@ -8445,26 +8483,23 @@ static void CommNTpls(GRID *g, int *send_ntpls, int *recv_ntpls)
 {
   int l;
   INT n,MarkKey;
-  int *gntpls,*lntpls;
 
-  MarkTmpMem(MGHEAP(MYMG(g)),&MarkKey);
+  const int me = g->ppifContext().me();
+  const int procs = g->ppifContext().procs();
+  const auto& degree = g->ppifContext().degree();
 
-  gntpls = (int *)GetTmpMem(MGHEAP(MYMG(g)),procs*procs*sizeof(int),MarkKey);
-  assert(gntpls!=NULL);
-  memset(gntpls,0,procs*procs*sizeof(int));
-  lntpls = (int *)GetTmpMem(MGHEAP(MYMG(g)),procs*procs*sizeof(int),MarkKey);
-  assert(lntpls!=NULL);
-  memset(lntpls,0,procs*procs*sizeof(int));
+  std::vector<int> gntpls(procs*procs, 0);
+  std::vector<int> lntpls(procs*procs, 0);
 
   /* construct global tupel array */
   for (l=degree-1; l>=0; l--)
   {
-    GetConcentrate(l,lntpls,procs*procs*sizeof(int));
-    MergeNTplsMax(gntpls,lntpls);
+    GetConcentrate(g->ppifContext(), l,lntpls.data(), lntpls.size()*sizeof(int));
+    MergeNTplsMax(procs, gntpls.data(), lntpls.data());
   }
-  AddMyNTpls(gntpls,send_ntpls);
-  Concentrate(gntpls,procs*procs*sizeof(int));
-  Broadcast(gntpls,procs*procs*sizeof(int));
+  AddMyNTpls(me, procs, gntpls.data(), send_ntpls);
+  Concentrate(g->ppifContext(), gntpls.data(), gntpls.size()*sizeof(int));
+  Broadcast(g->ppifContext(), gntpls.data(), gntpls.size()*sizeof(int));
         #ifdef Debug
   if (1)
   {
@@ -8483,10 +8518,6 @@ static void CommNTpls(GRID *g, int *send_ntpls, int *recv_ntpls)
 
   /* fill recv_ntpls array with recv counts */
   for (l=0; l<procs; l++) recv_ntpls[l] = gntpls[l*procs+me];
-
-  ReleaseTmpMem(MGHEAP(MYMG(g)),MarkKey);
-
-  return;
 }
 
 static void PrintIdTpl (int i, int j, IDTPL *idtpl)
@@ -8526,21 +8557,23 @@ static void CpyIDTpl (IDTPL **send_tpls, INT *send_tplcur, int proc, PERIODIC_EN
 static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_ntpls, IDTPL **send_tpls, int *recv_ntpls, IDTPL **recv_tpls, INT MarkKey)
 {
   int i,j;
+  const auto& ppifContext = g->ppifContext();
+  const auto procs = ppifContext.procs();
 
         #ifdef Debug
   if (0)
   {
     UserWriteF("Send_NTpls:");
-    for (i=0; i<procs; i++) UserWriteF(" %4d",send_ntpls[i]);
+    for (i=0; i < procs; i++) UserWriteF(" %4d",send_ntpls[i]);
     UserWriteF("\n");
     UserWriteF("Recv_NTpls:");
-    for (i=0; i<procs; i++) UserWriteF(" %4d",recv_ntpls[i]);
+    for (i=0; i < procs; i++) UserWriteF(" %4d",recv_ntpls[i]);
     UserWriteF("\n");
   }
         #endif
 
   /* allocate send/recv tpls */
-  for (i=0; i<procs; i++)
+  for (i=0; i < procs; i++)
   {
     if (send_ntpls[i]>0 && recv_ntpls[i]>0)
     {
@@ -8559,7 +8592,7 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
 
     send_tplcur = (INT *)GetTmpMem(MGHEAP(MYMG(g)),procs*sizeof(INT),MarkKey);
     assert(send_tplcur!=NULL);
-    memset(send_tplcur,0,procs*sizeof(INT));
+    memset(send_tplcur, 0, g->ppifContext().procs()*sizeof(INT));
 
     for (i=0; i<nn; i++)
     {
@@ -8580,7 +8613,7 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
     }
         #ifdef Debug
     /* check tuple sizes */
-    for (i=0; i<procs; i++)
+    for (i=0; i < procs; i++)
       if (send_ntpls[i]>0 && recv_ntpls[i]>0)
         assert(send_ntpls[i]==send_tplcur[i]);
         #endif
@@ -8597,11 +8630,11 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
     std::vector<char> com_stat(procs, 0);
 
     nc = 0;
-    for (i=0; i<procs; i++)
+    for (i=0; i < procs; i++)
     {
       if (send_ntpls[i]>0 && recv_ntpls[i]>0)
       {
-        mych[i] = ConnASync(i,3917);
+        mych[i] = ConnASync(ppifContext, i, 3917);
         nc++;
       }
     }
@@ -8615,7 +8648,7 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
         if (send_ntpls[i]>0 && recv_ntpls[i]>0)
         {
           if ((com_stat[i] & 1) == 0)
-            if (InfoAConn(mych[i]) > 0)
+            if (InfoAConn(ppifContext, mych[i]) > 0)
             {
               com_stat[i] |= 1;
               rc++;
@@ -8629,8 +8662,8 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
     {
       if (send_ntpls[i]>0 && recv_ntpls[i]>0)
       {
-        recv_msg[i] = RecvASync(mych[i],(void *)recv_tpls[i],recv_ntpls[i]*sizeof(IDTPL),&error);
-        send_msg[i] = SendASync(mych[i],(void *)send_tpls[i],send_ntpls[i]*sizeof(IDTPL),&error);
+        recv_msg[i] = RecvASync(ppifContext, mych[i],(void *)recv_tpls[i],recv_ntpls[i]*sizeof(IDTPL),&error);
+        send_msg[i] = SendASync(ppifContext, mych[i],(void *)send_tpls[i],send_ntpls[i]*sizeof(IDTPL),&error);
       }
     }
 
@@ -8643,14 +8676,14 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
         if (send_ntpls[i]>0 && recv_ntpls[i]>0)
         {
           if ((com_stat[i] & 2) == 0)
-            if (InfoASend(mych[i],send_msg[i]) > 0)
+            if (InfoASend(ppifContext, mych[i],send_msg[i]) > 0)
             {
               com_stat[i] |= 2;
               rc++;
             }
 
           if ((com_stat[i] & 4) == 0)
-            if (InfoARecv(mych[i],recv_msg[i]) > 0)
+            if (InfoARecv(ppifContext, mych[i],recv_msg[i]) > 0)
             {
               com_stat[i] |= 4;
               rc++;
@@ -8664,7 +8697,7 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
     {
       if (send_ntpls[i]>0 && recv_ntpls[i]>0)
       {
-        DiscASync(mych[i]);
+        DiscASync(ppifContext, mych[i]);
       }
     }
 
@@ -8677,7 +8710,7 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
         if (send_ntpls[i]>0 && recv_ntpls[i]>0)
         {
           if ((com_stat[i] & 8) == 0)
-            if (InfoADisc(mych[i]) > 0)
+            if (InfoADisc(ppifContext, mych[i]) > 0)
             {
               com_stat[i] |= 8;
               rc++;
@@ -8689,7 +8722,7 @@ static void CommTpls (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *send_nt
   }
         #ifdef Debug
   /*
-          Synchronize();
+          Synchronize(ppifContext);
    */
         #endif
 
@@ -8785,7 +8818,7 @@ static int GetMatchingProcs (PERIODIC_ENTRIES *coordlist, INT i, int *np, int *t
   return(0);
 }
 
-static INT Identify_PeriodicVectorX (PERIODIC_ENTRIES *coordlist, INT i, INT p)
+static INT Identify_PeriodicVectorX (DDD::DDDContext& dddContext, PERIODIC_ENTRIES *coordlist, INT i, INT p)
 {
   int j;
 
@@ -8799,7 +8832,7 @@ static INT Identify_PeriodicVectorX (PERIODIC_ENTRIES *coordlist, INT i, INT p)
     PRINTDEBUG(gm,1,(" GID=%08x",
                      GID(coordlist[i].vp[j])))
 
-    DDD_IdentifyNumber(PARHDR(NVECTOR(coordlist[i].node)),p,
+    DDD_IdentifyNumber(dddContext, PARHDR(NVECTOR(coordlist[i].node)),p,
                        GID(coordlist[i].vp[j]));
   }
         #ifdef Debug
@@ -8812,7 +8845,7 @@ static INT Identify_PeriodicVectorX (PERIODIC_ENTRIES *coordlist, INT i, INT p)
   return(0);
 }
 
-static INT Identify_PeriodicVector (PERIODIC_ENTRIES *coordlist, INT i)
+static INT Identify_PeriodicVector (DDD::DDDContext& dddContext, PERIODIC_ENTRIES *coordlist, INT i)
 {
   int p,j,theprocs[MAX_PERIODIC_PROCS],np;
 
@@ -8842,10 +8875,10 @@ static INT Identify_PeriodicVector (PERIODIC_ENTRIES *coordlist, INT i)
                        GID(coordlist[i].vp[j])))
 
       if (0)
-        DDD_IdentifyObject(PARHDR(NVECTOR(coordlist[i].node)),theprocs[p],
+        DDD_IdentifyObject(dddContext, PARHDR(NVECTOR(coordlist[i].node)),theprocs[p],
                            PARHDR(coordlist[i].vp[j]));
       else
-        DDD_IdentifyNumber(PARHDR(NVECTOR(coordlist[i].node)),theprocs[p],
+        DDD_IdentifyNumber(dddContext, PARHDR(NVECTOR(coordlist[i].node)),theprocs[p],
                            GID(coordlist[i].vp[j]));
     }
                 #ifdef Debug
@@ -8876,7 +8909,7 @@ static int CompTpls (IDTPL *tpl, PERIODIC_ENTRIES *cle)
 }
 
 
-static void PrintIdTpls (int *idntpls, IDTPL **idtpls)
+static void PrintIdTpls (int procs, int *idntpls, IDTPL **idtpls)
 {
   int i,j,k;
 
@@ -8899,6 +8932,8 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
   int theprocs[MAX_PERIODIC_PROCS],np;
   INT *recv_tplscur,*nidv,*njpv;
 
+  const int procs = g->ppifContext().procs();
+
   recv_tplscur = (INT *)GetTmpMem(MGHEAP(MYMG(g)),procs*sizeof(INT),MarkKey);
   assert(recv_tplscur!=NULL);
   memset(recv_tplscur,0,procs*sizeof(INT));
@@ -8911,9 +8946,9 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
 
   PRINTDEBUG(gm,1,("IPV: GetMatchingProcs\n"));
 
-  DDD_IdentifyBegin();
+  DDD_IdentifyBegin(g->dddContext());
 
-  if (0) PrintIdTpls(recv_ntpls,recv_tpls);
+  if (0) PrintIdTpls(procs, recv_ntpls,recv_tpls);
 
   for (i=0; i<nn; i++)
   {
@@ -8935,7 +8970,7 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
       while (recv_tplscur[p]<recv_ntpls[p] &&
              CompTpls(&(recv_tpls[p][recv_tplscur[p]]),coordlist+i)<0)
       {
-        UserWriteF(PFMT " skipping entry:",me);
+        UserWriteF(PFMT " skipping entry:", g->ppifContext().me());
         PrintIdTpl(p,recv_tplscur[p],recv_tpls[p]+recv_tplscur[p]);
         PrintListEntry(i,coordlist);
 
@@ -8947,12 +8982,12 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
           CompTpls(&(recv_tpls[p][recv_tplscur[p]]),coordlist+i)==0)
       {
         /*
-                                        UserWriteF(PFMT " ident entry:",me);
+                                        UserWriteF(PFMT " ident entry:", g->ppifContext().me());
                                         PrintIdTpl(p,recv_tplscur[p],recv_tpls[p]+recv_tplscur[p]);
                                         PrintListEntry(i,coordlist);
          */
 
-        Identify_PeriodicVectorX(coordlist,i,p);
+        Identify_PeriodicVectorX(g->dddContext(), coordlist,i,p);
         recv_tplscur[p]++;
         nidv[p]++;
       }
@@ -8961,8 +8996,8 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
 
   if (1)
   {
-    DDD_IdentifyEnd();
-    DDD_IFRefreshAll();
+    DDD_IdentifyEnd(g->dddContext());
+    DDD_IFRefreshAll(g->dddContext());
   }
 
 #ifdef Debug
@@ -8971,23 +9006,22 @@ static void IdentListX (GRID *g, INT nn, PERIODIC_ENTRIES *coordlist, int *recv_
     if (nidv[j] != recv_ntpls[j])
     {
       UserWriteF(PFMT "SKIPS p=%d nrecv=%d nidv=%d njpv=%d\n",
-                 me,j,recv_ntpls[j],nidv[j],njpv[j]);
+                 g->ppifContext().me(),j,recv_ntpls[j],nidv[j],njpv[j]);
     }
   }
   /*
-     Synchronize();
-     Synchronize();
+     Synchronize(g->ppifContext());
    */
 #endif
 
   return;
 }
 
-static void IdentList (INT nn, PERIODIC_ENTRIES *coordlist)
+static void IdentList (const GRID* g, INT nn, PERIODIC_ENTRIES *coordlist)
 {
   INT i;
 
-  DDD_IdentifyBegin();
+  DDD_IdentifyBegin(g->dddContext());
 
   for (i=0; i<nn; i++)
   {
@@ -8995,13 +9029,13 @@ static void IdentList (INT nn, PERIODIC_ENTRIES *coordlist)
 
     if (coordlist[i].node != (NODE *)VOBJECT(NVECTOR(coordlist[i].node))) continue;
 
-    Identify_PeriodicVector(coordlist,i);
+    Identify_PeriodicVector(g->dddContext(), coordlist,i);
   }
 
   if (1)
   {
-    DDD_IdentifyEnd();
-    DDD_IFRefreshAll();
+    DDD_IdentifyEnd(g->dddContext());
+    DDD_IFRefreshAll(g->dddContext());
   }
 
   return;
@@ -9017,7 +9051,7 @@ static INT CheckPerVectors(GRID *theGrid)
   {
     if (GID(theVector) == 0x00122801)
       PRINTDEBUG(gm,0,(PFMT " FOUND disposed vec=" VINDEX_FMTX,
-                       me,VINDEX_PRTX(theVector)));
+                       theGrid->ppifContext().me(),VINDEX_PRTX(theVector)));
   }
 
   return(0);
@@ -9192,7 +9226,7 @@ INT NS_DIM_PREFIX Grid_GeometricToPeriodic (GRID *g)
 
   /* dispose vectors */
         #ifdef ModelP
-  DDD_XferBegin();
+  DDD_XferBegin(g->dddContext());
     #ifdef DDDOBJMGR
   DDD_ObjMgrBegin();
     #endif
@@ -9226,8 +9260,8 @@ INT NS_DIM_PREFIX Grid_GeometricToPeriodic (GRID *g)
     #ifdef DDDOBJMGR
   DDD_ObjMgrEnd();
         #endif
-  DDD_XferEnd();
-  DDD_IFRefreshAll();
+  DDD_XferEnd(g->dddContext());
+  DDD_IFRefreshAll(g->dddContext());
         #endif
 
   IFDEBUG(gm,1)
@@ -9247,6 +9281,7 @@ INT NS_DIM_PREFIX Grid_GeometricToPeriodic (GRID *g)
   ENDDEBUG
 
         #ifdef ModelP
+  const int procs = g->ppifContext().procs();
   /* identify periodic vectors between processors */
   if (GLEVEL(g)>0 && procs>1)
   {
@@ -9284,7 +9319,7 @@ INT NS_DIM_PREFIX Grid_GeometricToPeriodic (GRID *g)
     }
     else {
       /* identify entries */
-      IdentList(nn,coordlist);
+      IdentList(g, nn,coordlist);
     }
 
     ReleaseTmpMem(MGHEAP(MYMG(g)),MarkKey);
@@ -9372,7 +9407,7 @@ INT NS_DIM_PREFIX Grid_CheckPeriodicity (GRID *grid)
     return(GM_OK);
   }
 
-  PRINTDEBUG(gm,1,("Grid_CheckPeriodicity p=%d: level=%d\n",me,GLEVEL(grid)));
+  PRINTDEBUG(gm,1,("Grid_CheckPeriodicity p=%d: level=%d\n", grid->ppifContext().me(),GLEVEL(grid)));
 
   nn=0;
   for (node=PFIRSTNODE(grid); node!=NULL; node=SUCCN(node)) {
@@ -9654,7 +9689,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
   }
 #ifdef ModelP
   /*UserWriteF(PFMT"%s", me,out );*/
-  printf(PFMT "%s",me,out);
+  printf("%s",out);
 #else
   UserWrite(out);
 #endif

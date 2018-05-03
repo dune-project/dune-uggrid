@@ -52,7 +52,12 @@
 
 #include "namespace.h"
 
+#include <dune/uggrid/parallel/ddd/dddtypes.hh>
+#include <dune/uggrid/parallel/ddd/dddtypes_impl.hh>
+
 START_UGDIM_NAMESPACE
+
+using namespace DDD;
 
 #define DDD_VERSION    "1.9"
 
@@ -91,33 +96,6 @@ enum DDD_ELEM_TYPE {
 
 
 
-/* options for DDD_SetOption */
-/* NOTE: changes must be also done in fddd.f */
-enum DDD_OPTION {
-  OPT_IDENTIFY_MODE=0,             /* one of the IDMODE_xxx constants           */
-
-  OPT_WARNING_VARSIZE_OBJ=8,       /* warning on differing obj sizes            */
-  OPT_WARNING_SMALLSIZE,           /* warning on obj sizes smaller than declared*/
-  OPT_WARNING_PRIOCHANGE,          /* warning on inconsistency in prio-change   */
-  OPT_WARNING_DESTRUCT_HDR,        /* warning on inconsistency in HdrDestructor */
-  OPT_WARNING_REF_COLLISION,       /* warning on collision in reference-localize*/
-  OPT_WARNING_OLDSTYLE,            /* warning on usage of old-style ddd-funcs   */
-
-  OPT_QUIET_CONSCHECK=16,          /* do ConsCheck in a quiet manner            */
-  OPT_DEBUG_XFERMESGS,             /* print debug info for xfer messages        */
-  OPT_INFO_XFER,                   /* display some statistical info during xfer */
-  OPT_INFO_JOIN,                   /* display some statistical info during join */
-  OPT_INFO_IF_WITH_ATTR,           /* display interfaces detailed (with attrs)  */
-
-  OPT_XFER_PRUNE_DELETE,           /* prune del-cmd in del/xfercopy-combination */
-
-  OPT_IF_REUSE_BUFFERS,            /* reuse interface buffs as long as possible */
-  OPT_IF_CREATE_EXPLICIT,          /* dont (re-)create interfaces automatically */
-
-  OPT_CPLMGR_USE_FREELIST,         /* use freelist for coupling-memory (default)*/
-
-  OPT_END
-};
 
 
 /* NOTE: changes must be also done in fddd.f */
@@ -235,86 +213,28 @@ enum TMemRequests {
 /*
         new DDD types, used during access of DDD functional interface
  */
-#ifdef DDD_GID_T
-typedef DDD_GID_T DDD_GID;
-#else
-typedef std::uint_least64_t DDD_GID;
+using DDD_GID = DDD::DDD_GID;
+static_assert(
+  std::is_same<DDD::DDD_GID, std::uint_least64_t>::value,
+  "printf conversion specifier below expects DDD_GID to be uint_least64_t");
 #define DDD_GID_FMT "%08" PRIxLEAST64
-#endif
 #define DDD_GID_TO_INT(A) (A)
 
-typedef unsigned int DDD_TYPE;
-typedef unsigned int DDD_IF;
-typedef unsigned int DDD_PROC;
-typedef unsigned int DDD_PRIO;
-typedef unsigned int DDD_ATTR;
+using DDD_TYPE = DDD::DDD_TYPE;
+using DDD_IF = DDD::DDD_IF;
+using DDD_PROC = DDD::DDD_PROC;
+using DDD_PRIO = DDD::DDD_PRIO;
+using DDD_ATTR = DDD::DDD_ATTR;
 
-/*
-        DDD object header, include this into all parallel object structures
-
-        Some remarks:
-
-           - don't touch the member elements of DDD_HEADER in the
-             application program, they will be changed in further
-             DDD versions!
-
-           - use DDD functional interface for accessing the header fields;
-             elements which are not accessible via the DDD functional interface
-             should not be accessed by the application program anyway,
- */
-struct DDD_HEADER
-{
-  /* control word elements */
-  unsigned char typ;
-  unsigned char prio;
-  unsigned char attr;
-  unsigned char flags;
-
-  unsigned int myIndex;         /* global object array index */
-  DDD_GID gid;            /* global id */
-
-  char empty[4];                 /* 4 unused bytes in current impl. */
-};
-
-typedef char           * DDD_OBJ;
-typedef DDD_HEADER     * DDD_HDR;
+using DDD_OBJ = DDD::DDD_OBJ;
+using DDD_HEADER = DDD::DDD_HEADER;
+using DDD_HDR = DDD::DDD_HDR;
 
 /* NULL values for DDD types */
 #define DDD_TYPE_NULL  0
 #define DDD_PROC_NULL  0
 #define DDD_PRIO_NULL  0
 #define DDD_ATTR_NULL  0
-
-
-/* handler prototypes */
-
-/* handlers related to certain DDD_TYPE (i.e., member functions) */
-typedef void (*HandlerLDATACONSTRUCTOR)(DDD_OBJ);
-typedef void (*HandlerDESTRUCTOR)(DDD_OBJ);
-typedef void (*HandlerDELETE)(DDD_OBJ);
-typedef void (*HandlerUPDATE)(DDD_OBJ);
-typedef void (*HandlerOBJMKCONS)(DDD_OBJ, int);
-typedef void (*HandlerSETPRIORITY)(DDD_OBJ, DDD_PRIO);
-typedef void (*HandlerXFERCOPY)(DDD_OBJ, DDD_PROC, DDD_PRIO);
-typedef void (*HandlerXFERDELETE)(DDD_OBJ);
-typedef void (*HandlerXFERGATHER)(DDD_OBJ, int, DDD_TYPE, void *);
-typedef void (*HandlerXFERSCATTER)(DDD_OBJ, int, DDD_TYPE, void *, int);
-typedef void (*HandlerXFERGATHERX)(DDD_OBJ, int, DDD_TYPE, char **);
-typedef void (*HandlerXFERSCATTERX)(DDD_OBJ, int, DDD_TYPE, char **, int);
-typedef void (*HandlerXFERCOPYMANIP)(DDD_OBJ);
-
-
-
-/* handlers not related to DDD_TYPE (i.e., global functions) */
-typedef DDD_TYPE (*HandlerGetRefType)(DDD_OBJ, DDD_OBJ);
-
-
-
-typedef int (*ExecProcPtr)(DDD_OBJ);
-typedef int (*ExecProcXPtr)(DDD_OBJ, DDD_PROC, DDD_PRIO);
-typedef int (*ComProcPtr)(DDD_OBJ, void *);
-typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
-
 
 
 /* special feature: hybrid reftype at TypeDefine-time */
@@ -346,15 +266,10 @@ typedef int (*ComProcXPtr)(DDD_OBJ, void *, DDD_PROC, DDD_PRIO);
 /*
         General DDD Module
  */
-void     DDD_Init();
-void     DDD_Exit (void);
-void     DDD_Status (void);
-void     DDD_SetOption (DDD_OPTION, int);
-
-DDD_PROC DDD_InfoMe (void);
-DDD_PROC DDD_InfoMaster (void);
-DDD_PROC DDD_InfoProcs (void);
-
+void     DDD_Init(DDD::DDDContext& context);
+void     DDD_Exit(DDD::DDDContext& context);
+void     DDD_Status(const DDD::DDDContext& context);
+void     DDD_SetOption(DDD::DDDContext& context, DDD_OPTION, int);
 
 /*
         Redirect line-oriented output, new in V1.2
@@ -366,47 +281,47 @@ void     DDD_LineOutRegister (void (*func)(const char *s));
         Type Manager Module
  */
 
-DDD_TYPE DDD_TypeDeclare (const char *name);
-int      DDD_InfoHdrOffset (DDD_TYPE);
-void     DDD_TypeDefine (DDD_TYPE, ...);
-void     DDD_TypeDisplay (DDD_TYPE);
+DDD_TYPE DDD_TypeDeclare(DDD::DDDContext& context, const char *name);
+int      DDD_InfoHdrOffset(const DDD::DDDContext& context, DDD_TYPE);
+void     DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE, ...);
+void     DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE);
 
-int      DDD_InfoTypes (void);
+int      DDD_InfoTypes(const DDD::DDDContext& context);
 
 
 /* newstyle, type-secure setting of handlers */
-void     DDD_SetHandlerLDATACONSTRUCTOR(DDD_TYPE, HandlerLDATACONSTRUCTOR);
-void     DDD_SetHandlerDESTRUCTOR      (DDD_TYPE, HandlerDESTRUCTOR);
-void     DDD_SetHandlerDELETE          (DDD_TYPE, HandlerDELETE);
-void     DDD_SetHandlerUPDATE          (DDD_TYPE, HandlerUPDATE);
-void     DDD_SetHandlerOBJMKCONS       (DDD_TYPE, HandlerOBJMKCONS);
-void     DDD_SetHandlerSETPRIORITY     (DDD_TYPE, HandlerSETPRIORITY);
-void     DDD_SetHandlerXFERCOPY        (DDD_TYPE, HandlerXFERCOPY);
-void     DDD_SetHandlerXFERDELETE      (DDD_TYPE, HandlerXFERDELETE);
-void     DDD_SetHandlerXFERGATHER      (DDD_TYPE, HandlerXFERGATHER);
-void     DDD_SetHandlerXFERSCATTER     (DDD_TYPE, HandlerXFERSCATTER);
-void     DDD_SetHandlerXFERGATHERX     (DDD_TYPE, HandlerXFERGATHERX);
-void     DDD_SetHandlerXFERSCATTERX    (DDD_TYPE, HandlerXFERSCATTERX);
-void     DDD_SetHandlerXFERCOPYMANIP   (DDD_TYPE, HandlerXFERCOPYMANIP);
+void     DDD_SetHandlerLDATACONSTRUCTOR(DDD::DDDContext& context, DDD_TYPE, HandlerLDATACONSTRUCTOR);
+void     DDD_SetHandlerDESTRUCTOR      (DDD::DDDContext& context, DDD_TYPE, HandlerDESTRUCTOR);
+void     DDD_SetHandlerDELETE          (DDD::DDDContext& context, DDD_TYPE, HandlerDELETE);
+void     DDD_SetHandlerUPDATE          (DDD::DDDContext& context, DDD_TYPE, HandlerUPDATE);
+void     DDD_SetHandlerOBJMKCONS       (DDD::DDDContext& context, DDD_TYPE, HandlerOBJMKCONS);
+void     DDD_SetHandlerSETPRIORITY     (DDD::DDDContext& context, DDD_TYPE, HandlerSETPRIORITY);
+void     DDD_SetHandlerXFERCOPY        (DDD::DDDContext& context, DDD_TYPE, HandlerXFERCOPY);
+void     DDD_SetHandlerXFERDELETE      (DDD::DDDContext& context, DDD_TYPE, HandlerXFERDELETE);
+void     DDD_SetHandlerXFERGATHER      (DDD::DDDContext& context, DDD_TYPE, HandlerXFERGATHER);
+void     DDD_SetHandlerXFERSCATTER     (DDD::DDDContext& context, DDD_TYPE, HandlerXFERSCATTER);
+void     DDD_SetHandlerXFERGATHERX     (DDD::DDDContext& context, DDD_TYPE, HandlerXFERGATHERX);
+void     DDD_SetHandlerXFERSCATTERX    (DDD::DDDContext& context, DDD_TYPE, HandlerXFERSCATTERX);
+void     DDD_SetHandlerXFERCOPYMANIP   (DDD::DDDContext& context, DDD_TYPE, HandlerXFERCOPYMANIP);
 
 
-void     DDD_PrioMergeDefault (DDD_TYPE, int);
-void     DDD_PrioMergeDefine (DDD_TYPE, DDD_PRIO, DDD_PRIO, DDD_PRIO);
-DDD_PRIO DDD_PrioMerge (DDD_TYPE, DDD_PRIO, DDD_PRIO);
-void     DDD_PrioMergeDisplay (DDD_TYPE);
+void     DDD_PrioMergeDefault (DDD::DDDContext& context, DDD_TYPE, int);
+void     DDD_PrioMergeDefine (DDD::DDDContext& context, DDD_TYPE, DDD_PRIO, DDD_PRIO, DDD_PRIO);
+DDD_PRIO DDD_PrioMerge (DDD::DDDContext& context, DDD_TYPE, DDD_PRIO, DDD_PRIO);
+void     DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE);
 
 
 
 /*
         Object Properties
  */
-void     DDD_PrioritySet (DDD_HDR, DDD_PRIO);
+void     DDD_PrioritySet(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 void     DDD_AttrSet (DDD_HDR, DDD_ATTR); /* this shouldn't be allowed */
-int  *   DDD_InfoProcList (DDD_HDR);
-DDD_PROC DDD_InfoProcPrio (DDD_HDR, DDD_PRIO);
-int      DDD_InfoIsLocal (DDD_HDR);
-int      DDD_InfoNCopies (DDD_HDR);
-size_t   DDD_InfoCplMemory (void);
+int  *   DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR);
+DDD_PROC DDD_InfoProcPrio(const DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
+bool     DDD_InfoIsLocal(const DDD::DDDContext& context, DDD_HDR);
+int      DDD_InfoNCopies(const DDD::DDDContext& context, DDD_HDR);
+size_t   DDD_InfoCplMemory(const DDD::DDDContext& context);
 
 
 
@@ -414,70 +329,70 @@ size_t   DDD_InfoCplMemory (void);
         Identification Environment Module
  */
 
-void     DDD_IdentifyBegin (void);
-DDD_RET  DDD_IdentifyEnd (void);
-void     DDD_IdentifyNumber (DDD_HDR, DDD_PROC, int);
-void     DDD_IdentifyString (DDD_HDR, DDD_PROC, char *);
-void     DDD_IdentifyObject (DDD_HDR, DDD_PROC, DDD_HDR);
+void     DDD_IdentifyBegin(DDD::DDDContext& context);
+DDD_RET  DDD_IdentifyEnd(DDD::DDDContext& context);
+void     DDD_IdentifyNumber(DDD::DDDContext& context, DDD_HDR, DDD_PROC, int);
+void     DDD_IdentifyString(DDD::DDDContext& context, DDD_HDR, DDD_PROC, char *);
+void     DDD_IdentifyObject(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_HDR);
 
 
 /*
         Interface Module
  */
 
-DDD_IF   DDD_IFDefine (int, DDD_TYPE O[], int, DDD_PRIO A[], int, DDD_PRIO B[]);
-void     DDD_IFSetName (DDD_IF, const char *);
+DDD_IF   DDD_IFDefine (DDD::DDDContext& context, int, DDD_TYPE O[], int, DDD_PRIO A[], int, DDD_PRIO B[]);
+void     DDD_IFSetName (DDD::DDDContext& context, DDD_IF, const char *);
 
-void     DDD_IFDisplayAll (void);
-void     DDD_IFDisplay (DDD_IF);
-size_t   DDD_IFInfoMemoryAll (void);
-size_t   DDD_IFInfoMemory (DDD_IF);
-void     DDD_IFRefreshAll (void);
+void     DDD_IFDisplayAll(const DDD::DDDContext& context);
+void     DDD_IFDisplay(const DDD::DDDContext& context, DDD_IF);
+size_t   DDD_IFInfoMemoryAll(const DDD::DDDContext& context);
+size_t   DDD_IFInfoMemory(const DDD::DDDContext& context, DDD_IF);
+void     DDD_IFRefreshAll(DDD::DDDContext& context);
 
-void     DDD_IFExchange   (DDD_IF,                    size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFOneway     (DDD_IF,         DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFExecLocal  (DDD_IF,                            ExecProcPtr);
-void     DDD_IFAExchange  (DDD_IF,DDD_ATTR,           size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFAOneway    (DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcPtr,ComProcPtr);
-void     DDD_IFAExecLocal (DDD_IF,DDD_ATTR,                   ExecProcPtr);
-void     DDD_IFExchangeX  (DDD_IF,                    size_t, ComProcXPtr,ComProcXPtr);
-void     DDD_IFOnewayX    (DDD_IF,         DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
-void     DDD_IFExecLocalX (DDD_IF,                            ExecProcXPtr);
-void     DDD_IFAExchangeX (DDD_IF,DDD_ATTR,           size_t, ComProcXPtr,ComProcXPtr);
-void     DDD_IFAOnewayX   (DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
-void     DDD_IFAExecLocalX(DDD_IF,DDD_ATTR,                   ExecProcXPtr);
+void     DDD_IFExchange   (DDD::DDDContext& context, DDD_IF,                    size_t, ComProcPtr2,ComProcPtr2);
+void     DDD_IFOneway     (DDD::DDDContext& context, DDD_IF,         DDD_IF_DIR,size_t, ComProcPtr2,ComProcPtr2);
+void     DDD_IFExecLocal  (DDD::DDDContext& context, DDD_IF,                            ExecProcPtr);
+void     DDD_IFAExchange  (DDD::DDDContext& context, DDD_IF,DDD_ATTR,           size_t, ComProcPtr2,ComProcPtr2);
+void     DDD_IFAOneway    (DDD::DDDContext& context, DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcPtr2,ComProcPtr2);
+void     DDD_IFAExecLocal (DDD::DDDContext& context, DDD_IF,DDD_ATTR,                   ExecProcPtr);
+void     DDD_IFExchangeX  (DDD::DDDContext& context, DDD_IF,                    size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFOnewayX    (DDD::DDDContext& context, DDD_IF,         DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFExecLocalX (DDD::DDDContext& context, DDD_IF,                            ExecProcXPtr);
+void     DDD_IFAExchangeX (DDD::DDDContext& context, DDD_IF,DDD_ATTR,           size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFAOnewayX   (DDD::DDDContext& context, DDD_IF,DDD_ATTR,DDD_IF_DIR,size_t, ComProcXPtr,ComProcXPtr);
+void     DDD_IFAExecLocalX(DDD::DDDContext& context, DDD_IF,DDD_ATTR,                   ExecProcXPtr);
 
 /*
         Transfer Environment Module
  */
-bool     DDD_XferWithAddData();
-void     DDD_XferAddData (int, DDD_TYPE);
-void     DDD_XferAddDataX (int, DDD_TYPE, size_t sizes[]);
-int      DDD_XferIsPrunedDelete (DDD_HDR);
-int      DDD_XferObjIsResent (DDD_HDR);
-void     DDD_XferBegin (void);
-DDD_RET  DDD_XferEnd (void);
-void     DDD_XferCopyObj (DDD_HDR, DDD_PROC, DDD_PRIO);
-void     DDD_XferCopyObjX (DDD_HDR, DDD_PROC, DDD_PRIO, size_t);
-void     DDD_XferDeleteObj (DDD_HDR);
-void     DDD_XferPrioChange (DDD_HDR, DDD_PRIO);
+bool     DDD_XferWithAddData(const DDD::DDDContext& context);
+void     DDD_XferAddData(DDD::DDDContext& context, int, DDD_TYPE);
+void     DDD_XferAddDataX(DDD::DDDContext& context, int, DDD_TYPE, size_t sizes[]);
+int      DDD_XferIsPrunedDelete(const DDD::DDDContext& context, DDD_HDR);
+int      DDD_XferObjIsResent(const DDD::DDDContext& context, DDD_HDR);
+void     DDD_XferBegin(DDD::DDDContext& context);
+DDD_RET  DDD_XferEnd(DDD::DDDContext& context);
+void     DDD_XferCopyObj (DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO);
+void     DDD_XferCopyObjX (DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_PRIO, size_t);
+void     DDD_XferDeleteObj (DDD::DDDContext& context, DDD_HDR);
+void     DDD_XferPrioChange(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 
 
 /*
         Prio Environment Module
  */
-void     DDD_PrioBegin (void);
-DDD_RET  DDD_PrioEnd (void);
-void     DDD_PrioChange (DDD_HDR, DDD_PRIO);
+void     DDD_PrioBegin(DDD::DDDContext& context);
+DDD_RET  DDD_PrioEnd(DDD::DDDContext& context);
+void     DDD_PrioChange(const DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 
 
 
 /*
         Join Environment Module
  */
-void     DDD_JoinBegin (void);
-DDD_RET  DDD_JoinEnd (void);
-void     DDD_JoinObj (DDD_HDR, DDD_PROC, DDD_GID);
+void     DDD_JoinBegin(DDD::DDDContext& context);
+DDD_RET  DDD_JoinEnd(DDD::DDDContext& context);
+void     DDD_JoinObj(DDD::DDDContext& context, DDD_HDR, DDD_PROC, DDD_GID);
 
 
 /*
@@ -486,11 +401,11 @@ void     DDD_JoinObj (DDD_HDR, DDD_PROC, DDD_GID);
 
 DDD_OBJ  DDD_ObjNew (size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
 void     DDD_ObjDelete (DDD_OBJ, size_t, DDD_TYPE);
-void     DDD_HdrConstructor (DDD_HDR, DDD_TYPE, DDD_PRIO, DDD_ATTR);
-void     DDD_HdrConstructorMove (DDD_HDR, DDD_HDR);
-void     DDD_HdrDestructor (DDD_HDR);
-DDD_OBJ  DDD_ObjGet (size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
-void     DDD_ObjUnGet (DDD_HDR, size_t);
+void     DDD_HdrConstructor(DDD::DDDContext& context, DDD_HDR, DDD_TYPE, DDD_PRIO, DDD_ATTR);
+void     DDD_HdrConstructorMove(DDD::DDDContext& context, DDD_HDR, DDD_HDR);
+void     DDD_HdrDestructor(DDD::DDDContext& context, DDD_HDR);
+DDD_OBJ  DDD_ObjGet (DDD::DDDContext& context, size_t, DDD_TYPE, DDD_PRIO, DDD_ATTR);
+void     DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR, size_t);
 
 
 
@@ -498,9 +413,9 @@ void     DDD_ObjUnGet (DDD_HDR, size_t);
         Maintainance & Debugging
  */
 
-int      DDD_ConsCheck (void);  /* returns total #errors since V1.6.6 */
-void     DDD_ListLocalObjects (void);
-DDD_HDR  DDD_SearchHdr (DDD_GID);
+int      DDD_ConsCheck(DDD::DDDContext& context); /* returns total #errors since V1.6.6 */
+void     DDD_ListLocalObjects(const DDD::DDDContext& context);
+DDD_HDR  DDD_SearchHdr(DDD::DDDContext&, DDD_GID);
 
 
 /****************************************************************************/

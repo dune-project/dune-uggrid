@@ -163,8 +163,8 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
         /* or is ghost -> partitioning must be restricted   */
         if (!EMASTER(theFather))
         {
-          UserWriteF(PFMT "elem=" EID_FMTX  " cannot be refined\n",
-                     me,EID_PRTX(theFather));
+          UserWriteF("elem=" EID_FMTX  " cannot be refined\n",
+                     EID_PRTX(theFather));
           _restrict_ = 1;
           continue;
         }
@@ -174,8 +174,8 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
           if (LEVEL(theFather)<=1) continue;
           if (!EMASTER(EFATHER(theFather)))
           {
-            UserWriteF(PFMT "elem=" EID_FMTX " cannot be coarsened\n",
-                       me,EID_PRTX(theFather));
+            UserWriteF("elem=" EID_FMTX " cannot be coarsened\n",
+                       EID_PRTX(theFather));
             _restrict_ = 1;
           }
         }
@@ -183,8 +183,8 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
     }
   }
 
-  _restrict_ = UG_GlobalMaxINT(_restrict_);
-  if (me==master && _restrict_==1)
+  _restrict_ = UG_GlobalMaxINT(theMG->ppifContext(), _restrict_);
+  if (theMG->dddContext().isMaster() && _restrict_==1)
   {
     UserWriteF("CheckPartitioning(): partitioning is not valid for refinement\n");
     UserWriteF("                     cleaning up ...\n");
@@ -211,7 +211,7 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
  */
 /****************************************************************************/
 
-static int Gather_ElementRestriction (DDD_OBJ obj, void *data)
+static int Gather_ElementRestriction (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -241,7 +241,7 @@ static int Gather_ElementRestriction (DDD_OBJ obj, void *data)
  */
 /****************************************************************************/
 
-static int Scatter_ElementRestriction (DDD_OBJ obj, void *data)
+static int Scatter_ElementRestriction (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   int used;
@@ -280,7 +280,7 @@ static int Scatter_ElementRestriction (DDD_OBJ obj, void *data)
  */
 /****************************************************************************/
 
-static int Gather_RestrictedPartition (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_RestrictedPartition (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -315,7 +315,7 @@ static int Gather_RestrictedPartition (DDD_OBJ obj, void *data, DDD_PROC proc, D
  */
 /****************************************************************************/
 
-static int Scatter_RestrictedPartition (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_RestrictedPartition (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   ELEMENT *SonList[MAX_SONS];
@@ -355,6 +355,9 @@ static int Scatter_RestrictedPartition (DDD_OBJ obj, void *data, DDD_PROC proc, 
 
 INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
 {
+  auto& context = theMG->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   INT i,j;
   ELEMENT *theElement;
   ELEMENT *theFather;
@@ -409,7 +412,8 @@ INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
       }
     }
     /* transfer restriction flags to master copies of father */
-    DDD_IFAOneway(ElementVHIF,GRID_ATTR(theGrid),IF_BACKWARD,sizeof(INT),
+    DDD_IFAOneway(context,
+                  dddctrl.ElementVHIF,GRID_ATTR(theGrid),IF_BACKWARD,sizeof(INT),
                   Gather_ElementRestriction, Scatter_ElementRestriction);
   }
 
@@ -419,7 +423,8 @@ INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
     theGrid = GRID_ON_LEVEL(theMG,i);
 
     /* transfer (new) partitions of elements to non master copies */
-    DDD_IFAOnewayX(ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+    DDD_IFAOnewayX(context,
+                   dddctrl.ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                    Gather_RestrictedPartition, Scatter_RestrictedPartition);
 
     for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;

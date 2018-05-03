@@ -28,6 +28,8 @@
 #include <cstring>
 #include <cmath>
 
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "ugtypes.h"
 #include "ppif.h"
 #include "dddio.h"
@@ -36,7 +38,7 @@
 /* PPIF namespace: */
 using namespace PPIF;
 
-START_UGDIM_NAMESPACE
+namespace DDD {
 
 void (*DDD_UserLineOutFunction)(const char *s);
 
@@ -110,10 +112,10 @@ void DDD_Flush (void)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_SyncAll (void)
+void DDD_SyncAll(const DDD::DDDContext& context)
 {
   DDD_Flush();
-  Synchronize();
+  Synchronize(context.ppifContext());
 }
 
 
@@ -180,4 +182,4 @@ void DDD_PrintError (char error_class, int error_no, const char *text)
   DDD_PrintLine(buffer);
 }
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */

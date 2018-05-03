@@ -113,7 +113,7 @@ INT NS_DIM_PREFIX ident_mode = IDENT_OFF;
 
 
 /* this function is called for low level identification */
-static INT (*Ident_FctPtr)(DDD_HDR *IdentObjectHdr, INT nobject,
+static INT (*Ident_FctPtr)(DDD::DDDContext& context, DDD_HDR *IdentObjectHdr, INT nobject,
                            const int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident) = NULL;
 
 static int check_nodetype = 0;
@@ -349,7 +349,7 @@ static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
  */
 /****************************************************************************/
 
-static INT Identify_by_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
+static INT Identify_by_ObjectList (DDD::DDDContext& context, DDD_HDR *IdentObjectHdr, INT nobject,
                                    const int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
 {
   INT i,j,n;
@@ -368,7 +368,7 @@ static INT Identify_by_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
   n = 0;
   while (*proclist != -1)
   {
-    ASSERT(n<procs);
+    ASSERT(n < context.procs());
 
     if (*(proclist+1) == skiptag)
     {
@@ -388,12 +388,12 @@ static INT Identify_by_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
                             *proclist,DDD_InfoGlobalId(IdentHdr[i]),me));
 
         /* hand identification hdr to ddd */
-        DDD_IdentifyObject(IdentObjectHdr[j], *proclist, IdentHdr[i]);
+        DDD_IdentifyObject(context, IdentObjectHdr[j], *proclist, IdentHdr[i]);
       }
     }
 
     n++;
-    assert(n<procs);
+    assert(n < context.procs());
     proclist += 2;
   }
 
@@ -406,7 +406,7 @@ static INT Identify_by_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 #ifdef __THREEDIM__
 
 
-static void IdentifySideVector (ELEMENT* theElement, ELEMENT *theNeighbor,
+static void IdentifySideVector (DDD::DDDContext& context, ELEMENT* theElement, ELEMENT *theNeighbor,
                                ELEMENT *Son, INT SonSide)
 {
   INT k,nident;
@@ -419,7 +419,7 @@ static void IdentifySideVector (ELEMENT* theElement, ELEMENT *theNeighbor,
 
   IdentObjectHdr[0] = PARHDR(SVECTOR(Son,SonSide));
 
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
   /* identify using corner nodes */
   for (k=0; k<CORNERS_OF_SIDE(Son,SonSide); k++)
@@ -431,9 +431,9 @@ static void IdentifySideVector (ELEMENT* theElement, ELEMENT *theNeighbor,
       IdentHdr[nident++] = PARHDR(theNode);
   }
 
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
-  Ident_FctPtr(IdentObjectHdr,1,proclist+2,PrioHGhost,IdentHdr,nident);
+  Ident_FctPtr(context, IdentObjectHdr,1,proclist+2,PrioHGhost,IdentHdr,nident);
 
 }
 #endif
@@ -465,6 +465,8 @@ static void IdentifySideVector (ELEMENT* theElement, ELEMENT *theNeighbor,
 static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
                           NODE *Nodes[MAX_SIDE_NODES], INT node, INT ncorners, INT Vec)
 {
+  auto& context = theGrid->dddContext();
+
   INT nobject,nident;
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
@@ -511,12 +513,12 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
       IdentObjectHdr[nobject++] = PARHDR(NVECTOR(theNode));
 
     /* identify to proclist of node */
-    proclist = DDD_InfoProcList(PARHDR((NODE *)NFATHER(theNode)));
+    proclist = DDD_InfoProcList(context, PARHDR((NODE *)NFATHER(theNode)));
 
     /* identify using father node */
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(theNode));
 
-    Ident_FctPtr(IdentObjectHdr, nobject,
+    Ident_FctPtr(context, IdentObjectHdr, nobject,
                  proclist+2, PrioHGhost, IdentHdr, nident);
 
     break;
@@ -563,7 +565,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
                       (NODE *)NFATHER(EdgeNodes[1]));
     ASSERT(theEdge!=NULL);
 
-    proclist = DDD_InfoProcList(PARHDR(theEdge));
+    proclist = DDD_InfoProcList(context, PARHDR(theEdge));
 
     /* identify using edge nodes */
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(EdgeNodes[0]));
@@ -574,7 +576,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
                             IdentHdr[nident++] = PARHDR(EdgeNodes[1]);
      */
 
-    Ident_FctPtr(IdentObjectHdr, nobject,
+    Ident_FctPtr(context, IdentObjectHdr, nobject,
                  proclist+2, PrioHGhost, IdentHdr, nident);
 
     break;
@@ -595,14 +597,14 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
       IdentObjectHdr[nobject++] = PARHDR(NVECTOR(theNode));
 
     /* identify to proclist of neighbor element */
-    proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+    proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
     /* identify using corner nodes of side */
     for (i=0; i<ncorners; i++)
       IdentHdr[nident++] = PARHDR((NODE *)NFATHER(Nodes[i]));
 
     /* identify side node */
-    Ident_FctPtr(IdentObjectHdr, nobject,
+    Ident_FctPtr(context, IdentObjectHdr, nobject,
                  proclist+2, PrioHGhost, IdentHdr, nident);
 
     break;
@@ -654,6 +656,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
   NODE   *theNode0,*theNode1;
+  auto& context = theGrid->dddContext();
 
   nobject = nident = 0;
 
@@ -696,7 +699,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
   }
 
   /* identify to proclist of neighbor */
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
   /* now choose identificator objects */
   theNode0 = NBNODE(LINK0(theEdge));
@@ -751,7 +754,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
   }
 
   if (nobject > 0)
-    Ident_FctPtr(IdentObjectHdr, nobject,
+    Ident_FctPtr(context, IdentObjectHdr, nobject,
                  proclist+2, PrioHGhost, IdentHdr, nident);
 
   /* debugging unlocks the edge */
@@ -806,6 +809,7 @@ static INT IdentifyEdge (GRID *theGrid,
   int *proclist;
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
+  auto& context = theGrid->dddContext();
 
   nobject = nident = 0;
 
@@ -886,7 +890,7 @@ static INT IdentifyEdge (GRID *theGrid,
 
         #ifdef __TWODIM__
   /* identify to proclist of neighbor */
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
         #endif
 
   /* identify to proclist of father edge or neighbor*/
@@ -899,11 +903,11 @@ static INT IdentifyEdge (GRID *theGrid,
     fatherEdge = FatherEdge(SideNodes,ncorners,Nodes,theEdge);
 
     if (fatherEdge != NULL)
-      proclist = DDD_InfoProcList(PARHDR(fatherEdge));
+      proclist = DDD_InfoProcList(context, PARHDR(fatherEdge));
     else
-      proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+      proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
   }
-  proclist = DDD_InfoProcList(PARHDRE(theNeighbor));
+  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
         #endif
 
   if (CORNERTYPE(Nodes[0]))
@@ -929,7 +933,7 @@ static INT IdentifyEdge (GRID *theGrid,
     IdentHdr[nident++] = PARHDR(Nodes[1]);
 
   if (nobject > 0)
-    Ident_FctPtr(IdentObjectHdr, nobject,
+    Ident_FctPtr(context, IdentObjectHdr, nobject,
                  proclist+2, PrioHGhost, IdentHdr, nident);
 
   /* debugging unlocks the edge */
@@ -970,6 +974,8 @@ static INT IdentifyEdge (GRID *theGrid,
 static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                                         INT i, ELEMENT *theNeighbor)
 {
+  auto& context = theGrid->dddContext();
+
   INT nodes,j,n;
   NODE *SideNodes[MAX_SIDE_NODES];
   INT ncorners;
@@ -1032,7 +1038,7 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
 
                         #ifdef __THREEDIM__
       if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-        IdentifySideVector(theElement,theNeighbor,SonList[j],SonSides[j]);
+        IdentifySideVector(context, theElement,theNeighbor,SonList[j],SonSides[j]);
                         #endif
     }
   }
@@ -1119,7 +1125,7 @@ static INT IdentifyDistributedObjects (MULTIGRID *theMG, INT FromLevel, INT ToLe
 
 
 #ifdef IDENT_ONLY_NEW
-static int Gather_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_NewNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
   NODE *SonNode = SONNODE(theNode);
@@ -1130,8 +1136,8 @@ static int Gather_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
   if (SonNode!=NULL && NEW_NIDENT(SonNode))
   {
     IFDEBUG(dddif,1)
-    UserWriteF(PFMT "new son node=" ID_FMTX  "node=" ID_FMTX "\n",
-               me,ID_PRTX(SonNode),ID_PRTX(theNode));
+    UserWriteF("new son node=" ID_FMTX  "node=" ID_FMTX "\n",
+               ID_PRTX(SonNode),ID_PRTX(theNode));
     ENDDEBUG
     *((int *)data) = 1;
   }
@@ -1141,7 +1147,7 @@ static int Gather_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
   return(0);
 }
 
-static int Scatter_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_NewNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
   NODE    *SonNode        = SONNODE(theNode);
@@ -1157,7 +1163,7 @@ static int Scatter_NewNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
 
 /*************************/
 
-static int Gather_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_NodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1174,7 +1180,7 @@ static int Gather_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pri
   return(0);
 }
 
-static int Scatter_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_NodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode = (NODE *)obj;
   int nprop    = *((int *)data);
@@ -1190,8 +1196,8 @@ static int Scatter_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pr
     if (0) SETNEW_NIDENT(theNode,1);
     if (NFATHER(theNode) == NULL)
     {
-      UserWriteF(PFMT "isolated node=" ID_FMTX "\n",
-                 me,ID_PRTX(theNode));
+      UserWriteF("isolated node=" ID_FMTX "\n",
+                 ID_PRTX(theNode));
       if (NIDENTASSERT) assert(0);
     }
     if (NIDENTASSERT) assert(NFATHER(theNode) != NULL);
@@ -1202,7 +1208,7 @@ static int Scatter_NodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pr
 
 /*************************/
 
-static int Gather_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_TestNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1214,7 +1220,7 @@ static int Gather_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   return(0);
 }
 
-static int Scatter_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_TestNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
   int nprop   = *((int *)data);
@@ -1223,8 +1229,8 @@ static int Scatter_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
   if (NEW_NIDENT(theNode) != nprop)
   {
-    UserWriteF(PFMT "nprop wrong mynprop=%d hisnprop=%d theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d\n",
-               me,NEW_NIDENT(theNode),nprop,ID_PRTX(theNode),LEVEL(theNode),proc,prio);
+    UserWriteF("nprop wrong mynprop=%d hisnprop=%d theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d\n",
+               NEW_NIDENT(theNode),nprop,ID_PRTX(theNode),LEVEL(theNode),proc,prio);
     fflush(stdout);
     assert(0);
   }
@@ -1234,7 +1240,7 @@ static int Scatter_TestNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
 /*************************/
 
-static int Gather_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_IdentSonNode (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
   NODE *SonNode = SONNODE(theNode);
@@ -1254,7 +1260,7 @@ static int Gather_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   return(0);
 }
 
-static int Scatter_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_IdentSonNode (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
   NODE    *SonNode        = SONNODE(theNode);
@@ -1275,23 +1281,23 @@ static int Scatter_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
       {
         if (!newsonnode)
         {
-          UserWriteF(PFMT "theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
-                     me,ID_PRTX(theNode),LEVEL(theNode),proc,prio,NEW_NIDENT(SonNode));
+          UserWriteF("theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
+                     ID_PRTX(theNode),LEVEL(theNode),proc,prio,NEW_NIDENT(SonNode));
           fflush(stdout);
           assert(0);
         }
 
-        DDD_IdentifyObject(PARHDR(SonNode),proc,PARHDR(theNode));
-        if (dddctrl.nodeData && NVECTOR(SonNode)!=NULL)
-          DDD_IdentifyObject(PARHDR(NVECTOR(SonNode)),proc,PARHDR(theNode));
+        DDD_IdentifyObject(context, PARHDR(SonNode),proc,PARHDR(theNode));
+        if (ddd_ctrl(context).nodeData && NVECTOR(SonNode)!=NULL)
+          DDD_IdentifyObject(context, PARHDR(NVECTOR(SonNode)),proc,PARHDR(theNode));
       }
     }
     else
     {
       if (newsonnode)
       {
-        UserWriteF(PFMT "theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
-                   me,ID_PRTX(theNode),LEVEL(theNode),proc,prio,NEW_NIDENT(SonNode));
+        UserWriteF("theNode=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
+                   ID_PRTX(theNode),LEVEL(theNode),proc,prio,NEW_NIDENT(SonNode));
         fflush(stdout);
         assert(0);
       }
@@ -1302,7 +1308,7 @@ static int Scatter_IdentSonNode (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 }
 
 /* callback functions for edge identification */
-static int Gather_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_NewObjectInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT ident_needed;
   EDGE *theEdge   = (EDGE *)obj;
@@ -1334,7 +1340,7 @@ static int Gather_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
   return(0);
 }
 
-static int Scatter_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_NewObjectInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   int newsonobjects   = *((int *)data);
   EDGE    *theEdge                = (EDGE *)obj;
@@ -1371,7 +1377,7 @@ static int Scatter_NewObjectInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
 
 /*************************/
 
-static int Gather_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_EdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
 
@@ -1388,7 +1394,7 @@ static int Gather_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pri
   return(0);
 }
 
-static int Scatter_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_EdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge = (EDGE *)obj;
   int nprop    = *((int *)data);
@@ -1404,8 +1410,8 @@ static int Scatter_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pr
     if (0) SETNEW_EDIDENT(theEdge,1);
     if (GetFatherEdge(theEdge) == NULL)
     {
-      UserWriteF(PFMT "isolated edge=" ID_FMTX "\n",
-                 me,ID_PRTX(theEdge));
+      UserWriteF("isolated edge=" ID_FMTX "\n",
+                 ID_PRTX(theEdge));
       if (EDIDENTASSERT) assert(0);
     }
     if (EDIDENTASSERT) assert(GetFatherEdge(theEdge) != NULL);
@@ -1416,7 +1422,7 @@ static int Scatter_EdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO pr
 
 /*************************/
 
-static int Gather_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_TestEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
 
@@ -1428,7 +1434,7 @@ static int Gather_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   return(0);
 }
 
-static int Scatter_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_TestEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge        = (EDGE *)obj;
   int nprop   = *((int *)data);
@@ -1437,8 +1443,8 @@ static int Scatter_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
   if (NEW_EDIDENT(theEdge) != nprop)
   {
-    UserWriteF(PFMT "nprop wrong mynprop=%d hisnprop=%d theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d\n",
-               me,NEW_EDIDENT(theEdge),nprop,ID_PRTX(theEdge),LEVEL(theEdge),proc,prio);
+    UserWriteF("nprop wrong mynprop=%d hisnprop=%d theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d\n",
+               NEW_EDIDENT(theEdge),nprop,ID_PRTX(theEdge),LEVEL(theEdge),proc,prio);
     fflush(stdout);
     assert(0);
   }
@@ -1448,7 +1454,7 @@ static int Scatter_TestEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
 /*************************/
 
-static int Gather_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_IdentSonEdge (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
   EDGE *SonEdge = GetSonEdge(theEdge);
@@ -1468,7 +1474,7 @@ static int Gather_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   return(0);
 }
 
-static int Scatter_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_IdentSonEdge (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge        = (EDGE *)obj;
   EDGE    *SonEdge;
@@ -1489,23 +1495,23 @@ static int Scatter_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
       {
         if (!newsonedge)
         {
-          UserWriteF(PFMT "theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
-                     me,ID_PRTX(theEdge),LEVEL(theEdge),proc,prio,NEW_EDIDENT(SonEdge));
+          UserWriteF("theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
+                     ID_PRTX(theEdge),LEVEL(theEdge),proc,prio,NEW_EDIDENT(SonEdge));
           fflush(stdout);
           assert(0);
         }
 
-        DDD_IdentifyObject(PARHDR(SonEdge),proc,PARHDR(theEdge));
-        if (dddctrl.edgeData && EDVECTOR(SonEdge)!=NULL)
-          DDD_IdentifyObject(PARHDR(EDVECTOR(SonEdge)),proc,PARHDR(theEdge));
+        DDD_IdentifyObject(context, PARHDR(SonEdge),proc,PARHDR(theEdge));
+        if (ddd_ctrl(context).edgeData && EDVECTOR(SonEdge)!=NULL)
+          DDD_IdentifyObject(context, PARHDR(EDVECTOR(SonEdge)),proc,PARHDR(theEdge));
       }
     }
     else
     {
       if (newsonedge)
       {
-        UserWriteF(PFMT "theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
-                   me,ID_PRTX(theEdge),LEVEL(theEdge),proc,prio,NEW_EDIDENT(SonEdge));
+        UserWriteF("theEdge=" ID_FMTX " LEVEL=%d PROC=%d PRIO=%d sonnprop=%d\n",
+                   ID_PRTX(theEdge),LEVEL(theEdge),proc,prio,NEW_EDIDENT(SonEdge));
         fflush(stdout);
         assert(0);
       }
@@ -1517,7 +1523,7 @@ static int Scatter_IdentSonEdge (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRI
 
 /*************************/
 
-static int Gather_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_IdentSonObjects (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT ident_needed;
   EDGE *theEdge   = (EDGE *)obj;
@@ -1549,7 +1555,7 @@ static int Gather_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
   return(0);
 }
 
-static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   int newsonobjects   = *((int *)data);
   EDGE    *theEdge                = (EDGE *)obj;
@@ -1575,9 +1581,9 @@ static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_
       {
         ASSERT(newsonobjects & 0x2);
 
-        DDD_IdentifyObject(PARHDR(SonEdges[0]),proc,PARHDR(theEdge));
-        if (dddctrl.edgeData && EDVECTOR(SonEdges[0])!=NULL)
-          DDD_IdentifyObject(PARHDR(EDVECTOR(SonEdges[0])),proc,PARHDR(theEdge));
+        DDD_IdentifyObject(context, PARHDR(SonEdges[0]),proc,PARHDR(theEdge));
+        if (ddd_ctrl(context).edgeData && EDVECTOR(SonEdges[0])!=NULL)
+          DDD_IdentifyObject(context, PARHDR(EDVECTOR(SonEdges[0])),proc,PARHDR(theEdge));
       }
     }
     else
@@ -1594,23 +1600,23 @@ static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_
 
         if (1)
         {
-          DDD_IdentifyObject(PARHDR(MidNode),proc,PARHDR(theEdge));
-          DDD_IdentifyObject(PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(theEdge));
-          if (dddctrl.nodeData && NVECTOR(MidNode)!=NULL)
-            DDD_IdentifyObject(PARHDR(NVECTOR(MidNode)),proc,PARHDR(theEdge));
+          DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(theEdge));
+          DDD_IdentifyObject(context, PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(theEdge));
+          if (ddd_ctrl(context).nodeData && NVECTOR(MidNode)!=NULL)
+            DDD_IdentifyObject(context, PARHDR(NVECTOR(MidNode)),proc,PARHDR(theEdge));
         }
         else
         {
           Node0 = NBNODE(LINK0(theEdge));
           Node1 = NBNODE(LINK1(theEdge));
-          DDD_IdentifyObject(PARHDR(MidNode),proc,PARHDR(Node0));
-          DDD_IdentifyObject(PARHDR(MidNode),proc,PARHDR(Node1));
-          DDD_IdentifyObject(PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(Node0));
-          DDD_IdentifyObject(PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(Node1));
-          if (dddctrl.nodeData && NVECTOR(MidNode)!=NULL)
+          DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(Node0));
+          DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(Node1));
+          DDD_IdentifyObject(context, PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(Node0));
+          DDD_IdentifyObject(context, PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(Node1));
+          if (ddd_ctrl(context).nodeData && NVECTOR(MidNode)!=NULL)
           {
-            DDD_IdentifyObject(PARHDR(NVECTOR(MidNode)),proc,PARHDR(Node0));
-            DDD_IdentifyObject(PARHDR(NVECTOR(MidNode)),proc,PARHDR(Node1));
+            DDD_IdentifyObject(context, PARHDR(NVECTOR(MidNode)),proc,PARHDR(Node0));
+            DDD_IdentifyObject(context, PARHDR(NVECTOR(MidNode)),proc,PARHDR(Node1));
           }
         }
       }
@@ -1635,12 +1641,12 @@ static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_
           ASSERT(NFATHER(SonNode1)!=NULL);
           IdentNode = SonNode1;
         }
-        DDD_IdentifyObject(PARHDR(SonEdges[0]),proc,PARHDR(theEdge));
-        DDD_IdentifyObject(PARHDR(SonEdges[0]),proc,PARHDR((NODE *)NFATHER(IdentNode)));
-        if (dddctrl.edgeData && EDVECTOR(SonEdges[0])!=NULL)
+        DDD_IdentifyObject(context, PARHDR(SonEdges[0]),proc,PARHDR(theEdge));
+        DDD_IdentifyObject(context, PARHDR(SonEdges[0]),proc,PARHDR((NODE *)NFATHER(IdentNode)));
+        if (ddd_ctrl(context).edgeData && EDVECTOR(SonEdges[0])!=NULL)
         {
-          DDD_IdentifyObject(PARHDR(EDVECTOR(SonEdges[0])),proc,PARHDR(theEdge));
-          DDD_IdentifyObject(PARHDR(EDVECTOR(SonEdges[0])),proc,PARHDR((NODE *)NFATHER(IdentNode)));
+          DDD_IdentifyObject(context, PARHDR(EDVECTOR(SonEdges[0])),proc,PARHDR(theEdge));
+          DDD_IdentifyObject(context, PARHDR(EDVECTOR(SonEdges[0])),proc,PARHDR((NODE *)NFATHER(IdentNode)));
         }
       }
 
@@ -1664,12 +1670,12 @@ static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_
           ASSERT(NFATHER(SonNode1)!=NULL);
           IdentNode = SonNode1;
         }
-        DDD_IdentifyObject(PARHDR(SonEdges[1]),proc,PARHDR(theEdge));
-        DDD_IdentifyObject(PARHDR(SonEdges[1]),proc,PARHDR((NODE *)NFATHER(IdentNode)));
-        if (dddctrl.edgeData && EDVECTOR(SonEdges[1])!=NULL)
+        DDD_IdentifyObject(context, PARHDR(SonEdges[1]),proc,PARHDR(theEdge));
+        DDD_IdentifyObject(context, PARHDR(SonEdges[1]),proc,PARHDR((NODE *)NFATHER(IdentNode)));
+        if (ddd_ctrl(context).edgeData && EDVECTOR(SonEdges[1])!=NULL)
         {
-          DDD_IdentifyObject(PARHDR(EDVECTOR(SonEdges[1])),proc,PARHDR(theEdge));
-          DDD_IdentifyObject(PARHDR(EDVECTOR(SonEdges[1])),proc,PARHDR((NODE *)NFATHER(IdentNode)));
+          DDD_IdentifyObject(context, PARHDR(EDVECTOR(SonEdges[1])),proc,PARHDR(theEdge));
+          DDD_IdentifyObject(context, PARHDR(EDVECTOR(SonEdges[1])),proc,PARHDR((NODE *)NFATHER(IdentNode)));
         }
       }
     }
@@ -1704,7 +1710,7 @@ static int Scatter_IdentSonObjects (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_
  */
 /****************************************************************************/
 
-static int Gather_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_SonNodeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1739,7 +1745,7 @@ static int Gather_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
  */
 /****************************************************************************/
 
-static int Scatter_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_SonNodeInfo (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
   NODE    *SonNode        = SONNODE(theNode);
@@ -1752,11 +1758,11 @@ static int Scatter_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   {
     if (has_sonnode)
     {
-      DDD_IdentifyObject(PARHDR(SonNode),proc,PARHDR(theNode));
-      if (dddctrl.nodeData && NVECTOR(SonNode)!=NULL)
-        DDD_IdentifyObject(PARHDR(NVECTOR(SonNode)),proc,PARHDR(theNode));
+      DDD_IdentifyObject(context, PARHDR(SonNode),proc,PARHDR(theNode));
+      if (ddd_ctrl(context).nodeData && NVECTOR(SonNode)!=NULL)
+        DDD_IdentifyObject(context, PARHDR(NVECTOR(SonNode)),proc,PARHDR(theNode));
       IFDEBUG(dddif,1)
-      if (dddctrl.nodeData && NVECTOR(SonNode)!=NULL)
+      if (ddd_ctrl(context).nodeData && NVECTOR(SonNode)!=NULL)
         PrintDebug ("l=%d IdentHdr: %d Proc: %d me:%d IdentObjectHdr: %d %d\n",
                     identlevel,GID(theNode),proc,me,GID(SonNode),GID(EDVECTOR(SonNode)));
       else
@@ -1792,7 +1798,7 @@ static int Scatter_SonNodeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
  */
 /****************************************************************************/
 
-static int Gather_SonEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_SonEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
   EDGE *SonEdge;
@@ -1831,7 +1837,7 @@ static int Gather_SonEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO 
  */
 /****************************************************************************/
 
-static int Scatter_SonEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_SonEdgeInfo (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge        = (EDGE *)obj;
   EDGE    *SonEdge;
@@ -1846,11 +1852,11 @@ static int Scatter_SonEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
   {
     if (has_sonedge)
     {
-      DDD_IdentifyObject(PARHDR(SonEdge),proc,PARHDR(theEdge));
-      if (dddctrl.edgeData && EDVECTOR(SonEdge)!=NULL)
-        DDD_IdentifyObject(PARHDR(EDVECTOR(SonEdge)),proc,PARHDR(theEdge));
+      DDD_IdentifyObject(context, PARHDR(SonEdge),proc,PARHDR(theEdge));
+      if (ddd_ctrl(context).edgeData && EDVECTOR(SonEdge)!=NULL)
+        DDD_IdentifyObject(context, PARHDR(EDVECTOR(SonEdge)),proc,PARHDR(theEdge));
       IFDEBUG(dddif,1)
-      if (dddctrl.edgeData && EDVECTOR(SonEdge)!=NULL)
+      if (ddd_ctrl(context).edgeData && EDVECTOR(SonEdge)!=NULL)
         PrintDebug ("l=%d IdentHdr: %d Proc: %d me:%d IdentObjectHdr: %d %d\n",
                     identlevel,GID(theEdge),proc,me,GID(SonEdge),GID(EDVECTOR(SonEdge)));
       else
@@ -1884,28 +1890,35 @@ static int Scatter_SonEdgeInfo (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO
 
 static INT Identify_SonNodes (GRID *theGrid)
 {
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
 
 #ifdef IDENT_ONLY_NEW
-  DDD_IFAOnewayX(NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_NewNodeInfo,Scatter_NewNodeInfo);
 
   if (UPGRID(theGrid) != NULL)
   {
     check_nodetype = CORNER_NODE;
     if (NIDENTASSERT)
-      DDD_IFAOnewayX(NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+      DDD_IFAOnewayX(context,
+                     dddctrl.NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                      Gather_NodeInfo,Scatter_NodeInfo);
     if (0)
-      DDD_IFAOnewayX(NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+      DDD_IFAOnewayX(context,
+                     dddctrl.NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                      Gather_TestNodeInfo,Scatter_TestNodeInfo);
   }
 
-  DDD_IFAOnewayX(NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,2*sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,2*sizeof(int),
                  Gather_IdentSonNode,Scatter_IdentSonNode);
 
 #else
 
-  DDD_IFAOnewayX(NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.NodeAllIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_SonNodeInfo,Scatter_SonNodeInfo);
 
 #endif
@@ -1932,32 +1945,40 @@ static INT Identify_SonNodes (GRID *theGrid)
 
 INT Identify_SonEdges (GRID *theGrid)
 {
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
 
 #ifdef IDENT_ONLY_NEW
 
-  DDD_IFAOnewayX(EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_NewObjectInfo,Scatter_NewObjectInfo);
 
   if (UPGRID(theGrid) != NULL)
   {
     check_nodetype = MID_NODE;
-    DDD_IFAOnewayX(NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+    DDD_IFAOnewayX(context,
+                   dddctrl.NodeAllIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                    Gather_NodeInfo,Scatter_NodeInfo);
     if (EDIDENTASSERT)
-      DDD_IFAOnewayX(EdgeSymmVHIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+      DDD_IFAOnewayX(context,
+                     dddctrl.EdgeSymmVHIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                      Gather_EdgeInfo,Scatter_EdgeInfo);
     if (0)
-      DDD_IFAOnewayX(EdgeSymmVHIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
+      DDD_IFAOnewayX(context,
+                     dddctrl.EdgeSymmVHIF,GRID_ATTR(UPGRID(theGrid)),IF_FORWARD,sizeof(int),
                      Gather_TestEdgeInfo,Scatter_TestEdgeInfo);
   }
 
-  DDD_IFAOnewayX(EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_IdentSonObjects,Scatter_IdentSonObjects);
 
 #else
 
   /* identify the sonedges */
-  DDD_IFAOnewayX(EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
+  DDD_IFAOnewayX(context,
+                 dddctrl.EdgeSymmVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(int),
                  Gather_SonEdgeInfo,Scatter_SonEdgeInfo);
 
 #endif
@@ -2005,8 +2026,8 @@ INT NS_DIM_PREFIX Identify_SonObjects (GRID *theGrid)
 
   if (IDENT_IN_STEPS)
   {
-    DDD_IdentifyEnd();
-    DDD_IdentifyBegin();
+    DDD_IdentifyEnd(theGrid->dddContext());
+    DDD_IdentifyBegin(theGrid->dddContext());
   }
 
 

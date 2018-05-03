@@ -196,7 +196,7 @@ static INT ListProcList (int *proclist, int uniqueTag)
  */
 /****************************************************************************/
 
-static INT CheckVectorPrio (ELEMENT *theElement, VECTOR *theVector)
+static INT CheckVectorPrio (DDD::DDDContext& context, ELEMENT *theElement, VECTOR *theVector)
 {
   INT nmaster;
   INT nerrors = 0;
@@ -205,11 +205,11 @@ static INT CheckVectorPrio (ELEMENT *theElement, VECTOR *theVector)
   CHECK_OBJECT_PRIO(theVector,PRIO,MASTER,GHOST,VINDEX,"Vector",nerrors)
 
   /* master copy has to be unique */
-  if ((nmaster = CheckProcListCons(PROCLIST(theVector),PrioMaster)) > 1)
+  if ((nmaster = CheckProcListCons(PROCLIST(context, theVector),PrioMaster)) > 1)
   {
     UserWriteF("VECTOR=" ID_FMTX " ERROR: master copy not unique, nmaster=%d:",
                ID_PRTX(theVector),nmaster);
-    ListProcList(PROCLIST(theVector),PrioMaster);
+    ListProcList(PROCLIST(context, theVector),PrioMaster);
     UserWriteF("\n");
     nerrors++;
   }
@@ -239,11 +239,11 @@ static INT CheckVectorPrio (ELEMENT *theElement, VECTOR *theVector)
 #ifdef __PERIODIC_BOUNDARY__
 #define MAX_PERIODIC_PROCS      128
 
-static INT CheckPerNodeVecPrio (NODE *theNode)
+static INT CheckPerNodeVecPrio (DDD::DDDContext& context, NODE *theNode)
 {
   INT nerrors = 0;
   VECTOR *vec = NVECTOR(theNode);
-  int *vpl,*proclist = PROCLIST(theNode);
+  int *vpl,*proclist = PROCLIST(context, theNode);
   int j,Proclist[MAX_PERIODIC_PROCS];
 
   /* copy proclist */
@@ -261,7 +261,7 @@ static INT CheckPerNodeVecPrio (NODE *theNode)
   proclist = Proclist;
 
   /* get the vec proclist */
-  vpl = PROCLIST(vec);
+  vpl = PROCLIST(context, vec);
 
   /* compare both lists using criteria:          */
   /* 1. each proc from node proclist must also   */
@@ -308,7 +308,7 @@ static INT CheckPerNodeVecPrio (NODE *theNode)
 }
 #endif
 
-static INT CheckNodePrio (ELEMENT *theElement, NODE *theNode)
+static INT CheckNodePrio (DDD::DDDContext& context, ELEMENT *theElement, NODE *theNode)
 {
   INT nmaster;
   INT nerrors = 0;
@@ -317,20 +317,20 @@ static INT CheckNodePrio (ELEMENT *theElement, NODE *theNode)
   CHECK_OBJECT_PRIO(theNode,PRIO,MASTER,GHOST,ID,"NODE",nerrors)
 
   /* master copy has to be unique */
-  if ((nmaster = CheckProcListCons(PROCLIST(theNode),PrioMaster)) > 1)
+    if ((nmaster = CheckProcListCons(PROCLIST(context, theNode),PrioMaster)) > 1)
   {
     UserWriteF("NODE=" ID_FMTX " ERROR: master copy not unique, nmaster=%d:",
                ID_PRTX(theNode),nmaster);
-    ListProcList(PROCLIST(theNode),PrioMaster);
+    ListProcList(PROCLIST(context, theNode),PrioMaster);
     UserWriteF("\n");
     nerrors++;
   }
 
-  if (dddctrl.nodeData)
+  if (ddd_ctrl(context).nodeData)
   {
     if (NVECTOR(theNode) != NULL)
     {
-      nerrors += CheckVectorPrio(theElement,NVECTOR(theNode));
+      nerrors += CheckVectorPrio(context, theElement,NVECTOR(theNode));
     }
 #ifdef __PERIODIC_BOUNDARY__
     if (PRIO(theNode) > PRIO(NVECTOR(theNode)) && GHOSTPRIO(PRIO(NVECTOR(theNode))))
@@ -366,7 +366,7 @@ static INT CheckNodePrio (ELEMENT *theElement, NODE *theNode)
  */
 /****************************************************************************/
 
-static INT CheckEdgePrio (ELEMENT *theElement, EDGE *theEdge)
+static INT CheckEdgePrio (DDD::DDDContext& context, ELEMENT *theElement, EDGE *theEdge)
 {
   INT nmaster;
   INT nerrors = 0;
@@ -376,19 +376,19 @@ static INT CheckEdgePrio (ELEMENT *theElement, EDGE *theEdge)
   CHECK_OBJECT_PRIO(theEdge,PRIO,MASTER,GHOST,ID,"EDGE",nerrors)
 
   /* master copy has to be unique */
-  if ((nmaster = CheckProcListCons(PROCLIST(theEdge),PrioMaster)) > 1)
+  if ((nmaster = CheckProcListCons(PROCLIST(context, theEdge),PrioMaster)) > 1)
   {
     UserWriteF("EDGE=" EDID_FMTX " ERROR: master copy not unique, nmaster=%d:",
                EDID_PRTX(theEdge),nmaster);
-    ListProcList(PROCLIST(theEdge),PrioMaster);
+    ListProcList(PROCLIST(context, theEdge),PrioMaster);
     UserWriteF("\n");
     nerrors++;
   }
         #endif
 
-  if (dddctrl.edgeData)
+  if (ddd_ctrl(context).edgeData)
     if (EDVECTOR(theEdge) != NULL)
-      nerrors += CheckVectorPrio(theElement,EDVECTOR(theEdge));
+      nerrors += CheckVectorPrio(context, theElement,EDVECTOR(theEdge));
 
   return(nerrors);
 }
@@ -411,13 +411,15 @@ static INT CheckEdgePrio (ELEMENT *theElement, EDGE *theEdge)
  */
 /****************************************************************************/
 
-static INT CheckElementPrio (ELEMENT *theElement)
+static INT CheckElementPrio (DDD::DDDContext& context, ELEMENT *theElement)
 {
   INT i,nmaster,prio,valid_copy;
   INT nerrors = 0;
   NODE    *theNode;
   EDGE    *theEdge;
   ELEMENT *SonList[MAX_SONS];
+
+  const auto& me = context.me();
 
   if (PARTITION(theElement)==me && !EMASTER(theElement))
   {
@@ -453,7 +455,7 @@ static INT CheckElementPrio (ELEMENT *theElement)
   CHECK_OBJECT_PRIO(theElement,EPRIO,EMASTER,EGHOST,EID,"ELEM",nerrors)
 
   /* master copy has to be unique */
-  if ((nmaster = CheckProcListCons(EPROCLIST(theElement),PrioMaster)) != 1)
+  if ((nmaster = CheckProcListCons(EPROCLIST(context, theElement),PrioMaster)) != 1)
   {
     UserWriteF("ELEM=" EID_FMTX " ERROR: master copy not unique, ",
                EID_PRTX(theElement),nmaster);
@@ -462,7 +464,7 @@ static INT CheckElementPrio (ELEMENT *theElement)
     else
       UserWrite("Father=NULL");
     UserWriteF(" nmaster=%d:",nmaster);
-    ListProcList(EPROCLIST(theElement),PrioMaster);
+    ListProcList(EPROCLIST(context, theElement),PrioMaster);
     UserWriteF("\n");
     nerrors++;
   }
@@ -498,21 +500,21 @@ static INT CheckElementPrio (ELEMENT *theElement)
     }
   }
 
-  if (dddctrl.elemData)
+  if (ddd_ctrl(context).elemData)
     if (EVECTOR(theElement) != NULL)
-      nerrors += CheckVectorPrio(theElement,EVECTOR(theElement));
+      nerrors += CheckVectorPrio(context, theElement,EVECTOR(theElement));
 
-  if (dddctrl.sideData)
+  if (ddd_ctrl(context).sideData)
   {
     for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       if (SVECTOR(theElement,i) != NULL)
-        nerrors += CheckVectorPrio(theElement,SVECTOR(theElement,i));
+        nerrors += CheckVectorPrio(context, theElement,SVECTOR(theElement,i));
   }
 
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
     theNode = CORNER(theElement,i);
-    nerrors += CheckNodePrio(theElement,theNode);
+    nerrors += CheckNodePrio(context, theElement,theNode);
   }
 
   for (i=0; i<EDGES_OF_ELEM(theElement); i++)
@@ -520,7 +522,7 @@ static INT CheckElementPrio (ELEMENT *theElement)
     theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,i,0)),
                       CORNER(theElement,CORNER_OF_EDGE(theElement,i,1)));
     ASSERT(theEdge != NULL);
-    nerrors += CheckEdgePrio(theElement,theEdge);
+    nerrors += CheckEdgePrio(context, theElement,theEdge);
   }
 
   return (nerrors);
@@ -546,7 +548,7 @@ static INT CheckElementPrio (ELEMENT *theElement)
  */
 /****************************************************************************/
 
-static int Gather_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -570,7 +572,7 @@ static int Gather_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
   return 0;
 }
 
-static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -580,8 +582,8 @@ static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
     NODE* theNode = CORNER(theElement,i);
     if (((DDD_GID *)data)[i] != GID(theNode))
     {
-      UserWriteF(PFMT "ELEM=" EID_FMTX " #ERROR#: NODE=" ID_FMTX " gids don't match "
-                 "local=%08x remote=%08x remoteproc/prio=%d/%d\n",me,EID_PRTX(theElement),ID_PRTX(theNode),
+      UserWriteF("ELEM=" EID_FMTX " #ERROR#: NODE=" ID_FMTX " gids don't match "
+                 "local=%08x remote=%08x remoteproc/prio=%d/%d\n",EID_PRTX(theElement),ID_PRTX(theNode),
                  GID(theNode),((DDD_GID *)data)[i],proc,prio);
       check_distributed_objects_errors++;
       assert(0);
@@ -597,8 +599,8 @@ static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
     assert(theEdge!=NULL);
     if (((DDD_GID *)data)[i] != GID(theEdge))
     {
-      UserWriteF(PFMT "ELEM=" EID_FMTX " #ERROR#: EDGE=" ID_FMTX " gids don't match "
-                 "local=%08x remote=%08x remoteproc/prio=%d/%d\n",me,EID_PRTX(theElement),ID_PRTX(theEdge),
+      UserWriteF("ELEM=" EID_FMTX " #ERROR#: EDGE=" ID_FMTX " gids don't match "
+                 "local=%08x remote=%08x remoteproc/prio=%d/%d\n",EID_PRTX(theElement),ID_PRTX(theEdge),
                  GID(theEdge),((DDD_GID *)data)[i],proc,prio);
       check_distributed_objects_errors++;
       assert(0);
@@ -610,7 +612,7 @@ static int Scatter_ElemObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
 }
 
 #ifdef __THREEDIM__
-static int Gather_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Gather_EdgeObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT i;
   EDGE *theEdge = (EDGE *)obj;
@@ -633,13 +635,13 @@ static int Gather_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PR
   return 0;
 }
 
-static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT i;
   DDD_GID remotegid;
   EDGE *theEdge = (EDGE *)obj;
   NODE *theNode0, *theNode1, *MidNode;
-  int *proclist = PROCLIST(theEdge);
+  int *proclist = PROCLIST(context, theEdge);
 
   /* this check allows no edges copies of type VGHOST */
   /* since then midnode might be NULL due to local    */
@@ -659,9 +661,9 @@ static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
   /* compare node0 gids with buffer gids */
   if (((DDD_GID *)data)[i] != GID(theNode0))
   {
-    UserWriteF(PFMT "EDGE=" ID_FMTX " #ERROR#: NODE0=" ID_FMTX " gids don't match "
+    UserWriteF("EDGE=" ID_FMTX " #ERROR#: NODE0=" ID_FMTX " gids don't match "
                "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
-               me,ID_PRTX(theEdge),ID_PRTX(theNode0),
+               ID_PRTX(theEdge),ID_PRTX(theNode0),
                GID(theNode0),((DDD_GID *)data)[i],proc,prio);
     check_distributed_objects_errors++;
     assert(0);
@@ -671,9 +673,9 @@ static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
   /* compare node1 gids with buffer gids */
   if (((DDD_GID *)data)[i] != GID(theNode1))
   {
-    UserWriteF(PFMT "EDGE=" ID_FMTX " #ERROR#: NODE1=" ID_FMTX " gids don't match "
+    UserWriteF("EDGE=" ID_FMTX " #ERROR#: NODE1=" ID_FMTX " gids don't match "
                "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
-               me,ID_PRTX(theEdge),ID_PRTX(theNode1),
+               ID_PRTX(theEdge),ID_PRTX(theNode1),
                GID(theNode1),((DDD_GID *)data)[i],proc,prio);
     check_distributed_objects_errors++;
     assert(0);
@@ -688,9 +690,9 @@ static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
   {
     if (remotegid != GID(MidNode))
     {
-      UserWriteF(PFMT "EDGE=" ID_FMTX " #ERROR#: MIDNODE=" ID_FMTX " gids don't match "
+      UserWriteF("EDGE=" ID_FMTX " #ERROR#: MIDNODE=" ID_FMTX " gids don't match "
                  "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
-                 me,ID_PRTX(theEdge),ID_PRTX(MidNode),
+                 ID_PRTX(theEdge),ID_PRTX(MidNode),
                  GID(MidNode),remotegid,proc,prio);
       check_distributed_objects_errors++;
       assert(0);
@@ -701,9 +703,9 @@ static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
 
     if (remotegid != 0)
     {
-      UserWriteF(PFMT "EDGE=" ID_FMTX " #ERROR#: MIDNODE=NULL gids don't match "
+      UserWriteF("EDGE=" ID_FMTX " #ERROR#: MIDNODE=NULL gids don't match "
                  "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
-                 me,ID_PRTX(theEdge),0,remotegid,proc,prio);
+                 ID_PRTX(theEdge),0,remotegid,proc,prio);
       check_distributed_objects_errors++;
       assert(0);
     }
@@ -716,6 +718,9 @@ static int Scatter_EdgeObjectGids (DDD_OBJ obj, void *data, DDD_PROC proc, DDD_P
 
 static INT CheckDistributedObjects (GRID *theGrid)
 {
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   INT nerrors;
         #ifdef __TWODIM__
   INT size = MAX_CORNERS_OF_ELEM;       /* compare the 3/4 node ids */
@@ -726,13 +731,15 @@ static INT CheckDistributedObjects (GRID *theGrid)
 
   check_distributed_objects_errors = 0;
 
-  // void DDD_IFAOnewayX (DDD_IF, DDD_ATTR, DDD_IF_DIR, size_t, ComProcXPtr, ComProcXPtr);
-  DDD_IFAOnewayX(ElementSymmVHIF,GRID_ATTR(theGrid),IF_BACKWARD,size*sizeof(DDD_GID),
+  // void DDD_IFAOnewayX (DDD::DDDContext&, DDD_IF, DDD_ATTR, DDD_IF_DIR, size_t, ComProcXPtr, ComProcXPtr);
+  DDD_IFAOnewayX(context,
+                 dddctrl.ElementSymmVHIF,GRID_ATTR(theGrid),IF_BACKWARD,size*sizeof(DDD_GID),
                  Gather_ElemObjectGids, Scatter_ElemObjectGids);
 
         #ifdef __THREEDIM__
   if (0)
-    DDD_IFAOnewayX(BorderEdgeSymmIF,GRID_ATTR(theGrid),IF_BACKWARD,3*sizeof(DDD_GID),
+    DDD_IFAOnewayX(context,
+                   dddctrl.BorderEdgeSymmIF,GRID_ATTR(theGrid),IF_BACKWARD,3*sizeof(DDD_GID),
                    Gather_EdgeObjectGids, Scatter_EdgeObjectGids);
         #endif
 
@@ -759,6 +766,9 @@ static INT CheckDistributedObjects (GRID *theGrid)
 
 INT NS_DIM_PREFIX CheckInterfaces (GRID *theGrid)
 {
+  auto& context = theGrid->dddContext();
+  auto& dddctrl = ddd_ctrl(context);
+
   INT i,j;
   ELEMENT *theElement;
   NODE    *theNode;
@@ -811,16 +821,16 @@ INT NS_DIM_PREFIX CheckInterfaces (GRID *theGrid)
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
   {
-    nerrors += CheckElementPrio(theElement);
+    nerrors += CheckElementPrio(theGrid->dddContext(), theElement);
   }
 
   /* check uniqueness of global ids for distributed nodes and edges */
   nerrors += CheckDistributedObjects(theGrid);
 
   /* check ddd interface consistency */
-  DDD_SetOption(OPT_QUIET_CONSCHECK, OPT_ON);
-  nerrors += DDD_ConsCheck();
-  DDD_SetOption(OPT_QUIET_CONSCHECK, OPT_OFF);
+  DDD_SetOption(theGrid->dddContext(), OPT_QUIET_CONSCHECK, OPT_ON);
+  nerrors += DDD_ConsCheck(theGrid->dddContext());
+  DDD_SetOption(theGrid->dddContext(), OPT_QUIET_CONSCHECK, OPT_OFF);
 
   return(nerrors);
 }

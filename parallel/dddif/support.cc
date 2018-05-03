@@ -30,13 +30,17 @@
 /****************************************************************************/
 
 /* standard C library */
-#if defined(__SR2201__) || defined(__CC__)
 #include <config.h>
 #include <cstdlib>
 #include <cstdio>
-#endif
-
 #include <cstddef>
+
+#include <type_traits>
+
+#ifdef ModelP
+#  include <mpi.h>
+#  include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+#endif
 
 #include "general.h"
 #include "ppif.h"
@@ -53,25 +57,7 @@ USING_UG_NAMESPACES
 /* PPIF namespaces: */
 using namespace PPIF;
 
-  START_UGDIM_NAMESPACE
-
-/****************************************************************************/
-/*                                                                          */
-/* macros                                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-
-#ifndef MAX
-#define MAX(x,y) (((x)>(y)) ? (x) : (y))
-#endif
-
-#ifndef MIN
-#define MIN(x,y) (((x)<(y)) ? (x) : (y))
-#endif
-
-
-
+START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
@@ -83,6 +69,13 @@ using namespace PPIF;
 /* some useful functions by Peter Bastian, from ugp/ug/ugcom.c */
 
 #ifdef ModelP
+
+static_assert(
+  std::is_same<int, INT>::value,
+  "The implementation assumes that `int` and `INT` are the same type.");
+static_assert(
+  std::is_same<double, DOUBLE>::value,
+  "The implementation assumes that `double` and `DOUBLE` are the same type.");
 
 /****************************************************************************/
 /*D
@@ -102,19 +95,10 @@ using namespace PPIF;
 
    D*/
 /****************************************************************************/
-INT UG_GlobalMaxINT (INT i)
+INT UG_GlobalMaxINT(const PPIF::PPIFContext& context, INT i)
 {
-  int l;
-  INT n;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&n,sizeof(INT));
-    i = MAX(i,n);
-  }
-  Concentrate(&i,sizeof(INT));
-  Broadcast(&i,sizeof(INT));
-  return(i);
+  MPI_Allreduce(MPI_IN_PLACE, &i, 1, MPI_INT, MPI_MAX, context.comm());
+  return i;
 }
 
 /****************************************************************************/
@@ -136,19 +120,10 @@ INT UG_GlobalMaxINT (INT i)
    D*/
 /****************************************************************************/
 
-INT UG_GlobalMinINT (INT i)
+INT UG_GlobalMinINT (const PPIF::PPIFContext& context, INT i)
 {
-  int l;
-  INT n;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&n,sizeof(INT));
-    i = MIN(i,n);
-  }
-  Concentrate(&i,sizeof(INT));
-  Broadcast(&i,sizeof(INT));
-  return(i);
+  MPI_Allreduce(MPI_IN_PLACE, &i, 1, MPI_INT, MPI_MIN, context.comm());
+  return i;
 }
 
 /****************************************************************************/
@@ -170,19 +145,10 @@ INT UG_GlobalMinINT (INT i)
    D*/
 /****************************************************************************/
 
-INT UG_GlobalSumINT (INT x)
+INT UG_GlobalSumINT (const PPIF::PPIFContext& context, INT x)
 {
-  int l;
-  INT y;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&y,sizeof(INT));
-    x += y;
-  }
-  Concentrate(&x,sizeof(INT));
-  Broadcast(&x,sizeof(INT));
-  return(x);
+  MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_INT, MPI_SUM, context.comm());
+  return x;
 }
 
 /****************************************************************************/
@@ -206,26 +172,9 @@ INT UG_GlobalSumINT (INT x)
    D*/
 /****************************************************************************/
 
-void UG_GlobalMaxNINT (INT n, INT *x)
+void UG_GlobalMaxNINT(const PPIF::PPIFContext& context, INT n, INT *x)
 {
-  int i,l,size;
-  INT *y;
-
-  size = sizeof(INT)*n;
-  y = (INT *)memmgr_AllocTMEM(size, TMEM_STD);
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,y,size);
-    for (i=0; i<n; i++)
-      x[i] = MAX(x[i],y[i]);
-  }
-  Concentrate(x,size);
-  Broadcast(x,size);
-
-  memmgr_FreeTMEM(y, TMEM_STD);
-
-  return;
+  MPI_Allreduce(MPI_IN_PLACE, x, n, MPI_INT, MPI_MAX, context.comm());
 }
 
 /****************************************************************************/
@@ -249,26 +198,9 @@ void UG_GlobalMaxNINT (INT n, INT *x)
    D*/
 /****************************************************************************/
 
-void UG_GlobalMinNINT (INT n, INT *x)
+void UG_GlobalMinNINT(const PPIF::PPIFContext& context, INT n, INT *x)
 {
-  int i,l,size;
-  INT *y;
-
-  size = sizeof(INT)*n;
-  y = (INT *)memmgr_AllocTMEM(size, TMEM_STD);
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,y,size);
-    for (i=0; i<n; i++)
-      x[i] = MIN(x[i],y[i]);
-  }
-  Concentrate(x,size);
-  Broadcast(x,size);
-
-  memmgr_FreeTMEM(y, TMEM_STD);
-
-  return;
+  MPI_Allreduce(MPI_IN_PLACE, x, n, MPI_INT, MPI_MIN, context.comm());
 }
 
 /****************************************************************************/
@@ -292,24 +224,9 @@ void UG_GlobalMinNINT (INT n, INT *x)
    D*/
 /****************************************************************************/
 
-void UG_GlobalSumNINT (INT n, INT *xs)
+void UG_GlobalSumNINT (const PPIF::PPIFContext& context, INT n, INT *xs)
 {
-  int l, i, size=sizeof(INT)*n;
-  INT *ys;
-
-  ys = (INT *)memmgr_AllocTMEM(size, TMEM_STD);
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,ys,size);
-
-    for(i=0; i<n; i++)
-      xs[i] += ys[i];
-  }
-  Concentrate(xs,size);
-  Broadcast(xs,size);
-
-  memmgr_FreeTMEM(ys, TMEM_STD);
+  MPI_Allreduce(MPI_IN_PLACE, xs, n, MPI_INT, MPI_SUM, context.comm());
 }
 
 /****************************************************************************/
@@ -331,19 +248,10 @@ void UG_GlobalSumNINT (INT n, INT *xs)
    D*/
 /****************************************************************************/
 
-DOUBLE UG_GlobalMaxDOUBLE (DOUBLE x)
+DOUBLE UG_GlobalMaxDOUBLE (const PPIF::PPIFContext& context, DOUBLE x)
 {
-  int l;
-  DOUBLE n;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&n,sizeof(DOUBLE));
-    x = MAX(x,n);
-  }
-  Concentrate(&x,sizeof(DOUBLE));
-  Broadcast(&x,sizeof(DOUBLE));
-  return(x);
+  MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MAX, context.comm());
+  return x;
 }
 
 /****************************************************************************/
@@ -365,19 +273,10 @@ DOUBLE UG_GlobalMaxDOUBLE (DOUBLE x)
    D*/
 /****************************************************************************/
 
-DOUBLE UG_GlobalMinDOUBLE (DOUBLE x)
+DOUBLE UG_GlobalMinDOUBLE (const PPIF::PPIFContext& context, DOUBLE x)
 {
-  int l;
-  DOUBLE y;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&y,sizeof(DOUBLE));
-    x = MIN(x,y);
-  }
-  Concentrate(&x,sizeof(DOUBLE));
-  Broadcast(&x,sizeof(DOUBLE));
-  return(x);
+  MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_MIN, context.comm());
+  return x;
 }
 
 /****************************************************************************/
@@ -399,19 +298,10 @@ DOUBLE UG_GlobalMinDOUBLE (DOUBLE x)
    D*/
 /****************************************************************************/
 
-DOUBLE UG_GlobalSumDOUBLE (DOUBLE x)
+DOUBLE UG_GlobalSumDOUBLE (const PPIF::PPIFContext& context, DOUBLE x)
 {
-  int l;
-  DOUBLE y;
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,&y,sizeof(DOUBLE));
-    x += y;
-  }
-  Concentrate(&x,sizeof(DOUBLE));
-  Broadcast(&x,sizeof(DOUBLE));
-  return(x);
+  MPI_Allreduce(MPI_IN_PLACE, &x, 1, MPI_DOUBLE, MPI_SUM, context.comm());
+  return x;
 }
 
 /****************************************************************************/
@@ -435,26 +325,9 @@ DOUBLE UG_GlobalSumDOUBLE (DOUBLE x)
    D*/
 /****************************************************************************/
 
-void UG_GlobalMaxNDOUBLE (INT n, DOUBLE *x)
+void UG_GlobalMaxNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x)
 {
-  int i,l,size;
-  DOUBLE *y;
-
-  size = sizeof(DOUBLE)*n;
-  y = (DOUBLE *)memmgr_AllocTMEM(size, TMEM_STD);
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,y,size);
-    for (i=0; i<n; i++)
-      x[i] = MAX(x[i],y[i]);
-  }
-  Concentrate(x,size);
-  Broadcast(x,size);
-
-  memmgr_FreeTMEM(y, TMEM_STD);
-
-  return;
+  MPI_Allreduce(MPI_IN_PLACE, x, n, MPI_DOUBLE, MPI_MAX, context.comm());
 }
 
 /****************************************************************************/
@@ -478,26 +351,9 @@ void UG_GlobalMaxNDOUBLE (INT n, DOUBLE *x)
    D*/
 /****************************************************************************/
 
-void UG_GlobalMinNDOUBLE (INT n, DOUBLE *x)
+void UG_GlobalMinNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x)
 {
-  int i,l,size;
-  DOUBLE *y;
-
-  size = sizeof(DOUBLE)*n;
-  y = (DOUBLE *)memmgr_AllocTMEM(size, TMEM_STD);
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,y,size);
-    for (i=0; i<n; i++)
-      x[i] = MIN(x[i],y[i]);
-  }
-  Concentrate(x,size);
-  Broadcast(x,size);
-
-  memmgr_FreeTMEM(y, TMEM_STD);
-
-  return;
+  MPI_Allreduce(MPI_IN_PLACE, x, n, MPI_DOUBLE, MPI_MIN, context.comm());
 }
 
 /****************************************************************************/
@@ -521,23 +377,9 @@ void UG_GlobalMinNDOUBLE (INT n, DOUBLE *x)
    D*/
 /****************************************************************************/
 
-void UG_GlobalSumNDOUBLE (INT n, DOUBLE *x)
+void UG_GlobalSumNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x)
 {
-  int l, i, size=sizeof(DOUBLE)*n;
-  DOUBLE *y;
-
-  y = (DOUBLE *)memmgr_AllocTMEM(size, TMEM_STD);
-
-  for (l=degree-1; l>=0; l--)
-  {
-    GetConcentrate(l,y,size);
-    for(i=0; i<n; i++)
-      x[i] += y[i];
-  }
-  Concentrate(x,size);
-  Broadcast(x,size);
-
-  memmgr_FreeTMEM(y, TMEM_STD);
+  MPI_Allreduce(MPI_IN_PLACE, x, n, MPI_DOUBLE, MPI_SUM, context.comm());
 }
 
 #endif  /* ModelP */

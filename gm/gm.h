@@ -49,6 +49,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <memory>
 
 #include <unordered_map>
 #include <array>
@@ -64,6 +65,11 @@
 #include "cw.h"
 #include "namespace.h"
 #include "dimension.h"
+
+#include <dune/uggrid/parallel/ppif/ppiftypes.hh>
+#ifdef ModelP
+#  include <dune/uggrid/parallel/ddd/dddcontext.hh>
+#endif
 
 /****************************************************************************/
 /*                                                                          */
@@ -1495,6 +1501,13 @@ struct grid {
 
   struct grid *coarser, *finer;         /* coarser and finer grids                              */
   struct multigrid *mg;                         /* corresponding multigrid structure    */
+
+  const PPIF::PPIFContext& ppifContext() const;
+
+#ifdef ModelP
+  const DDD::DDDContext& dddContext() const;
+  DDD::DDDContext& dddContext();
+#endif
 };
 
 struct multigrid {
@@ -1599,6 +1612,21 @@ struct multigrid {
 
   /** \brief coarse grid MarkKey for SIMPLE_HEAP Mark/Release     */
   INT MarkKey;
+
+  const PPIF::PPIFContext& ppifContext() const
+    { return *ppifContext_; }
+
+  std::shared_ptr<PPIF::PPIFContext> ppifContext_;
+
+#ifdef ModelP
+  const DDD::DDDContext& dddContext() const
+    { return *dddContext_; }
+
+  DDD::DDDContext& dddContext()
+    { return *dddContext_; }
+
+  std::shared_ptr<DDD::DDDContext> dddContext_;
+#endif
 };
 
 /****************************************************************************/
@@ -2627,8 +2655,8 @@ typedef struct {
   INT corner_of_edge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
 
   /* the following parameters are derived from data above */
-  INT mapped_inner_objt;                                    /* tag to objt mapping for free list*/
-  INT mapped_bnd_objt;                                      /* tag to objt mapping for free list*/
+  INT mapped_inner_objt = -1;                               /* tag to objt mapping for free list*/
+  INT mapped_bnd_objt = -1;                                 /* tag to objt mapping for free list*/
   INT inner_size, bnd_size;                                 /* size in bytes used for alloc     */
   INT edge_with_corners[MAX_CORNERS_OF_ELEM][MAX_CORNERS_OF_ELEM];
   INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
@@ -2953,6 +2981,26 @@ START_UGDIM_NAMESPACE
 #define GRID_ATTR(g) ((unsigned char) (GLEVEL(g)+32))
 #define ATTR_TO_GLEVEL(i) (i-32)
 
+inline const PPIF::PPIFContext&
+grid::ppifContext() const
+{
+  return mg->ppifContext();
+}
+
+#ifdef ModelP
+inline const DDD::DDDContext&
+grid::dddContext() const
+{
+  return mg->dddContext();
+}
+
+inline DDD::DDDContext&
+grid::dddContext()
+{
+  return mg->dddContext();
+}
+#endif
+
 /****************************************************************************/
 /*                                                                          */
 /* macros for multigrids                                                    */
@@ -3103,7 +3151,7 @@ enum {GM_PUT_AT_BEGIN = 1,               /*!< put skip vectors at begin of the l
 /*@}*/
 
 /* get/set current multigrid, loop through multigrids */
-MULTIGRID               *MakeMGItem                             (const char *name);
+MULTIGRID               *MakeMGItem                             (const char *name, std::shared_ptr<PPIF::PPIFContext> context);
 MULTIGRID               *GetMultigrid                           (const char *name);
 MULTIGRID               *GetFirstMultigrid                      (void);
 MULTIGRID               *GetNextMultigrid                       (const MULTIGRID *theMG);
@@ -3129,12 +3177,14 @@ FORMAT                   *CreateFormat (char *name, INT sVertex, INT sMultiGrid,
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
                             const char *format, NS_PREFIX MEM heapSize,
-                            INT optimizedIE, INT insertMesh);
+                            INT optimizedIE, INT insertMesh,
+                            std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
 MULTIGRID *OpenMGFromDataFile(MULTIGRID *theMG, INT number, char *type,
                               char *DataFileName, NS_PREFIX MEM heapSize);
 MULTIGRID       *LoadMultiGrid  (const char *MultigridName, const char *name, const char *type,
                                  const char *BndValProblem, const char *format,
-                                 unsigned long heapSize,INT force,INT optimizedIE, INT autosave);
+                                 unsigned long heapSize,INT force,INT optimizedIE, INT autosave,
+                                 std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
 INT             SaveMultiGrid (MULTIGRID *theMG, const char *name, const char *type, const char *comment, INT autosave, INT rename);
 INT         DisposeGrid             (GRID *theGrid);
 INT             DisposeMultiGrid                (MULTIGRID *theMG);

@@ -33,6 +33,8 @@
 #include <cstdio>
 
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
 #include <tuple>
 
 #include "dddi.h"
@@ -105,26 +107,25 @@ static bool sort_LocalObjs(const DDD_HDR& a, const DDD_HDR& b)
 }
 
 
-void DDD_ListLocalObjects (void)
+void DDD_ListLocalObjects(const DDD::DDDContext& context)
 {
-  DDD_HDR o, *locObjs;
-  int i;
+  using std::setw;
+  std::ostream& out = std::cout;
 
-  if ((locObjs=LocalObjectsList()) ==NULL)
+  std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
+  if (locObjs.empty())
     return;
 
-  std::sort(locObjs, locObjs + ddd_nObjs, sort_LocalObjs);
+  std::sort(locObjs.begin(), locObjs.end(), sort_LocalObjs);
 
-  for(i=0; i<ddd_nObjs; i++)
+  for(int i=0; i < context.nObjs(); i++)
   {
-    o = locObjs[i];
-    sprintf(cBuffer, "%4d: #%04d  adr=%p gid=0x" OBJ_GID_FMT " type=0x%02x"
-            " prio=%04d attr=%04d\n",
-            me, i, o, OBJ_GID(o), OBJ_TYPE(o), OBJ_PRIO(o), OBJ_ATTR(o));
-    DDD_PrintLine(cBuffer);
-  }
+    const auto& o = locObjs[i];
 
-  FreeLocalObjectsList(locObjs);
+    out << "#" << setw(4) << "  adr=" << o << " gid=" << OBJ_GID(o)
+        << " type=" << OBJ_TYPE(o) << " prio=" << OBJ_PRIO(o)
+        << " attr=" << OBJ_ATTR(o) << "\n";
+  }
 }
 
 END_UGDIM_NAMESPACE

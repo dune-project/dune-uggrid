@@ -35,6 +35,13 @@
 #include <cstring>
 #include <cassert>
 
+#include <new>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "dddi.h"
 
 USING_UG_NAMESPACES
@@ -46,26 +53,7 @@ using namespace PPIF;
 
 START_UGDIM_NAMESPACE
 
-/****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*        compile time constants defining static data size (i.e. arrays)    */
-/*        other constants                                                   */
-/*        macros                                                            */
-/*                                                                          */
-/****************************************************************************/
-
-/* size of segment of couplings (for memory allocation) */
-#define CPLSEGM_SIZE 512
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data types                                                               */
-/*                                                                          */
-/****************************************************************************/
+using CplSegm = DDD::Mgr::CplSegm;
 
 /*
         the storage of COUPLING items is done with the following scheme:
@@ -78,64 +66,30 @@ START_UGDIM_NAMESPACE
         FREE:   put coupling into freelist.
  */
 
-
-/* segment of Cpls */
-struct CplSegm
+static CplSegm *NewCplSegm(DDD::DDDContext& context)
 {
-  CplSegm *next;
-  int nItems;
+  auto& mctx = context.cplmgrContext();
 
-  COUPLING item[CPLSEGM_SIZE];
-};
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-static CplSegm *segmCpl = NULL;
-static COUPLING *memlistCpl = NULL;
-static int *localIBuffer;
-static int nCplSegms;
-
-
-/****************************************************************************/
-/*                                                                          */
-/* routines                                                                 */
-/*                                                                          */
-/****************************************************************************/
-
-
-static CplSegm *NewCplSegm (void)
-{
   CplSegm *segm;
 
   segm = (CplSegm *) AllocTmpReq(sizeof(CplSegm), TMEM_CPL);
-
   if (segm==NULL)
-  {
-    DDD_PrintError('F', 2550, STR_NOMEM " during NewCoupling()");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
-  segm->next   = segmCpl;
-  segmCpl      = segm;
+  segm->next   = mctx.segmCpl;
+  mctx.segmCpl = segm;
   segm->nItems = 0;
-  nCplSegms++;
+  mctx.nCplSegms++;
 
   return(segm);
 }
 
 
-static void FreeCplSegms (void)
+static void FreeCplSegms(DDD::DDDContext& context)
 {
-  CplSegm *segm = segmCpl;
+  auto& mctx = context.cplmgrContext();
+
+  CplSegm *segm = mctx.segmCpl;
   CplSegm *next = NULL;
 
   while (segm!=NULL)
@@ -146,9 +100,9 @@ static void FreeCplSegms (void)
     segm = next;
   }
 
-  segmCpl = NULL;
-  nCplSegms = 0;
-  memlistCpl = NULL;
+  mctx.segmCpl = nullptr;
+  mctx.nCplSegms = 0;
+  mctx.memlistCpl = nullptr;
 }
 
 
@@ -166,30 +120,33 @@ static void InitNewCoupling (COUPLING* cpl)
 }
 
 
-static COUPLING *NewCoupling (void)
+static COUPLING *NewCoupling (DDD::DDDContext& context)
 {
+  auto& ctx = context.couplingContext();
+  auto& mctx = context.cplmgrContext();
+
   COUPLING *cpl;
 
-  if (DDD_GetOption(OPT_CPLMGR_USE_FREELIST)==OPT_ON)
+  if (DDD_GetOption(context, OPT_CPLMGR_USE_FREELIST)==OPT_ON)
   {
     /* allocate coupling from segments (which are allocated
        from segment-freelists) */
 
-    if (memlistCpl==NULL)
+    if (mctx.memlistCpl == nullptr)
     {
-      CplSegm *segm = segmCpl;
+      CplSegm *segm = mctx.segmCpl;
 
       if (segm==NULL || segm->nItems==CPLSEGM_SIZE)
       {
-        segm = NewCplSegm();
+        segm = NewCplSegm(context);
       }
 
       cpl = &(segm->item[segm->nItems++]);
     }
     else
     {
-      cpl = memlistCpl;
-      memlistCpl = CPL_NEXT(cpl);
+      cpl = mctx.memlistCpl;
+      mctx.memlistCpl = CPL_NEXT(cpl);
     }
 
     /* init coupling memory and its private data */
@@ -204,10 +161,7 @@ static COUPLING *NewCoupling (void)
     cpl = (COUPLING *) AllocTmpReq(sizeof(COUPLING), TMEM_CPL);
 
     if (cpl==NULL)
-    {
-      DDD_PrintError('F', 2551, STR_NOMEM " during NewCoupling()");
-      HARD_EXIT;
-    }
+      throw std::bad_alloc();
 
     /* init coupling memory and its private data */
     InitNewCoupling(cpl);
@@ -216,113 +170,59 @@ static COUPLING *NewCoupling (void)
     SETCPLMEM_EXTERNAL(cpl);
   }
 
-  nCplItems++;
+  ctx.nCplItems += 1;
 
   return(cpl);
 }
 
 
-static void DisposeCoupling (COUPLING *cpl)
+static void DisposeCoupling (DDD::DDDContext& context, COUPLING *cpl)
 {
+  auto& ctx = context.couplingContext();
+  auto& mctx = context.cplmgrContext();
+
   if (CPLMEM(cpl)==CPLMEM_FREELIST)
   {
-    CPL_NEXT(cpl) = memlistCpl;
-    memlistCpl = cpl;
+    CPL_NEXT(cpl) = mctx.memlistCpl;
+    mctx.memlistCpl = cpl;
   }
   else
   {
     FreeTmpReq(cpl, sizeof(COUPLING), TMEM_CPL);
   }
 
-  nCplItems--;
+  ctx.nCplItems -= 1;
 }
 
 
 /****************************************************************************/
 
 
-static void AllocCplTables (long n)
+static void AllocCplTables (DDD::DDDContext& context, long n)
 {
+  auto& ctx = context.couplingContext();
+
   /* allocate coupling table */
-  ddd_CplTable = (COUPLING **) AllocTmp(sizeof(COUPLING *) * n);
-  if (ddd_CplTable==NULL)
-  {
-    sprintf(cBuffer, STR_NOMEM " for coupling table of size %ld",
-            n * sizeof(COUPLING *));
-    DDD_PrintError('E', 2510, cBuffer);
-    HARD_EXIT;
-  }
-
-  ddd_NCplTable = (short *) AllocTmp(sizeof(short) * n);
-  if (ddd_NCplTable==NULL)
-  {
-    sprintf(cBuffer, STR_NOMEM " for cpl-sizes table of size %ld",
-            n * (long)sizeof(short));
-    DDD_PrintError('E', 2511, cBuffer);
-    HARD_EXIT;
-  }
-
-  ddd_CplTabSize = n;
+  ctx.cplTable.resize(n);
+  ctx.nCplTable.resize(n);
 }
 
 
-static void IncreaseCplTabSize (void)
+static void IncreaseCplTabSize(DDD::DDDContext& context)
 {
-  COUPLING **old_CplTable   = ddd_CplTable;
-  short     *old_NCplTable  = ddd_NCplTable;
-  int old_CplTabSize = ddd_CplTabSize;
+  auto& ctx = context.couplingContext();
 
   /* compute new size (currently: double size) */
-  ddd_CplTabSize = old_CplTabSize * 2;
+  const std::size_t n = ctx.cplTable.size() * 2;
 
   /* allocate new coupling table */
-  ddd_CplTable = (COUPLING **) AllocTmp(sizeof(COUPLING *) * ddd_CplTabSize);
-  if (ddd_CplTable==NULL)
-  {
-    sprintf(cBuffer, STR_NOMEM " for coupling table of size %ld",
-            ((long)ddd_CplTabSize) * sizeof(COUPLING *));
-    DDD_PrintError('W', 2512, cBuffer);
-
-    /* restore data and return without action */
-    ddd_CplTabSize = old_CplTabSize;
-    ddd_CplTable   = old_CplTable;
-    return;
-  }
-
-  /* copy data from old cpl-table to new one, assuming the old one is full */
-  memcpy(ddd_CplTable, old_CplTable, sizeof(COUPLING *) * old_CplTabSize);
-
-  /* free old one */
-  FreeTmp(old_CplTable,0);
-
-
-  /* now we alloc new ncpl-table. the number of entries in ddd_CplTable and
-     ddd_NCplTable are equal, but the size per entry (in byte) for ddd_NCplTable
-     is half. therefore, the following allocation will get exactly the memory
-     chunk the previous FreeTmp freed (if only the next layer can manage this
-     adequately, i.e. the MemMgr). */
-  ddd_NCplTable = (short *) AllocTmp(sizeof(short) * ddd_CplTabSize);
-  if (ddd_NCplTable==NULL)
-  {
-    sprintf(cBuffer, STR_NOMEM " for cpl-sizes table of size %ld",
-            ((long)ddd_CplTabSize) * sizeof(short));
-    DDD_PrintError('E', 2513, cBuffer);
-    HARD_EXIT;
-  }
-
-  /* again, copy data */
-  memcpy(ddd_NCplTable, old_NCplTable, sizeof(short) * old_CplTabSize);
-
-  /* again free old table */
-  FreeTmp(old_NCplTable,0);
-
+  ctx.cplTable.resize(n);
+  ctx.nCplTable.resize(n);
 
   /* issue a warning in order to inform user */
-  sprintf(cBuffer, "increased coupling table, now %d entries", ddd_CplTabSize);
-  DDD_PrintError('W', 2514, cBuffer);
+  Dune::dwarn << "increased coupling table, now " << n << " entries\n";
 
-
-  ddd_EnsureObjTabSize(ddd_CplTabSize);
+  ddd_EnsureObjTabSize(context, n);
 }
 
 
@@ -345,68 +245,62 @@ static void IncreaseCplTabSize (void)
 /*                                                                          */
 /****************************************************************************/
 
-COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
+COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
+  auto& ctx = context.couplingContext();
+
   COUPLING        *cp, *cp2;
   int objIndex;
-  int freeCplIdx = NCpl_Get;
+  int freeCplIdx = ctx.nCpls;
 
-  assert(proc!=me);
+  assert(proc!=context.me());
 
 #       if DebugCoupling<=1
-  sprintf(cBuffer, "%4d: AddCoupling %08x proc=%d prio=%d\n",
-          me, OBJ_GID(hdr), proc, prio);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "AddCoupling " << OBJ_GID(hdr)
+               << " proc=" << proc << " prio=" << prio << "\n";
 #       endif
 
   /* find or free position in coupling array */
   objIndex = OBJ_INDEX(hdr);
-  if (! ObjHasCpl(hdr))
+  if (! ObjHasCpl(context, hdr))
   {
-    if (freeCplIdx==ddd_CplTabSize)
+    if (freeCplIdx == ctx.cplTable.size())
     {
       /* try to make CplTables larger ... */
-      IncreaseCplTabSize();
-
-      if (freeCplIdx==ddd_CplTabSize)
-      {
-        /* didn't work, give up. */
-        DDD_PrintError('E', 2520, "no more couplings in AddCoupling");
-        HARD_EXIT;
-        /*return(NULL);*/
-      }
+      IncreaseCplTabSize(context);
     }
 
+    auto& objTable = context.objTable();
                 #ifdef WithFullObjectTable
-    DDD_HDR oldObj = ddd_ObjTable[freeCplIdx];
+    DDD_HDR oldObj = objTable[freeCplIdx];
 
     /* exchange object without coupling and object with coupling */
     /* free position freeCplIdx, move corresponding hdr reference
        elsewhere. */
-    ddd_ObjTable[objIndex] = oldObj;
+    objTable[objIndex] = oldObj;
     OBJ_INDEX(oldObj)      = objIndex;
                 #else
     assert(IsHdrLocal(hdr));
 
     /* hdr has been local, therefore not known by DDD, we have
        to register it now. */
-    ddd_nObjs++;
+    context.nObjs(context.nObjs() + 1);
                 #endif
 
 
-    assert(freeCplIdx<ddd_ObjTabSize);
-    ddd_ObjTable[freeCplIdx] = hdr;
+    assert(freeCplIdx < context.objTable().size());
+    objTable[freeCplIdx] = hdr;
     OBJ_INDEX(hdr)           = freeCplIdx;
 
     objIndex = freeCplIdx;
-    IdxCplList(objIndex) = NULL;
-    IdxNCpl(objIndex) = 0;
+    IdxCplList(context, objIndex) = nullptr;
+    IdxNCpl(context, objIndex) = 0;
 
-    NCpl_Increment;
+    ctx.nCpls += 1;
   }
   else
   {
-    for(cp2=IdxCplList(objIndex); cp2!=NULL; cp2=CPL_NEXT(cp2))
+    for(cp2=IdxCplList(context, objIndex); cp2!=NULL; cp2=CPL_NEXT(cp2))
     {
       if (CPL_PROC(cp2)==proc)
       {
@@ -414,7 +308,7 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
         {
           /* coupling upgrades/downgrades, are they allowed?
                                                   printf("%4d: diff in cpl, %05x old %d-%d new %d-%d\n",
-                                                          me,OBJ_GID(hdr),cp2->proc,cp2->prio, proc, prio);
+                                                          context.me(),OBJ_GID(hdr),cp2->proc,cp2->prio, proc, prio);
            */
           cp2->prio = prio;
         }
@@ -427,7 +321,7 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
   }
 
   /* create new coupling record */
-  cp = NewCoupling();
+  cp = NewCoupling(context);
   if (cp==NULL) {
     DDD_PrintError('E', 2500, STR_NOMEM " in AddCoupling");
     return(NULL);
@@ -439,9 +333,9 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
   cp->prio = prio;
 
   /* insert into theCpl array */
-  CPL_NEXT(cp) = IdxCplList(objIndex);
-  IdxCplList(objIndex) = cp;
-  IdxNCpl(objIndex)++;
+  CPL_NEXT(cp) = IdxCplList(context, objIndex);
+  IdxCplList(context, objIndex) = cp;
+  IdxNCpl(context, objIndex)++;
 
   return(cp);
 }
@@ -467,32 +361,30 @@ COUPLING *AddCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 /*                                                                          */
 /****************************************************************************/
 
-COUPLING *ModCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
+COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
   COUPLING        *cp2;
   int objIndex;
 
-  assert(proc!=me);
+  assert(proc!=context.me());
 
 #       if DebugCoupling<=1
-  sprintf(cBuffer, "%4d: ModCoupling %08x proc=%d prio=%d\n",
-          me, OBJ_GID(hdr), proc, prio);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "ModCoupling " << OBJ_GID(hdr)
+               << " proc=" << proc << " prio=" << prio << "\n";
 #       endif
 
   /* find or free position in coupling array */
   objIndex = OBJ_INDEX(hdr);
-  if (! ObjHasCpl(hdr))
+  if (! ObjHasCpl(context, hdr))
   {
     /* there are no couplings for this object! */
-    sprintf(cBuffer, "no couplings for " OBJ_GID_FMT " in ModCoupling", OBJ_GID(hdr));
-    DDD_PrintError('E', 2530, cBuffer);
+    Dune::dwarn << "ModCoupling: no couplings for " << OBJ_GID(hdr) << "\n";
     return(NULL);
   }
   else
   {
     /* look if coupling exists and change it */
-    for(cp2=IdxCplList(objIndex); cp2!=NULL; cp2=CPL_NEXT(cp2))
+    for(cp2=IdxCplList(context, objIndex); cp2!=NULL; cp2=CPL_NEXT(cp2))
     {
       if (CPL_PROC(cp2)==proc)
       {
@@ -503,12 +395,8 @@ COUPLING *ModCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
   }
 
   /* coupling not found */
-  sprintf(cBuffer, "no coupling from %d for " OBJ_GID_FMT " in ModCoupling",
-          proc, OBJ_GID(hdr));
-  DDD_PrintError('E', 2531, cBuffer);
-  HARD_EXIT;
-
-  return(NULL);         /* never reach this */
+  DUNE_THROW(Dune::Exception,
+             "no coupling from " << proc << " for " << OBJ_GID(hdr));
 }
 
 
@@ -527,58 +415,58 @@ COUPLING *ModCoupling (DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 /*                                                                          */
 /****************************************************************************/
 
-void DelCoupling (DDD_HDR hdr, DDD_PROC proc)
+void DelCoupling (DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc)
 {
   COUPLING        *cpl, *cplLast;
-  int objIndex;
+  auto& objTable = context.objTable();
+  const int objIndex = OBJ_INDEX(hdr);
+  auto& ctx = context.couplingContext();
 
-  objIndex = OBJ_INDEX(hdr);
-
-  if (objIndex<NCpl_Get)
+  if (objIndex < ctx.nCpls)
   {
-    for(cpl=IdxCplList(objIndex), cplLast=NULL; cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(cpl=IdxCplList(context, objIndex), cplLast=NULL; cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       if(CPL_PROC(cpl)==proc)
       {
         if (cplLast==NULL)
         {
-          IdxCplList(objIndex) = CPL_NEXT(cpl);
+          IdxCplList(context, objIndex) = CPL_NEXT(cpl);
         }
         else {
           CPL_NEXT(cplLast) = CPL_NEXT(cpl);
         }
 #                               if DebugCoupling<=1
-        sprintf(cBuffer,"%4d: DelCoupling %07x on proc=%d, now %d cpls\n",
-                me, OBJ_GID(hdr), proc, IdxNCpl(objIndex)-1);
-        DDD_PrintDebug(cBuffer);
+        Dune::dvverb << "DelCoupling " << OBJ_GID(hdr) << " on proc=" << proc
+                     << ", now " << (IdxNCpl(context, objIndex)-1) << " cpls\n";
 #                               endif
 
-        DisposeCoupling(cpl);
+        DisposeCoupling(context, cpl);
 
-        IdxNCpl(objIndex)--;
+        IdxNCpl(context, objIndex)--;
 
-        if (IdxNCpl(objIndex)==0)
+        if (IdxNCpl(context, objIndex)==0)
         {
-          NCpl_Decrement;
+          ctx.nCpls -= 1;
 
                                         #ifdef WithFullObjectTable
-          OBJ_INDEX(hdr) = NCpl_Get;
-          OBJ_INDEX(ddd_ObjTable[NCpl_Get]) = objIndex;
-          ddd_ObjTable[objIndex] = ddd_ObjTable[NCpl_Get];
-          ddd_ObjTable[NCpl_Get] = hdr;
+          OBJ_INDEX(hdr) = ctx.nCpls;
+          OBJ_INDEX(objTable[ctx.nCpls]) = objIndex;
+          objTable[objIndex] = objTable[ctx.nCpls];
+          objTable[ctx.nCpls] = hdr;
                                         #else
           /* we will not register objects without coupling,
              so we have to forget about hdr and mark it as local. */
-          ddd_nObjs--; assert(ddd_nObjs==NCpl_Get);
+          context.nObjs(context.nObjs() - 1);
+          assert(context.nObjs() == ctx.nCpls);
 
-          ddd_ObjTable[objIndex] = ddd_ObjTable[NCpl_Get];
-          OBJ_INDEX(ddd_ObjTable[NCpl_Get]) = objIndex;
+          objTable[objIndex] = objTable[ctx.nCpls];
+          OBJ_INDEX(objTable[ctx.nCpls]) = objIndex;
 
           MarkHdrLocal(hdr);
                                         #endif
 
-          IdxCplList(objIndex) = IdxCplList(NCpl_Get);
-          IdxNCpl(objIndex) = IdxNCpl(NCpl_Get);
+          IdxCplList(context, objIndex) = IdxCplList(context, ctx.nCpls);
+          IdxNCpl(context, objIndex) = IdxNCpl(context, ctx.nCpls);
         }
         break;
       }
@@ -600,7 +488,7 @@ void DelCoupling (DDD_HDR hdr, DDD_PROC proc)
 /*                                                                          */
 /****************************************************************************/
 
-void DisposeCouplingList (COUPLING *cpl)
+void DisposeCouplingList (DDD::DDDContext& context, COUPLING *cpl)
 {
   COUPLING *c, *next;
 
@@ -608,7 +496,7 @@ void DisposeCouplingList (COUPLING *cpl)
   while (c!=NULL)
   {
     next = CPL_NEXT(c);
-    DisposeCoupling(c);
+    DisposeCoupling(context, c);
     c = next;
   }
 }
@@ -633,30 +521,32 @@ void DisposeCouplingList (COUPLING *cpl)
 /*                                                                          */
 /****************************************************************************/
 
-int *DDD_InfoProcList (DDD_HDR hdr)
+int *DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR hdr)
 {
+  auto& mctx = context.cplmgrContext();
+
 COUPLING *cpl;
 int i, objIndex = OBJ_INDEX(hdr);
 
 /* insert description of own (i.e. local) copy */
-localIBuffer[0] = me;
-localIBuffer[1] = OBJ_PRIO(hdr);
+mctx.localIBuffer[0] = context.me();
+mctx.localIBuffer[1] = OBJ_PRIO(hdr);
 
 i=2;
 
 /* append descriptions of foreign copies */
-if (objIndex<NCpl_Get)
+if (objIndex < context.couplingContext().nCpls)
 {
-  for(cpl=IdxCplList(objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl), i+=2) {
-    localIBuffer[i]   = CPL_PROC(cpl);
-    localIBuffer[i+1] = cpl->prio;
+  for(cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl), i+=2) {
+    mctx.localIBuffer[i]   = CPL_PROC(cpl);
+    mctx.localIBuffer[i+1] = cpl->prio;
   }
 }
 
 /* append end mark */
-localIBuffer[i] = -1;
+mctx.localIBuffer[i] = -1;
 
-return(localIBuffer);
+return(mctx.localIBuffer);
 }
 
 
@@ -675,15 +565,15 @@ return(localIBuffer);
 /*                                                                          */
 /****************************************************************************/
 
-DDD_PROC DDD_InfoProcPrio (DDD_HDR hdr, DDD_PRIO prio)
+DDD_PROC DDD_InfoProcPrio(const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 {
   COUPLING *cpl;
   int objIndex = OBJ_INDEX(hdr);
 
   /* append descriptions of foreign copies */
-  if (objIndex<NCpl_Get)
+  if (objIndex < context.couplingContext().nCpls)
   {
-    for(cpl=IdxCplList(objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       if (cpl->prio == prio)
         return(CPL_PROC(cpl));
@@ -692,32 +582,32 @@ DDD_PROC DDD_InfoProcPrio (DDD_HDR hdr, DDD_PRIO prio)
 
   /* eventually local copy has priority we are looking for */
   if (OBJ_PRIO(hdr)==prio)
-    return(me);
+    return context.me();
 
-  return(procs);
+  return context.procs();
 }
 
 
-int DDD_InfoIsLocal (DDD_HDR hdr)
+bool DDD_InfoIsLocal(const DDD::DDDContext& context, DDD_HDR hdr)
 {
-  return(! ObjHasCpl(hdr));
+  return(! ObjHasCpl(context, hdr));
 }
 
 
-int DDD_InfoNCopies (DDD_HDR hdr)
+int DDD_InfoNCopies(const DDD::DDDContext& context, DDD_HDR hdr)
 {
   /*
      COUPLING *cpl;
      int n = 0;
 
-     if (ObjHasCpl(hdr))
+     if (ObjHasCpl(context, hdr))
      {
-          for(cpl=IdxCplList(OBJ_INDEX(hdr)); cpl!=NULL; cpl=CPL_NEXT(cpl))
+          for(cpl=IdxCplList(context, OBJ_INDEX(hdr)); cpl!=NULL; cpl=CPL_NEXT(cpl))
                   n++;
      }
    */
 
-  return(ObjNCpl(hdr));
+  return(ObjNCpl(context, hdr));
 }
 
 
@@ -733,23 +623,19 @@ int DDD_InfoNCopies (DDD_HDR hdr)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_InfoCoupling (DDD_HDR hdr)
+void DDD_InfoCoupling(const DDD::DDDContext& context, DDD_HDR hdr)
 {
-  COUPLING *cpl;
   int objIndex = OBJ_INDEX(hdr);
+  const auto& nCpls = context.couplingContext().nCpls;
 
-  sprintf(cBuffer, "%4d: InfoCoupling for object " OBJ_GID_FMT " (%05d/%05d)\n",
-          me, OBJ_GID(hdr), objIndex, NCpl_Get);
-  DDD_PrintLine(cBuffer);
+  std::cout << "InfoCoupling for object " << OBJ_GID(hdr)
+            << " (" << objIndex << "/" << nCpls << ")\n";
 
-  if (objIndex<NCpl_Get)
+  if (objIndex < nCpls)
   {
-    for(cpl=IdxCplList(objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl))
-    {
-      sprintf(cBuffer, "%4d:    cpl %08x proc=%4d prio=%4d\n",
-              me, cpl, CPL_PROC(cpl), cpl->prio);
-      DDD_PrintLine(cBuffer);
-    }
+    for(const COUPLING* cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl))
+      std::cout << "    cpl " << cpl << " proc=" << CPL_PROC(cpl)
+                << " prio=" << cpl->prio << "\n";
   }
 }
 
@@ -768,13 +654,9 @@ void DDD_InfoCoupling (DDD_HDR hdr)
 /*                                                                          */
 /****************************************************************************/
 
-size_t DDD_InfoCplMemory (void)
+size_t DDD_InfoCplMemory(const DDD::DDDContext& context)
 {
-  size_t sum = 0;
-
-  sum += sizeof(CplSegm) * nCplSegms;
-
-  return(sum);
+  return sizeof(CplSegm) * context.cplmgrContext().nCplSegms;
 }
 
 
@@ -791,32 +673,34 @@ size_t DDD_InfoCplMemory (void)
 /*                                                                          */
 /****************************************************************************/
 
-void ddd_CplMgrInit (void)
+void ddd_CplMgrInit(DDD::DDDContext& context)
 {
+  auto& mctx = context.cplmgrContext();
+
   /* allocate first (smallest) coupling tables */
-  AllocCplTables(MAX_CPL_START);
+  AllocCplTables(context, MAX_CPL_START);
 
 
-  localIBuffer = (int*)AllocFix((2*procs+1)*sizeof(int));
-  if (localIBuffer==NULL)
-  {
-    DDD_PrintError('E', 2532, STR_NOMEM " for DDD_InfoProcList()");
-    HARD_EXIT;
-  }
+  mctx.localIBuffer = (int*)AllocFix((2*context.procs()+1)*sizeof(int));
+  if (mctx.localIBuffer == nullptr)
+    throw std::bad_alloc();
 
-  memlistCpl = NULL;
-  segmCpl    = NULL;
-  nCplSegms  = 0;
+  mctx.memlistCpl = nullptr;
+  mctx.segmCpl    = nullptr;
+  mctx.nCplSegms  = 0;
 }
 
 
-void ddd_CplMgrExit (void)
+void ddd_CplMgrExit(DDD::DDDContext& context)
 {
-  FreeFix(localIBuffer);
-  FreeCplSegms();
+  auto& ctx = context.couplingContext();
+  auto& mctx = context.cplmgrContext();
 
-  FreeTmp(ddd_CplTable,0);
-  FreeTmp(ddd_NCplTable,0);
+  FreeFix(mctx.localIBuffer);
+  FreeCplSegms(context);
+
+  ctx.cplTable.clear();
+  ctx.nCplTable.clear();
 }
 
 /****************************************************************************/

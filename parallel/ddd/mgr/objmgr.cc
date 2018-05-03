@@ -38,6 +38,9 @@
 
 #include <algorithm>
 
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
 #include "dddi.h"
 
 USING_UG_NAMESPACES
@@ -64,41 +67,9 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-#define MakeUnique(n)  (((n)<<MAX_PROCBITS_IN_GID)+me)
+#define MakeUnique(context, n)  (((n)<<MAX_PROCBITS_IN_GID)+(context).me())
 #define ProcFromId(n)  ((n)& ((1<<MAX_PROCBITS_IN_GID)-1))
 #define CountFromId(n) (((n)-((n)& ((1<<MAX_PROCBITS_IN_GID)-1)))>>MAX_PROCBITS_IN_GID)
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of static variables                                           */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-/* local unique ID count */
-static DDD_GID theIdCount;
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
 
 
 
@@ -117,99 +88,47 @@ static bool sort_ObjListGID (const DDD_HDR& a, const DDD_HDR& b)
 }
 
 
-DDD_HDR *LocalObjectsList (void)
+std::vector<DDD_HDR> LocalObjectsList(const DDD::DDDContext& context)
 {
-  DDD_HDR   *locObjs;
+  const int nObjs = context.nObjs();
+  std::vector<DDD_HDR> locObjs(nObjs);
 
-  if (ddd_nObjs==0)
-    return(NULL);
+  const auto& objTable = context.objTable();
+  std::copy(objTable.begin(), objTable.begin() + nObjs, locObjs.begin());
+  std::sort(locObjs.begin(), locObjs.end(), sort_ObjListGID);
 
-  locObjs = (DDD_HDR *) AllocTmpReq (ddd_nObjs*sizeof(DDD_HDR), TMEM_OBJLIST);
-  if (locObjs==NULL) {
-    DDD_PrintError('E', 2210,  STR_NOMEM " in LocalObjectsList");
-    return(NULL);
-  }
-
-  memcpy(locObjs, ddd_ObjTable, ddd_nObjs*sizeof(DDD_HDR));
-  std::sort(locObjs, locObjs + ddd_nObjs, sort_ObjListGID);
-
-  return(locObjs);
-}
-
-void FreeLocalObjectsList (DDD_HDR *locObjs)
-{
-  if (locObjs==NULL)
-    return;
-
-  FreeTmpReq(locObjs, ddd_nObjs*sizeof(DDD_HDR), TMEM_OBJLIST);
+  return locObjs;
 }
 
 
-
-DDD_HDR *LocalCoupledObjectsList (void)
+std::vector<DDD_HDR> LocalCoupledObjectsList(const DDD::DDDContext& context)
 {
-  DDD_HDR   *locObjs;
+  const auto& nCpls = context.couplingContext().nCpls;
+  std::vector<DDD_HDR> locObjs(nCpls);
 
-  if (NCpl_Get==0)
-    return(NULL);
+  const auto& objTable = context.objTable();
+  std::copy(objTable.begin(), objTable.begin() + nCpls, locObjs.begin());
+  std::sort(locObjs.begin(), locObjs.end(), sort_ObjListGID);
 
-  locObjs = (DDD_HDR *) AllocTmpReq (NCpl_Get*sizeof(DDD_HDR), TMEM_OBJLIST);
-  if (locObjs==NULL) {
-    DDD_PrintError('E', 2211, STR_NOMEM " in LocalCoupledObjectsList");
-    return(NULL);
-  }
-
-  memcpy(locObjs, ddd_ObjTable, NCpl_Get*sizeof(DDD_HDR));
-  std::sort(locObjs, locObjs + NCpl_Get, sort_ObjListGID);
-
-  return(locObjs);
+  return locObjs;
 }
-
-
-void FreeLocalCoupledObjectsList (DDD_HDR *locObjs)
-{
-  if (locObjs==NULL)
-    return;
-
-  FreeTmpReq(locObjs, NCpl_Get*sizeof(DDD_HDR), TMEM_OBJLIST);
-}
-
 
 
 /****************************************************************************/
 
 
-void ddd_EnsureObjTabSize (int n)
+void ddd_EnsureObjTabSize(DDD::DDDContext& context, int n)
 {
-  DDD_HDR *old_ObjTable   = ddd_ObjTable;
-  int old_ObjTabSize = ddd_ObjTabSize;
+  auto& objTable = context.objTable();
 
   /* if size is large enough, we are already finished. */
-  if (old_ObjTabSize >= n)
+  if (objTable.size() >= n)
     return;
 
-  /* set new size */
-  ddd_ObjTabSize = n;
-
-  /* allocate new object table */
-  ddd_ObjTable = (DDD_HDR *) AllocTmp(sizeof(DDD_HDR) * ddd_ObjTabSize);
-  if (ddd_ObjTable==NULL)
-  {
-    sprintf(cBuffer, STR_NOMEM " for object table of size %ld",
-            ((long)ddd_ObjTabSize) * sizeof(DDD_HDR));
-    DDD_PrintError('E', 2223, cBuffer);
-    HARD_EXIT;
-  }
-
-  /* copy data from old cpl-table to new one, assuming the old one is full */
-  memcpy(ddd_ObjTable, old_ObjTable, sizeof(DDD_HDR) * old_ObjTabSize);
-
-  /* free old one */
-  FreeTmp(old_ObjTable,0);
+  objTable.resize(n);
 
   /* issue a warning in order to inform user */
-  sprintf(cBuffer, "increased object table, now %d entries", ddd_ObjTabSize);
-  DDD_PrintError('W', 2224, cBuffer);
+  Dune::dwarn << "increased object table, now " << n << " entries\n";
 }
 
 
@@ -281,32 +200,19 @@ DDD_OBJ DDD_ObjNew (size_t aSize, DDD_TYPE aType,
 
   /* check input parameters */
   if (aPrio>=MAX_PRIO)
-  {
-    sprintf(cBuffer,
-            "priority must be less than %d in DDD_ObjNew", MAX_PRIO);
-    DDD_PrintError('E', 2205, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "priority must be less than " << MAX_PRIO);
   if (aType>=MAX_TYPEDESC)
-  {
-    sprintf(cBuffer,
-            "DDD-type must be less than %d in DDD_ObjNew", MAX_TYPEDESC);
-    DDD_PrintError('E', 2206, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "DDD-type must be less than " << MAX_TYPEDESC);
 
   /* get object memory */
   obj = (DDD_OBJ) AllocObj(aSize, aType, aPrio, aAttr);
-  if (obj==NULL) {
-    DDD_PrintError('E', 2200, STR_NOMEM " in DDD_ObjNew");
-    return(NULL);
-  }
+  if (obj==NULL)
+    throw std::bad_alloc();
 
 #       ifdef DebugCreation
-  sprintf(cBuffer, "%4d: DDD_ObjNew(aSize=%d, type=%d, prio=%d, attr=%d),"
-          " ADR=%08x\n",
-          me, aSize, aType, aPrio, aAttr, obj);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo
+    << "DDD_ObjNew(aSize=" << aSize << ", type=" << aType << ", prio=" << aPrio
+    << ", attr=" << aAttr << ") ADR=" << obj << "\n";
 #       endif
 
   return(obj);
@@ -367,36 +273,34 @@ void DDD_ObjDelete (DDD_OBJ obj, size_t size, DDD_TYPE typ)
    @param aAttr  \ddd{attribute} of \ddd{object}
  */
 
-void DDD_HdrConstructor (DDD_HDR aHdr, DDD_TYPE aType,
+void DDD_HdrConstructor (DDD::DDDContext& context,
+                         DDD_HDR aHdr, DDD_TYPE aType,
                          DDD_PRIO aPrio, DDD_ATTR aAttr)
 {
-/* check input parameters */
-if (aPrio>=MAX_PRIO)
-{
-  sprintf(cBuffer,
-          "priority must be less than %d in DDD_HdrConstructor", MAX_PRIO);
-  DDD_PrintError('E', 2225, cBuffer);
-  HARD_EXIT;
-}
+  auto& ctx = context.objmgrContext();
+
+  /* check input parameters */
+  if (aPrio>=MAX_PRIO)
+    DUNE_THROW(Dune::Exception, "priority must be less than " << MAX_PRIO);
 
         #ifdef WithFullObjectTable
 /* in case of FullObjectTable, we register each header in the
    global ddd_ObjTable. */
+  auto& objTable = context.objTable();
 
 /* check whether there are available objects */
-if (ddd_nObjs==ddd_ObjTabSize)
+if (context.nObjs() == objTable.size())
 {
   /* TODO update docu */
   /* this is a fatal case. we cant register more objects here */
-  DDD_PrintError('F', 2220, "no more objects in DDD_HdrConstructor");
   /* TODO one could try to expand the global tables here. */
-  HARD_EXIT;
+  DUNE_THROW(Dune::Exception, "no more objects in DDD_HdrConstructor");
 }
 
 /* insert into theObj array */
-ddd_ObjTable[ddd_nObjs] = aHdr;
-OBJ_INDEX(aHdr) = ddd_nObjs;
-ddd_nObjs++;
+objTable[context.nObjs()] = aHdr;
+OBJ_INDEX(aHdr) = context.nObjs();
+context.nObjs(context.nObjs() + 1);
         #else
 /* if we dont have WithFullObjectTable, pure local objects without
    copies on other processors aren't registered by DDD. Therefore,
@@ -412,23 +316,21 @@ OBJ_ATTR(aHdr)  = aAttr;
 OBJ_FLAGS(aHdr) = 0;
 
 /* create unique GID */
-OBJ_GID(aHdr)   = MakeUnique(theIdCount++);
+OBJ_GID(aHdr)   = MakeUnique(context, ctx.theIdCount++);
 
 /* check overflow of global id numbering */
-if (MakeUnique(theIdCount) <= MakeUnique(theIdCount-1))
+if (MakeUnique(context, ctx.theIdCount) <= MakeUnique(context, ctx.theIdCount-1))
 {
   /* TODO update docu */
-  DDD_PrintError('F', 2221, "global ID overflow DDD_HdrConstructor");
   /* TODO one could try to renumber all objects here. */
-  HARD_EXIT;
+  DUNE_THROW(Dune::Exception, "global ID overflow DDD_HdrConstructor");
 }
 
 #       ifdef DebugCreation
-sprintf(cBuffer, "%4d: DDD_HdrConstructor(adr=%08x, "
-        "type=%d, prio=%d, attr=%d), "
-        "GID=%08x  INDEX=%d\n",
-        me, aHdr, aType, aPrio, aAttr, OBJ_GID(aHdr), OBJ_INDEX(aHdr));
-DDD_PrintDebug(cBuffer);
+  Dune::dinfo
+    << "DDD_HdrConstructor(adr=" << aHdr << ", type=" << aType
+    << ", prio=" << aPrio << ", attr=" << aAttr << "), GID=" << OBJ_GID(aHdr)
+    << "  INDEX=" << OBJ_INDEX(aHdr) << "\n";
 #       endif
 }
 
@@ -473,18 +375,18 @@ DDD_PrintDebug(cBuffer);
    @param hdr  the object's DDD Header
  */
 
-void DDD_HdrDestructor (DDD_HDR hdr)
+void DDD_HdrDestructor(DDD::DDDContext& context, DDD_HDR hdr)
 {
+  auto& objTable = context.objTable();
+  auto& nCpls = context.couplingContext().nCpls;
 COUPLING   *cpl;
-int objIndex, xfer_active = ddd_XferActive();
+int objIndex, xfer_active = ddd_XferActive(context);
 
 #       ifdef DebugDeletion
-sprintf(cBuffer, "%4d: DDD_HdrDestructor(adr=%08x, "
-        "typ=%d, prio=%d, attr=%d), "
-        "GID=%08x  INDEX=%d\n",
-        me, hdr, OBJ_TYPE(hdr), OBJ_PRIO(hdr), OBJ_ATTR(hdr),
-        OBJ_GID(hdr), OBJ_INDEX(hdr));
-DDD_PrintDebug(cBuffer);
+  Dune::dinfo
+    << "DDD_HdrDestructor(adr=" << hdr << ", typ=" << OBJ_TYPE(hdr)
+    << ", prio=" << OBJ_PRIO(hdr) << ", attr=" << OBJ_ATTR(hdr)
+    << "), GID=" << OBJ_GID(hdr) << "  INDEX=" << OBJ_INDEX(hdr) << "\n";
 #       endif
 
 
@@ -499,63 +401,59 @@ if (IsHdrInvalid(hdr))
 
 /* if currently in xfer, register deletion for other processors */
 if (xfer_active)
-  ddd_XferRegisterDelete(hdr);
+  ddd_XferRegisterDelete(context, hdr);
 
 
 objIndex = OBJ_INDEX(hdr);
 
-if (objIndex<NCpl_Get)
+if (objIndex < nCpls)
 {
   /* this is an object with couplings */
-  cpl = IdxCplList(objIndex);
+  cpl = IdxCplList(context, objIndex);
 
   /* if not during xfer, deletion may be inconsistent */
   if (!xfer_active)
   {
     /* deletion is dangerous, distributed object might get
        inconsistent. */
-    if (DDD_GetOption(OPT_WARNING_DESTRUCT_HDR)==OPT_ON)
-    {
-      sprintf(cBuffer,
-              "inconsistency by deleting gid=" OBJ_GID_FMT " in DDD_HdrDestructor",
-              OBJ_GID(hdr));
-      DDD_PrintError('W', 2230, cBuffer);
-    }
+    if (DDD_GetOption(context, OPT_WARNING_DESTRUCT_HDR)==OPT_ON)
+      Dune::dwarn << "DDD_HdrDestructor: inconsistency by deleting gid="
+                  << OBJ_GID(hdr) << "\n";
   }
 
-  NCpl_Decrement;
-  ddd_nObjs--;
+  nCpls -= 1;
+  context.nObjs(context.nObjs() - 1);
 
   /* fill slot of deleted obj with last cpl-obj */
-  ddd_ObjTable[objIndex] = ddd_ObjTable[NCpl_Get];
-  IdxCplList(objIndex) = IdxCplList(NCpl_Get);
-  IdxNCpl(objIndex) = IdxNCpl(NCpl_Get);
-  OBJ_INDEX(ddd_ObjTable[objIndex]) = objIndex;
+  objTable[objIndex] = objTable[nCpls];
+  IdxCplList(context, objIndex) = IdxCplList(context, nCpls);
+  IdxNCpl(context, objIndex) = IdxNCpl(context, nCpls);
+  OBJ_INDEX(objTable[objIndex]) = objIndex;
 
                 #ifdef WithFullObjectTable
   /* fill slot of last cpl-obj with last obj */
-  if (NCpl_Get<ddd_nObjs)
+  if (nCpls < context.nObjs())
   {
-    ddd_ObjTable[NCpl_Get] = ddd_ObjTable[ddd_nObjs];
-    OBJ_INDEX(ddd_ObjTable[NCpl_Get]) = NCpl_Get;
+    objTable[nCpls] = objTable[context.nObjs()];
+    OBJ_INDEX(objTable[nCpls]) = nCpls;
   }
                 #else
-  assert(NCpl_Get==ddd_nObjs);
+  assert(nCpls == context.nObjs());
                 #endif
 
   /* dispose all couplings */
-  DisposeCouplingList(cpl);
+  DisposeCouplingList(context, cpl);
 }
 else
 {
                 #ifdef WithFullObjectTable
   /* this is an object without couplings */
   /* deletion is not dangerous (no consistency problem) */
-  ddd_nObjs--;
+  context.nObjs(context.nObjs() - 1);
 
   /* fill slot of deleted obj with last obj */
-  ddd_ObjTable[objIndex] = ddd_ObjTable[ddd_nObjs];
-  OBJ_INDEX(ddd_ObjTable[objIndex]) = objIndex;
+  objTable[objIndex] = objTable[context.nObjs()];
+  OBJ_INDEX(objTable[objIndex]) = objIndex;
                 #endif
 }
 
@@ -581,34 +479,27 @@ MarkHdrInvalid(hdr);
 /*                                                                          */
 /****************************************************************************/
 
-DDD_OBJ DDD_ObjGet (size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
+DDD_OBJ DDD_ObjGet (DDD::DDDContext& context, size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 {
   DDD_OBJ obj;
-  TYPE_DESC  *desc = &(theTypeDefs[typ]);
+  const TYPE_DESC& desc = context.typeDefs()[typ];
 
   /* check input parameters */
   if (prio<0 || prio>=MAX_PRIO)
-  {
-    sprintf(cBuffer,
-            "priority must be less than %d in DDD_ObjGet", MAX_PRIO);
-    DDD_PrintError('E', 2235, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "priority must be less than " << MAX_PRIO);
 
   /* get raw memory */
   obj = (DDD_OBJ) DDD_ObjNew(size, typ, prio, attr);
-  if (obj==NULL) {
-    DDD_PrintError('E', 2200, STR_NOMEM " in DDD_ObjGet");
-    return(NULL);
-  }
+  if (obj==NULL)
+    throw std::bad_alloc();
 
-  if ((desc->size != size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
+  if ((desc.size != size) && (DDD_GetOption(context, OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
   {
     DDD_PrintError('W', 2200,
                    "object size differs from declared size in DDD_ObjGet");
   }
 
-  if ((desc->size > size) && (DDD_GetOption(OPT_WARNING_SMALLSIZE)==OPT_ON))
+  if ((desc.size > size) && (DDD_GetOption(context, OPT_WARNING_SMALLSIZE)==OPT_ON))
   {
     DDD_PrintError('W', 2201,
                    "object size smaller than declared size in DDD_ObjGet");
@@ -616,7 +507,7 @@ DDD_OBJ DDD_ObjGet (size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 
 
   /* call DDD_HdrConstructor */
-  DDD_HdrConstructor(OBJ2HDR(obj,desc), typ, prio, attr);
+  DDD_HdrConstructor(context, OBJ2HDR(obj, &desc), typ, prio, attr);
 
   return(obj);
 }
@@ -635,21 +526,21 @@ DDD_OBJ DDD_ObjGet (size_t size, DDD_TYPE typ, DDD_PRIO prio, DDD_ATTR attr)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_ObjUnGet (DDD_HDR hdr, size_t size)
+void DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR hdr, size_t size)
 
 {
   DDD_TYPE typ = OBJ_TYPE(hdr);
-  TYPE_DESC  *desc = &(theTypeDefs[typ]);
-  DDD_OBJ obj = HDR2OBJ(hdr,desc);
+  const TYPE_DESC& desc = context.typeDefs()[typ];
+  DDD_OBJ obj = HDR2OBJ(hdr, &desc);
 
-  if ((desc->size != size) && (DDD_GetOption(OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
+  if ((desc.size != size) && (DDD_GetOption(context, OPT_WARNING_VARSIZE_OBJ)==OPT_ON))
   {
     DDD_PrintError('W', 2299,
                    "object size differs from declared size in DDD_ObjUnGet");
   }
 
   /* call DDD_HDR-destructor */
-  DDD_HdrDestructor(hdr);
+  DDD_HdrDestructor(context, hdr);
 
   /* free raw memory */
   DDD_ObjDelete(obj, size, typ);
@@ -670,20 +561,17 @@ void DDD_ObjUnGet (DDD_HDR hdr, size_t size)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_HdrConstructorCopy (DDD_HDR newhdr, DDD_PRIO prio)
+void DDD_HdrConstructorCopy (DDD::DDDContext& context, DDD_HDR newhdr, DDD_PRIO prio)
 {
   /* check input parameters */
   if (prio>=MAX_PRIO)
-  {
-    sprintf(cBuffer,
-            "priority must be less than %d in DDD_HdrConstructorCopy", MAX_PRIO);
-    DDD_PrintError('E', 2245, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "priority must be less than " << MAX_PRIO);
 
         #ifdef WithFullObjectTable
+  auto& objTable = context.objTable();
+
   /* check whether there are available objects */
-  if (ddd_nObjs==ddd_ObjTabSize)
+  if (context.nObjs() == context.objTable().size())
   {
     /* TODO update docu */
     /* this is a fatal case. we cant register more objects here */
@@ -692,12 +580,12 @@ void DDD_HdrConstructorCopy (DDD_HDR newhdr, DDD_PRIO prio)
   }
 
   /* insert into theObj array */
-  ddd_ObjTable[ddd_nObjs] = newhdr;
-  OBJ_INDEX(newhdr) = ddd_nObjs;
-  ddd_nObjs++;
+  objTable[context.nObjs()] = newhdr;
+  OBJ_INDEX(newhdr) = context.nObjs();
+  context.nObjs(context.nObjs() + 1);
         #else
   MarkHdrLocal(newhdr);
-  assert(ddd_nObjs==NCpl_Get);
+  assert(context.nObjs() == context.couplingContext().nCpls);
         #endif
 
   /* init LDATA components. GDATA components will be copied elsewhere */
@@ -705,10 +593,10 @@ void DDD_HdrConstructorCopy (DDD_HDR newhdr, DDD_PRIO prio)
 
 
 #       ifdef DebugCreation
-  sprintf(cBuffer, "%4d: DDD_HdrConstructorCopy(adr=%08x, prio=%d), "
-          "GID=%08x  INDEX=%d  ATTR=%d\n",
-          me, newhdr, prio, OBJ_GID(newhdr), OBJ_INDEX(newhdr), OBJ_ATTR(newhdr));
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo
+    << "DDD_HdrConstructorCopy(adr=" << newhdr << ", prio=" << prio
+    << "), GID= " << OBJ_GID(newhdr) << "  INDEX=" << OBJ_INDEX(newhdr)
+    << "  ATTR=" << OBJ_ATTR(newhdr) << "\n";
 #       endif
 }
 
@@ -728,9 +616,10 @@ void DDD_HdrConstructorCopy (DDD_HDR newhdr, DDD_PRIO prio)
 /*                                                                          */
 /****************************************************************************/
 
-void DDD_HdrConstructorMove (DDD_HDR newhdr, DDD_HDR oldhdr)
+void DDD_HdrConstructorMove (DDD::DDDContext& context, DDD_HDR newhdr, DDD_HDR oldhdr)
 {
   int objIndex = OBJ_INDEX(oldhdr);
+  const auto& nCpls = context.couplingContext().nCpls;
 
 
   /* copy all components */
@@ -745,24 +634,25 @@ void DDD_HdrConstructorMove (DDD_HDR newhdr, DDD_HDR oldhdr)
   /* change all references from DDD to oldhdr */
 
   /* change entry of theObj array */
+  auto& objTable = context.objTable();
         #ifdef WithFullObjectTable
-  ddd_ObjTable[objIndex] = newhdr;
+  objTable[objIndex] = newhdr;
         #else
-  if (objIndex<NCpl_Get)
-    ddd_ObjTable[objIndex] = newhdr;
+  if (objIndex < nCpls)
+    objTable[objIndex] = newhdr;
         #endif
 
   /* change pointers from couplings to object */
-  if (objIndex<NCpl_Get)
+  if (objIndex < nCpls)
   {
-    COUPLING *cpl = IdxCplList(objIndex);
+    COUPLING *cpl = IdxCplList(context, objIndex);
 
     for(; cpl!=NULL; cpl=CPL_NEXT(cpl)) {
       cpl->obj = newhdr;
     }
 
     /* invalidate update obj-shortcut tables from IF module */
-    IFInvalidateShortcuts(OBJ_TYPE(newhdr));
+    IFInvalidateShortcuts(context, OBJ_TYPE(newhdr));
   }
 
   /* invalidate old DDD_HDR */
@@ -799,9 +689,8 @@ static void CopyByMask (TYPE_DESC *desc, DDD_OBJ target, DDD_OBJ source)
   int i;
 
 #       ifdef DebugCreation
-  sprintf(cBuffer, "%4d: CopyByMask(%s, size=%d, to=%08x, from=%08x)\n",
-          me, desc->name, desc->size, target, source);
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "CopyByMask(" << desc->name << ", size=" << desc->size
+              << ", to=" << target << ", from=" << source << ")\n";
 #       endif
 
   unsigned char* maskp = desc->cmask.get();
@@ -836,13 +725,11 @@ void ObjCopyGlobalData (TYPE_DESC *desc,
   }
 
 #       ifdef DebugCreation
-  sprintf(cBuffer, "%4d: ObjCopyGlobalData(%08x <- %08x, size=%d),"
-          " TYP=%d  GID=%08x  INDEX=%d\n",
-          me, OBJ2HDR(target,desc), source, size,
-          OBJ_TYPE(OBJ2HDR(target,desc)),
-          OBJ_GID(OBJ2HDR(target,desc)),
-          OBJ_INDEX(OBJ2HDR(target,desc)));
-  DDD_PrintDebug(cBuffer);
+  const auto& hdr = OBJ2HDR(target, desc);
+  Dune::dinfo
+    << "ObjCopyGlobalData(" << hdr << " <- " << source << ", size=" << size
+    << "), TYP=" << OBJ_TYPE(hdr) << "  GID=" << OBJ_GID(hdr)
+    << "  INDEX=" << OBJ_INDEX(hdr) << "\n";
 #       endif
 }
 
@@ -850,17 +737,19 @@ void ObjCopyGlobalData (TYPE_DESC *desc,
 
 /****************************************************************************/
 
-DDD_HDR DDD_SearchHdr (DDD_GID gid)
+DDD_HDR DDD_SearchHdr(DDD::DDDContext& context, DDD_GID gid)
 {
+  auto& objTable = context.objTable();
+  const int nObjs = context.nObjs();
 int i;
 
 i=0;
-while (i<ddd_nObjs && OBJ_GID(ddd_ObjTable[i])!=gid)
+while (i < nObjs && OBJ_GID(objTable[i])!=gid)
   i++;
 
-if (i<ddd_nObjs)
+if (i < nObjs)
 {
-  return(ddd_ObjTable[i]);
+  return(objTable[i]);
 }
 else
   return(NULL);
@@ -870,29 +759,24 @@ else
 /****************************************************************************/
 
 
-void ddd_ObjMgrInit (void)
+void ddd_ObjMgrInit(DDD::DDDContext& context)
 {
+  auto& ctx = context.objmgrContext();
+
   /* sanity check: does the DDD_PROC type have enough bits? */
   if (sizeof(DDD_PROC)*8 < MAX_PROCBITS_IN_GID)
     DDD_PrintError('F', 666, "DDD_PROC isn't large enough for MAX_PROCBITS_IN_GID bits");
 
-  theIdCount = 1;        /* start with 1, for debugging reasons */
+  ctx.theIdCount = 1;        /* start with 1, for debugging reasons */
 
   /* allocate first (smallest) object table */
-  ddd_ObjTable = (DDD_HDR *) AllocTmp(sizeof(DDD_HDR) * MAX_OBJ_START);
-  if (ddd_ObjTable==NULL)
-  {
-    DDD_PrintError('E', 2222, STR_NOMEM " for initial object table");
-    HARD_EXIT;
-  }
-
-  ddd_ObjTabSize = MAX_OBJ_START;
+  context.objTable().resize(MAX_OBJ_START);
 }
 
 
-void ddd_ObjMgrExit (void)
+void ddd_ObjMgrExit(DDD::DDDContext& context)
 {
-  FreeTmp(ddd_ObjTable,0);
+  context.objTable().clear();
 }
 
 

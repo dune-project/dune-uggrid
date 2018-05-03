@@ -34,6 +34,13 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
+#include <dune/common/stdstreams.hh>
+
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -76,36 +83,23 @@ struct CPLMSG
 
 /****************************************************************************/
 /*                                                                          */
-/* variables global to this source file only (static)                       */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-static LC_MSGTYPE cplmsg_t;
-static LC_MSGCOMP delcpl_id, modcpl_id, addcpl_id;
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
 
 
-void CplMsgInit (void)
+void CplMsgInit(DDD::DDDContext& context)
 {
-  cplmsg_t = LC_NewMsgType("CplMsg");
-  delcpl_id = LC_NewMsgTable("DelCpl", cplmsg_t, sizeof(TEDelCpl));
-  modcpl_id = LC_NewMsgTable("ModCpl", cplmsg_t, sizeof(TEModCpl));
-  addcpl_id = LC_NewMsgTable("AddCpl", cplmsg_t, sizeof(TEAddCpl));
+  auto& ctx = context.cplmsgContext();
+
+  ctx.cplmsg_t = LC_NewMsgType(context, "CplMsg");
+  ctx.delcpl_id = LC_NewMsgTable("DelCpl", ctx.cplmsg_t, sizeof(TEDelCpl));
+  ctx.modcpl_id = LC_NewMsgTable("ModCpl", ctx.cplmsg_t, sizeof(TEModCpl));
+  ctx.addcpl_id = LC_NewMsgTable("AddCpl", ctx.cplmsg_t, sizeof(TEAddCpl));
 }
 
 
-void CplMsgExit (void)
+void CplMsgExit(DDD::DDDContext&)
 {}
 
 
@@ -117,10 +111,7 @@ static CPLMSG *CreateCplMsg (DDD_PROC dest, CPLMSG *lastxm)
 
   xm = (CPLMSG *) AllocTmpReq(sizeof(CPLMSG), TMEM_XFER);
   if (xm==NULL)
-  {
-    DDD_PrintError('E', 6400, STR_NOMEM " in PrepareCplMsgs");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   xm->nDelCpl    = 0;
   xm->xferDelCpl = NULL;
@@ -136,18 +127,22 @@ static CPLMSG *CreateCplMsg (DDD_PROC dest, CPLMSG *lastxm)
 
 
 static int PrepareCplMsgs (
+  DDD::DDDContext& context,
   XIDelCpl **itemsDC, int nDC,
   XIModCpl **itemsMC, int nMC,
   XIAddCpl **itemsAC, int nAC,
   CPLMSG **theMsgs)
 {
+  auto& ctx = context.cplmsgContext();
+
   CPLMSG    *xm=NULL;
   int iDC, iMC, iAC, nMsgs=0;
 
+  const auto procs = context.procs();
+
 #       if DebugCplMsg<=3
-  sprintf(cBuffer,"%4d: PrepareCplMsgs, nXIDelCpl=%d nXIModCpl=%d nXIAddCpl=%d\n",
-          me, nDC, nMC, nAC);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "PrepareCplMsgs, nXIDelCpl=" << nDC << " nXIModCpl=" << nMC
+              << " nXIAddCpl=" << nAC << "\n";
 #       endif
 
 
@@ -235,31 +230,33 @@ static int PrepareCplMsgs (
   for(xm=*theMsgs; xm!=NULL; xm=xm->next)
   {
     /* create new send message */
-    xm->msg_h = LC_NewSendMsg(cplmsg_t, xm->proc);
+    xm->msg_h = LC_NewSendMsg(context, ctx.cplmsg_t, xm->proc);
 
     /* init tables inside message */
-    LC_SetTableSize(xm->msg_h, delcpl_id, xm->nDelCpl);
-    LC_SetTableSize(xm->msg_h, modcpl_id, xm->nModCpl);
-    LC_SetTableSize(xm->msg_h, addcpl_id, xm->nAddCpl);
+    LC_SetTableSize(xm->msg_h, ctx.delcpl_id, xm->nDelCpl);
+    LC_SetTableSize(xm->msg_h, ctx.modcpl_id, xm->nModCpl);
+    LC_SetTableSize(xm->msg_h, ctx.addcpl_id, xm->nAddCpl);
 
     /* prepare message for sending away */
-    LC_MsgPrepareSend(xm->msg_h);
+    LC_MsgPrepareSend(context, xm->msg_h);
   }
 
   return(nMsgs);
 }
 
 
-static void CplMsgSend (CPLMSG *theMsgs)
+static void CplMsgSend(DDD::DDDContext& context, CPLMSG *theMsgs)
 {
+  auto& ctx = context.cplmsgContext();
+
   CPLMSG *m;
 
   for(m=theMsgs; m!=NULL; m=m->next)
   {
     int i;
-    TEDelCpl *arrayDC = (TEDelCpl *)LC_GetPtr(m->msg_h, delcpl_id);
-    TEModCpl *arrayMC = (TEModCpl *)LC_GetPtr(m->msg_h, modcpl_id);
-    TEAddCpl *arrayAC = (TEAddCpl *)LC_GetPtr(m->msg_h, addcpl_id);
+    TEDelCpl *arrayDC = (TEDelCpl *)LC_GetPtr(m->msg_h, ctx.delcpl_id);
+    TEModCpl *arrayMC = (TEModCpl *)LC_GetPtr(m->msg_h, ctx.modcpl_id);
+    TEAddCpl *arrayAC = (TEAddCpl *)LC_GetPtr(m->msg_h, ctx.addcpl_id);
 
     /* copy data into message */
     for(i=0; i<m->nDelCpl; i++)
@@ -274,10 +271,10 @@ static void CplMsgSend (CPLMSG *theMsgs)
       {
         XIModCpl *mc = m->xferModCpl[i];
 
-        sprintf(cBuffer, "%4d: send modcpl to %d (%08x, %3d)  %s:%d\n",
-                me, m->proc,
-                mc->te.gid, mc->te.prio, mc->sll_file, mc->sll_line);
-        DDD_PrintDebug(cBuffer);
+        Dune::dwarn
+          << "send modcpl to " << m->proc << " (" << mc->te.gid
+          << ", " << mc->te.prio << ")  "
+          << mc->sll_file << ":" << mc->sll_line << "\n";
       }
 #                       endif
     }
@@ -287,7 +284,7 @@ static void CplMsgSend (CPLMSG *theMsgs)
     }
 
     /* schedule message for send */
-    LC_MsgSend(m->msg_h);
+    LC_MsgSend(context, m->msg_h);
   }
 }
 
@@ -296,9 +293,11 @@ static void CplMsgSend (CPLMSG *theMsgs)
 /****************************************************************************/
 
 
-static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
+static void CplMsgUnpackSingle (DDD::DDDContext& context, LC_MSGHANDLE xm,
                                 DDD_HDR *localCplObjs, int nLCO)
 {
+  auto& ctx = context.cplmsgContext();
+
   TEDelCpl  *theDelCpl;
   TEModCpl  *theModCpl;
   TEAddCpl  *theAddCpl;
@@ -306,12 +305,12 @@ static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
   DDD_PROC proc = LC_MsgGetProc(xm);
 
   /* get number and address of del-items */
-  nDelCpl = (int) LC_GetTableLen(xm, delcpl_id);
-  nModCpl = (int) LC_GetTableLen(xm, modcpl_id);
-  nAddCpl = (int) LC_GetTableLen(xm, addcpl_id);
-  theDelCpl = (TEDelCpl *) LC_GetPtr(xm, delcpl_id);
-  theModCpl = (TEModCpl *) LC_GetPtr(xm, modcpl_id);
-  theAddCpl = (TEAddCpl *) LC_GetPtr(xm, addcpl_id);
+  nDelCpl = (int) LC_GetTableLen(xm, ctx.delcpl_id);
+  nModCpl = (int) LC_GetTableLen(xm, ctx.modcpl_id);
+  nAddCpl = (int) LC_GetTableLen(xm, ctx.addcpl_id);
+  theDelCpl = (TEDelCpl *) LC_GetPtr(xm, ctx.delcpl_id);
+  theModCpl = (TEModCpl *) LC_GetPtr(xm, ctx.modcpl_id);
+  theAddCpl = (TEAddCpl *) LC_GetPtr(xm, ctx.addcpl_id);
 
 
   /* modify couplings according to mod-list */
@@ -322,7 +321,7 @@ static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
 
     if ((j<nLCO) && (OBJ_GID(localCplObjs[j])==theModCpl[i].gid))
     {
-      ModCoupling(localCplObjs[j], proc, theModCpl[i].prio);
+      ModCoupling(context, localCplObjs[j], proc, theModCpl[i].prio);
     }
   }
 
@@ -335,7 +334,7 @@ static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
 
     if ((j<nLCO) && (OBJ_GID(localCplObjs[j])==theDelCpl[i].gid))
     {
-      DelCoupling(localCplObjs[j], proc);
+      DelCoupling(context, localCplObjs[j], proc);
     }
   }
 
@@ -348,7 +347,7 @@ static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
 
     if ((j<nLCO) && (OBJ_GID(localCplObjs[j])==theAddCpl[i].gid))
     {
-      AddCoupling(localCplObjs[j], theAddCpl[i].proc, theAddCpl[i].prio);
+      AddCoupling(context, localCplObjs[j], theAddCpl[i].proc, theAddCpl[i].prio);
     }
   }
 }
@@ -357,53 +356,48 @@ static void CplMsgUnpackSingle (LC_MSGHANDLE xm,
 /****************************************************************************/
 
 
-static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
+static void CplMsgDisplay (DDD::DDDContext& context, const char *comment, LC_MSGHANDLE xm)
 {
+  using std::setw;
+
+  std::ostream& out = std::cout;
+  auto& ctx = context.cplmsgContext();
   TEDelCpl     *theDelCpl;
   TEModCpl     *theModCpl;
   TEAddCpl     *theAddCpl;
   char buf[30];
   int i, proc = LC_MsgGetProc(xm);
-  int lenDelCpl = (int) LC_GetTableLen(xm, delcpl_id);
-  int lenModCpl = (int) LC_GetTableLen(xm, modcpl_id);
-  int lenAddCpl = (int) LC_GetTableLen(xm, addcpl_id);
+  int lenDelCpl = (int) LC_GetTableLen(xm, ctx.delcpl_id);
+  int lenModCpl = (int) LC_GetTableLen(xm, ctx.modcpl_id);
+  int lenAddCpl = (int) LC_GetTableLen(xm, ctx.addcpl_id);
 
-  sprintf(buf, " %03d-%s-%03d ", me, comment, proc);
+  std::ostringstream prefixStream;
+  prefixStream
+    << " " << setw(3) << context.me() << "-" << comment << "-" << setw(3) << proc << " ";
+  const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */
-  theDelCpl = (TEDelCpl *)    LC_GetPtr(xm, delcpl_id);
-  theModCpl = (TEModCpl *)    LC_GetPtr(xm, modcpl_id);
-  theAddCpl = (TEAddCpl *)    LC_GetPtr(xm, addcpl_id);
+  theDelCpl = (TEDelCpl *)    LC_GetPtr(xm, ctx.delcpl_id);
+  theModCpl = (TEModCpl *)    LC_GetPtr(xm, ctx.modcpl_id);
+  theAddCpl = (TEAddCpl *)    LC_GetPtr(xm, ctx.addcpl_id);
 
 
-  sprintf(cBuffer, "%s 04 DelCpl.size=%05d\n", buf, lenDelCpl);
-  DDD_PrintDebug(cBuffer);
-  sprintf(cBuffer, "%s 05 ModCpl.size=%05d\n", buf, lenModCpl);
-  DDD_PrintDebug(cBuffer);
-  sprintf(cBuffer, "%s 06 AddCpl.size=%05d\n", buf, lenAddCpl);
-  DDD_PrintDebug(cBuffer);
-
+  out << prefix << " 04 DelCpl.size=" << setw(5) << lenDelCpl << "\n";
+  out << prefix << " 05 ModCpl.size=" << setw(5) << lenModCpl << "\n";
+  out << prefix << " 06 AddCpl.size=" << setw(5) << lenAddCpl << "\n";
 
   for(i=0; i<lenDelCpl; i++)
-  {
-    sprintf(cBuffer, "%s 14 delcpl %04d - " DDD_GID_FMT "\n",
-            buf, i, theDelCpl[i].gid);
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << " 14 delcpl " << setw(4) << i << " - "
+        << theDelCpl[i].gid << "\n";
 
   for(i=0; i<lenModCpl; i++)
-  {
-    sprintf(cBuffer, "%s 15 modcpl %04d - " DDD_GID_FMT " %3d\n",
-            buf, i, theModCpl[i].gid, theModCpl[i].prio);
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << " 15 modcpl " << setw(4) << i << " - "
+        << theModCpl[i].gid << " " << setw(3) << theModCpl[i].prio << "\n";
 
   for(i=0; i<lenAddCpl; i++)
-  {
-    sprintf(cBuffer, "%s 16 addcpl %04d - " DDD_GID_FMT " %4d %3d\n",
-            buf, i, theAddCpl[i].gid, theAddCpl[i].proc, theAddCpl[i].prio);
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << " 16 addcpl " << setw(4) << i << " - "
+        << theAddCpl[i].gid << " " << setw(4) << theAddCpl[i].proc
+        << " " << setw(3) << theAddCpl[i].prio << "\n";
 }
 
 
@@ -417,77 +411,81 @@ static void CplMsgDisplay (const char *comment, LC_MSGHANDLE xm)
  */
 
 void CommunicateCplMsgs (
+  DDD::DDDContext& context,
   XIDelCpl **itemsDC, int nDC,
   XIModCpl **itemsMC, int nMC,
   XIAddCpl **itemsAC, int nAC,
   DDD_HDR *localCplObjs, int nLCO)
 {
+  auto& ctx = context.cplmsgContext();
+
   CPLMSG    *sendMsgs, *sm=0;
   LC_MSGHANDLE *recvMsgs;
   int i, nSendMsgs, nRecvMsgs;
 
 
   /* accumulate messages (one for each partner) */
-  nSendMsgs = PrepareCplMsgs(itemsDC, nDC,
+  nSendMsgs = PrepareCplMsgs(context,
+                             itemsDC, nDC,
                              itemsMC, nMC,
                              itemsAC, nAC,
                              &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(cplmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.cplmsg_t);
 
   /* build and send messages */
-  CplMsgSend(sendMsgs);
+  CplMsgSend(context, sendMsgs);
 
 
 #if DebugCplMsg>2
-  if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+  if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
   {
     for(sm=sendMsgs; sm!=NULL; sm=sm->next)
     {
-      CplMsgDisplay("CS", sm->msg_h);
+      CplMsgDisplay(context, "CS", sm->msg_h);
     }
   }
 
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
-    if (me==master)
-      DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Send\n");
-    LC_PrintSendMsgs();
+    DDD_SyncAll(context);
+    if (context.isMaster())
+      Dune::dwarn << "DDD XFER_SHOW_MSGSALL: CplMsg.Send\n";
+    LC_PrintSendMsgs(context);
   }
 
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
 
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_XFER) & XFER_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
-    if (me==master)
-      DDD_PrintLine("DDD XFER_SHOW_MSGSALL: CplMsg.Recv\n");
-    LC_PrintRecvMsgs();
+    DDD_SyncAll(context);
+    if (context.isMaster())
+      Dune::dwarn << "DDD XFER_SHOW_MSGSALL: CplMsg.Recv\n";
+    LC_PrintRecvMsgs(context);
   }
 
 
   for(i=0; i<nRecvMsgs; i++)
   {
-    CplMsgUnpackSingle(recvMsgs[i], localCplObjs, nLCO);
+    CplMsgUnpackSingle(context, recvMsgs[i], localCplObjs, nLCO);
 
     /*
-                    if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
-                            CplMsgDisplay("CR", recvMsgs[i]);
+                    if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
+                            CplMsgDisplay(context, "CR", recvMsgs[i]);
      */
   }
 
 
   /* cleanup low-comm layer */
-  LC_Cleanup();
+  LC_Cleanup(context);
 
 
 

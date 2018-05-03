@@ -73,10 +73,6 @@ GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
 GENERAL_ELEMENT * NS_DIM_PREFIX reference_descriptors[MAX_CORNERS_OF_ELEM+1];
 INT NS_DIM_PREFIX reference2tag[MAX_CORNERS_OF_ELEM+1];
 
-#ifndef ModelP
-static INT nOBJT, OBJT4Elements[MAXOBJECTS];
-#endif
-
 /****************************************************************************/
 /*																			*/
 /* definition of local variables											*/
@@ -863,26 +859,13 @@ static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
   el->bnd_size = sizeof(struct generic_element) + (p_count-1)*sizeof(void *);
 
   /* get a free object id for free list */
-  /** \todo OBJT is always allocated when this functions is called but never released
-                   this will probably cause problems when several mgs are open: switching between
-                   them will lead to an overflow of the UsedOBJT variable in ugm.c
-                   possible remedy: store element OBJT in mg and release when it is closed. Also
-                   don't reallocate them for a given mg */
-  el->mapped_inner_objt = GetFreeOBJT();
+  if (el->mapped_inner_objt < 0)
+    el->mapped_inner_objt = GetFreeOBJT();
   if (el->mapped_inner_objt < 0) return(GM_ERROR);
 
-#ifndef ModelP
-  if (nOBJT>=MAXOBJECTS-1) return(GM_ERROR);
-  OBJT4Elements[nOBJT++]=el->mapped_inner_objt;
-#endif
-
-  el->mapped_bnd_objt = GetFreeOBJT();
+  if (el->mapped_bnd_objt < 0)
+    el->mapped_bnd_objt = GetFreeOBJT();
   if (el->mapped_bnd_objt < 0) return(GM_ERROR);
-
-#ifndef ModelP
-  OBJT4Elements[nOBJT++]=el->mapped_bnd_objt;
-  if (nOBJT>=MAXOBJECTS-1) return(GM_ERROR);
-#endif
 
   return(GM_OK);
 }
@@ -944,14 +927,6 @@ INT NS_DIM_PREFIX InitElementTypes (MULTIGRID *theMG)
 
   if (theMG==NULL)
     return(GM_ERROR);
-
-#ifndef ModelP
-  /* release allocated OBJTs */
-  for (INT i=0; i<nOBJT; i++)
-    if (ReleaseOBJT (OBJT4Elements[i]))
-      return (GM_ERROR);
-  nOBJT=0;
-#endif
 
 #ifdef __TWODIM__
   err = ProcessElementDescription(theMG,&def_triangle);

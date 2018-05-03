@@ -115,22 +115,9 @@ void *CreateLinearSegment (const char *name,
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);
 
-/* problem definition */
-void                    *CreateProblem                       (const char *domain, const char *name,
-                                                              int id, ConfigProcPtr config,
-                                                              int numOfCoefficients,
-                                                              CoeffProcPtr coeffs[],
-                                                              int numOfUserFct,
-                                                              UserProcPtr userfct[]);
-
 BVP   *CreateBoundaryValueProblem (const char *BVPname, BndCondProcPtr theBndCond,
                                    int numOfCoeffFct, CoeffProcPtr coeffs[],
                                    int numOfUserFct, UserProcPtr userfct[]);
-BVP       *CreateBVP              (const char *BVP, const char *Domain, const char *Problem);
-const char *GetBVP_DomainName     (const BVP *aBVP);
-const char *GetBVP_ProblemName    (const BVP *aBVP);
-
-BVP *CreateBVP_Problem (const char *BVPName, const char *DomainName, const char *ProblemName);
 
 END_UGDIM_NAMESPACE
 

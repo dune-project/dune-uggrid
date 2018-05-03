@@ -35,10 +35,10 @@
 #include <cstdio>
 #include <cstring>
 
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
-
-START_UGDIM_NAMESPACE
 
 #define DebugPrio     10   /* 0 is all, 10 is off */
 
@@ -54,65 +54,22 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
+namespace DDD {
+namespace Prio {
+
 /* overall mode of prio-environment */
-enum PrioMode {
+enum class PrioMode : unsigned char {
   PMODE_IDLE = 0,            /* waiting for next DDD_PrioBegin() */
   PMODE_CMDS,                /* after DDD_PrioBegin(), before DDD_PrioEnd() */
   PMODE_BUSY                 /* during DDD_PrioEnd() */
 };
 
+} /* namespace Prio */
+} /* namespace DDD */
 
+START_UGDIM_NAMESPACE
 
-
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-
-/****************************************************************************/
-/* PRIO_GLOBALS: global data for prio module                                */
-/****************************************************************************/
-
-struct PRIO_GLOBALS
-{
-  /* mode of prio module */
-  int prioMode;
-
-};
-
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-/* one instance of PRIO_GLOBALS */
-static PRIO_GLOBALS prioGlobals;
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* routines                                                                 */
-/*                                                                          */
-/****************************************************************************/
-
+using DDD::Prio::PrioMode;
 
 /*
         management functions for PrioMode.
@@ -123,66 +80,59 @@ static PRIO_GLOBALS prioGlobals;
         and recovery.
  */
 
-const char *PrioModeName (int mode)
+static const char* PrioModeName (PrioMode mode)
 {
   switch(mode)
   {
-  case PMODE_IDLE : return "idle-mode";
-  case PMODE_CMDS : return "commands-mode";
-  case PMODE_BUSY : return "busy-mode";
+  case PrioMode::PMODE_IDLE : return "idle-mode";
+  case PrioMode::PMODE_CMDS : return "commands-mode";
+  case PrioMode::PMODE_BUSY : return "busy-mode";
   }
   return "unknown-mode";
 }
 
 
-static void PrioSetMode (int mode)
+static void PrioSetMode (DDD::DDDContext& context, PrioMode mode)
 {
-  prioGlobals.prioMode = mode;
+  auto& ctx = context.prioContext();
+  ctx.prioMode = mode;
 
 #       if DebugPrio<=8
-  sprintf(cBuffer, "%4d: PrioMode=%s.\n",
-          me, PrioModeName(prioGlobals.prioMode));
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "PrioMode=" << PrioModeName(ctx.prioMode) << "\n";
 #       endif
 }
 
 
-static int PrioSuccMode (int mode)
+static PrioMode PrioSuccMode (PrioMode mode)
 {
   switch(mode)
   {
-  case PMODE_IDLE : return PMODE_CMDS;
-  case PMODE_CMDS : return PMODE_BUSY;
-  case PMODE_BUSY : return PMODE_IDLE;
+  case PrioMode::PMODE_IDLE: return PrioMode::PMODE_CMDS;
+  case PrioMode::PMODE_CMDS: return PrioMode::PMODE_BUSY;
+  case PrioMode::PMODE_BUSY: return PrioMode::PMODE_IDLE;
+  default:                   std::abort();
   }
-  return PMODE_IDLE;
 }
 
 
-
-static int PrioMode (void)
+bool ddd_PrioActive (const DDD::DDDContext& context)
 {
-  return prioGlobals.prioMode;
+  return context.prioContext().prioMode != PrioMode::PMODE_IDLE;
 }
 
 
-int ddd_PrioActive (void)
+static bool PrioStepMode(DDD::DDDContext& context, PrioMode old)
 {
-  return prioGlobals.prioMode!=PMODE_IDLE;
-}
-
-
-static int PrioStepMode (int old)
-{
-  if (prioGlobals.prioMode!=old)
+  auto& ctx = context.prioContext();
+  if (ctx.prioMode!=old)
   {
-    sprintf(cBuffer, "wrong prio-mode (currently in %s, expected %s)",
-            PrioModeName(prioGlobals.prioMode), PrioModeName(old));
-    DDD_PrintError('E', 8200, cBuffer);
+    Dune::dwarn
+      << "wrong prio-mode (currently in " << PrioModeName(ctx.prioMode)
+      << ", expected " << PrioModeName(old) << ")\n";
     return false;
   }
 
-  PrioSetMode(PrioSuccMode(prioGlobals.prioMode));
+  PrioSetMode(context, PrioSuccMode(ctx.prioMode));
   return true;
 }
 
@@ -190,13 +140,13 @@ static int PrioStepMode (int old)
 /****************************************************************************/
 
 
-void ddd_PrioInit (void)
+void ddd_PrioInit(DDD::DDDContext& context)
 {
-  PrioSetMode(PMODE_IDLE);
+  PrioSetMode(context, PrioMode::PMODE_IDLE);
 }
 
 
-void ddd_PrioExit (void)
+void ddd_PrioExit(DDD::DDDContext&)
 {}
 
 
@@ -223,17 +173,14 @@ void ddd_PrioExit (void)
    @param prio new priority for this local object.
  */
 
-void DDD_PrioChange (DDD_HDR hdr, DDD_PRIO prio)
+void DDD_PrioChange (const DDD::DDDContext& context, DDD_HDR hdr, DDD_PRIO prio)
 {
 #if DebugPrio<=2
   DDD_PRIO old_prio = OBJ_PRIO(hdr);
 #endif
 
-  if (!ddd_PrioActive())
-  {
-    DDD_PrintError('E', 8030, "Missing DDD_PrioBegin(). aborted");
-    HARD_EXIT;
-  }
+  if (!ddd_PrioActive(context))
+    DUNE_THROW(Dune::Exception, "Missing DDD_PrioBegin()");
 
 
   /* change priority of object directly, for local objects this
@@ -241,7 +188,7 @@ void DDD_PrioChange (DDD_HDR hdr, DDD_PRIO prio)
   {
     /*
                     DDD_PRIO newprio;
-                    PriorityMerge(&theTypeDefs[OBJ_TYPE(hdr)],
+                    PriorityMerge(&context.typeDefs()[OBJ_TYPE(hdr)],
                             OBJ_PRIO(hdr), prio, &newprio);
                     OBJ_PRIO(hdr) = newprio;
      */
@@ -249,7 +196,7 @@ void DDD_PrioChange (DDD_HDR hdr, DDD_PRIO prio)
   }
 
   /* handle distributed objects
-     if (ObjHasCpl(hdr))
+     if (ObjHasCpl(context, hdr))
      {
           nothing to do here:
           for distributed objects, we will communicate the prio
@@ -259,9 +206,9 @@ void DDD_PrioChange (DDD_HDR hdr, DDD_PRIO prio)
 
 
 #       if DebugPrio<=2
-  sprintf(cBuffer, "%4d: DDD_PrioChange %08x, old_prio=%d. new_prio=%d\n",
-          me, OBJ_GID(hdr), old_prio, OBJ_PRIO(hdr));
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb
+    << "DDD_PrioChange " << OBJ_GID(hdr)
+    << ", old_prio=" << old_prio << ", new_prio=" << OBJ_PRIO(hdr) << "\n";
 #       endif
 }
 
@@ -273,19 +220,19 @@ void DDD_PrioChange (DDD_HDR hdr, DDD_PRIO prio)
 /*                                                                          */
 /****************************************************************************/
 
-static int GatherPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int GatherPrio (DDD::DDDContext&, DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
 #       if DebugPrio<=1
-  sprintf(cBuffer, "%4d: DDD_PrioEnd/GatherPrio %08x, prio=%d. Send to copy on proc %3d/p%d)\n",
-          me, OBJ_GID(obj), OBJ_PRIO(obj), proc, prio);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb
+    << "DDD_PrioEnd/GatherPrio " << OBJ_GID(obj) << ", prio=" << OBJ_PRIO(obj)
+    << ". Send to copy on proc " << proc << "/p" << prio << "\n";
 #       endif
 
   *((DDD_PRIO *)data) = OBJ_PRIO(obj);
   return(0);
 }
 
-static int ScatterPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
+static int ScatterPrio (DDD::DDDContext& context, DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   DDD_PRIO real_prio = *((DDD_PRIO *)data);
 
@@ -293,23 +240,21 @@ static int ScatterPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
   if (real_prio!=prio)
   {
 #               if DebugPrio<=1
-    sprintf(cBuffer, "%4d: DDD_PrioEnd/ScatterPrio %08x/%d, "
-            "copy on proc %3d/p%d changed prio %d -> %d\n",
-            me, OBJ_GID(obj), OBJ_PRIO(obj),
-            proc, prio, prio, real_prio);
-    DDD_PrintDebug(cBuffer);
+    Dune::dvverb
+      << "DDD_PrioEnd/ScatterPrio " << OBJ_GID(obj) << "/" << OBJ_PRIO(obj)
+      << ", copy on proc " << proc << "/p" << prio
+      << " changed prio " << prio << " -> " << real_prio << "\n";
 #               endif
 
-    ModCoupling(obj, proc, real_prio);
+    ModCoupling(context, obj, proc, real_prio);
   }
 #       if DebugPrio<=1
   else
   {
-    sprintf(cBuffer, "%4d: DDD_PrioEnd/ScatterPrio %08x/%d, "
-            "copy on proc %3d/p%d keeps prio %d\n",
-            me, OBJ_GID(obj), OBJ_PRIO(obj),
-            proc, prio, prio);
-    DDD_PrintDebug(cBuffer);
+    Dune::dvverb
+      << "DDD_PrioEnd/ScatterPrio " << OBJ_GID(obj) << "/" << OBJ_PRIO(obj)
+      << ", copy on proc " << proc << "/p" << prio
+      << " keeps prio " << prio << "\n";
   }
 #       endif
 
@@ -326,27 +271,24 @@ static int ScatterPrio (DDD_HDR obj, void *data, DDD_PROC proc, DDD_PRIO prio)
         between the processors.
  */
 
-DDD_RET DDD_PrioEnd (void)
+DDD_RET DDD_PrioEnd(DDD::DDDContext& context)
 {
   /* step mode and check whether call to PrioEnd is valid */
-  if (!PrioStepMode(PMODE_CMDS))
-  {
-    DDD_PrintError('E', 8011, "DDD_PrioEnd() aborted");
-    HARD_EXIT;
-  }
+  if (!PrioStepMode(context, PrioMode::PMODE_CMDS))
+    DUNE_THROW(Dune::Exception, "DDD_PrioEnd() aborted");
 
 
-  ddd_StdIFExchangeX(sizeof(DDD_PRIO), GatherPrio, ScatterPrio);
+  ddd_StdIFExchangeX(context, sizeof(DDD_PRIO), GatherPrio, ScatterPrio);
 
   /*
           free temporary storage
    */
   STAT_RESET;
-  IFAllFromScratch();
+  IFAllFromScratch(context);
   STAT_TIMER(T_PRIO_BUILD_IF);
 
 
-  PrioStepMode(PMODE_BUSY);
+  PrioStepMode(context, PrioMode::PMODE_BUSY);
 
   return(DDD_RET_OK);
 }
@@ -369,14 +311,11 @@ DDD_RET DDD_PrioEnd (void)
         each processor.
  */
 
-void DDD_PrioBegin (void)
+void DDD_PrioBegin(DDD::DDDContext& context)
 {
   /* step mode and check whether call to JoinBegin is valid */
-  if (!PrioStepMode(PMODE_IDLE))
-  {
-    DDD_PrintError('E', 8010, "DDD_PrioBegin() aborted");
-    HARD_EXIT;
-  }
+  if (!PrioStepMode(context, PrioMode::PMODE_IDLE))
+    DUNE_THROW(Dune::Exception, "DDD_PrioBegin() aborted");
 }
 
 

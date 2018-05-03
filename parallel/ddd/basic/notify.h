@@ -30,10 +30,23 @@
 #ifndef __DDD_NOTIFY_H__
 #define __DDD_NOTIFY_H__
 
+#include <dune/uggrid/parallel/ddd/dddtypes.hh>
 
 #include "include/ddd.h"
 
-START_UGDIM_NAMESPACE
+namespace DDD {
+namespace Basic {
+
+struct NOTIFY_DESC
+{
+  DDD_PROC proc;
+  size_t size;
+};
+
+} /* namespace Basic */
+} /* namespace DDD */
+
+namespace DDD {
 
 /****************************************************************************/
 /*                                                                          */
@@ -43,19 +56,13 @@ START_UGDIM_NAMESPACE
 
 #define EXCEPTION_NOTIFY  -1
 
-
 /****************************************************************************/
 /*                                                                          */
 /* data structures                                                          */
 /*                                                                          */
 /****************************************************************************/
 
-struct NOTIFY_DESC
-{
-  DDD_PROC proc;
-  size_t size;
-};
-
+using NOTIFY_DESC = DDD::Basic::NOTIFY_DESC;
 
 /****************************************************************************/
 /*                                                                          */
@@ -64,13 +71,13 @@ struct NOTIFY_DESC
 /****************************************************************************/
 
 
-void         NotifyInit (void);
-void         NotifyExit (void);
+void         NotifyInit(DDD::DDDContext& context);
+void         NotifyExit(DDD::DDDContext& context);
 
-NOTIFY_DESC *DDD_NotifyBegin (int);
-void         DDD_NotifyEnd (void);
-int          DDD_Notify (void);
+NOTIFY_DESC *DDD_NotifyBegin(DDD::DDDContext& context, int);
+void         DDD_NotifyEnd(DDD::DDDContext& context);
+int          DDD_Notify(DDD::DDDContext& context);
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */
 
 #endif

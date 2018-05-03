@@ -54,7 +54,15 @@
 #include <cstring>
 
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
 #include <tuple>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
 
@@ -68,7 +76,8 @@ USING_UG_NAMESPACE
 /* PPIF namespace: */
 using namespace PPIF;
 
-  START_UGDIM_NAMESPACE
+namespace DDD {
+namespace Ident {
 
 /****************************************************************************/
 /*                                                                          */
@@ -91,7 +100,7 @@ using namespace PPIF;
 
 
 /* overall mode of identification */
-enum IdentMode {
+enum class IdentMode : unsigned char {
   IMODE_IDLE = 0,          /* waiting for next DDD_IdentifyBegin() */
   IMODE_CMDS,              /* after DDD_IdentifyBegin(), before DDD_IdentifyEnd() */
   IMODE_BUSY               /* during DDD_IdentifyEnd() */
@@ -116,8 +125,8 @@ enum IdentMode {
 
 
 /* map memory allocation calls */
-#define OO_Allocate  ident_AllocTmp
-#define OO_Free      ident_FreeTmp
+#define OO_Allocate  std::malloc
+#define OO_Free      std::free
 
 
 /* extra prefix for all xfer-related data structures and/or typedefs */
@@ -131,24 +140,6 @@ enum IdentMode {
  */
 #define ContainerImplementation
 #define _CHECKALLOC(ptr)   assert(ptr!=NULL)
-
-
-/***/
-
-
-static int TmpMem_kind = TMEM_ANY;
-
-static void *ident_AllocTmp (size_t size)
-{
-  return AllocTmpReq(size, TmpMem_kind);
-}
-
-static void ident_FreeTmp (void *buffer)
-{
-  FreeTmpReq(buffer, 0, TmpMem_kind);
-}
-
-
 
 
 /****************************************************************************/
@@ -238,13 +229,14 @@ struct IdEntry {
   IDENTINFO msg;
 };
 
+namespace {
 
 /* define container class */
 #define SegmListOf   IdEntry
 #define SegmSize     128
 #include "basic/ooppcc.h"
 
-
+} /* namespace */
 
 
 /****************************************************************************/
@@ -266,35 +258,18 @@ struct ID_PLIST {
   msgid idin, idout;
 };
 
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-static ID_PLIST   *thePLists;
-static int cntIdents, nPLists;
-
-static enum IdentMode identMode;
-
-
+} /* namespace Ident */
+} /* namespace DDD */
 
 /****************************************************************************/
 /*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
+
+START_UGDIM_NAMESPACE
+
+using namespace DDD::Ident;
 
 /****************************************************************************/
 /*
@@ -306,39 +281,37 @@ static enum IdentMode identMode;
         and recovery.
  */
 
-static const char *IdentModeName (enum IdentMode mode)
+static const char *IdentModeName(IdentMode mode)
 {
   switch(mode)
   {
-  case IMODE_IDLE : return "idle-mode";
-  case IMODE_CMDS : return "commands-mode";
-  case IMODE_BUSY : return "busy-mode";
+  case IdentMode::IMODE_IDLE : return "idle-mode";
+  case IdentMode::IMODE_CMDS : return "commands-mode";
+  case IdentMode::IMODE_BUSY : return "busy-mode";
   }
   return "unknown-mode";
 }
 
 
-static void IdentSetMode (enum IdentMode mode)
+static void IdentSetMode(DDD::DDDContext& context, IdentMode mode)
 {
-  identMode = mode;
+  context.identContext().identMode = mode;
 
 #       if DebugIdent<=8
-  sprintf(cBuffer, "%4d: IdentMode=%s.\n",
-          me, IdentModeName(identMode));
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "IdentMode=" << IdentModeName(mode) << "\n";
 #       endif
 }
 
 
-static enum IdentMode IdentSuccMode (enum IdentMode mode)
+static IdentMode IdentSuccMode(IdentMode mode)
 {
   switch(mode)
   {
-  case IMODE_IDLE : return IMODE_CMDS;
-  case IMODE_CMDS : return IMODE_BUSY;
-  case IMODE_BUSY : return IMODE_IDLE;
+  case IdentMode::IMODE_IDLE : return IdentMode::IMODE_CMDS;
+  case IdentMode::IMODE_CMDS : return IdentMode::IMODE_BUSY;
+  case IdentMode::IMODE_BUSY : return IdentMode::IMODE_IDLE;
   }
-  return IMODE_IDLE;
+  DUNE_THROW(Dune::InvalidStateException, "invalid IdentMode");
 }
 
 
@@ -351,23 +324,22 @@ static enum IdentMode IdentSuccMode (enum IdentMode mode)
  */
 
 
-static int IdentActive (void)
+static bool IdentActive(const DDD::DDDContext& context)
 {
-  return identMode!=IMODE_IDLE;
+  return context.identContext().identMode != IdentMode::IMODE_IDLE;
 }
 
 
-static int IdentStepMode (enum IdentMode old)
+static bool IdentStepMode(DDD::DDDContext& context, IdentMode old)
 {
-  if (identMode!=old)
-  {
-    sprintf(cBuffer, ERR_ID_WRONG_MODE,
-            IdentModeName(identMode), IdentModeName(old));
-    DDD_PrintError('E', 3070, cBuffer);
-    return false;
-  }
+  auto& identMode = context.identContext().identMode;
 
-  IdentSetMode(IdentSuccMode(identMode));
+  if (identMode != old)
+    DUNE_THROW(Dune::Exception,
+               "wrong Ident-mode (currently in " << IdentModeName(identMode)
+               << ", expected " << IdentModeName(old) << ")");
+
+  IdentSetMode(context, IdentSuccMode(identMode));
   return true;
 }
 
@@ -377,9 +349,11 @@ static int IdentStepMode (enum IdentMode old)
 
 static void PrintPList (ID_PLIST *plist)
 {
-  sprintf(cBuffer, "%d: PList proc=%04d entries=%05d\n",
-          me, plist->proc, plist->nEntries);
-  DDD_PrintDebug(cBuffer);
+  using std::setw;
+  std::ostream& out = std::cout;
+
+  out << "PList proc=" << setw(4) << plist->proc
+      << " entries=" << setw(5) << plist->nEntries << "\n";
 }
 
 
@@ -501,11 +475,7 @@ static int sort_tupelOrder (const void *e1, const void *e2)
   if (OBJ_TYPE(el1hdr) > OBJ_TYPE(el2hdr)) return(1);
 
 
-  if (el1hdr!=el2hdr)
-  {
-    sprintf(cBuffer, ERR_ID_SAME_TUPEL, OBJ_GID(el1hdr), OBJ_GID(el2hdr));
-    DDD_PrintError('E', 3030, cBuffer);
-
+  if (el1hdr!=el2hdr) {
     /*
        for(i=0; i<nIds; i++) {
             printf("%4d: tupel[%d]  %08x/%d  %08x/%d   (id/loi)\n",
@@ -515,7 +485,9 @@ static int sort_tupelOrder (const void *e1, const void *e2)
        }
      */
 
-    HARD_EXIT;
+    DUNE_THROW(Dune::Exception,
+               "same identification tupel for objects "
+               << OBJ_GID(el1hdr) << " and " << OBJ_GID(el2hdr));
   }
 
   return(0);
@@ -538,11 +510,9 @@ static void SetLOI (IDENTINFO *ii, int loi)
 
   /* primitive cycle detection */
   if (tupel->loi > 64)
-  {
-    sprintf(cBuffer, ERR_ID_OBJ_CYCLE, ii->msg.gid, ii->id.object);
-    DDD_PrintError('E', 3310, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "IdentifyObject-cycle, objects "
+               << ii->msg.gid << " and " << ii->id.object);
 
 
   for(rby=tupel->refd; rby!=NULL; rby=rby->next)
@@ -559,31 +529,25 @@ static void ResolveDependencies (
   ID_TUPEL  *tupels, int nTupels,
   IDENTINFO **id, int nIds, int nIdentObjs)
 {
-  IDENTINFO **refd;
   int i, j;
 
   if (nIdentObjs==0)
     return;
 
-  refd = (IDENTINFO **) AllocTmp(sizeof(IDENTINFO *)*nIdentObjs);
-  if (refd==NULL) {
-    DDD_PrintError('E', 3300, ERR_ID_NOMEM_RESOLV);
-    return;
-  }
+  std::vector<IDENTINFO*> refd;
+  refd.reserve(nIdentObjs);
 
   /* build array of pointers to objects being used for identification */
-  for(i=0, j=0; i<nIds; i++)
-  {
-    if (id[i]->typeId==ID_OBJECT)
-    {
-      refd[j] = id[i];
-      j++;
-    }
-  }
+  std::copy_if(
+    id, id + nIds,
+    std::back_inserter(refd),
+    [](const IDENTINFO* ii) { return ii->typeId == ID_OBJECT; }
+    );
+  assert(refd.size() == nIdentObjs);
 
   /* sort it according to GID of referenced objects */
   std::sort(
-    refd, refd + nIdentObjs,
+    refd.begin(), refd.end(),
     [](const IDENTINFO* a, const IDENTINFO* b) {
       return a->id.object < b->id.object;
     });
@@ -604,11 +568,7 @@ static void ResolveDependencies (
     while (j<nIdentObjs &&
            refd[j]->id.object == tupels[i].infos[0]->msg.gid)
     {
-      ID_REFDBY *rby = (ID_REFDBY *)AllocTmpReq(sizeof(ID_REFDBY),TMEM_IDENT);
-      if (rby==NULL) {
-        DDD_PrintError('E', 3301, ERR_ID_NOMEM_RESOLV);
-        return;
-      }
+      ID_REFDBY *rby = new ID_REFDBY;
 
       /* remember that idp[i] is referenced by refd[j] */
       rby->by        = refd[j];
@@ -618,8 +578,6 @@ static void ResolveDependencies (
       j++;
     }
   }
-
-  FreeTmp(refd,0);
 
 
   for(i=0; i<nTupels; i++)
@@ -641,13 +599,13 @@ static void ResolveDependencies (
   {
     ID_REFDBY *rby;
 
-    printf("%4d: %08x has loi %d\n",
-           me, tupels[i].infos[0]->msg.gid, tupels[i].loi);
+    printf("%08x has loi %d\n",
+           tupels[i].infos[0]->msg.gid, tupels[i].loi);
 
     for(rby=tupels[i].refd; rby!=NULL; rby=rby->next)
     {
-      printf("%4d: %08x referenced by %08x\n",
-             me, tupels[i].infos[0]->msg.gid, rby->by->msg.gid);
+      printf("%08x referenced by %08x\n",
+             tupels[i].infos[0]->msg.gid, rby->by->msg.gid);
     }
   }
 #       endif
@@ -668,7 +626,7 @@ static void CleanupLOI (ID_TUPEL *tupels, int nTupels)
       next = rby->next;
 
       /* TODO use freelists */
-      FreeTmpReq(rby, sizeof(ID_REFDBY), TMEM_IDENT);
+      delete rby;
     }
   }
 }
@@ -727,12 +685,12 @@ static void TupelInit (ID_TUPEL *tupel, IDENTINFO **id, int nIds)
 
 
 
-static int IdentifySort (IDENTINFO **id, int nIds,
+static int IdentifySort (const DDD::DDDContext& context,
+                         IDENTINFO **id, int nIds,
                          int nIdentObjs, MSGITEM *items_out, ID_TUPEL **indexmap_out,
                          DDD_PROC dest
                          )
 {
-  ID_TUPEL *tupels;
   int i, j, last, nTupels;
   int keep_order_inside_tupel;
 
@@ -742,7 +700,7 @@ static int IdentifySort (IDENTINFO **id, int nIds,
      inside each tupel is kept. for IDMODE_SETS, each tupel
      is sorted according to the identificators themselves. */
   STAT_RESET3;
-  switch (DDD_GetOption(OPT_IDENTIFY_MODE))
+  switch (DDD_GetOption(context, OPT_IDENTIFY_MODE))
   {
   case IDMODE_LISTS :
     std::sort(id, id + nIds, sort_intoTupelsLists);
@@ -755,8 +713,7 @@ static int IdentifySort (IDENTINFO **id, int nIds,
     break;
 
   default :
-    DDD_PrintError('E', 3330, ERR_ID_UNKNOWN_OPT);
-    HARD_EXIT;
+    DUNE_THROW(Dune::Exception, "unknown OPT_IDENTIFY_MODE");
   }
   STAT_INCTIMER3(T_QSORT_TUPEL);
 
@@ -770,11 +727,7 @@ static int IdentifySort (IDENTINFO **id, int nIds,
       last=i;
     }
   }
-  tupels = (ID_TUPEL *) AllocTmp(sizeof(ID_TUPEL)*nTupels);
-  if (tupels==NULL) {
-    DDD_PrintError('E', 3000, ERR_ID_NOMEM_SORT);
-    return(0);
-  }
+  ID_TUPEL* tupels = new ID_TUPEL[nTupels];
 
   /* init tupels (e.g., compute tupel ids) */
   for(i=0, last=0, j=0; i<nIds; i++)
@@ -880,8 +833,8 @@ static int IdentifySort (IDENTINFO **id, int nIds,
        int k;
      */
 #               if DebugIdent<=1
-    printf("%4d: Ident dest=%d msg_idx[ %08x ] = %5d, loi=%d\n",
-           me, dest, tupels[j].infos[0]->msg.gid, j, tupels[j].loi);
+    printf("Ident dest=%d msg_idx[ %08x ] = %5d, loi=%d\n",
+           dest, tupels[j].infos[0]->msg.gid, j, tupels[j].loi);
 #               endif
 
     /*
@@ -915,35 +868,37 @@ static int IdentifySort (IDENTINFO **id, int nIds,
 
 
 
-static int InitComm (int nPartners)
+static int InitComm(DDD::DDDContext& context, int nPartners)
 {
+  auto& ctx = context.identContext();
+
   ID_PLIST  *plist;
   int i, err;
-  DDD_PROC  *partners = DDD_ProcArray();
+  DDD_PROC  *partners = DDD_ProcArray(context);
 
   /* fill partner processor numbers into array */
-  for(plist=thePLists, i=0; i<nPartners; i++, plist=plist->next)
+  for(plist=ctx.thePLists, i=0; i<nPartners; i++, plist=plist->next)
     partners[i] = plist->proc;
 
-  if (! IS_OK(DDD_GetChannels(nPartners)))
+  if (! IS_OK(DDD_GetChannels(context, nPartners)))
   {
     return(false);
   }
 
 
   /* initiate asynchronous receives and sends */
-  for(plist=thePLists; plist!=NULL; plist=plist->next)
+  for(plist=ctx.thePLists; plist!=NULL; plist=plist->next)
   {
     long *len_adr;
 
-    plist->idin = RecvASync(VCHAN_TO(plist->proc),
+    plist->idin = RecvASync(context.ppifContext(), VCHAN_TO(context, plist->proc),
                             ((char *)plist->msgin) - sizeof(long),
                             sizeof(MSGITEM)*plist->nEntries + sizeof(long), &err);
 
     /* store number of entries at beginning of message */
     len_adr = (long *) (((char *)plist->msgout) - sizeof(long));
     *len_adr = plist->nEntries;
-    plist->idout = SendASync(VCHAN_TO(plist->proc),
+    plist->idout = SendASync(context.ppifContext(), VCHAN_TO(context, plist->proc),
                              ((char *)plist->msgout) - sizeof(long),
                              sizeof(MSGITEM)*plist->nEntries + sizeof(long), &err);
   }
@@ -959,29 +914,28 @@ static int InitComm (int nPartners)
         pairwise consistent.
  */
 
-static void idcons_CheckPairs (void)
+static void idcons_CheckPairs(DDD::DDDContext& context)
 {
-  NOTIFY_DESC *msgs = DDD_NotifyBegin(nPLists);
+  auto& ctx = context.identContext();
+
+  NOTIFY_DESC *msgs = DDD_NotifyBegin(context, ctx.nPLists);
   ID_PLIST        *plist;
   int i, j, nRecvs, err=false;
 
-  for(i=0, plist=thePLists; plist!=NULL; plist=plist->next, i++)
+  for(i=0, plist=ctx.thePLists; plist!=NULL; plist=plist->next, i++)
   {
     msgs[i].proc = plist->proc;
     msgs[i].size = plist->nEntries;
   }
 
   /* communicate */
-  nRecvs = DDD_Notify();
+  nRecvs = DDD_Notify(context);
   if (nRecvs==ERROR)
-  {
-    DDD_PrintError('E', 3907, ERR_ID_NOTIFY_FAILED);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception, "Notify failed in Ident-ConsCheck");
 
 
   /* perform checking */
-  for(plist=thePLists; plist!=NULL; plist=plist->next)
+  for(plist=ctx.thePLists; plist!=NULL; plist=plist->next)
   {
     for(j=0; j<nRecvs; j++)
     {
@@ -991,32 +945,27 @@ static void idcons_CheckPairs (void)
 
     if (j==nRecvs)
     {
-      sprintf(cBuffer, ERR_ID_DIFF_IDENT, plist->proc, plist->nEntries);
-      DDD_PrintError('E', 3900, cBuffer);
+      Dune::dgrave << "Identify: no Ident-calls from proc " << plist->proc
+                   << ", expected " << plist->nEntries << "\n";
       err=true;
     }
-    else
+    else if (msgs[j].size!=plist->nEntries)
     {
-      if (msgs[j].size!=plist->nEntries)
-      {
-        sprintf(cBuffer, ERR_ID_DIFF_N_IDENT,
-                msgs[j].size, plist->proc, plist->nEntries);
-        DDD_PrintError('E', 3901, cBuffer);
-        err=true;
-      }
+      Dune::dgrave << "Identify: " << msgs[j].size << " Ident-calls from proc "
+                   << plist->proc << ", expected " << plist->nEntries << "\n";
+      err=true;
     }
   }
 
-  DDD_NotifyEnd();
+  DDD_NotifyEnd(context);
 
   if (err)
   {
-    DDD_PrintError('E', 3908, ERR_ID_ERRORS);
-    HARD_EXIT;
+    DUNE_THROW(Dune::Exception, "found errors in IdentifyEnd()");
   }
   else
   {
-    DDD_PrintError('W', 3909, ERR_ID_OK);
+    Dune::dwarn << "Ident-ConsCheck level 0: ok\n";
   }
 }
 
@@ -1038,8 +987,10 @@ static void idcons_CheckPairs (void)
         of local communications between the processors.
  */
 
-DDD_RET DDD_IdentifyEnd (void)
+DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 {
+  auto& ctx = context.identContext();
+
   ID_PLIST        *plist, *pnext=NULL;
   int cnt, j;
 
@@ -1050,31 +1001,28 @@ DDD_RET DDD_IdentifyEnd (void)
   STAT_ZEROALL;
 
 #       if DebugIdent<=9
-  printf("%4d: DDD_IdentifyEnd.\n", me);
+  printf("DDD_IdentifyEnd.\n");
   fflush(stdout);
 #       endif
 
   /* step mode and check whether call to IdentifyEnd is valid */
-  if (!IdentStepMode(IMODE_CMDS))
-  {
-    DDD_PrintError('E', 3071, ERR_ID_ABORT_END);
-    HARD_EXIT;
-  };
+  if (!IdentStepMode(context, IdentMode::IMODE_CMDS))
+    DUNE_THROW(Dune::Exception, "DDD_IdentifyEnd() aborted");
 
 
 #   if DebugIdent<=9
-  idcons_CheckPairs();
+  idcons_CheckPairs(context);
 #       endif
 
 
   STAT_RESET1;
 
   /* for each id_plist entry */
-  for(plist=thePLists, cnt=0; plist!=NULL; plist=plist->next, cnt++)
+  for(plist=ctx.thePLists, cnt=0; plist!=NULL; plist=plist->next, cnt++)
   {
     /* allocate message buffers */
     /* use one alloc for three buffers */
-    plist->local_ids = (IDENTINFO **) AllocTmp(
+    plist->local_ids = (IDENTINFO **) std::malloc(
       sizeof(IDENTINFO *)*plist->nEntries +                    /* for local id-infos  */
       sizeof(long) +                                           /* len of incoming msg */
       sizeof(MSGITEM)    *plist->nEntries +                    /* for incoming msg    */
@@ -1083,10 +1031,8 @@ DDD_RET DDD_IdentifyEnd (void)
       );
 
     if (plist->local_ids==NULL)
-    {
-      DDD_PrintError('F',3100, ERR_ID_NOMEM_IDENT_END);
-      HARD_EXIT;
-    }
+      throw std::bad_alloc();
+
     plist->msgin  = (MSGITEM *)
                     (((char *)&plist->local_ids[plist->nEntries]) + sizeof(long));
     plist->msgout = (MSGITEM *)
@@ -1116,7 +1062,8 @@ DDD_RET DDD_IdentifyEnd (void)
 
     /* sort outgoing items */
     STAT_RESET2;
-    plist->nEntries = IdentifySort(plist->local_ids, plist->nEntries,
+    plist->nEntries = IdentifySort(context,
+                                   plist->local_ids, plist->nEntries,
                                    plist->nIdentObjs,
                                    plist->msgout,  /* output: msgbuffer outgoing */
                                    &plist->indexmap, /* output: mapping of indices to local_ids array */
@@ -1133,11 +1080,8 @@ DDD_RET DDD_IdentifyEnd (void)
 
   /* initiate comm-channels and send/receive calls */
   STAT_RESET1;
-  if (!InitComm(cnt))
-  {
-    DDD_PrintError('E', 3074, ERR_ID_ABORT_END);
-    HARD_EXIT;
-  }
+  if (!InitComm(context, cnt))
+    DUNE_THROW(Dune::Exception, "DDD_IdentifyEnd() aborted");
 
 
   /*
@@ -1147,18 +1091,18 @@ DDD_RET DDD_IdentifyEnd (void)
    */
 
 #       if DebugIdent<=4
-  printf("%4d: DDD_IdentifyEnd. PLists ready.\n", me); fflush(stdout);
+  printf("DDD_IdentifyEnd. PLists ready.\n"); fflush(stdout);
 #       endif
 
 
   /* poll receives */
-  for(plist=thePLists, j=0; j<cnt; )
+  for(plist=ctx.thePLists, j=0; j<cnt; )
   {
     if (plist->msgin!=NULL)
     {
       int ret, i;
 
-      if ((ret=InfoARecv(VCHAN_TO(plist->proc), plist->idin))==1)
+      if ((ret=InfoARecv(context.ppifContext(), VCHAN_TO(context, plist->proc), plist->idin))==1)
       {
         /* process single plist */
         MSGITEM   *msgin  = plist->msgin;
@@ -1167,17 +1111,15 @@ DDD_RET DDD_IdentifyEnd (void)
         /* check control data */
         long *len_adr = (long *) (((char *)msgin) - sizeof(long));
         if (*len_adr != plist->nEntries)
-        {
-          sprintf(cBuffer, ERR_ID_DIFF_N_OBJECTS,
-                  (int)*len_adr, plist->proc, plist->nEntries);
-          DDD_PrintError('E', 3902, cBuffer);
-          HARD_EXIT;
-        }
+          DUNE_THROW(Dune::Exception,
+                     "Identify: " << ((int) *len_adr) << " identified objects"
+                     << " from proc " << plist->proc << ", expected "
+                     << plist->nEntries);
 
         for(i=0; i<plist->nEntries; i++, msgin++, msgout++)
         {
 #                                       if DebugIdent<=1
-          printf("%4d: identifying %08x with %08x/%d to %08x\n", me,
+          printf("identifying %08x with %08x/%d to %08x\n",
                  OBJ_GID(msgout->infos[0]->hdr), msgin->gid,
                  plist->proc,
                  MIN(OBJ_GID(msgout->infos[0]->hdr), msgin->gid));
@@ -1186,11 +1128,10 @@ DDD_RET DDD_IdentifyEnd (void)
 #                                       if DebugIdent<=DebugIdentCons
           if (msgout->tId != msgin->tupel)
           {
-            sprintf(cBuffer, ERR_ID_INCONS_TUPELS,
-                    OBJ_GID(msgout->infos[0]->hdr), me,
-                    msgin->gid, plist->proc);
-            DDD_PrintError('E', 3920, cBuffer);
-            HARD_EXIT;
+            DUNE_THROW(Dune::Exception,
+                       "inconsistent tupels, gid "
+                       << OBJ_GID(msgout->infos[0]->hdr) << " on " << context.me()
+                       << ", gid " << msgin->gid << " on " << plist->proc);
           }
 #                                       endif
 
@@ -1199,11 +1140,11 @@ DDD_RET DDD_IdentifyEnd (void)
             MIN(OBJ_GID(msgout->infos[0]->hdr), msgin->gid);
 
           /* add a coupling for new object copy */
-          AddCoupling(msgout->infos[0]->hdr, plist->proc, msgin->prio);
+          AddCoupling(context, msgout->infos[0]->hdr, plist->proc, msgin->prio);
         }
 
         /* free indexmap (=tupel) array */
-        FreeTmp(plist->indexmap,0);
+        delete[] plist->indexmap;
 
         /* mark plist as finished */
         plist->msgin=NULL;
@@ -1212,38 +1153,35 @@ DDD_RET DDD_IdentifyEnd (void)
       else
       {
         if (ret==-1)
-        {
-          sprintf(cBuffer, ERR_ID_CANT_RECV, plist->proc);
-          DDD_PrintError('E', 3921, cBuffer);
-          HARD_EXIT;
-        }
+          DUNE_THROW(Dune::Exception,
+                     "couldn't receive message from " << plist->proc);
       }
     }
 
     /* next plist, perhaps restart */
-    plist=plist->next; if (plist==NULL) plist=thePLists;
+    plist=plist->next; if (plist==NULL) plist=ctx.thePLists;
   };
   STAT_TIMER1(T_COMM_AND_IDENT);
 
   /* poll sends */
-  for(plist=thePLists; plist!=0; plist=pnext)
+  for(plist=ctx.thePLists; plist!=0; plist=pnext)
   {
     pnext = plist->next;
 
     /* wait for correct send and free buffer */
-    while(InfoASend(VCHAN_TO(plist->proc), plist->idout)!=1)
+    while(InfoASend(context.ppifContext(), VCHAN_TO(context, plist->proc), plist->idout)!=1)
       ;
 
     /* now, the plist->entries list isn't needed anymore, free */
     IdEntrySegmList_Free(plist->entries);
 
-    FreeTmp(plist->local_ids,0);
-    FreeTmpReq(plist, sizeof(ID_PLIST), TMEM_IDENT);
+    std::free(plist->local_ids);
+    delete plist;
   };
 
 
 #       if DebugIdent<=8
-  printf("%4d: DDD_IdentifyEnd. Rebuilding interfaces.\n", me);
+  printf("DDD_IdentifyEnd. Rebuilding interfaces.\n");
   fflush(stdout);
 #       endif
 
@@ -1251,15 +1189,15 @@ DDD_RET DDD_IdentifyEnd (void)
 
   /* rebuild interfaces after topological change */
   STAT_RESET1;
-  IFAllFromScratch();
+  IFAllFromScratch(context);
   STAT_TIMER1(T_BUILD_IF);
 
 
 #       if DebugIdent<=9
-  printf("%4d: DDD_IdentifyEnd. Ready.\n", me); fflush(stdout);
+  printf("DDD_IdentifyEnd. Ready.\n"); fflush(stdout);
 #       endif
 
-  IdentStepMode(IMODE_BUSY);
+  IdentStepMode(context, IdentMode::IMODE_BUSY);
 
   return(DDD_RET_OK);
 }
@@ -1269,36 +1207,30 @@ DDD_RET DDD_IdentifyEnd (void)
 /****************************************************************************/
 
 
-static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
+static IdEntry *IdentifyIdEntry(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, int typeId)
 {
+  auto& ctx = context.identContext();
+
   IdEntry     *id;
   ID_PLIST        *plist;
 
   /* check whether Identify-call is valid */
-  if (!IdentActive())
-  {
-    DDD_PrintError('E', 3072, ERR_ID_NO_BEGIN);
-    HARD_EXIT;
-  }
+  if (!IdentActive(context))
+    DUNE_THROW(Dune::Exception, "Missing DDD_IdentifyBegin(), aborted");
 
-  if (proc==me)
-  {
-    sprintf(cBuffer, ERR_ID_NOT_WITH_ME, OBJ_GID(hdr));
-    DDD_PrintError('E', 3060, cBuffer);
-    HARD_EXIT;
-  }
+  if (proc == context.me())
+    DUNE_THROW(Dune::Exception,
+               "cannot identify " << OBJ_GID(hdr) << " with myself");
 
-  if (proc>=procs)
-  {
-    sprintf(cBuffer, ERR_ID_NOT_WITH_PROC, OBJ_GID(hdr), proc);
-    DDD_PrintError('E', 3061, cBuffer);
-    HARD_EXIT;
-  }
+  if (proc >= context.procs())
+    DUNE_THROW(Dune::Exception,
+               "cannot identify " << OBJ_GID(hdr)
+               << " with processor " << proc);
 
 
 
   /* search current plist entries */
-  for(plist=thePLists; plist!=NULL; plist=plist->next) {
+  for(plist=ctx.thePLists; plist!=NULL; plist=plist->next) {
     if (plist->proc==proc)
       break;
   }
@@ -1306,19 +1238,15 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
   if (plist==NULL)
   {
     /* get new id_plist record */
-    plist = (ID_PLIST *) AllocTmpReq(sizeof(ID_PLIST),TMEM_IDENT);
-    if (plist==NULL) {
-      DDD_PrintError('F', 3210, ERR_ID_NOMEM_IDENTRY);
-      return(NULL);
-    }
+    plist = new ID_PLIST;
 
     plist->proc = proc;
     plist->nEntries = 0;
     plist->entries = New_IdEntrySegmList();
     plist->nIdentObjs = 0;
-    plist->next = thePLists;
-    thePLists = plist;
-    nPLists++;
+    plist->next = ctx.thePLists;
+    ctx.thePLists = plist;
+    ctx.nPLists++;
   }
 
 
@@ -1340,7 +1268,7 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
           id->msg.msg.prio = OBJ_PRIO(hdr);
    */
 
-  id->msg.entry = cntIdents++;
+  id->msg.entry = ctx.cntIdents++;
 
   return(id);
 }
@@ -1374,20 +1302,18 @@ static IdEntry *IdentifyIdEntry (DDD_HDR hdr, DDD_PROC proc, int typeId)
    @param ident Identification value. This is an arbitrary number to identify two corresponding operations on different processors.
  */
 
-void DDD_IdentifyNumber (DDD_HDR hdr, DDD_PROC proc, int ident)
+void DDD_IdentifyNumber(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, int ident)
 {
 IdEntry *id;
 
-id = IdentifyIdEntry(hdr, proc, ID_NUMBER);
-if (id==NULL) {
-  DDD_PrintError('F', 3200, ERR_ID_NOMEM_IDNUMBER);
-  return;
-}
+id = IdentifyIdEntry(context, hdr, proc, ID_NUMBER);
+if (id==NULL)
+  throw std::bad_alloc();
 
 id->msg.id.number = ident;
 
         #if DebugIdent<=2
-printf("%4d: IdentifyNumber %08x %02d with %4d num %d\n", me,
+printf("%4d: IdentifyNumber %08x %02d with %4d num %d\n", context.me(),
        OBJ_GID(hdr), OBJ_TYPE(hdr), proc, id->msg.id.number);
         #endif
 }
@@ -1421,20 +1347,18 @@ printf("%4d: IdentifyNumber %08x %02d with %4d num %d\n", me,
    @param ident Identification value. This is an arbitrary string to identify two corresponding operations on different processors.
  */
 
-void DDD_IdentifyString (DDD_HDR hdr, DDD_PROC proc, char *ident)
+void DDD_IdentifyString(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, char *ident)
 {
 IdEntry *id;
 
-id = IdentifyIdEntry(hdr, proc, ID_STRING);
-if (id==NULL) {
-  DDD_PrintError('F', 3201, ERR_ID_NOMEM_IDSTRING);
-  return;
-}
+id = IdentifyIdEntry(context, hdr, proc, ID_STRING);
+if (id==NULL)
+  throw std::bad_alloc();
 
 id->msg.id.string = ident;
 
         #if DebugIdent<=2
-printf("%4d: IdentifyString %08x %02d with %4d str %s\n", me,
+printf("%4d: IdentifyString %08x %02d with %4d str %s\n", context.me(),
        OBJ_GID(hdr), OBJ_TYPE(hdr), proc, id->msg.id.string);
         #endif
 }
@@ -1474,15 +1398,13 @@ printf("%4d: IdentifyString %08x %02d with %4d str %s\n", me,
    @param ident Identification object. This is an arbitrary global object which is known to both processors involved to identify the two corresponding operations on these processors.
  */
 
-void DDD_IdentifyObject (DDD_HDR hdr, DDD_PROC proc, DDD_HDR ident)
+void DDD_IdentifyObject(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_HDR ident)
 {
 IdEntry *id;
 
-id = IdentifyIdEntry(hdr, proc, ID_OBJECT);
-if (id==NULL) {
-  DDD_PrintError('F', 3202, ERR_ID_NOMEM_IDOBJ);
-  return;
-}
+id = IdentifyIdEntry(context, hdr, proc, ID_OBJECT);
+if (id==NULL)
+  throw std::bad_alloc();
 
 /* use OBJ_GID as estimate for identification value, this estimate
    might be replaced when the corresponding object is identified
@@ -1492,7 +1414,7 @@ if (id==NULL) {
 id->msg.id.object = OBJ_GID(ident);
 
         #if DebugIdent<=2
-printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", me,
+printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", context.me(),
        OBJ_GID(hdr), OBJ_TYPE(hdr), proc, id->msg.id.object);
         #endif
 }
@@ -1535,31 +1457,30 @@ printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", me,
         \end{description}
  */
 
-void DDD_IdentifyBegin (void)
+void DDD_IdentifyBegin(DDD::DDDContext& context)
 {
-  /* step mode and check whether call to IdentifyBegin is valid */
-  if (!IdentStepMode(IMODE_IDLE))
-  {
-    DDD_PrintError('E', 3073, ERR_ID_ABORT_BEGIN);
-    HARD_EXIT;
-  }
+  auto& ctx = context.identContext();
 
-  thePLists    = NULL;
-  nPLists      = 0;
-  cntIdents    = 0;
+  /* step mode and check whether call to IdentifyBegin is valid */
+  if (!IdentStepMode(context, IdentMode::IMODE_IDLE))
+    DUNE_THROW(Dune::Exception, "DDD_IdentifyBegin() aborted");
+
+  ctx.thePLists = nullptr;
+  ctx.nPLists   = 0;
+  ctx.cntIdents = 0;
 }
 
 
 /****************************************************************************/
 
 
-void ddd_IdentInit (void)
+void ddd_IdentInit(DDD::DDDContext& context)
 {
-  IdentSetMode(IMODE_IDLE);
+  IdentSetMode(context, IdentMode::IMODE_IDLE);
 }
 
 
-void ddd_IdentExit (void)
+void ddd_IdentExit(DDD::DDDContext&)
 {}
 
 /****************************************************************************/

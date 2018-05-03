@@ -33,6 +33,9 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <iomanip>
+#include <iostream>
+
 #include "dddi.h"
 #include "xfer.h"
 
@@ -61,58 +64,60 @@ START_UGDIM_NAMESPACE
 
 #ifdef DebugAllPointers
 
-static void XferPtr (LC_MSGHANDLE xm, char *buf)
+static void XferPtr (DDD::DDDContext& context, LC_MSGHANDLE xm, const std::string& prefix, std::ostream& out)
 {
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
   char         *theObjects;
   int i;
-  int lenSymTab = (int) LC_GetTableLen(xm, xferGlobals.symtab_id);
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenSymTab = (int) LC_GetTableLen(xm, ctx.symtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
 
 
   /* get table addresses inside message buffer */
-  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.symtab_id);
-  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
-  theObjects = (char *)        LC_GetPtr(xm, xferGlobals.objmem_id);
+  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, ctx.symtab_id);
+  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
+  theObjects = (char *)        LC_GetPtr(xm, ctx.objmem_id);
 
 
   /* build symbol table */
   for(i=0; i<lenObjTab; i++)            /* for all objects in message */
   {
     DDD_HDR hdr   = (DDD_HDR)(theObjects+theObjTab[i].offset);
-    TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(hdr)];
-    DDD_OBJ obj   = HDR2OBJ(hdr,desc);
-    int e;
-    ELEM_DESC  *theElem = desc->element;
+    const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(hdr)];
+    DDD_OBJ obj   = HDR2OBJ(hdr, &desc);
+    const ELEM_DESC* theElem = desc.element;
 
     /* loop over all pointers inside of object with DDD_HEADER hdr */
-    for(e=0; e<desc->nElements; e++, theElem++)
+    for(int e=0; e < desc.nElements; ++e, ++theElem)
     {
-      if (theElem->type==EL_OBJPTR)
+      if (theElem->type != EL_OBJPTR)
+        continue;
+
+      for(int l=0; l<theElem->size; l+=sizeof(void *))
       {
-        int l;
+        /* ref points to a reference inside objmem */
+        DDD_OBJ *ref = (DDD_OBJ *)(((char *)obj)+theElem->offset+l);
 
-        for(l=0; l<theElem->size; l+=sizeof(void *))
-        {
-          /* ref points to a reference inside objmem */
-          DDD_OBJ *ref = (DDD_OBJ *)(((char *)obj)+theElem->offset+l);
+        /* reference had been replaced by SymTab-index */
+        INT stIdx = ((int)*ref)-1;
 
-          /* reference had been replaced by SymTab-index */
-          INT stIdx = ((int)*ref)-1;
+        if (stIdx < 0)
+          continue;
 
-          if (stIdx>=0)
-          {
-            /* get corresponding symtab entry */
-            SYMTAB_ENTRY *st = &(theSymTab[stIdx]);
+        /* get corresponding symtab entry */
+        const SYMTAB_ENTRY *st = &(theSymTab[stIdx]);
 
-            sprintf(cBuffer, "%s 20        obj=%03d %03d st=%08x"
-                    " gid=%08x (%08x==%08x)\n",
-                    buf, theObjTab[i].offset, stIdx,
-                    st, st->gid, st->adr.hdr, st->adr.ref);
-            DDD_PrintDebug(cBuffer);
-          }
-        }
+        using std::dec;
+        using std::hex;
+        using std::setw;
+        out << prefix << " 20       "
+            << " obj=" << setw(3) << theObjTab[i].offset << " " << setw(3) << stIdx
+            << hex
+            << " st=" << setw(8) << st << " gid=" << setw(8) << st->gid
+            << "(" << setw(x) << st->adr.hdr << "=="
+            << setw(8) << st->adr.ref << ")\n"
+            << dec;
       }
     }
   }
@@ -120,29 +125,34 @@ static void XferPtr (LC_MSGHANDLE xm, char *buf)
 #endif
 
 
-void XferDisplayMsg (const char *comment, LC_MSGHANDLE xm)
+void XferDisplayMsg (DDD::DDDContext& context, const char *comment, LC_MSGHANDLE xm)
 {
+  using std::setw;
+
+  std::ostream& out = std::cout;
+  auto& ctx = context.xferContext();
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
   TENewCpl     *theNewCpl;
   TEOldCpl     *theOldCpl;
   char         *theObjects;
-  char buf[30];
   int i, proc = LC_MsgGetProc(xm);
-  int lenSymTab = (int) LC_GetTableLen(xm, xferGlobals.symtab_id);
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
-  int lenNewCpl = (int) LC_GetTableLen(xm, xferGlobals.newcpl_id);
-  int lenOldCpl = (int) LC_GetTableLen(xm, xferGlobals.oldcpl_id);
+  int lenSymTab = (int) LC_GetTableLen(xm, ctx.symtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
+  int lenNewCpl = (int) LC_GetTableLen(xm, ctx.newcpl_id);
+  int lenOldCpl = (int) LC_GetTableLen(xm, ctx.oldcpl_id);
 
-
-  sprintf(buf, " %03d-%s-%03d ", me, comment, proc);
+  std::ostringstream prefixStream;
+  prefixStream << " " << setw(3) << context.me() << "-" << comment
+               << "-" << setw(3) << proc << " ";
+  const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */
-  theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(xm, xferGlobals.symtab_id);
-  theObjTab = (OBJTAB_ENTRY *)LC_GetPtr(xm, xferGlobals.objtab_id);
-  theNewCpl = (TENewCpl *)    LC_GetPtr(xm, xferGlobals.newcpl_id);
-  theOldCpl = (TEOldCpl *)    LC_GetPtr(xm, xferGlobals.oldcpl_id);
-  theObjects= (char *)LC_GetPtr(xm, xferGlobals.objmem_id);
+  theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(xm, ctx.symtab_id);
+  theObjTab = (OBJTAB_ENTRY *)LC_GetPtr(xm, ctx.objtab_id);
+  theNewCpl = (TENewCpl *)    LC_GetPtr(xm, ctx.newcpl_id);
+  theOldCpl = (TEOldCpl *)    LC_GetPtr(xm, ctx.oldcpl_id);
+  theObjects= (char *)LC_GetPtr(xm, ctx.objmem_id);
 
 
   /* because of LC layer, this data can't be accessed anymore. KB 960718
@@ -161,57 +171,41 @@ void XferDisplayMsg (const char *comment, LC_MSGHANDLE xm)
    */
 
 
-  sprintf(cBuffer, "%s 05 ObjTab.size=%05d\n", buf, lenObjTab);
-  DDD_PrintDebug(cBuffer);
-  sprintf(cBuffer, "%s 06 SymTab.size=%05d\n", buf, lenSymTab);
-  DDD_PrintDebug(cBuffer);
-  sprintf(cBuffer, "%s 07 NewCpl.size=%05d\n", buf, lenNewCpl);
-  DDD_PrintDebug(cBuffer);
-  sprintf(cBuffer, "%s 08 OldCpl.size=%05d\n", buf, lenOldCpl);
-  DDD_PrintDebug(cBuffer);
+  out << prefix << " 05 ObjTab.size=" << setw(5) << lenObjTab << "\n";
+  out << prefix << " 06 SymTab.size=" << setw(5) << lenSymTab << "\n";
+  out << prefix << " 07 NewCpl.size=" << setw(5) << lenNewCpl << "\n";
+  out << prefix << " 08 OldCpl.size=" << setw(5) << lenOldCpl << "\n";
 
   for(i=0; i<lenObjTab; i++)
   {
+    DDD_OBJ obj = OTE_OBJ(context, theObjects, &(theObjTab[i]));
 
-    DDD_OBJ obj = OTE_OBJ(theObjects, &(theObjTab[i]));
-
-    sprintf(cBuffer, "%s 10 objtab    %06d typ=%1d gid=" OTE_GID_FMT
-            " hdr=%p size=%05d add=%05d\n",
-            buf, (((char *)obj)-theObjects), OTE_TYPE(theObjects,&(theObjTab[i])),
-            OTE_GID(theObjects,&(theObjTab[i])),
-            theObjTab[i].hdr, theObjTab[i].size, theObjTab[i].addLen);
-
-    DDD_PrintDebug(cBuffer);
+    out << prefix << " 10 objtab    " << setw(6) << (((char *)obj)-theObjects)
+        << " typ=" << OTE_TYPE(theObjects,&(theObjTab[i]))
+        << " gid=" << OTE_GID(theObjects,&(theObjTab[i]))
+        << " hdr=" << theObjTab[i].hdr << " size=" << setw(5) << theObjTab[i].size
+        << " add=" << setw(5) << theObjTab[i].addLen << "\n";
   }
 
   for(i=0; i<lenSymTab; i++)
-  {
-    sprintf(cBuffer, "%s 11 symtab %04d - " DDD_GID_FMT " (%08x==%08x)\n",
-            buf, i,
-            theSymTab[i].gid, theSymTab[i].adr.hdr, theSymTab[i].adr.ref);
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << " 11 symtab " << setw(4) << i << " - " << theSymTab[i].gid
+        << " (" << setw(8) << theSymTab[i].adr.hdr << "=="
+        << theSymTab[i].adr.ref << ")\n";
 
   for(i=0; i<lenNewCpl; i++)
-  {
-    sprintf(cBuffer, "%s 12 newcpl %04d - " DDD_GID_FMT " %4d %4d\n",
-            buf, i,
-            NewCpl_GetGid(theNewCpl[i]),
-            NewCpl_GetDest(theNewCpl[i]),
-            NewCpl_GetPrio(theNewCpl[i]));
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << "  12 newcpl " << setw(4) << i << " - "
+        << NewCpl_GetGid(theNewCpl[i])
+        << " " << setw(4) << NewCpl_GetDest(theNewCpl[i])
+        << " " << setw(4) << NewCpl_GetPrio(theNewCpl[i]) << "\n";
 
   for(i=0; i<lenOldCpl; i++)
-  {
-    sprintf(cBuffer, "%s 13 oldcpl %04d - " DDD_GID_FMT " %4d %4d\n",
-            buf, i,
-            theOldCpl[i].gid, theOldCpl[i].proc, theOldCpl[i].prio);
-    DDD_PrintDebug(cBuffer);
-  }
+    out << prefix << " 13 oldcpl " << setw(4) << i << " - "
+        << theOldCpl[i].gid
+        << " " << setw(4) << theOldCpl[i].proc
+        << " " << setw(4) << theOldCpl[i].prio << "\n";
 
 #       ifdef DebugAllPointers
-  XferPtr(xm, buf);
+  XferPtr(context, xm, prefix, out);
 #       endif
 }
 

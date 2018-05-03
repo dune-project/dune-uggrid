@@ -7,6 +7,10 @@
 #include <cassert>
 #include <vector>
 
+namespace DDD {
+struct DDDContext;
+} /* namespace DDD */
+
 /* some macros for customizing oopp */
 #define _NEWPARAMS
 #define _NEWPARAMS_OR_VOID    void
@@ -35,7 +39,7 @@ Class_Data_Begin
 int value;
 Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 
 #undef ClassName
 
@@ -57,7 +61,7 @@ void TestTreeElement_Print(TestTreeElement* element, int indent, FILE* fp)
   printf("TestTreeElement: %d\n", element->value);
 }
 
-int TestTreeElement_Compare(TestTreeElement* a, TestTreeElement* b)
+int TestTreeElement_Compare(TestTreeElement* a, TestTreeElement* b, const DDD::DDDContext*)
 {
   if (a->value < b->value)
     return -1;

@@ -35,6 +35,11 @@
 #include <cstdio>
 #include <cstring>
 
+#include <algorithm>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
 #include "dddi.h"
 #include "xfer.h"
 
@@ -91,53 +96,15 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-static int sort_SymTabEntries (const void *e1, const void *e2)
+static bool sort_SymTabEntries (const SYMTAB_ENTRY& a, const SYMTAB_ENTRY& b)
 {
-  SYMTAB_ENTRY   *ci1, *ci2;
-
-  ci1 = (SYMTAB_ENTRY *)e1;
-  ci2 = (SYMTAB_ENTRY *)e2;
-
-  if (ci1->gid < ci2->gid) return(-1);
-  if (ci1->gid == ci2->gid) return(0);
-  return(1);
+  return a.gid < b.gid;
 }
 
-
-
-static char *currentObjectMem;
-
-static int sort_ObjTabEntries (const void *e1, const void *e2)
+static bool sort_MsgSize (const XFERMSG* a, const XFERMSG* b)
 {
-  DDD_GID g1, g2;
-
-  g1 = OTE_GID(currentObjectMem, (OBJTAB_ENTRY *)e1);
-  g2 = OTE_GID(currentObjectMem, (OBJTAB_ENTRY *)e2);
-
-  /* sort with ascending gid */
-  if (g1 < g2) return(-1);
-  if (g1 > g2) return(1);
-
-  return(0);
-}
-
-
-static int sort_MsgSize (const void *e1, const void *e2)
-{
-  XFERMSG   *xm1, *xm2;
-  size_t s1, s2;
-
-  xm1 = *((XFERMSG **)e1);
-  xm2 = *((XFERMSG **)e2);
-
-  s1 = LC_GetBufferSize(xm1->msg_h);
-  s2 = LC_GetBufferSize(xm2->msg_h);
-
   /* sort with descending msg-size */
-  if (s1 < s2) return(1);
-  if (s1 > s2) return(-1);
-
-  return(0);
+  return LC_GetBufferSize(a->msg_h) > LC_GetBufferSize(b->msg_h);
 }
 
 
@@ -156,7 +123,8 @@ static int sort_MsgSize (const void *e1, const void *e2)
 /*                                                                          */
 /****************************************************************************/
 
-static int BuildSymTab (TYPE_DESC *desc,
+static int BuildSymTab (DDD::DDDContext& context,
+                        TYPE_DESC *desc,
                         DDD_OBJ obj,
                         const char *copy,
                         SYMTAB_ENTRY *theSymTab)
@@ -183,7 +151,7 @@ static int BuildSymTab (TYPE_DESC *desc,
       if (! rt_on_the_fly)
       {
         /* we know the reftype of this element in advance */
-        refdesc = &theTypeDefs[EDESC_REFTYPE(theElem)];
+        refdesc = &context.typeDefs()[EDESC_REFTYPE(theElem)];
       }
       /* else: determine reftype on the fly by calling handler */
 
@@ -207,15 +175,12 @@ static int BuildSymTab (TYPE_DESC *desc,
             /* determine reftype on the fly by calling handler */
             assert(obj!=NULL);                                       /* we need a real object here */
 
-            rt = theElem->reftypeHandler(obj, *ref);
+            rt = theElem->reftypeHandler(context, obj, *ref);
             if (rt>=MAX_TYPEDESC)
-            {
-              DDD_PrintError('E', 6520,
-                             "invalid referenced DDD_TYPE "
-                             "returned by handler");
-              HARD_EXIT;
-            }
-            refdesc = &theTypeDefs[rt];
+              DUNE_THROW(Dune::Exception,
+                         "invalid referenced DDD_TYPE returned by handler");
+
+            refdesc = &context.typeDefs()[rt];
           }
 
           /* get header of referenced object */
@@ -256,14 +221,14 @@ static int BuildSymTab (TYPE_DESC *desc,
 /*                                                                          */
 /****************************************************************************/
 
-static int GetDepData (char *data,
+static int GetDepData (DDD::DDDContext& context,
+                       char *data,
                        TYPE_DESC *desc,
                        DDD_OBJ obj,
                        SYMTAB_ENTRY *theSymTab,
                        XICopyObj *xi)
 {
   XFERADDDATA  *xa;
-  TYPE_DESC    *descDep;
   char         *chunk, *adr, **table1, *next_chunk;
   int chunks, i, actSym, *table2;
 
@@ -292,17 +257,17 @@ static int GetDepData (char *data,
       /* then all records should be gathered via handler */
       if (desc->handlerXFERGATHER)
       {
-        desc->handlerXFERGATHER( obj,
+        desc->handlerXFERGATHER( context, obj,
                                  xa->addCnt, xa->addTyp, (void *)chunk);
       }
 
       if (xa->addTyp<DDD_USER_DATA || xa->addTyp>DDD_USER_DATA_MAX)
       {
         /* insert pointers into symtab */
-        descDep = &theTypeDefs[xa->addTyp];
+        TYPE_DESC* descDep = &context.typeDefs()[xa->addTyp];
         for(i=0; i<xa->addCnt; i++)
         {
-          actSym += BuildSymTab(descDep, NULL,
+          actSym += BuildSymTab(context, descDep, NULL,
                                 chunk, &(theSymTab[actSym]));
           chunk += CEIL(descDep->size);
         }
@@ -332,20 +297,20 @@ static int GetDepData (char *data,
       /* then all records should be gathered via handler */
       if (desc->handlerXFERGATHERX)
       {
-        desc->handlerXFERGATHERX( obj,
+        desc->handlerXFERGATHERX( context, obj,
                                   xa->addCnt, xa->addTyp, table1);
       }
 
       /* convert pointer table into offset table */
       table2 = (int *)table1;
-      descDep = &theTypeDefs[xa->addTyp];
+      TYPE_DESC* descDep = &context.typeDefs()[xa->addTyp];
       adr = chunk;
       for(i=0; i<xa->addCnt; i++)
       {
         /* insert pointers into symtab */
         if (xa->addTyp<DDD_USER_DATA || xa->addTyp>DDD_USER_DATA_MAX)
         {
-          actSym += BuildSymTab(descDep, NULL,
+          actSym += BuildSymTab(context, descDep, NULL,
                                 table1[i], &(theSymTab[actSym]));
         }
 
@@ -385,8 +350,10 @@ static int GetDepData (char *data,
 /*                                                                          */
 /****************************************************************************/
 
-static void XferPackSingleMsg (XFERMSG *msg)
+static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
 {
+  auto& ctx = context.xferContext();
+
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
   TENewCpl     *theNewCpl;
@@ -395,11 +362,11 @@ static void XferPackSingleMsg (XFERMSG *msg)
   int i, actSym, actNewCpl, actOldCpl, actObj;
 
   /* get table addresses inside message */
-  theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(msg->msg_h, xferGlobals.symtab_id);
-  theObjTab = (OBJTAB_ENTRY *)LC_GetPtr(msg->msg_h, xferGlobals.objtab_id);
-  theNewCpl = (TENewCpl *)    LC_GetPtr(msg->msg_h, xferGlobals.newcpl_id);
-  theOldCpl = (TEOldCpl *)    LC_GetPtr(msg->msg_h, xferGlobals.oldcpl_id);
-  theObjects= (char *)LC_GetPtr(msg->msg_h, xferGlobals.objmem_id);
+  theSymTab = (SYMTAB_ENTRY *)LC_GetPtr(msg->msg_h, ctx.symtab_id);
+  theObjTab = (OBJTAB_ENTRY *)LC_GetPtr(msg->msg_h, ctx.objtab_id);
+  theNewCpl = (TENewCpl *)    LC_GetPtr(msg->msg_h, ctx.newcpl_id);
+  theOldCpl = (TEOldCpl *)    LC_GetPtr(msg->msg_h, ctx.oldcpl_id);
+  theObjects= (char *)LC_GetPtr(msg->msg_h, ctx.objmem_id);
 
 
   /* build several tables inside message */
@@ -409,7 +376,7 @@ static void XferPackSingleMsg (XFERMSG *msg)
   {
     XICopyObj *xi = msg->xferObjArray[i];
     DDD_HDR hdr   = xi->hdr;
-    TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(hdr)];
+    TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(hdr)];
     DDD_OBJ obj   = HDR2OBJ(hdr,desc);
     /*COUPLING  *cpl;*/
     DDD_HDR copyhdr;
@@ -432,7 +399,7 @@ static void XferPackSingleMsg (XFERMSG *msg)
     /* one coupling for object itself (send proc) */
     /*
                     theNewCpl[actNewCpl].gid  = OBJ_GID(hdr);
-                    theNewCpl[actNewCpl].proc = me;
+                    theNewCpl[actNewCpl].proc = context.me();
                     theNewCpl[actNewCpl].prio = OBJ_PRIO(hdr);
                     actNewCpl++;
      */
@@ -485,14 +452,14 @@ static void XferPackSingleMsg (XFERMSG *msg)
       int offset = desc->offsetHeader;
 
       /* now call handler */
-      desc->handlerXFERCOPYMANIP(currObj);
+      desc->handlerXFERCOPYMANIP(context, currObj);
 
       /* adjust new description according to new type */
-      desc = &(theTypeDefs[OBJ_TYPE((DDD_HDR)(currObj+offset))]);
+      desc = &context.typeDefs()[OBJ_TYPE((DDD_HDR)(currObj+offset))];
     }
 
     /* build symbol table portion from object copy */
-    actSym += BuildSymTab(desc, obj, (char *)currObj, &(theSymTab[actSym]));
+    actSym += BuildSymTab(context, desc, obj, (char *)currObj, &(theSymTab[actSym]));
 
 
     /* advance to next free object slot in message, c.f. alignment */
@@ -502,7 +469,7 @@ static void XferPackSingleMsg (XFERMSG *msg)
     /* gather additional data */
     if (xi->addLen>0)
     {
-      actSym += GetDepData(currObj,
+      actSym += GetDepData(context, currObj,
                            desc, obj, &(theSymTab[actSym]), xi);
       currObj += xi->addLen;
     }
@@ -526,12 +493,15 @@ static void XferPackSingleMsg (XFERMSG *msg)
 
   /* sort SymTab, ObjTab and CplTab */
   /* sort SymTab according to the global ids stored there */
-  qsort(theSymTab, actSym, sizeof(SYMTAB_ENTRY), sort_SymTabEntries);
+  std::sort(theSymTab, theSymTab + actSym, sort_SymTabEntries);
 
   /* sort ObjTab according to their global ids */
   /* sorting of objtab is necessary!! (see AcceptObjFromMsg) KB 960812 */
-  currentObjectMem = theObjects;
-  qsort(theObjTab, msg->nObjects, sizeof(OBJTAB_ENTRY), sort_ObjTabEntries);
+  const auto sort_ObjTabEntries = [=](const OBJTAB_ENTRY& a, const OBJTAB_ENTRY& b) {
+    /* sort with ascending gid */
+    return OTE_GID(theObjects, &a) < OTE_GID(theObjects, &b);
+  };
+  std::sort(theObjTab, theObjTab + msg->nObjects, sort_ObjTabEntries);
 
 
   /* substitute all pointers by index into SymTab */
@@ -546,16 +516,16 @@ static void XferPackSingleMsg (XFERMSG *msg)
 
 
   /* set valid table entries */
-  LC_SetTableLen(msg->msg_h, xferGlobals.symtab_id, actSym);
-  LC_SetTableLen(msg->msg_h, xferGlobals.objtab_id, msg->nObjects);
-  LC_SetTableLen(msg->msg_h, xferGlobals.newcpl_id, actNewCpl);
-  LC_SetTableLen(msg->msg_h, xferGlobals.oldcpl_id, actOldCpl);
+  LC_SetTableLen(msg->msg_h, ctx.symtab_id, actSym);
+  LC_SetTableLen(msg->msg_h, ctx.objtab_id, msg->nObjects);
+  LC_SetTableLen(msg->msg_h, ctx.newcpl_id, actNewCpl);
+  LC_SetTableLen(msg->msg_h, ctx.oldcpl_id, actOldCpl);
 
 
 #if DebugXfer>1
-  if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+  if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
-  XferDisplayMsg("OS", msg->msg_h);
+    XferDisplayMsg(context, "OS", msg->msg_h);
 }
 
 
@@ -575,66 +545,25 @@ static void XferPackSingleMsg (XFERMSG *msg)
 /*                                                                          */
 /****************************************************************************/
 
-RETCODE XferPackMsgs (XFERMSG *theMsgs)
+RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *theMsgs)
 {
   XFERMSG      *xm;
 
 #if     DebugPack<=3
-  sprintf(cBuffer, "%d: XferPackMsgs\n", me);
-  DDD_PrintDebug(cBuffer);
-  fflush(stdout);
+  Dune::dverb << "XferPackMsgs" << std::endl;
 #endif
-
-  /* sort messages according to decreasing size. i.e., send
-     biggest message first. LowComm will use this to handle
-     situations with little memory ressources. */
-  {
-    int i, n;
-    XFERMSG **xm_array;
-
-    /* count number of messages */
-    for(n=0, xm=theMsgs; xm!=NULL; xm=xm->next) n++;
-
-    if (n>0)
-    {
-      /* alloc array of pointers to messages */
-      xm_array = (XFERMSG **) OO_Allocate (sizeof(XFERMSG *) * n);
-      if (xm_array!=NULL)
-      {
-        for(i=0, xm=theMsgs; i<n; xm=xm->next, i++) xm_array[i] = xm;
-
-        /* sort array and relink list */
-        qsort(xm_array, n, sizeof(XFERMSG *), sort_MsgSize);
-        theMsgs = xm_array[0];
-        for(i=0; i<n-1; i++) xm_array[i]->next = xm_array[i+1];
-        if (n>1) xm_array[n-1]->next = NULL;
-
-        /* free array */
-        OO_Free (xm_array /*,0*/);
-      }
-      /* else
-         {
-              resorting msg-list is not possible due to memory shortage.
-              simply don't do it.
-         }
-       */
-    }
-  }
-
-
 
   /* allocate buffer, pack messages and send away */
   for(xm=theMsgs; xm!=NULL; xm=xm->next)
   {
-    if (! LC_MsgAlloc(xm->msg_h))
+    if (! LC_MsgAlloc(context, xm->msg_h))
     {
-      sprintf(cBuffer, STR_NOMEM " in XferPackMsgs (size=%ld)",
-              (unsigned long) LC_GetBufferSize(xm->msg_h));
-      DDD_PrintError('E', 6522, cBuffer);
+      Dune::dwarn << STR_NOMEM " in XferPackMsgs (size="
+                  << LC_GetBufferSize(xm->msg_h) << ")\n";
       RET_ON_ERROR;
     }
-    XferPackSingleMsg(xm);
-    LC_MsgSend(xm->msg_h);
+    XferPackSingleMsg(context, xm);
+    LC_MsgSend(context, xm->msg_h);
   }
 
   RET_ON_OK;

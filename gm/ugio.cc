@@ -37,6 +37,8 @@
 #include <climits>
 #include <ctime>
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
 #include "ugtypes.h"
 #include "architecture.h"
 #include "fileopen.h"
@@ -198,7 +200,7 @@ static INT RenumberNodes (MULTIGRID *theMG, INT *foid, INT *non)
   NODE *theNode;
 
   nid=0;
-  if (procs==1)
+  if (theMG->ppifContext().procs() == 1)
   {
     /* ids for all nodes */
     for (theNode=FIRSTNODE(GRID_ON_LEVEL(theMG,0)); theNode!=NULL; theNode=SUCCN(theNode))
@@ -1160,6 +1162,9 @@ static INT WriteElementParInfo (GRID *theGrid,
   NODE *theNode;
   VERTEX *theVertex;
   EDGE *theEdge;
+#ifdef ModelP
+  auto& dddContext = theGrid->dddContext();
+#endif
 
   memset(pinfo,0,sizeof(MGIO_PARINFO));
 
@@ -1167,7 +1172,7 @@ static INT WriteElementParInfo (GRID *theGrid,
 
   s=0;
   pinfo->prio_elem = EPRIO(theElement);
-  pinfo->ncopies_elem = ENCOPIES(theElement);
+  pinfo->ncopies_elem = ENCOPIES(dddContext, theElement);
   if (n_max<pinfo->ncopies_elem)
   {
     PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
@@ -1175,7 +1180,7 @@ static INT WriteElementParInfo (GRID *theGrid,
   }
   if (pinfo->ncopies_elem>0)
   {
-    pl = EPROCLIST(theElement);
+    pl = EPROCLIST(dddContext, theElement);
     for (i=0,j=2; i<pinfo->ncopies_elem; i++,j+=2)
       ActProcListPos[s++] = pl[j];
   }
@@ -1184,7 +1189,7 @@ static INT WriteElementParInfo (GRID *theGrid,
   {
     theNode = CORNER(theElement,k);
     pinfo->prio_node[k] = PRIO(theNode);
-    pinfo->ncopies_node[k] = NCOPIES(theNode);
+    pinfo->ncopies_node[k] = NCOPIES(dddContext, theNode);
     if (n_max<pinfo->ncopies_node[k]+s)
     {
       PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
@@ -1192,7 +1197,7 @@ static INT WriteElementParInfo (GRID *theGrid,
     }
     if (pinfo->ncopies_node[k]>0)
     {
-      pl = PROCLIST(theNode);
+      pl = PROCLIST(dddContext, theNode);
       for (i=0,j=2; i<pinfo->ncopies_node[k]; i++,j+=2)
         ActProcListPos[s++] = pl[j];
     }
@@ -1202,7 +1207,7 @@ static INT WriteElementParInfo (GRID *theGrid,
   {
     theVertex = MYVERTEX(CORNER(theElement,k));
     pinfo->prio_vertex[k] = VXPRIO(theVertex);
-    pinfo->ncopies_vertex[k] = VXNCOPIES(theVertex);
+    pinfo->ncopies_vertex[k] = VXNCOPIES(dddContext, theVertex);
     if (n_max<pinfo->ncopies_vertex[k]+s)
     {
       PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
@@ -1210,7 +1215,7 @@ static INT WriteElementParInfo (GRID *theGrid,
     }
     if (pinfo->ncopies_vertex[k]>0)
     {
-      pl = VXPROCLIST(theVertex);
+      pl = VXPROCLIST(dddContext, theVertex);
       for (i=0,j=2; i<pinfo->ncopies_vertex[k]; i++,j+=2)
         ActProcListPos[s++] = pl[j];
     }
@@ -1226,7 +1231,7 @@ static INT WriteElementParInfo (GRID *theGrid,
                       CORNER(theElement,CORNER_OF_EDGE(theElement,k,1)));
       v = EDVECTOR(theEdge);
       pinfo->prio_edge[k] = PRIO(v);
-      pinfo->ncopies_edge[k] = NCOPIES(v);
+      pinfo->ncopies_edge[k] = NCOPIES(dddContext, v);
       if (n_max<pinfo->ncopies_edge[k]+s)
       {
         PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
@@ -1234,7 +1239,7 @@ static INT WriteElementParInfo (GRID *theGrid,
       }
       pinfo->ed_ident[k] = GID(v);
       if (pinfo->ncopies_edge[k]>0) {
-        pl = PROCLIST(v);
+        pl = PROCLIST(dddContext, v);
         for (i=0,j=2; i<pinfo->ncopies_edge[k]; i++,j+=2)
           ActProcListPos[s++] = pl[j];
       }
@@ -1248,14 +1253,14 @@ static INT WriteElementParInfo (GRID *theGrid,
     theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0)),
                       CORNER(theElement,CORNER_OF_EDGE(theElement,k,1)));
     pinfo->prio_edge[k] = PRIO(theEdge);
-    pinfo->ncopies_edge[k] = NCOPIES(theEdge);
+    pinfo->ncopies_edge[k] = NCOPIES(dddContext, theEdge);
     if (n_max<pinfo->ncopies_edge[k]+s)
     {
       PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
       REP_ERR_RETURN(1);
     }
     if (pinfo->ncopies_edge[k]>0) {
-      pl = PROCLIST(theEdge);
+      pl = PROCLIST(dddContext, theEdge);
       for (i=0,j=2; i<pinfo->ncopies_edge[k]; i++,j+=2)
         ActProcListPos[s++] = pl[j];
     }
@@ -1321,13 +1326,15 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
     REP_ERR_RETURN(1);
   }
 
+  const auto& procs = theMG->ppifContext().procs();
+
   theHeap = MGHEAP(theMG);
   MarkTmpMem(theHeap,&MarkKey);
 
   /* something to do ? */
   saved = MG_SAVED(theMG);
 #ifdef ModelP
-  saved = UG_GlobalMinINT(saved);
+  saved = UG_GlobalMinINT(theMG->ppifContext(), saved);
   proc_list_size = PROCLISTSIZE_VALUE;
 #endif
   if (saved)
@@ -1381,15 +1388,15 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
 #ifdef ModelP
   error = 0;
         #ifndef LOCAL_FILE_SYSTEM
-  if (me == master)
+  if (theMG->ppifContext().isMaster())
         #endif
   if (MGIO_PARFILE)
     if (MGIO_dircreate(filename,(int)rename))
       error = -1;
         #ifdef LOCAL_FILE_SYSTEM
-  error = UG_GlobalMinINT(error);
+  error = UG_GlobalMinINT(theMG->ppifContext(), error);
         #endif
-  Broadcast(&error,sizeof(int));
+  Broadcast(theMG->ppifContext(), &error,sizeof(int));
   if (error == -1)
   {
     UserWriteF("SaveMultiGrid_SPF(): error during file/directory creation\n");
@@ -1397,7 +1404,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   }
   if (MGIO_PARFILE)
   {
-    sprintf(buf,"/mg.%04d",(int)me);
+    sprintf(buf,"/mg.%04d",(int)theMG->ppifContext().me());
     strcat(filename,buf);
   }
 #endif
@@ -1408,7 +1415,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   if (BVP_SetBVPDesc(theBVP,&theBVPDesc)) REP_ERR_RETURN(1);
   mg_general.mode                 = mode;
   mg_general.dim                  = DIM;
-  Broadcast(&MG_MAGIC_COOKIE(theMG),sizeof(INT));
+  Broadcast(theMG->ppifContext(), &MG_MAGIC_COOKIE(theMG),sizeof(INT));
   mg_general.magic_cookie = MG_MAGIC_COOKIE(theMG);
   mg_general.heapsize             = MGHEAP(theMG)->size/KBYTE;
   mg_general.nLevel               = TOPLEVEL(theMG) + 1;
@@ -1431,7 +1438,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
 
   /* parallel part */
   mg_general.nparfiles = nparfiles;
-  mg_general.me = me;
+  mg_general.me = theMG->ppifContext().me();
 #ifdef __MGIO_PE_INFO__
   mg_general.npe_info = nparfiles;
   npe_info = mg_general.npe_info;
@@ -1742,6 +1749,10 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
   VECTOR          *theVector;
   EDGE            *theEdge;
 
+#ifdef ModelP
+  auto& dddContext = theGrid->dddContext();
+#endif
+
   evec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),ELEMVEC);
   nvec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),NODEVEC);
   edvec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),EDGEVEC);
@@ -1761,7 +1772,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
     oldwhere = PRIO2INDEX(EPRIO(theElement));
     Succe = SUCCE(theElement);
     GRID_UNLINK_ELEMENT(theGrid,theElement);
-    SETEPRIO(theElement,prio);
+    SETEPRIO(dddContext, theElement,prio);
     if (theFather != NULL)
     {
       if (theElement == SON(theFather,oldwhere))
@@ -1783,15 +1794,15 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
     {
       theVector = EVECTOR(theElement);
       GRID_UNLINK_VECTOR(theGrid,theVector);
-      SETPRIO(EVECTOR(theElement),prio);
+      SETPRIO(dddContext, EVECTOR(theElement),prio);
       GRID_LINK_VECTOR(theGrid,theVector,prio);
     }
   }
   for (i=0; i<pinfo->ncopies_elem; i++)
   {
-    DDD_IdentifyNumber(PARHDRE(theElement),pinfo->proclist[s],pinfo->e_ident);
+    DDD_IdentifyNumber(dddContext, PARHDRE(theElement),pinfo->proclist[s],pinfo->e_ident);
     if (evec)
-      DDD_IdentifyNumber(PARHDR(EVECTOR(theElement)),pinfo->proclist[s],pinfo->e_ident);
+      DDD_IdentifyNumber(dddContext, PARHDR(EVECTOR(theElement)),pinfo->proclist[s],pinfo->e_ident);
     s++;
   }
 
@@ -1803,22 +1814,22 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
       if ((prio = pinfo->prio_node[j]) != PrioMaster)
       {
         GRID_UNLINK_NODE(theGrid,theNode);
-        SETPRIO(theNode,prio);
+        SETPRIO(dddContext, theNode,prio);
         GRID_LINK_NODE(theGrid,theNode,prio);
         if (nvec)
         {
           theVector = NVECTOR(theNode);
           GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(NVECTOR(theNode),prio);
+          SETPRIO(dddContext, NVECTOR(theNode),prio);
           GRID_LINK_VECTOR(theGrid,theVector,prio);
         }
       }
       PRINTDEBUG(gm,1,("Evaluate-pinfo():nid=%d prio=%d\n",ID(theNode),prio);fflush(stdout));
       for (i=0; i<pinfo->ncopies_node[j]; i++)
       {
-        DDD_IdentifyNumber(PARHDR(theNode),pinfo->proclist[s],pinfo->n_ident[j]);
+        DDD_IdentifyNumber(dddContext, PARHDR(theNode),pinfo->proclist[s],pinfo->n_ident[j]);
         if (nvec)
-          DDD_IdentifyNumber(PARHDR(NVECTOR(theNode)),pinfo->proclist[s],pinfo->n_ident[j]);
+          DDD_IdentifyNumber(dddContext, PARHDR(NVECTOR(theNode)),pinfo->proclist[s],pinfo->n_ident[j]);
         s++;
       }
       SETUSED(theNode,1);
@@ -1835,13 +1846,13 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
       if ((prio = pinfo->prio_vertex[j]) != PrioMaster)
       {
         GRID_UNLINK_VERTEX(vgrid,theVertex);
-        SETVXPRIO(theVertex,prio);
+        SETVXPRIO(dddContext, theVertex,prio);
         GRID_LINK_VERTEX(vgrid,theVertex,prio);
       }
       PRINTDEBUG(gm,1,("Evaluate-pinfo():vid=%d prio=%d\n",ID(theVertex),prio);fflush(stdout));
       for (i=0; i<pinfo->ncopies_vertex[j]; i++)
       {
-        DDD_IdentifyNumber(PARHDRV(theVertex),pinfo->proclist[s],pinfo->v_ident[j]);
+        DDD_IdentifyNumber(dddContext, PARHDRV(theVertex),pinfo->proclist[s],pinfo->v_ident[j]);
         s++;
       }
       SETUSED(theVertex,1);
@@ -1859,11 +1870,11 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
         theVector = EDVECTOR(theEdge);
         if ((prio = pinfo->prio_edge[j]) != PrioMaster) {
           GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(theVector,prio);
+          SETPRIO(dddContext, theVector,prio);
           GRID_LINK_VECTOR(theGrid,theVector,prio);
         }
         for (i=0; i<pinfo->ncopies_edge[j]; i++) {
-          DDD_IdentifyNumber(PARHDR(theVector),
+          DDD_IdentifyNumber(dddContext, PARHDR(theVector),
                              pinfo->proclist[s],pinfo->ed_ident[j]);
           s++;
         }
@@ -1884,20 +1895,20 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
     {
       if ((prio = pinfo->prio_edge[j]) != PrioMaster)
       {
-        SETPRIO(theEdge,prio);
+        SETPRIO(dddContext, theEdge,prio);
         if (edvec)
         {
           theVector = EDVECTOR(theEdge);
           GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(EDVECTOR(theEdge),prio);
+          SETPRIO(dddContext, EDVECTOR(theEdge),prio);
           GRID_LINK_VECTOR(theGrid,theVector,prio);
         }
       }
       for (i=0; i<pinfo->ncopies_edge[j]; i++)
       {
-        DDD_IdentifyNumber(PARHDR(theEdge),pinfo->proclist[s],pinfo->ed_ident[j]);
+        DDD_IdentifyNumber(dddContext, PARHDR(theEdge),pinfo->proclist[s],pinfo->ed_ident[j]);
         if (edvec)
-          DDD_IdentifyNumber(PARHDR(EDVECTOR(theEdge)),pinfo->proclist[s],pinfo->ed_ident[j]);
+          DDD_IdentifyNumber(dddContext, PARHDR(EDVECTOR(theEdge)),pinfo->proclist[s],pinfo->ed_ident[j]);
         s++;
       }
       SETUSED(theEdge,1);
@@ -1911,7 +1922,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
 }
 
 #ifdef ModelP
-static int Gather_RefineInfo (DDD_OBJ obj, void *data)
+static int Gather_RefineInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -1923,7 +1934,7 @@ static int Gather_RefineInfo (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_RefineInfo (DDD_OBJ obj, void *data)
+static int Scatter_RefineInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -1937,12 +1948,16 @@ static int Scatter_RefineInfo (DDD_OBJ obj, void *data)
 
 static INT SpreadRefineInfo(GRID *theGrid)
 {
-  DDD_IFAOneway(ElementIF,GRID_ATTR(theGrid),IF_FORWARD,4*sizeof(INT),
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFAOneway(context,
+                dddctrl.ElementIF,GRID_ATTR(theGrid),IF_FORWARD,4*sizeof(INT),
                 Gather_RefineInfo,Scatter_RefineInfo);
   return(GM_OK);
 }
 
-static int Gather_NodeType (DDD_OBJ obj, void *data)
+static int Gather_NodeType (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1951,7 +1966,7 @@ static int Gather_NodeType (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_NodeType (DDD_OBJ obj, void *data)
+static int Scatter_NodeType (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
@@ -1962,7 +1977,11 @@ static int Scatter_NodeType (DDD_OBJ obj, void *data)
 
 static INT SpreadGridNodeTypes(GRID *theGrid)
 {
-  DDD_IFAOneway(NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFAOneway(context,
+                dddctrl.NodeIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_NodeType,Scatter_NodeType);
   return(GM_OK);
 }
@@ -1975,13 +1994,17 @@ static INT IO_GridCons(MULTIGRID *theMG)
   GRID    *theGrid;
   ELEMENT *theElement;
   VECTOR  *theVector;
+#ifdef ModelP
+  auto& dddContext = theMG->dddContext();
+#endif
+  const auto& me = theMG->ppifContext().me();
 
   for (i=TOPLEVEL(theMG); i>=0; i--)         /* propagate information top-down */
   {
     theGrid = GRID_ON_LEVEL(theMG,i);
     for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
     {
-      proclist = EPROCLIST(theElement);
+      proclist = EPROCLIST(dddContext, theElement);
       while (proclist[0] != -1)
       {
         if (EMASTERPRIO(proclist[1])) PARTITION(theElement) = proclist[0];
@@ -2629,7 +2652,7 @@ static INT InsertLocalTree (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMENT 
 }
 
 #ifdef ModelP
-static int Gather_EClasses (DDD_OBJ obj, void *data)
+static int Gather_EClasses (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *p;
   int *d;
@@ -2641,7 +2664,7 @@ static int Gather_EClasses (DDD_OBJ obj, void *data)
   return (0);
 }
 
-static int Scatter_EClasses(DDD_OBJ obj, void *data)
+static int Scatter_EClasses(DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *p;
   int *d;
@@ -2655,7 +2678,11 @@ static int Scatter_EClasses(DDD_OBJ obj, void *data)
 
 void CommunicateEClasses (MULTIGRID *theMG)
 {
-  DDD_IFOneway(ElementVHIF,IF_FORWARD,sizeof(int),
+  auto& context = theMG->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
+  DDD_IFOneway(context,
+               dddctrl.ElementVHIF,IF_FORWARD,sizeof(int),
                Gather_EClasses, Scatter_EClasses);
   return;
 }
@@ -2739,7 +2766,8 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
                                          unsigned long heapSize,
                                          INT force,
                                          INT optimizedIE,
-                                         INT autosave)
+                                         INT autosave,
+                                         std::shared_ptr<PPIF::PPIFContext> ppifContext)
 /* Documentation of the intended program flow resp. communication requirements.
    Functions introducing a global communication (all processors without any exception)
    are:
@@ -2814,6 +2842,12 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   ugio_begin = CURRENT_TIME;
         #endif
 
+  if (not ppifContext)
+    ppifContext = std::make_shared<PPIF::PPIFContext>();
+
+  const auto& me = ppifContext->me();
+  const auto& procs = ppifContext->procs();
+
   if (autosave)
   {
     if (name==NULL)
@@ -2842,7 +2876,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
 
 #ifdef ModelP
   proc_list_size = PROCLISTSIZE_VALUE;
-  if (me == master)
+  if (ppifContext->isMaster())
   {
 #endif
   nparfiles = 1;
@@ -2882,13 +2916,13 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   else
     nparfiles = -1;
 #ifdef ModelP
-  Broadcast(&nparfiles,sizeof(int));
+  Broadcast(*ppifContext, &nparfiles,sizeof(int));
 }
 else
 {
   sprintf(buf,"/mg.%04d",(int)me);                      /* Also me>=nparfiles needs its filename to be stored in the multigrid */
   strcat(filename,buf);
-  Broadcast(&nparfiles,sizeof(int));
+  Broadcast(*ppifContext, &nparfiles,sizeof(int));
   if (me < nparfiles)
   {
     if (Read_OpenMGFile (filename))                 {nparfiles = -1;}
@@ -2897,7 +2931,7 @@ else
 
   }
 }
-nparfiles = UG_GlobalMinINT(nparfiles);
+nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
 #endif
   if (nparfiles == -1)
   {
@@ -2907,7 +2941,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
 
   if (procs>nparfiles)
   {
-    Broadcast(&mg_general,sizeof(MGIO_MG_GENERAL));
+    Broadcast(*ppifContext, &mg_general,sizeof(MGIO_MG_GENERAL));
     if (me < nparfiles)
       mg_general.me = me;
   }
@@ -2931,7 +2965,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
   if (heapSize==0) heapSize = mg_general.heapsize * KBYTE;
 
   /* create a virginenal multigrid on the BVP */
-  theMG = CreateMultiGrid(MGName,BndValName,FormatName,heapSize,true,false);
+  theMG = CreateMultiGrid(MGName,BndValName,FormatName,heapSize,true,false, ppifContext);
   if (theMG==NULL) {
     UserWrite("ERROR(ugio): cannot create multigrid\n");
     CloseMGFile ();
@@ -2957,10 +2991,10 @@ nparfiles = UG_GlobalMinINT(nparfiles);
         #ifdef ModelP
     if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
-    DDD_IdentifyBegin();
+    DDD_IdentifyBegin(theMG->dddContext());
     /* no elements to insert */
     if (MGCreateConnection(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(theMG->dddContext());
 
     if (MGIO_PARFILE)
     {
@@ -3032,10 +3066,10 @@ nparfiles = UG_GlobalMinINT(nparfiles);
     if (DisposeBottomHeapTmpMemory(theMG))      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
                 #endif
 
-    DDD_IdentifyBegin();
+    DDD_IdentifyBegin(theMG->dddContext());
     /* no elements to insert */
     if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(theMG->dddContext());
 
     if (MGIO_PARFILE)
       if (IO_GridCons(theMG))                                 {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
@@ -3260,7 +3294,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
   ClearMultiGridUsedFlags(theMG,0,TOPLEVEL(theMG),i);
 
   /* open identification context */
-  DDD_IdentifyBegin();
+  DDD_IdentifyBegin(theMG->dddContext());
 
   /* read parinfo of coarse-grid */
   if (MGIO_PARFILE)
@@ -3293,7 +3327,7 @@ nparfiles = UG_GlobalMinINT(nparfiles);
     if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
     /* close identification context */
-    DDD_IdentifyEnd();
+    DDD_IdentifyEnd(theMG->dddContext());
 
     /* repair inconsistencies */
     if (MGIO_PARFILE)
@@ -3380,11 +3414,11 @@ nparfiles = UG_GlobalMinINT(nparfiles);
 
   /* close identification context */
 #ifdef OPTIMIZED_IO
-  DDD_SetOption(OPT_IF_CREATE_EXPLICIT,OPT_ON);
+  DDD_SetOption(theMG->dddContext(), OPT_IF_CREATE_EXPLICIT,OPT_ON);
 #endif
-  DDD_IdentifyEnd();
+  DDD_IdentifyEnd(theMG->dddContext());
 #ifdef OPTIMIZED_IO
-  DDD_SetOption(OPT_IF_CREATE_EXPLICIT,OPT_OFF);
+  DDD_SetOption(theMG->dddContext(), OPT_IF_CREATE_EXPLICIT,OPT_OFF);
 #endif
 
   /* repair inconsistencies */

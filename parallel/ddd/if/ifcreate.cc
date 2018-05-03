@@ -43,7 +43,12 @@
 #include <cassert>
 
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
 #include <tuple>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 #include "if.h"
@@ -57,84 +62,9 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported variables                                         */
-/*                                                                          */
-/****************************************************************************/
-
-IF_DEF theIF[MAX_IF];
-int nIFs;
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-static IF_PROC *memlistIFHead;
-static IF_ATTR *memlistIFAttr;
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
-
-
-static IF_PROC *NewIFHead (void)
-{
-  IF_PROC *ifh;
-
-  if (memlistIFHead==NULL)
-  {
-    ifh = (IF_PROC *) AllocIF(sizeof(IF_PROC));
-  }
-  else
-  {
-    ifh = memlistIFHead;
-    memlistIFHead = ifh->next;
-  }
-
-  return(ifh);
-}
-
-
-static void DisposeIFHead (IF_PROC *ifh)
-{
-  ifh->next = memlistIFHead;
-  memlistIFHead = ifh;
-}
-
-
-
-static IF_ATTR *NewIFAttr (void)
-{
-  IF_ATTR *ifr;
-
-  if (memlistIFAttr==NULL)
-  {
-    ifr = (IF_ATTR *) AllocIF(sizeof(IF_ATTR));
-  }
-  else
-  {
-    ifr = memlistIFAttr;
-    memlistIFAttr = ifr->next;
-  }
-
-  return(ifr);
-}
-
-
-static void DisposeIFAttr (IF_ATTR *ifr)
-{
-  ifr->next = memlistIFAttr;
-  memlistIFAttr = ifr;
-}
 
 
 /****************************************************************************/
@@ -168,8 +98,10 @@ static bool sort_IFCouplings (const COUPLING* a, const COUPLING* b)
 
 
 
-void IFDeleteAll (DDD_IF ifId)
+static void IFDeleteAll(DDD::DDDContext& context, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   IF_PROC  *ifh, *ifhNext;
   IF_ATTR *ifr, *ifrNext;
 
@@ -184,17 +116,11 @@ void IFDeleteAll (DDD_IF ifId)
     while (ifr!=NULL)
     {
       ifrNext = ifr->next;
-
-      DisposeIFAttr(ifr);
+      delete ifr;
       ifr = ifrNext;
     }
 
-
-    /* if there are msg-buffers, then we must free them here */
-    BufferFree(ifh->bufIn);
-    BufferFree(ifh->bufOut);
-
-    DisposeIFHead(ifh);
+    delete ifh;
 
     ifh = ifhNext;
   }
@@ -233,11 +159,13 @@ static bool is_elem (DDD_PRIO el, int n, DDD_PRIO *set)
 
 
 
-static RETCODE update_channels (DDD_IF ifId)
+static RETCODE update_channels(DDD::DDDContext& context, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   IF_PROC *ifh;
   int i;
-  DDD_PROC *partners = DDD_ProcArray();
+  DDD_PROC *partners = DDD_ProcArray(context);
 
   if (theIF[ifId].nIfHeads==0)
   {
@@ -251,13 +179,13 @@ static RETCODE update_channels (DDD_IF ifId)
     partners[i] = ifh->proc;
   }
 
-  if (! IS_OK(DDD_GetChannels(theIF[ifId].nIfHeads)))
+  if (! IS_OK(DDD_GetChannels(context, theIF[ifId].nIfHeads)))
   {
     RET_ON_ERROR;
   }
 
   for(ifh=theIF[ifId].ifHead; ifh!=NULL; ifh=ifh->next) {
-    ifh->vc = VCHAN_TO(ifh->proc);
+    ifh->vc = VCHAN_TO(context, ifh->proc);
   }
 
   /* ReleaseHeap(); */
@@ -271,30 +199,24 @@ static RETCODE update_channels (DDD_IF ifId)
 
 /* collect couplings into interface array, for standard interface */
 
-static COUPLING ** IFCollectStdCouplings (void)
+static COUPLING ** IFCollectStdCouplings(DDD::DDDContext& context)
 {
-  COUPLING **cplarray;
-  int index, n;
+  const auto& nCplItems = context.couplingContext().nCplItems;
 
-  if (nCplItems==0)
-  {
-    return(NULL);
-  }
+  if (nCplItems == 0)
+    return nullptr;
 
   /* get memory for couplings inside STD_IF */
-  cplarray = (COUPLING **) AllocIF(sizeof(COUPLING *)*nCplItems);
-  if (cplarray==NULL) {
-    DDD_PrintError('E', 4000, STR_NOMEM " in IFCreateFromScratch");
-    HARD_EXIT;
-  }
+  COUPLING** cplarray = (COUPLING **) AllocIF(sizeof(COUPLING *)*nCplItems);
+  if (cplarray==NULL)
+    throw std::bad_alloc();
 
   /* collect couplings */
-  n=0;
-  for(index=0; index<NCpl_Get; index++)
+  int n = 0;
+  const auto& nCpls = context.couplingContext().nCpls;
+  for(int index=0; index < nCpls; index++)
   {
-    COUPLING  *cpl;
-
-    for(cpl=IdxCplList(index); cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(COUPLING* cpl=IdxCplList(context, index); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       cplarray[n] = cpl;
       SETCPLDIR(cpl,0);
@@ -302,34 +224,38 @@ static COUPLING ** IFCollectStdCouplings (void)
     }
   }
   /*
-     printf("%04d: n=%d, nCplItems=%d\n",me,n,nCplItems);
+     printf("%04d: n=%d, nCplItems=%d\n",context.me(),n,nCplItems);
    */
   assert(n==nCplItems);
-  return(cplarray);
+  return cplarray;
 }
 
 
 /****************************************************************************/
 
-static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
+static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, DDD_IF ifId)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   IF_PROC     *ifHead = nullptr, *lastIfHead;
   IF_ATTR    *ifAttr = nullptr, *lastIfAttr = nullptr;
   int n, i;
   DDD_PROC lastproc;
   int STAT_MOD;
 
+  const auto& objTable = context.objTable();
+
   STAT_GET_MODULE(STAT_MOD);
   STAT_SET_MODULE(DDD_MODULE_IF);
 
   /* first delete possible old interface */
-  IFDeleteAll(ifId);
+  IFDeleteAll(context, ifId);
 
   STAT_RESET1;
   if (ifId==STD_INTERFACE)
   {
-    theIF[ifId].cpl = IFCollectStdCouplings();
-    n = nCplItems;
+    theIF[ifId].cpl = IFCollectStdCouplings(context);
+    n = context.couplingContext().nCplItems;
   }
   else
   {
@@ -338,14 +264,15 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
 
     /* collect relevant couplings into tmpcpl array */
     n=0;
-    for(index=0; index<NCpl_Get; index++)
+    const auto& nCpls = context.couplingContext().nCpls;
+    for(index=0; index < nCpls; index++)
     {
       /* determine whether object belongs to IF */
-      if ((1<<OBJ_TYPE(ddd_ObjTable[index])) & theIF[ifId].maskO)
+      if ((1<<OBJ_TYPE(objTable[index])) & theIF[ifId].maskO)
       {
-        const bool objInA = is_elem(OBJ_PRIO(ddd_ObjTable[index]),
+        const bool objInA = is_elem(OBJ_PRIO(objTable[index]),
                                     theIF[ifId].nPrioA, theIF[ifId].A);
-        const bool objInB = is_elem(OBJ_PRIO(ddd_ObjTable[index]),
+        const bool objInB = is_elem(OBJ_PRIO(objTable[index]),
                                     theIF[ifId].nPrioB, theIF[ifId].B);
 
         if (objInA || objInB)
@@ -353,7 +280,7 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
           COUPLING  *cpl;
 
           /* test coupling list */
-          for(cpl=IdxCplList(index); cpl!=NULL; cpl=CPL_NEXT(cpl))
+          for(cpl=IdxCplList(context, index); cpl!=NULL; cpl=CPL_NEXT(cpl))
           {
             const bool cplInA = is_elem(cpl->prio,
                                         theIF[ifId].nPrioA, theIF[ifId].A);
@@ -381,9 +308,8 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
       theIF[ifId].cpl = (COUPLING **) AllocIF(sizeof(COUPLING *)*n);
       if (theIF[ifId].cpl==NULL)
       {
-        sprintf(cBuffer, STR_NOMEM
-                " for IF %02d in IFCreateFromScratch", ifId);
-        DDD_PrintError('E', 4001, cBuffer);
+        Dune::dwarn << "IFCreateFromScratch: " STR_NOMEM " for IF "
+                    << std::setw(2) << ifId << "\n";
         RET_ON_ERROR;
       }
 
@@ -421,27 +347,15 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
     {
       /* create new IfHead */
       theIF[ifId].nIfHeads++;
-      ifHead = NewIFHead();
-      ifHead->nItems   = 0;
+      ifHead = new IF_PROC;
       ifHead->cpl      = cplp;
-      ifHead->obj      = NULL;
-      ifHead->nAB      = ifHead->nBA   = ifHead->nABA   = 0;
-      ifHead->cplAB    = ifHead->cplBA = ifHead->cplABA = NULL;
       ifHead->proc     = CPL_PROC(cpl);
       ifHead->next     = lastIfHead;
       lastIfHead = ifHead;
       lastproc   = ifHead->proc;
 
-      BufferInit(ifHead->bufIn);
-      BufferInit(ifHead->bufOut);
-
       ifHead->nAttrs = 1;
-      ifHead->ifAttr = ifAttr = NewIFAttr();
-      ifAttr->attr   = attr;
-      ifAttr->nItems = 0;
-      ifAttr->nAB    = ifAttr->nBA   = ifAttr->nABA   = 0;
-      ifAttr->cplAB  = ifAttr->cplBA = ifAttr->cplABA = NULL;
-      ifAttr->next   = NULL;
+      ifHead->ifAttr = ifAttr = new IF_ATTR(attr);
       lastIfAttr = ifAttr;
     }
 
@@ -470,12 +384,7 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
       {
         /* create new ifAttr */
         ifHead->nAttrs++;
-        ifAttr = NewIFAttr();
-        ifAttr->attr   = attr;
-        ifAttr->nItems = 0;
-        ifAttr->nAB    = ifAttr->nBA   = ifAttr->nABA   = 0;
-        ifAttr->cplAB  = ifAttr->cplBA = ifAttr->cplABA = NULL;
-        ifAttr->next   = NULL;
+        ifAttr = new IF_ATTR(attr);
         lastIfAttr->next = ifAttr;
         lastIfAttr = ifAttr;
       }
@@ -528,12 +437,12 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
 
   /* establish obj-table as an addressing shortcut */
   STAT_RESET1;
-  IFCreateObjShortcut(ifId);
+  IFCreateObjShortcut(context, ifId);
   STAT_TIMER1(T_CREATE_SHORTCUT);
 
 
   STAT_RESET1;
-  if (! IS_OK(update_channels(ifId)))
+  if (! IS_OK(update_channels(context, ifId)))
   {
     DDD_PrintError('E', 4003, "couldn't create communication channels");
     RET_ON_ERROR;
@@ -577,12 +486,16 @@ static RETCODE IFCreateFromScratch (COUPLING **tmpcpl, DDD_IF ifId)
  */
 
 DDD_IF DDD_IFDefine (
+  DDD::DDDContext& context,
   int nO, DDD_TYPE O[],
   int nA, DDD_PRIO A[],
   int nB, DDD_PRIO B[])
 {
+  auto& ctx = context.ifCreateContext();
+  auto& theIF = ctx.theIf;
+  auto& nIFs = ctx.nIfs;
+
 int i;
-COUPLING **tmpcpl;
 
 if (nIFs==MAX_IF) {
   DDD_PrintError('E', 4100, "no more interfaces in DDD_IFDefine");
@@ -611,28 +524,22 @@ for(i=0; i<nO; i++)
 
 /* create initial interface state */
 theIF[nIFs].ifHead = NULL;
-if (nCplItems>0)
+const auto& nCplItems = context.couplingContext().nCplItems;
+if (nCplItems > 0)
 {
   /* allocate temporary cpl-list, this will be too large for
      average interfaces. */
-  tmpcpl = (COUPLING **) AllocTmp(sizeof(COUPLING *)*nCplItems);
-  if (tmpcpl==NULL) {
-    DDD_PrintError('E', 4002, STR_NOMEM " in IFDefine");
-    HARD_EXIT;
-  }
+  std::vector<COUPLING*> tmpcpl(nCplItems);
 
-  if (! IS_OK(IFCreateFromScratch(tmpcpl, nIFs)))
+  if (! IS_OK(IFCreateFromScratch(context, tmpcpl.data(), nIFs)))
   {
     DDD_PrintError('E', 4101, "cannot create interface in DDD_IFDefine");
     return(0);
   }
-
-  /* free temporary array */
-  FreeTmp(tmpcpl,0);
 }
 else
 {
-  if (! IS_OK(IFCreateFromScratch(NULL, nIFs)))
+  if (! IS_OK(IFCreateFromScratch(context, NULL, nIFs)))
   {
     DDD_PrintError('E', 4102, "cannot create interface in DDD_IFDefine");
     return(0);
@@ -647,8 +554,10 @@ return(nIFs-1);
 
 
 
-static void StdIFDefine (void)
+static void StdIFDefine(DDD::DDDContext& context)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
   /* exception: no OBJSTRUCT or priority entries */
   theIF[STD_INTERFACE].nObjStruct = 0;
   theIF[STD_INTERFACE].nPrioA     = 0;
@@ -658,23 +567,22 @@ static void StdIFDefine (void)
 
 
   /* reset name string */
-  theIF[nIFs].name[0] = 0;
+  theIF[STD_INTERFACE].name[0] = '\0';
 
 
   /* create initial interface state */
   theIF[STD_INTERFACE].ifHead = NULL;
-  if (! IS_OK(IFCreateFromScratch(NULL, STD_INTERFACE)))
-  {
-    DDD_PrintError('E', 4104,
-                   "cannot create standard interface during IF initialization");
-    HARD_EXIT;
-  }
+  if (! IS_OK(IFCreateFromScratch(context, NULL, STD_INTERFACE)))
+    DUNE_THROW(Dune::Exception,
+               "cannot create standard interface during IF initialization");
 }
 
 
 
-void DDD_IFSetName (DDD_IF ifId, const char *name)
+void DDD_IFSetName(DDD::DDDContext& context, DDD_IF ifId, const char *name)
 {
+  auto& theIF = context.ifCreateContext().theIf;
+
 /* copy name string */
 strncpy(theIF[ifId].name, name, IF_NAMELEN-1);
 }
@@ -682,135 +590,100 @@ strncpy(theIF[ifId].name, name, IF_NAMELEN-1);
 
 /****************************************************************************/
 
-void DDD_InfoIFImpl (DDD_IF ifId)
+static void writeCoupling(const DDD::DDDContext& context, const IF_PROC& ifh, const COUPLING& cpl, const char* obj, std::ostream& out)
 {
-  IF_PROC    *ifh;
+  using std::setw;
 
-  sprintf(cBuffer, "|\n| DDD_IFInfoImpl for proc=%03d, IF %02d\n", me, ifId);
-  DDD_PrintLine(cBuffer);
+  out << "|         gid=" << OBJ_GID(cpl.obj) << " proc=" << setw(4) << CPL_PROC(&cpl)
+      << " prio=" << setw(2) << cpl.prio
+      << "osc=" << obj << "/" << OBJ_OBJ(context, cpl.obj) << "\n";
+}
 
-  sprintf(cBuffer, "|   cpl=%p  nIfHeads=%03d first=%p\n",
-          theIF[ifId].cpl, theIF[ifId].nIfHeads, theIF[ifId].ifHead);
-  DDD_PrintLine(cBuffer);
+void DDD_InfoIFImpl(DDD::DDDContext& context, DDD_IF ifId)
+{
+  using std::setw;
 
-  for(ifh=theIF[ifId].ifHead; ifh!=NULL; ifh=ifh->next)
+  std::ostream& out = std::cout;
+  auto& theIF = context.ifCreateContext().theIf;
+
+  out << "|\n| DDD_IFInfoImpl for proc=" << context.me() << ", IF " << ifId << "\n";
+
+  out << "|   cpl=" << theIF[ifId].cpl << "  nIfHeads="
+      << theIF[ifId].nIfHeads << " first=" << theIF[ifId].ifHead << "\n";
+
+  for(const IF_PROC* ifh=theIF[ifId].ifHead; ifh!=nullptr; ifh=ifh->next)
   {
-    int i;
+    out << "|   head=" << ifh << " cpl=" << ifh->cpl
+        << " p=" << setw(3) << ifh->proc << " nItems=" << setw(5) << ifh->nItems
+        << " nAttrs=" << setw(3) << ifh->nAttrs << "\n";
 
-    sprintf(cBuffer, "|   head=%p cpl=%p p=%03d nItems=%05d nAttrs=%03d\n",
-            ifh, ifh->cpl, ifh->proc, ifh->nItems, ifh->nAttrs);
-    DDD_PrintLine(cBuffer);
+    out << "|      nAB= " << setw(5) << ifh->nAB << "\n";
+    for(int i = 0; i < ifh->nAB; ++i)
+      writeCoupling(context, *ifh, *ifh->cplAB[i], ifh->objAB[i], out);
 
-    sprintf(cBuffer, "|      nAB= %05d\n", ifh->nAB);
-    DDD_PrintLine(cBuffer);
-    for(i=0; i<ifh->nAB; i++)
-    {
-      COUPLING *c = ifh->cplAB[i];
-      sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
-              "osc=%p/%p\n",
-              OBJ_GID(c->obj), CPL_PROC(c), c->prio,
-              ifh->objAB[i], OBJ_OBJ(c->obj)
-              );
-      DDD_PrintLine(cBuffer);
-    }
+    out << "|      nBA= " << setw(5) << ifh->nBA << "\n";
+    for(int i = 0; i < ifh->nBA; ++i)
+      writeCoupling(context, *ifh, *ifh->cplBA[i], ifh->objBA[i], out);
 
-    sprintf(cBuffer, "|      nBA= %05d\n", ifh->nBA);
-    DDD_PrintLine(cBuffer);
-    for(i=0; i<ifh->nBA; i++)
-    {
-      COUPLING *c = ifh->cplBA[i];
-      sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
-              "osc=%p/%p\n",
-              OBJ_GID(c->obj), CPL_PROC(c), c->prio,
-              ifh->objBA[i], OBJ_OBJ(c->obj)
-              );
-      DDD_PrintLine(cBuffer);
-    }
-
-    sprintf(cBuffer, "|      nABA=%05d\n", ifh->nABA);
-    DDD_PrintLine(cBuffer);
-    for(i=0; i<ifh->nABA; i++)
-    {
-      COUPLING *c = ifh->cplABA[i];
-      sprintf(cBuffer, "|         gid=" OBJ_GID_FMT " proc=%04d prio=%02d "
-              "osc=%p/%p\n",
-              OBJ_GID(c->obj), CPL_PROC(c), c->prio,
-              ifh->objABA[i], OBJ_OBJ(c->obj)
-              );
-      DDD_PrintLine(cBuffer);
-    }
+    out << "|      nABA=" << setw(5) << ifh->nABA << "\n";
+    for(int i = 0; i < ifh->nABA; ++i)
+      writeCoupling(context, *ifh, *ifh->cplABA[i], ifh->objABA[i], out);
   }
-  DDD_PrintLine("|\n");
+
+  out << "|\n";
 }
 
 
 
-static void IFDisplay (DDD_IF i)
+static void IFDisplay (const DDD::DDDContext& context, DDD_IF i)
 {
-  IF_PROC    *ifh;
-  IF_ATTR    *ifr;
-  int j;
-  char buf[50];
+  using std::setw;
 
-  sprintf(cBuffer, "| IF %02d ", i);
+  std::ostream& out = std::cout;
+  const auto& ctx = context.ifCreateContext();
+  const auto& theIF = ctx.theIf;
+
+  out << "| IF " << i << " ";
   if (i==STD_INTERFACE)
   {
-    sprintf(buf, "including all (%08x)\n|       prio all to all\n",
-            theIF[i].maskO);
-    strcat(cBuffer, buf);
+    out << "including all (" << setw(8) << std::hex << theIF[i].maskO << std::dec << ")\n"
+        << "|       prio all to all\n";
   }
   else
   {
-    strcat(cBuffer, "including ");
-    for(j=0; j<theIF[i].nObjStruct; j++)
-    {
-      sprintf(buf, "%s ", theTypeDefs[theIF[i].O[j]].name);
-      strcat(cBuffer, buf);
-    }
-    sprintf(buf, "(%08x)\n|       prio ", theIF[i].maskO);
-    strcat(cBuffer, buf);
-
-    for(j=0; j<theIF[i].nPrioA; j++)
-    {
-      sprintf(buf, "%d ", theIF[i].A[j]);
-      strcat(cBuffer, buf);
-    }
-    strcat(cBuffer, "to ");
-    for(j=0; j<theIF[i].nPrioB; j++)
-    {
-      sprintf(buf, "%d ", theIF[i].B[j]);
-      strcat(cBuffer, buf);
-    }
-    strcat(cBuffer, "\n");
+    out << "including ";
+    for(int j=0; j<theIF[i].nObjStruct; j++)
+      out << context.typeDefs()[theIF[i].O[j]].name << " ";
+    out << "(" << setw(8) << std::hex << theIF[i].maskO << std::dec << ")\n"
+        << "|       prio ";
+    for(int j=0; j<theIF[i].nPrioA; j++)
+      out << theIF[i].A[j] << " ";
+    out << "to ";
+    for(int j=0; j<theIF[i].nPrioB; j++)
+      out << theIF[i].B[j] << " ";
+    out << "\n";
   }
-  DDD_PrintLine(cBuffer);
 
   if (theIF[i].name[0]!=0)
-  {
-    sprintf(cBuffer, "|       '%s'\n", theIF[i].name);
-    DDD_PrintLine(cBuffer);
-  }
+    out << "|       '" << theIF[i].name << "'\n";
 
-  for(ifh=theIF[i].ifHead; ifh!=NULL; ifh=ifh->next)
+  for(const IF_PROC* ifh=theIF[i].ifHead; ifh!=NULL; ifh=ifh->next)
   {
-    if (DDD_GetOption(OPT_INFO_IF_WITH_ATTR)==OPT_OFF)
-    {
-      sprintf(cBuffer, "|        %3d=%3d,%3d,%3d - %02d\n",
-              ifh->nItems, ifh->nAB, ifh->nBA, ifh->nABA, ifh->proc);
-      DDD_PrintLine(cBuffer);
-    }
+    if (DDD_GetOption(context, OPT_INFO_IF_WITH_ATTR)==OPT_OFF)
+      out << "|        " << setw(3) << ifh->nItems << "="
+          << setw(3) << ifh->nAB << "," << setw(3) << ifh->nBA << "," << setw(3) << ifh->nABA
+          << " - " << setw(2) << ifh->proc << "\n";
     else
     {
-      sprintf(cBuffer, "|        %3d=%3d,%3d,%3d - %02d - #a=%05d\n",
-              ifh->nItems, ifh->nAB, ifh->nBA, ifh->nABA,
-              ifh->proc, ifh->nAttrs);
-      DDD_PrintLine(cBuffer);
+      out << "|        " << setw(3) << ifh->nItems
+          << "=" << setw(3) << ifh->nAB << "," << setw(3) << ifh->nBA << "," << setw(3) << ifh->nABA
+          << " - " << setw(2) << ifh->proc << " - #a=" << setw(5) << ifh->nAttrs << "\n";
 
-      for (ifr=ifh->ifAttr; ifr!=NULL; ifr=ifr->next)
+      for (const IF_ATTR* ifr=ifh->ifAttr; ifr!=NULL; ifr=ifr->next)
       {
-        sprintf(cBuffer, "|      a %3d=%3d,%3d,%3d - %04d\n",
-                ifr->nItems, ifr->nAB, ifr->nBA, ifr->nABA, ifr->attr);
-        DDD_PrintLine(cBuffer);
+        out << "|      a " << setw(3) << ifr->nItems << "="
+            << setw(3) << ifr->nAB << "," << setw(3) << ifr->nBA << "," << setw(3) << ifr->nABA
+            << " - " << setw(4) << ifr->attr << "\n";
       }
     }
   }
@@ -838,22 +711,19 @@ static void IFDisplay (DDD_IF i)
    @param aIF  the \ddd{interface} ID.
  */
 
-void DDD_IFDisplay (DDD_IF aIF)
+void DDD_IFDisplay(const DDD::DDDContext& context, DDD_IF aIF)
 {
-if (aIF>=nIFs)
+if (aIF >= context.ifCreateContext().nIfs)
 {
-  sprintf(cBuffer, "invalid IF %02d in DDD_IFDisplay", aIF);
-  DDD_PrintError('W', 4050, cBuffer);
+  Dune::dwarn << "DDD_IFDisplay: invalid IF " << std::setw(2) << aIF << "\n";
   return;
 }
 
+  std::cout << "|\n| DDD_IF-Info for proc=" << context.me() << "\n";
 
-sprintf(cBuffer, "|\n| DDD_IF-Info for proc=%03d\n", me);
-DDD_PrintLine(cBuffer);
+IFDisplay(context, aIF);
 
-IFDisplay(aIF);
-
-DDD_PrintLine("|\n");
+  std::cout << "|\n";
 }
 
 
@@ -877,68 +747,51 @@ DDD_PrintLine("|\n");
         the number of exchange relations and the neighbour processor number.
  */
 
-void DDD_IFDisplayAll (void)
+void DDD_IFDisplayAll(const DDD::DDDContext& context)
 {
-  int i;
+  std::cout << "|\n| DDD_IF-Info for proc=" << context.me() << " (all)\n";
 
-  sprintf(cBuffer, "|\n| DDD_IF-Info for proc=%03d (all)\n", me);
-  DDD_PrintLine(cBuffer);
-
-  for(i=0; i<nIFs; i++)
+  const auto& nIFs = context.ifCreateContext().nIfs;
+  for(int i=0; i < nIFs; ++i)
   {
-    IFDisplay(i);
+    IFDisplay(context, i);
   }
 
-  DDD_PrintLine("|\n");
+  std::cout << "|\n";
 }
 
 
 
-static void IFRebuildAll (void)
+static void IFRebuildAll(DDD::DDDContext& context)
 {
   /* create standard interface */
-  if (! IS_OK(IFCreateFromScratch(NULL, STD_INTERFACE)))
-  {
-    DDD_PrintError('E', 4105,
-                   "cannot create standard interface in IFRebuildAll");
-    HARD_EXIT;
-  }
+  if (! IS_OK(IFCreateFromScratch(context, NULL, STD_INTERFACE)))
+    DUNE_THROW(Dune::Exception,
+               "cannot create standard interface in IFRebuildAll");
 
 
+  const auto& nIFs = context.ifCreateContext().nIfs;
   if (nIFs>1)
   {
     int i;
 
-    if (nCplItems>0)
+    const auto& nCplItems = context.couplingContext().nCplItems;
+    if (nCplItems > 0)
     {
-      COUPLING **tmpcpl;
-
       /* allocate temporary cpl-list, this will be too large for
               average interfaces. */
-      tmpcpl = (COUPLING **) AllocTmp(sizeof(COUPLING *)*nCplItems);
-      if (tmpcpl==NULL)
-      {
-        DDD_PrintError('E', 4000, STR_NOMEM " in IFAllFromScratch");
-        HARD_EXIT;
-      }
+      std::vector<COUPLING*> tmpcpl(nCplItems);
 
       /* TODO: ausnutzen, dass STD_IF obermenge von allen interfaces ist */
       for(i=1; i<nIFs; i++)
       {
-        if (! IS_OK(IFCreateFromScratch(tmpcpl, i)))
-        {
-          sprintf(cBuffer, "cannot create interface %d in IFRebuildAll", i);
-          DDD_PrintError('E', 4106, cBuffer);
-          HARD_EXIT;
-        }
-
+        if (! IS_OK(IFCreateFromScratch(context, tmpcpl.data(), i)))
+          DUNE_THROW(Dune::Exception,
+                     "cannot create interface " << i);
         /*
-           DDD_InfoIFImpl(i);
+           DDD_InfoIFImpl(context, i);
          */
       }
-
-      /* free temporary array */
-      FreeTmp(tmpcpl,0);
     }
     else
     {
@@ -946,16 +799,16 @@ static void IFRebuildAll (void)
       for(i=1; i<nIFs; i++)
       {
         /* delete possible old interface */
-        IFDeleteAll(i);
+        IFDeleteAll(context, i);
       }
     }
   }
 }
 
 
-void IFAllFromScratch (void)
+void IFAllFromScratch(DDD::DDDContext& context)
 {
-  if (DDD_GetOption(OPT_IF_CREATE_EXPLICIT)==OPT_ON)
+  if (DDD_GetOption(context, OPT_IF_CREATE_EXPLICIT)==OPT_ON)
   {
     /* interfaces must be created explicitly by calling
        DDD_IFRefreshAll(). This is for doing timings from
@@ -963,14 +816,14 @@ void IFAllFromScratch (void)
     return;
   }
 
-  IFRebuildAll();
+  IFRebuildAll(context);
 }
 
 
 
-void DDD_IFRefreshAll (void)
+void DDD_IFRefreshAll(DDD::DDDContext& context)
 {
-  if (DDD_GetOption(OPT_IF_CREATE_EXPLICIT)==OPT_OFF)
+  if (DDD_GetOption(context, OPT_IF_CREATE_EXPLICIT)==OPT_OFF)
   {
     /* if interfaces are not created explicit, then they
        are always kept consistent automatically. therefore,
@@ -979,51 +832,50 @@ void DDD_IFRefreshAll (void)
                 once more. just to be sure. */
   }
 
-  IFRebuildAll();
+  IFRebuildAll(context);
 }
 
 
 /****************************************************************************/
 
-void ddd_IFInit (void)
+void ddd_IFInit(DDD::DDDContext& context)
 {
-  /* init lists of unused items */
-  memlistIFHead = NULL;
-  memlistIFAttr = NULL;
+  auto& ctx = context.ifCreateContext();
 
-  theIF[0].ifHead = NULL;
-  theIF[0].cpl    = NULL;
+  /* init lists of unused items */
+  ctx.theIf[0].ifHead = nullptr;
+  ctx.theIf[0].cpl    = nullptr;
 
   /* init standard interface */
-  StdIFDefine();
+  StdIFDefine(context);
 
   /* no other interfaces yet */
-  nIFs = 1;
+  ctx.nIfs = 1;
 }
 
 
-void ddd_IFExit (void)
+void ddd_IFExit(DDD::DDDContext& context)
 {
-  int i;
-
-  for(i=0; i<nIFs; i++)
-    IFDeleteAll(i);
+  const auto& nIFs = context.ifCreateContext().nIfs;
+  for(int i=0; i < nIFs; i++)
+    IFDeleteAll(context, i);
 }
 
 
 /****************************************************************************/
 
 
-static size_t IFInfoMemory (DDD_IF ifId)
+static size_t IFInfoMemory(const DDD::DDDContext& context, DDD_IF ifId)
 {
-  IF_PROC *ifp;
+  const auto& theIF = context.ifCreateContext().theIf;
+
   size_t sum=0;
 
   sum += sizeof(IF_PROC)    * theIF[ifId].nIfHeads;         /* component ifHead */
   sum += sizeof(COUPLING *) * theIF[ifId].nItems;           /* component cpl    */
   sum += sizeof(IFObjPtr)   * theIF[ifId].nItems;           /* component obj    */
 
-  for(ifp=theIF[ifId].ifHead; ifp!=NULL; ifp=ifp->next)
+  for(const IF_PROC* ifp=theIF[ifId].ifHead; ifp != nullptr; ifp=ifp->next)
   {
     sum += sizeof(IF_ATTR) * ifp->nAttrs;              /* component ifAttr */
   }
@@ -1033,28 +885,23 @@ static size_t IFInfoMemory (DDD_IF ifId)
 
 
 
-size_t DDD_IFInfoMemory (DDD_IF ifId)
+size_t DDD_IFInfoMemory(const DDD::DDDContext& context, DDD_IF ifId)
 {
-if (ifId>=nIFs)
-{
-  sprintf(cBuffer, "invalid IF %02d in DDD_IFInfoMemory", ifId);
-  DDD_PrintError('W', 4051, cBuffer);
-  HARD_EXIT;
-}
+  if (ifId >= context.ifCreateContext().nIfs)
+    DUNE_THROW(Dune::Exception, "invalid interface " << ifId);
 
-return(IFInfoMemory(ifId));
+  return IFInfoMemory(context, ifId);
 }
 
 
-size_t DDD_IFInfoMemoryAll (void)
+size_t DDD_IFInfoMemoryAll(const DDD::DDDContext& context)
 {
-  int i;
+  const auto& nIFs = context.ifCreateContext().nIfs;
+
   size_t sum = 0;
-
-
-  for(i=0; i<nIFs; i++)
+  for(int i = 0; i < nIFs; ++i)
   {
-    sum += IFInfoMemory(i);
+    sum += IFInfoMemory(context, i);
   }
 
   return(sum);

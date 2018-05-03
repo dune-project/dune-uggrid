@@ -340,7 +340,7 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
   SETVNCLASS(pv,0);
   SETVBUILDCON(pv,1);
   SETVNEW(pv,1);
-  /* SETPRIO(pv,PrioMaster); */
+  /* SETPRIO(dddContext, pv,PrioMaster); */
 
 #ifndef ModelP
   // Dune uses the id field for face indices in sequential grids
@@ -2077,6 +2077,10 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
   VECTOR *vList[20];
   INT i,cnt;
 
+#ifdef ModelP
+  auto& dddContext = theGrid->dddContext();
+#endif
+
   if (!MG_COARSE_FIXED(MYMG(theGrid)))
     RETURN (1);
 
@@ -2087,7 +2091,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
     #ifdef ModelP
         #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferBegin();
+    DDD_XferBegin(dddContext);
         #endif
         #endif
 
@@ -2109,7 +2113,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
           EDVECTOR(ed) = vList[0];
                     #ifdef ModelP
                         #ifdef __THREEDIM__
-          SETPRIO(EDVECTOR(ed),PRIO(ed));
+          SETPRIO(dddContext, EDVECTOR(ed),PRIO(ed));
                     #endif
                         #endif
         }
@@ -2151,7 +2155,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
     #ifdef ModelP
         #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferEnd();
+    DDD_XferEnd(theGrid->dddContext());
         #endif
         #endif
 
@@ -2167,7 +2171,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
 
 
 #ifdef ModelP
-static int Gather_VectorVNew (DDD_OBJ obj, void *data)
+static int Gather_VectorVNew (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -2176,7 +2180,7 @@ static int Gather_VectorVNew (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_VectorVNew (DDD_OBJ obj, void *data)
+static int Scatter_VectorVNew (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -2185,7 +2189,7 @@ static int Scatter_VectorVNew (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_GhostVectorVNew (DDD_OBJ obj, void *data)
+static int Scatter_GhostVectorVNew (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -2250,7 +2254,7 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
     }
   }
         #ifdef ModelP
-  fullrefine = UG_GlobalMinINT(fullrefine);
+  fullrefine = UG_GlobalMinINT(theMG->ppifContext(), fullrefine);
         #endif
 
   FULLREFINELEVEL(theMG) = fullrefine;
@@ -2425,9 +2429,13 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
   MGCreateConnection(theMG);
     #endif
   /* update VNEW-flags */
-  DDD_IFExchange(BorderVectorSymmIF,sizeof(INT),
+  auto& context = theMG->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+  DDD_IFExchange(context,
+                 dddctrl.BorderVectorSymmIF,sizeof(INT),
                  Gather_VectorVNew,Scatter_VectorVNew);
-  DDD_IFOneway(VectorIF,IF_FORWARD,sizeof(INT),
+  DDD_IFOneway(context,
+               dddctrl.VectorIF,IF_FORWARD,sizeof(INT),
                Gather_VectorVNew,Scatter_GhostVectorVNew);
     #else
   MGCreateConnection(theMG);
@@ -3335,7 +3343,7 @@ INT NS_DIM_PREFIX ClearVectorClasses (GRID *theGrid)
 
 
 #ifdef ModelP
-static int Gather_VectorVClass (DDD_OBJ obj, void *data)
+static int Gather_VectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3347,7 +3355,7 @@ static int Gather_VectorVClass (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_VectorVClass (DDD_OBJ obj, void *data)
+static int Scatter_VectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3359,7 +3367,7 @@ static int Scatter_VectorVClass (DDD_OBJ obj, void *data)
   return(0);
 }
 
-static int Scatter_GhostVectorVClass (DDD_OBJ obj, void *data)
+static int Scatter_GhostVectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3435,10 +3443,14 @@ static INT PropagatePeriodicVectorClass (GRID *theGrid, INT vclass)
 INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
 {
     #ifdef ModelP
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses():"
                    " 1. communication on level %d\n",GLEVEL(theGrid)))
   /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
 
@@ -3448,7 +3460,8 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 2. communication\n"))
   /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
 
@@ -3458,7 +3471,8 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 3. communication\n"))
   /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
 
@@ -3469,14 +3483,16 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 4. communication\n"))
   /* exchange VCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
         #endif
 #endif
 
         #ifdef ModelP
   /* send VCLASS to ghosts */
-  DDD_IFAOneway(VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(context,
+                dddctrl.VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_VectorVClass, Scatter_GhostVectorVClass);
     #endif
 
@@ -3562,7 +3578,7 @@ INT NS_DIM_PREFIX SeedNextVectorClasses (GRID *theGrid, ELEMENT *theElement)
 
 
 #ifdef ModelP
-static int Gather_VectorVNClass (DDD_OBJ obj, void *data)
+static int Gather_VectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3574,7 +3590,7 @@ static int Gather_VectorVNClass (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_VectorVNClass (DDD_OBJ obj, void *data)
+static int Scatter_VectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3586,7 +3602,7 @@ static int Scatter_VectorVNClass (DDD_OBJ obj, void *data)
   return(GM_OK);
 }
 
-static int Scatter_GhostVectorVNClass (DDD_OBJ obj, void *data)
+static int Scatter_GhostVectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
@@ -3660,9 +3676,13 @@ static INT PropagatePeriodicNextVectorClass (GRID *theGrid)
 INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
 {
     #ifdef ModelP
+  auto& context = theGrid->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 1. communication\n"))
   /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
     #endif
 
@@ -3671,7 +3691,8 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 2. communication\n"))
   /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
     #endif
 
@@ -3680,7 +3701,8 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 3. communication\n"))
   /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
         #endif
 
@@ -3690,14 +3712,16 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 4. communication\n"))
   /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
+  DDD_IFAExchange(context,
+                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
         #endif
 #endif
 
         #ifdef ModelP
   /* send VCLASS to ghosts */
-  DDD_IFAOneway(VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
+  DDD_IFAOneway(context,
+                dddctrl.VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_VectorVNClass, Scatter_GhostVectorVNClass);
     #endif
 

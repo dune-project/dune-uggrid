@@ -20,40 +20,20 @@
 
 /****************************************************************************/
 /*                                                                          */
-/* macros for SLL data structure definitions                                */
-/*                                                                          */
-/****************************************************************************/
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-/* linked list of items */
-extern T *list(T);
-
-/* number of items in list */
-extern int n(T);
-
-
-/****************************************************************************/
-/*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
 /****************************************************************************/
 
 /* from sll.ct */
-T *New(T) (SLLNewArgProtos);
-T **SortedArray(T) (int (*) (const void *, const void *));
-int Unify(T) (T **, int (*) (T **, T **));
+T *New(T) (DDD::DDDContext&);
+T **SortedArray(T) (DDD::DDDContext&, int (*) (const void *, const void *));
+int Unify(T) (const DDD::DDDContext&, T **, int (*) (const DDD::DDDContext&, T **, T **));
 #ifdef SLL_WithOrigOrder
-void OrigOrder(T) (T **, int);
+void OrigOrder(T) (DDD::DDDContext&, T **, int);
 #endif
-void Init(T) (void);
-void FreeAll(T) (void);
-void GetSizes(T) (int *, int *, size_t *, size_t *);
+void Init(T) (DDD::DDDContext&);
+void FreeAll(T) (DDD::DDDContext&);
+void GetSizes(T) (const DDD::DDDContext&, int *, int *, size_t *, size_t *);
 
 
 

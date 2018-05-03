@@ -35,6 +35,13 @@
 #include <cstring>
 #include <cassert>
 
+#include <algorithm>
+#include <iomanip>
+#include <tuple>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
 #include "dddi.h"
 #include "xfer.h"
 
@@ -57,98 +64,43 @@ START_UGDIM_NAMESPACE
 
 
 /*
-   #define AddCoupling(a,b,c)  printf("%4d: AC %05d, %d/%d     %08x\n",me,__LINE__,b,c,(int) AddCoupling(a,b,c))
+   #define AddCoupling(context, a,b,c)  printf("%4d: AC %05d, %d/%d     %08x\n",context.me(),__LINE__,b,c,(int) AddCoupling(context, a,b,c))
  */
 
 
-/****************************************************************************/
-/*                                                                          */
-/* constant definitions                                                     */
-/*                                                                          */
-/****************************************************************************/
-
-#define NEW_AddCpl(destproc,objgid,cplproc,cplprio)   {          \
-    XIAddCpl *xc = NewXIAddCpl(SLLNewArgs);          \
-    if (xc==NULL) HARD_EXIT;                         \
-    xc->to      = (destproc);                        \
-    xc->te.gid  = (objgid);                          \
-    xc->te.proc = (cplproc);                         \
-    xc->te.prio = (cplprio);                         \
-}
-/*
-   printf("%4d:          NEW_AddCpl(%d,%08x, %d, %d)\n",\
-   me,destproc,objgid,cplproc,cplprio); \
- */
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* routines                                                                 */
-/*                                                                          */
-/****************************************************************************/
-
-
-static int sort_TENewCpl (const void *e1, const void *e2)
+static void NEW_AddCpl(DDD::DDDContext& context, DDD_PROC destproc, DDD_GID objgid, DDD_PROC cplproc, DDD_PRIO cplprio)
 {
-  TENewCpl   *ci1, *ci2;
+  XIAddCpl *xc = NewXIAddCpl(context);
+  assert(xc);
+  xc->to      = destproc;
+  xc->te.gid  = objgid;
+  xc->te.proc = cplproc;
+  xc->te.prio = cplprio;
+}
 
-  ci1 = (TENewCpl *)e1;
-  ci2 = (TENewCpl *)e2;
 
-  if (ci1->_gid < ci2->_gid) return(-1);
-  if (ci1->_gid > ci2->_gid) return(1);
-
-  if (ci1->_dest < ci2->_dest) return(-1);
-  if (ci1->_dest > ci2->_dest) return(1);
-
+static bool sort_TENewCpl (const TENewCpl& a, const TENewCpl& b)
+{
   /* sorting according to priority is not necessary anymore,
      equal items with different priorities will be sorted
      out according to PriorityMerge(). KB 970326
      if (ci1->prio < ci2->prio) return(-1);
      if (ci1->prio > ci2->prio) return(1);
    */
-
-  return(0);
+  return std::tie(a._gid, a._dest) < std::tie(b._gid, b._dest);
 }
 
 
-static int sort_ObjTabPtrs (const void *e1, const void *e2)
+static bool sort_ObjTabPtrs (const OBJTAB_ENTRY* a, const OBJTAB_ENTRY* b)
 {
-  DDD_HDR ci1, ci2;
-
-  ci1 = (*(OBJTAB_ENTRY **)e1)->hdr;
-  ci2 = (*(OBJTAB_ENTRY **)e2)->hdr;
-
   /* sort with ascending gid */
-  if (OBJ_GID(ci1) < OBJ_GID(ci2)) return(-1);
-  if (OBJ_GID(ci1) > OBJ_GID(ci2)) return(1);
-
   /* sort with decreasing priority */
   /* not necessary anymore. see first phase of
      AcceptReceivedObjects() for details. KB 970128
      if (OBJ_PRIO(ci1) < OBJ_PRIO(ci2)) return(1);
      if (OBJ_PRIO(ci1) > OBJ_PRIO(ci2)) return(-1);
    */
-
-  return(0);
+  return OBJ_GID(a->hdr) < OBJ_GID(b->hdr);
 }
 
 
@@ -163,7 +115,7 @@ static int sort_ObjTabPtrs (const void *e1, const void *e2)
         used by PutDepData() ).
  */
 
-static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
+static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC *desc,
                             const char *msgmem,
                             DDD_OBJ objmem,
                             const SYMTAB_ENTRY *theSymTab)
@@ -191,7 +143,7 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
       /* determine reftype of this elem */
       if (! rt_on_the_fly)
       {
-        refdesc = &theTypeDefs[EDESC_REFTYPE(theElem)];
+        refdesc = &context.typeDefs()[EDESC_REFTYPE(theElem)];
       }
       /* else determine reftype on the fly */
 
@@ -218,24 +170,20 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
 
             assert(obj!=NULL);
 
-            rt = theElem->reftypeHandler(obj, *ref);
+            rt = theElem->reftypeHandler(context, obj, *ref);
 
             if (rt>=MAX_TYPEDESC)
-            {
-              DDD_PrintError('E', 6570,
-                             "invalid referenced DDD_TYPE "
-                             "returned by handler");
-              HARD_EXIT;
-            }
+              DUNE_THROW(Dune::Exception,
+                         "invalid referenced DDD_TYPE returned by handler");
 
-            refdesc = &theTypeDefs[rt];
+            refdesc = &context.typeDefs()[rt];
           }
 
           /* if we are in merge_mode, we do not update
              existing references. */
                                         #ifdef DEBUG_MERGE_MODE
-          printf("%4d: loc-merge curr=%08x keep     e=%d l=%d\n",
-                 me, OBJ_GID(OBJ2HDR(*ref,refdesc)), e,l);
+          printf("loc-merge curr=%08x keep     e=%d l=%d\n",
+                 OBJ_GID(OBJ2HDR(*ref,refdesc)), e,l);
                                         #endif
 
           /* it may happen here that different references
@@ -246,18 +194,16 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
            */
 
           if (stIdx>=0 &&
-              DDD_GetOption(OPT_WARNING_REF_COLLISION)==OPT_ON)
+              DDD_GetOption(context, OPT_WARNING_REF_COLLISION)==OPT_ON)
           {
             /* get corresponding symtab entry */
             if (theSymTab[stIdx].adr.hdr!=OBJ2HDR(*ref,refdesc))
             {
-              sprintf(cBuffer,
-                      "reference collision in " OBJ_GID_FMT " "
-                      "(old=" OBJ_GID_FMT ", inc=" OBJ_GID_FMT ") in LocalizeObject\n",
-                      OBJ_GID(OBJ2HDR(obj,desc)),
-                      OBJ_GID(OBJ2HDR(*ref,refdesc)),
-                      OBJ_GID(theSymTab[stIdx].adr.hdr));
-              DDD_PrintError('W', 6540, cBuffer);
+              Dune::dwarn
+                << "LocalizeObject: "
+                << "reference collision in " << OBJ_GID(OBJ2HDR(obj,desc))
+                << " (old=" << OBJ_GID(OBJ2HDR(*ref,refdesc))
+                << ", inc=" << OBJ_GID(theSymTab[stIdx].adr.hdr) << ")\n";
               /* assert(0);  ??? */
             }
           }
@@ -293,9 +239,9 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
             if (st->adr.hdr!=NULL)
             {
                                                         #ifdef DEBUG_MERGE_MODE
-              printf("%4d: loc-merge curr=%08x "
+              printf("loc-merge curr=%08x "
                      "have_sym e=%d l=%d to %08x\n",
-                     me, *ref, e,l,OBJ_GID(st->adr.hdr));
+                     *ref, e,l,OBJ_GID(st->adr.hdr));
                                                         #endif
 
               /* distinction for efficiency: if we know refdesc
@@ -307,7 +253,7 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
               }
               else
               {
-                *ref = OBJ_OBJ(st->adr.hdr);
+                *ref = OBJ_OBJ(context, st->adr.hdr);
               }
             }
 
@@ -315,9 +261,9 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
             else
             {
               printf(
-                "%4d: loc-merge curr=%08x "
+                "loc-merge curr=%08x "
                 "have_sym e=%d l=%d to NULL\n",
-                me, *ref, e, l);
+                *ref, e, l);
             }
                                                 #endif
           }
@@ -335,7 +281,7 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
               }
               else
               {
-                *ref = OBJ_OBJ(st->adr.hdr);
+                *ref = OBJ_OBJ(context, st->adr.hdr);
               }
             }
             else
@@ -348,9 +294,9 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
           if (merge_mode)
           {
                                                 #ifdef DEBUG_MERGE_MODE
-            printf("%4d: loc-merge curr=%08x "
+            printf("loc-merge curr=%08x "
                    "no_sym   e=%d l=%d\n",
-                   me, *ref, e,l);
+                   *ref, e,l);
                                                 #endif
           }
           else
@@ -370,7 +316,8 @@ static void LocalizeObject (bool merge_mode, TYPE_DESC *desc,
 
 
 
-static void PutDepData (char *data,
+static void PutDepData (DDD::DDDContext& context,
+                        char *data,
                         const TYPE_DESC *desc,
                         DDD_OBJ obj,
                         const SYMTAB_ENTRY *theSymTab,
@@ -400,14 +347,14 @@ static void PutDepData (char *data,
       if (addTyp<DDD_USER_DATA || addTyp>DDD_USER_DATA_MAX)
       {
         /* convert pointers using SymTab */
-        descDep = &theTypeDefs[addTyp];
+        descDep = &context.typeDefs()[addTyp];
         curr = chunk;
         for(i=0; i<addCnt; i++)
         {
           /* insert pointers into copy using SymTab */
           if (descDep->nPointers>0)
           {
-            LocalizeObject(false, descDep,
+            LocalizeObject(context, false, descDep,
                            curr,
                            (DDD_OBJ)curr,
                            theSymTab);
@@ -425,7 +372,7 @@ static void PutDepData (char *data,
       /* scatter data via handler */
       if (desc->handlerXFERSCATTER)
       {
-        desc->handlerXFERSCATTER(obj, addCnt, addTyp, (void *)chunk, newness);
+        desc->handlerXFERSCATTER(context, obj, addCnt, addTyp, (void *)chunk, newness);
       }
     }
     else
@@ -434,7 +381,7 @@ static void PutDepData (char *data,
       addCnt *= -1;
 
       /* convert offset table into pointer table */
-      descDep = &theTypeDefs[addTyp];
+      descDep = &context.typeDefs()[addTyp];
       table = (char **)chunk;
       chunk += CEIL(sizeof(int)*addCnt);
       for(i=0, adr=chunk; i<addCnt; i++)
@@ -446,7 +393,7 @@ static void PutDepData (char *data,
         {
           curr = table[i];
           if (descDep->nPointers>0)
-            LocalizeObject(false, descDep,
+            LocalizeObject(context, false, descDep,
                            curr,
                            (DDD_OBJ)curr,
                            theSymTab);
@@ -456,7 +403,7 @@ static void PutDepData (char *data,
       /* scatter data via handler */
       if (desc->handlerXFERSCATTERX)
       {
-        desc->handlerXFERSCATTERX(obj, addCnt, addTyp, table, newness);
+        desc->handlerXFERSCATTERX(context, obj, addCnt, addTyp, table, newness);
       }
     }
 
@@ -471,6 +418,7 @@ static void PutDepData (char *data,
 
 
 static void AcceptObjFromMsg (
+  DDD::DDDContext& context,
   OBJTAB_ENTRY *theObjTab, int lenObjTab,
   const char *theObjects,
   const DDD_HDR *localCplObjs, int nLocalCplObjs)
@@ -480,7 +428,7 @@ static void AcceptObjFromMsg (
   for(i=0, j=0; i<lenObjTab; i++)
   {
     OBJTAB_ENTRY *ote = &theObjTab[i];
-    TYPE_DESC    *desc = &theTypeDefs[OBJ_TYPE(ote->hdr)];
+    TYPE_DESC    *desc = &context.typeDefs()[OBJ_TYPE(ote->hdr)];
 
     if (ote->is_new == OTHERMSG)
     {
@@ -506,9 +454,8 @@ static void AcceptObjFromMsg (
       if (OBJ_PRUNED(localCplObjs[j]))
       {
 #                               if DebugUnpack<=1
-        sprintf(cBuffer, "%4d: NewPrio wins due to PruneDel. "
-                "%08x\n", me, OBJ_GID(ote->hdr));
-        DDD_PrintDebug(cBuffer);
+        Dune::dvverb << "NewPrio wins due to PruneDel. "
+                     << OBJ_GID(ote->hdr) << "\n";
 #                               endif
 
         /* reset flag */
@@ -529,14 +476,12 @@ static void AcceptObjFromMsg (
           DDD_OBJ copy;
 
 #                               if DebugUnpack<=1
-          sprintf(cBuffer, "%4d: NewPrio wins. %07x\n",me,
-                  OBJ_GID(ote->hdr));
-          DDD_PrintDebug(cBuffer);
+          Dune::dvverb << "NewPrio wins. " << OBJ_GID(ote->hdr) << "\n";
 #                               endif
 
           /* new priority wins -> recreate */
           /* all GDATA-parts are overwritten by contents of message */
-          copy = OTE_OBJ(theObjects,ote);
+          copy = OTE_OBJ(context, theObjects,ote);
           ObjCopyGlobalData(desc,
                             HDR2OBJ(localCplObjs[j],desc), copy, ote->size);
 
@@ -545,9 +490,7 @@ static void AcceptObjFromMsg (
         else                          /* existing is higher than incoming */
         {
 #                                       if DebugUnpack<=1
-          sprintf(cBuffer, "%4d: OldPrio wins. %07x\n",me,
-                  OBJ_GID(ote->hdr));
-          DDD_PrintDebug(cBuffer);
+          Dune::dvverb << "OldPrio wins. " << OBJ_GID(ote->hdr) << "\n";
 #                                       endif
 
           /* new priority loses -> keep existing obj */
@@ -559,11 +502,10 @@ static void AcceptObjFromMsg (
       /* overwrite pointer to hdr inside message */
       if (OBJ_TYPE(ote->hdr) != OBJ_TYPE(localCplObjs[j]))
       {
-        printf("%d: ERROR, copying changed the object type!\n", me);
-        printf("%d: was: %s, becomes: %s\n",
-               me,
-               theTypeDefs[OBJ_TYPE(ote->hdr)].name,
-               theTypeDefs[OBJ_TYPE(localCplObjs[j])].name);
+        printf("ERROR, copying changed the object type!\n");
+        printf("    was: %s, becomes: %s\n",
+               context.typeDefs()[OBJ_TYPE(ote->hdr)].name,
+               context.typeDefs()[OBJ_TYPE(localCplObjs[j])].name);
         assert(OBJ_TYPE(ote->hdr) == OBJ_TYPE(localCplObjs[j]));
       }
       ote->hdr = localCplObjs[j];
@@ -583,13 +525,12 @@ static void AcceptObjFromMsg (
       DDD_PRIO new_prio = OBJ_PRIO(ote->hdr);
 
 #                       if DebugUnpack<=1
-      sprintf(cBuffer, "%4d: NewObject       %08x, prio=%d\n",me,
-              OBJ_GID(ote->hdr), new_prio);
-      DDD_PrintDebug(cBuffer);
+      Dune::dvverb << "NewObject       " << OBJ_GID(ote->hdr)
+                   << ", prio=" << new_prio << "\n";
 #                       endif
 
       /* new object, create local copy */
-      msgcopy = OTE_OBJ(theObjects,ote);
+      msgcopy = OTE_OBJ(context, theObjects,ote);
       newcopy = DDD_ObjNew(ote->size,
                            OBJ_TYPE(ote->hdr), new_prio, OBJ_ATTR(ote->hdr));
 
@@ -601,18 +542,19 @@ static void AcceptObjFromMsg (
       ote->is_new = TOTALNEW;
 
       /* construct HDR */
-      DDD_HdrConstructorCopy(ote->hdr, new_prio);
+      DDD_HdrConstructorCopy(context, ote->hdr, new_prio);
 
       /* construct LDATA */
       if (desc->handlerLDATACONSTRUCTOR)
-        desc->handlerLDATACONSTRUCTOR(newcopy);
+        desc->handlerLDATACONSTRUCTOR(context, newcopy);
     }
   }
 }
 
 
 
-static void AcceptReceivedObjects (const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+static void AcceptReceivedObjects (DDD::DDDContext& context,
+                                   const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                                    OBJTAB_ENTRY **allRecObjs, int nRecObjs,
                                    const DDD_HDR *localCplObjs, int nLocalCplObjs)
 {
@@ -631,6 +573,7 @@ static void AcceptReceivedObjects (const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
           3. propagate hdr-pointer to all OBJTAB_ENTRYs with equal gid.
    */
 
+  auto& ctx = context.xferContext();
   int i;
 
   if (nRecObjs==0)
@@ -648,7 +591,7 @@ static void AcceptReceivedObjects (const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
       DDD_PRIO newprio;
       int ret;
 
-      ret = PriorityMerge(&theTypeDefs[OBJ_TYPE(allRecObjs[i]->hdr)],
+      ret = PriorityMerge(&context.typeDefs()[OBJ_TYPE(allRecObjs[i]->hdr)],
                           OBJ_PRIO(allRecObjs[i]->hdr), OBJ_PRIO(allRecObjs[i-1]->hdr), &newprio);
 
       if (ret==PRIO_FIRST || ret==PRIO_UNKNOWN)
@@ -686,9 +629,10 @@ static void AcceptReceivedObjects (const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
     LC_MSGHANDLE xm = theMsgs[i];
 
     AcceptObjFromMsg(
-      (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id),
-      (int)    LC_GetTableLen(xm, xferGlobals.objtab_id),
-      (char *) LC_GetPtr(xm, xferGlobals.objmem_id),
+      context,
+      (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id),
+      (int)    LC_GetTableLen(xm, ctx.objtab_id),
+      (char *) LC_GetPtr(xm, ctx.objmem_id),
       localCplObjs, nLocalCplObjs
       );
   }
@@ -710,18 +654,19 @@ static void AcceptReceivedObjects (const LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 /****************************************************************************/
 
 
-static void AddAndSpread (DDD_HDR hdr, DDD_GID gid, DDD_PROC dest, DDD_PRIO prio,
+static void AddAndSpread (DDD::DDDContext& context,
+                          DDD_HDR hdr, DDD_GID gid, DDD_PROC dest, DDD_PRIO prio,
                           XICopyObj **itemsNO, int nNO)
 {
   int k;
 
   if (hdr!=NULL)
-    AddCoupling(hdr, dest, prio);
+    AddCoupling(context, hdr, dest, prio);
 
   for(k=0; k<nNO; k++)
   {
     if (itemsNO[k]->dest != dest)
-      NEW_AddCpl(itemsNO[k]->dest, gid, dest, prio);
+      NEW_AddCpl(context, itemsNO[k]->dest, gid, dest, prio);
   }
 }
 
@@ -746,12 +691,15 @@ enum UpdateCpl_Cases { UCC_NONE, UCC_NO, UCC_NC, UCC_NO_AND_NC };
 
 
 static void UpdateCouplings (
+  DDD::DDDContext& context,
   TENewCpl *itemsNC, int nNC,                     /* NewCpl  */
   OBJTAB_ENTRY **itemsO, int nO,                  /* Objects */
   const DDD_HDR *itemsLCO, int nLCO,                                /* local objs with coupling */
   XIDelObj  **itemsDO, int nDO,                   /* XIDelObj */
   XICopyObj **itemsNO, int nNO)                   /* NewOwners */
 {
+  const auto& me = context.me();
+  const auto& procs = context.procs();
   int iNC, iO, iDO, iNO, iLCO;
 
   /*
@@ -783,7 +731,7 @@ static void UpdateCouplings (
       {
         /* restore previous coupling */
         if (dc->prio!=PRIO_INVALID)
-          AddCoupling(hdr, dc->to, dc->prio);
+          AddCoupling(context, hdr, dc->to, dc->prio);
 
         /* invalidate XIDelCpl-item */
         dc->to=procs;
@@ -802,10 +750,10 @@ static void UpdateCouplings (
     while (iNC<nNC && NewCpl_GetGid(itemsNC[iNC]) == gid)
     {
       /* there is a corresponding NewCpl-item */
-      AddCoupling(hdr,
+      AddCoupling(context, hdr,
                   NewCpl_GetDest(itemsNC[iNC]),
                   NewCpl_GetPrio(itemsNC[iNC]));
-      NEW_AddCpl(NewCpl_GetDest(itemsNC[iNC]), gid, me, OBJ_PRIO(hdr));
+      NEW_AddCpl(context, NewCpl_GetDest(itemsNC[iNC]), gid, me, OBJ_PRIO(hdr));
 
       iNC++;
     }
@@ -899,7 +847,7 @@ static void UpdateCouplings (
       for(jNO=0; jNO<nNOset; jNO++)
       {
         /* there is no NewCpl-item for given dest */
-        AddAndSpread(hdrNO, gidNO, setNO[jNO]->dest,
+        AddAndSpread(context, hdrNO, gidNO, setNO[jNO]->dest,
                      setNO[jNO]->prio, setNO, nNOset);
       }
 
@@ -917,7 +865,7 @@ static void UpdateCouplings (
       for(jNC=firstNC; jNC<=lastNC; jNC++)
       {
         if (hdrNC!=NULL)
-          AddCoupling(hdrNC,
+          AddCoupling(context, hdrNC,
                       NewCpl_GetDest(itemsNC[jNC]),
                       NewCpl_GetPrio(itemsNC[jNC]));
         /* else: dont need to AddCpl to deleted object */
@@ -947,7 +895,7 @@ static void UpdateCouplings (
         /* scan NewCpl-items for given dest processor */
         while (jNC<=lastNC && NewCpl_GetDest(itemsNC[jNC]) < setNO[jNO]->dest)
         {
-          AddAndSpread(hdr, gidNO,
+          AddAndSpread(context, hdr, gidNO,
                        NewCpl_GetDest(itemsNC[jNC]),
                        NewCpl_GetPrio(itemsNC[jNC]),
                        setNO, nNOset);
@@ -959,23 +907,23 @@ static void UpdateCouplings (
           /* found NewCpl-item */
           DDD_PRIO newprio;
 
-          PriorityMerge(&theTypeDefs[NewCpl_GetType(itemsNC[jNC])],
+          PriorityMerge(&context.typeDefs()[NewCpl_GetType(itemsNC[jNC])],
                         setNO[jNO]->prio, NewCpl_GetPrio(itemsNC[jNC]), &newprio);
 
-          AddAndSpread(hdr, gidNO, setNO[jNO]->dest, newprio,
+          AddAndSpread(context, hdr, gidNO, setNO[jNO]->dest, newprio,
                        setNO, nNOset);
           jNC++;
         }
         else
         {
           /* there is no NewCpl-item for given dest */
-          AddAndSpread(hdr, gidNO, setNO[jNO]->dest, setNO[jNO]->prio,
+          AddAndSpread(context, hdr, gidNO, setNO[jNO]->dest, setNO[jNO]->prio,
                        setNO, nNOset);
         }
       }
       while (jNC<=lastNC)
       {
-        AddAndSpread(hdr, gidNO,
+        AddAndSpread(context, hdr, gidNO,
                      NewCpl_GetDest(itemsNC[jNC]),
                      NewCpl_GetPrio(itemsNC[jNC]),
                      setNO, nNOset);
@@ -1006,6 +954,7 @@ static void UpdateCouplings (
    processor sent a copy during xfer.
  */
 static void PropagateIncomings (
+  DDD::DDDContext& context,
   XICopyObj **arrayNO, int nNO,
   OBJTAB_ENTRY **allRecObjs, int nRecObjs)
 {
@@ -1031,9 +980,9 @@ static void PropagateIncomings (
       {
         if (newness==PARTNEW || newness==PRUNEDNEW)
         {
-          XIModCpl *xc = NewXIModCpl(SLLNewArgs);
+          XIModCpl *xc = NewXIModCpl(context);
           if (xc==NULL)
-            HARD_EXIT;
+            throw std::bad_alloc();
 
           xc->to      = arrayNO[iNO]->dest;                               /* receiver of XIModCpl*/
           xc->te.gid  = OBJ_GID(ote->hdr);                                /* the object's gid    */
@@ -1045,15 +994,15 @@ static void PropagateIncomings (
       }
 
       /* communicate to all procs in coupling */
-      for(cpl=ObjCplList(ote->hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
+      for(cpl=ObjCplList(context, ote->hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
       {
         /*
                                         if (newness==PARTNEW || newness==PRUNEDNEW)
                                         {
          */
-        XIModCpl *xc = NewXIModCpl(SLLNewArgs);
+        XIModCpl *xc = NewXIModCpl(context);
         if (xc==NULL)
-          HARD_EXIT;
+          throw std::bad_alloc();
 
         xc->to      = CPL_PROC(cpl);                                      /* receiver of XIModCpl*/
         xc->te.gid  = OBJ_GID(ote->hdr);                                  /* the object's gid   */
@@ -1072,17 +1021,19 @@ static void PropagateIncomings (
 
 
 
-static void LocalizeSymTab (LC_MSGHANDLE xm,
+static void LocalizeSymTab (DDD::DDDContext& context, LC_MSGHANDLE xm,
                             OBJTAB_ENTRY **allRecObjs, int nRecObjs,
                             const DDD_HDR *localCplObjs, int nLocalCplObjs)
 {
+  auto& ctx = context.xferContext();
+
   SYMTAB_ENTRY *theSymTab;
   int i, j;
-  int lenSymTab = (int) LC_GetTableLen(xm, xferGlobals.symtab_id);
+  int lenSymTab = (int) LC_GetTableLen(xm, ctx.symtab_id);
 
 
   /* get table addresses inside message buffer */
-  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.symtab_id);
+  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, ctx.symtab_id);
 
 
   /* insert pointers to known objects into SymTab */
@@ -1125,32 +1076,33 @@ static void LocalizeSymTab (LC_MSGHANDLE xm,
 }
 
 
-static void LocalizeObjects (LC_MSGHANDLE xm, int required_newness)
+static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
+  auto& ctx = context.xferContext();
   const SYMTAB_ENTRY *theSymTab;
   const OBJTAB_ENTRY *theObjTab;
   const char         *theObjects;
   int i;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
 
 
   /* get table addresses inside message buffer */
-  theSymTab = (const SYMTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.symtab_id);
-  theObjTab = (const OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
-  theObjects = (const char *)        LC_GetPtr(xm, xferGlobals.objmem_id);
+  theSymTab = (const SYMTAB_ENTRY *) LC_GetPtr(xm, ctx.symtab_id);
+  theObjTab = (const OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
+  theObjects = (const char *)        LC_GetPtr(xm, ctx.objmem_id);
 
 
   for(i=0; i<lenObjTab; i++)               /* for all message items */
   {
     if (required_newness==TOTALNEW && theObjTab[i].is_new==TOTALNEW)
     {
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+      TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
       DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
 
       if (desc->nPointers>0)
       {
-        LocalizeObject(false, desc,
-                       (char *)(OTE_OBJ(theObjects,&(theObjTab[i]))),
+        LocalizeObject(context, false, desc,
+                       (char *)(OTE_OBJ(context, theObjects,&(theObjTab[i]))),
                        obj,
                        theSymTab);
       }
@@ -1165,19 +1117,19 @@ static void LocalizeObjects (LC_MSGHANDLE xm, int required_newness)
               implemented merge_mode for Localize. references from all copies
               will be merged into the local copy. 960813 KB
        */
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+      TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
       DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
 
       if (desc->nPointers>0)
       {
                                 #ifdef DEBUG_MERGE_MODE
-        printf("%4d: LocalizeObject in merge_mode, %08x prio %d\n",
-               me, OBJ_GID(theObjTab[i].hdr), OBJ_PRIO(theObjTab[i].hdr));
+        printf("LocalizeObject in merge_mode, %08x prio %d\n",
+               OBJ_GID(theObjTab[i].hdr), OBJ_PRIO(theObjTab[i].hdr));
                                 #endif
 
         /* execute Localize in merge_mode */
-        LocalizeObject(true, desc,
-                       (char *)(OTE_OBJ(theObjects,&(theObjTab[i]))),
+        LocalizeObject(context, true, desc,
+                       (char *)(OTE_OBJ(context, theObjects,&(theObjTab[i]))),
                        obj,
                        theSymTab);
       }
@@ -1189,27 +1141,28 @@ static void LocalizeObjects (LC_MSGHANDLE xm, int required_newness)
 
 
 
-static void CallUpdateHandler (LC_MSGHANDLE xm)
+static void CallUpdateHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 {
+  auto& ctx = context.xferContext();
   OBJTAB_ENTRY *theObjTab;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
   int i;
 
   /* get table addresses inside message buffer */
-  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
+  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
 
   /* initialize new objects corresponding to application: update */
   for(i=0; i<lenObjTab; i++)               /* for all message items */
   {
     if (theObjTab[i].is_new == TOTALNEW)
     {
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+      const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
 
       /* call application handler for object updating */
-      if (desc->handlerUPDATE)
+      if (desc.handlerUPDATE)
       {
-        DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
-        desc->handlerUPDATE(obj);
+        DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, &desc);
+        desc.handlerUPDATE(context, obj);
       }
     }
   }
@@ -1217,19 +1170,20 @@ static void CallUpdateHandler (LC_MSGHANDLE xm)
 
 
 
-static void UnpackAddData (LC_MSGHANDLE xm, int required_newness)
+static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
+  auto& ctx = context.xferContext();
   SYMTAB_ENTRY *theSymTab;
   OBJTAB_ENTRY *theObjTab;
   char         *theObjects;
   int i;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
 
 
   /* get table addresses inside message buffer */
-  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.symtab_id);
-  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
-  theObjects = (char *)        LC_GetPtr(xm, xferGlobals.objmem_id);
+  theSymTab = (SYMTAB_ENTRY *) LC_GetPtr(xm, ctx.symtab_id);
+  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
+  theObjects = (char *)        LC_GetPtr(xm, ctx.objmem_id);
 
 
   /* scatter additional data via handler */
@@ -1263,7 +1217,7 @@ static void UnpackAddData (LC_MSGHANDLE xm, int required_newness)
 
       if (newness!=-1)
       {
-        TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+        TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
         DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
         char      *data;
 
@@ -1272,10 +1226,10 @@ static void UnpackAddData (LC_MSGHANDLE xm, int required_newness)
                 desc->len for fixed sized objects and different for variable
                 sized objects
          */
-        data = (char *)(OTE_OBJ(theObjects,&(theObjTab[i])) +
+        data = (char *)(OTE_OBJ(context, theObjects,&(theObjTab[i])) +
                         CEIL(theObjTab[i].size));
 
-        PutDepData(data, desc, obj, theSymTab, newness);
+        PutDepData(context, data, desc, obj, theSymTab, newness);
       }
     }
   }
@@ -1297,16 +1251,17 @@ static void UnpackAddData (LC_MSGHANDLE xm, int required_newness)
         the old prio before calling the handler and set the newprio
         afterwards.
  */
-static void CallSetPriorityHandler (LC_MSGHANDLE xm)
+static void CallSetPriorityHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 {
+  auto& ctx = context.xferContext();
   OBJTAB_ENTRY *theObjTab;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
   int i;
   char         *theObjects;
 
   /* get table addresses inside message buffer */
-  theObjTab  = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
-  theObjects = (char *)         LC_GetPtr(xm, xferGlobals.objmem_id);
+  theObjTab  = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
+  theObjects = (char *)         LC_GetPtr(xm, ctx.objmem_id);
 
   for(i=0; i<lenObjTab; i++)               /* for all message items */
   {
@@ -1324,17 +1279,17 @@ static void CallSetPriorityHandler (LC_MSGHANDLE xm)
          theObjTab[i].is_new==PRUNEDNEW)
         /*	&& (theObjTab[i].oldprio != theObjTab[i].prio) */)
     {
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
+      const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
 
       /* call application handler for object consistency */
-      if (desc->handlerSETPRIORITY)
+      if (desc.handlerSETPRIORITY)
       {
         /* restore old priority in object */
-        DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
+        DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, &desc);
         DDD_PRIO new_prio = OTE_PRIO(theObjects, &(theObjTab[i]));                        /* remember new prio */
         OBJ_PRIO(theObjTab[i].hdr) = theObjTab[i].oldprio;
 
-        desc->handlerSETPRIORITY(obj, new_prio);
+        desc.handlerSETPRIORITY(context, obj, new_prio);
 
         /* restore new priority */
         OBJ_PRIO(theObjTab[i].hdr) = new_prio;
@@ -1345,16 +1300,17 @@ static void CallSetPriorityHandler (LC_MSGHANDLE xm)
 
 
 
-static void CallObjMkConsHandler (LC_MSGHANDLE xm, int required_newness)
+static void CallObjMkConsHandler (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
 {
+  auto& ctx = context.xferContext();
   OBJTAB_ENTRY *theObjTab;
-  int lenObjTab = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+  int lenObjTab = (int) LC_GetTableLen(xm, ctx.objtab_id);
   int i;
 
   /*STAT_RESET4;*/
 
   /* get table addresses inside message buffer */
-  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id);
+  theObjTab = (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id);
 
 
   /* initialize new objects corresponding to application: consistency */
@@ -1382,15 +1338,15 @@ static void CallObjMkConsHandler (LC_MSGHANDLE xm, int required_newness)
 
     if (newness!=-1)
     {
-      TYPE_DESC *desc = &theTypeDefs[OBJ_TYPE(theObjTab[i].hdr)];
-      DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
+      const TYPE_DESC& desc = context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
+      DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, &desc);
 
       assert(theObjTab[i].is_new!=OTHERMSG);
 
       /* call application handler for object consistency */
-      if (desc->handlerOBJMKCONS)
+      if (desc.handlerOBJMKCONS)
       {
-        desc->handlerOBJMKCONS(obj, newness);
+        desc.handlerOBJMKCONS(context, obj, newness);
       }
     }
   }
@@ -1418,6 +1374,7 @@ static void CallObjMkConsHandler (LC_MSGHANDLE xm, int required_newness)
         datasets before the Xfer) and are therefore redundant.
  */
 static void UnpackOldCplTab (
+  DDD::DDDContext& context,
   TEOldCpl *tabOC, int nOC,
   OBJTAB_ENTRY *tabO, int nO)
 {
@@ -1442,7 +1399,7 @@ static void UnpackOldCplTab (
       /* add couplings now */
       while (iOC<nOC && tabOC[iOC].gid==OBJ_GID(tabO[iO].hdr))
       {
-        AddCoupling(tabO[iO].hdr,tabOC[iOC].proc,tabOC[iOC].prio);
+        AddCoupling(context, tabO[iO].hdr,tabOC[iOC].proc,tabOC[iOC].prio);
         iOC++;
       }
 
@@ -1465,18 +1422,18 @@ static void UnpackOldCplTab (
         is determined and stored into table. the tablesize will be equal or
         smaller at the end of this function.
  */
-static int CompressNewCpl (TENewCpl *tabNC, int nNC)
+static int CompressNewCpl(DDD::DDDContext& context, TENewCpl *tabNC, int nNC)
 {
   int nNCnew;
   int iNC;
 
-  qsort(tabNC, nNC, sizeof(TENewCpl), sort_TENewCpl);
+  std::sort(tabNC, tabNC + nNC, sort_TENewCpl);
 
   nNCnew = iNC = 0;
   while (iNC<nNC)
   {
     /* TENewCpl.type component is needed here (for merging priorities)! */
-    TYPE_DESC *desc  = &theTypeDefs[NewCpl_GetType(tabNC[iNC])];
+    TYPE_DESC *desc  = &context.typeDefs()[NewCpl_GetType(tabNC[iNC])];
     DDD_PRIO newprio;
 
     newprio = NewCpl_GetPrio(tabNC[iNC]);
@@ -1511,13 +1468,15 @@ static int CompressNewCpl (TENewCpl *tabNC, int nNC)
         main unpack procedure.
  */
 
-void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                  const DDD_HDR *localCplObjs, int nLocalCplObjs,
                  std::vector<XISetPrio*>& theSP,
                  XIDelObj **arrayDO, int nDO,
                  const std::vector<XICopyObj*>& arrayCO,
                  XICopyObj **arrayNewOwners, int nNewOwners)
 {
+  auto& ctx = context.xferContext();
+
   TENewCpl     *allNewCpl;
   OBJTAB_ENTRY **unionObjTab;
   int lenObjTab, lenSymTab, nNewCpl;
@@ -1532,15 +1491,17 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   for(i=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
-    lenObjTab += (int)LC_GetTableLen(xm, xferGlobals.objtab_id);
-    lenSymTab += (int)LC_GetTableLen(xm, xferGlobals.symtab_id);
-    nNewCpl += (int)LC_GetTableLen(xm, xferGlobals.newcpl_id);
+    lenObjTab += (int)LC_GetTableLen(xm, ctx.objtab_id);
+    lenSymTab += (int)LC_GetTableLen(xm, ctx.symtab_id);
+    nNewCpl += (int)LC_GetTableLen(xm, ctx.newcpl_id);
   }
 
 #       if DebugUnpack<=4
-  sprintf(cBuffer, "%4d: SUM OF OBJ=%3d SYM=%3d NEW=%3d FROM %2d MSGS\n",
-          me, lenObjTab, lenSymTab, nNewCpl, nRecvMsgs);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "SUM OF"
+              << " OBJ=" << std::setw(3) << lenObjTab
+              << " SYM=" << std::setw(3) << lenSymTab
+              << " NEW=" << std::setw(3) << nNewCpl
+              << " FROM " << std::setw(2) << nRecvMsgs << " MSGS\n";
 #       endif
 
   /*STAT_RESET3;*/
@@ -1548,10 +1509,8 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   if (nNewCpl>0)
   {
     allNewCpl = (TENewCpl *) OO_Allocate (sizeof(TENewCpl)*nNewCpl);
-    if (allNewCpl==NULL) {
-      DDD_PrintError('E', 6560, STR_NOMEM " in XferUnpack");
-      return;
-    }
+    if (allNewCpl == nullptr)
+      throw std::bad_alloc();
   } else {
     allNewCpl = NULL;
   }
@@ -1560,11 +1519,8 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   if (lenObjTab>0)
   {
     unionObjTab = (OBJTAB_ENTRY **) OO_Allocate (sizeof(OBJTAB_ENTRY *)*lenObjTab);
-
-    if (unionObjTab==NULL) {
-      DDD_PrintError('E', 6562, STR_NOMEM " in XferUnpack");
-      return;
-    }
+    if (unionObjTab == nullptr)
+      throw std::bad_alloc();
   } else {
     unionObjTab = NULL;
   }
@@ -1577,21 +1533,21 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   for(i=0, pos1=pos2=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
-    char *theObjects = (char *) LC_GetPtr(xm, xferGlobals.objmem_id);
+    char *theObjects = (char *) LC_GetPtr(xm, ctx.objmem_id);
 
-    len = (int) LC_GetTableLen(xm, xferGlobals.newcpl_id);
+    len = (int) LC_GetTableLen(xm, ctx.newcpl_id);
     if (len>0)
     {
-      memcpy(allNewCpl+pos1, LC_GetPtr(xm,xferGlobals.newcpl_id),
+      memcpy(allNewCpl+pos1, LC_GetPtr(xm,ctx.newcpl_id),
              sizeof(TENewCpl)*len);
       pos1 += len;
     }
 
-    len = (int) LC_GetTableLen(xm, xferGlobals.objtab_id);
+    len = (int) LC_GetTableLen(xm, ctx.objtab_id);
     if (len>0)
     {
       OBJTAB_ENTRY *msg_ot = (OBJTAB_ENTRY *)
-                             LC_GetPtr(xm,xferGlobals.objtab_id);
+                             LC_GetPtr(xm,ctx.objtab_id);
       OBJTAB_ENTRY **all_ot = unionObjTab+pos2;
       int oti;
       for(oti=0; oti<len; oti++, all_ot++, msg_ot++)
@@ -1608,21 +1564,21 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   if (nNewCpl>0)
   {
-    nNewCpl = CompressNewCpl(allNewCpl, nNewCpl);
+    nNewCpl = CompressNewCpl(context, allNewCpl, nNewCpl);
   }
 
   if (lenObjTab>0)
   {
-    qsort(unionObjTab, lenObjTab, sizeof(OBJTAB_ENTRY *), sort_ObjTabPtrs);
+    std::sort(unionObjTab, unionObjTab + lenObjTab, sort_ObjTabPtrs);
   }
 
 
 #       if DebugUnpack<=2
   for(i=0; i<nNewCpl; i++)
   {
-    sprintf(cBuffer, "%4d: TAB allNewCpl %08x on %4d/%d\n",me,
-            NewCpl_GetGid(allNewCpl[i]),NewCpl_GetDest(allNewCpl[i]),NewCpl_GetPrio(allNewCpl[i]));
-    DDD_PrintDebug(cBuffer);
+    Dune::dvverb << " TAB allNewCpl " << NewCpl_GetGid(allNewCpl[i])
+                 << " on " << std::setw(4) NewCpl_GetDest(allNewCpl[i])
+                 << "/" << NewCpl_GetPrio(allNewCpl[i]) << "\n";
   }
 #       endif
 
@@ -1632,6 +1588,7 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   if (nRecvMsgs>0)
   {
     AcceptReceivedObjects(
+      context,
       theMsgs, nRecvMsgs,
       unionObjTab, lenObjTab,
       localCplObjs, nLocalCplObjs
@@ -1649,7 +1606,7 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   /* insert local references into symtabs */
   for(i=0; i<nRecvMsgs; i++)
-    LocalizeSymTab(theMsgs[i], unionObjTab, lenObjTab,
+    LocalizeSymTab(context, theMsgs[i], unionObjTab, lenObjTab,
                    localCplObjs, nLocalCplObjs);
 
 
@@ -1661,8 +1618,8 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
 
   /* unpack all messages and update local topology */
-  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(context, theMsgs[i],  TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(context, theMsgs[i], !TOTALNEW);
 
   /*
           at this point all new objects are established,
@@ -1682,29 +1639,29 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   /* for NOTNEW,PARTNEW,PRUNEDNEW objects */
   for(i=0; i<nRecvMsgs; i++)
-    CallSetPriorityHandler(theMsgs[i]);
+    CallSetPriorityHandler(context, theMsgs[i]);
 
   /* for TOTALNEW objects */
   for(i=0; i<nRecvMsgs; i++)
-    CallUpdateHandler(theMsgs[i]);
+    CallUpdateHandler(context, theMsgs[i]);
 
   /* for all incoming objects */
-  for(i=0; i<nRecvMsgs; i++) UnpackAddData(theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) UnpackAddData(theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) UnpackAddData(context, theMsgs[i],  TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) UnpackAddData(context, theMsgs[i], !TOTALNEW);
 
   /* for PARTNEW and TOTALNEW objects */
-  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(context, theMsgs[i],  TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(context, theMsgs[i], !TOTALNEW);
 
 
 
   /*
    #	if DebugXfer>1
-          if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+          if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
    #	endif
           {
                   for(i=0; i<nRecvMsgs; i++)
-                          XferDisplayMsg("OR", theMsgs[i]);
+                          XferDisplayMsg(context, "OR", theMsgs[i]);
           }
    */
 
@@ -1715,17 +1672,19 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   {
     LC_MSGHANDLE xm = theMsgs[i];
     UnpackOldCplTab(
-      (TEOldCpl *)     LC_GetPtr(xm,xferGlobals.oldcpl_id),
-      (int)            LC_GetTableLen(xm, xferGlobals.oldcpl_id),
-      (OBJTAB_ENTRY *) LC_GetPtr(xm, xferGlobals.objtab_id),
-      (int)            LC_GetTableLen(xm, xferGlobals.objtab_id) );
+      context,
+      (TEOldCpl *)     LC_GetPtr(xm,ctx.oldcpl_id),
+      (int)            LC_GetTableLen(xm, ctx.oldcpl_id),
+      (OBJTAB_ENTRY *) LC_GetPtr(xm, ctx.objtab_id),
+      (int)            LC_GetTableLen(xm, ctx.objtab_id) );
   }
 
 
 
 
   /* update couplings according to global cpl tab */
-  UpdateCouplings(allNewCpl, nNewCpl,
+  UpdateCouplings(context,
+                  allNewCpl, nNewCpl,
                   unionObjTab, lenObjTab,
                   localCplObjs, nLocalCplObjs,
                   arrayDO, nDO,
@@ -1734,11 +1693,11 @@ void XferUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
   /* create new XI???Cpl-infos depending on allNewCpls for existing
      objects */
-  PropagateCplInfos(arraySP, nSP, arrayDO, nDO, allNewCpl, nNewCpl);
+  PropagateCplInfos(context, arraySP, nSP, arrayDO, nDO, allNewCpl, nNewCpl);
 
 
   /* create some more XIModCpl-items due to incoming objects */
-  PropagateIncomings(arrayNewOwners, nNewOwners, unionObjTab, lenObjTab);
+  PropagateIncomings(context, arrayNewOwners, nNewOwners, unionObjTab, lenObjTab);
 
 
   /* free temporary memory */

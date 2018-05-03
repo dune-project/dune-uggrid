@@ -35,26 +35,6 @@ struct Segm(T)
 	T                item[SEGM_SIZE];
 };
 
-
-/* linked list of items */
-T *list(T);
-
-
-/* number of overall items */
-int n(T);
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of local variables                                            */
-/*                                                                          */
-/****************************************************************************/
-
-/* linked list of segms of items */
-static Segm(T) *segms(T);
-
-
 /****************************************************************************/
 /*                                                                          */
 /* routines                                                                 */
@@ -62,8 +42,9 @@ static Segm(T) *segms(T);
 /****************************************************************************/
 
 
-static Segm(T) *NewSegm(T) (void)
+static Segm(T) *NewSegm(T) (DDD::DDDContext& context)
 {
+	auto& ctx = context.xferContext();
 	Segm(T) *segm;
 
 	segm = (Segm(T) *) OO_Allocate (sizeof(Segm(T)));
@@ -73,17 +54,18 @@ static Segm(T) *NewSegm(T) (void)
 		return(NULL);
 	}
 
-	segm->next   = segms(T);
-	segms(T)     = segm;
+	segm->next   = reinterpret_cast<Segm(T)*>(ctx.segms(T));
+	ctx.segms(T) = reinterpret_cast<DDD::Xfer::Segm(T)*>(segm);
 	segm->nItems = 0;
 	
 	return(segm);
 }
 
 
-static void FreeSegms(T) (void)
+static void FreeSegms(T) (DDD::DDDContext& context)
 {
-	Segm(T) *segm = segms(T);
+	auto& ctx = context.xferContext();
+	Segm(T) *segm = reinterpret_cast<Segm(T)*>(ctx.segms(T));
 	Segm(T) *next = NULL;
 
 	while (segm!=NULL)
@@ -94,19 +76,20 @@ static void FreeSegms(T) (void)
 		segm = next;
 	}
 
-	segms(T) = NULL;
+	ctx.segms(T) = nullptr;
 }
 
 
 
-T *New(T) (SLLNewArgProtos)
+T *New(T) (DDD::DDDContext& context)
 {
-	Segm(T) *segm = segms(T);
+	auto& ctx = context.xferContext();
+	Segm(T) *segm = reinterpret_cast<Segm(T)*>(ctx.segms(T));
 	T        *item;
 
 	if (segm==NULL || segm->nItems==SEGM_SIZE)
 	{
-		segm = NewSegm(T) ();
+		segm = NewSegm(T) (context);
 		if (segm==NULL)
 			return(NULL);
 	}
@@ -115,19 +98,14 @@ T *New(T) (SLLNewArgProtos)
 
 
 	/* insert item into linked list and count it */
-	item->sll_next = list(T);
-	list(T) = item;
-	n(T)++;
+	item->sll_next = reinterpret_cast<T*>(ctx.list(T));
+	ctx.list(T) = reinterpret_cast<DDD::Xfer::T*>(item);
+	ctx.n(T)++;
 
 	#ifdef SLL_WithOrigOrder
 		/* insert unique counter */
-		item->sll_n = n(T);
+		item->sll_n = ctx.n(T);
 	#endif
-
-#	ifdef SLL_DebugNew
-		strncpy(item->sll_file, file, SLL_NAMELEN);
-		item->sll_line = line;
-#	endif
 
 	return(item);
 }
@@ -140,15 +118,16 @@ T *New(T) (SLLNewArgProtos)
 	according to given comparison function compar().
 */
 
-T **SortedArray(T) (int (*compar) (const void *, const void *))
+T **SortedArray(T) (DDD::DDDContext& context, int (*compar) (const void *, const void *))
 {
+	auto& ctx = context.xferContext();
 	T **array, *item;
 	int  i;
 
-	if (n(T)>0)
+	if (ctx.n(T)>0)
 	{
 		/* alloc array */
-		array = (T **) OO_Allocate(sizeof(T *) * n(T));
+		array = (T **) OO_Allocate(sizeof(T *) * ctx.n(T));
 		if (array==NULL)
 		{
 			DDD_PrintError('F', 6061, STR_NOMEM " during XferEnd()");
@@ -156,14 +135,14 @@ T **SortedArray(T) (int (*compar) (const void *, const void *))
 		}
 
 		/* fill array with pointer */
-		for(item=list(T), i=0; i<n(T); item=item->sll_next, i++)
+		for(item=reinterpret_cast<T*>(ctx.list(T)), i=0; i<ctx.n(T); item=item->sll_next, i++)
 		{
 			array[i] = item;
 		}
 
 		/* sort by using compar function */
-		if (n(T)>1)
-			qsort(array, n(T), sizeof(T *), compar);
+		if (ctx.n(T)>1)
+			qsort(array, ctx.n(T), sizeof(T *), compar);
 	}
 	else
 	{
@@ -196,7 +175,7 @@ static int sort_OrigOrder(T) (const void *e1, const void *e2)
 }
 
 
-void OrigOrder(T) (T **array, int n)
+void OrigOrder(T) (DDD::DDDContext& context, T **array, int n)
 {
 	qsort(array, n, sizeof(T *), sort_OrigOrder(T));
 }
@@ -222,14 +201,15 @@ void OrigOrder(T) (T **array, int n)
 	allow compar() to decide correctly.
 */
 
-int Unify(T) (T **array, int (*compar) (T **, T **))
+int Unify(T) (const DDD::DDDContext& context, T **array, int (*compar) (const DDD::DDDContext&, T **, T **))
 {
+	const auto& ctx = context.xferContext();
 	int  i, cntValid;
 
-	for(i=0, cntValid=0; i<n(T)-1; i++)
+	for(i=0, cntValid=0; i<ctx.n(T)-1; i++)
 	{
 		/* test if unique */
-		if (compar(&array[i],&array[i+1]))
+		if (compar(context, &array[i],&array[i+1]))
 		{
 			/* choose item */
 			array[cntValid] = array[i];
@@ -239,9 +219,9 @@ int Unify(T) (T **array, int (*compar) (T **, T **))
 	}
 
 	/* always choose last item */
-	if (n(T)>0)
+	if (ctx.n(T)>0)
 	{
-		array[cntValid] = array[n(T)-1];
+		array[cntValid] = array[ctx.n(T)-1];
 		cntValid++;
 	}
 
@@ -256,12 +236,14 @@ int Unify(T) (T **array, int (*compar) (T **, T **))
 /*
 	init linked list
 */
-void Init(T) (void)
+void Init(T) (DDD::DDDContext& context)
 {
-	list(T) = NULL;
-	n(T) = 0;
+	auto& ctx = context.xferContext();
 
-	segms(T) = NULL;
+	ctx.list(T) = nullptr;
+	ctx.n(T) = 0;
+
+	ctx.segms(T) = nullptr;
 
 	/*
 	free(T) = NULL;
@@ -273,25 +255,28 @@ void Init(T) (void)
 /*
 	free all items
 */
-void FreeAll(T) (void)
+void FreeAll(T) (DDD::DDDContext& context)
 {
-	list(T) = NULL;
-	n(T) = 0;
+	auto& ctx = context.xferContext();
 
-	FreeSegms(T) ();
+	ctx.list(T) = nullptr;
+	ctx.n(T) = 0;
+
+	FreeSegms(T) (context);
 }
 
 
 /*
 	get quantitative resource usage
 */
-void GetSizes(T) (int *nSegms, int *nItems, size_t *alloc_mem, size_t *used_mem)
+void GetSizes(T) (const DDD::DDDContext& context, int *nSegms, int *nItems, size_t *alloc_mem, size_t *used_mem)
 {
+	const auto& ctx = context.xferContext();
 	size_t   allocated=0, used=0;
 	int      ns=0, ni=0;
 	Segm(T)  *segm;
 
-	for (segm=segms(T); segm!=NULL; segm=segm->next)
+	for (segm=reinterpret_cast<Segm(T)*>(ctx.segms(T)); segm!=NULL; segm=segm->next)
 	{
 		/* count number of segments and number of items */
 		ns++;

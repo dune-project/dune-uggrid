@@ -37,14 +37,14 @@
 
 
 #ifdef IF_WITH_XARGS
-	#define EXEC_LOOP(a,b,c)     NS_DIM_PREFIX IFExecLoopCplX(a,b,c)
-	#define COMM_LOOP(a,b,c,d,e) NS_DIM_PREFIX IFCommLoopCplX(a,b,c,d,e)
+	#define EXEC_LOOP(context, a,b,c)     NS_DIM_PREFIX IFExecLoopCplX(context, a,b,c)
+	#define COMM_LOOP(context, a,b,c,d,e) NS_DIM_PREFIX IFCommLoopCplX(context, a,b,c,d,e)
 	#define D_AB(p)              (p->cplAB)
 	#define D_BA(p)              (p->cplBA)
 	#define D_ABA(p)             (p->cplABA)
 #else
-	#define EXEC_LOOP(a,b,c)     NS_DIM_PREFIX IFExecLoopObj(a,b,c)
-	#define COMM_LOOP(a,b,c,d,e) NS_DIM_PREFIX IFCommLoopObj(a,b,c,d,e)
+	#define EXEC_LOOP(context, a,b,c)     NS_DIM_PREFIX IFExecLoopObj(context, a,b,c)
+	#define COMM_LOOP(context, a,b,c,d,e) NS_DIM_PREFIX IFCommLoopObj(context, a,b,c,d,e)
 	#define D_AB(p)              (p->objAB)
 	#define D_BA(p)              (p->objBA)
 	#define D_ABA(p)             (p->objABA)
@@ -170,6 +170,7 @@
 
 
 void IF_FUNCNAME (
+	DDD::DDDContext& context,
 	NS_DIM_PREFIX DDD_IF aIF,
 	#ifdef IF_WITH_ATTR
 		NS_DIM_PREFIX DDD_ATTR aAttr,
@@ -188,10 +189,12 @@ void IF_FUNCNAME (
 		#ifdef IF_WITH_XARGS
 			NS_DIM_PREFIX ComProcXPtr Gather, NS_DIM_PREFIX ComProcXPtr Scatter)
 		#else
-			NS_DIM_PREFIX ComProcPtr Gather, NS_DIM_PREFIX ComProcPtr Scatter)
+			NS_DIM_PREFIX ComProcPtr2 Gather, NS_DIM_PREFIX ComProcPtr2 Scatter)
 		#endif
 	#endif
 {
+	using std::setw;
+
 	NS_DIM_PREFIX IF_PROC		  *ifHead;
 	unsigned long tries;
 	int           recv_mesgs;
@@ -199,32 +202,28 @@ void IF_FUNCNAME (
 
 	/* prohibit using standard interface (IF0) */
 	if (aIF==NS_DIM_PREFIX STD_INTERFACE)
-	{
-		DDD_PrintError('E', 4300,
-			CONCAT("cannot use standard interface in ",IF_FUNCNAME));
-		HARD_EXIT;
-	}
+		DUNE_THROW(Dune::Exception, "cannot use standard interface");
 
 
 	/* shortcuts can only be used without extended handler arguments */
 	#ifndef IF_WITH_XARGS
 		/* if shortcut tables are invalid -> recompute */
-		NS_DIM_PREFIX IFCheckShortcuts(aIF);
+		NS_DIM_PREFIX IFCheckShortcuts(context, aIF);
 	#endif
 
 
 #ifdef IF_EXECLOCAL
 
-	ForIF(aIF,ifHead)
+	ForIF(context, aIF, ifHead)
 	{
 		#ifdef IF_WITH_ATTR
 			NS_DIM_PREFIX IF_ATTR	    *ifAttr;
 			FIND_ATTR; /* find ifAttr */
 		#endif
 
-		EXEC_LOOP(ExecProc, D_BA(PART),  PART->nBA);
-		EXEC_LOOP(ExecProc, D_AB(PART),  PART->nAB);
-		EXEC_LOOP(ExecProc, D_ABA(PART), PART->nABA);
+		EXEC_LOOP(context, ExecProc, D_BA(PART),  PART->nBA);
+		EXEC_LOOP(context, ExecProc, D_AB(PART),  PART->nAB);
+		EXEC_LOOP(context, ExecProc, D_ABA(PART), PART->nABA);
 	}
 
 #else /* ! IF_EXECLOCAL */
@@ -238,7 +237,7 @@ void IF_FUNCNAME (
 	*/
 
 	/* allocate storage for in and out buffers */
-	ForIF(aIF,ifHead)
+	ForIF(context, aIF, ifHead)
 	{
 		#ifdef IF_WITH_ATTR
 			NS_DIM_PREFIX IF_ATTR	    *ifAttr;
@@ -249,8 +248,8 @@ void IF_FUNCNAME (
 
 		#ifdef IF_WITH_ATTR
 			/* reset buffers */
-			BufferReset(ifHead->bufIn);
-			BufferReset(ifHead->bufOut);
+			ifHead->bufIn.clear();
+			ifHead->bufOut.clear();
 			FIND_ATTR; /* find ifAttr */
 			/* if no ATTR can be found, buffers will be empty */
 		#endif
@@ -272,7 +271,7 @@ void IF_FUNCNAME (
 		/* STAT_SETCOUNT(20,STAT_GETCOUNT(20)+ifHead->nItems);
 		STAT_SETCOUNT(21,STAT_GETCOUNT(21)+2);
 		STAT_SETCOUNT(22,STAT_GETCOUNT(22)+
-			BufferLen(ifHead->bufIn) + BufferLen(ifHead->bufOut));
+			ifHead->bufIn.size() + ifHead->bufOut.size());
 		*/
 	}
 	/*
@@ -281,11 +280,11 @@ void IF_FUNCNAME (
 
 
 	/* init communication, initiate receives */
-	recv_mesgs = NS_DIM_PREFIX IFInitComm(aIF);
+	recv_mesgs = NS_DIM_PREFIX IFInitComm(context, aIF);
 
 
 	/* build messages using gather-handler and send them away */
-	ForIF(aIF,ifHead)
+	ForIF(context, aIF, ifHead)
 	{
 		char   *buffer;
 		#ifdef IF_WITH_ATTR
@@ -304,12 +303,12 @@ void IF_FUNCNAME (
 		FIND_ATTR; /* find ifAttr */
 		#endif
 
-		buffer = BufferMem(ifHead->bufOut);
+		buffer = ifHead->bufOut.data();
 
 		#ifdef IF_EXCHANGE
 			/* exchange BA and AB during send */
-			buffer= COMM_LOOP(Gather, D_BA(PART), buffer, aSize, PART->nBA);
-			buffer= COMM_LOOP(Gather, D_AB(PART), buffer, aSize, PART->nAB);
+			buffer= COMM_LOOP(context, Gather, D_BA(PART), buffer, aSize, PART->nBA);
+			buffer= COMM_LOOP(context, Gather, D_AB(PART), buffer, aSize, PART->nAB);
 		#endif
 
 		#ifdef IF_ONEWAY
@@ -320,12 +319,12 @@ void IF_FUNCNAME (
 				nOut = PART->nBA;  datOut = D_BA(PART);
 			}
 
-			buffer= COMM_LOOP(Gather, datOut, buffer, aSize, nOut);
+			buffer= COMM_LOOP(context, Gather, datOut, buffer, aSize, nOut);
 		#endif
 
-		buffer= COMM_LOOP(Gather, D_ABA(PART), buffer, aSize, PART->nABA);
+		buffer= COMM_LOOP(context, Gather, D_ABA(PART), buffer, aSize, PART->nABA);
 
-		NS_DIM_PREFIX IFInitSend(ifHead);
+		NS_DIM_PREFIX IFInitSend(context, ifHead);
 	}
 
 
@@ -334,19 +333,14 @@ void IF_FUNCNAME (
 	for(tries=0; tries<MAX_TRIES && recv_mesgs>0; tries++)
 	{
 		/* poll receive calls */
-		ForIF(aIF,ifHead)
+		ForIF(context, aIF, ifHead)
 		{
-			if ((! BufferIsEmpty(ifHead->bufIn)) && ifHead->msgIn!=NO_MSGID)
+			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
-				int error = InfoARecv(ifHead->vc, ifHead->msgIn);
+				int error = InfoARecv(context.ppifContext(), ifHead->vc, ifHead->msgIn);
 				if (error==-1)
-				{
-					sprintf(NS_DIM_PREFIX cBuffer,
-							"PPIF's InfoARecv() failed for recv to proc=%d in IF-Comm",
-						ifHead->proc);
-					DDD_PrintError('E', 4221, NS_DIM_PREFIX cBuffer);
-					HARD_EXIT;
-				}
+					DUNE_THROW(Dune::Exception,
+					           "InfoARecv failed for recv to proc=" << ifHead->proc);
 
 				if (error==1)
 				{
@@ -366,9 +360,9 @@ void IF_FUNCNAME (
 					#ifdef CtrlTimeoutsDetailed
 					printf("%4d: IFCTRL %02d received msg    from "
 						"%4d after %10ld, size %ld\n",
-						me, aIF, ifHead->proc,
+						context.me(), aIF, ifHead->proc,
 						(unsigned long)tries,
-						(unsigned long)BufferLen(ifHead->bufIn));
+						(unsigned long)ifHead->bufIn.size());
 					#endif
 
 					recv_mesgs--;
@@ -378,13 +372,13 @@ void IF_FUNCNAME (
 					FIND_ATTR; /* find ifAttr */
 					#endif
 
-					buffer = BufferMem(ifHead->bufIn);
+					buffer = ifHead->bufIn.data();
 
 					/* get data using scatter-handler */
 					#ifdef IF_EXCHANGE
-						buffer = COMM_LOOP(Scatter,
+						buffer = COMM_LOOP(context, Scatter,
 									D_AB(PART), buffer, aSize, PART->nAB);
-						buffer = COMM_LOOP(Scatter,
+						buffer = COMM_LOOP(context, Scatter,
 									D_BA(PART), buffer, aSize, PART->nBA);
 					#endif
 
@@ -396,10 +390,10 @@ void IF_FUNCNAME (
 							nIn  = PART->nAB;  datIn = D_AB(PART);
 						}
 
-						buffer = COMM_LOOP(Scatter, datIn, buffer, aSize, nIn);
+						buffer = COMM_LOOP(context, Scatter, datIn, buffer, aSize, nIn);
 					#endif
 
-					buffer = COMM_LOOP(Scatter,
+					buffer = COMM_LOOP(context, Scatter,
 						D_ABA(PART), buffer, aSize, PART->nABA);
 				}
 			}
@@ -409,17 +403,15 @@ void IF_FUNCNAME (
 	/* finally poll send completion */
 	if (recv_mesgs>0)
 	{
-		sprintf(NS_DIM_PREFIX cBuffer, CONCAT("receive-timeout for IF %02d in ",IF_FUNCNAME), aIF);
-		DDD_PrintError('E', 4200, NS_DIM_PREFIX cBuffer);
+		Dune::dwarn << FUNCNAME_STR(IF_FUNCNAME) ": receive-timeout for IF " << setw(2) << aIF << "\n";
 
-		ForIF(aIF,ifHead)
+		ForIF(context, aIF, ifHead)
 		{
-			if ((! BufferIsEmpty(ifHead->bufIn)) && ifHead->msgIn!=NO_MSGID)
+			if (not ifHead->bufIn.empty() && ifHead->msgIn!=NO_MSGID)
 			{
-				sprintf(NS_DIM_PREFIX cBuffer,
-					"  waiting for message (from proc %d, size %ld)",
-					ifHead->proc, (unsigned long)BufferLen(ifHead->bufIn));
-				DDD_PrintError('E', 4201, NS_DIM_PREFIX cBuffer);
+	                        Dune::dwarn
+				  << "  waiting for message (from proc " << ifHead->proc
+				  << ", size " << ifHead->bufIn.size() << ")\n";
 			}
 		}
 	}
@@ -427,22 +419,20 @@ void IF_FUNCNAME (
 	{
 		#ifdef CtrlTimeouts
 		printf("%4d: IFCTRL %02d received msg  all after %10ld tries\n",
-			me, aIF, (unsigned long)tries);
+			context.me(), aIF, (unsigned long)tries);
 		#endif
 
-		if (! NS_DIM_PREFIX IFPollSend(aIF))
+		if (! NS_DIM_PREFIX IFPollSend(context, aIF))
 		{
-			sprintf(NS_DIM_PREFIX cBuffer, CONCAT("send-timeout for IF %02d in ",IF_FUNCNAME), aIF);
-			DDD_PrintError('E', 4210, NS_DIM_PREFIX cBuffer);
+			Dune::dwarn << FUNCNAME_STR(IF_FUNCNAME) ": send-timeout for IF " << setw(2) << aIF << "\n";
 
-			ForIF(aIF,ifHead)
+			ForIF(context, aIF, ifHead)
 			{
-				if ((! BufferIsEmpty(ifHead->bufOut)) && ifHead->msgOut!=NO_MSGID)
+				if (not ifHead->bufOut.empty() && ifHead->msgOut!=NO_MSGID)
 				{
-					sprintf(NS_DIM_PREFIX cBuffer,
-						"  waiting for send completion (to proc %d, size %ld)",
-						ifHead->proc, (unsigned long)BufferLen(ifHead->bufOut));
-					DDD_PrintError('E', 4211, NS_DIM_PREFIX cBuffer);
+                                        Dune::dwarn
+                                          << "  waiting for send completion (to proc " << ifHead->proc
+                                          << ", size " << ifHead->bufOut.size() << ")\n";
 				}
 			}
 		}
@@ -450,7 +440,7 @@ void IF_FUNCNAME (
 
 
 	/* free memory */
-	NS_DIM_PREFIX IFExitComm(aIF);
+	NS_DIM_PREFIX IFExitComm(context, aIF);
 
 	/*STAT_TIMER1(60);*/
 

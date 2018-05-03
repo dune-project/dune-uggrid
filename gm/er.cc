@@ -733,7 +733,7 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
    doctext_disabled*/
 /****************************************************************************/
 
-static int CountIFElements (DDD_OBJ obj)
+static int CountIFElements (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem = (ELEMENT*) obj;
 
@@ -777,7 +777,7 @@ static int CountIFElements (DDD_OBJ obj)
    doctext_disabled*/
 /****************************************************************************/
 
-static int InitMasterRules (DDD_OBJ obj)
+static int InitMasterRules (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem   = (ELEMENT*) obj;
 
@@ -814,7 +814,7 @@ static int InitMasterRules (DDD_OBJ obj)
    doctext_disabled*/
 /****************************************************************************/
 
-static int Gather_ERULE (DDD_OBJ obj, void *data)
+static int Gather_ERULE (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *elem   = (ELEMENT*) obj;
 
@@ -847,7 +847,7 @@ static int Gather_ERULE (DDD_OBJ obj, void *data)
    doctext_disabled*/
 /****************************************************************************/
 
-static int Scatter_ERULE (DDD_OBJ obj, void *data)
+static int Scatter_ERULE (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *elem   = (ELEMENT*)obj;
 
@@ -883,7 +883,7 @@ static int Scatter_ERULE (DDD_OBJ obj, void *data)
    doctext_disabled*/
 /****************************************************************************/
 
-static int Scatter_partial_ERULE (DDD_OBJ obj, void *data)
+static int Scatter_partial_ERULE (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *elem   = (ELEMENT*)obj;
 
@@ -932,7 +932,7 @@ static int Scatter_partial_ERULE (DDD_OBJ obj, void *data)
    doctext_disabled*/
 /****************************************************************************/
 
-static int ExtractInterfaceERule (DDD_OBJ obj)
+static int ExtractInterfaceERule (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem   = (ELEMENT*)obj;
 
@@ -994,6 +994,9 @@ static int ExtractInterfaceERule (DDD_OBJ obj)
 
 static INT ExtractInterfaceRules (MULTIGRID *mg)
 {
+  auto& context = mg->dddContext();
+  const auto& dddctrl = ddd_ctrl(context);
+
   int lev;
 
   /* TODO (HRR 971211): don't include TOPLEVEL (no elem refined there) */
@@ -1003,7 +1006,7 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
 
     /* count interface master and vhghost elements */
     global.if_elems = 1;
-    DDD_IFAExecLocal(ElementVHIF, GRID_ATTR(grid), CountIFElements);
+    DDD_IFAExecLocal(context, dddctrl.ElementVHIF, GRID_ATTR(grid), CountIFElements);
 
     if (global.if_elems>1)
     {
@@ -1021,18 +1024,18 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
         REP_ERR_RETURN(1);
 
       /* init rules of masters */
-      DDD_IFAExecLocal(ElementIF, GRID_ATTR(grid), InitMasterRules);
+      DDD_IFAExecLocal(context, dddctrl.ElementIF, GRID_ATTR(grid), InitMasterRules);
 
       /* communicate VHghosts --> master */
-      DDD_IFAOneway(ElementVHIF, GRID_ATTR(grid), IF_BACKWARD, sizeof(ERULE),
+      DDD_IFAOneway(context, dddctrl.ElementVHIF, GRID_ATTR(grid), IF_BACKWARD, sizeof(ERULE),
                     Gather_ERULE, Scatter_partial_ERULE);
 
       /* communicate master --> VHghosts */
-      DDD_IFAOneway(ElementVHIF, GRID_ATTR(grid), IF_FORWARD, sizeof(ERULE),
+      DDD_IFAOneway(context, dddctrl.ElementVHIF, GRID_ATTR(grid), IF_FORWARD, sizeof(ERULE),
                     Gather_ERULE, Scatter_ERULE);
 
       /* extract rules from interface elements */
-      DDD_IFAExecLocal(ElementVHIF, GRID_ATTR(grid), ExtractInterfaceERule);
+      DDD_IFAExecLocal(context, dddctrl.ElementVHIF, GRID_ATTR(grid), ExtractInterfaceERule);
 
       IFDEBUG(gm,ER_DBG_GENERAL)
       long N_er = 0;

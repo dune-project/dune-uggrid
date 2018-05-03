@@ -324,10 +324,10 @@ enum {VERTEX_LISTPARTS = 1};
 #define EHGHOST(p)              0
 #define EVGHOST(p)              0
 #define EPRIO(p)                0
-#define SETEPRIO(p,i)   ;
+#define SETEPRIO(context, p,i)   ;
 #define EMASTERPRIO(p)  1
-#define EPROCLIST(p)    (&_proclist_)
-#define ENCOPIES(p)             1
+#define EPROCLIST(context, p)   (&_proclist_)
+#define ENCOPIES(context, p)    1
 #define PARTITION(p)    _partition_
 
 /* dummies for nodes, vectors, edges */
@@ -338,37 +338,36 @@ enum {VERTEX_LISTPARTS = 1};
 #define PRIO(p)                 0
 #define EPRIO(p)                0
 #define VXPRIO(p)               0
-#define SETPRIO(p,i)    ;
-#define PROCLIST(p)             (&_proclist_)
-#define NCOPIES(p)              1
+#define SETPRIO(context, p,i)    ;
+#define PROCLIST(context, p)    (&_proclist_)
+#define NCOPIES(context, p)     1
 
 /* dummies for vertices */
-#define SETVXPRIO(e,p)  ;
+#define SETVXPRIO(context, e,p)  ;
 
 /* ddd dummies */
 #define DDD_OBJ                 void *
-#define DDD_IdentifyBegin()
-#define DDD_IdentifyEnd()
-#define DDD_IdentifyNumber(o,p,n)
-#define DDD_IFAOneway(p1,p2,p3,p4,p5,p6)
-#define DDD_PrioritySet(e,p)
+#define DDD_IdentifyBegin(context)
+#define DDD_IdentifyEnd(context)
+#define DDD_IdentifyNumber(context, o,p,n)
+#define DDD_IFAOneway(context, p1,p2,p3,p4,p5,p6)
 
 /* ppif dummies */
-#define Broadcast(p,n)  ((int)0)
+#define Broadcast(context, p,n)  ((int)0)
 
 /* dummys for reduction functions implemented in parallel/dddif/support.c */
-#define UG_GlobalSumINT(x)              x
-#define UG_GlobalMaxINT(x)              x
-#define UG_GlobalMinINT(x)              x
-#define UG_GlobalSumNINT(x,y)
-#define UG_GlobalMaxNINT(x,y)
-#define UG_GlobalMinNINT(x,y)
-#define UG_GlobalSumDOUBLE(x)   x
-#define UG_GlobalMaxDOUBLE(x)   x
-#define UG_GlobalMinDOUBLE(x)   x
-#define UG_GlobalSumNDOUBLE(x,y)
-#define UG_GlobalMaxNDOUBLE(x,y)
-#define UG_GlobalMinNDOUBLE(x,y)
+#define UG_GlobalSumINT(context, x)              x
+#define UG_GlobalMaxINT(context, x)              x
+#define UG_GlobalMinINT(context, x)              x
+#define UG_GlobalSumNINT(context, x,y)
+#define UG_GlobalMaxNINT(context, x,y)
+#define UG_GlobalMinNINT(context, x,y)
+#define UG_GlobalSumDOUBLE(context, x)   x
+#define UG_GlobalMaxDOUBLE(context, x)   x
+#define UG_GlobalMinDOUBLE(context, x)   x
+#define UG_GlobalSumNDOUBLE(context, x,y)
+#define UG_GlobalMaxNDOUBLE(context, x,y)
+#define UG_GlobalMinNDOUBLE(context, x,y)
 #endif
 
 
@@ -386,18 +385,18 @@ enum {VERTEX_LISTPARTS = 1};
 
 /* functions implemented in parallel/dddif/support.c */
 #ifdef ModelP
-INT    UG_GlobalSumINT     (INT x);
-INT    UG_GlobalMaxINT     (INT x);
-INT    UG_GlobalMinINT     (INT x);
-void   UG_GlobalSumNINT    (INT n, INT *x);
-void   UG_GlobalMaxNINT    (INT n, INT *x);
-void   UG_GlobalMinNINT    (INT n, INT *x);
-DOUBLE UG_GlobalSumDOUBLE  (DOUBLE i);
-DOUBLE UG_GlobalMaxDOUBLE  (DOUBLE i);
-DOUBLE UG_GlobalMinDOUBLE  (DOUBLE i);
-void   UG_GlobalSumNDOUBLE (INT n, DOUBLE *x);
-void   UG_GlobalMaxNDOUBLE (INT n, DOUBLE *x);
-void   UG_GlobalMinNDOUBLE (INT n, DOUBLE *x);
+INT    UG_GlobalSumINT     (const PPIF::PPIFContext& context, INT x);
+INT    UG_GlobalMaxINT     (const PPIF::PPIFContext& context, INT x);
+INT    UG_GlobalMinINT     (const PPIF::PPIFContext& context, INT x);
+void   UG_GlobalSumNINT    (const PPIF::PPIFContext& context, INT n, INT *x);
+void   UG_GlobalMaxNINT    (const PPIF::PPIFContext& context, INT n, INT *x);
+void   UG_GlobalMinNINT    (const PPIF::PPIFContext& context, INT n, INT *x);
+DOUBLE UG_GlobalSumDOUBLE  (const PPIF::PPIFContext& context, DOUBLE i);
+DOUBLE UG_GlobalMaxDOUBLE  (const PPIF::PPIFContext& context, DOUBLE i);
+DOUBLE UG_GlobalMinDOUBLE  (const PPIF::PPIFContext& context, DOUBLE i);
+void   UG_GlobalSumNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x);
+void   UG_GlobalMaxNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x);
+void   UG_GlobalMinNDOUBLE (const PPIF::PPIFContext& context, INT n, DOUBLE *x);
 #endif
 
 END_UGDIM_NAMESPACE

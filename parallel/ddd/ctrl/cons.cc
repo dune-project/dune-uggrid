@@ -42,6 +42,10 @@
 /*#include "xfer/xfer.h"*/
 #include "basic/lowcomm.h"
 
+#include <dune/common/stdstreams.hh>
+
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 USING_UG_NAMESPACES
 
 /* PPIF namespace: */
@@ -104,75 +108,31 @@ struct CONSMSG
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-static LC_MSGTYPE consmsg_t;
-static LC_MSGCOMP constab_id;
-
-
-#ifdef ConsMemFromHeap
-static long theMarkKey;
-#endif
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
 
 
-void ddd_ConsInit (void)
+void ddd_ConsInit(DDD::DDDContext& context)
 {
-  consmsg_t = LC_NewMsgType("ConsCheckMsg");
-  constab_id = LC_NewMsgTable("ConsTab", consmsg_t, sizeof(CONS_INFO));
+  auto& ctx = context.consContext();
+  ctx.consmsg_t = LC_NewMsgType(context, "ConsCheckMsg");
+  ctx.constab_id = LC_NewMsgTable("ConsTab", ctx.consmsg_t, sizeof(CONS_INFO));
 }
 
 
-void ddd_ConsExit (void)
+void ddd_ConsExit(DDD::DDDContext&)
 {}
-
-
-#ifdef ConsMemFromHeap
-static void *cons_AllocHeap (size_t size)
-{
-  void *buffer = AllocHeap(size, theMarkKey);
-  return(buffer);
-}
-
-static void *cons_AllocSend (size_t size)
-{
-  void *buffer = AllocTmpReq(size, TMEM_ANY);
-  return(buffer);
-}
-
-static void cons_FreeSend (void *buffer)
-{
-  FreeTmpReq(buffer, 0, TMEM_ANY);
-}
-#endif
 
 
 /****************************************************************************/
 
-static int ConsBuildMsgInfos (CONS_INFO *allItems, int nXferItems, CONSMSG **theMsgs)
+static int ConsBuildMsgInfos(DDD::DDDContext& context, CONS_INFO *allItems, int nXferItems, CONSMSG **theMsgs)
 {
   CONSMSG    *cm, *lastCm;
   int i, lastdest, nMsgs;
+
+  auto& ctx = context.consContext();
 
   lastdest = -1;
   lastCm = cm = NULL;
@@ -206,13 +166,13 @@ static int ConsBuildMsgInfos (CONS_INFO *allItems, int nXferItems, CONSMSG **the
   for(cm=*theMsgs; cm!=NULL; cm=cm->next)
   {
     /* create new send message */
-    cm->msg_h = LC_NewSendMsg(consmsg_t, cm->dest);
+    cm->msg_h = LC_NewSendMsg(context, ctx.consmsg_t, cm->dest);
 
     /* init table inside message */
-    LC_SetTableSize(cm->msg_h, constab_id, cm->nItems);
+    LC_SetTableSize(cm->msg_h, ctx.constab_id, cm->nItems);
 
     /* prepare message for sending away */
-    LC_MsgPrepareSend(cm->msg_h);
+    LC_MsgPrepareSend(context, cm->msg_h);
   }
 
   return(nMsgs);
@@ -220,32 +180,34 @@ static int ConsBuildMsgInfos (CONS_INFO *allItems, int nXferItems, CONSMSG **the
 
 
 
-static void ConsSend (CONSMSG *theMsgs)
+static void ConsSend(DDD::DDDContext& context, CONSMSG *theMsgs)
 {
-  CONSMSG *cm;
+  auto& ctx = context.consContext();
 
-  for(cm=theMsgs; cm!=NULL; cm=cm->next)
+  for(CONSMSG* cm=theMsgs; cm != nullptr; cm=cm->next)
   {
     /* copy data into message */
-    memcpy(LC_GetPtr(cm->msg_h, constab_id),
+    memcpy(LC_GetPtr(cm->msg_h, ctx.constab_id),
            cm->consArray, sizeof(CONS_INFO)*cm->nItems);
 
     /* send message */
-    LC_MsgSend(cm->msg_h);
+    LC_MsgSend(context, cm->msg_h);
   }
 }
 
 
 
-static int ConsCheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
+static int ConsCheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_HDR *locObjs)
 {
   CONS_INFO    *theCplBuf;
   int i, j, nItems;
   int error_cnt = 0;
 
+  auto& ctx = context.consContext();
+  const auto& me = context.me();
 
-  nItems = (int) LC_GetTableLen(xm,constab_id);
-  theCplBuf = (CONS_INFO *) LC_GetPtr(xm, constab_id);
+  nItems = (int) LC_GetTableLen(xm, ctx.constab_id);
+  theCplBuf = (CONS_INFO *) LC_GetPtr(xm, ctx.constab_id);
 
 
   /*
@@ -254,32 +216,33 @@ static int ConsCheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
           DDD_PrintDebug(cBuffer);
    */
 
+  const int nObjs = context.nObjs();
 
   /* test whether there are consistent objects for all couplings */
   for(i=0, j=0; i<nItems; i++)
   {
-    while ((j<ddd_nObjs) && (OBJ_GID(locObjs[j]) < theCplBuf[i].gid))
+    while ((j < nObjs) && (OBJ_GID(locObjs[j]) < theCplBuf[i].gid))
       j++;
 
-    if ((j<ddd_nObjs) && (OBJ_GID(locObjs[j])==theCplBuf[i].gid))
+    if ((j < nObjs) && (OBJ_GID(locObjs[j])==theCplBuf[i].gid))
     {
       if (OBJ_PRIO(locObjs[j])!=theCplBuf[i].prio)
       {
-        sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " type %d on %d"
-                " has prio %d, cpl from %d has prio %d!\n",
-                OBJ_GID(locObjs[j]), OBJ_TYPE(locObjs[j]), me, OBJ_PRIO(locObjs[j]),
-                LC_MsgGetProc(xm), theCplBuf[i].prio);
-        DDD_PrintLine(cBuffer);
+        Dune::dwarn
+          << "    DDD-CCC Warning: obj " << OBJ_GID(locObjs[j]) << " type "
+          << OBJ_TYPE(locObjs[j]) << " on " << me << " has prio "
+          << OBJ_PRIO(locObjs[j]) << ", cpl from " << LC_MsgGetProc(xm)
+          << " has prio " << theCplBuf[i].prio << "!\n";
 
         error_cnt++;
       }
     }
     else
     {
-      sprintf(cBuffer, "    DDD-GCC Warning: obj " DDD_GID_FMT " type %d on %d for cpl"
-              " from %3d missing!\n",
-              theCplBuf[i].gid, theCplBuf[i].typ, me, LC_MsgGetProc(xm));
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn
+        << "    DDD-GCC Warning: obj " << theCplBuf[i].gid << " type "
+        << theCplBuf[i].typ << " on " << me << " for cpl from "
+        << LC_MsgGetProc(xm) << "missing!\n";
 
       error_cnt++;
     }
@@ -296,36 +259,36 @@ static bool sort_CplBufDest (const CONS_INFO& a, const CONS_INFO& b)
 }
 
 
-static int ConsCheckGlobalCpl (void)
+static int ConsCheckGlobalCpl(DDD::DDDContext& context)
 {
   COUPLING     *cpl;
   int i, j, lenCplBuf, nRecvMsgs;
   CONSMSG      *sendMsgs=NULL, *cm=NULL;
   LC_MSGHANDLE *recvMsgs;
   int error_cnt = 0;
-  DDD_HDR      *locObjs = NULL;
 
+  auto& ctx = context.consContext();
+  const auto procs = context.procs();
+  const auto& objTable = context.objTable();
 
   /* count overall number of couplings */
-  for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
-    lenCplBuf += IdxNCpl(i);
+  const auto& nCpls = context.couplingContext().nCpls;
+  for(i=0, lenCplBuf=0; i < nCpls; i++)
+    lenCplBuf += IdxNCpl(context, i);
 
   /* get storage for messages */
   std::vector<CONS_INFO> cplBuf(lenCplBuf);
 
   /* copy CONS_INFOs into message buffer */
-  for(i=0, j=0; i<NCpl_Get; i++)
+  for(i=0, j=0; i < nCpls; i++)
   {
-    for(cpl=IdxCplList(i); cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(cpl=IdxCplList(context, i); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       if ((DDD_PROC)CPL_PROC(cpl) >= procs)
       {
         error_cnt++;
-        sprintf(cBuffer, "%4d: DDD-GCC Warning: invalid proc=%d (" OBJ_GID_FMT "/" OBJ_GID_FMT ")\n",
-                me, CPL_PROC(cpl), OBJ_GID(cpl->obj),
-                OBJ_GID(ddd_ObjTable[i])
-                );
-        DDD_PrintLine(cBuffer);
+        Dune::dwarn << "DDD-GCC Warning: invalid proc=" << CPL_PROC(cpl)
+                    << " (" << OBJ_GID(cpl->obj) << "/" << OBJ_GID(objTable[i]) << ")\n";
       }
       cplBuf[j].gid  = OBJ_GID(cpl->obj);
       cplBuf[j].typ  = OBJ_TYPE(cpl->obj);
@@ -341,10 +304,10 @@ static int ConsCheckGlobalCpl (void)
   std::sort(cplBuf.begin(), cplBuf.end(), sort_CplBufDest);
 
   /* accumulate messages (one for each partner); inform receivers */
-  ConsBuildMsgInfos(cplBuf.data(), cplBuf.size(), &sendMsgs);
+  ConsBuildMsgInfos(context, cplBuf.data(), cplBuf.size(), &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(consmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.consmsg_t);
   if (nRecvMsgs==ERROR)
   {
     error_cnt = -1;
@@ -352,30 +315,22 @@ static int ConsCheckGlobalCpl (void)
   }
 
   /* build and send messages */
-  ConsSend(sendMsgs);
+  ConsSend(context, sendMsgs);
 
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
 
 
   /* perform checking of received data */
   if (nRecvMsgs>0)
   {
-    locObjs = LocalObjectsList();
-    if (locObjs==NULL && ddd_nObjs>0)
-    {
-      DDD_PrintLine(
-        "    DDD-GCC Warning: out of memory in ConsCheckGlobalCpl()\n");
-      error_cnt++;                   /* one additional error */
-      goto exit_ConsCheckGlobalCpl;
-    }
+    std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
 
     for(i=0; i<nRecvMsgs; i++)
     {
-      error_cnt += ConsCheckSingleMsg(recvMsgs[i], locObjs);
+      error_cnt += ConsCheckSingleMsg(context, recvMsgs[i], locObjs.data());
     }
-    FreeLocalObjectsList(locObjs);
   }
 
 
@@ -383,7 +338,7 @@ static int ConsCheckGlobalCpl (void)
 exit_ConsCheckGlobalCpl:
 
   /* cleanup low-comm layer */
-  LC_Cleanup();
+  LC_Cleanup(context);
 
 
   /* free temporary storage */
@@ -402,15 +357,17 @@ exit_ConsCheckGlobalCpl:
 /****************************************************************************/
 
 
-static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
+static int Cons2CheckSingleMsg (DDD::DDDContext& context, LC_MSGHANDLE xm, DDD_HDR *locObjs)
 {
   CONS_INFO    *theCplBuf;
   int i, inext=0, j, nItems;
   int error_cnt = 0;
 
+  auto& ctx = context.consContext();
+  const auto& me = context.me();
 
-  nItems = (int) LC_GetTableLen(xm,constab_id);
-  theCplBuf = (CONS_INFO *) LC_GetPtr(xm, constab_id);
+  nItems = (int) LC_GetTableLen(xm, ctx.constab_id);
+  theCplBuf = (CONS_INFO *) LC_GetPtr(xm, ctx.constab_id);
 
 
   /*
@@ -419,26 +376,27 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
           DDD_PrintDebug(cBuffer);
    */
 
+  const int nObjs = context.nObjs();
 
   /* test whether there are consistent objects for all couplings */
   for(i=0, j=0; i<nItems; i=inext)
   {
     inext = i+1;
 
-    while ((j<ddd_nObjs) && (OBJ_GID(locObjs[j]) < theCplBuf[i].gid))
+    while ((j < nObjs) && (OBJ_GID(locObjs[j]) < theCplBuf[i].gid))
       j++;
 
-    if ((j<ddd_nObjs) && (OBJ_GID(locObjs[j])==theCplBuf[i].gid))
+    if ((j < nObjs) && (OBJ_GID(locObjs[j])==theCplBuf[i].gid))
     {
       if (theCplBuf[i].proc == me)
       {
         if (OBJ_PRIO(locObjs[j])!=theCplBuf[i].prio)
         {
-          sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " type %d on %d"
-                  " has prio %d, cpl from %d has prio %d!\n",
-                  OBJ_GID(locObjs[j]), OBJ_TYPE(locObjs[j]), me, OBJ_PRIO(locObjs[j]),
-                  LC_MsgGetProc(xm), theCplBuf[i].prio);
-          DDD_PrintLine(cBuffer);
+          Dune::dwarn
+            << "    DDD-GCC Warning: obj " << OBJ_GID(locObjs[j]) << " type "
+            << OBJ_TYPE(locObjs[j]) << " on " << me << " has prio "
+            << OBJ_PRIO(locObjs[j]) << ", cpl from " << LC_MsgGetProc(xm)
+            << " has prio " << theCplBuf[i].prio << "!\n";
 
           error_cnt++;
         }
@@ -448,7 +406,7 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
         int i2;
         COUPLING *j2;
 
-        for(j2=ObjCplList(locObjs[j]); j2!=NULL; j2=CPL_NEXT(j2))
+        for(j2=ObjCplList(context, locObjs[j]); j2!=NULL; j2=CPL_NEXT(j2))
         {
           int ifound = -1;
 
@@ -464,11 +422,10 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
 
           if (ifound==-1)
           {
-            sprintf(cBuffer, "    DDD-GCC Warning: obj " DDD_GID_FMT " type %d on %d has cpl"
-                    " from%4d, but %d hasn't!\n",
-                    theCplBuf[i].gid, theCplBuf[i].typ, me,
-                    CPL_PROC(j2), LC_MsgGetProc(xm));
-            DDD_PrintLine(cBuffer);
+            Dune::dwarn
+              << "    DDD-GCC Warning: obj " << theCplBuf[i].gid << " type "
+              << theCplBuf[i].typ << " on " << me << " has cpl from "
+              << CPL_PROC(j2) << ", but " << LC_MsgGetProc(xm) << " hasn't!\n";
 
             error_cnt++;
           }
@@ -491,7 +448,7 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
           {
             int ifound = -1;
 
-            for(j2=ObjCplList(locObjs[j]); j2!=NULL; j2=CPL_NEXT(j2))
+            for(j2=ObjCplList(context, locObjs[j]); j2!=NULL; j2=CPL_NEXT(j2))
             {
               if (theCplBuf[i2].proc==j2->proc)
               {
@@ -502,11 +459,11 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
 
             if (ifound==-1)
             {
-              sprintf(cBuffer, "%4d: healing with AddCpl(%08x, %4d, %d)\n",
-                      me, theCplBuf[i].gid, theCplBuf[i2].proc, theCplBuf[i2].prio);
-              DDD_PrintLine(cBuffer);
+              Dune::dwarn
+                << "healing with AddCpl(" << theCplBuf[i].gid << ", "
+                << theCplBuf[i2].proc << ", " << theCplBuf[i2].prio << ")\n";
 
-              AddCoupling(locObjs[j], theCplBuf[i2].proc, theCplBuf[i2].prio);
+              AddCoupling(context, locObjs[j], theCplBuf[i2].proc, theCplBuf[i2].prio);
             }
           }
         }
@@ -542,26 +499,29 @@ static int Cons2CheckSingleMsg (LC_MSGHANDLE xm, DDD_HDR *locObjs)
 
 
 
-static int Cons2CheckGlobalCpl (void)
+static int Cons2CheckGlobalCpl(DDD::DDDContext& context)
 {
   COUPLING     *cpl, *cpl2;
   int i, j, lenCplBuf, nRecvMsgs;
   CONSMSG      *sendMsgs, *cm=0;
   LC_MSGHANDLE *recvMsgs;
   int error_cnt = 0;
-  DDD_HDR      *locObjs = NULL;
+
+  auto& ctx = context.consContext();
+  const auto& me = context.me();
+  const auto& nCpls = context.couplingContext().nCpls;
 
   /* count overall number of couplings */
-  for(i=0, lenCplBuf=0; i<NCpl_Get; i++)
-    lenCplBuf += (IdxNCpl(i) * (IdxNCpl(i)+1));
+  for(i=0, lenCplBuf=0; i < nCpls; i++)
+    lenCplBuf += (IdxNCpl(context, i) * (IdxNCpl(context, i)+1));
 
   /* get storage for messages */
   std::vector<CONS_INFO> cplBuf(lenCplBuf);
 
   /* copy CONS_INFOs into message buffer */
-  for(i=0, j=0; i<NCpl_Get; i++)
+  for(i=0, j=0; i < nCpls; i++)
   {
-    for(cpl=IdxCplList(i); cpl!=NULL; cpl=CPL_NEXT(cpl))
+    for(cpl=IdxCplList(context, i); cpl!=NULL; cpl=CPL_NEXT(cpl))
     {
       cplBuf[j].gid  = OBJ_GID(cpl->obj);
       cplBuf[j].typ  = OBJ_TYPE(cpl->obj);
@@ -570,7 +530,7 @@ static int Cons2CheckGlobalCpl (void)
       cplBuf[j].prio = OBJ_PRIO(cpl->obj);
       j++;
 
-      for(cpl2=IdxCplList(i); cpl2!=NULL; cpl2=CPL_NEXT(cpl2))
+      for(cpl2=IdxCplList(context, i); cpl2!=NULL; cpl2=CPL_NEXT(cpl2))
       {
         cplBuf[j].gid  = OBJ_GID(cpl->obj);
         cplBuf[j].typ  = OBJ_TYPE(cpl->obj);
@@ -587,41 +547,31 @@ static int Cons2CheckGlobalCpl (void)
   std::sort(cplBuf.begin(), cplBuf.end(), sort_CplBufDest);
 
   /* accumulate messages (one for each partner); inform receivers */
-  ConsBuildMsgInfos(cplBuf.data(), cplBuf.size(), &sendMsgs);
+  ConsBuildMsgInfos(context, cplBuf.data(), cplBuf.size(), &sendMsgs);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(consmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.consmsg_t);
 
   /* build and send messages */
-  ConsSend(sendMsgs);
+  ConsSend(context, sendMsgs);
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
 
 
   /* perform checking of received data */
   if (nRecvMsgs>0)
   {
-    locObjs = LocalObjectsList();
-    if (locObjs==NULL && ddd_nObjs>0)
-    {
-      DDD_PrintLine(
-        "    DDD-GCC Warning: out of memory in Cons2CheckGlobalCpl()\n");
-      error_cnt++;                   /* one additional error */
-    }
-    else
-    {
-      for(i=0; i<nRecvMsgs; i++)
-      {
-        error_cnt += Cons2CheckSingleMsg(recvMsgs[i], locObjs);
-      }
-      FreeLocalObjectsList(locObjs);
+    std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
+
+    for(i=0; i<nRecvMsgs; i++) {
+      error_cnt += Cons2CheckSingleMsg(context, recvMsgs[i], locObjs.data());
     }
   }
 
 
   /* cleanup low-comm layer */
-  LC_Cleanup();
+  LC_Cleanup(context);
 
 
   /* free temporary storage */
@@ -638,30 +588,21 @@ static int Cons2CheckGlobalCpl (void)
 
 /****************************************************************************/
 
-static int ConsCheckDoubleObj (void)
+static int ConsCheckDoubleObj(const DDD::DDDContext& context)
 {
-  DDD_HDR      *locObjs;
-  int i, error_cnt = 0;
+  std::vector<DDD_HDR> locObjs = LocalObjectsList(context);
+  const int nObjs = context.nObjs();
 
-  locObjs = LocalObjectsList();
-  if (locObjs==NULL && ddd_nObjs>0)
-  {
-    DDD_PrintLine("    DDD-GCC Warning: out of memory in ConsCheckDoubleObj()\n");
-    return(1);             /* report one error */
-  }
-
-  for(i=1; i<ddd_nObjs; i++)
+  int error_cnt = 0;
+  for(int i=1; i < nObjs; i++)
   {
     if (OBJ_GID(locObjs[i-1])==OBJ_GID(locObjs[i]))
     {
       error_cnt++;
-      sprintf(cBuffer, "    DDD-GCC Warning: obj " OBJ_GID_FMT " on %d doubled\n",
-              OBJ_GID(locObjs[i]), me);
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn << "    DDD-GCC Warning: obj " << OBJ_GID(locObjs[i])
+                  << " on " << context.me() << " doubled\n";
     }
   }
-
-  FreeLocalObjectsList(locObjs);
 
   return(error_cnt);
 }
@@ -693,64 +634,50 @@ static int ConsCheckDoubleObj (void)
    @returns  total number of errors (sum of all procs)
  */
 
-int DDD_ConsCheck (void)
+int DDD_ConsCheck(DDD::DDDContext& context)
 {
   int cpl_errors;
   int total_errors=0;
 
-        #ifdef ConsMemFromHeap
-  MarkHeap(&theMarkKey);
-  LC_SetMemMgrRecv(cons_AllocHeap, NULL);
-  LC_SetMemMgrSend(cons_AllocSend, cons_FreeSend);
-        #endif
-
   DDD_Flush();
-  Synchronize();
-  if (DDD_GetOption(OPT_QUIET_CONSCHECK)==OPT_OFF)
+  Synchronize(context.ppifContext());
+  if (DDD_GetOption(context, OPT_QUIET_CONSCHECK)==OPT_OFF)
   {
-    if (me==master)
+    if (context.isMaster())
       DDD_PrintLine("   DDD-GCC (Global Consistency Check)\n");
   }
 
-  total_errors += ConsCheckDoubleObj();
+  total_errors += ConsCheckDoubleObj(context);
 
         #ifdef CHECK_CPL_PAIRS
-  cpl_errors = ConsCheckGlobalCpl();
+  cpl_errors = ConsCheckGlobalCpl(context);
         #endif
         #ifdef CHECK_CPL_ALLTOALL
-  cpl_errors = Cons2CheckGlobalCpl();
+  cpl_errors = Cons2CheckGlobalCpl(context);
         #endif
 
   if (cpl_errors==-1)
   {
-    DDD_PrintLine("    DDD-GCC Error: out of memory in ConsCheckGlobalCpl()\n");
+    Dune::dgrave << "    DDD-GCC Error: out of memory in ConsCheckGlobalCpl()\n";
     total_errors++;
   }
   else
     total_errors += cpl_errors;
 
-  total_errors += DDD_CheckInterfaces();
+  total_errors += DDD_CheckInterfaces(context);
 
 
   /* compute sum of errors over all processors */
-  total_errors = ddd_GlobalSumInt(total_errors);
+  total_errors = ddd_GlobalSumInt(context, total_errors);
 
   DDD_Flush();
-  Synchronize();
-  if (DDD_GetOption(OPT_QUIET_CONSCHECK)==OPT_OFF)
+  Synchronize(context.ppifContext());
+  if (DDD_GetOption(context, OPT_QUIET_CONSCHECK)==OPT_OFF)
   {
-    if (me==master)
-    {
-      sprintf(cBuffer, "   DDD-GCC ready (%d errors)\n", total_errors);
-      DDD_PrintLine(cBuffer);
-    }
+    if (context.isMaster())
+      Dune::dwarn << "   DDD-GCC ready (" << total_errors << " errors)\n";
   }
 
-
-        #ifdef ConsMemFromHeap
-  ReleaseHeap(theMarkKey);
-  LC_SetMemMgrDefault();
-        #endif
 
   return(total_errors);
 }

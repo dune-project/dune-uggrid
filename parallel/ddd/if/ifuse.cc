@@ -39,6 +39,10 @@
 #include <cstdio>
 #include <cstring>
 
+#include <dune/common/exceptions.hh>
+
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
+
 #include "dddi.h"
 #include "if.h"
 
@@ -48,18 +52,6 @@ USING_UG_NAMESPACE
 using namespace PPIF;
 
 START_UGDIM_NAMESPACE
-
-/****************************************************************************/
-/*                                                                          */
-/* variables global to this source file (static)                            */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-static int send_mesgs;
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -77,23 +69,9 @@ void IFGetMem (IF_PROC *ifHead, size_t itemSize, int lenIn, int lenOut)
   size_t sizeIn  = itemSize * lenIn;
   size_t sizeOut = itemSize * lenOut;
 
-  BufferCreate(ifHead->bufIn,  sizeIn);
-  if (sizeIn > 0)
-  {
-    /* check memory creation and set memory to initial value, in order to
-       find any bugs lateron (hint by C.Wieners). */
-    assert(ifHead->bufIn.buf != NULL);
-    memset(BufferMem(ifHead->bufIn),0,sizeIn);
-  }
-
-  BufferCreate(ifHead->bufOut, sizeOut);
-  if (sizeOut > 0)
-  {
-    /* check memory creation and set memory to initial value, in order to
-       find any bugs lateron (hint by C.Wieners). */
-    assert(ifHead->bufOut.buf != NULL);
-    memset(BufferMem(ifHead->bufOut),0,sizeOut);
-  }
+  /* set memory to initial value, in order to find any bugs lateron */
+  ifHead->bufIn.assign(sizeIn, 0);
+  ifHead->bufOut.assign(sizeOut, 0);
 }
 
 
@@ -103,37 +81,35 @@ void IFGetMem (IF_PROC *ifHead, size_t itemSize, int lenIn, int lenOut)
         initiate asynchronous receive calls,
         return number of messages to be received
  */
-int IFInitComm (DDD_IF ifId)
+int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
 {
   IF_PROC   *ifHead;
   int error;
   int recv_mesgs;
 
+  auto& ctx = context.ifUseContext();
 
   /* MarkHeap(); */
 
   recv_mesgs = 0;
 
   /* get memory and initiate receive calls */
-  ForIF(ifId,ifHead)
+  ForIF(context, ifId, ifHead)
   {
-    if (! BufferIsEmpty(ifHead->bufIn))
+    if (not ifHead->bufIn.empty())
     {
       ifHead->msgIn =
-        RecvASync(ifHead->vc,
-                  BufferMem(ifHead->bufIn), BufferLen(ifHead->bufIn),
+        RecvASync(context.ppifContext(), ifHead->vc,
+                  ifHead->bufIn.data(), ifHead->bufIn.size(),
                   &error);
       if (ifHead->msgIn==0)
-      {
-        DDD_PrintError('E', 4225, "PPIF's RecvASync() failed in IF-Comm");
-        HARD_EXIT;
-      }
+        DUNE_THROW(Dune::Exception, "RecvASync() failed");
 
       recv_mesgs++;
     }
   }
 
-  send_mesgs = 0;
+  ctx.send_mesgs = 0;
 
   return recv_mesgs;
 }
@@ -143,16 +119,19 @@ int IFInitComm (DDD_IF ifId)
 /*
         cleanup memory
  */
-void IFExitComm (DDD_IF ifId)
+void IFExitComm(DDD::DDDContext& context, DDD_IF ifId)
 {
   IF_PROC   *ifHead;
 
-  if (DDD_GetOption(OPT_IF_REUSE_BUFFERS) == OPT_OFF)
+  if (DDD_GetOption(context, OPT_IF_REUSE_BUFFERS) == OPT_OFF)
   {
-    ForIF(ifId,ifHead)
+    ForIF(context, ifId, ifHead)
     {
-      BufferFree(ifHead->bufIn);
-      BufferFree(ifHead->bufOut);
+      ifHead->bufIn.clear();
+      ifHead->bufIn.shrink_to_fit();
+
+      ifHead->bufOut.clear();
+      ifHead->bufOut.shrink_to_fit();
     }
   }
 
@@ -164,23 +143,22 @@ void IFExitComm (DDD_IF ifId)
 /*
         initiate single asynchronous send call
  */
-void IFInitSend (IF_PROC *ifHead)
+void IFInitSend(DDD::DDDContext& context, IF_PROC *ifHead)
 {
   int error;
 
-  if (! BufferIsEmpty(ifHead->bufOut))
+  auto& ctx = context.ifUseContext();
+
+  if (not ifHead->bufOut.empty())
   {
     ifHead->msgOut =
-      SendASync(ifHead->vc,
-                BufferMem(ifHead->bufOut), BufferLen(ifHead->bufOut),
+      SendASync(context.ppifContext(), ifHead->vc,
+                ifHead->bufOut.data(), ifHead->bufOut.size(),
                 &error);
     if (ifHead->msgOut==0)
-    {
-      DDD_PrintError('E', 4226, "PPIF's SendASync() failed in IF-Comm");
-      HARD_EXIT;
-    }
+      DUNE_THROW(Dune::Exception, "SendASync() failed");
 
-    send_mesgs++;
+    ctx.send_mesgs++;
   }
 }
 
@@ -190,40 +168,37 @@ void IFInitSend (IF_PROC *ifHead)
         poll asynchronous send calls,
         return if ready
  */
-int IFPollSend (DDD_IF ifId)
+int IFPollSend(DDD::DDDContext& context, DDD_IF ifId)
 {
   unsigned long tries;
 
-  for(tries=0; tries<MAX_TRIES && send_mesgs>0; tries++)
+  auto& ctx = context.ifUseContext();
+
+  for(tries=0; tries<MAX_TRIES && ctx.send_mesgs>0; tries++)
   {
     IF_PROC   *ifHead;
 
     /* poll send calls */
-    ForIF(ifId,ifHead)
+    ForIF(context, ifId, ifHead)
     {
-      if ((! BufferIsEmpty(ifHead->bufOut)) && ifHead->msgOut!= NO_MSGID)
+      if (not ifHead->bufOut.empty() && ifHead->msgOut!= NO_MSGID)
       {
-        int error = InfoASend(ifHead->vc, ifHead->msgOut);
+        int error = InfoASend(context.ppifContext(), ifHead->vc, ifHead->msgOut);
         if (error==-1)
-        {
-          sprintf(cBuffer,
-                  "PPIF's InfoASend() failed for send to proc=%d in IF-Comm",
-                  ifHead->proc);
-          DDD_PrintError('E', 4220, cBuffer);
-          HARD_EXIT;
-        }
+          DUNE_THROW(Dune::Exception,
+                     "InfoASend() failed for send to proc=" << ifHead->proc);
 
         if (error==1)
         {
-          send_mesgs--;
+          ctx.send_mesgs--;
           ifHead->msgOut=NO_MSGID;
 
                                         #ifdef CtrlTimeoutsDetailed
           printf("%4d: IFCTRL %02d send-completed    to "
                  "%4d after %10ld, size %ld\n",
-                 me, ifId, ifHead->proc,
+                 context.me(), ifId, ifHead->proc,
                  (unsigned long)tries,
-                 (unsigned long)BufferLen(ifHead->bufOut));
+                 (unsigned long)ifHead->bufOut.size());
                                         #endif
         }
       }
@@ -231,14 +206,14 @@ int IFPollSend (DDD_IF ifId)
   }
 
         #ifdef CtrlTimeouts
-  if (send_mesgs==0)
+  if (ctx.send_mesgs==0)
   {
     printf("%4d: IFCTRL %02d send-completed    all after %10ld tries\n",
-           me, ifId, (unsigned long)tries);
+           context.me(), ifId, (unsigned long)tries);
   }
         #endif
 
-  return(send_mesgs==0);
+  return(ctx.send_mesgs==0);
 }
 
 
@@ -252,19 +227,15 @@ int IFPollSend (DDD_IF ifId)
 
         fast version: uses object pointer shortcut
  */
-char *IFCommLoopObj (ComProcPtr LoopProc,
+char *IFCommLoopObj (DDD::DDDContext& context,
+                     ComProcPtr2 LoopProc,
                      IFObjPtr *obj,
                      char *buffer,
                      size_t itemSize,
                      int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++, buffer+=itemSize)
-  {
-    error = (*LoopProc)(obj[i], buffer);
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++, buffer+=itemSize)
+    LoopProc(context, obj[i], buffer);
 
   return(buffer);
 }
@@ -273,15 +244,10 @@ char *IFCommLoopObj (ComProcPtr LoopProc,
         simple variant of above routine. dont communicate,
         but call an application's routine.
  */
-void IFExecLoopObj (ExecProcPtr LoopProc, IFObjPtr *obj, int nItems)
+void IFExecLoopObj (DDD::DDDContext& context, ExecProcPtr LoopProc, IFObjPtr *obj, int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++)
-  {
-    error = (*LoopProc)(obj[i]);
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++)
+    LoopProc(context, obj[i]);
 }
 
 
@@ -294,19 +260,15 @@ void IFExecLoopObj (ExecProcPtr LoopProc, IFObjPtr *obj, int nItems)
         unnecessary indirect addressing!
         (-> CPL -> DDD_HDR.typ -> header offset -> object address)
  */
-char *IFCommLoopCpl (ComProcPtr LoopProc,
+char *IFCommLoopCpl (DDD::DDDContext& context,
+                     ComProcPtr2 LoopProc,
                      COUPLING **cpl,
                      char *buffer,
                      size_t itemSize,
                      int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++, buffer+=itemSize)
-  {
-    error = (*LoopProc)(OBJ_OBJ(cpl[i]->obj), buffer);
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++, buffer+=itemSize)
+    LoopProc(context, OBJ_OBJ(context, cpl[i]->obj), buffer);
 
   return(buffer);
 }
@@ -323,20 +285,16 @@ char *IFCommLoopCpl (ComProcPtr LoopProc,
         (necessary) indirect addressing!
         (-> CPL -> DDD_HDR.typ -> header offset -> object address)
  */
-char *IFCommLoopCplX (ComProcXPtr LoopProc,
+char *IFCommLoopCplX (DDD::DDDContext& context,
+                      ComProcXPtr LoopProc,
                       COUPLING **cpl,
                       char *buffer,
                       size_t itemSize,
                       int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++, buffer+=itemSize)
-  {
-    error = (*LoopProc)(OBJ_OBJ(cpl[i]->obj),
-                        buffer, CPL_PROC(cpl[i]), cpl[i]->prio);
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++, buffer+=itemSize)
+    LoopProc(context, OBJ_OBJ(context, cpl[i]->obj),
+             buffer, CPL_PROC(cpl[i]), cpl[i]->prio);
 
   return(buffer);
 }
@@ -347,15 +305,10 @@ char *IFCommLoopCplX (ComProcXPtr LoopProc,
         simple variant of above routine. dont communicate,
         but call an application's routine.
  */
-void IFExecLoopCplX (ExecProcXPtr LoopProc, COUPLING **cpl, int nItems)
+void IFExecLoopCplX (DDD::DDDContext& context, ExecProcXPtr LoopProc, COUPLING **cpl, int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++)
-  {
-    error = (*LoopProc)(OBJ_OBJ(cpl[i]->obj), CPL_PROC(cpl[i]), cpl[i]->prio);
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++)
+    LoopProc(context, OBJ_OBJ(context, cpl[i]->obj), CPL_PROC(cpl[i]), cpl[i]->prio);
 }
 
 
@@ -374,20 +327,15 @@ void IFExecLoopCplX (ExecProcXPtr LoopProc, COUPLING **cpl, int nItems)
         do loop over single list of couplings,
         copy object data from/to message buffer
  */
-char *IFCommHdrLoopCpl (ComProcHdrPtr LoopProc,
+char *IFCommHdrLoopCpl (DDD::DDDContext& context,
+                        ComProcHdrPtr LoopProc,
                         COUPLING **cpl,
                         char *buffer,
                         size_t itemSize,
                         int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++, buffer+=itemSize)
-  {
-    error = (*LoopProc)(cpl[i]->obj, buffer);
-
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++, buffer+=itemSize)
+    LoopProc(context, cpl[i]->obj, buffer);
 
   return(buffer);
 }
@@ -397,16 +345,10 @@ char *IFCommHdrLoopCpl (ComProcHdrPtr LoopProc,
         simple variant of above routine. dont communicate,
         but call an application's routine.
  */
-void IFExecHdrLoopCpl (ExecProcHdrPtr LoopProc, COUPLING **cpl, int nItems)
+void IFExecHdrLoopCpl (DDD::DDDContext& context, ExecProcHdrPtr LoopProc, COUPLING **cpl, int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++)
-  {
-    error = (*LoopProc)(cpl[i]->obj);
-
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++)
+    LoopProc(context, cpl[i]->obj);
 }
 
 
@@ -416,21 +358,16 @@ void IFExecHdrLoopCpl (ExecProcHdrPtr LoopProc, COUPLING **cpl, int nItems)
 
         extended version: call ComProc with extended parameters
  */
-char *IFCommHdrLoopCplX (ComProcHdrXPtr LoopProc,
+char *IFCommHdrLoopCplX (DDD::DDDContext& context,
+                         ComProcHdrXPtr LoopProc,
                          COUPLING **cpl,
                          char *buffer,
                          size_t itemSize,
                          int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++, buffer+=itemSize)
-  {
-    error = (*LoopProc)(cpl[i]->obj,
-                        buffer, CPL_PROC(cpl[i]), cpl[i]->prio);
-
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++, buffer+=itemSize)
+    LoopProc(context, cpl[i]->obj,
+             buffer, CPL_PROC(cpl[i]), cpl[i]->prio);
 
   return(buffer);
 }
@@ -442,16 +379,10 @@ char *IFCommHdrLoopCplX (ComProcHdrXPtr LoopProc,
 
         extended version: call ExecProc with extended parameters
  */
-void IFExecHdrLoopCplX (ExecProcHdrXPtr LoopProc, COUPLING **cpl, int nItems)
+void IFExecHdrLoopCplX (DDD::DDDContext& context, ExecProcHdrXPtr LoopProc, COUPLING **cpl, int nItems)
 {
-  int i, error;
-
-  for(i=0; i<nItems; i++)
-  {
-    error = (*LoopProc)(cpl[i]->obj, CPL_PROC(cpl[i]), cpl[i]->prio);
-
-    /* TODO: check error-value from IF-LoopProc and issue warning or HARD_EXIT */
-  }
+  for(int i=0; i<nItems; i++)
+    LoopProc(context, cpl[i]->obj, CPL_PROC(cpl[i]), cpl[i]->prio);
 }
 
 

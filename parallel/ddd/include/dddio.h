@@ -29,7 +29,9 @@
 #ifndef __DDDIO__
 #define __DDDIO__
 
-START_UGDIM_NAMESPACE
+#include <dune/uggrid/parallel/ddd/dddtypes.hh>
+
+namespace DDD {
 
 /****************************************************************************/
 /*                                                                          */
@@ -50,8 +52,8 @@ void DDD_PrintLine (const char *s);
 void DDD_PrintDebug (const char *s);
 void DDD_PrintError (char error_class, int error_no, const char *text);
 void DDD_Flush (void);
-void DDD_SyncAll (void);
+void DDD_SyncAll(const DDD::DDDContext& context);
 
-END_UGDIM_NAMESPACE
+} /* namespace DDD */
 
 #endif

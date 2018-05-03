@@ -17,6 +17,8 @@
 
 #include "debugger.h"
 
+#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
 USING_UG_NAMESPACES
 using namespace PPIF;
 
@@ -42,16 +44,14 @@ using namespace PPIF;
  */
 /****************************************************************************/
 
-static void dddif_DisplayMemoryUsage (void)
+static void dddif_DisplayMemoryUsage (const DDD::DDDContext& context)
 {
-  memmgr_Report();
-
   UserWriteF("mem for interfaces:  %8ld bytes\n",
-             (unsigned long) DDD_IFInfoMemoryAll()
+             (unsigned long) DDD_IFInfoMemoryAll(context)
              );
 
   UserWriteF("mem for couplings:   %8ld bytes\n",
-             (unsigned long) DDD_InfoCplMemory()
+             (unsigned long) DDD_InfoCplMemory(context)
              );
 }
 
@@ -61,9 +61,10 @@ static void dddif_DisplayMemoryUsage (void)
    ddd_pstat -
 
    SYNOPSIS:
-   void ddd_pstat (char *arg);
+   void ddd_pstat (const DDD::DDDContext& context, char *arg);
 
    PARAMETERS:
+   .  context
    .  arg
 
    DESCRIPTION:
@@ -74,7 +75,7 @@ static void dddif_DisplayMemoryUsage (void)
 /****************************************************************************/
 
 
-void NS_DIM_PREFIX ddd_pstat (char *arg)
+void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
 {
   int cmd;
 
@@ -86,57 +87,58 @@ void NS_DIM_PREFIX ddd_pstat (char *arg)
   switch (cmd)
   {
   case 'X' :
-    dddif_PrintGridRelations(dddctrl.currMG);
+    dddif_PrintGridRelations(ddd_ctrl(context).currMG);
     break;
 
   case 'm' :
-    dddif_DisplayMemoryUsage();
+    dddif_DisplayMemoryUsage(context);
     break;
 
   case 'c' :
-    DDD_ConsCheck();
+    DDD_ConsCheck(context);
     UserWrite("\n");
     break;
 
   case 's' :
-    DDD_Status();
+    DDD_Status(context);
     UserWrite("\n");
     break;
 
   case 't' :
-    if (me==master)
+    if (context.isMaster())
     {
+      const auto& dddctrl = ddd_ctrl(context);
       /* display ddd types */
-      DDD_TypeDisplay(TypeVector);
-      DDD_TypeDisplay(TypeIVertex);
-      DDD_TypeDisplay(TypeBVertex);
-      DDD_TypeDisplay(TypeNode);
+      DDD_TypeDisplay(context, dddctrl.TypeVector);
+      DDD_TypeDisplay(context, dddctrl.TypeIVertex);
+      DDD_TypeDisplay(context, dddctrl.TypeBVertex);
+      DDD_TypeDisplay(context, dddctrl.TypeNode);
                                 #ifdef __THREEDIM__
-      DDD_TypeDisplay(TypeEdge);
+      DDD_TypeDisplay(context, dddctrl.TypeEdge);
                                 #endif
 
                                 #ifdef __TWODIM__
-      DDD_TypeDisplay(TypeTrElem);
-      DDD_TypeDisplay(TypeTrBElem);
-      DDD_TypeDisplay(TypeQuElem);
-      DDD_TypeDisplay(TypeQuBElem);
+      DDD_TypeDisplay(context, dddctrl.TypeTrElem);
+      DDD_TypeDisplay(context, dddctrl.TypeTrBElem);
+      DDD_TypeDisplay(context, dddctrl.TypeQuElem);
+      DDD_TypeDisplay(context, dddctrl.TypeQuBElem);
                                 #endif
 
                                 #ifdef __THREEDIM__
-      DDD_TypeDisplay(TypeTeElem);
-      DDD_TypeDisplay(TypeTeBElem);
-      DDD_TypeDisplay(TypePyElem);
-      DDD_TypeDisplay(TypePyBElem);
-      DDD_TypeDisplay(TypePrElem);
-      DDD_TypeDisplay(TypePrBElem);
-      DDD_TypeDisplay(TypeHeElem);
-      DDD_TypeDisplay(TypeHeBElem);
+      DDD_TypeDisplay(context, dddctrl.TypeTeElem);
+      DDD_TypeDisplay(context, dddctrl.TypeTeBElem);
+      DDD_TypeDisplay(context, dddctrl.TypePyElem);
+      DDD_TypeDisplay(context, dddctrl.TypePyBElem);
+      DDD_TypeDisplay(context, dddctrl.TypePrElem);
+      DDD_TypeDisplay(context, dddctrl.TypePrBElem);
+      DDD_TypeDisplay(context, dddctrl.TypeHeElem);
+      DDD_TypeDisplay(context, dddctrl.TypeHeBElem);
                                 #endif
 
       /* display dependent types */
-      DDD_TypeDisplay(TypeMatrix);
+      DDD_TypeDisplay(context, dddctrl.TypeMatrix);
                                 #ifdef __TWODIM__
-      DDD_TypeDisplay(TypeEdge);
+      DDD_TypeDisplay(context, dddctrl.TypeEdge);
                                 #endif
     }
     break;
@@ -147,21 +149,21 @@ void NS_DIM_PREFIX ddd_pstat (char *arg)
     DDD_IF ifId = atoi(arg+1);
 
     if (ifId<=0)
-      DDD_IFDisplayAll();
+      DDD_IFDisplayAll(context);
     else
-      DDD_IFDisplay(ifId);
+      DDD_IFDisplay(context, ifId);
 
     UserWrite("\n");
   }
   break;
 
   case 'l' :
-    DDD_ListLocalObjects();
+    DDD_ListLocalObjects(context);
     UserWrite("\n");
     break;
 
   case 'b' :
-    buggy(dddctrl.currMG);
+    buggy(ddd_ctrl(context).currMG);
     UserWrite("BUGGY: returning control to caller\n");
     break;
   }
@@ -197,15 +199,15 @@ void NS_DIM_PREFIX ddd_pstat (char *arg)
  */
 /****************************************************************************/
 
-static void buggy_ShowCopies (DDD_HDR hdr)
+static void buggy_ShowCopies (DDD::DDDContext& context, DDD_HDR hdr)
 {
   int   *p, i;
 
-  p = DDD_InfoProcList(hdr);
+  p = DDD_InfoProcList(context, hdr);
   for(i=0; p[i]!=-1; i+=2)
   {
     printf("%4d:    copy on %3d with prio %d\n",
-           me, p[i], p[i+1]);
+           context.me(), p[i], p[i+1]);
   }
 }
 
@@ -236,26 +238,26 @@ static void buggy_ElemShow (ELEMENT *e)
   ELEMENT *SonList[MAX_SONS];
   int i;
 
-  printf("%4d:    ID=%06d LEVEL=%02d corners=%03d\n", me,
+  printf("    ID=%06d LEVEL=%02d corners=%03d\n",
          ID(e), LEVEL(e), CORNERS_OF_ELEM(e));
 
   if (EFATHER(e))
-    printf("%4d:    father=" DDD_GID_FMT "\n", me,
+    printf("    father=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDRE(EFATHER(e))));
 
   if (PREDE(e))
-    printf("%4d:    pred=" DDD_GID_FMT "\n", me,
+    printf("    pred=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDRE(PREDE(e))));
 
   if (SUCCE(e))
-    printf("%4d:    succ=" DDD_GID_FMT "\n", me,
+    printf("    succ=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDRE(SUCCE(e))));
 
   for(i=0; i<SIDES_OF_ELEM(e); i++)
   {
     if (NBELEM(e,i)!=NULL)
     {
-      printf("%4d:    nb[%d]=" DDD_GID_FMT "\n", me,
+      printf("    nb[%d]=" DDD_GID_FMT "\n",
              i, DDD_InfoGlobalId(PARHDRE(NBELEM(e,i))));
     }
   }
@@ -264,7 +266,7 @@ static void buggy_ElemShow (ELEMENT *e)
   {
     for(i=0; SonList[i]!=NULL; i++)
     {
-      printf("%4d:    son[%d]=" DDD_GID_FMT " prio=%d\n", me,
+      printf("    son[%d]=" DDD_GID_FMT " prio=%d\n",
              i,
              DDD_InfoGlobalId(PARHDRE(SonList[i])),
              DDD_InfoPriority(PARHDRE(SonList[i]))
@@ -295,11 +297,11 @@ static void buggy_NodeShow (NODE *n)
 {
   int i;
 
-  printf("%4d:    ID=%06d LEVEL=%02d\n", me,
+  printf("    ID=%06d LEVEL=%02d\n",
          ID(n), LEVEL(n));
 
   /* print coordinates of that node */
-  printf("%4d:    VERTEXID=%06d LEVEL=%02d", me,
+  printf("    VERTEXID=%06d LEVEL=%02d",
          ID(MYVERTEX(n)), LEVEL(MYVERTEX(n)));
   for(i=0; i<DIM; i++)
   {
@@ -309,15 +311,15 @@ static void buggy_NodeShow (NODE *n)
 
 
   if (NFATHER(n))
-    printf("%4d:    father=" DDD_GID_FMT "\n", me,
+    printf("    father=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDR((NODE *)NFATHER(n))));
 
   if (PREDN(n))
-    printf("%4d:    pred=" DDD_GID_FMT "\n", me,
+    printf("    pred=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDR(PREDN(n))));
 
   if (SUCCN(n))
-    printf("%4d:    succ=" DDD_GID_FMT "\n", me,
+    printf("    succ=" DDD_GID_FMT "\n",
            DDD_InfoGlobalId(PARHDR(SUCCN(n))));
 }
 
@@ -342,6 +344,8 @@ static void buggy_NodeShow (NODE *n)
 
 static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
 {
+  auto& context = theMG->dddContext();
+
   int level, found;
 
   found = false;
@@ -356,9 +360,9 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
     {
       if (DDD_InfoGlobalId(PARHDRE(e))==gid)
       {
-        printf("%4d: ELEMENT gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
-               me, gid, e, level);
-        buggy_ShowCopies(PARHDRE(e));
+        printf("ELEMENT gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
+               gid, e, level);
+        buggy_ShowCopies(context, PARHDRE(e));
         buggy_ElemShow(e);
         found = true;
       }
@@ -370,9 +374,9 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
     {
       if (DDD_InfoGlobalId(PARHDR(n))==gid)
       {
-        printf("%4d: NODE gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
-               me, gid, n, level);
-        buggy_ShowCopies(PARHDR(n));
+        printf("NODE gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
+               gid, n, level);
+        buggy_ShowCopies(context, PARHDR(n));
         buggy_NodeShow(n);
         found = true;
       }
@@ -381,17 +385,17 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
 
   if (!found)
   {
-    DDD_HDR hdr = DDD_SearchHdr(gid);
+    DDD_HDR hdr = DDD_SearchHdr(theMG->dddContext(), gid);
 
     if (hdr!=NULL)
     {
-      printf("%4d: DDDOBJ gid=" DDD_GID_FMT ", typ=%d, level=%d\n",
-             me, gid, DDD_InfoType(hdr), DDD_InfoAttr(hdr));
-      buggy_ShowCopies(hdr);
+      printf("DDDOBJ gid=" DDD_GID_FMT ", typ=%d, level=%d\n",
+             gid, DDD_InfoType(hdr), DDD_InfoAttr(hdr));
+      buggy_ShowCopies(context, hdr);
     }
     else
     {
-      printf("%4d: unknown gid=" DDD_GID_FMT "\n", me, gid);
+      printf("unknown gid=" DDD_GID_FMT "\n", gid);
     }
   }
 }
@@ -543,7 +547,9 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
   DDD_GID gid;
   int proc, cmd;
 
-  Synchronize();
+  Synchronize(theMG->ppifContext());
+
+  const int me = theMG->ppifContext().me();
 
   if (me==0)
   {
@@ -591,9 +597,9 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
       }
     }
 
-    Broadcast(&cmd, sizeof(int));
-    Broadcast(&proc, sizeof(int));
-    Broadcast(&gid, sizeof(unsigned int));
+    Broadcast(theMG->ppifContext(), &cmd, sizeof(int));
+    Broadcast(theMG->ppifContext(), &proc, sizeof(int));
+    Broadcast(theMG->ppifContext(), &gid, sizeof(unsigned int));
 
     if (me==proc)
     {
@@ -604,7 +610,7 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
         break;
 
       case 2 :
-        DDD_ListLocalObjects();
+        DDD_ListLocalObjects(theMG->dddContext());
         break;
 
       default :
@@ -618,7 +624,7 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
     }
 
     fflush(stdout);
-    Synchronize();
+    Synchronize(theMG->ppifContext());
   }
   while (proc>=0);
 }
@@ -640,6 +646,8 @@ void NS_DIM_PREFIX dddif_PrintGridRelations (MULTIGRID *theMG)
   ELEMENT *e, *enb;
   GRID    *theGrid = GRID_ON_LEVEL(theMG,TOPLEVEL(theMG));
   INT j;
+
+  const auto& me = theMG->dddContext().me();
 
   for(e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
   {

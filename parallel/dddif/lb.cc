@@ -114,12 +114,13 @@ static int TransferGridComplete (MULTIGRID *theMG, INT level)
 
   if (theGrid==NULL)
   {
+    const auto& me = theMG->dddContext().me();
     UserWriteF(PFMT "TransferGridComplete(): no grid on level=%d\n",me,level);
     return(0);
   }
 
   /* assign elements of level 0 */
-  if (me == master) {
+  if (theMG->dddContext().isMaster()) {
     for (e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
       PARTITION(e) = 1;
   }
@@ -161,7 +162,7 @@ static int TransferGridToMaster (MULTIGRID *theMG, INT fl, INT tl)
   GRID *theGrid;
 
   /* send all levels to master */
-  if (me!=master)
+  if (not theMG->dddContext().isMaster())
   {
     int l;
 
@@ -270,7 +271,7 @@ static void CreateDD(MULTIGRID *theMG, INT level, int hor_boxes, int vert_boxes 
   if( hor_boxes*vert_boxes >= 4 )
   {
     elements = NT(theGrid);
-    elements = UG_GlobalMaxINT(elements);
+    elements = UG_GlobalMaxINT(theMG->ppifContext(), elements);
 
     if( elements > 20000 )
     {
@@ -327,6 +328,9 @@ void lbs (const char *argv, MULTIGRID *theMG)
 {
   int n,mode,param,fromlevel,tolevel,part,hor_boxes,vert_boxes,dest;
 
+  const auto& me = theMG->dddContext().me();
+  const auto procs = theMG->dddContext().procs();
+
   mode = param = fromlevel = tolevel = 0;
 
   n = sscanf(argv,"%d %d %d",&param,&fromlevel,&tolevel);
@@ -346,7 +350,7 @@ void lbs (const char *argv, MULTIGRID *theMG)
 
   /* switch DDD infos on */
   if (param>=100)
-    DDD_SetOption(OPT_INFO_XFER, XFER_SHOW_MEMUSAGE);
+    DDD_SetOption(theMG->dddContext(), OPT_INFO_XFER, XFER_SHOW_MEMUSAGE);
 
   switch (mode)
   {
@@ -440,7 +444,7 @@ void lbs (const char *argv, MULTIGRID *theMG)
 
   /* switch DDD infos off */
   if (param>=100)
-    DDD_SetOption(OPT_INFO_XFER, XFER_SHOW_NONE);
+    DDD_SetOption(theMG->dddContext(), OPT_INFO_XFER, XFER_SHOW_NONE);
 }
 
 END_UGDIM_NAMESPACE

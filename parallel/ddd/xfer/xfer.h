@@ -82,14 +82,8 @@ START_UGDIM_NAMESPACE
 #define _PRINTSAME    , indent, fp
 
 /* map memory allocation calls */
-/* activate this to allocate memory from freelists */
-#ifdef XferMemFromHeap
-#define OO_Allocate  xfer_AllocHeap
-#define OO_Free      xfer_FreeHeap
-#else
-#define OO_Allocate  xfer_AllocTmp
-#define OO_Free      xfer_FreeTmp
-#endif
+#define OO_Allocate  std::malloc
+#define OO_Free      std::free
 
 
 /* extra prefix for all xfer-related data structures and/or typedefs */
@@ -106,15 +100,25 @@ enum XferNewType {
   THISMSG    = 0x10              /* object is taken from this msg, temp setting */
 };
 
+END_UGDIM_NAMESPACE
+namespace DDD {
+namespace Xfer {
 
 /* overall mode of transfer */
-enum XferMode {
+enum class XferMode : unsigned char
+{
   XMODE_IDLE = 0,                /* waiting for next DDD_XferBegin() */
   XMODE_CMDS,                    /* after DDD_XferBegin(), before DDD_XferEnd() */
   XMODE_BUSY                     /* during DDD_XferEnd() */
 };
 
+} /* namespace Xfer */
+} /* namespace DDD */
+START_UGDIM_NAMESPACE
 
+using DDD::Xfer::XferMode;
+
+END_UGDIM_NAMESPACE
 
 /****************************************************************************/
 
@@ -133,6 +137,8 @@ enum XferMode {
 /*                                                                          */
 /****************************************************************************/
 
+namespace DDD {
+namespace Xfer {
 
 /****************************************************************************/
 /* XFERADDDATA: description of additional data on sender side               */
@@ -153,22 +159,31 @@ struct XFERADDDATA {
 /* XICopyObj:                                                               */
 /****************************************************************************/
 
+struct XICopyObj
+{
+  DDD_HDR hdr;                    /* local obj for which a copy should be created */
+  DDD_GID gid;                    /* gid of local object                          */
+  DDD_PROC dest;                  /* proc involved with operation, me -> proc     */
+  DDD_PRIO prio;                  /* priority for new object copy                 */
+  size_t size;                    /* V1.2: needed for variable-sized objects      */
+
+  int addLen;
+  XFERADDDATA *add;               /* additional data items                   */
+
+  int flags;
+};
+
+} /* namespace Xfer */
+} /* namespace DDD */
+
+START_UGDIM_NAMESPACE
+
+using DDD::Xfer::XFERADDDATA;
+using DDD::Xfer::XICopyObj;
+
 #define ClassName XICopyObj
-Class_Data_Begin
-DDD_HDR hdr;                    /* local obj for which a copy should be created */
-DDD_GID gid;                    /* gid of local object                          */
-DDD_PROC dest;                  /* proc involved with operation, me -> proc     */
-DDD_PRIO prio;                  /* priority for new object copy                 */
-size_t size;                    /* V1.2: needed for variable-sized objects      */
-
-int addLen;
-XFERADDDATA *add;               /* additional data items                   */
-
-int flags;
-Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
-
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext* context);
 #undef ClassName
 
 
@@ -250,7 +265,7 @@ DDD_PRIO prio;                  /* new priority                                 
 int is_valid;                   /* invalid iff there's a DelObj for same gid    */
 Class_Data_End
 void Method(Print)   (DefThis _PRINTPARAMS);
-int  Method(Compare) (ClassPtr, ClassPtr);
+int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 
 #undef ClassName
 
@@ -491,7 +506,7 @@ struct OBJTAB_ENTRY
          directly into the message! (with its LDATA!) */
 
 #define OTE_HDR(objmem,ote)    ((DDD_HDR)(((char *)(objmem))+((ote)->h_offset)))
-#define OTE_OBJ(objmem,ote)    OBJ_OBJ(OTE_HDR(objmem,ote))
+#define OTE_OBJ(context, objmem,ote)    OBJ_OBJ(context, OTE_HDR(objmem,ote))
 #define OTE_GID(objmem,ote)    OBJ_GID(OTE_HDR(objmem,ote))
 #define OTE_PRIO(objmem,ote)   OBJ_PRIO(OTE_HDR(objmem,ote))
 #define OTE_TYPE(objmem,ote)   OBJ_TYPE(OTE_HDR(objmem,ote))
@@ -522,41 +537,6 @@ struct XFER_PER_PROC
 
 
 /****************************************************************************/
-/* XFER_GLOBALS: global data for xfer module                                */
-/****************************************************************************/
-
-struct XFER_GLOBALS
-{
-  /* mode of xfer module */
-  XferMode xferMode;
-
-  /* description for object message */
-  LC_MSGTYPE objmsg_t;
-  LC_MSGCOMP symtab_id, objtab_id;
-  LC_MSGCOMP newcpl_id, oldcpl_id;
-  LC_MSGCOMP objmem_id;
-
-
-  /* entry points for global sets */
-  XICopyObjSet *setXICopyObj;
-  XISetPrioSet *setXISetPrio;
-
-  /* flag for memory control (heap or no heap) */
-  int useHeap;
-  /* MarkKey for memory management */
-  long theMarkKey;
-};
-
-
-/* one instance of XFER_GLOBALS */
-extern XFER_GLOBALS xferGlobals;
-
-
-/****************************************************************************/
-
-
-
-/****************************************************************************/
 /*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
@@ -564,58 +544,54 @@ extern XFER_GLOBALS xferGlobals;
 
 
 /* supp.c */
-XFERADDDATA *NewXIAddData (void);
-void FreeAllXIAddData (void);
-int *AddDataAllocSizes(int);
-void xfer_SetTmpMem (int);
-void *xfer_AllocTmp (size_t);
-void *xfer_AllocHeap (size_t);
-void xfer_FreeTmp (void *);
-void xfer_FreeHeap (void *);
-void *xfer_AllocSend (size_t);
-void xfer_FreeSend (void *);
+XFERADDDATA *NewXIAddData(DDD::DDDContext& context);
+void FreeAllXIAddData(DDD::DDDContext& context);
+int *AddDataAllocSizes(DDD::DDDContext& context, int);
 /* and others, via template mechanism */
 
 
 
 /* cplmsg.c */
-void CommunicateCplMsgs (XIDelCpl **, int,
+void CommunicateCplMsgs (DDD::DDDContext& context,
+                         XIDelCpl **, int,
                          XIModCpl **, int, XIAddCpl **, int, DDD_HDR *, int);
-void CplMsgInit (void);
-void CplMsgExit (void);
+void CplMsgInit(DDD::DDDContext& context);
+void CplMsgExit(DDD::DDDContext& context);
 
 
 /* cmdmsg.c */
-int  PruneXIDelCmd (XIDelCmd **, int, std::vector<XICopyObj*>&);
-void CmdMsgInit (void);
-void CmdMsgExit (void);
+int  PruneXIDelCmd (DDD::DDDContext& context, XIDelCmd **, int, std::vector<XICopyObj*>&);
+void CmdMsgInit(DDD::DDDContext& context);
+void CmdMsgExit(DDD::DDDContext& context);
 
 
 /* xfer.c, used only by cmds.c */
-XICopyObj **CplClosureEstimate(const std::vector<XICopyObj*>&, int *);
-int  PrepareObjMsgs(std::vector<XICopyObj*>&, XINewCpl **, int,
+XICopyObj **CplClosureEstimate(DDD::DDDContext& context, const std::vector<XICopyObj*>&, int *);
+int  PrepareObjMsgs(DDD::DDDContext& context,
+                    std::vector<XICopyObj*>&, XINewCpl **, int,
                     XIOldCpl **, int, XFERMSG **, size_t *);
-void ExecLocalXIDelCmd(XIDelCmd  **, int);
-void ExecLocalXISetPrio(const std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
-void ExecLocalXIDelObj(XIDelObj  **, int, XICopyObj **,int);
-void PropagateCplInfos(XISetPrio **, int, XIDelObj  **, int,
+void ExecLocalXIDelCmd(DDD::DDDContext& context, XIDelCmd  **, int);
+void ExecLocalXISetPrio(DDD::DDDContext& context, const std::vector<XISetPrio*>&, XIDelObj  **,int, XICopyObj **,int);
+void ExecLocalXIDelObj(DDD::DDDContext& context, XIDelObj  **, int, XICopyObj **,int);
+void PropagateCplInfos(DDD::DDDContext& context,
+                       XISetPrio **, int, XIDelObj  **, int,
                        TENewCpl *, int);
-enum XferMode XferMode (void);
-int XferStepMode(enum XferMode);
+enum XferMode XferMode (const DDD::DDDContext& context);
+int XferStepMode(DDD::DDDContext& context, enum XferMode);
 
 
 /* pack.c,   used only by cmds.c */
-RETCODE XferPackMsgs (XFERMSG *);
+RETCODE XferPackMsgs (DDD::DDDContext& context, XFERMSG *);
 
 
 /* unpack.c, used only by cmds.c */
-void XferUnpack (LC_MSGHANDLE *, int, const DDD_HDR *, int,
+void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *, int, const DDD_HDR *, int,
                  std::vector<XISetPrio*>&, XIDelObj  **, int,
                  const std::vector<XICopyObj*>&, XICopyObj **, int);
 
 
 /* ctrl.c */
-void XferDisplayMsg (const char *comment, LC_MSGHANDLE);
+void XferDisplayMsg(DDD::DDDContext& context, const char *comment, LC_MSGHANDLE);
 
 END_UGDIM_NAMESPACE
 

@@ -3480,9 +3480,6 @@ static INT InitRuleManager3D (void)
   /************************************************************************/
 #ifdef TET_RULESET
   /* open file */
-        #ifdef ModelP
-  if (me == master)
-        #endif
   {
     if (GetDefaultValue(DEFAULTSFILENAME,"refrulefile",buffer)==0)
     {
@@ -3511,11 +3508,6 @@ static INT InitRuleManager3D (void)
     }
   }
 
-        #ifdef ModelP
-  Broadcast(&nRules,sizeof(nRules));
-  Broadcast(&nPatterns,sizeof(nPatterns));
-        #endif
-
   /* get storage for Rules */
   Rules = (REFRULE *) malloc(nRules*sizeof(REFRULE));
   if (Rules==NULL)
@@ -3535,9 +3527,6 @@ static INT InitRuleManager3D (void)
   }
   for (i=0; i<nPatterns; i++) Pattern2Rule[TETRAHEDRON][i] = -1;
 
-        #ifdef ModelP
-  if (me == master)
-        #endif
   {
     /* read Rules */
     for (i=0; i<nRules; i++)
@@ -3580,10 +3569,6 @@ static INT InitRuleManager3D (void)
     }
   }
 
-        #ifdef ModelP
-  Broadcast(Rules,nRules*sizeof(REFRULE));
-  Broadcast(Pattern2Rule[TETRAHEDRON].get(),nPatterns*sizeof(SHORT));
-        #endif
 #else
   nRules = MAX_TET_RULES;
 #endif

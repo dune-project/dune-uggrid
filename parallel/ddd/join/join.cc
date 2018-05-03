@@ -35,6 +35,7 @@
 #include <cstdio>
 #include <cstring>
 
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 
@@ -50,49 +51,11 @@ USING_UG_NAMESPACE
 #define _CHECKALLOC(ptr)   assert(ptr!=NULL)
 
 
-static int TmpMem_kind = TMEM_ANY;
-
-static void *join_AllocTmp (size_t size)
-{
-  return AllocTmpReq(size, TmpMem_kind);
-}
-
-static void join_FreeTmp (void *buffer)
-{
-  FreeTmpReq(buffer, 0, TmpMem_kind);
-}
-
-void join_SetTmpMem (int kind)
-{
-  TmpMem_kind = kind;
-}
-
 END_UGDIM_NAMESPACE
 
 #include "join.h"
 
 START_UGDIM_NAMESPACE
-
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-JOIN_GLOBALS joinGlobals;
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-
 
 
 /****************************************************************************/
@@ -109,7 +72,7 @@ JOIN_GLOBALS joinGlobals;
         the items are sorted according to key (dest,remote_gid),
         all in ascending order.
  */
-int Method(Compare) (ClassPtr item1, ClassPtr item2)
+int Method(Compare) (ClassPtr item1, ClassPtr item2, const DDD::DDDContext*)
 {
   if (item1->dest < item2->dest) return(-1);
   if (item1->dest > item2->dest) return(1);
@@ -142,7 +105,7 @@ void Method(Print) (ParamThis _PRINTPARAMS)
         the items are sorted according to key (dest,gid),
         all in ascending order.
  */
-int Method(Compare) (ClassPtr item1, ClassPtr item2)
+int Method(Compare) (ClassPtr item1, ClassPtr item2, const DDD::DDDContext*)
 {
   if (item1->dest < item2->dest) return(-1);
   if (item1->dest > item2->dest) return(1);
@@ -186,66 +149,60 @@ void Method(Print) (ParamThis _PRINTPARAMS)
         and recovery.
  */
 
-const char *JoinModeName (int mode)
+const char *JoinModeName(JoinMode mode)
 {
   switch(mode)
   {
-  case JMODE_IDLE : return "idle-mode";
-  case JMODE_CMDS : return "commands-mode";
-  case JMODE_BUSY : return "busy-mode";
+  case JoinMode::JMODE_IDLE : return "idle-mode";
+  case JoinMode::JMODE_CMDS : return "commands-mode";
+  case JoinMode::JMODE_BUSY : return "busy-mode";
   }
   return "unknown-mode";
 }
 
 
-static void JoinSetMode (int mode)
+static void JoinSetMode (DDD::DDDContext& context, JoinMode mode)
 {
-  joinGlobals.joinMode = mode;
+  auto& ctx = context.joinContext();
+
+  ctx.joinMode = mode;
 
 #       if DebugJoin<=8
-  sprintf(cBuffer, "%4d: JoinMode=%s.\n",
-          me, JoinModeName(joinGlobals.joinMode));
-  DDD_PrintDebug(cBuffer);
+  Dune::dinfo << "JoinMode=" << JoinModeName(ctx.joinMode) << "\n";
 #       endif
 }
 
 
-static int JoinSuccMode (int mode)
+static JoinMode JoinSuccMode (JoinMode mode)
 {
   switch(mode)
   {
-  case JMODE_IDLE : return JMODE_CMDS;
-  case JMODE_CMDS : return JMODE_BUSY;
-  case JMODE_BUSY : return JMODE_IDLE;
+  case JoinMode::JMODE_IDLE : return JoinMode::JMODE_CMDS;
+  case JoinMode::JMODE_CMDS : return JoinMode::JMODE_BUSY;
+  case JoinMode::JMODE_BUSY : return JoinMode::JMODE_IDLE;
   }
-  return JMODE_IDLE;
+  DUNE_THROW(Dune::InvalidStateException, "invalid JoinMode");
 }
 
 
-
-int JoinMode (void)
+bool ddd_JoinActive(const DDD::DDDContext& context)
 {
-  return joinGlobals.joinMode;
+  return context.joinContext().joinMode != JoinMode::JMODE_IDLE;
 }
 
 
-int ddd_JoinActive (void)
+bool JoinStepMode(DDD::DDDContext& context, JoinMode old)
 {
-  return joinGlobals.joinMode!=JMODE_IDLE;
-}
-
-
-int JoinStepMode (int old)
-{
-  if (joinGlobals.joinMode!=old)
+  auto& ctx = context.joinContext();
+  if (ctx.joinMode != old)
   {
-    sprintf(cBuffer, "wrong join-mode (currently in %s, expected %s)",
-            JoinModeName(joinGlobals.joinMode), JoinModeName(old));
-    DDD_PrintError('E', 7200, cBuffer);
+    Dune::dwarn
+      << "wrong join-mode (currently in " << JoinModeName(ctx.joinMode)
+      << ", expected " << JoinModeName(old) << ")\n";
     return false;
   }
 
-  JoinSetMode(JoinSuccMode(joinGlobals.joinMode));
+  JoinSetMode(context, JoinSuccMode(ctx.joinMode));
   return true;
 }
 
@@ -253,40 +210,38 @@ int JoinStepMode (int old)
 /****************************************************************************/
 
 
-void ddd_JoinInit (void)
+void ddd_JoinInit(DDD::DDDContext& context)
 {
-  /* set kind of TMEM alloc/free requests */
-  join_SetTmpMem(TMEM_ANY);
+  auto& ctx = context.joinContext();
 
   /* init control structures for JoinInfo-items in messages */
-  joinGlobals.setJIJoin    = New_JIJoinSet();
-  joinGlobals.setJIAddCpl2 = New_JIAddCplSet();
-  joinGlobals.setJIAddCpl3 = New_JIAddCplSet();
+  ctx.setJIJoin    = reinterpret_cast<DDD::Join::JIJoinSet*>(New_JIJoinSet());
+  ctx.setJIAddCpl2 = reinterpret_cast<DDD::Join::JIAddCplSet*>(New_JIAddCplSet());
+  ctx.setJIAddCpl3 = reinterpret_cast<DDD::Join::JIAddCplSet*>(New_JIAddCplSet());
 
-  JoinSetMode(JMODE_IDLE);
+  JoinSetMode(context, JoinMode::JMODE_IDLE);
 
-  joinGlobals.phase1msg_t = LC_NewMsgType("Join1Msg");
-  joinGlobals.jointab_id = LC_NewMsgTable("GidTab",
-                                          joinGlobals.phase1msg_t, sizeof(TEJoin));
+  ctx.phase1msg_t = LC_NewMsgType(context, "Join1Msg");
+  ctx.jointab_id = LC_NewMsgTable("GidTab",
+                                  ctx.phase1msg_t, sizeof(TEJoin));
 
-  joinGlobals.phase2msg_t = LC_NewMsgType("Join2Msg");
-  joinGlobals.addtab_id = LC_NewMsgTable("AddCplTab",
-                                         joinGlobals.phase2msg_t, sizeof(TEAddCpl));
+  ctx.phase2msg_t = LC_NewMsgType(context, "Join2Msg");
+  ctx.addtab_id = LC_NewMsgTable("AddCplTab",
+                                 ctx.phase2msg_t, sizeof(TEAddCpl));
 
-  joinGlobals.phase3msg_t = LC_NewMsgType("Join3Msg");
-  joinGlobals.cpltab_id = LC_NewMsgTable("AddCplTab",
-                                         joinGlobals.phase3msg_t, sizeof(TEAddCpl));
+  ctx.phase3msg_t = LC_NewMsgType(context, "Join3Msg");
+  ctx.cpltab_id = LC_NewMsgTable("AddCplTab",
+                                 ctx.phase3msg_t, sizeof(TEAddCpl));
 }
 
 
-void ddd_JoinExit (void)
+void ddd_JoinExit(DDD::DDDContext& context)
 {
-  /* set kind of TMEM alloc/free requests */
-  join_SetTmpMem(TMEM_ANY);
+  auto& ctx = context.joinContext();
 
-  JIJoinSet_Free(joinGlobals.setJIJoin);
-  JIAddCplSet_Free(joinGlobals.setJIAddCpl2);
-  JIAddCplSet_Free(joinGlobals.setJIAddCpl3);
+  JIJoinSet_Free(reinterpret_cast<JIJoinSet*>(ctx.setJIJoin));
+  JIAddCplSet_Free(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl2));
+  JIAddCplSet_Free(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
 }
 
 

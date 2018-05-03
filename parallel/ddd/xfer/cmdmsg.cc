@@ -40,7 +40,12 @@
 #include <cassert>
 
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 #include <vector>
+
+#include <dune/common/stdstreams.hh>
 
 #include "dddi.h"
 #include "xfer.h"
@@ -77,34 +82,21 @@ struct CMDMSG
 
 /****************************************************************************/
 /*                                                                          */
-/* variables global to this source file only (static)                       */
-/*                                                                          */
-/****************************************************************************/
-
-
-
-
-
-static LC_MSGTYPE cmdmsg_t;
-static LC_MSGCOMP undelete_id;
-
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
 
 
-void CmdMsgInit (void)
+void CmdMsgInit(DDD::DDDContext& context)
 {
-  cmdmsg_t = LC_NewMsgType("CmdMsg");
-  undelete_id = LC_NewMsgTable("UndelTab", cmdmsg_t, sizeof(DDD_GID));
+  auto& ctx = context.cmdmsgContext();
+
+  ctx.cmdmsg_t = LC_NewMsgType(context, "CmdMsg");
+  ctx.undelete_id = LC_NewMsgTable("UndelTab", ctx.cmdmsg_t, sizeof(DDD_GID));
 }
 
 
-void CmdMsgExit (void)
+void CmdMsgExit(DDD::DDDContext& context)
 {}
 
 
@@ -117,10 +109,7 @@ static CMDMSG *CreateCmdMsg (DDD_PROC dest, CMDMSG *lastxm)
 
   xm = (CMDMSG *) AllocTmp(sizeof(CMDMSG));
   if (xm==NULL)
-  {
-    DDD_PrintError('E', 6500, STR_NOMEM " in PrepareCmdMsgs");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
   xm->aUnDelete = NULL;
   xm->nUnDelete = 0;
@@ -132,8 +121,10 @@ static CMDMSG *CreateCmdMsg (DDD_PROC dest, CMDMSG *lastxm)
 
 
 
-static int PrepareCmdMsgs (XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
+static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
 {
+  auto& ctx = context.cmdmsgContext();
+
   CMDMSG    *xm=NULL;
   int j, iCO, markedCO, nMsgs=0;
   DDD_GID   *gids;
@@ -147,8 +138,7 @@ static int PrepareCmdMsgs (XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
     return(0);
 
 #       if DebugCmdMsg<=3
-  sprintf(cBuffer,"%4d: PreparePrune, nCopyObj=%d\n", me, nCO);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "PreparePrune, nCopyObj=" << nCO << "\n";
 #       endif
 
 
@@ -166,7 +156,7 @@ static int PrepareCmdMsgs (XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
 
     /* run through coupling list of corresponding obj,
        find coupling to destination of XferCopyObj command */
-    cpl = ObjCplList(co->hdr);
+    cpl = ObjCplList(context, co->hdr);
     while (cpl!=NULL && CPL_PROC(cpl)!=pCO)
       cpl=CPL_NEXT(cpl);
 
@@ -189,10 +179,7 @@ static int PrepareCmdMsgs (XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
 
   gids = (DDD_GID *) AllocTmp(sizeof(DDD_GID) * markedCO);
   if (gids==NULL)
-  {
-    DDD_PrintError('E', 6501, STR_NOMEM " in PrepareCmdMsgs");
-    HARD_EXIT;
-  }
+    throw std::bad_alloc();
 
 
   /*
@@ -233,15 +220,15 @@ static int PrepareCmdMsgs (XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
     DDD_GID *array;
 
     /* create new send message */
-    xm->msg_h = LC_NewSendMsg(cmdmsg_t, xm->proc);
+    xm->msg_h = LC_NewSendMsg(context, ctx.cmdmsg_t, xm->proc);
 
     /* init tables inside message */
-    LC_SetTableSize(xm->msg_h, undelete_id, xm->nUnDelete);
+    LC_SetTableSize(xm->msg_h, ctx.undelete_id, xm->nUnDelete);
 
     /* prepare message for sending away */
-    LC_MsgPrepareSend(xm->msg_h);
+    LC_MsgPrepareSend(context, xm->msg_h);
 
-    array = (DDD_GID *)LC_GetPtr(xm->msg_h, undelete_id);
+    array = (DDD_GID *)LC_GetPtr(xm->msg_h, ctx.undelete_id);
     memcpy((char *)array,
            (char *)xm->aUnDelete,
            sizeof(DDD_GID)*xm->nUnDelete);
@@ -253,14 +240,14 @@ static int PrepareCmdMsgs (XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
 }
 
 
-static void CmdMsgSend (CMDMSG *theMsgs)
+static void CmdMsgSend(DDD::DDDContext& context, CMDMSG *theMsgs)
 {
   CMDMSG *m;
 
   for(m=theMsgs; m!=NULL; m=m->next)
   {
     /* schedule message for send */
-    LC_MsgSend(m->msg_h);
+    LC_MsgSend(context, m->msg_h);
   }
 }
 
@@ -270,16 +257,19 @@ static void CmdMsgSend (CMDMSG *theMsgs)
 
 
 
-static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+static int CmdMsgUnpack (DDD::DDDContext& context,
+                         LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                          XIDelCmd  **itemsDC, int nDC)
 {
+  auto& ctx = context.cmdmsgContext();
+
   int i, k, jDC, iDC, pos, nPruned;
 
   int lenGidTab = 0;
   for(i=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
-    lenGidTab += (int)LC_GetTableLen(xm, undelete_id);
+    lenGidTab += (int)LC_GetTableLen(xm, ctx.undelete_id);
   }
 
   if (lenGidTab==0)
@@ -290,12 +280,12 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   for(i=0, pos=0; i<nRecvMsgs; i++)
   {
     LC_MSGHANDLE xm = theMsgs[i];
-    int len = LC_GetTableLen(xm, undelete_id);
+    int len = LC_GetTableLen(xm, ctx.undelete_id);
 
     if (len>0)
     {
       memcpy((char *) (unionGidTab.data()+pos),
-             (char *)    LC_GetPtr(xm, undelete_id),
+             (char *)    LC_GetPtr(xm, ctx.undelete_id),
              sizeof(DDD_GID) * len);
       pos += len;
     }
@@ -307,15 +297,8 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
         #ifdef SUPPORT_RESENT_FLAG
   {
-    int iLCO, nLCO=NCpl_Get;
-    DDD_HDR *localCplObjs = LocalCoupledObjectsList();
-
-    if (localCplObjs==NULL && ddd_nCpls>0)
-    {
-      DDD_PrintError('E', 6525,
-                     "Cannot get list of coupled objects. Aborted.");
-      HARD_EXIT;
-    }
+    int iLCO, nLCO = context.couplingContext().nCpls;
+    std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList(context);
 
     /* set RESENT flag for objects which will receive another copy */
     iLCO=0;
@@ -327,8 +310,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         SET_OBJ_RESENT(localCplObjs[iLCO], 0);
 
 #                               if DebugCmdMsg<=0
-        sprintf(cBuffer,"%4d: PruneDelCmds. %08x without resent1.\n", me, OBJ_GID(localCplObjs[iLCO]));
-        DDD_PrintDebug(cBuffer);
+        Dune::dvverb << "PruneDelCmds. " << OBJ_GID(localCplObjs[iLCO]) << " without resent1.\n";
 #                               endif
 
         iLCO++;
@@ -339,8 +321,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         SET_OBJ_RESENT(localCplObjs[iLCO], 1);
 
 #                               if DebugCmdMsg<=1
-        sprintf(cBuffer,"%4d: PruneDelCmds. %08x will be resent.\n", me, OBJ_GID(localCplObjs[iLCO]));
-        DDD_PrintDebug(cBuffer);
+        Dune::dvverb << "PruneDelCmds. " << OBJ_GID(localCplObjs[iLCO]) << " will be resent.\n";
 #                               endif
 
         iLCO++;
@@ -353,14 +334,11 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
       SET_OBJ_RESENT(localCplObjs[iLCO], 0);
 
 #                       if DebugCmdMsg<=0
-      sprintf(cBuffer,"%4d: PruneDelCmds. %08x without resent2.\n", me, OBJ_GID(localCplObjs[iLCO]));
-      DDD_PrintDebug(cBuffer);
+      Dune::dvverb << "PruneDelCmds. " << OBJ_GID(localCplObjs[iLCO]) << " without resent2.\n";
 #                       endif
 
       iLCO++;
     }
-
-    FreeLocalCoupledObjectsList(localCplObjs);
   }
         #endif
 
@@ -379,8 +357,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
       SET_OBJ_PRUNED(itemsDC[iDC]->hdr, 1);
 
 #                       if DebugCmdMsg<=1
-      sprintf(cBuffer,"%4d: PruneDelCmds. pruned %08x\n", me, gidDC);
-      DDD_PrintDebug(cBuffer);
+      Dune::dvverb << "PruneDelCmds. pruned " << gidDC << "\n";
 #                       endif
     }
     else
@@ -392,8 +369,7 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   nPruned = nDC-jDC;
 
 #       if DebugCmdMsg<=3
-  sprintf(cBuffer,"%4d: PruneDelCmds. nPruned=%d/%d\n", me, nPruned, nDC);
-  DDD_PrintDebug(cBuffer);
+  Dune::dvverb << "PruneDelCmds. nPruned=" << nPruned << "/" << nDC << "\n";
 #       endif
 
   return(nPruned);
@@ -403,28 +379,30 @@ static int CmdMsgUnpack (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 /****************************************************************************/
 
 
-static void CmdMsgDisplay (const char *comment, LC_MSGHANDLE xm)
+static void CmdMsgDisplay(DDD::DDDContext& context, const char *comment, LC_MSGHANDLE xm)
 {
+  auto& ctx = context.cmdmsgContext();
+
+  using std::setw;
+  std::ostream& out = std::cout;
+
   DDD_GID      *theGid;
   char buf[30];
-  int i, proc = LC_MsgGetProc(xm);
-  int lenGid = (int) LC_GetTableLen(xm, undelete_id);
+  int proc = LC_MsgGetProc(xm);
+  int lenGid = (int) LC_GetTableLen(xm, ctx.undelete_id);
 
-  sprintf(buf, " %03d-%s-%03d ", me, comment, proc);
+  std::ostringstream prefixStream;
+  prefixStream << setw(3) << context.me() << "-" << comment << setw(3) << proc << " ";
+  const std::string& prefix = prefixStream.str();
 
   /* get table addresses inside message */
-  theGid = (DDD_GID *)    LC_GetPtr(xm, undelete_id);
+  theGid = (DDD_GID *)    LC_GetPtr(xm, ctx.undelete_id);
 
+  out << prefix << " 04 Gid.size=" << setw(5) << lenGid << "\n";
 
-  sprintf(cBuffer, "%s 04 Gid.size=%05d\n", buf, lenGid);
-  DDD_PrintDebug(cBuffer);
-
-  for(i=0; i<lenGid; i++)
-  {
-    sprintf(cBuffer, "%s 14 gid    %04d - " DDD_GID_FMT "\n",
-            buf, i, DDD_GID_TO_INT(theGid[i]));
-    DDD_PrintDebug(cBuffer);
-  }
+  for(int i=0; i<lenGid; i++)
+    out << prefix << " 14 gid    " << setw(4) << i << " - "
+        << DDD_GID_TO_INT(theGid[i]) << "\n";
 }
 
 
@@ -445,9 +423,12 @@ static void CmdMsgDisplay (const char *comment, LC_MSGHANDLE xm)
  */
 
 int PruneXIDelCmd (
+  DDD::DDDContext& context,
   XIDelCmd  **itemsDC, int nDC,
   std::vector<XICopyObj*>& arrayCO)
 {
+  auto& ctx = context.cmdmsgContext();
+
   CMDMSG    *sendMsgs, *sm=0;
   LC_MSGHANDLE *recvMsgs;
   int nSendMsgs, nRecvMsgs;
@@ -457,44 +438,44 @@ int PruneXIDelCmd (
   const int nCO = arrayCO.size();
 
   /* accumulate messages (one for each partner) */
-  nSendMsgs = PrepareCmdMsgs(itemsCO, nCO, &sendMsgs);
+  nSendMsgs = PrepareCmdMsgs(context, itemsCO, nCO, &sendMsgs);
 
 #if DebugCmdMsg>2
-  if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+  if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
   {
     for(sm=sendMsgs; sm!=NULL; sm=sm->next)
     {
-      CmdMsgDisplay("PS", sm->msg_h);
+      CmdMsgDisplay(context, "PS", sm->msg_h);
     }
   }
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(cmdmsg_t);
+  nRecvMsgs = LC_Connect(context, ctx.cmdmsg_t);
 
   /* build and send messages */
-  CmdMsgSend(sendMsgs);
+  CmdMsgSend(context, sendMsgs);
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate();
+  recvMsgs = LC_Communicate(context);
 
 
-  nPruned = CmdMsgUnpack(recvMsgs, nRecvMsgs, itemsDC, nDC);
+  nPruned = CmdMsgUnpack(context, recvMsgs, nRecvMsgs, itemsDC, nDC);
 
 
   /*
           for(int i=0; i<nRecvMsgs; i++)
           {
      #if DebugCmdMsg>=2
-                  if (DDD_GetOption(OPT_DEBUG_XFERMESGS)==OPT_ON)
+                  if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
      #endif
-                          CmdMsgDisplay("PR", recvMsgs[i]);
+                          CmdMsgDisplay(context, "PR", recvMsgs[i]);
           }
    */
 
 
   /* cleanup low-comm layer */
-  LC_Cleanup();
+  LC_Cleanup(context);
 
 
   /* free temporary memory */

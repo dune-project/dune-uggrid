@@ -37,10 +37,18 @@
 #include <stdarg.h>
 #include <cstring>
 
+#include <iomanip>
+#include <iostream>
+#include <new>
+
 #include "dddi.h"
 #include "basic/notify.h"
 #include "basic/lowcomm.h"
 
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 USING_UG_NAMESPACE
 using namespace PPIF;
@@ -67,29 +75,14 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-DDD_HDR   *ddd_ObjTable;
-int ddd_ObjTabSize;
-int ddd_nObjs;
-
-COUPLING **ddd_CplTable;
-short     *ddd_NCplTable;
-int ddd_CplTabSize;
-int ddd_nCpls;
-int nCplItems;
-
-
-int        *iBuffer;        /* general bufferspace, integer */
-char       *cBuffer;        /* general bufferspace, integer */
-
-int theOptions[OPT_END];
+/**
+ * number of users of DDD.
+ * Managed by calls to `DDD_Init` and `DDD_Exit`.
+ * Resources are only freed by `DDD_Exit` when `dddUsers` is zero.
+ *
+ * This variable will be removed once no global state for DDD remains.
+ */
+static unsigned int dddUsers = 0;
 
 
 /****************************************************************************/
@@ -128,73 +121,64 @@ static void LowComm_DefaultFree (void *buffer)
         initialized before calling \funk{Init}.
  */
 
-void DDD_Init()
+void DDD_Init(DDD::DDDContext& context)
 {
   int buffsize;
+
+  dddUsers += 1;
 
   /* init lineout-interface to stdout */
   DDD_UserLineOutFunction = NULL;
 
   /* check max. number of procs (limited by GID construction) */
-  if (procs>MAX_PROCS) {
-    DDD_PrintError('E', 1010,
-                   "too many processors, cannot construct global IDs in DDD_Init");
-    HARD_EXIT;
-  }
+  if (context.procs() > MAX_PROCS)
+    DUNE_THROW(Dune::Exception,
+               "too many processors, cannot construct global IDs");
 
   /* compute size for general buffer */
-  buffsize = (procs+1)*(sizeof(int)*BUFFER_SIZE_FACTOR);
+  buffsize = (context.procs()+1)*(sizeof(int)*BUFFER_SIZE_FACTOR);
   if (buffsize<MIN_BUFFER_SIZE)
   {
     buffsize = MIN_BUFFER_SIZE;
   }
 
-  /* get bufferspace */
-  iBuffer = (int *)AllocFix(buffsize);
-  if (iBuffer==NULL) {
-    DDD_PrintError('E', 1000, "not enough memory in DDD_Init");
-    HARD_EXIT;
-  }
-  /* overlay with other buffers */
-  cBuffer = (char *)iBuffer;
+  /* reset all global counters */
+  context.nObjs(0);
+  context.couplingContext().nCpls = 0;
+  context.couplingContext().nCplItems = 0;
 
   /* init all DDD components */
-  NotifyInit();
-  LC_Init(LowComm_DefaultAlloc, LowComm_DefaultFree);
+  NotifyInit(context);
+  LC_Init(context, LowComm_DefaultAlloc, LowComm_DefaultFree);
   ddd_StatInit();
-  ddd_TypeMgrInit();
-  ddd_ObjMgrInit();
-  ddd_CplMgrInit();
-  ddd_TopoInit();
-  ddd_IdentInit();
-  ddd_IFInit();
-  ddd_XferInit();
-  ddd_PrioInit();
-  ddd_JoinInit();
-  ddd_ConsInit();
-
-  /* reset all global counters */
-  ddd_nObjs  = 0;
-  NCpl_Init;
-  nCplItems  = 0;
+  ddd_TypeMgrInit(context);
+  ddd_ObjMgrInit(context);
+  ddd_CplMgrInit(context);
+  ddd_TopoInit(context);
+  ddd_IdentInit(context);
+  ddd_IFInit(context);
+  ddd_XferInit(context);
+  ddd_PrioInit(context);
+  ddd_JoinInit(context);
+  ddd_ConsInit(context);
 
   /* set options on default values */
-  DDD_SetOption(OPT_WARNING_VARSIZE_OBJ,   OPT_ON);
-  DDD_SetOption(OPT_WARNING_SMALLSIZE,     OPT_ON);
-  DDD_SetOption(OPT_WARNING_PRIOCHANGE,    OPT_ON);
-  DDD_SetOption(OPT_WARNING_DESTRUCT_HDR,  OPT_ON);
-  DDD_SetOption(OPT_DEBUG_XFERMESGS,       OPT_OFF);
-  DDD_SetOption(OPT_QUIET_CONSCHECK,       OPT_OFF);
-  DDD_SetOption(OPT_IDENTIFY_MODE,         IDMODE_LISTS);
-  DDD_SetOption(OPT_WARNING_REF_COLLISION, OPT_ON);
-  DDD_SetOption(OPT_INFO_XFER,             XFER_SHOW_NONE);
-  DDD_SetOption(OPT_INFO_JOIN,             JOIN_SHOW_NONE);
-  DDD_SetOption(OPT_WARNING_OLDSTYLE,      OPT_ON);
-  DDD_SetOption(OPT_INFO_IF_WITH_ATTR,     OPT_OFF);
-  DDD_SetOption(OPT_XFER_PRUNE_DELETE,     OPT_OFF);
-  DDD_SetOption(OPT_IF_REUSE_BUFFERS,      OPT_OFF);
-  DDD_SetOption(OPT_IF_CREATE_EXPLICIT,    OPT_OFF);
-  DDD_SetOption(OPT_CPLMGR_USE_FREELIST,   OPT_ON);
+  DDD_SetOption(context, OPT_WARNING_VARSIZE_OBJ,   OPT_ON);
+  DDD_SetOption(context, OPT_WARNING_SMALLSIZE,     OPT_ON);
+  DDD_SetOption(context, OPT_WARNING_PRIOCHANGE,    OPT_ON);
+  DDD_SetOption(context, OPT_WARNING_DESTRUCT_HDR,  OPT_ON);
+  DDD_SetOption(context, OPT_DEBUG_XFERMESGS,       OPT_OFF);
+  DDD_SetOption(context, OPT_QUIET_CONSCHECK,       OPT_OFF);
+  DDD_SetOption(context, OPT_IDENTIFY_MODE,         IDMODE_LISTS);
+  DDD_SetOption(context, OPT_WARNING_REF_COLLISION, OPT_ON);
+  DDD_SetOption(context, OPT_INFO_XFER,             XFER_SHOW_NONE);
+  DDD_SetOption(context, OPT_INFO_JOIN,             JOIN_SHOW_NONE);
+  DDD_SetOption(context, OPT_WARNING_OLDSTYLE,      OPT_ON);
+  DDD_SetOption(context, OPT_INFO_IF_WITH_ATTR,     OPT_OFF);
+  DDD_SetOption(context, OPT_XFER_PRUNE_DELETE,     OPT_OFF);
+  DDD_SetOption(context, OPT_IF_REUSE_BUFFERS,      OPT_OFF);
+  DDD_SetOption(context, OPT_IF_CREATE_EXPLICIT,    OPT_OFF);
+  DDD_SetOption(context, OPT_CPLMGR_USE_FREELIST,   OPT_ON);
 }
 
 
@@ -216,28 +200,26 @@ void DDD_Init()
         to the DDD application programmer.
  */
 
-void DDD_Exit (void)
+void DDD_Exit(DDD::DDDContext& context)
 {
-  /* free bufferspace */
-  FreeFix(iBuffer);
+  dddUsers -= 1;
+  if (dddUsers > 0)
+    return;
 
   /* close up all DDD components */
-  ddd_ConsExit();
-  ddd_JoinExit();
-  ddd_PrioExit();
-  ddd_XferExit();
-  ddd_IFExit();
-  ddd_IdentExit();
-  ddd_TopoExit();
-  ddd_CplMgrExit();
-  ddd_ObjMgrExit();
-  ddd_TypeMgrExit();
+  ddd_ConsExit(context);
+  ddd_JoinExit(context);
+  ddd_PrioExit(context);
+  ddd_XferExit(context);
+  ddd_IFExit(context);
+  ddd_IdentExit(context);
+  ddd_TopoExit(context);
+  ddd_CplMgrExit(context);
+  ddd_ObjMgrExit(context);
+  ddd_TypeMgrExit(context);
   ddd_StatExit();
-  LC_Exit();
-  NotifyExit();
-
-  /* exit PPIF */
-  ExitPPIF();
+  LC_Exit(context);
+  NotifyExit(context);
 }
 
 
@@ -264,39 +246,40 @@ void DDD_Exit (void)
         \end{tabular}
  */
 
-void DDD_Status (void)
+void DDD_Status(const DDD::DDDContext& context)
 {
-  sprintf(cBuffer, "| DDD_Status for proc=%03d, DDD-Version %s\n", me,
-          DDD_VERSION);
-  DDD_PrintLine(cBuffer);
-  sprintf(cBuffer, "|\n|     MAX_ELEMDESC = %4d\n", MAX_ELEMDESC);
-  sprintf(cBuffer, "|     MAX_TYPEDESC = %4d\n", MAX_TYPEDESC);
-  sprintf(cBuffer, "|     MAX_PROCS    = %4d\n", MAX_PROCS);
-  sprintf(cBuffer, "|     MAX_PRIO     = %4d\n", MAX_PRIO);
-  DDD_PrintLine(cBuffer);
+  using std::setw;
+  std::ostream& out = std::cout;
+
+  out << "| DDD_Status for proc=" << setw(3) << context.me()
+      << ", DDD-Version " << DDD_VERSION << "\n"
+      << "|\n"
+      << "|     MAX_ELEMDESC = " << setw(4) << TYPE_DESC::MAX_ELEMDESC << "\n"
+      << "|     MAX_TYPEDESC = " << setw(4) << MAX_TYPEDESC << "\n"
+      << "|     MAX_PROCS    = " << setw(4) << MAX_PROCS << "\n"
+      << "|     MAX_PRIO     = " << setw(4) << MAX_PRIO << "\n"
+      << "|\n";
 #ifdef WithFullObjectTable
-  sprintf(cBuffer, "|\n|     MAX_OBJ = %8d  MAX_CPL = %8d\n",
-          ddd_ObjTabSize, ddd_CplTabSize);
+  out << "|     MAX_OBJ = " << setw(8) << context.objTable().size()
+      << "  MAX_CPL = " << context.couplingContext().cplTable.size() << "\n";
 #else
-  sprintf(cBuffer, "|\n|     MAX_CPL = %8d\n", ddd_CplTabSize);
+  out << "|     MAX_CPL = " << context.couplingContext().cplTable.size() << "\n";
 #endif
-  DDD_PrintLine(cBuffer);
 
-  sprintf(cBuffer, "|     nObjs   = %8d  nCpls   = %8d  nCplItems = %8d\n",
-          ddd_nObjs, NCpl_Get, nCplItems);
-  DDD_PrintLine(cBuffer);
-  DDD_PrintLine("|\n|     Timeouts:\n");
-  sprintf(cBuffer, "|        IFComm:  %12ld\n", (unsigned long)MAX_TRIES);
-  DDD_PrintLine(cBuffer);
-
-  sprintf(cBuffer, "|\n|     Compile-Time Options: ");
+  out << "|     nObjs   = " << setw(8) << context.nObjs()
+      << "  nCpls   = " << setw(8) << context.couplingContext().nCpls
+      << "  nCplItems = " << setw(8) << context.couplingContext().nCplItems << "\n"
+      << "|\n"
+      << "|     Timeouts:\n"
+      << "|        IFComm:  " << setw(12) << MAX_TRIES << "\n"
+      << "|\n"
+      << "|     Compile-Time Options: ";
 
 #       ifdef Statistics
-  strcat(cBuffer, "Statistics ");
+  out << "Statistics ";
 #       endif
 
-  strcat(cBuffer, "\n");
-  DDD_PrintLine(cBuffer);
+  out << "\n";
 }
 
 
@@ -350,15 +333,15 @@ void DDD_LineOutRegister (void (*func)(const char *s))
    @param value    option value, possible values depend on option specifier
  */
 
-void DDD_SetOption (DDD_OPTION option, int value)
+void DDD_SetOption (DDD::DDDContext& context, DDD_OPTION option, int value)
 {
-if (option>=OPT_END)
-{
-  DDD_PrintError('E', 1090, "invalid DDD_OPTION in DDD_SetOption()");
-  return;
-}
+  if (option>=OPT_END)
+  {
+    Dune::dwarn << "DDD_SetOption: invalid DDD_OPTION\n";
+    return;
+  }
 
-  theOptions[option] = value;
+  context.options()[option] = value;
 }
 
 
@@ -375,63 +358,15 @@ if (option>=OPT_END)
 /*                                                                          */
 /****************************************************************************/
 
-int DDD_GetOption (DDD_OPTION option)
+int DDD_GetOption(const DDD::DDDContext& context, DDD_OPTION option)
 {
   if (option>=OPT_END)
   {
-    DDD_PrintError('E', 1091, "invalid DDD_OPTION in DDD_GetOption()");
+    Dune::dwarn << "DDD_GetOption: invalid DDD_OPTION\n";
     return 0;
   }
 
-  return theOptions[option];
+  return context.options()[option];
 }
-
-/****************************************************************************/
-
-/*
-        transparent access to global variables from PPIF
- */
-
-/**
-        Get local processor number.
-        This function returns the local processor number, which is an
-        integer number between $0$ and \funk{InfoProcs}.
-
-   @return  local processor number
- */
-
-DDD_PROC DDD_InfoMe (void)
-{
-  return me;
-}
-
-
-/**
-        Get master processor number.
-        This function returns the processor number of the
-        master processor. Processor numbers are always
-        integer numbers between 0 and \funk{InfoProcs}.
-        Usually, processor 0 is the master processor.
-
-   @return  master processor number
- */
-DDD_PROC DDD_InfoMaster (void)
-{
-  return master;
-}
-
-
-/**
-        Get total number of processors.
-
-   @return  total number of processors
- */
-
-DDD_PROC DDD_InfoProcs (void)
-{
-  return procs;
-}
-
-/****************************************************************************/
 
 END_UGDIM_NAMESPACE

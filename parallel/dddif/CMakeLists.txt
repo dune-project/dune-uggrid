@@ -1,4 +1,4 @@
-set(SOURCES  initddd.cc memmgr.cc handler.cc lb.cc debugger.cc lbrcb.cc
+set(SOURCES  compat.cc initddd.cc memmgr.cc handler.cc lb.cc debugger.cc lbrcb.cc
   gridcons.cc support.cc identify.cc identify.h trans.cc priority.cc
   pgmcheck.cc overlap.cc partition.cc)
 

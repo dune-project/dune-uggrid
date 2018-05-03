@@ -36,6 +36,12 @@
 #include <cstring>
 
 #include <algorithm>
+#include <iomanip>
+
+#include <dune/common/exceptions.hh>
+#include <dune/common/stdstreams.hh>
+
+#include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include "dddi.h"
 #include "join.h"
@@ -45,6 +51,8 @@ USING_UG_NAMESPACE
 using namespace PPIF;
 
 START_UGDIM_NAMESPACE
+
+using namespace DDD::Join;
 
 /****************************************************************************/
 /*                                                                          */
@@ -85,9 +93,11 @@ START_UGDIM_NAMESPACE
 
  */
 
-static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
+static int PreparePhase1Msgs (DDD::DDDContext& context, std::vector<JIJoin*>& arrayJoin,
                               JOINMSG1 **theMsgs, size_t *memUsage)
 {
+  auto& ctx = context.joinContext();
+
   int i, last_i, nMsgs;
   JIJoin** itemsJ = arrayJoin.data();
   const int nJ = arrayJoin.size();
@@ -112,13 +122,10 @@ static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
   /* and set local GID to invalid (will be set to new value lateron) */
   for(i=0; i<nJ; i++)
   {
-    if (ObjHasCpl(itemsJ[i]->hdr))
-    {
-      sprintf(cBuffer, "cannot join " OBJ_GID_FMT ", object already distributed",
-              OBJ_GID(itemsJ[i]->hdr));
-      DDD_PrintError('E', 7006, cBuffer);
-      HARD_EXIT;
-    }
+    if (ObjHasCpl(context, itemsJ[i]->hdr))
+      DUNE_THROW(Dune::Exception,
+                 "cannot join " << OBJ_GID(itemsJ[i]->hdr)
+                 << ", object already distributed");
 
     OBJ_GID(itemsJ[i]->hdr) = GID_INVALID;
   }
@@ -131,13 +138,9 @@ static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
 
     /* check for double Joins with different new_gid */
     if (local_gid!=GID_INVALID && local_gid!=itemsJ[i]->new_gid)
-    {
-      sprintf(cBuffer,
-              "several (inconsistent) DDD_JoinObj-commands for local object " DDD_GID_FMT,
-              local_gid);
-      DDD_PrintError('E', 7007, cBuffer);
-      HARD_EXIT;
-    }
+      DUNE_THROW(Dune::Exception,
+                 "several (inconsistent) DDD_JoinObj-commands "
+                 "for local object " << local_gid);
 
     OBJ_GID(itemsJ[i]->hdr) = itemsJ[i]->new_gid;
   }
@@ -147,7 +150,6 @@ static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
   last_i = i = 0;
   do
   {
-    JOINMSG1  *jm;
     size_t bufSize;
 
     /* skip until dest-processor is different */
@@ -155,12 +157,7 @@ static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
       i++;
 
     /* create new message */
-    jm = (JOINMSG1 *) AllocTmp(sizeof(JOINMSG1));
-    if (jm==NULL)
-    {
-      DDD_PrintError('E', 7900, STR_NOMEM " in PreparePhase1Msgs");
-      HARD_EXIT;
-    }
+    JOINMSG1* jm = new JOINMSG1;
     jm->nJoins = i-last_i;
     jm->arrayJoin = &(itemsJ[last_i]);
     jm->dest = itemsJ[last_i]->dest;
@@ -169,22 +166,21 @@ static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
     nMsgs++;
 
     /* create new send message */
-    jm->msg_h = LC_NewSendMsg(joinGlobals.phase1msg_t, jm->dest);
+    jm->msg_h = LC_NewSendMsg(context, ctx.phase1msg_t, jm->dest);
 
     /* init table inside message */
-    LC_SetTableSize(jm->msg_h, joinGlobals.jointab_id, jm->nJoins);
+    LC_SetTableSize(jm->msg_h, ctx.jointab_id, jm->nJoins);
 
     /* prepare message for sending away */
-    bufSize = LC_MsgPrepareSend(jm->msg_h);
+    bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
-    if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+    if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
-      sprintf(cBuffer,
-              "DDD MESG [%03d]: SHOW_MEM "
-              "send msg phase1   dest=%04d size=%010ld\n",
-              me, jm->dest, (long)bufSize);
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn
+        << "DDD MESG [" << std::setw(3) << context.me() << "]: SHOW_MEM "
+        << "send msg phase1   dest=" << std::setw(4) << jm->dest
+        << " size=" << std::setw(10) << bufSize << "\n";
     }
 
     last_i = i;
@@ -210,8 +206,9 @@ static int PreparePhase1Msgs (std::vector<JIJoin*>& arrayJoin,
 /*                                                                          */
 /****************************************************************************/
 
-static void PackPhase1Msgs (JOINMSG1 *theMsgs)
+static void PackPhase1Msgs (DDD::DDDContext& context, JOINMSG1 *theMsgs)
 {
+  auto& ctx = context.joinContext();
   JOINMSG1 *jm;
 
   for(jm=theMsgs; jm!=NULL; jm=jm->next)
@@ -220,17 +217,17 @@ static void PackPhase1Msgs (JOINMSG1 *theMsgs)
     int i;
 
     /* copy data into message */
-    theJoinTab = (TEJoin *)LC_GetPtr(jm->msg_h, joinGlobals.jointab_id);
+    theJoinTab = (TEJoin *)LC_GetPtr(jm->msg_h, ctx.jointab_id);
     for(i=0; i<jm->nJoins; i++)
     {
       theJoinTab[i].gid  = jm->arrayJoin[i]->new_gid;
       theJoinTab[i].prio = OBJ_PRIO(jm->arrayJoin[i]->hdr);
     }
-    LC_SetTableLen(jm->msg_h, joinGlobals.jointab_id, jm->nJoins);
+    LC_SetTableLen(jm->msg_h, ctx.jointab_id, jm->nJoins);
 
 
     /* send away */
-    LC_MsgSend(jm->msg_h);
+    LC_MsgSend(context, jm->msg_h);
   }
 }
 
@@ -240,10 +237,13 @@ static void PackPhase1Msgs (JOINMSG1 *theMsgs)
         unpack phase1 messages.
  */
 
-static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+static void UnpackPhase1Msgs (DDD::DDDContext& context,
+                              LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                               DDD_HDR *localCplObjs, int nLCO,
                               JIPartner **p_joinObjs, int *p_nJoinObjs)
 {
+  auto& ctx = context.joinContext();
+  const auto& me = context.me();
   JIPartner *joinObjs;
   int nJoinObjs = 0;
   int m, jo;
@@ -256,8 +256,8 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   for(m=0; m<nRecvMsgs; m++)
   {
     LC_MSGHANDLE jm = theMsgs[m];
-    TEJoin *theJoin = (TEJoin *) LC_GetPtr(jm, joinGlobals.jointab_id);
-    int nJ       = (int) LC_GetTableLen(jm, joinGlobals.jointab_id);
+    TEJoin *theJoin = (TEJoin *) LC_GetPtr(jm, ctx.jointab_id);
+    int nJ       = (int) LC_GetTableLen(jm, ctx.jointab_id);
     int i, j;
 
     nJoinObjs += nJ;
@@ -276,15 +276,15 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         theJoin[i].hdr = localCplObjs[j];
 
         /* generate phase2-JIAddCpl for this object */
-        for(cpl=ObjCplList(localCplObjs[j]); cpl!=NULL; cpl=CPL_NEXT(cpl))
+        for(cpl=ObjCplList(context, localCplObjs[j]); cpl!=NULL; cpl=CPL_NEXT(cpl))
         {
-          JIAddCpl *ji = JIAddCplSet_NewItem(joinGlobals.setJIAddCpl2);
+          JIAddCpl *ji = JIAddCplSet_NewItem(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl2));
           ji->dest    = CPL_PROC(cpl);
           ji->te.gid  = theJoin[i].gid;
           ji->te.proc = LC_MsgGetProc(jm);
           ji->te.prio = theJoin[i].prio;
 
-          if (! JIAddCplSet_ItemOK(joinGlobals.setJIAddCpl2))
+          if (! JIAddCplSet_ItemOK(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl2)))
             continue;
 
 #                                       if DebugJoin<=1
@@ -296,24 +296,23 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         }
 
         /* send phase3-JIAddCpl back to Join-proc */
-        for(cpl=ObjCplList(localCplObjs[j]); cpl!=NULL; cpl=CPL_NEXT(cpl))
+        for(cpl=ObjCplList(context, localCplObjs[j]); cpl!=NULL; cpl=CPL_NEXT(cpl))
         {
-          JIAddCpl *ji = JIAddCplSet_NewItem(joinGlobals.setJIAddCpl3);
+          JIAddCpl *ji = JIAddCplSet_NewItem(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
           ji->dest    = LC_MsgGetProc(jm);
           ji->te.gid  = OBJ_GID(localCplObjs[j]);
           ji->te.proc = CPL_PROC(cpl);
           ji->te.prio = cpl->prio;
 
-          if (! JIAddCplSet_ItemOK(joinGlobals.setJIAddCpl3))
+          if (! JIAddCplSet_ItemOK(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3)))
             continue;
         }
       }
       else
       {
-        sprintf(cBuffer, "no object " DDD_GID_FMT " for join from %d",
-                theJoin[i].gid, LC_MsgGetProc(jm));
-        DDD_PrintError('E', 7300, cBuffer);
-        HARD_EXIT;
+        DUNE_THROW(Dune::Exception,
+                   "no object " << theJoin[i].gid
+                   << " for join from " << LC_MsgGetProc(jm));
       }
     }
   }
@@ -325,12 +324,7 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
 
   /* allocate array of objects, which has been contacted by a join */
-  joinObjs = (JIPartner *) AllocTmp(sizeof(JIPartner) * nJoinObjs);
-  if (joinObjs==NULL)
-  {
-    DDD_PrintError('E', 7903, STR_NOMEM " in UnpackPhase1Msgs");
-    HARD_EXIT;
-  }
+  joinObjs = new JIPartner[nJoinObjs];
 
   /* set return values */
   *p_joinObjs  = joinObjs;
@@ -341,23 +335,23 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   for(m=0, jo=0; m<nRecvMsgs; m++)
   {
     LC_MSGHANDLE jm = theMsgs[m];
-    TEJoin *theJoin = (TEJoin *) LC_GetPtr(jm, joinGlobals.jointab_id);
-    int nJ       = (int) LC_GetTableLen(jm, joinGlobals.jointab_id);
+    TEJoin *theJoin = (TEJoin *) LC_GetPtr(jm, ctx.jointab_id);
+    int nJ       = (int) LC_GetTableLen(jm, ctx.jointab_id);
     int i;
 
     for(i=0; i<nJ; i++)
     {
-      AddCoupling(theJoin[i].hdr, LC_MsgGetProc(jm), theJoin[i].prio);
+      AddCoupling(context, theJoin[i].hdr, LC_MsgGetProc(jm), theJoin[i].prio);
 
       /* send one phase3-JIAddCpl for symmetric connection */
       {
-        JIAddCpl *ji = JIAddCplSet_NewItem(joinGlobals.setJIAddCpl3);
+        JIAddCpl *ji = JIAddCplSet_NewItem(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
         ji->dest    = LC_MsgGetProc(jm);
         ji->te.gid  = OBJ_GID(theJoin[i].hdr);
         ji->te.proc = me;
         ji->te.prio = OBJ_PRIO(theJoin[i].hdr);
 
-        JIAddCplSet_ItemOK(joinGlobals.setJIAddCpl3);
+        JIAddCplSet_ItemOK(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
       }
 
       joinObjs[jo].hdr  = theJoin[i].hdr;
@@ -386,9 +380,12 @@ static void UnpackPhase1Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
  */
 
-static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
+static int PreparePhase2Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& arrayAddCpl,
                               JOINMSG2 **theMsgs, size_t *memUsage)
 {
+  auto& ctx = context.joinContext();
+  const auto& me = context.me();
+
   int i, last_i, nMsgs;
   JIAddCpl** itemsAC = arrayAddCpl.data();
   const int nAC = arrayAddCpl.size();
@@ -413,7 +410,6 @@ static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
   last_i = i = 0;
   do
   {
-    JOINMSG2  *jm;
     size_t bufSize;
 
     /* skip until dest-processor is different */
@@ -421,12 +417,7 @@ static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
       i++;
 
     /* create new message */
-    jm = (JOINMSG2 *) AllocTmp(sizeof(JOINMSG2));
-    if (jm==NULL)
-    {
-      DDD_PrintError('E', 7901, STR_NOMEM " in PreparePhase2Msgs");
-      HARD_EXIT;
-    }
+    JOINMSG2* jm = new JOINMSG2;
     jm->nAddCpls = i-last_i;
     jm->arrayAddCpl = &(itemsAC[last_i]);
     jm->dest = itemsAC[last_i]->dest;
@@ -435,22 +426,21 @@ static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
     nMsgs++;
 
     /* create new send message */
-    jm->msg_h = LC_NewSendMsg(joinGlobals.phase2msg_t, jm->dest);
+    jm->msg_h = LC_NewSendMsg(context, ctx.phase2msg_t, jm->dest);
 
     /* init table inside message */
-    LC_SetTableSize(jm->msg_h, joinGlobals.addtab_id, jm->nAddCpls);
+    LC_SetTableSize(jm->msg_h, ctx.addtab_id, jm->nAddCpls);
 
     /* prepare message for sending away */
-    bufSize = LC_MsgPrepareSend(jm->msg_h);
+    bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
-    if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+    if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
-      sprintf(cBuffer,
-              "DDD MESG [%03d]: SHOW_MEM "
-              "send msg phase2   dest=%04d size=%010ld\n",
-              me, jm->dest, (long)bufSize);
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn
+        << "DDD MESG [" << std::setw(3) << me << "]: SHOW_MEM "
+        << "send msg phase2   dest=" << std::setw(4) << jm->dest
+        << " size=" << std::setw(10) << bufSize << "\n";
     }
 
     last_i = i;
@@ -476,8 +466,10 @@ static int PreparePhase2Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
 /*                                                                          */
 /****************************************************************************/
 
-static void PackPhase2Msgs (JOINMSG2 *theMsgs)
+static void PackPhase2Msgs(DDD::DDDContext& context, JOINMSG2 *theMsgs)
 {
+  auto& ctx = context.joinContext();
+
   JOINMSG2 *jm;
 
   for(jm=theMsgs; jm!=NULL; jm=jm->next)
@@ -486,17 +478,17 @@ static void PackPhase2Msgs (JOINMSG2 *theMsgs)
     int i;
 
     /* copy data into message */
-    theAddTab = (TEAddCpl *)LC_GetPtr(jm->msg_h, joinGlobals.addtab_id);
+    theAddTab = (TEAddCpl *)LC_GetPtr(jm->msg_h, ctx.addtab_id);
     for(i=0; i<jm->nAddCpls; i++)
     {
       /* copy complete TEAddCpl item */
       theAddTab[i] = jm->arrayAddCpl[i]->te;
     }
-    LC_SetTableLen(jm->msg_h, joinGlobals.addtab_id, jm->nAddCpls);
+    LC_SetTableLen(jm->msg_h, ctx.addtab_id, jm->nAddCpls);
 
 
     /* send away */
-    LC_MsgSend(jm->msg_h);
+    LC_MsgSend(context, jm->msg_h);
   }
 }
 
@@ -506,17 +498,20 @@ static void PackPhase2Msgs (JOINMSG2 *theMsgs)
         unpack phase2 messages.
  */
 
-static void UnpackPhase2Msgs (LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
+static void UnpackPhase2Msgs (DDD::DDDContext& context,
+                              LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
                               JIPartner *joinObjs, int nJoinObjs,
                               DDD_HDR *localCplObjs, int nLCO)
 {
+  auto& ctx = context.joinContext();
+
   int m;
 
   for(m=0; m<nRecvMsgs2; m++)
   {
     LC_MSGHANDLE jm = theMsgs2[m];
-    TEAddCpl *theAC = (TEAddCpl *) LC_GetPtr(jm, joinGlobals.addtab_id);
-    int nAC      = (int) LC_GetTableLen(jm, joinGlobals.addtab_id);
+    TEAddCpl *theAC = (TEAddCpl *) LC_GetPtr(jm, ctx.addtab_id);
+    int nAC      = (int) LC_GetTableLen(jm, ctx.addtab_id);
     int i, j, jo;
 
     for(i=0, j=0, jo=0; i<nAC; i++)
@@ -530,28 +525,28 @@ static void UnpackPhase2Msgs (LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
       if ((j<nLCO) && (OBJ_GID(localCplObjs[j])==theAC[i].gid))
       {
         /* found local object which is AddCpl target */
-        AddCoupling(localCplObjs[j], theAC[i].proc, theAC[i].prio);
+        AddCoupling(context, localCplObjs[j], theAC[i].proc, theAC[i].prio);
 
 #                               if DebugJoin<=1
         printf("%4d: Phase2 execute AddCpl(%08x,%d,%d) (from %d).\n",
-               me,
+               context.me(),
                theAC[i].gid, theAC[i].proc, theAC[i].prio,
                LC_MsgGetProc(jm));
 #                               endif
 
         while ((jo<nJoinObjs) && (OBJ_GID(joinObjs[jo].hdr) == theAC[i].gid))
         {
-          JIAddCpl *ji = JIAddCplSet_NewItem(joinGlobals.setJIAddCpl3);
+          JIAddCpl *ji = JIAddCplSet_NewItem(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
           ji->dest    = joinObjs[jo].proc;
           ji->te.gid  = theAC[i].gid;
           ji->te.proc = theAC[i].proc;
           ji->te.prio = theAC[i].prio;
-          JIAddCplSet_ItemOK(joinGlobals.setJIAddCpl3);
+          JIAddCplSet_ItemOK(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
 
 
 #                                       if DebugJoin<=1
           printf("%4d: Phase2 forward AddCpl(%08x,%d,%d) to %d.\n",
-                 me,
+                 context.me(),
                  theAC[i].gid, theAC[i].proc, theAC[i].prio,
                  ji->dest);
 #                                       endif
@@ -579,9 +574,12 @@ static void UnpackPhase2Msgs (LC_MSGHANDLE *theMsgs2, int nRecvMsgs2,
 
  */
 
-static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
+static int PreparePhase3Msgs (DDD::DDDContext& context, std::vector<JIAddCpl*>& arrayAddCpl,
                               JOINMSG3 **theMsgs, size_t *memUsage)
 {
+  auto& ctx = context.joinContext();
+  const auto& me = context.me();
+
   int i, last_i, nMsgs;
   JIAddCpl** itemsAC = arrayAddCpl.data();
   const int nAC = arrayAddCpl.size();
@@ -606,7 +604,6 @@ static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
   last_i = i = 0;
   do
   {
-    JOINMSG3  *jm;
     size_t bufSize;
 
     /* skip until dest-processor is different */
@@ -614,12 +611,7 @@ static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
       i++;
 
     /* create new message */
-    jm = (JOINMSG3 *) AllocTmp(sizeof(JOINMSG3));
-    if (jm==NULL)
-    {
-      DDD_PrintError('E', 7902, STR_NOMEM " in PreparePhase3Msgs");
-      HARD_EXIT;
-    }
+    JOINMSG3* jm = new JOINMSG3;
     jm->nAddCpls = i-last_i;
     jm->arrayAddCpl = &(itemsAC[last_i]);
     jm->dest = itemsAC[last_i]->dest;
@@ -628,22 +620,21 @@ static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
     nMsgs++;
 
     /* create new send message */
-    jm->msg_h = LC_NewSendMsg(joinGlobals.phase3msg_t, jm->dest);
+    jm->msg_h = LC_NewSendMsg(context, ctx.phase3msg_t, jm->dest);
 
     /* init table inside message */
-    LC_SetTableSize(jm->msg_h, joinGlobals.cpltab_id, jm->nAddCpls);
+    LC_SetTableSize(jm->msg_h, ctx.cpltab_id, jm->nAddCpls);
 
     /* prepare message for sending away */
-    bufSize = LC_MsgPrepareSend(jm->msg_h);
+    bufSize = LC_MsgPrepareSend(context, jm->msg_h);
     *memUsage += bufSize;
 
-    if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+    if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
     {
-      sprintf(cBuffer,
-              "DDD MESG [%03d]: SHOW_MEM "
-              "send msg phase3   dest=%04d size=%010ld\n",
-              me, jm->dest, (long)bufSize);
-      DDD_PrintLine(cBuffer);
+      Dune::dwarn
+        << "DDD MESG [" << std::setw(3) << me << "]: SHOW_MEM "
+        << "send msg phase3   dest=" << std::setw(4) << jm->dest
+        << " size=" << std::setw(10) << bufSize << "\n";
     }
 
     last_i = i;
@@ -669,8 +660,10 @@ static int PreparePhase3Msgs (std::vector<JIAddCpl*>& arrayAddCpl,
 /*                                                                          */
 /****************************************************************************/
 
-static void PackPhase3Msgs (JOINMSG3 *theMsgs)
+static void PackPhase3Msgs(DDD::DDDContext& context, JOINMSG3 *theMsgs)
 {
+  auto& ctx = context.joinContext();
+
   JOINMSG3 *jm;
 
   for(jm=theMsgs; jm!=NULL; jm=jm->next)
@@ -679,17 +672,17 @@ static void PackPhase3Msgs (JOINMSG3 *theMsgs)
     int i;
 
     /* copy data into message */
-    theAddTab = (TEAddCpl *)LC_GetPtr(jm->msg_h, joinGlobals.cpltab_id);
+    theAddTab = (TEAddCpl *)LC_GetPtr(jm->msg_h, ctx.cpltab_id);
     for(i=0; i<jm->nAddCpls; i++)
     {
       /* copy complete TEAddCpl item */
       theAddTab[i] = jm->arrayAddCpl[i]->te;
     }
-    LC_SetTableLen(jm->msg_h, joinGlobals.cpltab_id, jm->nAddCpls);
+    LC_SetTableLen(jm->msg_h, ctx.cpltab_id, jm->nAddCpls);
 
 
     /* send away */
-    LC_MsgSend(jm->msg_h);
+    LC_MsgSend(context, jm->msg_h);
   }
 }
 
@@ -702,9 +695,12 @@ static void PackPhase3Msgs (JOINMSG3 *theMsgs)
         unpack phase3 messages.
  */
 
-static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
+static void UnpackPhase3Msgs (DDD::DDDContext& context,
+                              LC_MSGHANDLE *theMsgs, int nRecvMsgs,
                               std::vector<JIJoin*>& arrayJoin)
 {
+  auto& ctx = context.joinContext();
+
   JIJoin** itemsJ = arrayJoin.data();
   const int nJ = arrayJoin.size();
   int m;
@@ -713,8 +709,8 @@ static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   for(m=0; m<nRecvMsgs; m++)
   {
     LC_MSGHANDLE jm = theMsgs[m];
-    TEAddCpl *theAC = (TEAddCpl *) LC_GetPtr(jm, joinGlobals.cpltab_id);
-    int nAC      = (int) LC_GetTableLen(jm, joinGlobals.cpltab_id);
+    TEAddCpl *theAC = (TEAddCpl *) LC_GetPtr(jm, ctx.cpltab_id);
+    int nAC      = (int) LC_GetTableLen(jm, ctx.cpltab_id);
     int i, j;
 
     for(i=0, j=0; i<nAC; i++)
@@ -725,11 +721,11 @@ static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
       if ((j<nJ) && (OBJ_GID(itemsJ[j]->hdr) == theAC[i].gid))
       {
         /* found local object which is AddCpl target */
-        AddCoupling(itemsJ[j]->hdr, theAC[i].proc, theAC[i].prio);
+        AddCoupling(context, itemsJ[j]->hdr, theAC[i].proc, theAC[i].prio);
 
 #                               if DebugJoin<=1
         printf("%4d: Phase3 execute AddCpl(%08x,%d,%d) (from %d).\n",
-               me,
+               context.me(),
                OBJ_GID(itemsJ[j]->hdr), theAC[i].proc, theAC[i].prio,
                LC_MsgGetProc(jm));
 #                               endif
@@ -760,43 +756,36 @@ static void UnpackPhase3Msgs (LC_MSGHANDLE *theMsgs, int nRecvMsgs,
         a set of local communications between the processors.
  */
 
-DDD_RET DDD_JoinEnd (void)
+DDD_RET DDD_JoinEnd(DDD::DDDContext& context)
 {
+  auto& ctx = context.joinContext();
+
   int obsolete, nRecvMsgs1, nRecvMsgs2, nRecvMsgs3;
   JOINMSG1    *sendMsgs1=NULL, *sm1=NULL;
   JOINMSG2    *sendMsgs2=NULL, *sm2=NULL;
   JOINMSG3    *sendMsgs3=NULL, *sm3=NULL;
   LC_MSGHANDLE *recvMsgs1=NULL, *recvMsgs2=NULL, *recvMsgs3=NULL;
-  DDD_HDR     *localCplObjs=NULL;
   size_t sendMem=0, recvMem=0;
   JIPartner   *joinObjs = NULL;
   int nJoinObjs;
+  const auto& nCpls = context.couplingContext().nCpls;
 
 
-
-        #ifdef JoinMemFromHeap
-  MarkHeap();
-  LC_SetMemMgr(memmgr_AllocTMEM, memmgr_FreeTMEM,
-               memmgr_AllocHMEM, NULL);
-        #endif
 
   STAT_SET_MODULE(DDD_MODULE_JOIN);
   STAT_ZEROALL;
 
   /* step mode and check whether call to JoinEnd is valid */
-  if (!JoinStepMode(JMODE_CMDS))
-  {
-    DDD_PrintError('E', 7011, "DDD_JoinEnd() aborted");
-    HARD_EXIT;
-  }
+  if (!JoinStepMode(context, JoinMode::JMODE_CMDS))
+    DUNE_THROW(Dune::Exception, "DDD_JoinEnd() aborted");
 
 
   /*
           PREPARATION PHASE
    */
   /* get sorted array of JIJoin-items */
-  std::vector<JIJoin*> arrayJIJoin = JIJoinSet_GetArray(joinGlobals.setJIJoin);
-  obsolete = JIJoinSet_GetNDiscarded(joinGlobals.setJIJoin);
+  std::vector<JIJoin*> arrayJIJoin = JIJoinSet_GetArray(reinterpret_cast<JIJoinSet*>(ctx.setJIJoin));
+  obsolete = JIJoinSet_GetNDiscarded(reinterpret_cast<JIJoinSet*>(ctx.setJIJoin));
 
 
   /*
@@ -808,16 +797,16 @@ DDD_RET DDD_JoinEnd (void)
    */
   STAT_RESET;
   /* prepare msgs for JIJoin-items */
-  PreparePhase1Msgs(arrayJIJoin, &sendMsgs1, &sendMem);
+  PreparePhase1Msgs(context, arrayJIJoin, &sendMsgs1, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
-  nRecvMsgs1 = LC_Connect(joinGlobals.phase1msg_t);
+  nRecvMsgs1 = LC_Connect(context, ctx.phase1msg_t);
   STAT_TIMER(T_JOIN_PREP_MSGS);
 
   STAT_RESET;
   /* build phase1 msgs on sender side and start send */
-  PackPhase1Msgs(sendMsgs1);
+  PackPhase1Msgs(context, sendMsgs1);
   STAT_TIMER(T_JOIN_PACK_SEND);
 
 
@@ -826,24 +815,18 @@ DDD_RET DDD_JoinEnd (void)
    */
   STAT_RESET;
   /* get sorted list of local objects with couplings */
-  localCplObjs = LocalCoupledObjectsList();
-  if (localCplObjs==NULL && ddd_nCpls>0)
-  {
-    DDD_PrintError('E', 7020,
-                   "Cannot get list of coupled objects in DDD_JoinEnd(). Aborted");
-    HARD_EXIT;
-  }
-
+  std::vector<DDD_HDR> localCplObjs = LocalCoupledObjectsList(context);
 
   if (obsolete>0)
   {
-    if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_OBSOLETE)
+    if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_OBSOLETE)
     {
-      int all = JIJoinSet_GetNItems(joinGlobals.setJIJoin);
+      int all = JIJoinSet_GetNItems(reinterpret_cast<JIJoinSet*>(ctx.setJIJoin));
 
-      sprintf(cBuffer, "DDD MESG [%03d]: %4d from %4d join-cmds obsolete.\n",
-              me, obsolete, all);
-      DDD_PrintLine(cBuffer);
+      using std::setw;
+      Dune::dwarn
+        << "DDD MESG [" << setw(3) << context.me() << "]: " << setw(4) << obsolete
+        << " from " << setw(4) << all << " join-cmds obsolete.\n";
     }
   }
   STAT_TIMER(T_JOIN);
@@ -854,23 +837,23 @@ DDD_RET DDD_JoinEnd (void)
    */
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
-    if (me==master)
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Send\n");
-    LC_PrintSendMsgs();
+    DDD_SyncAll(context);
+    if (context.isMaster())
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase1Msg.Send\n";
+    LC_PrintSendMsgs(context);
   }
 
 
   /* wait for communication-completion (send AND receive) */
   STAT_RESET;
-  recvMsgs1 = LC_Communicate();
+  recvMsgs1 = LC_Communicate(context);
   STAT_TIMER(T_JOIN_WAIT_RECV);
 
 
   /* display information about message buffer sizes */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
   {
     int k;
 
@@ -880,27 +863,28 @@ DDD_RET DDD_JoinEnd (void)
       recvMem += LC_GetBufferSize(recvMsgs1[k]);
     }
 
-    sprintf(cBuffer,
-            "DDD MESG [%03d]: SHOW_MEM "
-            "msgs  send=%010ld recv=%010ld all=%010ld\n",
-            me, (long)sendMem, (long)recvMem, (long)(sendMem+recvMem));
-    DDD_PrintLine(cBuffer);
+    using std::setw;
+    Dune::dwarn
+      << "DDD MESG [" << setw(3) << context.me() << "]: SHOW_MEM msgs "
+      << " send=" << setw(10) << sendMem
+      << " recv=" << setw(10) << recvMem
+      << " all=" << setw(10) << (sendMem+recvMem) << "\n";
   }
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
-    if (me==master)
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase1Msg.Recv\n");
-    LC_PrintRecvMsgs();
+    DDD_SyncAll(context);
+    if (context.isMaster())
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase1Msg.Recv\n";
+    LC_PrintRecvMsgs(context);
   }
 
   /* unpack messages */
   STAT_RESET;
-  UnpackPhase1Msgs(recvMsgs1, nRecvMsgs1, localCplObjs, NCpl_Get,
+  UnpackPhase1Msgs(context, recvMsgs1, nRecvMsgs1, localCplObjs.data(), nCpls,
                    &joinObjs, &nJoinObjs);
-  LC_Cleanup();
+  LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
 
 
@@ -914,20 +898,20 @@ DDD_RET DDD_JoinEnd (void)
           for which Joins had been issued remotely.
    */
   /* get sorted array of JIAddCpl-items */
-  std::vector<JIAddCpl*> arrayJIAddCpl2 = JIAddCplSet_GetArray(joinGlobals.setJIAddCpl2);
+  std::vector<JIAddCpl*> arrayJIAddCpl2 = JIAddCplSet_GetArray(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl2));
 
   STAT_RESET;
   /* prepare msgs for JIAddCpl-items */
-  PreparePhase2Msgs(arrayJIAddCpl2, &sendMsgs2, &sendMem);
+  PreparePhase2Msgs(context, arrayJIAddCpl2, &sendMsgs2, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
-  nRecvMsgs2 = LC_Connect(joinGlobals.phase2msg_t);
+  nRecvMsgs2 = LC_Connect(context, ctx.phase2msg_t);
   STAT_TIMER(T_JOIN_PREP_MSGS);
 
   STAT_RESET;
   /* build phase2 msgs on sender side and start send */
-  PackPhase2Msgs(sendMsgs2);
+  PackPhase2Msgs(context, sendMsgs2);
   STAT_TIMER(T_JOIN_PACK_SEND);
 
   /*
@@ -951,23 +935,23 @@ DDD_RET DDD_JoinEnd (void)
    */
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
-    if (me==master)
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Send\n");
-    LC_PrintSendMsgs();
+    DDD_SyncAll(context);
+    if (context.isMaster())
+      Dune::dwarn <<"DDD JOIN_SHOW_MSGSALL: Phase2Msg.Send\n";
+    LC_PrintSendMsgs(context);
   }
 
 
   /* wait for communication-completion (send AND receive) */
   STAT_RESET;
-  recvMsgs2 = LC_Communicate();
+  recvMsgs2 = LC_Communicate(context);
   STAT_TIMER(T_JOIN_WAIT_RECV);
 
 
   /* display information about message buffer sizes */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
   {
     int k;
 
@@ -977,34 +961,35 @@ DDD_RET DDD_JoinEnd (void)
       recvMem += LC_GetBufferSize(recvMsgs2[k]);
     }
 
-    sprintf(cBuffer,
-            "DDD MESG [%03d]: SHOW_MEM "
-            "msgs  send=%010ld recv=%010ld all=%010ld\n",
-            me, (long)sendMem, (long)recvMem, (long)(sendMem+recvMem));
-    DDD_PrintLine(cBuffer);
+    using std::setw;
+    Dune::dwarn
+      << "DDD MESG [" << setw(3) << context.me() << "]: SHOW_MEM msgs "
+      << " send=" << setw(10) << sendMem
+      << " recv=" << setw(10) << recvMem
+      << " all=" << setw(10) << (sendMem+recvMem) << "\n";
   }
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
-    if (me==master)
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase2Msg.Recv\n");
-    LC_PrintRecvMsgs();
+    DDD_SyncAll(context);
+    if (context.isMaster())
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase2Msg.Recv\n";
+    LC_PrintRecvMsgs(context);
   }
 
   /* unpack messages */
   STAT_RESET;
-  UnpackPhase2Msgs(recvMsgs2, nRecvMsgs2, joinObjs, nJoinObjs,
-                   localCplObjs, NCpl_Get);
+  UnpackPhase2Msgs(context, recvMsgs2, nRecvMsgs2, joinObjs, nJoinObjs,
+                   localCplObjs.data(), nCpls);
 
-  LC_Cleanup();
+  LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
 
   for(; sendMsgs2!=NULL; sendMsgs2=sm2)
   {
     sm2 = sendMsgs2->next;
-    FreeTmp(sendMsgs2, 0);
+    delete sendMsgs2;
   }
 
 
@@ -1023,20 +1008,20 @@ DDD_RET DDD_JoinEnd (void)
           on which the JoinObj-commands have been issued.
    */
   /* get sorted array of JIAddCpl-items */
-  std::vector<JIAddCpl*> arrayJIAddCpl3 = JIAddCplSet_GetArray(joinGlobals.setJIAddCpl3);
+  std::vector<JIAddCpl*> arrayJIAddCpl3 = JIAddCplSet_GetArray(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
 
   STAT_RESET;
   /* prepare msgs for JIAddCpl-items */
-  PreparePhase3Msgs(arrayJIAddCpl3, &sendMsgs3, &sendMem);
+  PreparePhase3Msgs(context, arrayJIAddCpl3, &sendMsgs3, &sendMem);
   /* DisplayMemResources(); */
 
   /* init communication topology */
-  nRecvMsgs3 = LC_Connect(joinGlobals.phase3msg_t);
+  nRecvMsgs3 = LC_Connect(context, ctx.phase3msg_t);
   STAT_TIMER(T_JOIN_PREP_MSGS);
 
   STAT_RESET;
   /* build phase3 msgs on sender side and start send */
-  PackPhase3Msgs(sendMsgs3);
+  PackPhase3Msgs(context, sendMsgs3);
   STAT_TIMER(T_JOIN_PACK_SEND);
 
   /*
@@ -1049,23 +1034,23 @@ DDD_RET DDD_JoinEnd (void)
    */
 
   /* display information about send-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
-    if (me==master)
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Send\n");
-    LC_PrintSendMsgs();
+    DDD_SyncAll(context);
+    if (context.isMaster())
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase3Msg.Send\n";
+    LC_PrintSendMsgs(context);
   }
 
 
   /* wait for communication-completion (send AND receive) */
   STAT_RESET;
-  recvMsgs3 = LC_Communicate();
+  recvMsgs3 = LC_Communicate(context);
   STAT_TIMER(T_JOIN_WAIT_RECV);
 
 
   /* display information about message buffer sizes */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MEMUSAGE)
   {
     int k;
 
@@ -1075,32 +1060,33 @@ DDD_RET DDD_JoinEnd (void)
       recvMem += LC_GetBufferSize(recvMsgs3[k]);
     }
 
-    sprintf(cBuffer,
-            "DDD MESG [%03d]: SHOW_MEM "
-            "msgs  send=%010ld recv=%010ld all=%010ld\n",
-            me, (long)sendMem, (long)recvMem, (long)(sendMem+recvMem));
-    DDD_PrintLine(cBuffer);
+    using std::setw;
+    Dune::dwarn
+      << "DDD MESG [" << setw(3) << context.me() << "]: SHOW_MEM msgs "
+      << " send=" << setw(10) << sendMem
+      << " recv=" << setw(10) << recvMem
+      << " all=" << setw(10) << (sendMem+recvMem) << "\n";
   }
 
   /* display information about recv-messages on lowcomm-level */
-  if (DDD_GetOption(OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
+  if (DDD_GetOption(context, OPT_INFO_JOIN) & JOIN_SHOW_MSGSALL)
   {
-    DDD_SyncAll();
-    if (me==master)
-      DDD_PrintLine("DDD JOIN_SHOW_MSGSALL: Phase3Msg.Recv\n");
-    LC_PrintRecvMsgs();
+    DDD_SyncAll(context);
+    if (context.isMaster())
+      Dune::dwarn << "DDD JOIN_SHOW_MSGSALL: Phase3Msg.Recv\n";
+    LC_PrintRecvMsgs(context);
   }
 
   /* unpack messages */
   STAT_RESET;
-  UnpackPhase3Msgs(recvMsgs3, nRecvMsgs3, arrayJIJoin);
-  LC_Cleanup();
+  UnpackPhase3Msgs(context, recvMsgs3, nRecvMsgs3, arrayJIJoin);
+  LC_Cleanup(context);
   STAT_TIMER(T_JOIN_UNPACK);
 
   for(; sendMsgs3!=NULL; sendMsgs3=sm3)
   {
     sm3 = sendMsgs3->next;
-    FreeTmp(sendMsgs3, 0);
+    delete sendMsgs3;
   }
 
 
@@ -1111,42 +1097,34 @@ DDD_RET DDD_JoinEnd (void)
   /*
           free temporary storage
    */
-  JIJoinSet_Reset(joinGlobals.setJIJoin);
+  JIJoinSet_Reset(reinterpret_cast<JIJoinSet*>(ctx.setJIJoin));
 
-  JIAddCplSet_Reset(joinGlobals.setJIAddCpl2);
+  JIAddCplSet_Reset(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl2));
 
-  JIAddCplSet_Reset(joinGlobals.setJIAddCpl3);
+  JIAddCplSet_Reset(reinterpret_cast<JIAddCplSet*>(ctx.setJIAddCpl3));
 
-  if (localCplObjs!=NULL) FreeTmp(localCplObjs, 0);
-
-  if (joinObjs!=NULL) FreeTmp(joinObjs, 0);
+  if (joinObjs!=NULL)
+    delete[] joinObjs;
 
   for(; sendMsgs1!=NULL; sendMsgs1=sm1)
   {
     sm1 = sendMsgs1->next;
-    FreeTmp(sendMsgs1, 0);
+    delete sendMsgs1;
   }
 
 
 
-        #ifdef JoinMemFromHeap
-  ReleaseHeap();
-  LC_SetMemMgr(memmgr_AllocTMEM, memmgr_FreeTMEM,
-               memmgr_AllocTMEM, memmgr_FreeTMEM);
-        #endif
-
 #       if DebugJoin<=4
-  sprintf(cBuffer,"%4d: JoinEnd, before IFAllFromScratch().\n", me);
-  DDD_PrintDebug(cBuffer);
+  Dune::dverb << "JoinEnd, before IFAllFromScratch().\n";
 #       endif
 
   /* re-create all interfaces and step JMODE */
   STAT_RESET;
-  IFAllFromScratch();
+  IFAllFromScratch(context);
   STAT_TIMER(T_JOIN_BUILD_IF);
 
 
-  JoinStepMode(JMODE_BUSY);
+  JoinStepMode(context, JoinMode::JMODE_BUSY);
 
   return(DDD_RET_OK);
 }
@@ -1171,53 +1149,41 @@ DDD_RET DDD_JoinEnd (void)
 
 
 
-void DDD_JoinObj (DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
+void DDD_JoinObj(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
 {
-  JIJoin *ji;
+  auto& ctx = context.joinContext();
+  const auto procs = context.procs();
 
-  if (!ddd_JoinActive())
-  {
-    DDD_PrintError('E', 7012, "Missing DDD_JoinBegin(). aborted");
-    HARD_EXIT;
-  }
+  if (!ddd_JoinActive(context))
+    DUNE_THROW(Dune::Exception, "Missing DDD_JoinBegin()");
 
   if (dest>=procs)
-  {
-    sprintf(cBuffer, "cannot join " OBJ_GID_FMT " with " DDD_GID_FMT " on processor %d (procs=%d)",
-            OBJ_GID(hdr), new_gid, dest, procs);
-    DDD_PrintError('E', 7003, cBuffer);
-    HARD_EXIT;
-  }
+    DUNE_THROW(Dune::Exception,
+               "cannot join " << OBJ_GID(hdr) << " with " << new_gid
+               << " on processor " << dest << " (procs=" << procs << ")");
 
-  if (dest==me)
-  {
-    sprintf(cBuffer, "cannot join " OBJ_GID_FMT " with myself", OBJ_GID(hdr));
-    DDD_PrintError('E', 7004, cBuffer);
-    HARD_EXIT;
-  }
+  if (dest==context.me())
+    DUNE_THROW(Dune::Exception,
+               "cannot join " << OBJ_GID(hdr) << " with myself");
 
-  if (ObjHasCpl(hdr))
-  {
-    sprintf(cBuffer, "cannot join " OBJ_GID_FMT ", object already distributed",
-            OBJ_GID(hdr));
-    DDD_PrintError('E', 7005, cBuffer);
-    HARD_EXIT;
-  }
+  if (ObjHasCpl(context, hdr))
+    DUNE_THROW(Dune::Exception,
+               "cannot join " << OBJ_GID(hdr)
+               << ", object already distributed");
 
 
 
-  ji = JIJoinSet_NewItem(joinGlobals.setJIJoin);
+  JIJoin* ji = JIJoinSet_NewItem(reinterpret_cast<JIJoinSet*>(ctx.setJIJoin));
   ji->hdr     = hdr;
   ji->dest    = dest;
   ji->new_gid = new_gid;
 
-  if (! JIJoinSet_ItemOK(joinGlobals.setJIJoin))
+  if (! JIJoinSet_ItemOK(reinterpret_cast<JIJoinSet*>(ctx.setJIJoin)))
     return;
 
 #       if DebugJoin<=2
-  sprintf(cBuffer, "%4d: DDD_JoinObj " OBJ_GID_FMT ", dest=%d, new_gid=" DDD_GID_FMT "\n",
-          me, OBJ_GID(hdr), dest, new_gid);
-  DDD_PrintDebug(cBuffer);
+  Dune:dvverb << "DDD_JoinObj " << OBJ_GID(hdr)
+              << ", dest=" << dest << ", new_gid=" << new_gid << "\n";
 #       endif
 }
 
@@ -1238,18 +1204,11 @@ void DDD_JoinObj (DDD_HDR hdr, DDD_PROC dest, DDD_GID new_gid)
         is carried out via a \funk{JoinEnd} call on each processor.
  */
 
-void DDD_JoinBegin (void)
+void DDD_JoinBegin(DDD::DDDContext& context)
 {
   /* step mode and check whether call to JoinBegin is valid */
-  if (!JoinStepMode(JMODE_IDLE))
-  {
-    DDD_PrintError('E', 7010, "DDD_JoinBegin() aborted");
-    HARD_EXIT;
-  }
-
-
-  /* set kind of TMEM alloc/free requests */
-  join_SetTmpMem(TMEM_JOIN);
+  if (!JoinStepMode(context, JoinMode::JMODE_IDLE))
+    DUNE_THROW(Dune::Exception, "DDD_JoinBegin() aborted");
 }
 
 
