@@ -34,6 +34,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <forward_list>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -63,23 +64,25 @@ struct CPLMSG
 {
   DDD_PROC proc;
 
-  CPLMSG *next;
+  XIDelCpl  **xferDelCpl = nullptr;
+  int nDelCpl = 0;
 
+  XIModCpl  **xferModCpl = nullptr;
+  int nModCpl = 0;
 
-  XIDelCpl  **xferDelCpl;
-  int nDelCpl;
-
-  XIModCpl  **xferModCpl;
-  int nModCpl;
-
-  XIAddCpl  **xferAddCpl;
-  int nAddCpl;
+  XIAddCpl  **xferAddCpl = nullptr;
+  int nAddCpl = 0;
 
 
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
+
+  CPLMSG(DDD_PROC dest)
+    : proc(dest)
+    {}
 };
 
+using CplmsgList = std::forward_list<CPLMSG>;
 
 /****************************************************************************/
 /*                                                                          */
@@ -105,39 +108,15 @@ void CplMsgExit(DDD::DDDContext&)
 
 /****************************************************************************/
 
-static CPLMSG *CreateCplMsg (DDD_PROC dest, CPLMSG *lastxm)
-{
-  CPLMSG *xm;
-
-  xm = (CPLMSG *) AllocTmpReq(sizeof(CPLMSG), TMEM_XFER);
-  if (xm==NULL)
-    throw std::bad_alloc();
-
-  xm->nDelCpl    = 0;
-  xm->xferDelCpl = NULL;
-  xm->nModCpl    = 0;
-  xm->xferModCpl = NULL;
-  xm->nAddCpl    = 0;
-  xm->xferAddCpl = NULL;
-  xm->proc = dest;
-  xm->next = lastxm;
-
-  return(xm);
-}
-
-
-static int PrepareCplMsgs (
+static
+std::pair<int, CplmsgList>
+PrepareCplMsgs (
   DDD::DDDContext& context,
   XIDelCpl **itemsDC, int nDC,
   XIModCpl **itemsMC, int nMC,
-  XIAddCpl **itemsAC, int nAC,
-  CPLMSG **theMsgs)
+  XIAddCpl **itemsAC, int nAC)
 {
   auto& ctx = context.cplmsgContext();
-
-  CPLMSG    *xm=NULL;
-  int iDC, iMC, iAC, nMsgs=0;
-
   const auto procs = context.procs();
 
 #       if DebugCplMsg<=3
@@ -145,6 +124,16 @@ static int PrepareCplMsgs (
               << " nXIAddCpl=" << nAC << "\n";
 #       endif
 
+  CplmsgList msgs;
+  int nMsgs = 0;
+
+  auto msgForProc = [&](DDD_PROC dest) -> CPLMSG& {
+    if (msgs.empty() or msgs.front().proc != dest) {
+      msgs.emplace_front(dest);
+      ++nMsgs;
+    }
+    return msgs.front();
+  };
 
   /*
           run through all tables simultaneously,
@@ -154,7 +143,7 @@ static int PrepareCplMsgs (
           (the lists have been sorted according to proc-nr previously.)
    */
 
-  iDC=0; iMC=0; iAC=0;
+  int iDC=0, iMC=0, iAC=0;
   while (iDC<nDC || iMC<nMC || iAC<nAC)
   {
     DDD_PROC pDC = (iDC<nDC) ? itemsDC[iDC]->to   : procs;
@@ -166,17 +155,12 @@ static int PrepareCplMsgs (
     {
       int i;
 
-      if (xm==NULL || xm->proc!=pDC)
-      {
-        xm = CreateCplMsg(pDC, xm);
-        nMsgs++;
-      }
-
-      xm->xferDelCpl = itemsDC+iDC;
+      CPLMSG& xm = msgForProc(pDC);
+      xm.xferDelCpl = itemsDC+iDC;
       for(i=iDC; i<nDC && itemsDC[i]->to==pDC; i++)
         ;
 
-      xm->nDelCpl = i-iDC;
+      xm.nDelCpl = i-iDC;
       iDC = i;
     }
 
@@ -185,17 +169,12 @@ static int PrepareCplMsgs (
     {
       int i;
 
-      if (xm==NULL || xm->proc!=pMC)
-      {
-        xm = CreateCplMsg(pMC, xm);
-        nMsgs++;
-      }
-
-      xm->xferModCpl = itemsMC+iMC;
+      CPLMSG& xm = msgForProc(pMC);
+      xm.xferModCpl = itemsMC+iMC;
       for(i=iMC; i<nMC && itemsMC[i]->to==pMC; i++)
         ;
 
-      xm->nModCpl = i-iMC;
+      xm.nModCpl = i-iMC;
       iMC = i;
     }
 
@@ -204,17 +183,12 @@ static int PrepareCplMsgs (
     {
       int i;
 
-      if (xm==NULL || xm->proc!=pAC)
-      {
-        xm = CreateCplMsg(pAC, xm);
-        nMsgs++;
-      }
-
-      xm->xferAddCpl = itemsAC+iAC;
+      CPLMSG& xm = msgForProc(pAC);
+      xm.xferAddCpl = itemsAC+iAC;
       for(i=iAC; i<nAC && itemsAC[i]->to==pAC; i++)
         ;
 
-      xm->nAddCpl = i-iAC;
+      xm.nAddCpl = i-iAC;
       iAC = i;
     }
 
@@ -222,69 +196,64 @@ static int PrepareCplMsgs (
     if (pMC==procs) iMC = nMC;
     if (pAC==procs) iAC = nAC;
   }
-  *theMsgs = xm;
-
 
 
   /* initiate send messages */
-  for(xm=*theMsgs; xm!=NULL; xm=xm->next)
+  for(auto& xm : msgs)
   {
     /* create new send message */
-    xm->msg_h = LC_NewSendMsg(context, ctx.cplmsg_t, xm->proc);
+    xm.msg_h = LC_NewSendMsg(context, ctx.cplmsg_t, xm.proc);
 
     /* init tables inside message */
-    LC_SetTableSize(xm->msg_h, ctx.delcpl_id, xm->nDelCpl);
-    LC_SetTableSize(xm->msg_h, ctx.modcpl_id, xm->nModCpl);
-    LC_SetTableSize(xm->msg_h, ctx.addcpl_id, xm->nAddCpl);
+    LC_SetTableSize(xm.msg_h, ctx.delcpl_id, xm.nDelCpl);
+    LC_SetTableSize(xm.msg_h, ctx.modcpl_id, xm.nModCpl);
+    LC_SetTableSize(xm.msg_h, ctx.addcpl_id, xm.nAddCpl);
 
     /* prepare message for sending away */
-    LC_MsgPrepareSend(context, xm->msg_h);
+    LC_MsgPrepareSend(context, xm.msg_h);
   }
 
-  return(nMsgs);
+  return {nMsgs, std::move(msgs)};
 }
 
 
-static void CplMsgSend(DDD::DDDContext& context, CPLMSG *theMsgs)
+static void CplMsgSend(DDD::DDDContext& context, const CplmsgList& msgs)
 {
   auto& ctx = context.cplmsgContext();
 
-  CPLMSG *m;
-
-  for(m=theMsgs; m!=NULL; m=m->next)
+  for(const auto& msg : msgs)
   {
-    int i;
-    TEDelCpl *arrayDC = (TEDelCpl *)LC_GetPtr(m->msg_h, ctx.delcpl_id);
-    TEModCpl *arrayMC = (TEModCpl *)LC_GetPtr(m->msg_h, ctx.modcpl_id);
-    TEAddCpl *arrayAC = (TEAddCpl *)LC_GetPtr(m->msg_h, ctx.addcpl_id);
+    TEDelCpl *arrayDC = (TEDelCpl *)LC_GetPtr(msg.msg_h, ctx.delcpl_id);
+    TEModCpl *arrayMC = (TEModCpl *)LC_GetPtr(msg.msg_h, ctx.modcpl_id);
+    TEAddCpl *arrayAC = (TEAddCpl *)LC_GetPtr(msg.msg_h, ctx.addcpl_id);
 
     /* copy data into message */
-    for(i=0; i<m->nDelCpl; i++)
+    for(int i=0; i < msg.nDelCpl; i++)
     {
-      arrayDC[i] = m->xferDelCpl[i]->te;
+      arrayDC[i] = msg.xferDelCpl[i]->te;
     }
-    for(i=0; i<m->nModCpl; i++)
+    for(int i=0; i < msg.nModCpl; i++)
     {
-      arrayMC[i] = m->xferModCpl[i]->te;
+      arrayMC[i] = msg.xferModCpl[i]->te;
 
 #                       ifdef SLL_DebugNew
       {
-        XIModCpl *mc = m->xferModCpl[i];
+        XIModCpl *mc = msg.xferModCpl[i];
 
         Dune::dwarn
-          << "send modcpl to " << m->proc << " (" << mc->te.gid
+          << "send modcpl to " << msg.proc << " (" << mc->te.gid
           << ", " << mc->te.prio << ")  "
           << mc->sll_file << ":" << mc->sll_line << "\n";
       }
 #                       endif
     }
-    for(i=0; i<m->nAddCpl; i++)
+    for(int i=0; i < msg.nAddCpl; i++)
     {
-      arrayAC[i] = m->xferAddCpl[i]->te;
+      arrayAC[i] = msg.xferAddCpl[i]->te;
     }
 
     /* schedule message for send */
-    LC_MsgSend(context, m->msg_h);
+    LC_MsgSend(context, msg.msg_h);
   }
 }
 
@@ -418,20 +387,16 @@ void CommunicateCplMsgs (
 {
   auto& ctx = context.cplmsgContext();
 
-  CPLMSG    *sendMsgs, *sm=0;
-  LC_MSGHANDLE *recvMsgs;
-  int i, nSendMsgs, nRecvMsgs;
-
-
   /* accumulate messages (one for each partner) */
-  nSendMsgs = PrepareCplMsgs(context,
-                             itemsDC, nDC,
-                             itemsMC, nMC,
-                             itemsAC, nAC,
-                             &sendMsgs);
+  CplmsgList sendMsgs;
+  int nSendMsgs;
+  std::tie(nSendMsgs, sendMsgs) = PrepareCplMsgs(context,
+                                                 itemsDC, nDC,
+                                                 itemsMC, nMC,
+                                                 itemsAC, nAC);
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(context, ctx.cplmsg_t);
+  int nRecvMsgs = LC_Connect(context, ctx.cplmsg_t);
 
   /* build and send messages */
   CplMsgSend(context, sendMsgs);
@@ -441,10 +406,8 @@ void CommunicateCplMsgs (
   if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
   {
-    for(sm=sendMsgs; sm!=NULL; sm=sm->next)
-    {
-      CplMsgDisplay(context, "CS", sm->msg_h);
-    }
+    for (const auto& msg : sendMsgs)
+      CplMsgDisplay(context, "CS", msg.msg_h);
   }
 
 
@@ -459,7 +422,7 @@ void CommunicateCplMsgs (
 
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate(context);
+  LC_MSGHANDLE* recvMsgs = LC_Communicate(context);
 
 
   /* display information about recv-messages on lowcomm-level */
@@ -472,7 +435,7 @@ void CommunicateCplMsgs (
   }
 
 
-  for(i=0; i<nRecvMsgs; i++)
+  for(int i=0; i<nRecvMsgs; i++)
   {
     CplMsgUnpackSingle(context, recvMsgs[i], localCplObjs, nLCO);
 
@@ -485,15 +448,6 @@ void CommunicateCplMsgs (
 
   /* cleanup low-comm layer */
   LC_Cleanup(context);
-
-
-
-  /* free temporary memory */
-  for(; sendMsgs!=NULL; sendMsgs=sm)
-  {
-    sm = sendMsgs->next;
-    FreeTmpReq (sendMsgs,sizeof(CPLMSG), TMEM_XFER);
-  }
 }
 
 
