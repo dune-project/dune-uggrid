@@ -300,7 +300,7 @@ static void DisplayMemResources(const DDD::DDDContext& context)
                             &nSegms, &nItems, &nNodes, &memAllocated, &memUsed);
   if (nSegms>0) {
     printf("XferEnd, XICopyObj "
-           "segms=%d items=%d nodes=%ld allocated=%ld used=%ld\n",
+           "segms=%d items=%d nodes=%d allocated=%ld used=%ld\n",
            nSegms, nItems, nNodes, (long)memAllocated, (long)memUsed);
   }
 
@@ -325,7 +325,7 @@ static void DisplayMemResources(const DDD::DDDContext& context)
                             &nSegms, &nItems, &nNodes, &memAllocated, &memUsed);
   if (nSegms>0) {
     printf("XferEnd, XISetPrio "
-           "segms=%d items=%d nodes=%ld allocated=%ld used=%ld\n",
+           "segms=%d items=%d nodes=%d allocated=%ld used=%ld\n",
            nSegms, nItems, nNodes, (long)memAllocated, (long)memUsed);
   }
 
