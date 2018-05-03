@@ -114,7 +114,7 @@ PrepareCmdMsgs (DDD::DDDContext& context, const std::vector<XICopyObj*>& arrayCO
   auto& ctx = context.cmdmsgContext();
 
   if (arrayCO.empty())
-    return {0, {}};
+    return {0, CmdmsgList()};
 
 #       if DebugCmdMsg<=3
   Dune::dvverb << "PreparePrune, nCopyObj=" << arrayCO.size() << "\n";
@@ -152,7 +152,7 @@ PrepareCmdMsgs (DDD::DDDContext& context, const std::vector<XICopyObj*>& arrayCO
 
 
   if (markedCO==0)
-    return {0, {}};
+    return {0, CmdmsgList()};
 
   std::vector<DDD_GID> gids(markedCO);
   CmdmsgList msgs;
