@@ -45,6 +45,7 @@
 #include "ugm.h"
 #include "refine.h"
 #include "algebra.h"
+#include "domain.h"
 #include "debug.h"
 #include <dev/ugdevices.h>
 #include "mgheapmgr.h"
@@ -806,6 +807,8 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 
 #ifdef __OVERLAP2__
   NODE *node;
+
+  Set_Current_BVP(theMG->theBVP);
 
   ASSERT(AllocateControlEntry(NODE_CW,NO_DELETE_OVERLAP2_LEN,&ce_NO_DELETE_OVERLAP2) == GM_OK);
   for (g=0; g<=TOPLEVEL(theMG); g++)
