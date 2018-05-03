@@ -32,14 +32,6 @@
 
 /****************************************************************************/
 
-/* configure debugging of New(T) calls.
-   NOTE: this will add additional data to each sll-item!! */
-/*
-   #define SLL_DebugNew
- */
-
-
-
 /* size of segments for memory allocation */
 #define SEGM_SIZE  256
 
