@@ -2077,7 +2077,7 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
   VECTOR *vList[20];
   INT i,cnt;
 
-#ifdef ModelP
+#if defined(ModelP) and defined(__THREEDIM__)
   auto& dddContext = theGrid->dddContext();
 #endif
 
@@ -2088,12 +2088,10 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
   if (theGrid == NULL)
     return (0);
 
-    #ifdef ModelP
-        #ifdef __THREEDIM__
+#if defined(ModelP) and defined(__THREEDIM__)
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
     DDD_XferBegin(dddContext);
-        #endif
-        #endif
+#endif
 
   /* set EBUILDCON-flags also in elements accessing a vector with VBUILDCON true */
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
@@ -2111,11 +2109,9 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
         if (EDVECTOR(ed) == NULL) {
           CreateVector(theGrid,EDGEVEC,(GEOM_OBJECT *)ed,vList);
           EDVECTOR(ed) = vList[0];
-                    #ifdef ModelP
-                        #ifdef __THREEDIM__
+#if defined(ModelP) and defined(__THREEDIM__)
           SETPRIO(dddContext, EDVECTOR(ed),PRIO(ed));
-                    #endif
-                        #endif
+#endif
         }
       }
     }
@@ -2152,12 +2148,10 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
     }
   }
 
-    #ifdef ModelP
-        #ifdef __THREEDIM__
+#if defined(ModelP) and defined(__THREEDIM__)
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
     DDD_XferEnd(theGrid->dddContext());
-        #endif
-        #endif
+#endif
 
   /* run over all elements with EBUILDCON true and build connections */
   for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
