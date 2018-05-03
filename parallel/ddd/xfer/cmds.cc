@@ -343,7 +343,7 @@ static void DisplayMemResources(const DDD::DDDContext& context)
   SLL_GET_SIZES(XIDelCpl);
   SLL_GET_SIZES(XIModCpl);
   SLL_GET_SIZES(XIAddCpl);
-#undef SLL_GET_SIZES(T)
+#undef SLL_GET_SIZES
 }
 
 
