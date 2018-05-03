@@ -365,7 +365,6 @@ static void CplMsgDisplay (DDD::DDDContext& context, const char *comment, LC_MSG
   TEDelCpl     *theDelCpl;
   TEModCpl     *theModCpl;
   TEAddCpl     *theAddCpl;
-  char buf[30];
   int i, proc = LC_MsgGetProc(xm);
   int lenDelCpl = (int) LC_GetTableLen(xm, ctx.delcpl_id);
   int lenModCpl = (int) LC_GetTableLen(xm, ctx.modcpl_id);

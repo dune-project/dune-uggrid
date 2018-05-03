@@ -300,7 +300,7 @@ static void DisplayMemResources(const DDD::DDDContext& context)
                             &nSegms, &nItems, &nNodes, &memAllocated, &memUsed);
   if (nSegms>0) {
     printf("XferEnd, XICopyObj "
-           "segms=%d items=%d nodes=%ld allocated=%ld used=%ld\n",
+           "segms=%d items=%d nodes=%d allocated=%ld used=%ld\n",
            nSegms, nItems, nNodes, (long)memAllocated, (long)memUsed);
   }
 
@@ -325,7 +325,7 @@ static void DisplayMemResources(const DDD::DDDContext& context)
                             &nSegms, &nItems, &nNodes, &memAllocated, &memUsed);
   if (nSegms>0) {
     printf("XferEnd, XISetPrio "
-           "segms=%d items=%d nodes=%ld allocated=%ld used=%ld\n",
+           "segms=%d items=%d nodes=%d allocated=%ld used=%ld\n",
            nSegms, nItems, nNodes, (long)memAllocated, (long)memUsed);
   }
 
@@ -343,7 +343,7 @@ static void DisplayMemResources(const DDD::DDDContext& context)
   SLL_GET_SIZES(XIDelCpl);
   SLL_GET_SIZES(XIModCpl);
   SLL_GET_SIZES(XIAddCpl);
-#undef SLL_GET_SIZES(T)
+#undef SLL_GET_SIZES
 }
 
 
@@ -1157,7 +1157,6 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
 {
   auto& ctx = context.xferContext();
   XFERADDDATA *xa;
-  TYPE_DESC   *descDepTyp;
   int i;
 
 #       if DebugXfer<=2

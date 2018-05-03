@@ -40,6 +40,7 @@
 #include <cassert>
 
 #include <algorithm>
+#include <forward_list>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -69,15 +70,18 @@ struct CMDMSG
 {
   DDD_PROC proc;
 
-  CMDMSG *next;
-
-
-  DDD_GID   *aUnDelete;
-  int nUnDelete;
+  DDD_GID   *aUnDelete = nullptr;
+  int nUnDelete = 0;
 
   /* lowcomm message handle */
   LC_MSGHANDLE msg_h;
+
+  CMDMSG(DDD_PROC dest)
+    : proc(dest)
+    {}
 };
+
+using CmdmsgList = std::forward_list<CMDMSG>;
 
 
 /****************************************************************************/
@@ -103,42 +107,17 @@ void CmdMsgExit(DDD::DDDContext& context)
 
 /****************************************************************************/
 
-static CMDMSG *CreateCmdMsg (DDD_PROC dest, CMDMSG *lastxm)
-{
-  CMDMSG *xm;
-
-  xm = (CMDMSG *) AllocTmp(sizeof(CMDMSG));
-  if (xm==NULL)
-    throw std::bad_alloc();
-
-  xm->aUnDelete = NULL;
-  xm->nUnDelete = 0;
-  xm->proc = dest;
-  xm->next = lastxm;
-
-  return(xm);
-}
-
-
-
-static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nCO, CMDMSG **theMsgs)
+static
+std::pair<int, CmdmsgList>
+PrepareCmdMsgs (DDD::DDDContext& context, const std::vector<XICopyObj*>& arrayCO)
 {
   auto& ctx = context.cmdmsgContext();
 
-  CMDMSG    *xm=NULL;
-  int j, iCO, markedCO, nMsgs=0;
-  DDD_GID   *gids;
-
-
-  /* set output value in case of early exit */
-  *theMsgs = NULL;
-
-
-  if (nCO==0)
-    return(0);
+  if (arrayCO.empty())
+    return {0, CmdmsgList()};
 
 #       if DebugCmdMsg<=3
-  Dune::dvverb << "PreparePrune, nCopyObj=" << nCO << "\n";
+  Dune::dvverb << "PreparePrune, nCopyObj=" << arrayCO.size() << "\n";
 #       endif
 
 
@@ -147,10 +126,9 @@ static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nC
           a coupling with same proc as destination.
    */
 
-  markedCO = 0;
-  for(iCO=0; iCO<nCO; iCO++)
+  int markedCO = 0;
+  for(auto co : arrayCO)
   {
-    XICopyObj *co = itemsCO[iCO];
     DDD_PROC pCO = co->dest;
     COUPLING *cpl;
 
@@ -174,13 +152,11 @@ static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nC
 
 
   if (markedCO==0)
-    return(0);
+    return {0, CmdmsgList()};
 
-
-  gids = (DDD_GID *) AllocTmp(sizeof(DDD_GID) * markedCO);
-  if (gids==NULL)
-    throw std::bad_alloc();
-
+  std::vector<DDD_GID> gids(markedCO);
+  CmdmsgList msgs;
+  int nMsgs = 0;
 
   /*
           run through CopyObj table again, consider only marked items,
@@ -189,65 +165,53 @@ static int PrepareCmdMsgs (DDD::DDDContext& context, XICopyObj **itemsCO, int nC
 
           (the lists have been sorted according to proc-nr previously.)
    */
-  j=0;
-  for(iCO=0; iCO<nCO; iCO++)
+  int j=0;
+  for(auto co : arrayCO)
   {
-    XICopyObj *co = itemsCO[iCO];
-
     if (CO_SELF(co))
     {
       gids[j] = co->gid;
 
-      if ((xm==NULL) || (xm->proc!=co->dest))
+      if (msgs.empty() or msgs.front().proc != co->dest)
       {
-        xm = CreateCmdMsg(co->dest, xm);
+        msgs.emplace_front(co->dest);
         nMsgs++;
 
-
-        xm->aUnDelete = gids+j;
+        msgs.front().aUnDelete = &gids[j];
       }
 
-      xm->nUnDelete++;
+      msgs.front().nUnDelete++;
       j++;
     }
   }
-  *theMsgs = xm;
-
 
   /* initiate send messages */
-  for(xm=*theMsgs; xm!=NULL; xm=xm->next)
+  for(auto& xm : msgs)
   {
-    DDD_GID *array;
-
     /* create new send message */
-    xm->msg_h = LC_NewSendMsg(context, ctx.cmdmsg_t, xm->proc);
+    xm.msg_h = LC_NewSendMsg(context, ctx.cmdmsg_t, xm.proc);
 
     /* init tables inside message */
-    LC_SetTableSize(xm->msg_h, ctx.undelete_id, xm->nUnDelete);
+    LC_SetTableSize(xm.msg_h, ctx.undelete_id, xm.nUnDelete);
 
     /* prepare message for sending away */
-    LC_MsgPrepareSend(context, xm->msg_h);
+    LC_MsgPrepareSend(context, xm.msg_h);
 
-    array = (DDD_GID *)LC_GetPtr(xm->msg_h, ctx.undelete_id);
+    DDD_GID* array = (DDD_GID *)LC_GetPtr(xm.msg_h, ctx.undelete_id);
     memcpy((char *)array,
-           (char *)xm->aUnDelete,
-           sizeof(DDD_GID)*xm->nUnDelete);
+           (char *)xm.aUnDelete,
+           sizeof(DDD_GID)*xm.nUnDelete);
   }
 
-  FreeTmp(gids,0);
-
-  return(nMsgs);
+  return {nMsgs, std::move(msgs)};
 }
 
 
-static void CmdMsgSend(DDD::DDDContext& context, CMDMSG *theMsgs)
+static void CmdMsgSend(DDD::DDDContext& context, const CmdmsgList& msgs)
 {
-  CMDMSG *m;
-
-  for(m=theMsgs; m!=NULL; m=m->next)
-  {
+  for(const auto& msg : msgs) {
     /* schedule message for send */
-    LC_MsgSend(context, m->msg_h);
+    LC_MsgSend(context, msg.msg_h);
   }
 }
 
@@ -387,7 +351,6 @@ static void CmdMsgDisplay(DDD::DDDContext& context, const char *comment, LC_MSGH
   std::ostream& out = std::cout;
 
   DDD_GID      *theGid;
-  char buf[30];
   int proc = LC_MsgGetProc(xm);
   int lenGid = (int) LC_GetTableLen(xm, ctx.undelete_id);
 
@@ -425,42 +388,34 @@ static void CmdMsgDisplay(DDD::DDDContext& context, const char *comment, LC_MSGH
 int PruneXIDelCmd (
   DDD::DDDContext& context,
   XIDelCmd  **itemsDC, int nDC,
-  std::vector<XICopyObj*>& arrayCO)
+  const std::vector<XICopyObj*>& arrayCO)
 {
   auto& ctx = context.cmdmsgContext();
 
-  CMDMSG    *sendMsgs, *sm=0;
-  LC_MSGHANDLE *recvMsgs;
-  int nSendMsgs, nRecvMsgs;
-  int nPruned;
-
-  XICopyObj** itemsCO = arrayCO.data();
-  const int nCO = arrayCO.size();
-
   /* accumulate messages (one for each partner) */
-  nSendMsgs = PrepareCmdMsgs(context, itemsCO, nCO, &sendMsgs);
+  int nSendMsgs;
+  CmdmsgList sendMsgs;
+  std::tie(nSendMsgs, sendMsgs) = PrepareCmdMsgs(context, arrayCO);
 
 #if DebugCmdMsg>2
   if (DDD_GetOption(context, OPT_DEBUG_XFERMESGS)==OPT_ON)
 #endif
   {
-    for(sm=sendMsgs; sm!=NULL; sm=sm->next)
-    {
-      CmdMsgDisplay(context, "PS", sm->msg_h);
-    }
+    for (const auto& msg : sendMsgs)
+      CmdMsgDisplay(context, "PS", msg.msg_h);
   }
 
   /* init communication topology */
-  nRecvMsgs = LC_Connect(context, ctx.cmdmsg_t);
+  int nRecvMsgs = LC_Connect(context, ctx.cmdmsg_t);
 
   /* build and send messages */
   CmdMsgSend(context, sendMsgs);
 
   /* communicate set of messages (send AND receive) */
-  recvMsgs = LC_Communicate(context);
+  LC_MSGHANDLE* recvMsgs = LC_Communicate(context);
 
 
-  nPruned = CmdMsgUnpack(context, recvMsgs, nRecvMsgs, itemsDC, nDC);
+  int nPruned = CmdMsgUnpack(context, recvMsgs, nRecvMsgs, itemsDC, nDC);
 
 
   /*
@@ -476,14 +431,6 @@ int PruneXIDelCmd (
 
   /* cleanup low-comm layer */
   LC_Cleanup(context);
-
-
-  /* free temporary memory */
-  for(; sendMsgs!=NULL; sendMsgs=sm)
-  {
-    sm = sendMsgs->next;
-    FreeTmp(sendMsgs,0);
-  }
 
   return(nPruned);
 }

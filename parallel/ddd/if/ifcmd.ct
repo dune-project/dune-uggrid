@@ -196,8 +196,6 @@ void IF_FUNCNAME (
 	using std::setw;
 
 	NS_DIM_PREFIX IF_PROC		  *ifHead;
-	unsigned long tries;
-	int           recv_mesgs;
 
 
 	/* prohibit using standard interface (IF0) */
@@ -280,7 +278,7 @@ void IF_FUNCNAME (
 
 
 	/* init communication, initiate receives */
-	recv_mesgs = NS_DIM_PREFIX IFInitComm(context, aIF);
+	int recv_mesgs = NS_DIM_PREFIX IFInitComm(context, aIF);
 
 
 	/* build messages using gather-handler and send them away */
@@ -330,6 +328,7 @@ void IF_FUNCNAME (
 
 
 	/* poll receives and scatter data */
+	unsigned long tries;
 	for(tries=0; tries<MAX_TRIES && recv_mesgs>0; tries++)
 	{
 		/* poll receive calls */

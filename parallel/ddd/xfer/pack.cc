@@ -101,13 +101,6 @@ static bool sort_SymTabEntries (const SYMTAB_ENTRY& a, const SYMTAB_ENTRY& b)
   return a.gid < b.gid;
 }
 
-static bool sort_MsgSize (const XFERMSG* a, const XFERMSG* b)
-{
-  /* sort with descending msg-size */
-  return LC_GetBufferSize(a->msg_h) > LC_GetBufferSize(b->msg_h);
-}
-
-
 /****************************************************************************/
 /*                                                                          */
 /* Function:  BuildSymTab                                                   */

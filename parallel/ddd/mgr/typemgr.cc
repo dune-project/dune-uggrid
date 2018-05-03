@@ -158,7 +158,6 @@ static int CheckBounds (TYPE_DESC *desc, ELEM_DESC *el, int argno)
 
 static int CheckOverlapEls (TYPE_DESC *desc)
 {
-  char buf[64];
   int i;
   int ok = true;
 
@@ -232,7 +231,6 @@ static int RecursiveRegister (DDD::DDDContext& context, TYPE_DESC *desc,
 {
   TYPE_DESC *d2 = &context.typeDefs()[typ];
   int j;
-  char       *errtxt;
 
   /* inherit elements of other ddd-type */
   for(j=0; j<d2->nElements && i < TYPE_DESC::MAX_ELEMDESC; j++, i++)
@@ -489,7 +487,6 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
   int argtyp, argno;
   DDD_TYPE argrefs;
   int i, nPtr;
-  char      *errtxt;
   va_list ap;
   char      *adr;
   char      *gbits;
