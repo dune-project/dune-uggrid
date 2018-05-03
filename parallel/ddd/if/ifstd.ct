@@ -92,8 +92,6 @@ void IF_FUNCNAME (
 
 	NS_DIM_PREFIX DDD_IF        aIF = NS_DIM_PREFIX STD_INTERFACE;
 	NS_DIM_PREFIX IF_PROC		  *ifHead;
-	unsigned long tries;
-	int           recv_mesgs;
 
 
 #ifdef IF_EXECLOCAL
@@ -115,7 +113,7 @@ void IF_FUNCNAME (
 	}
 
 	/* init communication, initiate receives */
-	recv_mesgs = NS_DIM_PREFIX IFInitComm(context, aIF);
+	int recv_mesgs = NS_DIM_PREFIX IFInitComm(context, aIF);
 
 
 	/* build messages using gather-handler and send them away */
@@ -132,6 +130,7 @@ void IF_FUNCNAME (
 
 
 	/* poll receives and scatter data */
+	unsigned long tries;
 	for(tries=0; tries<MAX_TRIES && recv_mesgs>0; tries++)
 	{
 		/* poll receive calls */
