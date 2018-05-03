@@ -1,4 +1,10 @@
-# dune-uggrid 2.6 (unreleased)
+# dune-uggrid 2.7 (unreleased)
+
+* Multiple grids are now also allowed in the parallel implementation [!96][]
+
+  [!96]: https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/96
+
+# dune-uggrid 2.6.0 (2018-04-03)
 
 * Transfer of element data during load balancing is supported.
   See [!55][] and [dune-grid!172][]
