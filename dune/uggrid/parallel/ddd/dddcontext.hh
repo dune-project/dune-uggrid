@@ -40,8 +40,8 @@ struct NotifyContext
 
 struct TopoContext
 {
-  PPIF::VChannelPtr* theTopology;
-  DDD_PROC* theProcArray;
+  std::vector<PPIF::VChannelPtr> theTopology;
+  std::vector<DDD_PROC> theProcArray;
 };
 
 } /* namespace Basic */
