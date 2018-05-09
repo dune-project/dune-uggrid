@@ -15,10 +15,11 @@ dune_add_library(ugL $<TARGET_OBJECTS:devices> $<TARGET_OBJECTS:low> ${_parallel
   SOURCES
   ../dune/uggrid/parallel/ddd/dddcontext.cc
   ../dune/uggrid/parallel/ppif/ppifcontext.cc
+  ADD_LIBS ${DUNE_LIBS}
   )
 ug_add_dim_libs(ugS APPEND DUNE SOURCES ../initug.cc
   OBJECT_DIM_LIBS ${_dim_libs} domS ${_parallel_dim_libs}
-  ADD_LIBS ugL
+  ADD_LIBS ugL ${DUNE_LIBS}
   )
 
 if(MPI_C_FOUND)
