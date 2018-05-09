@@ -181,6 +181,30 @@ struct TYPE_DESC
   std::unique_ptr<unsigned char[]> cmask;
 };
 
+namespace Basic {
+
+struct NOTIFY_DESC
+{
+  DDD_PROC proc;
+  size_t size;
+};
+
+enum class NotifyTypes : unsigned short
+{
+  MYSELF,
+  KNOWN,
+  DUMMY,
+  UNKNOWN
+};
+
+struct NOTIFY_INFO {
+  short from, to;                       /* source and destination processor */
+  NotifyTypes flag;                     /* one of NotifyTypes */
+  size_t size;                          /* message size */
+};
+
+} /* namespace Basic */
+
 namespace If {
 
 using IFObjPtr = DDD_OBJ;

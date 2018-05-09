@@ -71,47 +71,31 @@ void ddd_TopoInit(DDD::DDDContext& context)
   const auto procs = context.procs();
 
   /* get one channel pointer for each partner */
-  ctx.theTopology = (VChannelPtr *) AllocFix(procs*sizeof(VChannelPtr));
-  if (ctx.theTopology == nullptr)
-  {
-    DDD_PrintError('E', 1500, STR_NOMEM " in TopoInit");
-    return;
-  }
-
-  /* initialize channel topology */
-  for(int i=0; i<procs; i++)
-    ctx.theTopology[i] = nullptr;
-
+  ctx.theTopology.assign(procs, nullptr);
 
   /* get proc array with maxsize = 2 * number of procs */
-  ctx.theProcArray = (DDD_PROC *) AllocFix(2 * procs*sizeof(DDD_PROC));
-  if (ctx.theProcArray == nullptr)
-  {
-    DDD_PrintError('E', 1510, STR_NOMEM " in TopoInit");
-    return;
-  }
+  ctx.theProcArray.resize(2 * procs);
 }
 
 
 void ddd_TopoExit(DDD::DDDContext& context)
 {
   auto& ctx = context.topoContext();
-  const auto procs = context.procs();
 
-  FreeFix(ctx.theProcArray);
+  ctx.theProcArray.clear();
 
   /* disconnect channels */
-  for(int i=0; i<procs; i++)
+  for (const auto ch : ctx.theTopology)
   {
-    if (ctx.theTopology[i]!=NULL)
+    if (ch != nullptr)
     {
-      DiscASync(context.ppifContext(), ctx.theTopology[i]);
-      while (InfoADisc(context.ppifContext(), ctx.theTopology[i])!=1)
+      DiscASync(context.ppifContext(), ch);
+      while (InfoADisc(context.ppifContext(), ch)!=1)
         ;
     }
   }
 
-  FreeFix(ctx.theTopology);
+  ctx.theTopology.clear();
 }
 
 
@@ -120,7 +104,7 @@ void ddd_TopoExit(DDD::DDDContext& context)
 
 DDD_PROC* DDD_ProcArray(DDD::DDDContext& context)
 {
-  return context.topoContext().theProcArray;
+  return context.topoContext().theProcArray.data();
 }
 
 
