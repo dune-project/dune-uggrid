@@ -35,18 +35,6 @@
 #include "include/ddd.h"
 
 namespace DDD {
-namespace Basic {
-
-struct NOTIFY_DESC
-{
-  DDD_PROC proc;
-  size_t size;
-};
-
-} /* namespace Basic */
-} /* namespace DDD */
-
-namespace DDD {
 
 /****************************************************************************/
 /*                                                                          */

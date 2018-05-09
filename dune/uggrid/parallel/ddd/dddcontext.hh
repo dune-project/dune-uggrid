@@ -30,9 +30,9 @@ struct LowCommContext
 
 struct NotifyContext
 {
-  NOTIFY_INFO* allInfoBuffer;
-  NOTIFY_DESC* theDescs;
-  int* theRouting;
+  std::vector<NOTIFY_INFO> allInfoBuffer;
+  std::vector<NOTIFY_DESC> theDescs;
+  std::vector<int> theRouting;
   int maxInfos;
   int lastInfo;
   int nSendDescs;

@@ -54,27 +54,7 @@ using namespace PPIF;
 
 #define DebugNotify   10  /* 0 is all, 10 is off */
 
-/****************************************************************************/
-/*                                                                          */
-/* data structures                                                          */
-/*                                                                          */
-/****************************************************************************/
-
-namespace DDD {
-namespace Basic {
-
-enum NotifyTypes {MYSELF,KNOWN,DUMMY,UNKNOWN};
-
-struct NOTIFY_INFO {
-  short from, to;                       /* source and destination processor */
-  unsigned short flag;                  /* one of NotifyTypes */
-  size_t size;                          /* message size */
-};
-
 #define PROC_INVALID_TEMP   -1
-
-} /* namespace Basic */
-} /* namespace DDD */
 
 /****************************************************************************/
 /*                                                                          */
@@ -97,29 +77,15 @@ void NotifyInit(DDD::DDDContext& context)
   const auto procs = context.procs();
 
   /* allocate memory */
-  ctx.theRouting = (int *) AllocFix(procs*sizeof(int));
-  if (ctx.theRouting == nullptr)
-    throw std::bad_alloc();
-
+  ctx.theRouting.resize(procs);
 
   ctx.maxInfos = MAX_INFOS(procs);     /* TODO maximum value, just for testing */
 
-
   /* init local array for all Info records */
-  ctx.allInfoBuffer = (NOTIFY_INFO *) AllocFix(ctx.maxInfos*sizeof(NOTIFY_INFO));
-  if (ctx.allInfoBuffer == nullptr)
-    throw std::bad_alloc();
-
+  ctx.allInfoBuffer.resize(ctx.maxInfos);
 
   /* allocate array of NOTIFY_DESCs */
-  if (procs>1)
-  {
-    ctx.theDescs = (NOTIFY_DESC *) AllocTmp(sizeof(NOTIFY_DESC)*(procs-1));
-  }
-  else
-  {
-    ctx.theDescs = nullptr;
-  }
+  ctx.theDescs.resize(procs-1);
 }
 
 
@@ -128,13 +94,9 @@ void NotifyExit(DDD::DDDContext& context)
   auto& ctx = context.notifyContext();
 
   /* free memory */
-  FreeFix(ctx.theRouting);
-  FreeFix(ctx.allInfoBuffer);
-
-  if (ctx.theDescs != nullptr)
-  {
-    FreeTmp(ctx.theDescs,sizeof(NOTIFY_DESC)*(context.procs()-1));
-  }
+  ctx.theRouting.clear();
+  ctx.allInfoBuffer.clear();
+  ctx.theDescs.clear();
 }
 
 
@@ -162,7 +124,7 @@ NOTIFY_INFO *NotifyPrepare (DDD::DDDContext& context)
 #endif
 
   /* init local array for all Info records */
-  NOTIFY_INFO* allInfos = ctx.allInfoBuffer;
+  NOTIFY_INFO* allInfos = ctx.allInfoBuffer.data();
 
 
   /* init local routing array */
@@ -173,7 +135,7 @@ NOTIFY_INFO *NotifyPrepare (DDD::DDDContext& context)
   allInfos[0].from = me;
   allInfos[0].to   = PROC_INVALID_TEMP;
   allInfos[0].size = 0;
-  allInfos[0].flag = DUMMY;
+  allInfos[0].flag = NotifyTypes::DUMMY;
   ctx.lastInfo = 1;
 
   return allInfos;
@@ -255,7 +217,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
     {
       if (allInfos[j].from==allInfos[i].to)
       {
-        allInfos[i].flag = (allInfos[i].to==me) ? MYSELF : KNOWN;
+        allInfos[i].flag = (allInfos[i].to==me) ? NotifyTypes::MYSELF : NotifyTypes::KNOWN;
         unknownInfos--;
         if (allInfos[i].to==me)
           myInfos++;
@@ -411,7 +373,7 @@ NOTIFY_DESC *DDD_NotifyBegin(DDD::DDDContext& context, int n)
     return nullptr;
   }
 
-  return ctx.theDescs;
+  return ctx.theDescs.data();
 }
 
 
@@ -471,7 +433,7 @@ int DDD_Notify(DDD::DDDContext& context)
       allInfos[ctx.lastInfo].from = me;
       allInfos[ctx.lastInfo].to   = ctx.theDescs[i].proc;
       allInfos[ctx.lastInfo].size = ctx.theDescs[i].size;
-      allInfos[ctx.lastInfo].flag = UNKNOWN;
+      allInfos[ctx.lastInfo].flag = NotifyTypes::UNKNOWN;
       ctx.lastInfo++;
     }
 
