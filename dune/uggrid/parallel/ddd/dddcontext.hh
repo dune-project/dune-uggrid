@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <array>
 
 #include <dune/uggrid/parallel/ddd/dddconstants.hh>
 #include <dune/uggrid/parallel/ddd/dddtypes.hh>
