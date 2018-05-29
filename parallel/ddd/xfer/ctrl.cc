@@ -32,6 +32,7 @@
 #include <config.h>
 #include <cstdlib>
 #include <cstdio>
+#include <sstream>
 
 #include <iomanip>
 #include <iostream>

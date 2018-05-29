@@ -2,6 +2,7 @@
 #define DUNE_UGGRID_PARALLEL_PPIF_PPIFCONTEXT_HH 1
 
 #include <memory>
+#include <array>
 
 #if ModelP
 #  include <mpi.h>
