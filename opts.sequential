@@ -1,2 +1,0 @@
-# option file for dunecontrol, used by the CI system; see also .gitlab-ci.yml
-CMAKE_FLAGS="-DUG_ENABLE_PARALLEL=0 -DCMAKE_CXX_FLAGS='-O2 -g -Wall -fdiagnostics-color=always' ${DUNECI_PARALLEL:+-DDUNE_MAX_TEST_CORES=${DUNECI_PARALLEL}}"
