@@ -3445,7 +3445,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
 }
 
 
-
+START_UGDIM_NAMESPACE
 
 struct compare_record
 {
@@ -3463,6 +3463,7 @@ struct compare_record
 };
 typedef struct compare_record COMPARE_RECORD;
 
+END_UGDIM_NAMESPACE
 
 INT NS_DIM_PREFIX GetSonSideNodes (const ELEMENT *theElement, INT side, INT *nodes,
                                    NODE *SideNodes[MAX_SIDE_NODES], INT ioflag)
