@@ -721,7 +721,7 @@ static INT PrintEdgeInfo (GRID *theGrid, char* string, INT level)
   INT pat;
   ELEMENT *theElement;
 
-  const int me = theGrid->ppifContext().me();
+  DUNE_UNUSED const int me = theGrid->ppifContext().me();
 
   PRINTDEBUG(gm,level,(PFMT "%s:\n",me,string));
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
@@ -1497,7 +1497,7 @@ static INT SetElementRules (GRID *theGrid, ELEMENT *firstElement, INT *cnt)
   INT thePattern,theEdgePattern,theSidePattern=0;
   ELEMENT *theElement;
 
-  const int me = theGrid->ppifContext().me();
+  DUNE_UNUSED const int me = theGrid->ppifContext().me();
 
   /* set refinement rules from edge- and sidepattern */
   (*cnt) = 0;
@@ -2791,7 +2791,7 @@ static int ComputePeriodicCopies(GRID *grid)
   PeriodicBoundaryInfoProcPtr IsPeriodicBnd;
   int npercopies;
 
-  const int me = grid->ppifContext().me();
+  DUNE_UNUSED const int me = grid->ppifContext().me();
 
   GetPeriodicBoundaryInfoProcPtr(&IsPeriodicBnd);
   if (IsPeriodicBnd==NULL)
@@ -2864,7 +2864,7 @@ static int ComputeCopies (GRID *theGrid)
 #endif
   PRINTDEBUG(gm,1,("ComputeCopies on level %d\n",GLEVEL(theGrid)));
 
-  const int me = theGrid->ppifContext().me();
+  DUNE_UNUSED const int me = theGrid->ppifContext().me();
 
   /* set class of all dofs on next level to 0 */
   ClearNextNodeClasses(theGrid);
@@ -3393,7 +3393,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
 {
   int s;
   ELEMENT *theSon,*SonList[MAX_SONS];
-  const int me = theGrid->ppifContext().me();
+  DUNE_UNUSED const int me = theGrid->ppifContext().me();
 
   /* something to do ? */
   if ((REFINE(theElement)==NO_REFINEMENT)||(theGrid==NULL)) return(GM_OK);

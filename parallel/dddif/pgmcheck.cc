@@ -368,10 +368,11 @@ static INT CheckNodePrio (DDD::DDDContext& context, ELEMENT *theElement, NODE *t
 
 static INT CheckEdgePrio (DDD::DDDContext& context, ELEMENT *theElement, EDGE *theEdge)
 {
-  INT nmaster;
   INT nerrors = 0;
 
         #ifdef __THREEDIM__
+  INT nmaster;
+
   /* check edge prio */
   CHECK_OBJECT_PRIO(theEdge,PRIO,MASTER,GHOST,ID,"EDGE",nerrors)
 

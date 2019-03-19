@@ -974,8 +974,6 @@ static INT IdentifyEdge (GRID *theGrid,
 static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                                         INT i, ELEMENT *theNeighbor)
 {
-  auto& context = theGrid->dddContext();
-
   INT nodes,j,n;
   NODE *SideNodes[MAX_SIDE_NODES];
   INT ncorners;
@@ -1038,7 +1036,10 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
 
                         #ifdef __THREEDIM__
       if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+      {
+        auto& context = theGrid->dddContext();
         IdentifySideVector(context, theElement,theNeighbor,SonList[j],SonSides[j]);
+      }
                         #endif
     }
   }
