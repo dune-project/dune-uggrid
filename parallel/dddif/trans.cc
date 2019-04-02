@@ -398,7 +398,7 @@ static int Scatter_GhostCmd (DDD::DDDContext& context, DDD_OBJ obj, void *data, 
 static int Gather_VHGhostCmd (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
-  ELEMENT *theFather      = EFATHER(theElement);
+  // ELEMENT *theFather      = EFATHER(theElement);
   ELEMENT *theNeighbor;
   INT j;
 

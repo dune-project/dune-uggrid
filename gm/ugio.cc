@@ -37,6 +37,8 @@
 #include <climits>
 #include <ctime>
 
+#include <dune/common/unused.hh>
+
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "ugtypes.h"
@@ -1997,7 +1999,7 @@ static INT IO_GridCons(MULTIGRID *theMG)
 #ifdef ModelP
   auto& dddContext = theMG->dddContext();
 #endif
-  const auto& me = theMG->ppifContext().me();
+  DUNE_UNUSED const auto& me = theMG->ppifContext().me();
 
   for (i=TOPLEVEL(theMG); i>=0; i--)         /* propagate information top-down */
   {

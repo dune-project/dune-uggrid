@@ -1179,9 +1179,10 @@ static void ElementLDataConstructor (DDD::DDDContext& context, DDD_OBJ obj)
 {
   INT i;
   ELEMENT *pe                     = (ELEMENT *)obj;
-  INT level           = LEVEL(pe);
+  DUNE_UNUSED INT level           = LEVEL(pe);
+  /* TODO: delete
   GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
-  INT prio            = EPRIO(pe);
+  INT prio            = EPRIO(pe); */
 
   pe->message_buffer(nullptr, 0);
 

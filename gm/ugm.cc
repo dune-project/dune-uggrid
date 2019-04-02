@@ -5905,12 +5905,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   INT master_elements,hghost_elements,vghost_elements,vhghost_elements;
         #endif
 
-#ifdef __TWODIM__
-  static const std::size_t elem_max_size = sizeof(struct quadrilateral);
-#else
-  static const std::size_t elem_max_size = sizeof(struct hexahedron);
-#endif
-
   const auto& ppifContext = theMG->ppifContext();
   const int me = ppifContext.me();
   const int procs = ppifContext.procs();

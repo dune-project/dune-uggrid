@@ -726,11 +726,8 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   ELEMENT *NbElement,*theFather;
   ELEMENT *SonList[MAX_SONS];
   VERTEX  *theVertex,*Vertices[MAX_CORNERS_OF_ELEM];
-  PAR(
-    DOUBLE  *x[MAX_CORNERS_OF_ELEM];
-    DOUBLE_VECTOR center;
-    ) ENDPAR
-#ifdef ModelP
+
+#if defined(ModelP) && defined(__TWODIM__)
   auto& dddContext = theGrid->dddContext();
 #endif
 
