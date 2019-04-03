@@ -1424,9 +1424,9 @@ INT GetSideIDFromScratchOld (ELEMENT *theElement, NODE *theNode)
     {
 
       /* treatment of special green rule 17 and 22 */
-      if ((((TAG(theElement)==PYRAMID && NSONS(theFather)==9) ||
-            (TAG(theElement)==TETRAHEDRON && NSONS(theFather)==11)
-            && 2==CountSideNodes(theElement))) &&
+      if (((TAG(theElement)==PYRAMID && NSONS(theFather)==9) ||
+            (TAG(theElement)==TETRAHEDRON && NSONS(theFather)==11))
+            && 2==CountSideNodes(theElement) &&
           TAG(theFather)==HEXAHEDRON &&
           ECLASS(theElement)==GREEN_CLASS)
         /* not continue */;
