@@ -2977,7 +2977,7 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
                                            ELEMENTCONTEXT theElementContext)
 {
   int i;
-  int errorflag = 0;
+  DUNE_UNUSED int errorflag = 0;
   int errortype[MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM];
   int correcttype[MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM];
 
