@@ -127,7 +127,7 @@ FULLREFRULEPTR NS_DIM_PREFIX theFullRefRule;
 /****************************************************************************/
 
 #ifdef __TWODIM__
-static REFRULE Empty_Rule =
+[[maybe_unused]] static REFRULE Empty_Rule =
 {-1,-1,NO_CLASS,-1,{-1,-1,-1,-1},-1,
  {{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1}},
  {{-1,{-1,-1,-1,-1},{-1,-1,-1,-1},-1},
@@ -468,7 +468,7 @@ static REFRULE QuadrilateralRules[MAX_QUA_RULES] =
 static INT theBFRRDirID;      /* env type for BestFullRefRule       */
 static INT theBFRRVarID;
 
-static REFRULE Empty_Rule =
+[[maybe_unused]] static REFRULE Empty_Rule =
 {-1,-1,NO_CLASS,-1,
  {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},-1,
  {{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
