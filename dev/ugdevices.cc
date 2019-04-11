@@ -47,8 +47,6 @@
 /* dev module */
 #include <dev/ugdevices.h>
 
-#include <dune/common/unused.hh>
-
 #include "namespace.h"
 
 /* dddif module */
@@ -272,14 +270,14 @@ int NS_PREFIX UserWriteF (const char *format, ...)
 {
   char buffer[VAR_ARG_BUFLEN];
   va_list args;
-  DUNE_UNUSED int count;
 
   /* initialize args */
   va_start(args,format);
-
+                #ifndef NDEBUG
+  int count;
   count = vsprintf(buffer,format,args);
   assert(count<VAR_ARG_BUFLEN-1);
-
+                #endif
   if (mutelevel>-1000)
     printf("%s", buffer);
 
