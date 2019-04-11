@@ -49,6 +49,7 @@
 
 #include <dune/common/exceptions.hh>
 #include <dune/common/stdstreams.hh>
+#include <dune/common/unused.hh>
 
 #include "dddi.h"
 #include "if.h"
@@ -241,7 +242,7 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
   IF_ATTR    *ifAttr = nullptr, *lastIfAttr = nullptr;
   int n, i;
   DDD_PROC lastproc;
-  int STAT_MOD;
+  DUNE_UNUSED int STAT_MOD;
 
   const auto& objTable = context.objTable();
 
