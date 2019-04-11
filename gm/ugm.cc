@@ -2603,7 +2603,7 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
   BNDS *bnds;
   BNDP *bndp[MAX_CORNERS_OF_ELEM];
   VECTOR *vec;
-  EDGE *theEdge;
+  DUNE_UNUSED EDGE *theEdge;
 
   ASSERT (OBJT(theElement) == BEOBJ);
 
