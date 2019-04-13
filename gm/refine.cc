@@ -2972,7 +2972,7 @@ static int ComputeCopies (GRID *theGrid)
    void
  */
 /****************************************************************************/
-
+                              #ifdef Debug
 static void CheckElementContextConsistency(ELEMENT *theElement,
                                            ELEMENTCONTEXT theElementContext)
 {
@@ -3044,7 +3044,7 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
 
   ASSERT(errorflag == 0);
 }
-
+                                #endif
 
 /****************************************************************************/
 /*
