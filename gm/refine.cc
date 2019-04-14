@@ -715,7 +715,7 @@ static INT ManageParallelFIFO (const PPIF::PPIFContext& context, ELEMENT *firstE
    INT
  */
 /****************************************************************************/
-
+/*
 static INT PrintEdgeInfo (GRID *theGrid, char* string, INT level)
 {
   INT pat;
@@ -735,7 +735,7 @@ static INT PrintEdgeInfo (GRID *theGrid, char* string, INT level)
 
   return(GM_OK);
 }
-
+*/
 /****************************************************************************/
 /** \brief Changes refinement of element
 
