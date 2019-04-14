@@ -570,7 +570,7 @@ static HRID GetRuleID
    .n   NO:  rules are not equal
    doctext_disabled*/
 /****************************************************************************/
-
+#ifdef __DEBUG_ER__
 static INT RuleCompare (int id, const URULE *ur, const ERULE *er)
 {
   const int ns0   = NSONS_OF_RULE(ur);
@@ -627,7 +627,7 @@ static INT RuleCompare (int id, const URULE *ur, const ERULE *er)
   }
   return (YES);
 }
-
+#endif
 /****************************************************************************/
 /*doctext_disabled
     ExtractERule - extract rule from element
