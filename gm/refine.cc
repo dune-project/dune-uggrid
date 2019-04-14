@@ -6096,7 +6096,7 @@ static void CheckConsistency (MULTIGRID *theMG, INT level ,INT debugstart, INT g
 }
 #endif
 
-
+/*
 static INT CheckMultiGrid (MULTIGRID *theMG)
 {
   INT level;
@@ -6114,7 +6114,7 @@ static INT CheckMultiGrid (MULTIGRID *theMG)
 
   return(0);
 }
-
+*/
 
 #ifdef STAT_OUT
 void NS_DIM_PREFIX Manage_Adapt_Timer (int alloc)
