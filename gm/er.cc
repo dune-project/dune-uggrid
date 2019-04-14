@@ -1267,7 +1267,7 @@ static void FindPathForNeighbours (MGIO_RR_RULE *rule, SHORT myID, SHORT Status[
    .n   none
    doctext_disabled*/
 /****************************************************************************/
-
+#ifdef __THREEDIM__
 static void FillSonPaths (MGIO_RR_RULE *rule)
 {
   SHORT Status[MAX_SONS];
@@ -1287,7 +1287,7 @@ static void FillSonPaths (MGIO_RR_RULE *rule)
 
   return;
 }
-
+#endif
 /****************************************************************************/
 /*doctext_disabled
     GetFSidesOfCorners - fill array for father side the given side corners belong to
