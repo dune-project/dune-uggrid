@@ -1012,7 +1012,7 @@ static INT SetRefinement (GRID *theGrid, ELEMENT *theElement,
 
   return (0);
 }
-
+/*
 static INT CheckNodeContext (ELEMENT *theElement, NODE ** NodeContext)
 {
   INT i, mark,nor,noc;
@@ -1033,7 +1033,7 @@ static INT CheckNodeContext (ELEMENT *theElement, NODE ** NodeContext)
 
   return (0);
 }
-
+*/
 static INT RemoveOrphanSons (ELEMENT **SonList, INT *nmax)
 {
   INT i,max;
