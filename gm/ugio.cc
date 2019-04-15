@@ -1015,27 +1015,6 @@ static INT SetRefinement (GRID *theGrid, ELEMENT *theElement,
   return (0);
 }
 
-static INT CheckNodeContext (ELEMENT *theElement, NODE ** NodeContext)
-{
-  INT i, mark,nor,noc;
-
-  mark = MARK(theElement);
-  for (i=CORNERS_OF_ELEM(theElement); i<CORNERS_OF_ELEM(theElement)+EDGES_OF_ELEM(theElement); i++)
-  {
-    if (NODE_OF_RULE(theElement,mark,i-CORNERS_OF_ELEM(theElement))) nor = 1;
-    else nor = 0;
-    if(NodeContext[i]!=NULL) noc = 1;
-    else noc = 0;
-    if(nor!=noc)
-      if (GetNodeContext(theElement,NodeContext)) REP_ERR_RETURN(1);
-  }
-  for (; i<CORNERS_OF_ELEM(theElement)+EDGES_OF_ELEM(theElement)+SIDES_OF_ELEM(theElement); i++)
-    if (NodeContext[i]!=NULL)
-      if (GetNodeContext(theElement,NodeContext)) REP_ERR_RETURN(1);
-
-  return (0);
-}
-
 static INT RemoveOrphanSons (ELEMENT **SonList, INT *nmax)
 {
   INT i,max;
