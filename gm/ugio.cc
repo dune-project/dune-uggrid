@@ -2311,10 +2311,12 @@ static INT CheckLocalElementKeys (ELEMENT *theElement, MGIO_REFINEMENT *ref, INT
   return (0);
 }
 #else
+/*
 static INT CheckLocalElementKeys (ELEMENT *el, MGIO_REFINEMENT *ref, INT must_exist)
 {
   return (0);
 }
+*/
 #endif
 
 
