@@ -3001,6 +3001,7 @@ INT NS_DIM_PREFIX ShowRefRule (INT tag, INT nb)
 
 #define TET_RULE_FATHER_SIDE_OFFSET             20
 
+#ifdef TET_RULESET
 static int FReadRule (FILE *stream, REFRULE *theRule)
 {
   int i,j;
@@ -3074,7 +3075,7 @@ static int FReadRule (FILE *stream, REFRULE *theRule)
 
   return (0);
 }
-
+#endif
 
 #ifdef __THREEDIM__
 
