@@ -757,6 +757,7 @@ INT NS_DIM_PREFIX RenumberMultiGrid (MULTIGRID *theMG, INT *nboe, INT *nioe, INT
   return (0);
 }
 
+    #if !EXTRACT_RULES
 static INT Write_RefRules (MULTIGRID *theMG, INT *RefRuleOffset, INT MarkKey)
 {
   MGIO_RR_GENERAL rr_general;
@@ -816,6 +817,7 @@ static INT Write_RefRules (MULTIGRID *theMG, INT *RefRuleOffset, INT MarkKey)
 
   return (0);
 }
+    #endif
 
 static INT SetRefinement (GRID *theGrid, ELEMENT *theElement,
                           NODE **NodeContext, ELEMENT *SonList[MAX_SONS],
