@@ -1080,6 +1080,7 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
    doctext_disabled*/
 /****************************************************************************/
 
+        #if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static INT ExtractRules (MULTIGRID *mg)
 {
   ELEMENT *elem;
@@ -1196,6 +1197,7 @@ static INT ExtractRules (MULTIGRID *mg)
 
   return (0);
 }
+        #endif
 
 /****************************************************************************/
 /*doctext_disabled
