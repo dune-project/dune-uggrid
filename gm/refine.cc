@@ -696,46 +696,6 @@ static INT ManageParallelFIFO (const PPIF::PPIFContext& context, ELEMENT *firstE
 #endif
 }
 
-
-/****************************************************************************/
-/*
-   PrintEdgeInfo -
-
-   SYNOPSIS:
-   static INT PrintEdgeInfo (GRID *theGrid, char* string, INT level);
-
-   PARAMETERS:
-   .  theGrid
-   .  string
-   .  level
-
-   DESCRIPTION:
-
-   \return <ul>
-   INT
- */
-/****************************************************************************/
-/*
-static INT PrintEdgeInfo (GRID *theGrid, char* string, INT level)
-{
-  INT pat;
-  ELEMENT *theElement;
-
-  DUNE_UNUSED const int me = theGrid->ppifContext().me();
-
-  PRINTDEBUG(gm,level,(PFMT "%s:\n",me,string));
-  for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
-       theElement=SUCCE(theElement))
-  {
-    pat = 0;
-    GetEdgeInfo(theElement,&pat,ADDPATTERN);
-    PRINTDEBUG(gm,level,(PFMT "ListEdgeInfo(): elem=" EID_FMTX " addpat=%08x\n",
-                         me,EID_PRTX(theElement),pat));
-  }
-
-  return(GM_OK);
-}
-*/
 /****************************************************************************/
 /** \brief Changes refinement of element
 
