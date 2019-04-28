@@ -1629,37 +1629,38 @@ static INT MinimalSideAngle (ELEMENT *theElement)
 {
   DOUBLE *Corners[MAX_CORNERS_OF_ELEM];
   DOUBLE_VECTOR MidPoints[MAX_EDGES_OF_ELEM];
-  INT i,j,k,l,imin;
-  DOUBLE MaxAngle,Max,Min;
 
   /* get physical position of the corners */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
     Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
 
   /* get physical position of the midpoints of the edges */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+  for (INT i=0; i<EDGES_OF_ELEM(theElement); i++)
     V3_LINCOMB(0.5, Corners[CORNER_OF_EDGE(theElement,i,0)], 0.5, Corners[CORNER_OF_EDGE(theElement,i,1)], MidPoints[i]);
 
-  /* try possebilities */
-  Min = 190.0;
-  for (i=0; i<3; i++)
+  /* try possibilities */
+  DOUBLE Min = 190.0;
+  INT imin = 0;
+  for (INT i=0; i<3; i++)
   {
-    j = OPPOSITE_EDGE(theElement,i);
+    INT j = OPPOSITE_EDGE(theElement,i);
     Corners[2] = MidPoints[i];
     Corners[3] = MidPoints[j];
 
-    Max = 0.0;
-    for (k=0; k<2; k++)
+    DOUBLE Max = 0.0;
+    for (INT k=0; k<2; k++)
     {
-      for (l=0; l<2; l++)
+      DOUBLE MaxAngle;
+      for (INT l=0; l<2; l++)
         Corners[l] = MidPoints[SideEdgesOfEdge[i][k][l]];
       if (TetMaxSideAngle(theElement,Corners,&MaxAngle))
         return (FULL_REFRULE_0_5);
       Max = MAX(Max,MaxAngle);
     }
-    for (k=0; k<2; k++)
+    for (INT k=0; k<2; k++)
     {
-      for (l=0; l<2; l++)
+      DOUBLE MaxAngle;
+      for (INT l=0; l<2; l++)
         Corners[l] = MidPoints[SideEdgesOfEdge[j][k][l]];
       if (TetMaxSideAngle(theElement,Corners,&MaxAngle))
         return (FULL_REFRULE_0_5);
