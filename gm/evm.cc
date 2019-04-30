@@ -40,6 +40,7 @@
 #include "evm.h"
 #include "general.h"
 #include <dev/ugdevices.h>
+#include <dune/common/unused.hh>
 
 #include "elements.h"
 
@@ -145,7 +146,7 @@ REP_ERR_FILE
 
 bool NS_DIM_PREFIX PointInPolygon (const COORD_POINT *Points, INT n, COORD_POINT Point)
 {
-  DOUBLE D[POLYMAX] ,tau[POLYMAX],xa,ya,xe,ye;
+  DUNE_UNUSED DOUBLE D[POLYMAX] ,tau[POLYMAX],xa,ya,xe,ye;
   int i, left, right;
 
   assert (n<=POLYMAX);
