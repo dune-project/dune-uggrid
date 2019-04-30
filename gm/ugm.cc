@@ -55,6 +55,7 @@
 #include "fifo.h"
 
 #include <dev/ugdevices.h>
+#include <dune/common/unused.hh>
 
 #include "evm.h"
 #include "gm.h"
@@ -2602,7 +2603,7 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
   BNDS *bnds;
   BNDP *bndp[MAX_CORNERS_OF_ELEM];
   VECTOR *vec;
-  EDGE *theEdge;
+  DUNE_UNUSED EDGE *theEdge;
 
   ASSERT (OBJT(theElement) == BEOBJ);
 
@@ -4866,7 +4867,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   MULTIGRID *theMG;
   INT i,j,k,m,rv,tag,ElementType;
   INT NeighborSide[MAX_SIDES_OF_ELEM];
-  NODE             *sideNode[MAX_CORNERS_OF_SIDE];
+  DUNE_UNUSED NODE             *sideNode[MAX_CORNERS_OF_SIDE];
   VERTEX           *Vertex[MAX_CORNERS_OF_ELEM],*sideVertex[MAX_CORNERS_OF_SIDE];
   ELEMENT          *theElement,*Neighbor[MAX_SIDES_OF_ELEM];
   BNDS         *bnds[MAX_SIDES_OF_ELEM];

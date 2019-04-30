@@ -846,7 +846,7 @@ static INT IdentifyEdge (GRID *theGrid,
   if (0)
     if (CORNERTYPE(Nodes[0]) && CORNERTYPE(Nodes[1]))
     {
-      EDGE *FatherEdge;
+      DUNE_UNUSED EDGE *FatherEdge;
       FatherEdge = GetEdge((NODE *)NFATHER(Nodes[0]),(NODE *)NFATHER(Nodes[1]));
       ASSERT(FatherEdge != NULL);
       return(0);
