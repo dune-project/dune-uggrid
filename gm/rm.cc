@@ -1906,10 +1906,11 @@ static INT MaxPerpendicular (ELEMENT *theElement)
     }
   }
 
-  INT refrule = ShortestInteriorEdge (theElement);
+  INT refrule;
   switch (imin)
   {
   case -1 :
+    refrule = ShortestInteriorEdge (theElement);
     UserWrite ("#");
     break;
   case 0 :
@@ -2047,10 +2048,11 @@ static INT MaxArea (ELEMENT *theElement)
     }
   }
 
-  INT refrule =ShortestInteriorEdge (theElement);
+  INT refrule;
   switch (imin)
   {
   case -1 :
+    refrule = ShortestInteriorEdge (theElement);
     UserWrite ("#");
     break;
   case 0 :
