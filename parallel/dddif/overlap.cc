@@ -728,7 +728,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
                                                                 #ifdef __TWODIM__
               IFDEBUG(dddif,1)
               printf("ConnectOverlapVerticalGrid(): new "
-                     " midnode relation between theEdge=%08x"
+                     " midnode relation between theEdge=%08p"
                      " SonNode=" ID_FMTX "Vertex=" VID_FMTX "\n",
                      theEdge,ID_PRTX(SonNode),
                      VID_PRTX(MYVERTEX(SonNode)));
