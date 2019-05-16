@@ -15,3 +15,11 @@ debian:10 gcc-7-14 sequential:
     DUNECI_TOOLCHAIN: gcc-7-14
     DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_PARALLEL=0"
   tags: [duneci]
+
+debian:10 gcc-7-14 debug:
+  image: registry.dune-project.org/docker/ci/debian:10
+  script: duneci-standard-test
+  variables:
+    DUNECI_TOOLCHAIN: gcc-7-14
+    DUNECI_CMAKE_FLAGS: "-DDebug=1"
+  tags: [duneci]
