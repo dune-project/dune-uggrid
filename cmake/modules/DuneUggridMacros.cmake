@@ -35,6 +35,6 @@ if((NOT dune-uggrid_INSTALLED) AND (NOT PROJECT_NAME STREQUAL dune-uggrid))
     ${dune-uggrid_PREFIX}/np/udm
     ${dune-uggrid_PREFIX}/parallel ${dune-uggrid_PREFIX}/parallel/ddd
     ${dune-uggrid_PREFIX}/parallel/ppif
-    ${dune-uggrid_PREFIX}/parallel/dddif ${dune-uggrid_PREFIX}/parallel/util
+    ${dune-uggrid_PREFIX}/parallel/dddif
     ${dune-uggrid_PREFIX}/parallel/ddd/include )
 endif()
