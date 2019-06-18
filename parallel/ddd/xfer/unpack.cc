@@ -323,23 +323,18 @@ static void PutDepData (DDD::DDDContext& context,
                         const SYMTAB_ENTRY *theSymTab,
                         int newness)
 {
-  TYPE_DESC    *descDep;
-  char         *chunk, *curr, *adr, **table;
-  int i, j, chunks;
-  int addCnt;
-  DDD_TYPE addTyp;
-
-
   /* get overall number of chunks */
-  chunks = ((int *)data)[0];
-  chunk  = data + CEIL(sizeof(int));
+  const int chunks = ((int *)data)[0];
+  char* chunk = data + CEIL(sizeof(int));
+
+  char* curr = nullptr;
 
   /* loop through all chunks */
-  for(j=0; j<chunks; j++)
+  for(int j=0; j<chunks; j++)
   {
     /* first entries of chunk are addCnt and addTyp */
-    addCnt = ((int *)chunk)[0];
-    addTyp = ((DDD_TYPE *)chunk)[1];
+    int addCnt = ((int *)chunk)[0];
+    DDD_TYPE addTyp = ((DDD_TYPE *)chunk)[1];
     chunk += CEIL(sizeof(int)+sizeof(DDD_TYPE));
 
     if (addCnt>=0)
@@ -347,9 +342,9 @@ static void PutDepData (DDD::DDDContext& context,
       if (addTyp<DDD_USER_DATA || addTyp>DDD_USER_DATA_MAX)
       {
         /* convert pointers using SymTab */
-        descDep = &context.typeDefs()[addTyp];
+        TYPE_DESC* descDep = &context.typeDefs()[addTyp];
         curr = chunk;
-        for(i=0; i<addCnt; i++)
+        for(int i=0; i<addCnt; i++)
         {
           /* insert pointers into copy using SymTab */
           if (descDep->nPointers>0)
@@ -381,10 +376,11 @@ static void PutDepData (DDD::DDDContext& context,
       addCnt *= -1;
 
       /* convert offset table into pointer table */
-      descDep = &context.typeDefs()[addTyp];
-      table = (char **)chunk;
+      TYPE_DESC* descDep = &context.typeDefs()[addTyp];
+      char** table = (char **)chunk;
       chunk += CEIL(sizeof(int)*addCnt);
-      for(i=0, adr=chunk; i<addCnt; i++)
+      char* adr = chunk;
+      for(int i=0; i<addCnt; i++)
       {
         table[i] = ((long int)table[i])+adr;
 
