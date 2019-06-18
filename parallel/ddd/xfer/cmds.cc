@@ -380,7 +380,8 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   XIModCpl    **arrayXIModCpl       = NULL;
   int remXIModCpl;
   XIAddCpl    **arrayXIAddCpl       = NULL;
-  int obsolete, nRecvMsgs, nSendMsgs;
+  int obsolete, nRecvMsgs;
+  DUNE_UNUSED int nSendMsgs;
   XFERMSG     *sendMsgs=NULL, *sm=NULL;
   LC_MSGHANDLE *recvMsgs            = NULL;
   std::vector<DDD_HDR> localCplObjs;
