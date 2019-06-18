@@ -1244,7 +1244,9 @@ int GetSideIDFromScratchSpecialRule22Tet (ELEMENT *theElement, NODE *theNode)
 INT GetSideIDFromScratchSpecialRule (ELEMENT *theElement, NODE *theNode)
 {
   int j,l;
+#ifndef NDEBUG
   ELEMENT *f = EFATHER(theElement);
+#endif
 
   assert(TAG(f)==HEXAHEDRON);
   assert(ECLASS(theElement)==GREEN_CLASS);
