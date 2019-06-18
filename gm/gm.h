@@ -3214,8 +3214,6 @@ INT         TestRefineInfo          (MULTIGRID *theMG);
 INT         SetRefineInfo           (MULTIGRID *theMG);
 
 
-NODE            *GetFineNodeOnEdge              (const ELEMENT *theElement, INT side);
-
 /* moving nodes */
 #ifdef __THREEDIM__
 INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theNode);
@@ -3231,12 +3229,7 @@ INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
                                      VECTOR **vec);
 
 /* searching */
-NODE            *FindNodeFromId                 (const GRID *theGrid, INT id);
-VECTOR      *FindVectorFromIndex    (GRID *theGrid, INT index);
-ELEMENT         *FindElementFromId              (GRID *theGrid, INT id);
 ELEMENT     *FindElementOnSurface   (MULTIGRID *theMG, DOUBLE *global);
-ELEMENT     *FindElementOnSurfaceCached (MULTIGRID *theMG, DOUBLE *global);
-ELEMENT     *NeighbourElement       (ELEMENT *t, INT side);
 INT          InnerBoundary          (ELEMENT *t, INT side);
 
 /* list */
@@ -3292,7 +3285,6 @@ EVALUES         *GetElementValueEvalProc                                        
 
 /* miscellaneous */
 INT             RenumberMultiGrid                                       (MULTIGRID *theMG, INT *nboe, INT *nioe, INT *nbov, INT *niov, NODE ***vid_n, INT *foid, INT *non, INT MarkKey);
-INT                     OrderNodesInGrid                                        (GRID *theGrid, const INT *order, const INT *sign, INT AlsoOrderLinks);
 INT         MGSetVectorClasses                              (MULTIGRID *theMG);
 INT         SetEdgeSubdomainFromElements        (GRID *theGrid);
 INT         SetSubdomainIDfromBndInfo           (MULTIGRID *theMG);

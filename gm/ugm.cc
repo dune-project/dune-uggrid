@@ -98,7 +98,6 @@ USING_UGDIM_NAMESPACE
 #define RESOLUTION       20     /* resolution for creating boundary midnode */
 #define SMALL1 0.001
 
-#define ORDERRES                1e-3    /* resolution for OrderNodesInGrid			*/
 #define LINKTABLESIZE   32              /* max number of inks per node for ordering	*/
 
 /** \brief macro for controlling debugging output by conditions on objects */
@@ -135,10 +134,6 @@ static INT theMGDirID;                          /* env var ID for the multigrids
 static INT theMGRootDirID;                      /* env dir ID for the multigrids		*/
 
 static UINT UsedOBJT;           /* for the dynamic OBJECT management	*/
-
-/* used by OrderNodesInGrid */
-static const INT *Order,*Sign;
-static DOUBLE InvMeshSize;
 
 REP_ERR_FILE
 
@@ -4199,189 +4194,6 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 }
 
 /****************************************************************************/
-/*
-   LexCompare - Define relation for lexicographic ordering
-
- * @param   pnode1 - first node to compare
- * @param   pnode2 - second node to compare
-
-   This function defines a relation for lexicographic ordering
-
-   @return
-   \todo Doc return value!
- */
-/****************************************************************************/
-
-static INT LexCompare (NODE **pnode1, NODE **pnode2)
-{
-  VERTEX *pv1,*pv2;
-  DOUBLE diff[DIM];
-
-  pv1 = MYVERTEX(*pnode1);
-  pv2 = MYVERTEX(*pnode2);
-
-  V_DIM_SUBTRACT(CVECT(pv2),CVECT(pv1),diff);
-  V_DIM_SCALE(InvMeshSize,diff);
-
-  if (fabs(diff[Order[DIM-1]])<ORDERRES)
-  {
-                #ifdef __THREEDIM__
-    if (fabs(diff[Order[DIM-2]])<ORDERRES)
-    {
-      if (diff[Order[DIM-3]]>0.0) return (-Sign[DIM-3]);
-      else return ( Sign[DIM-3]);
-    }
-    else
-                #endif
-    if (diff[Order[DIM-2]]>0.0) return (-Sign[DIM-2]);
-    else return ( Sign[DIM-2]);
-  }
-  else
-  {
-    if (diff[Order[DIM-1]]>0.0) return (-Sign[DIM-1]);
-    else return ( Sign[DIM-1]);
-  }
-}
-
-
-/****************************************************************************/
-/*
-   LinkCompare - Define relation for lexicographic ordering of links
-
- * @param   LinkHandle1 - first link to compare
- * @param   LinkHandle2 - second link to compare
-
-   This function defines a relation for lexicographic ordering of links
-
-   \todo Doc return value!
- */
-/****************************************************************************/
-
-static int LinkCompare (LINK **LinkHandle1, LINK **LinkHandle2)
-{
-  INT ID1,ID2;;
-
-  ID1 = ID(NBNODE(*LinkHandle1));
-  ID2 = ID(NBNODE(*LinkHandle2));
-
-  if (ID1>ID2)
-    return ( 1);
-  else
-    return (-1);
-}
-
-/****************************************************************************/
-/** \brief Reorder double linked 'NODE' list
-
- * @param   theGrid - grid to order
- * @param   order - precedence of coordinate directions
- * @param   sign - respective ordering direction
- * @param   AlsoOrderLinks - if 'true' also order links
-
-   This function reorders the double linked 'NODE' list of the grid with
-   qsort and order criteria LexCompare(). If specified the 'LINK's are ordered
-   corresponding to the 'NODE' order.
-
-   @return <ul>
-   <li>   0 if ok </li>
-   <li>   >0 when error occured. </li>
-   </ul> */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX OrderNodesInGrid (GRID *theGrid, const INT *order, const INT *sign, INT AlsoOrderLinks)
-{
-  MULTIGRID *theMG;
-  NODE **table,*theNode;
-  LINK *theLink,*LinkTable[LINKTABLESIZE];
-  INT i,entries,firstID,nl;
-  HEAP *theHeap;
-  INT MarkKey;
-
-  theMG   = MYMG(theGrid);
-  entries = NN(theGrid);
-  if (entries == 0) return (0);
-  firstID = ID(FIRSTNODE(theGrid));
-
-  /* calculate the diameter of the bounding rectangle of the domain */
-  // The following method wants the domain radius, which has been removed.
-  // Dune has been setting this radius to 1.0 for years now, so I don't think it matters.
-  DOUBLE BVPD_RADIUS = 1.0;
-  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM) / BVPD_RADIUS;
-
-  /* allocate memory for the node list */
-  theHeap = MGHEAP(theMG);
-  MarkTmpMem(theHeap,&MarkKey);
-  if ((table=(NODE**)GetTmpMem(theHeap,entries*sizeof(NODE *),MarkKey))==NULL)
-  {
-    ReleaseTmpMem(theHeap,MarkKey);
-    PrintErrorMessage('E',"OrderNodesInGrid","ERROR: could not allocate memory from the MGHeap");
-    RETURN (2);
-  }
-
-  /* fill array of pointers to nodes */
-  entries = 0;
-  for (theNode=FIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode))
-    table[entries++] = theNode;
-
-  /* sort array of pointers */
-  Order = order;
-  Sign  = sign;
-  qsort(table,entries,sizeof(*table),(int (*)(const void *, const void *))LexCompare);
-
-  /* reorder double linked list */
-  for (i=0; i<entries-1; i++)
-    SUCCN(table[i]) = table[i+1];
-
-  for (i=1; i<entries; i++)
-  {
-    ID(table[i]) = i+firstID;
-    PREDN(table[i]) = table[i-1];
-  }
-  ID(table[0]) = firstID;
-
-  SUCCN(table[entries-1])  = NULL;
-  PREDN(table[0]) = NULL;
-
-        #ifdef ModelP
-  LISTPART_FIRSTNODE(theGrid,2) = table[0];
-        #else
-  FIRSTNODE(theGrid) = table[0];
-        #endif
-  LASTNODE(theGrid)  = table[entries-1];
-
-
-  ReleaseTmpMem(theHeap,MarkKey);
-
-  if (!AlsoOrderLinks)
-    return (0);
-
-  /* now we also order the links of each node the same way (just using the new IDs) */
-  for (theNode=FIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode))
-  {
-    /* fill array for qsort */
-    for (nl=0, theLink=START(theNode); theLink!=NULL; theLink=NEXT(theLink))
-    {
-      if (nl>=LINKTABLESIZE)
-        RETURN (1);
-
-      LinkTable[nl++] = theLink;
-    }
-    qsort(LinkTable,nl,sizeof(LINK*),(int (*)(const void *, const void *))LinkCompare);
-
-    /* establish pointer connections */
-    NEXT(LinkTable[--nl]) = NULL;
-    while (nl>0)
-    {
-      NEXT(LinkTable[nl-1]) = LinkTable[nl];
-      --nl;
-    }
-    START(theNode) = LinkTable[0];
-  }
-
-  return (0);
-}
-
-/****************************************************************************/
 /** \brief Determine neighbor and side of neighbor that goes back to element
  *
  * @param   theElement - considered element
@@ -5285,80 +5097,6 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
 }
 
 /****************************************************************************/
-/** \brief Find a node with given id
-
- * @param   theGrid - grid level to search.
-
-   This function finds a node with given id.
-
-   @return <ul>
-   <li>   pointer to that NODE </li>
-   <li>   NULL if not found. </li>
-   </ul> */
-/****************************************************************************/
-
-NODE * NS_DIM_PREFIX FindNodeFromId (const GRID *theGrid, INT id)
-{
-  NODE *theNode;
-
-  for (theNode=FIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode))
-    if (ID(theNode)==id) return(theNode);
-
-  return(NULL);
-}
-
-/****************************************************************************/
-/** \brief Find vector from Index
-
- * @param   theGrid - grid level to search
- * @param   index - given index
-
-   This function finds the first vector with index.
-
-   @return <ul>
-   <li>   pointer to VECTOR  </li>
-   <li>   NULL if not found. </li>
-   </ul> */
-/****************************************************************************/
-
-VECTOR * NS_DIM_PREFIX FindVectorFromIndex (GRID *theGrid, INT index)
-{
-  VECTOR *theVector;
-
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-    if (VINDEX(theVector)==index)
-      return(theVector);
-
-  return(NULL);
-}
-
-/****************************************************************************/
-/** \brief Find element with id
-
- * @param   theGrid - grid level to search
- * @param   id - id to search
-
-   This function finds an element with the identification `id`. In parallel
-   also ghost elements are searched.
-
-   @return <ul>
-   <li>   pointer to that ELEMENT </li>
-   <li>   NULL if not found. </li>
-   </ul> */
-/****************************************************************************/
-
-ELEMENT * NS_DIM_PREFIX FindElementFromId (GRID *theGrid, INT id)
-{
-  ELEMENT *theElement;
-
-  /* use PFIRSTELEMENT instead of FIRSTELEMENT to search also for ghost elements */
-  for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
-    if (ID(theElement)==id) return(theElement);
-
-  return(NULL);
-}
-
-/****************************************************************************/
 /** \brief Determine whether point is contained in element
 
  * @param   x - coordinates of given point
@@ -5588,51 +5326,6 @@ ELEMENT * NS_DIM_PREFIX FindElementOnSurface (MULTIGRID *theMG, DOUBLE *global)
 }
 
 /****************************************************************************/
-/** \brief Find element containing position
-
- * @param   theMG - multigrid level to search
- * @param   global - given position
-
-   This function finds the first element containing the position `pos`.
-
-   @return <ul>
-   <li>   pointer to ELEMENT </li>
-   <li>   NULL if not found. </li>
-   </ul> */
-/****************************************************************************/
-
-ELEMENT * NS_DIM_PREFIX FindElementOnSurfaceCached (MULTIGRID *theMG, DOUBLE *global)
-{
-  ELEMENT *t;
-  INT k;
-  static ELEMENT *e = NULL;
-
-  if ( e!=NULL && EstimateHere(e) )
-  {
-    /* First try the cached element */
-    if (PointInElement(global,e)) {
-      return e;
-    }
-
-    /* Then try the neighbours */
-    for (k=0; k<SIDES_OF_ELEM(e); k++) {
-      t = NBELEM(e,k);
-      if ( t!=NULL )
-        if (PointInElement(global,t))
-        {
-          e = t;
-          return t;
-        }
-    }
-  }
-
-  /* No luck? Do it the hard way. */
-  e = FindElementOnSurface(theMG, global);
-  return e;
-}
-
-
-/****************************************************************************/
 /** \todo Please doc me!
    InnerBoundary -
 
@@ -5660,62 +5353,6 @@ INT NS_DIM_PREFIX InnerBoundary (ELEMENT *t, INT side)
   BNDS_BndSDesc(ELEM_BNDS(t,side),&left,&right,&part);
 
   return((left != 0) && (right != 0));
-}
-
-
-/****************************************************************************/
-/** \brief Get the neighbouring element
-
- * @param   theElement - pointer to an element
- * @param   side - number of an element side
-
-   This function returns a pointer to the element on the given side.
-
-   @return <ul>
-   <li>    pointer to an element </li>
-   <li>    NULL if error occured. </li>
-   </ul> */
-/****************************************************************************/
-
-ELEMENT * NS_DIM_PREFIX NeighbourElement (ELEMENT *t, INT side)
-{
-  ELEMENT *e, *nb;
-
-  nb = NBELEM(t,side);
-
-  if (nb==NULL)
-  {
-    if (OBJT(t)==BEOBJ)
-      if (SIDE_ON_BND(t,side))
-        if (!INNER_BOUNDARY(t,side))
-          return(NULL);
-
-    /* It may happen, that a neighbor is not present on that level. */
-    /* In that case go to father until a neighbor is found.			*/
-    for (e=t; e!=NULL; e=EFATHER(e))
-    {
-      /* t must be a copy of e in order to have a correct side */
-      if (NSONS(e)>1) return(NULL);
-
-      /* now let's see if we have a neighbour */
-      nb = NBELEM(e,side);
-      if (nb != NULL) break;
-    }
-  }
-  else if (NSONS(nb) == 1) {
-                #ifdef ModelP
-    if (SON(nb,0) == NULL) return(nb);
-                #endif
-    nb = SON(nb,0);
-    if (NSONS(nb) == 1) {
-            #ifdef ModelP
-      if (SON(nb,0) == NULL) return(nb);
-                #endif
-      nb = SON(nb,0);
-    }
-  }
-
-  return(nb);
 }
 
 
