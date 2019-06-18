@@ -1629,37 +1629,38 @@ static INT MinimalSideAngle (ELEMENT *theElement)
 {
   DOUBLE *Corners[MAX_CORNERS_OF_ELEM];
   DOUBLE_VECTOR MidPoints[MAX_EDGES_OF_ELEM];
-  INT i,j,k,l,imin;
-  DOUBLE MaxAngle,Max,Min;
 
   /* get physical position of the corners */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
     Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
 
   /* get physical position of the midpoints of the edges */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+  for (INT i=0; i<EDGES_OF_ELEM(theElement); i++)
     V3_LINCOMB(0.5, Corners[CORNER_OF_EDGE(theElement,i,0)], 0.5, Corners[CORNER_OF_EDGE(theElement,i,1)], MidPoints[i]);
 
-  /* try possebilities */
-  Min = 190.0;
-  for (i=0; i<3; i++)
+  /* try possibilities */
+  DOUBLE Min = 190.0;
+  INT imin = 0;
+  for (INT i=0; i<3; i++)
   {
-    j = OPPOSITE_EDGE(theElement,i);
+    INT j = OPPOSITE_EDGE(theElement,i);
     Corners[2] = MidPoints[i];
     Corners[3] = MidPoints[j];
 
-    Max = 0.0;
-    for (k=0; k<2; k++)
+    DOUBLE Max = 0.0;
+    for (INT k=0; k<2; k++)
     {
-      for (l=0; l<2; l++)
+      DOUBLE MaxAngle;
+      for (INT l=0; l<2; l++)
         Corners[l] = MidPoints[SideEdgesOfEdge[i][k][l]];
       if (TetMaxSideAngle(theElement,Corners,&MaxAngle))
         return (FULL_REFRULE_0_5);
       Max = MAX(Max,MaxAngle);
     }
-    for (k=0; k<2; k++)
+    for (INT k=0; k<2; k++)
     {
-      for (l=0; l<2; l++)
+      DOUBLE MaxAngle;
+      for (INT l=0; l<2; l++)
         Corners[l] = MidPoints[SideEdgesOfEdge[j][k][l]];
       if (TetMaxSideAngle(theElement,Corners,&MaxAngle))
         return (FULL_REFRULE_0_5);
@@ -1870,23 +1871,24 @@ static INT BestLaplaceMMatrix (ELEMENT *theElement)
 static INT MaxPerpendicular (ELEMENT *theElement)
 {
   DOUBLE *Corners[MAX_CORNERS_OF_ELEM];
-  DOUBLE_VECTOR MidPoints[MAX_EDGES_OF_ELEM],a,b,c;
-  INT i,j,imin,TBFR,refrule;
-  DOUBLE sprd,Max;
+  DOUBLE_VECTOR MidPoints[MAX_EDGES_OF_ELEM];
 
   /* get physical position of the corners */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
     Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
 
   /* get physical position of the midpoints of the edges */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+  for (INT i=0; i<EDGES_OF_ELEM(theElement); i++)
     V3_LINCOMB(0.5, Corners[CORNER_OF_EDGE(theElement,i,0)], 0.5, Corners[CORNER_OF_EDGE(theElement,i,1)], MidPoints[i]);
 
-  /* try possebilities */
-  Max = -MAX_C; imin = -1;
-  for (i=0; i<3; i++)
+  /* try possibilities */
+  DOUBLE Max = -MAX_C;
+  INT imin = -1;
+  for (INT i=0; i<3; i++)
   {
-    j = OPPOSITE_EDGE(theElement,i);
+    DOUBLE_VECTOR a,b,c;
+    DOUBLE sprd;
+    INT j = OPPOSITE_EDGE(theElement,i);
 
     V3_SUBTRACT(Corners[CORNER_OF_EDGE(theElement,i,0)],Corners[CORNER_OF_EDGE(theElement,i,1)],a)
     V3_SUBTRACT(Corners[CORNER_OF_EDGE(theElement,j,0)],Corners[CORNER_OF_EDGE(theElement,j,1)],b)
@@ -1904,8 +1906,13 @@ static INT MaxPerpendicular (ELEMENT *theElement)
     }
   }
 
+  INT refrule;
   switch (imin)
   {
+  case -1 :
+    refrule = ShortestInteriorEdge (theElement);
+    UserWrite ("#");
+    break;
   case 0 :
     refrule = FULL_REFRULE_0_5;
     break;
@@ -1915,14 +1922,6 @@ static INT MaxPerpendicular (ELEMENT *theElement)
   case 2 :
     refrule = FULL_REFRULE_2_4;
     break;
-  }
-
-
-  TBFR = ShortestInteriorEdge (theElement);
-  if (imin == -1)
-  {
-    refrule = TBFR;
-    UserWrite ("#");
   }
 
   return (refrule);
@@ -1951,19 +1950,19 @@ static INT MaxPerpendicular (ELEMENT *theElement)
 static INT MaxRightAngle (ELEMENT *theElement)
 {
   DOUBLE *Corners[MAX_CORNERS_OF_ELEM];
-  DOUBLE_VECTOR a,b;
-  INT i,j,imin,TBFR,refrule;
-  DOUBLE sprd,Min;
 
   /* get physical position of the corners */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
     Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
 
-  /* try possebilities */
-  Min = MAX_C; imin = -1;
-  for (i=0; i<3; i++)
+  /* try possibilities */
+  DOUBLE Min = MAX_C;
+  INT imin = -1;
+  for (INT i=0; i<3; i++)
   {
-    j = OPPOSITE_EDGE(theElement,i);
+    DOUBLE_VECTOR a,b;
+    DOUBLE sprd;
+    INT j = OPPOSITE_EDGE(theElement,i);
 
     V3_SUBTRACT(Corners[CORNER_OF_EDGE(theElement,i,0)],Corners[CORNER_OF_EDGE(theElement,i,1)],a)
     V3_Normalize(a);
@@ -1979,8 +1978,13 @@ static INT MaxRightAngle (ELEMENT *theElement)
     }
   }
 
+  INT refrule;
   switch (imin)
   {
+  case -1 :
+    refrule = ShortestInteriorEdge (theElement);
+    UserWrite ("#");
+    break;
   case 0 :
     refrule = FULL_REFRULE_0_5;
     break;
@@ -1990,14 +1994,6 @@ static INT MaxRightAngle (ELEMENT *theElement)
   case 2 :
     refrule = FULL_REFRULE_2_4;
     break;
-  }
-
-
-  TBFR = ShortestInteriorEdge (theElement);
-  if (imin == -1)
-  {
-    refrule = TBFR;
-    UserWrite ("#");
   }
 
   return (refrule);
@@ -2026,19 +2022,19 @@ static INT MaxRightAngle (ELEMENT *theElement)
 static INT MaxArea (ELEMENT *theElement)
 {
   DOUBLE *Corners[MAX_CORNERS_OF_ELEM];
-  DOUBLE_VECTOR a,b,c;
-  INT i,j,imin,TBFR,refrule;
-  DOUBLE norm,Max;
 
   /* get physical position of the corners */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
     Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
 
   /* try possebilities */
-  Max = -MAX_C; imin = -1;
-  for (i=0; i<3; i++)
+  DOUBLE Max = -MAX_C;
+  INT imin = -1;
+  for (INT i=0; i<3; i++)
   {
-    j = OPPOSITE_EDGE(theElement,i);
+    DOUBLE_VECTOR a,b,c;
+    DOUBLE norm;
+    INT j = OPPOSITE_EDGE(theElement,i);
 
     V3_SUBTRACT(Corners[CORNER_OF_EDGE(theElement,i,0)],Corners[CORNER_OF_EDGE(theElement,i,1)],a)
     V3_SUBTRACT(Corners[CORNER_OF_EDGE(theElement,j,0)],Corners[CORNER_OF_EDGE(theElement,j,1)],b)
@@ -2052,8 +2048,13 @@ static INT MaxArea (ELEMENT *theElement)
     }
   }
 
+  INT refrule;
   switch (imin)
   {
+  case -1 :
+    refrule = ShortestInteriorEdge (theElement);
+    UserWrite ("#");
+    break;
   case 0 :
     refrule = FULL_REFRULE_0_5;
     break;
@@ -2063,14 +2064,6 @@ static INT MaxArea (ELEMENT *theElement)
   case 2 :
     refrule = FULL_REFRULE_2_4;
     break;
-  }
-
-
-  TBFR = ShortestInteriorEdge (theElement);
-  if (imin == -1)
-  {
-    refrule = TBFR;
-    UserWrite ("#");
   }
 
   return (refrule);
