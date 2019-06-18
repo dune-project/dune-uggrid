@@ -381,7 +381,6 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
   int remXIModCpl;
   XIAddCpl    **arrayXIAddCpl       = NULL;
   int obsolete, nRecvMsgs;
-  DUNE_UNUSED int nSendMsgs;
   XFERMSG     *sendMsgs=NULL, *sm=NULL;
   LC_MSGHANDLE *recvMsgs            = NULL;
   std::vector<DDD_HDR> localCplObjs;
@@ -501,11 +500,11 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
 
 
   /* prepare msgs for objects and XINewCpl-items */
-  nSendMsgs = PrepareObjMsgs(context,
-                             arrayXICopyObj,
-                             arrayXINewCpl, ctx.nXINewCpl,
-                             arrayXIOldCpl, ctx.nXIOldCpl,
-                             &sendMsgs, &sendMem);
+  PrepareObjMsgs(context,
+                 arrayXICopyObj,
+                 arrayXINewCpl, ctx.nXINewCpl,
+                 arrayXIOldCpl, ctx.nXIOldCpl,
+                 &sendMsgs, &sendMem);
 
 
   /*
