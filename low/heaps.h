@@ -43,8 +43,6 @@
 #include "ugtypes.h"
 #include "namespace.h"
 
-#include <dune/common/deprecated.hh>
-
 START_UG_NAMESPACE
 
 /****************************************************************************/
@@ -70,10 +68,10 @@ enum HeapType {GENERAL_HEAP,                  /**< Heap with alloc/free mechanis
                SIMPLE_HEAP         /**< Heap with mark/release mechanism*/
 };
 
-enum HeapAllocMode
+enum [[deprecated]] HeapAllocMode
 {FROM_TOP=1,                       /**< Allocate from top of stack      */
  FROM_BOTTOM=2                       /**< Allocate from bottom of stack   */
-} DUNE_DEPRECATED;
+};
 
 /****************************************************************************/
 /****************************************************************************/
@@ -136,12 +134,12 @@ void         DisposeMem             (HEAP *theHeap, void *buffer);
 INT          MarkTmpMem             (HEAP *theHeap, INT *key);
 void        *GetTmpMem              (HEAP *theHeap, MEM n, INT key);
 INT          ReleaseTmpMem          (HEAP *theHeap, INT key);
-inline INT DUNE_DEPRECATED_MSG("Mark taking a mode is deprecated")
+[[deprecated("Mark taking a mode is deprecated")]] inline INT
              Mark                   (HEAP *theHeap, INT mode, INT *key)
 {
   return MarkTmpMem(theHeap,key);
 }
-inline INT DUNE_DEPRECATED_MSG("Release taking a mode is deprecated")
+[[deprecated("Release taking a mode is deprecated")]] inline INT
              Release                (HEAP *theHeap, INT mode, INT key)
 {
   return ReleaseTmpMem(theHeap,key);
