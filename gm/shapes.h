@@ -32,6 +32,8 @@
 #ifndef __SHAPES__
 #define __SHAPES__
 
+#include <cmath>
+
 #include "gm.h"
 #include "evm.h"
 
@@ -96,16 +98,16 @@ START_UGDIM_NAMESPACE
                                                                           V2_SUBTRACT((x)[1],(x)[0],a);        \
                                                                           V2_SUBTRACT((x)[2],(x)[0],b);        \
                                                                           V2_VECTOR_PRODUCT(a,b,detJ);         \
-                                                                          (area) = ABS(detJ) * 0.5;}
+                                                                          (area) = std::abs(detJ) * 0.5;}
 
 #define AREA_OF_QUADRILATERAL(x,area)   {DOUBLE detJ,ar; DOUBLE_VECTOR a,b;  \
                                                                                  V2_SUBTRACT((x)[1],(x)[0],a);       \
                                                                                  V2_SUBTRACT((x)[2],(x)[0],b);       \
                                                                                  V2_VECTOR_PRODUCT(a,b,detJ);        \
-                                                                             ar = ABS(detJ) * 0.5;               \
+                                                                                 ar = std::abs(detJ) * 0.5; \
                                                                                  V2_SUBTRACT((x)[3],(x)[0],a);       \
                                                                                  V2_VECTOR_PRODUCT(a,b,detJ);        \
-                                                                             (area) = ABS(detJ) * 0.5 + ar;}
+                                                                                 (area) = std::abs(detJ) * 0.5 + ar;}
 
 #define AREA_OF_ELEMENT_2D(n,x,area)                       \
  {if ((n) == 3)      AREA_OF_TRIANGLE((x),(area))       \
@@ -264,7 +266,7 @@ START_UGDIM_NAMESPACE
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[3],(x)[0],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          (area) = ABS(detJ)/6.0;}
+                                                                          (area) = std::abs(detJ)/6.0;}
 
 #define AREA_OF_PYRAMID(x,area)      {DOUBLE detJ,ar; DOUBLE_VECTOR a,b,c,d;\
                                                                           V3_SUBTRACT((x)[1],(x)[0],a);         \
@@ -272,11 +274,11 @@ START_UGDIM_NAMESPACE
                                                                           V3_VECTOR_PRODUCT(a,b,c);             \
                                                                           V3_SUBTRACT((x)[4],(x)[0],d);         \
                                                                           V3_SCALAR_PRODUCT(c,d,detJ);          \
-                                                                          ar = ABS(detJ)/6.0;                   \
+                                                                          ar = std::abs(detJ)/6.0; \
                                                                           V3_SUBTRACT((x)[3],(x)[0],a);         \
                                                                           V3_VECTOR_PRODUCT(a,b,c);             \
                                                                           V3_SCALAR_PRODUCT(c,d,detJ);          \
-                                                                          (area) = ABS(detJ)/6.0 + ar;}
+                                                                          (area) = std::abs(detJ)/6.0 + ar;}
 
 #define AREA_OF_PRISM(x,area)   {DOUBLE detJ,ar; DOUBLE_VECTOR a,b,c;      \
                                                                           V3_SUBTRACT((x)[1],(x)[0],a);        \
@@ -284,19 +286,19 @@ START_UGDIM_NAMESPACE
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[3],(x)[0],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          ar = ABS(detJ)/6.0;                  \
+                                                                          ar = std::abs(detJ)/6.0; \
                                                                           V3_SUBTRACT((x)[2],(x)[1],a);        \
                                                                           V3_SUBTRACT((x)[3],(x)[1],b);        \
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[4],(x)[1],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          ar += ABS(detJ)/6.0;                 \
+                                                                          ar += std::abs(detJ)/6.0; \
                                                                           V3_SUBTRACT((x)[2],(x)[5],a);        \
                                                                           V3_SUBTRACT((x)[3],(x)[5],b);        \
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[4],(x)[5],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          (area) = ABS(detJ)/6.0 + ar;}
+                                                                          (area) = std::abs(detJ)/6.0 + ar;}
 
 #define AREA_OF_HEXAHEDRON(x,area)   {DOUBLE detJ,ar; DOUBLE_VECTOR a,b,c; \
                                                                           V3_SUBTRACT((x)[1],(x)[0],a);        \
@@ -304,37 +306,37 @@ START_UGDIM_NAMESPACE
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[5],(x)[0],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          ar = ABS(detJ)/6.0;                  \
+                                                                          ar = std::abs(detJ)/6.0; \
                                                                           V3_SUBTRACT((x)[2],(x)[0],a);        \
                                                                           V3_SUBTRACT((x)[5],(x)[0],b);        \
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[6],(x)[0],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          ar += ABS(detJ)/6.0;                 \
+                                                                          ar += std::abs(detJ)/6.0; \
                                                                           V3_SUBTRACT((x)[4],(x)[0],a);        \
                                                                           V3_SUBTRACT((x)[5],(x)[0],b);        \
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[6],(x)[0],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          ar += ABS(detJ)/6.0;                 \
+                                                                          ar += std::abs(detJ)/6.0; \
                                                                           V3_SUBTRACT((x)[2],(x)[0],a);        \
                                                                           V3_SUBTRACT((x)[3],(x)[0],b);        \
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[6],(x)[0],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          ar += ABS(detJ)/6.0;                 \
+                                                                          ar += std::abs(detJ)/6.0; \
                                                                           V3_SUBTRACT((x)[3],(x)[0],a);        \
                                                                           V3_SUBTRACT((x)[4],(x)[0],b);        \
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[6],(x)[0],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          ar += ABS(detJ)/6.0;                 \
+                                                                          ar += std::abs(detJ)/6.0; \
                                                                           V3_SUBTRACT((x)[3],(x)[7],a);        \
                                                                           V3_SUBTRACT((x)[4],(x)[7],b);        \
                                                                           V3_VECTOR_PRODUCT(a,b,c);            \
                                                                           V3_SUBTRACT((x)[6],(x)[7],a);        \
                                                                           V3_SCALAR_PRODUCT(a,c,detJ);         \
-                                                                          (area) = ABS(detJ)/6.0 + ar;}
+                                                                          (area) = std::abs(detJ)/6.0 + ar;}
 
 #define AREA_OF_ELEMENT_3D(n,x,area)                        \
  {if ((n) == 4)      {AREA_OF_TETRAHEDRON((x),(area));}  \

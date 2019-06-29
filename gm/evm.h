@@ -31,6 +31,7 @@
 #ifndef __EVM__
 #define __EVM__
 
+#include <cmath>
 
 #include "ugtypes.h"
 #include "gm.h"
@@ -91,7 +92,7 @@ START_UGDIM_NAMESPACE
 #define V2_SCALE(c,C)                              {(C)[0] = (c)*(C)[0];\
                                                     (C)[1] = (c)*(C)[1];}
 #define V2_VECTOR_PRODUCT(A,B,c)                (c) = (A)[0]*(B)[1] - (A)[1]*(B)[0];
-#define V2_ISEQUAL(A,B)                                 ((ABS((A)[0]-(B)[0])<SMALL_C)&&(ABS((A)[1]-(B)[1])<SMALL_C))
+#define V2_ISEQUAL(A,B)                                 ((std::abs((A)[0]-(B)[0])<SMALL_C)&&(std::abs((A)[1]-(B)[1])<SMALL_C))
 #define V2_EUKLIDNORM(A,b)                              (b) = sqrt((double)((A)[0]*(A)[0]+(A)[1]*(A)[1]));
 #define V2_EUKLIDNORM_OF_DIFF(A,B,b)    (b) = sqrt((double)(((A)[0]-(B)[0])*((A)[0]-(B)[0])+((A)[1]-(B)[1])*((A)[1]-(B)[1])));
 #define V2_CLEAR(A)                                {(A)[0] = 0.0; (A)[1]= 0.0;}
@@ -117,7 +118,7 @@ START_UGDIM_NAMESPACE
 #define M2_INVERT(M,IM,det)                   \
   { DOUBLE invdet;                                  \
     det = (M)[0][0]*(M)[1][1]-(M)[1][0]*(M)[0][1];  \
-    if (ABS((det))<SMALL_D*SMALL_D) det= 0.;  \
+    if (std::abs((det))<SMALL_D*SMALL_D) det= 0.;      \
     else {                                      \
       invdet = 1.0 / (det);                       \
       (IM)[0][0] =  (M)[1][1]*invdet;             \
@@ -145,7 +146,7 @@ START_UGDIM_NAMESPACE
                                             (C)[1] = (A)[2]*(B)[0] - (A)[0]*(B)[2];\
                                             (C)[2] = (A)[0]*(B)[1] - (A)[1]*(B)[0];}
 #define V3_EUKLIDNORM(A,b)                              (b) = (sqrt((double)((A)[0]*(A)[0]+(A)[1]*(A)[1]+(A)[2]*(A)[2])));
-#define V3_ISEQUAL(A,B)                                 ((ABS((A)[0]-(B)[0])<SMALL_C)&&(ABS((A)[1]-(B)[1])<SMALL_C)&&(ABS((A)[2]-(B)[2])<SMALL_C))
+#define V3_ISEQUAL(A,B)                                 ((std::abs((A)[0]-(B)[0])<SMALL_C)&&(std::abs((A)[1]-(B)[1])<SMALL_C)&&(std::abs((A)[2]-(B)[2])<SMALL_C))
 #define V3_EUKLIDNORM_OF_DIFF(A,B,b)    (b) = (sqrt((double)(((A)[0]-(B)[0])*((A)[0]-(B)[0])+((A)[1]-(B)[1])*((A)[1]-(B)[1])+((A)[2]-(B)[2])*((A)[2]-(B)[2]))));
 #define V3_CLEAR(A)                                {(A)[0] = 0.0; (A)[1]= 0.0; (A)[2] = 0.0;}
 #define V3_SCALAR_PRODUCT(A,B,c)                (c) = ((A)[0]*(B)[0]+(A)[1]*(B)[1]+(A)[2]*(B)[2]);
@@ -172,7 +173,7 @@ START_UGDIM_NAMESPACE
             - (M)[0][2]*(M)[1][1]*(M)[2][0]           \
             - (M)[0][0]*(M)[1][2]*(M)[2][1]         \
             - (M)[0][1]*(M)[1][0]*(M)[2][2];      \
-    if (ABS((det))<SMALL_D*SMALL_D)                 \
+    if (std::abs((det))<SMALL_D*SMALL_D)                \
       return (1);                                    \
     invdet = 1.0 / (det);                           \
     (IM)[0][0] = ( (M)[1][1]*(M)[2][2] - (M)[1][2]*(M)[2][1]) * invdet;  \

@@ -65,11 +65,7 @@ START_UG_NAMESPACE
 #ifdef MAX
 #undef MAX
 #endif
-#ifdef ABS
-#undef ABS
-#endif
 
-#define ABS(i)                   (((i)<0) ? (-(i)) : (i))
 #define MIN(x,y)                 (((x)<(y)) ? (x) : (y))
 #define MAX(x,y)                 (((x)>(y)) ? (x) : (y))
 #define POW2(i)                  (1<<(i))

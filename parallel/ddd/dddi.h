@@ -171,10 +171,6 @@ enum PrioMergeVals {
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef ABS
-#define ABS(i) (((i)<0) ? (-(i)) : (i))
-#endif
-
 #ifndef MIN
 #define MIN(x,y) (((x)<(y)) ? (x) : (y))
 #endif

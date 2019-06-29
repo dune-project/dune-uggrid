@@ -1734,6 +1734,8 @@ ResolvePointOnSegment (PATCH * patch, int depth, double resolution2,
 BNDP *NS_DIM_PREFIX
 BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
 {
+  using std::abs;
+
   STD_BVP *theBVP;
   BND_PS *ps;
   PATCH *p;
@@ -1824,56 +1826,56 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
 
 #ifdef __THREEDIM__
   /* check point on line or on point patch */
-  if (ABS (pos[0] - PARAM_PATCH_RANGE (p)[0][0]) < SMALL_DIFF)
+  if (abs(pos[0] - PARAM_PATCH_RANGE (p)[0][0]) < SMALL_DIFF)
   {
     lc = (pos[1] - PARAM_PATCH_RANGE (p)[0][1])
          / (PARAM_PATCH_RANGE (p)[1][1] - PARAM_PATCH_RANGE (p)[0][1]);
-    if (ABS (lc) < SMALL_DIFF)
+    if (abs(lc) < SMALL_DIFF)
       return (CreateBndPOnPoint
                 (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 0)]));
-    else if (ABS (lc - 1.) < SMALL_DIFF)
+    else if (abs(lc - 1.) < SMALL_DIFF)
       return (CreateBndPOnPoint
                 (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 3)]));
     return (CreateBndPOnLine
               (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 0)],
               currBVP->patches[PARAM_PATCH_POINTS (p, 3)], lc));
   }
-  else if (ABS (pos[0] - PARAM_PATCH_RANGE (p)[1][0]) < SMALL_DIFF)
+  else if (abs(pos[0] - PARAM_PATCH_RANGE (p)[1][0]) < SMALL_DIFF)
   {
     lc = (pos[1] - PARAM_PATCH_RANGE (p)[0][1])
          / (PARAM_PATCH_RANGE (p)[1][1] - PARAM_PATCH_RANGE (p)[0][1]);
-    if (ABS (lc) < SMALL_DIFF)
+    if (abs(lc) < SMALL_DIFF)
       return (CreateBndPOnPoint
                 (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 1)]));
-    else if (ABS (lc - 1.) < SMALL_DIFF)
+    else if (abs(lc - 1.) < SMALL_DIFF)
       return (CreateBndPOnPoint
                 (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 2)]));
     return (CreateBndPOnLine
               (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 1)],
               currBVP->patches[PARAM_PATCH_POINTS (p, 2)], lc));
   }
-  else if (ABS (pos[1] - PARAM_PATCH_RANGE (p)[0][1]) < SMALL_DIFF)
+  else if (abs(pos[1] - PARAM_PATCH_RANGE (p)[0][1]) < SMALL_DIFF)
   {
     lc = (pos[0] - PARAM_PATCH_RANGE (p)[0][0])
          / (PARAM_PATCH_RANGE (p)[1][0] - PARAM_PATCH_RANGE (p)[0][0]);
-    if (ABS (lc) < SMALL_DIFF)
+    if (abs(lc) < SMALL_DIFF)
       return (CreateBndPOnPoint
                 (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 0)]));
-    else if (ABS (lc - 1.) < SMALL_DIFF)
+    else if (abs(lc - 1.) < SMALL_DIFF)
       return (CreateBndPOnPoint
                 (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 1)]));
     return (CreateBndPOnLine
               (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 0)],
               currBVP->patches[PARAM_PATCH_POINTS (p, 1)], lc));
   }
-  else if (ABS (pos[1] - PARAM_PATCH_RANGE (p)[1][1]) < SMALL_DIFF)
+  else if (abs(pos[1] - PARAM_PATCH_RANGE (p)[1][1]) < SMALL_DIFF)
   {
     lc = (pos[0] - PARAM_PATCH_RANGE (p)[0][0])
          / (PARAM_PATCH_RANGE (p)[1][0] - PARAM_PATCH_RANGE (p)[0][0]);
-    if (ABS (lc) < SMALL_DIFF)
+    if (abs(lc) < SMALL_DIFF)
       return (CreateBndPOnPoint
                 (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 3)]));
-    else if (ABS (lc - 1.) < SMALL_DIFF)
+    else if (abs(lc - 1.) < SMALL_DIFF)
       return (CreateBndPOnPoint
                 (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 2)]));
     return (CreateBndPOnLine
@@ -1883,10 +1885,10 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
 #endif
 #ifdef __TWODIM__
   /* check point on point patch */
-  if (ABS (pos[0] - PARAM_PATCH_RANGE (p)[0][0]) < SMALL_DIFF)
+  if (abs(pos[0] - PARAM_PATCH_RANGE (p)[0][0]) < SMALL_DIFF)
     return (CreateBndPOnPoint
               (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 0)]));
-  else if (ABS (pos[0] - PARAM_PATCH_RANGE (p)[0][1]) < SMALL_DIFF)
+  else if (abs(pos[0] - PARAM_PATCH_RANGE (p)[0][1]) < SMALL_DIFF)
     return (CreateBndPOnPoint
               (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 1)]));
 #endif
@@ -2505,6 +2507,7 @@ BNDS_CreateBndP (HEAP * Heap, BNDS * aBndS, DOUBLE * local)
 static INT
 BndPointGlobal (const BNDP * aBndP, DOUBLE * global)
 {
+  using std::abs;
   BND_PS *ps;
   PATCH *p, *s;
   INT j, k;
@@ -2545,7 +2548,7 @@ BndPointGlobal (const BNDP * aBndP, DOUBLE * global)
                           ps->local[j][1],
                           pglobal[0], pglobal[1], pglobal[2]));
       for (k = 0; k < DIM; k++)
-        if (ABS (pglobal[k] - global[k]) > SMALL_DIFF)
+        if (abs(pglobal[k] - global[k]) > SMALL_DIFF)
           REP_ERR_RETURN (1);
     }
 
@@ -2575,7 +2578,7 @@ BndPointGlobal (const BNDP * aBndP, DOUBLE * global)
                            ps->local[j][1],
                            pglobal[0], pglobal[1], pglobal[2]));
       for (k = 0; k < DIM; k++)
-        if (ABS (pglobal[k] - global[k]) > SMALL_DIFF)
+        if (abs(pglobal[k] - global[k]) > SMALL_DIFF)
           REP_ERR_RETURN (1);
     }
     return (0);
