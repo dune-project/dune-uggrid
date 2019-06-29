@@ -1730,7 +1730,7 @@ static INT MinimalSideEntry (ELEMENT *theElement)
       for (l=0; l<EDGES_OF_ELEM(theElement); l++)
         if (Angle[l]>PI/2.0)
         {
-          help = ABS(Length[l]*(DOUBLE)(cos((double)Angle[l])/sin((double)Angle[l])));
+          help = std::abs(Length[l]*(DOUBLE)(cos((double)Angle[l])/sin((double)Angle[l])));
           Max = MAX(Max,help);
         }
     }
@@ -1743,7 +1743,7 @@ static INT MinimalSideEntry (ELEMENT *theElement)
       for (i=0; i<EDGES_OF_ELEM(theElement); i++)
         if (Angle[l]>PI/2.0)
         {
-          help = ABS(Length[l]*(DOUBLE)(cos((double)Angle[l])/sin((double)Angle[l])));
+          help = std::abs(Length[l]*(DOUBLE)(cos((double)Angle[l])/sin((double)Angle[l])));
           Max = MAX(Max,help);
         }
     }
@@ -1810,7 +1810,7 @@ static INT BestLaplaceMMatrix (ELEMENT *theElement)
         return (FULL_REFRULE_0_5);
       for (l=0; l<EDGES_OF_ELEM(theElement); l++)
         if (Angle[l]>PI/2.0)
-          sum += ABS(Length[l]*(DOUBLE)cos((double)Angle[l])/(DOUBLE)sin((double)Angle[l]));
+          sum += std::abs(Length[l]*(DOUBLE)cos((double)Angle[l])/(DOUBLE)sin((double)Angle[l]));
     }
     for (k=0; k<2; k++)
     {
@@ -1820,7 +1820,7 @@ static INT BestLaplaceMMatrix (ELEMENT *theElement)
         return (FULL_REFRULE_0_5);
       for (i=0; i<EDGES_OF_ELEM(theElement); i++)
         if (Angle[l]>PI/2.0)
-          sum += ABS(Length[l]*(DOUBLE)cos((double)Angle[l])/(DOUBLE)sin((double)Angle[l]));
+          sum += std::abs(Length[l]*(DOUBLE)cos((double)Angle[l])/(DOUBLE)sin((double)Angle[l]));
     }
     if (sum<Min)
     {
@@ -1897,7 +1897,7 @@ static INT MaxPerpendicular (ELEMENT *theElement)
     V3_SUBTRACT(MidPoints[i],MidPoints[j],a)
     V3_Normalize(a);
     V3_SCALAR_PRODUCT(a,c,sprd)
-    sprd = ABS(sprd);
+    sprd = std::abs(sprd);
 
     if (sprd>Max)
     {
@@ -1969,7 +1969,7 @@ static INT MaxRightAngle (ELEMENT *theElement)
     V3_SUBTRACT(Corners[CORNER_OF_EDGE(theElement,j,0)],Corners[CORNER_OF_EDGE(theElement,j,1)],b)
     V3_Normalize(b);
     V3_SCALAR_PRODUCT(a,b,sprd)
-    sprd = ABS(sprd);
+    sprd = std::abs(sprd);
 
     if (sprd<Min)
     {

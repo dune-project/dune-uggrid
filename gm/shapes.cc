@@ -220,7 +220,7 @@ INT NS_DIM_PREFIX TetraSideNormals (ELEMENT *theElement, DOUBLE **theCorners, DO
     V3_Normalize(theNormals[k]);
     V3_SUBTRACT(theCorners[j],theCorners[(j+1)%4],a)
     V3_SCALAR_PRODUCT(theNormals[k],a,h);
-    if (ABS(h)<SMALL_C) return (1);
+    if (std::abs(h)<SMALL_C) return (1);
     if (h<0.0)
       V3_SCALE(-1.0,theNormals[k]);
   }
@@ -301,7 +301,7 @@ INT NS_DIM_PREFIX TetAngleAndLength (ELEMENT *theElement, const DOUBLE **theCorn
     V3_Normalize(theNormals[j]);
     k = EDGE_OF_CORNER(theElement,CORNER_OPP_TO_SIDE(theElement,j),0);
     V3_SCALAR_PRODUCT(theNormals[j],theEdge[k],h)
-    if (ABS(h)<SMALL_C) return (1);
+    if (std::abs(h)<SMALL_C) return (1);
     if ( (h<0.0 && CORNER_OF_EDGE(theElement,k,1)==CORNER_OPP_TO_SIDE(theElement,j)) ||
          (h>0.0 && CORNER_OF_EDGE(theElement,k,0)==CORNER_OPP_TO_SIDE(theElement,j))     )
       V3_SCALE(-1.0,theNormals[j]);

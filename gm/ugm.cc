@@ -7732,12 +7732,12 @@ static int sort_entries (const void *e1, const void *e2)
 /*
    static INT PositionsMatch(DOUBLE_VECTOR pos1, DOUBLE_VECTOR pos2)
    {
-   if (ABS(pos1[0]-pos2[0])>SMALL_DOUBLE)
+   if (std::abs(pos1[0]-pos2[0])>SMALL_DOUBLE)
         return (1);
-   if (ABS(pos1[1]-pos2[1])>SMALL_DOUBLE)
+   if (std::abs(pos1[1]-pos2[1])>SMALL_DOUBLE)
         return (1);
    #ifdef __THREEDIM__
-   if (ABS(pos1[2]-pos2[2])>SMALL_DOUBLE)
+   if (std::abs(pos1[2]-pos2[2])>SMALL_DOUBLE)
         return (1);
    #endif
 
