@@ -184,180 +184,139 @@ void Write2File(std::FILE* stream, std::vector<NS_DIM_PREFIX REFRULE> const& rul
 
 
 START_UGDIM_NAMESPACE
-static int CorrectRule40 (refrule  *theRule)
+static void CorrectRule40 (refrule  *theRule)
 {
-
   for (int i : {1,4,8})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule41 (refrule  *theRule)
+static void CorrectRule41 (refrule  *theRule)
 {
-
   for (int i : {1,4,7})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule52 (refrule  *theRule)
+static void CorrectRule52 (refrule  *theRule)
 {
-
   for (int i : {2,8})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
-static int CorrectRule53 (refrule  *theRule)
+static void CorrectRule53 (refrule  *theRule)
 {
-
   for (int i : {2,7})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule85 (refrule  *theRule)
-{
-
-  // i == 4
-  auto&& son = theRule->sons[4];
-  std::swap(son.corners[0],son.corners[1]);
-  std::swap(son.nb[1],son.nb[2]);
-
-  return (0);
-}
-
-static int CorrectRule86 (refrule  *theRule)
+static void CorrectRule85 (refrule  *theRule)
 {
   // i == 4
   auto&& son = theRule->sons[4];
   std::swap(son.corners[0],son.corners[1]);
   std::swap(son.nb[1],son.nb[2]);
-
-  return (0);
 }
 
-static int CorrectRule111 (refrule  *theRule)
+static void CorrectRule86 (refrule  *theRule)
 {
+  // i == 4
+  auto&& son = theRule->sons[4];
+  std::swap(son.corners[0],son.corners[1]);
+  std::swap(son.nb[1],son.nb[2]);
+}
 
+static void CorrectRule111 (refrule  *theRule)
+{
   for (int i : {6,8})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule112 (refrule  *theRule)
+static void CorrectRule112 (refrule  *theRule)
 {
-
   for (int i : {6,7})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule135 (refrule  *theRule)
+static void CorrectRule135 (refrule  *theRule)
 {
-
   for (int i : {1,3,11})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule136 (refrule  *theRule)
+static void CorrectRule136 (refrule  *theRule)
 {
-
   for (int i : {2,3,11})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule155 (refrule  *theRule)
+static void CorrectRule155 (refrule  *theRule)
 {
-
   for (int i : {5,7,9})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule156 (refrule  *theRule)
+static void CorrectRule156 (refrule  *theRule)
 {
-
   for (int i : {5,8,9})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule183 (refrule  *theRule)
+static void CorrectRule183 (refrule  *theRule)
 {
-
   for (int i : {3,7,11})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
-static int CorrectRule184 (refrule  *theRule)
+static void CorrectRule184 (refrule  *theRule)
 {
-
   for (int i : {2,8,11})
   {
     auto&& son = theRule->sons[i];
     std::swap(son.corners[0],son.corners[1]);
     std::swap(son.nb[1],son.nb[2]);
   }
-
-  return (0);
 }
 
 static int FReadRule (FILE *stream, REFRULE *theRule)
