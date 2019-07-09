@@ -324,7 +324,7 @@ extern INT MaxNewCorners[TAGS];
 extern INT MaxNewEdges[TAGS];
 extern INT CenterNodeIndex[TAGS];
 extern REFRULE                  *RefRules[TAGS];
-extern std::unique_ptr<SHORT[]> Pattern2Rule[TAGS];
+extern const SHORT* Pattern2Rule[TAGS];
 extern FULLREFRULEPTR theFullRefRule;
 
 

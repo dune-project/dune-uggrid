@@ -112,7 +112,7 @@ INT NS_DIM_PREFIX MaxNewCorners[TAGS] = {0,0,0,0,0,0,0,0};
 INT NS_DIM_PREFIX MaxNewEdges[TAGS] = {0,0,0,0,0,0,0,0};
 INT NS_DIM_PREFIX CenterNodeIndex[TAGS] = {0,0,0,0,0,0,0,0};
 REFRULE * NS_DIM_PREFIX RefRules[TAGS] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-std::unique_ptr<SHORT[]> NS_DIM_PREFIX Pattern2Rule[TAGS];
+SHORT const* NS_DIM_PREFIX Pattern2Rule[TAGS];
 
 #ifdef __THREEDIM__
 /* define the standard regular rules for tetrahedrons */
@@ -3511,14 +3511,15 @@ static INT InitRuleManager3D (void)
   }
 
   /* get storage for Pattern2Rule */
-  Pattern2Rule[TETRAHEDRON] = std::make_unique<SHORT[]>(nPatterns);
+  static std::unique_ptr<SHORT[]> pattern2RuleTetrahedron = std::make_unique<SHORT[]>(nPatterns);
+  Pattern2Rule[TETRAHEDRON] = pattern2RuleTetrahedron.get();
   if (Pattern2Rule[TETRAHEDRON]==nullptr)
   {
     UserWrite("ERROR: no storage for Pattern2Rule\n");
     fclose(stream);
     return (__LINE__);
   }
-  for (i=0; i<nPatterns; i++) Pattern2Rule[TETRAHEDRON][i] = -1;
+  for (i=0; i<nPatterns; i++) pattern2RuleTetrahedron[i] = -1;
 
   {
     /* read Rules */
@@ -3534,7 +3535,7 @@ static INT InitRuleManager3D (void)
     for (i=0; i<nPatterns; i++)
     {
       if (fscanf(stream,"%d",&P2R)!=1) return (__LINE__);
-      Pattern2Rule[TETRAHEDRON][i] = P2R;
+      pattern2RuleTetrahedron[i] = P2R;
       PRINTDEBUG(gm,4,("Pattern2Rules[%4x]=%4d\n",i,P2R))
     }
 
@@ -3720,33 +3721,27 @@ static INT InitRuleManager3D (void)
 
 static INT InitRuleManager2D (void)
 {
-  int nPatterns;
-
   /************************************************************************/
   /*																		*/
   /*  init refinement rules for triangles                                       */
   /*																		*/
   /************************************************************************/
 
-  /* get storage for Pattern2Rule */
-  nPatterns = 17;       /* there are 2^3 different patterns */
-  /** \todo delete all concerning Pattern2Rule */
-  Pattern2Rule[TRIANGLE] = std::make_unique<SHORT[]>(nPatterns);
-  if (Pattern2Rule[TRIANGLE] == nullptr)
-  {
-    UserWrite("ERROR: no storage for Pattern2Rule\n");
-    return (__LINE__);
-  }
+  /* there are 8 = 2^3 different patterns */
+  /* but why is there a 17 here? probably could be 8... */
+  static const SHORT pattern2RuleTriangle[17] = {
+    /* 0: */ T_COPY,                           /* 0 0 0 */
+    /* 1: */ T_BISECT_1_0,             /* 0 0 1 */
+    /* 2: */ T_BISECT_1_1,             /* 0 1 0 */
+    /* 3: */ T_BISECT_2_T1_0,          /* 0 1 1 */
+    /* 4: */ T_BISECT_1_2,                     /* 1 0 0 */
+    /* 5: */ NOINDEX,                  /* 1 0 1 */
+    /* 6: */ NOINDEX,                  /* 1 1 0 */
+    /* 7: */ T_RED,                            /* 1 1 1 */
+  };
+  Pattern2Rule[TRIANGLE] = pattern2RuleTriangle;
 
   /* Pattern2Rule gives the starting index for rules with same pattern */
-  Pattern2Rule[TRIANGLE][0] = T_COPY;                           /* 0 0 0 */
-  Pattern2Rule[TRIANGLE][1] = T_BISECT_1_0;             /* 0 0 1 */
-  Pattern2Rule[TRIANGLE][2] = T_BISECT_1_1;             /* 0 1 0 */
-  Pattern2Rule[TRIANGLE][3] = T_BISECT_2_T1_0;          /* 0 1 1 */
-  Pattern2Rule[TRIANGLE][4] = T_BISECT_1_2;                     /* 1 0 0 */
-  Pattern2Rule[TRIANGLE][5] = NOINDEX;                  /* 1 0 1 */
-  Pattern2Rule[TRIANGLE][6] = NOINDEX;                  /* 1 1 0 */
-  Pattern2Rule[TRIANGLE][7] = T_RED;                            /* 1 1 1 */
 
   /* now make rules for triangles globally available */
   MaxRules[TRIANGLE] = MAX_TRI_RULES;
@@ -3762,49 +3757,44 @@ static INT InitRuleManager2D (void)
   /*																		*/
   /************************************************************************/
 
-  /* get storage for Pattern2Rule */
-  nPatterns = 32;       /* there are 2^5 different patterns */
-  /** \todo delete all concerning Pattern2Rule */
-  Pattern2Rule[QUADRILATERAL] = std::make_unique<SHORT[]>(nPatterns);
-  if (Pattern2Rule[QUADRILATERAL] == nullptr)
-  {
-    UserWrite("ERROR: no storage for Pattern2Rule\n");
-    return (__LINE__);
-  }
+  /* there are 32 = 2^5 different patterns */
+  static const SHORT pattern2RuleQuadrilateral[32] = {
+    /* Pattern2Rule gives the starting index for rules with same pattern */
+    /*  0: */ NOINDEX,                    /* 0 0 0 0 0 */
+    /*  1: */ NOINDEX,                    /* 0 0 0 0 1 */
+    /*  2: */ NOINDEX,                    /* 0 0 0 1 0 */
+    /*  3: */ NOINDEX,                    /* 0 0 0 1 1 */
+    /*  4: */ NOINDEX,                    /* 0 0 1 0 0 */
+    /*  5: */ NOINDEX,                    /* 0 0 1 0 1 */
+    /*  6: */ NOINDEX,                    /* 0 0 1 1 0 */
+    /*  7: */ NOINDEX,                    /* 0 0 1 1 1 */
+    /*  8: */ NOINDEX,                    /* 0 1 0 0 0 */
+    /*  9: */ NOINDEX,                    /* 0 1 0 0 1 */
+    /* 10: */ NOINDEX,                    /* 0 1 0 1 0 */
+    /* 11: */ NOINDEX,                    /* 0 1 0 1 1 */
+    /* 12: */ NOINDEX,                    /* 0 1 1 0 0 */
+    /* 13: */ NOINDEX,                    /* 0 1 1 0 1 */
+    /* 14: */ NOINDEX,                    /* 0 1 1 1 0 */
+    /* 15: */ NOINDEX,                    /* 0 1 1 1 1 */
+    /* 16: */ NOINDEX,                    /* 1 0 0 0 0 */
+    /* 17: */ NOINDEX,                    /* 1 0 0 0 1 */
+    /* 18: */ NOINDEX,                    /* 1 0 0 1 0 */
+    /* 19: */ NOINDEX,                    /* 1 0 0 1 1 */
+    /* 20: */ NOINDEX,                    /* 1 0 1 0 0 */
+    /* 21: */ NOINDEX,                    /* 1 0 1 0 1 */
+    /* 22: */ NOINDEX,                    /* 1 0 1 1 0 */
+    /* 23: */ NOINDEX,                    /* 1 0 1 1 1 */
+    /* 24: */ NOINDEX,                    /* 1 1 0 0 0 */
+    /* 25: */ NOINDEX,                    /* 1 1 0 0 1 */
+    /* 26: */ NOINDEX,                    /* 1 1 0 1 0 */
+    /* 27: */ NOINDEX,                    /* 1 1 0 1 1 */
+    /* 28: */ NOINDEX,                    /* 1 1 1 0 0 */
+    /* 29: */ NOINDEX,                    /* 1 1 1 0 1 */
+    /* 30: */ NOINDEX,                    /* 1 1 1 1 0 */
+    /* 31: */ Q_RED,                      /* 1 1 1 1 1 */
+  };
+  Pattern2Rule[QUADRILATERAL] = pattern2RuleQuadrilateral;
 
-  /* Pattern2Rule gives the starting index for rules with same pattern */
-  Pattern2Rule[QUADRILATERAL][ 0] = NOINDEX;                    /* 0 0 0 0 0 */
-  Pattern2Rule[QUADRILATERAL][ 1] = NOINDEX;                    /* 0 0 0 0 1 */
-  Pattern2Rule[QUADRILATERAL][ 2] = NOINDEX;                    /* 0 0 0 1 0 */
-  Pattern2Rule[QUADRILATERAL][ 3] = NOINDEX;                    /* 0 0 0 1 1 */
-  Pattern2Rule[QUADRILATERAL][ 4] = NOINDEX;                    /* 0 0 1 0 0 */
-  Pattern2Rule[QUADRILATERAL][ 5] = NOINDEX;                    /* 0 0 1 0 1 */
-  Pattern2Rule[QUADRILATERAL][ 6] = NOINDEX;                    /* 0 0 1 1 0 */
-  Pattern2Rule[QUADRILATERAL][ 7] = NOINDEX;                    /* 0 0 1 1 1 */
-  Pattern2Rule[QUADRILATERAL][ 8] = NOINDEX;                    /* 0 1 0 0 0 */
-  Pattern2Rule[QUADRILATERAL][ 9] = NOINDEX;                    /* 0 1 0 0 1 */
-  Pattern2Rule[QUADRILATERAL][10] = NOINDEX;                    /* 0 1 0 1 0 */
-  Pattern2Rule[QUADRILATERAL][11] = NOINDEX;                    /* 0 1 0 1 1 */
-  Pattern2Rule[QUADRILATERAL][12] = NOINDEX;                    /* 0 1 1 0 0 */
-  Pattern2Rule[QUADRILATERAL][13] = NOINDEX;                    /* 0 1 1 0 1 */
-  Pattern2Rule[QUADRILATERAL][14] = NOINDEX;                    /* 0 1 1 1 0 */
-  Pattern2Rule[QUADRILATERAL][15] = NOINDEX;                    /* 0 1 1 1 1 */
-  Pattern2Rule[QUADRILATERAL][16] = NOINDEX;                    /* 1 0 0 0 0 */
-  Pattern2Rule[QUADRILATERAL][17] = NOINDEX;                    /* 1 0 0 0 1 */
-  Pattern2Rule[QUADRILATERAL][18] = NOINDEX;                    /* 1 0 0 1 0 */
-  Pattern2Rule[QUADRILATERAL][19] = NOINDEX;                    /* 1 0 0 1 1 */
-  Pattern2Rule[QUADRILATERAL][20] = NOINDEX;                    /* 1 0 1 0 0 */
-  Pattern2Rule[QUADRILATERAL][21] = NOINDEX;                    /* 1 0 1 0 1 */
-  Pattern2Rule[QUADRILATERAL][22] = NOINDEX;                    /* 1 0 1 1 0 */
-  Pattern2Rule[QUADRILATERAL][23] = NOINDEX;                    /* 1 0 1 1 1 */
-  Pattern2Rule[QUADRILATERAL][24] = NOINDEX;                    /* 1 1 0 0 0 */
-  Pattern2Rule[QUADRILATERAL][25] = NOINDEX;                    /* 1 1 0 0 1 */
-  Pattern2Rule[QUADRILATERAL][26] = NOINDEX;                    /* 1 1 0 1 0 */
-  Pattern2Rule[QUADRILATERAL][27] = NOINDEX;                    /* 1 1 0 1 1 */
-  Pattern2Rule[QUADRILATERAL][28] = NOINDEX;                    /* 1 1 1 0 0 */
-  Pattern2Rule[QUADRILATERAL][29] = NOINDEX;                    /* 1 1 1 0 1 */
-  Pattern2Rule[QUADRILATERAL][30] = NOINDEX;                    /* 1 1 1 1 0 */
-  Pattern2Rule[QUADRILATERAL][31] = Q_RED;                      /* 1 1 1 1 1 */
 
   /* now make rules for quadrilaterals globally available */
   MaxRules[QUADRILATERAL] = MAX_QUA_RULES;
