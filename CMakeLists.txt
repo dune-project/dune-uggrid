@@ -42,6 +42,7 @@ set(UG_DDD_MAX_MACROBITS "24" CACHE STRING
   "Set number of bits of an unsigned int used to store the process number,
        the remaining bits are used to store the local entity id")
 
+set(DUNE_UGGRID_TET_RULESET True CACHE BOOL "Use complete rule set for refinement of tetrahedral elements")
 if(TET_RULESET)
   set(DUNE_UGGRID_TET_RULESET True)
   message(DEPRECATION "The TET_RULESET option has been renamed to DUNE_UGGRID_TET_RULESET")
