@@ -52,7 +52,7 @@ START_UGDIM_NAMESPACE
 /*                                                                                                                                                      */
 /****************************************************************************/
 
-/* Declaration of TET_RULESET has been moved to config.h */
+/* Declaration of DUNE_UGGRID_TET_RULESET has been moved to config.h */
 /* uncomment this if you want to use the full rule set for tetrahedra */
 
 /** \brief Defines for edge types */
@@ -172,7 +172,7 @@ enum {Q_NOREF,
       Q_CLOSE_3_3};
 
 #define TET_COPY                        1
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
 #define FULL_REFRULE        Pattern2Rule[TETRAHEDRON][0x3F]
 #define FULL_REFRULE_0_5    (Pattern2Rule[TETRAHEDRON][0x3F]+1)
 #define FULL_REFRULE_1_3    (Pattern2Rule[TETRAHEDRON][0x3F]+2)

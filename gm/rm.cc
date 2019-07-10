@@ -83,7 +83,7 @@ USING_UG_NAMESPACES
 #define MAX_TRI_RULES   18
 #define MAX_QUA_RULES   17
 #else
-#ifndef TET_RULESET
+#ifndef DUNE_UGGRID_TET_RULESET
 #define MAX_TET_RULES   6
 #endif
 #define MAX_PYR_RULES   5
@@ -468,7 +468,7 @@ static REFRULE QuadrilateralRules[MAX_QUA_RULES] =
 static INT theBFRRDirID;      /* env type for BestFullRefRule       */
 static INT theBFRRVarID;
 
-#ifndef TET_RULESET
+#ifndef DUNE_UGGRID_TET_RULESET
 /* define the regular rules for tetrahedron */
 static REFRULE TetrahedronRules[MAX_TET_RULES] =
 {
@@ -2224,7 +2224,7 @@ INT NS_DIM_PREFIX MarkForRefinement (ELEMENT *theElement, enum RefinementRule ru
         SETMARK(theElement,(*theFullRefRule)(theElement));
         SETMARKCLASS(theElement,RED_CLASS);
         break;
-#ifndef TET_RULESET
+#ifndef DUNE_UGGRID_TET_RULESET
       case (TETRA_RED_HEX) :
         SETMARK(theElement,TET_RED_HEX);
         SETMARKCLASS(theElement,RED_CLASS);
@@ -2529,7 +2529,7 @@ INT NS_DIM_PREFIX Patterns2Rules(ELEMENT *theElement, INT pattern)
         #ifdef __THREEDIM__
   switch (TAG(theElement)) {
   case (TETRAHEDRON) :
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
     /* convert pattern to old style */
     pattern &= (~(1<<10));
 
@@ -2967,7 +2967,7 @@ INT NS_DIM_PREFIX ShowRefRule (INT tag, INT nb)
  */
 /****************************************************************************/
 
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
 #  include "RefRules.cc"
 #endif
 
@@ -2981,7 +2981,7 @@ static INT InitRuleManager3D (void)
   MaxNewEdges[TETRAHEDRON] = 16;
   CenterNodeIndex[TETRAHEDRON] = 10;
 
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
   RefRules[TETRAHEDRON] = tetrahedronRefinementRules;
   MaxRules[TETRAHEDRON] = nTetrahedronRefinementRules;
   Pattern2Rule[TETRAHEDRON] = pattern2RuleTetrahedron;

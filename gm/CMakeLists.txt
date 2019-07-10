@@ -14,7 +14,7 @@ dune_add_test(
   SOURCES rm-tetrahedron-rules-test.cc
   COMPILE_DEFINITIONS -DUG_DIM_3
   LINK_LIBRARIES ugL ugS3 ${DUNE_LIBS}
-  CMAKE_GUARD TET_RULESET
+  CMAKE_GUARD DUNE_UGGRID_TET_RULESET
   )
 
 # rm3-show

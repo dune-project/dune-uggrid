@@ -20,7 +20,7 @@
 #cmakedefine TIME_WITH_SYS_TIME 1
 
 /* Define to 1 if UGGrid should use the complete set of green refinement rules for tetrahedra */
-#cmakedefine TET_RULESET 1
+#cmakedefine DUNE_UGGRID_TET_RULESET 1
 
 /* Define to 1 if rpc/rpc.h is found (needed for xdr). */
 #ifndef HAVE_RPC_RPC_H

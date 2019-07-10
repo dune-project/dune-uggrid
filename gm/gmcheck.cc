@@ -627,7 +627,7 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
   theNode = MIDNODE(theEdge);
   if (theNode == NULL)
   {
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
     if (((REFINE(theElement) == RED) && (TAG(theElement) != TETRAHEDRON))
         || ((TAG(theElement) == TETRAHEDRON) && (NSONS(theElement) == 8)))
 #else

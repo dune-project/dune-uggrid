@@ -1304,7 +1304,7 @@ INT NS_DIM_PREFIX GetSideIDFromScratch (ELEMENT *theElement, NODE *theNode)
 
     for (i=0; i<SIDES_OF_ELEM(theFather); i++)
     {
-                        #ifdef TET_RULESET
+                        #ifdef DUNE_UGGRID_DUNE_UGGRID_TET_RULESET
       if (3 == CORNERS_OF_SIDE(theFather,i)) continue;
                         #endif
 
@@ -1734,7 +1734,7 @@ INT NS_DIM_PREFIX GetNodeContext (const ELEMENT *theElement, NODE **theElementCo
               EDGES_OF_ELEM(theElement);
   for (i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_DUNE_UGGRID_TET_RULESET
     /* no side nodes for triangular sides yet */
     if (CORNERS_OF_SIDE(theElement,i) == 3) continue;
 #endif
