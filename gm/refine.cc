@@ -164,7 +164,7 @@ using namespace PPIF;
 #define MARKED(e)                                       (MARK(e)!=NO_REFINEMENT)
 
 /* green marked elements were NEWGREEN is true are refined without rule */
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
 #define NEWGREEN(e)                                     (TAG(e)==HEXAHEDRON || TAG(e)== PRISM || \
                                                          TAG(e)==PYRAMID)
 #else
@@ -374,7 +374,7 @@ static int gridadaptl_timer,ident_timer,overlap_timer,gridcons_timer;
 static int algebra_timer;
 #endif
 
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
 /* determine number of edge from reduced (i.e. restricted to one side) edgepattern */
 /* if there are two edges marked for bisection, if not deliver -1. If the edge-    */
 /* is not reduced (i.e. marked edges lying on more than one side) deliver -2       */
@@ -1152,7 +1152,7 @@ static INT ComputePatterns (GRID *theGrid)
       SETSIDEPATTERN(theElement,0);
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
         if (CORNERS_OF_SIDE(theElement,i)==4)
         {
 #endif
@@ -1160,7 +1160,7 @@ static INT ComputePatterns (GRID *theGrid)
         if(SIDE_IN_PATTERN(theElement,thePattern,i))
           SETSIDEPATTERN(theElement,
                          SIDEPATTERN(theElement) | 1<<i);
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
       }
 #endif
       }
@@ -1181,7 +1181,7 @@ static INT ComputePatterns (GRID *theGrid)
 }
 
 #ifdef __THREEDIM__
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
 
 /****************************************************************************/
 /*
@@ -1380,7 +1380,7 @@ static INT CorrectElementSidePattern (ELEMENT *theElement, ELEMENT *theNeighbor,
   switch (CORNERS_OF_SIDE(theElement,i))
   {
   case 3 :
-                        #ifdef TET_RULESET
+                        #ifdef DUNE_UGGRID_TET_RULESET
     /* handle case with 2 edges of the side refined */
     if (CorrectTetrahedronSidePattern(theElement,i,theNeighbor,j) != GM_OK)
       RETURN(GM_ERROR);
@@ -1582,7 +1582,7 @@ static INT SetElementRules (GRID *theGrid, ELEMENT *firstElement, INT *cnt)
     /* choose best tet_red rule according to (*theFullRefRule)() */
     if (TAG(theElement)==TETRAHEDRON && MARKCLASS(theElement)==RED_CLASS)
     {
-#ifndef TET_RULESET
+#ifndef DUNE_UGGRID_TET_RULESET
       if ((Mark==TET_RED || Mark==TET_RED_0_5 ||
            Mark==TET_RED_1_3))
 #endif
@@ -1868,7 +1868,7 @@ static INT BuildGreenClosure (GRID *theGrid)
         /* for pyramids, prisms and hexhedra Patterns2Rules returns 0  */
         /* for non red elements, because there is no complete rule set */
         /* switch to mark COPY, because COPY rule refines no edges     */
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
         if (DIM==3 && TAG(theElement)!=TETRAHEDRON)
 #else
         if (DIM==3)
@@ -1940,7 +1940,7 @@ static INT BuildGreenClosure (GRID *theGrid)
       if (NODE_OF_RULE(theNeighbor,MARK(theNeighbor),
                        EDGES_OF_ELEM(theNeighbor)+j))
       {
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
         if (TAG(theNeighbor)==TETRAHEDRON)
           printf("ERROR: no side nodes for tetrahedra! side=%d\n",j);
 #endif
@@ -2046,7 +2046,7 @@ static int Gather_ElementInfo (DDD::DDDContext&, DDD_OBJ obj, void *Data)
     assert(0);                                                           \
   }
 
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
 #define COMPARE_MACROX(elem0,elem1,macro,print)                              \
      {                                                                        \
              INT _mark0,_mark1,_pat0,_pat1;                                       \
@@ -2111,7 +2111,7 @@ static int Scatter_ElementInfo (DDD::DDDContext&, DDD_OBJ obj, void *Data)
   COMPARE_MACROX(theElement,theMaster,MARK,PrintDebug)
   COMPARE_MACRO(theElement,theMaster,COARSEN,PrintDebug)
   COMPARE_MACRO(theElement,theMaster,USED,PrintDebug)
-  /*	#ifndef TET_RULESET */
+  /*	#ifndef DUNE_UGGRID_TET_RULESET */
         #ifdef __THREEDIM__
   COMPARE_MACRO(theElement,theMaster,SIDEPATTERN,PrintDebug)
         #endif
@@ -2202,7 +2202,7 @@ static int GridClosure (GRID *theGrid)
   do
   {
                 #ifdef __THREEDIM__
-                #if defined(ModelP) && defined(TET_RULESET)
+                #if defined(ModelP) && defined(DUNE_UGGRID_TET_RULESET)
     /* edge pattern is needed consistently in CorrectTetrahedronSidePattern() */
     if (!refine_seq)
     {
@@ -2463,7 +2463,7 @@ INT NS_DIM_PREFIX GetSons (const ELEMENT *theElement, ELEMENT *SonList[MAX_SONS]
 static INT RestrictElementMark(ELEMENT *theElement)
 {
         #ifdef __THREEDIM__
-        #ifdef TET_RULESET
+        #ifdef DUNE_UGGRID_TET_RULESET
   EDGE *theEdge;
   int j,Rule,Pattern;
         #endif
@@ -2487,7 +2487,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
                         #endif
                         #ifdef __THREEDIM__
     case TETRAHEDRON :
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
       if (MARK(theElement)!=RED)
         /** \todo Is REFINE always as red rule available? */
         SETMARK(theElement,REFINE(theElement));
@@ -2526,7 +2526,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
                         #endif
                         #ifdef __THREEDIM__
     case TETRAHEDRON :
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
       /* theElement is not marked from outside, */
       /* so find a reg. rule being consistent   */
       /* with those neighbors of all sons of    */
@@ -3185,7 +3185,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
   for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
     /* no side nodes for triangular sides yet */
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
     if (CORNERS_OF_SIDE(theElement,i) == 3) continue;
 #endif
 

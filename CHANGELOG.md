@@ -4,6 +4,11 @@
 
   [!96]: https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/96
 
+*   The `TET_RULESET` compile-time option has been renamed to
+    `DUNE_UGGRID_TET_RULESET` and is enabled by default.
+    It is no longer necessary to provide the `RefRules.data` file.
+    [!134](https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/134)
+
 # dune-uggrid 2.6.0 (2018-04-03)
 
 * Transfer of element data during load balancing is supported.

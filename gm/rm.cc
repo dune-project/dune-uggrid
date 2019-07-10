@@ -83,7 +83,7 @@ USING_UG_NAMESPACES
 #define MAX_TRI_RULES   18
 #define MAX_QUA_RULES   17
 #else
-#ifndef TET_RULESET
+#ifndef DUNE_UGGRID_TET_RULESET
 #define MAX_TET_RULES   6
 #endif
 #define MAX_PYR_RULES   5
@@ -112,7 +112,7 @@ INT NS_DIM_PREFIX MaxNewCorners[TAGS] = {0,0,0,0,0,0,0,0};
 INT NS_DIM_PREFIX MaxNewEdges[TAGS] = {0,0,0,0,0,0,0,0};
 INT NS_DIM_PREFIX CenterNodeIndex[TAGS] = {0,0,0,0,0,0,0,0};
 REFRULE * NS_DIM_PREFIX RefRules[TAGS] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-std::unique_ptr<SHORT[]> NS_DIM_PREFIX Pattern2Rule[TAGS];
+SHORT const* NS_DIM_PREFIX Pattern2Rule[TAGS];
 
 #ifdef __THREEDIM__
 /* define the standard regular rules for tetrahedrons */
@@ -468,27 +468,7 @@ static REFRULE QuadrilateralRules[MAX_QUA_RULES] =
 static INT theBFRRDirID;      /* env type for BestFullRefRule       */
 static INT theBFRRVarID;
 
-static REFRULE Empty_Rule =
-{-1,-1,NO_CLASS,-1,
- {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},-1,
- {{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-                        {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-                        {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
-                        {-1,-1}},
- {{-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1},
-                        {-1,{-1,-1,-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1,-1,-1},-1}}};
-
-#ifndef TET_RULESET
+#ifndef DUNE_UGGRID_TET_RULESET
 /* define the regular rules for tetrahedron */
 static REFRULE TetrahedronRules[MAX_TET_RULES] =
 {
@@ -2244,7 +2224,7 @@ INT NS_DIM_PREFIX MarkForRefinement (ELEMENT *theElement, enum RefinementRule ru
         SETMARK(theElement,(*theFullRefRule)(theElement));
         SETMARKCLASS(theElement,RED_CLASS);
         break;
-#ifndef TET_RULESET
+#ifndef DUNE_UGGRID_TET_RULESET
       case (TETRA_RED_HEX) :
         SETMARK(theElement,TET_RED_HEX);
         SETMARKCLASS(theElement,RED_CLASS);
@@ -2549,7 +2529,7 @@ INT NS_DIM_PREFIX Patterns2Rules(ELEMENT *theElement, INT pattern)
         #ifdef __THREEDIM__
   switch (TAG(theElement)) {
   case (TETRAHEDRON) :
-#ifdef TET_RULESET
+#ifdef DUNE_UGGRID_TET_RULESET
     /* convert pattern to old style */
     pattern &= (~(1<<10));
 
@@ -2971,477 +2951,9 @@ INT NS_DIM_PREFIX ShowRefRule (INT tag, INT nb)
   return (ShowRefRuleX(tag,nb,UserWriteF));
 }
 
-/****************************************************************************/
-/** \brief
-   FReadRule - Read the rule data set and initialize the rules data
-
-   SYNOPSIS:
-   static int FReadRule (FILE *stream, REFRULE *theRule);
-
-   PARAMETERS:
-   \param stream - file which stores rules
-   \param theRule - pointer to rule structure
-
-   DESCRIPTION:
-   This function reads the rule data set and initializes the rules data
-
-   \return
-   INT
-   .n   0 - ok
-   .n   >0 - error
- */
-/****************************************************************************/
-
-#define TET_RULE_FATHER_SIDE_OFFSET             20
-
-static int FReadRule (FILE *stream, REFRULE *theRule)
-{
-  int i,j;
-  int ns,p0,p1,p2,p3,p4,p5,pat;
-  int type,from,to,side;
-  int c0,c1,c2,c3,n0,n1,n2,n3,pa;
-  int sn0,sn1;
-
-  /* init tag */
-  theRule->tag = TETRAHEDRON;
-
-  if (fscanf(stream,"%d  %d %d %d %d %d %d  %d",&ns,&p0,&p1,&p2,&p3,&p4,&p5,&pat)!=8) return (1);
-
-  theRule->nsons = ns;
-  theRule->pattern[0] = p0;
-  theRule->pattern[1] = p1;
-  theRule->pattern[2] = p2;
-  theRule->pattern[3] = p3;
-  theRule->pattern[4] = p4;
-  theRule->pattern[5] = p5;
-  theRule->pat = pat;
-
-  /* MAXEDGES = 16 for tetrahedra */
-  for (i=0; i<16; i++)
-  {
-    if (fscanf(stream," %d %d %d %d",&type,&from,&to,&side)!=4) return (1);
-  }
-
-  /* MAX_SONS = 12 for tetrahedra */
-  for (i=0; i<12; i++)
-  {
-    if (fscanf(stream," %d %d %d %d %d %d %d %d %d",&c0,&c1,&c2,&c3,&n0,&n1,&n2,&n3,&pa)!=9) return (1);
-    theRule->sons[i].tag = TETRAHEDRON;
-    if (c0 == 10) c0 = 14;
-    theRule->sons[i].corners[0] = c0;
-    if (c1 == 10) c1 = 14;
-    theRule->sons[i].corners[1] = c1;
-    if (c2 == 10) c2 = 14;
-    theRule->sons[i].corners[2] = c2;
-    if (c3 == 10) c3 = 14;
-    theRule->sons[i].corners[3] = c3;
-    theRule->sons[i].nb[0]          = n0;
-    theRule->sons[i].nb[1]          = n1;
-    theRule->sons[i].nb[2]          = n2;
-    theRule->sons[i].nb[3]          = n3;
-    theRule->sons[i].path           = pa;
-    for (j=0; j<SIDES_OF_TAG(TETRAHEDRON); j++)
-      if (theRule->sons[i].nb[j]>=TET_RULE_FATHER_SIDE_OFFSET)
-        theRule->sons[i].nb[j] += FATHER_SIDE_OFFSET-TET_RULE_FATHER_SIDE_OFFSET;
-  }
-
-  /* NEWCORNERS = 7 for tetrahedra */
-  /* read edge node information */
-  for (i=0; i<6; i++)
-  {
-    if (fscanf(stream," %d %d",&sn0,&sn1)!=2) return (1);
-    theRule->sonandnode[i][0] = sn0;
-    theRule->sonandnode[i][1] = sn1;
-  }
-  /* read center node information */
-  if (fscanf(stream," %d %d",&sn0,&sn1)!=2) return (1);
-  theRule->sonandnode[10][0] = sn0;
-  theRule->sonandnode[10][1] = sn1;
-
-  /* init Pattern and pat for center node */
-  if (theRule->sonandnode[10][0] != NO_CENTER_NODE)
-  {
-    theRule->pattern[10] = 1;
-    theRule->pat |= (1<<10);
-  }
-
-  return (0);
-}
 
 
 #ifdef __THREEDIM__
-
-#ifdef TET_RULESET
-/****************************************************************************/
-/*
-   CorrectRuleXX -
-
-   SYNOPSIS:
-   static int CorrectRule (REFRULE *theRule);
-
-   PARAMETERS:
-   \param theRule
-
-   DESCRIPTION:
-
-   \return
-   int
- */
-/****************************************************************************/
-
-static int CorrectRule40 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<9; i++)
-  {
-    if (i==1 || i==4 || i==8) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule41 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<9; i++)
-  {
-    if (i==1 || i==4 || i==7) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule52 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<9; i++)
-  {
-    if (i==2 || i==8) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-static int CorrectRule53 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<9; i++)
-  {
-    if (i==2 || i==7) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule85 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<9; i++)
-  {
-    if (i==4) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule86 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<9; i++)
-  {
-    if (i==4) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule111 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<9; i++)
-  {
-    if (i==6 || i==8) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule112 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<9; i++)
-  {
-    if (i==6 || i==7) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule135 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<12; i++)
-  {
-    if (i==1 || i==3 || i==11) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule136 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<12; i++)
-  {
-    if (i==2 || i==3 || i==11) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule155 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<10; i++)
-  {
-    if (i==5 || i==7 || i==9) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule156 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<10; i++)
-  {
-    if (i==5 || i==8 || i==9) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule183 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<12; i++)
-  {
-    if (i==3 || i==7 || i==11) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int CorrectRule184 (REFRULE *theRule)
-{
-  int i;
-  int c0,n1;
-
-  for (i=0; i<12; i++)
-  {
-    if (i==2 || i==8 || i==11) {
-      c0 = theRule->sons[i].corners[0];
-      theRule->sons[i].corners[0] = theRule->sons[i].corners[1];
-      theRule->sons[i].corners[1] = c0;
-      n1 = theRule->sons[i].nb[1];
-      theRule->sons[i].nb[1] = theRule->sons[i].nb[2];
-      theRule->sons[i].nb[2] = n1;
-    }
-  }
-
-  return (0);
-}
-
-static int      CheckVolumes(REFRULE *Rule)
-{
-  INT i,j,k,tag;
-  DOUBLE sp;
-  DOUBLE_VECTOR coords [MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM];
-  DOUBLE_VECTOR coord;
-  DOUBLE_VECTOR p[MAX_CORNERS_OF_ELEM];
-
-  /* this function work only for TETRAHEDRA!!! */
-  tag = TETRAHEDRON;
-
-  /* reset coords */
-  for (i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
-    V3_CLEAR(coords[i])
-
-    /* compute coordinates of corners */
-    for (i=0,j=0; i<CORNERS_OF_REF(tag); i++,j++)
-      V3_COPY(LOCAL_COORD_OF_REF(tag,i),coords[j])
-
-      /* compute coordinates of midnodes */
-      for (i=0; i<EDGES_OF_REF(tag); i++,j++)
-      {
-        V3_CLEAR(coord)
-        for (k=0; k<CORNERS_OF_EDGE; k++)
-          V3_ADD(LOCAL_COORD_OF_REF(tag,CORNER_OF_EDGE_REF(tag,i,k)),coord,coord)
-          V3_SCALE(1.0/CORNERS_OF_EDGE,coord)
-          V3_COPY(coord,coords[j]);
-      }
-
-  /* compute coordinates of sidenodes */
-  for (i=0; i<SIDES_OF_REF(tag); i++,j++)
-  {
-    V3_CLEAR(coord)
-    for (k=0; k<CORNERS_OF_SIDE_REF(tag,i); k++)
-      V3_ADD(LOCAL_COORD_OF_REF(tag,CORNER_OF_SIDE_REF(tag,i,k)),coord,coord)
-      V3_SCALE(1.0/CORNERS_OF_SIDE_REF(tag,i),coord)
-      V3_COPY(coord,coords[j]);
-  }
-
-  /* compute coordinates of center node */
-  V3_CLEAR(coord)
-  for (i=0; i<CORNERS_OF_REF(tag); i++)
-  {
-    V3_ADD(LOCAL_COORD_OF_REF(tag,i),coord,coord)
-  }
-  V3_SCALE(1.0/CORNERS_OF_REF(tag),coord)
-  V3_COPY(coord,coords[j]);
-
-  if (0)
-    for (i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
-    {
-      UserWriteF("CheckVolumes(): i=%d x=%.8f y=%.8f z=%.8f\n",
-                 i,coords[i][0],coords[i][1],coords[i][2]);
-    }
-
-  /* check the son volumes being really greater than zero */
-  for (i=0; i<NSONS_OF_RULE(Rule); i++)
-  {
-    for (k=1; k<4; k++)
-      V3_SUBTRACT(coords[SON_CORNER_OF_RULE(Rule,i,k)],coords[SON_CORNER_OF_RULE(Rule,i,0)],p[k])
-
-      V3_VECTOR_PRODUCT(p[1],p[2],p[0])
-      V3_SCALAR_PRODUCT(p[0],p[3],sp)
-
-      if (sp<=0.0)
-      {
-        UserWriteF("negative volume=%f for son=%d rule=%d\n",sp,i,MARK_OF_RULE(Rule));
-        assert(0);
-      }
-  }
-
-  return(0);
-}
-#endif
 
 /****************************************************************************/
 /** \brief
@@ -3455,126 +2967,27 @@ static int      CheckVolumes(REFRULE *Rule)
  */
 /****************************************************************************/
 
+#ifdef DUNE_UGGRID_TET_RULESET
+#  include "RefRules.cc"
+#endif
+
 static INT InitRuleManager3D (void)
 {
   FULLREFRULE *newFRR;
   int nRules;
-        #ifdef TET_RULESET
-  int nPatterns, i, P2R;
-  FILE *stream;
-  REFRULE *Rules;
-  char buffer[256];
-        #endif
-
-  /************************************************************************/
-  /*																		*/
-  /* read refinement rules for tetrahedrons from file 'RefRules.data'		*/
-  /*																		*/
-  /************************************************************************/
-#ifdef TET_RULESET
-  /* open file */
-  {
-    if (GetDefaultValue(DEFAULTSFILENAME,"refrulefile",buffer)==0)
-    {
-      if (ExpandCShellVars(buffer)==NULL)
-      {
-        PrintErrorMessageF('W',"InitRuleManager3D","could not expand shell variables in 'refrulefile' of defaults file '%s'",DEFAULTSFILENAME);
-        return (1);
-      }
-      stream = fileopen(buffer,"r");
-    }
-    else
-      stream = fileopen("RefRules.data","r");
-    if (stream==NULL)
-    {
-      UserWrite("ERROR: could not open file 'RefRules.data'\n");
-      fclose(stream);
-      return (__LINE__);
-    }
-
-    /* read Rules and nPatterns from file */
-    if (fscanf(stream,"%d %d\n",&nRules,&nPatterns)!=2)
-    {
-      UserWrite("ERROR: failed to read Rules and nPatterns\n");
-      fclose(stream);
-      return (__LINE__);
-    }
-  }
-
-  /* get storage for Rules */
-  Rules = (REFRULE *) malloc(nRules*sizeof(REFRULE));
-  if (Rules==NULL)
-  {
-    UserWrite("ERROR: no storage for Rules\n");
-    fclose(stream);
-    return (__LINE__);
-  }
-
-  /* get storage for Pattern2Rule */
-  Pattern2Rule[TETRAHEDRON] = std::make_unique<SHORT[]>(nPatterns);
-  if (Pattern2Rule[TETRAHEDRON]==nullptr)
-  {
-    UserWrite("ERROR: no storage for Pattern2Rule\n");
-    fclose(stream);
-    return (__LINE__);
-  }
-  for (i=0; i<nPatterns; i++) Pattern2Rule[TETRAHEDRON][i] = -1;
-
-  {
-    /* read Rules */
-    for (i=0; i<nRules; i++)
-    {
-      Rules[i] = Empty_Rule;
-      Rules[i].mark = i;
-      Rules[i].rclass = RED_CLASS|GREEN_CLASS;
-      if (FReadRule(stream,Rules+i)) return (__LINE__);
-    }
-
-    /* read Pattern2Rule */
-    for (i=0; i<nPatterns; i++)
-    {
-      if (fscanf(stream,"%d",&P2R)!=1) return (__LINE__);
-      Pattern2Rule[TETRAHEDRON][i] = P2R;
-      PRINTDEBUG(gm,4,("Pattern2Rules[%4x]=%4d\n",i,P2R))
-    }
-
-    fclose(stream);
-
-    /* bug fix */
-    CorrectRule40(&Rules[40]);
-    CorrectRule41(&Rules[41]);
-    CorrectRule52(&Rules[52]);
-    CorrectRule53(&Rules[53]);
-    CorrectRule85(&Rules[85]);
-    CorrectRule86(&Rules[86]);
-    CorrectRule111(&Rules[111]);
-    CorrectRule112(&Rules[112]);
-    CorrectRule135(&Rules[135]);
-    CorrectRule136(&Rules[136]);
-    CorrectRule155(&Rules[155]);
-    CorrectRule156(&Rules[156]);
-    CorrectRule183(&Rules[183]);
-    CorrectRule184(&Rules[184]);
-
-    for (i=0; i<nRules; i++)
-    {
-      CheckVolumes(Rules+i);
-    }
-  }
-
-#else
-  nRules = MAX_TET_RULES;
-#endif
 
   /* now make rules for tetrahedrons globally available */
-  MaxRules[TETRAHEDRON] = nRules;
   MaxNewCorners[TETRAHEDRON] = 11;
   MaxNewEdges[TETRAHEDRON] = 16;
   CenterNodeIndex[TETRAHEDRON] = 10;
-#ifdef TET_RULESET
-  RefRules[TETRAHEDRON] = Rules;
+
+#ifdef DUNE_UGGRID_TET_RULESET
+  RefRules[TETRAHEDRON] = tetrahedronRefinementRules;
+  MaxRules[TETRAHEDRON] = nTetrahedronRefinementRules;
+  Pattern2Rule[TETRAHEDRON] = pattern2RuleTetrahedron;
 #else
   RefRules[TETRAHEDRON] = TetrahedronRules;
+  MaxRules[TETRAHEDRON] = MAX_TET_RULES;
 #endif
 
 
@@ -3720,33 +3133,27 @@ static INT InitRuleManager3D (void)
 
 static INT InitRuleManager2D (void)
 {
-  int nPatterns;
-
   /************************************************************************/
   /*																		*/
   /*  init refinement rules for triangles                                       */
   /*																		*/
   /************************************************************************/
 
-  /* get storage for Pattern2Rule */
-  nPatterns = 17;       /* there are 2^3 different patterns */
-  /** \todo delete all concerning Pattern2Rule */
-  Pattern2Rule[TRIANGLE] = std::make_unique<SHORT[]>(nPatterns);
-  if (Pattern2Rule[TRIANGLE] == nullptr)
-  {
-    UserWrite("ERROR: no storage for Pattern2Rule\n");
-    return (__LINE__);
-  }
+  /* there are 8 = 2^3 different patterns */
+  /* but why is there a 17 here? probably could be 8... */
+  static const SHORT pattern2RuleTriangle[17] = {
+    /* 0: */ T_COPY,                           /* 0 0 0 */
+    /* 1: */ T_BISECT_1_0,             /* 0 0 1 */
+    /* 2: */ T_BISECT_1_1,             /* 0 1 0 */
+    /* 3: */ T_BISECT_2_T1_0,          /* 0 1 1 */
+    /* 4: */ T_BISECT_1_2,                     /* 1 0 0 */
+    /* 5: */ NOINDEX,                  /* 1 0 1 */
+    /* 6: */ NOINDEX,                  /* 1 1 0 */
+    /* 7: */ T_RED,                            /* 1 1 1 */
+  };
+  Pattern2Rule[TRIANGLE] = pattern2RuleTriangle;
 
   /* Pattern2Rule gives the starting index for rules with same pattern */
-  Pattern2Rule[TRIANGLE][0] = T_COPY;                           /* 0 0 0 */
-  Pattern2Rule[TRIANGLE][1] = T_BISECT_1_0;             /* 0 0 1 */
-  Pattern2Rule[TRIANGLE][2] = T_BISECT_1_1;             /* 0 1 0 */
-  Pattern2Rule[TRIANGLE][3] = T_BISECT_2_T1_0;          /* 0 1 1 */
-  Pattern2Rule[TRIANGLE][4] = T_BISECT_1_2;                     /* 1 0 0 */
-  Pattern2Rule[TRIANGLE][5] = NOINDEX;                  /* 1 0 1 */
-  Pattern2Rule[TRIANGLE][6] = NOINDEX;                  /* 1 1 0 */
-  Pattern2Rule[TRIANGLE][7] = T_RED;                            /* 1 1 1 */
 
   /* now make rules for triangles globally available */
   MaxRules[TRIANGLE] = MAX_TRI_RULES;
@@ -3762,49 +3169,44 @@ static INT InitRuleManager2D (void)
   /*																		*/
   /************************************************************************/
 
-  /* get storage for Pattern2Rule */
-  nPatterns = 32;       /* there are 2^5 different patterns */
-  /** \todo delete all concerning Pattern2Rule */
-  Pattern2Rule[QUADRILATERAL] = std::make_unique<SHORT[]>(nPatterns);
-  if (Pattern2Rule[QUADRILATERAL] == nullptr)
-  {
-    UserWrite("ERROR: no storage for Pattern2Rule\n");
-    return (__LINE__);
-  }
+  /* there are 32 = 2^5 different patterns */
+  static const SHORT pattern2RuleQuadrilateral[32] = {
+    /* Pattern2Rule gives the starting index for rules with same pattern */
+    /*  0: */ NOINDEX,                    /* 0 0 0 0 0 */
+    /*  1: */ NOINDEX,                    /* 0 0 0 0 1 */
+    /*  2: */ NOINDEX,                    /* 0 0 0 1 0 */
+    /*  3: */ NOINDEX,                    /* 0 0 0 1 1 */
+    /*  4: */ NOINDEX,                    /* 0 0 1 0 0 */
+    /*  5: */ NOINDEX,                    /* 0 0 1 0 1 */
+    /*  6: */ NOINDEX,                    /* 0 0 1 1 0 */
+    /*  7: */ NOINDEX,                    /* 0 0 1 1 1 */
+    /*  8: */ NOINDEX,                    /* 0 1 0 0 0 */
+    /*  9: */ NOINDEX,                    /* 0 1 0 0 1 */
+    /* 10: */ NOINDEX,                    /* 0 1 0 1 0 */
+    /* 11: */ NOINDEX,                    /* 0 1 0 1 1 */
+    /* 12: */ NOINDEX,                    /* 0 1 1 0 0 */
+    /* 13: */ NOINDEX,                    /* 0 1 1 0 1 */
+    /* 14: */ NOINDEX,                    /* 0 1 1 1 0 */
+    /* 15: */ NOINDEX,                    /* 0 1 1 1 1 */
+    /* 16: */ NOINDEX,                    /* 1 0 0 0 0 */
+    /* 17: */ NOINDEX,                    /* 1 0 0 0 1 */
+    /* 18: */ NOINDEX,                    /* 1 0 0 1 0 */
+    /* 19: */ NOINDEX,                    /* 1 0 0 1 1 */
+    /* 20: */ NOINDEX,                    /* 1 0 1 0 0 */
+    /* 21: */ NOINDEX,                    /* 1 0 1 0 1 */
+    /* 22: */ NOINDEX,                    /* 1 0 1 1 0 */
+    /* 23: */ NOINDEX,                    /* 1 0 1 1 1 */
+    /* 24: */ NOINDEX,                    /* 1 1 0 0 0 */
+    /* 25: */ NOINDEX,                    /* 1 1 0 0 1 */
+    /* 26: */ NOINDEX,                    /* 1 1 0 1 0 */
+    /* 27: */ NOINDEX,                    /* 1 1 0 1 1 */
+    /* 28: */ NOINDEX,                    /* 1 1 1 0 0 */
+    /* 29: */ NOINDEX,                    /* 1 1 1 0 1 */
+    /* 30: */ NOINDEX,                    /* 1 1 1 1 0 */
+    /* 31: */ Q_RED,                      /* 1 1 1 1 1 */
+  };
+  Pattern2Rule[QUADRILATERAL] = pattern2RuleQuadrilateral;
 
-  /* Pattern2Rule gives the starting index for rules with same pattern */
-  Pattern2Rule[QUADRILATERAL][ 0] = NOINDEX;                    /* 0 0 0 0 0 */
-  Pattern2Rule[QUADRILATERAL][ 1] = NOINDEX;                    /* 0 0 0 0 1 */
-  Pattern2Rule[QUADRILATERAL][ 2] = NOINDEX;                    /* 0 0 0 1 0 */
-  Pattern2Rule[QUADRILATERAL][ 3] = NOINDEX;                    /* 0 0 0 1 1 */
-  Pattern2Rule[QUADRILATERAL][ 4] = NOINDEX;                    /* 0 0 1 0 0 */
-  Pattern2Rule[QUADRILATERAL][ 5] = NOINDEX;                    /* 0 0 1 0 1 */
-  Pattern2Rule[QUADRILATERAL][ 6] = NOINDEX;                    /* 0 0 1 1 0 */
-  Pattern2Rule[QUADRILATERAL][ 7] = NOINDEX;                    /* 0 0 1 1 1 */
-  Pattern2Rule[QUADRILATERAL][ 8] = NOINDEX;                    /* 0 1 0 0 0 */
-  Pattern2Rule[QUADRILATERAL][ 9] = NOINDEX;                    /* 0 1 0 0 1 */
-  Pattern2Rule[QUADRILATERAL][10] = NOINDEX;                    /* 0 1 0 1 0 */
-  Pattern2Rule[QUADRILATERAL][11] = NOINDEX;                    /* 0 1 0 1 1 */
-  Pattern2Rule[QUADRILATERAL][12] = NOINDEX;                    /* 0 1 1 0 0 */
-  Pattern2Rule[QUADRILATERAL][13] = NOINDEX;                    /* 0 1 1 0 1 */
-  Pattern2Rule[QUADRILATERAL][14] = NOINDEX;                    /* 0 1 1 1 0 */
-  Pattern2Rule[QUADRILATERAL][15] = NOINDEX;                    /* 0 1 1 1 1 */
-  Pattern2Rule[QUADRILATERAL][16] = NOINDEX;                    /* 1 0 0 0 0 */
-  Pattern2Rule[QUADRILATERAL][17] = NOINDEX;                    /* 1 0 0 0 1 */
-  Pattern2Rule[QUADRILATERAL][18] = NOINDEX;                    /* 1 0 0 1 0 */
-  Pattern2Rule[QUADRILATERAL][19] = NOINDEX;                    /* 1 0 0 1 1 */
-  Pattern2Rule[QUADRILATERAL][20] = NOINDEX;                    /* 1 0 1 0 0 */
-  Pattern2Rule[QUADRILATERAL][21] = NOINDEX;                    /* 1 0 1 0 1 */
-  Pattern2Rule[QUADRILATERAL][22] = NOINDEX;                    /* 1 0 1 1 0 */
-  Pattern2Rule[QUADRILATERAL][23] = NOINDEX;                    /* 1 0 1 1 1 */
-  Pattern2Rule[QUADRILATERAL][24] = NOINDEX;                    /* 1 1 0 0 0 */
-  Pattern2Rule[QUADRILATERAL][25] = NOINDEX;                    /* 1 1 0 0 1 */
-  Pattern2Rule[QUADRILATERAL][26] = NOINDEX;                    /* 1 1 0 1 0 */
-  Pattern2Rule[QUADRILATERAL][27] = NOINDEX;                    /* 1 1 0 1 1 */
-  Pattern2Rule[QUADRILATERAL][28] = NOINDEX;                    /* 1 1 1 0 0 */
-  Pattern2Rule[QUADRILATERAL][29] = NOINDEX;                    /* 1 1 1 0 1 */
-  Pattern2Rule[QUADRILATERAL][30] = NOINDEX;                    /* 1 1 1 1 0 */
-  Pattern2Rule[QUADRILATERAL][31] = Q_RED;                      /* 1 1 1 1 1 */
 
   /* now make rules for quadrilaterals globally available */
   MaxRules[QUADRILATERAL] = MAX_QUA_RULES;
