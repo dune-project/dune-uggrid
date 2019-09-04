@@ -133,10 +133,6 @@ START_UGDIM_NAMESPACE
 
 /** @name Some size parameters */
 /*@{*/
-/** \brief  maximal space dimension                              */
-#define DIM_MAX                                 3
-/** \brief  maximal dimension of boundary surface*/
-#define DIM_OF_BND_MAX                  2
 /** \brief  maximum depth of triangulation               */
 #define MAXLEVEL                                32
 /** \brief  use 5 bits for object identification */
