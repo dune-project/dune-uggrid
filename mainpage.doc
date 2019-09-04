@@ -192,10 +192,6 @@ a side on the coarser mesh.
 
 `In file switch.h`
 
-. DIM_MAX - Maximum space dimension (is 3).
-
-. DIM_OF_BND_MAX - Maximum dimension of boundary (is DIM_MAX-1).
-
 . MAXVECTORS - Maximum number of different VECTOR types.
 
 \section REFINEMENT The interface to the grid refinement module
