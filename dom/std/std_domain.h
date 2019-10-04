@@ -41,7 +41,7 @@
 #ifndef __STD_DOMAIN__
 #define __STD_DOMAIN__
 
-#include "domain.h"
+#include <dom/domain.h>
 
 #include "dimension.h"
 #include "namespace.h"

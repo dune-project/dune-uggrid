@@ -45,7 +45,7 @@
 #include "ugm.h"
 #include "refine.h"
 #include "algebra.h"
-#include "domain.h"
+#include <dom/domain.h>
 #include "debug.h"
 #include <dev/ugdevices.h>
 #include "mgheapmgr.h"

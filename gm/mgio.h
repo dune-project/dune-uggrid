@@ -38,14 +38,14 @@
 #define __MGIO__
 
 #include <cstdio>
-#include "domain.h"
+#include <dom/domain.h>
 
 #ifdef __MGIO_USE_IN_UG__
 
         #include "heaps.h"
         #include "gm.h"
         #include "rm.h"
-        #include "domain.h"
+        #include <dom/domain.h>
 
 #endif
 
