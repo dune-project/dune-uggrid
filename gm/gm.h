@@ -60,7 +60,7 @@
 #include "ugenv.h"
 #include "misc.h"
 #include "debug.h"
-#include "domain.h"
+#include <dom/domain.h>
 #include "pargm.h"
 #include "cw.h"
 #include "namespace.h"

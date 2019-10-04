@@ -52,7 +52,7 @@
 /* set needed in BVP_Init */
 #include <set>
 
-#include "domain.h"
+#include <dom/domain.h>
 
 /* low modules */
 #include "ugtypes.h"
@@ -72,7 +72,7 @@
 #include <dev/ugdevices.h>
 
 /* domain module */
-#include "std_internal.h"
+#include <dom/std/std_internal.h>
 
 #include "namespace.h"
 
