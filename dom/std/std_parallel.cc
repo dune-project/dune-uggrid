@@ -49,12 +49,12 @@
 #include "memmgr.h"
 
 /* domain module */
-#include "domain.h"
+#include <dom/domain.h>
 
-#include "std_domain.h"
+#include <dom/std/std_domain.h>
 
 /* domain module */
-#include "std_internal.h"
+#include <dom/std/std_internal.h>
 
 #include "namespace.h"
 

@@ -42,7 +42,7 @@
 
         #include "defaults.h"
         #include "fileopen.h"
-        #include "domain.h"
+        #include <dom/domain.h>
         #include "debug.h"
 
 #endif
