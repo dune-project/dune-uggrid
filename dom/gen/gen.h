@@ -30,7 +30,7 @@
 #define __GEN_DOMAIN__
 
 #include "ugtypes.h"
-#include "domain.h"
+#include <dom/domain.h>
 
 /****************************************************************************/
 /*																			*/

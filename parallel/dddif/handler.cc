@@ -44,7 +44,7 @@
 #include "debug.h"
 #include "ugtypes.h"
 #include <dev/ugdevices.h>
-#include "domain.h"
+#include <dom/domain.h>
 #include "evm.h"
 #include "parallel.h"
 #include "heaps.h"

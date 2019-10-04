@@ -67,7 +67,7 @@
 #include "elements.h"
 #include "shapes.h"
 #include "refine.h"
-#include "domain.h"
+#include <dom/domain.h>
 #include "pargm.h"
 #include "ugstruct.h"
 #include "mgheapmgr.h"

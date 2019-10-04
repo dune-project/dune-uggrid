@@ -7,9 +7,9 @@
 #error internal header! Must not be used in Applications!
 #endif
 
-#include "domain.h"
+#include <dom/domain.h>
 
-#include "std_domain.h"
+#include <dom/std/std_domain.h>
 
 #include "namespace.h"
 #include "dimension.h"
