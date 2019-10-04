@@ -48,9 +48,9 @@
 #include "memmgr.h"
 
 /* domain module */
-#include "domain.h"
+#include <dom/domain.h>
 
-#include "gen.h"
+#include <dom/gen/gen.h>
 
 #include "namespace.h"
 

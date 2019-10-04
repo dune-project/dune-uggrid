@@ -53,8 +53,8 @@
 #include <dev/ugdevices.h>
 
 /* domain module */
-#include "gen.h"
-#include "domain.h"
+#include <dom/gen/gen.h>
+#include <dom/domain.h>
 
 /****************************************************************************/
 /*																			*/

@@ -89,7 +89,7 @@
 
 
 /* own header */
-#include "commands.h"
+#include <ui/commands.h>
 
 USING_UG_NAMESPACES
 using namespace PPIF;
