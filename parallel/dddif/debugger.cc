@@ -11,7 +11,7 @@
 #include "parallel.h"
 #include "memmgr.h"
 #include "general.h"
-#include "ugm.h"
+#include <gm/ugm.h>
 #include <dev/ugdevices.h>
 #include "namespace.h"
 

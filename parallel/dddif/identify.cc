@@ -39,10 +39,10 @@
 #include "debug.h"
 #include <dev/ugdevices.h>
 
-#include "gm.h"
-#include "ugm.h"
-#include "rm.h"
-#include "refine.h"
+#include <gm/gm.h>
+#include <gm/refine.h>
+#include <gm/rm.h>
+#include <gm/ugm.h>
 #include "ddd.h"
 #include "parallel.h"
 #include "identify.h"

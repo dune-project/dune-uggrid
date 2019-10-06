@@ -35,13 +35,13 @@
 #include "architecture.h"
 #include "general.h"
 #include "debug.h"
-#include "gm.h"
 #include "ugenv.h"
 #include <dev/ugdevices.h>
+#include <gm/gm.h>
+#include <gm/rm.h>
 #include "np.h"
 
 #include "udm.h"
-#include "rm.h"
 
 USING_UG_NAMESPACES
 
