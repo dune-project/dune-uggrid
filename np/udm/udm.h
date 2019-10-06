@@ -33,7 +33,7 @@
 #define __UDM__
 
 #include "ugtypes.h"
-#include "gm.h"
+#include <gm/gm.h>
 #include "sm.h"
 
 #include "namespace.h"

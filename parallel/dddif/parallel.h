@@ -44,8 +44,8 @@
 #include "ddd.h"
 #endif
 
-#include "gm.h"
-#include "pargm.h"
+#include <gm/gm.h>
+#include <gm/pargm.h>
 
 #include "namespace.h"
 

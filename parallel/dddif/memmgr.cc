@@ -42,7 +42,7 @@
 #include "parallel.h"
 #include "general.h"
 
-#include "ugm.h"
+#include <gm/ugm.h>
 #include "memmgr.h"
 
 #include "namespace.h"

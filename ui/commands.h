@@ -36,7 +36,7 @@
 #include <dune/uggrid/parallel/ppif/ppiftypes.hh>
 
 #include "ugtypes.h"
-#include "gm.h"
+#include <gm/gm.h>
 #include "namespace.h"
 
 START_UGDIM_NAMESPACE
