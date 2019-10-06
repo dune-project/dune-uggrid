@@ -38,10 +38,10 @@
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "parallel.h"
-#include "evm.h"
 #include "general.h"
-#include "ugm.h"
 #include <dev/ugdevices.h>
+#include <gm/evm.h>
+#include <gm/ugm.h>
 
 #include "namespace.h"
 

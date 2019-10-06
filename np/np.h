@@ -33,8 +33,8 @@
 #define __NP__
 
 #include "ugtypes.h"
-#include "gm.h"
-#include "algebra.h"
+#include <gm/algebra.h>
+#include <gm/gm.h>
 #include "formats.h"
 #include "ugenv.h"
 #include "udm.h"

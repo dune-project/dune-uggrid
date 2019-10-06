@@ -64,16 +64,16 @@
 #include <dev/ugdevices.h>
 
 /* grid manager module */
-#include "gm.h"
-#include "elements.h"
-#include "cw.h"
-#include "pargm.h"
-#include "rm.h"
-#include "evm.h"
-#include "ugm.h"
-#include "algebra.h"
-#include "shapes.h"
-#include "mgio.h"
+#include <gm/algebra.h>
+#include <gm/cw.h>
+#include <gm/elements.h>
+#include <gm/evm.h>
+#include <gm/gm.h>
+#include <gm/mgio.h>
+#include <gm/pargm.h>
+#include <gm/rm.h>
+#include <gm/shapes.h>
+#include <gm/ugm.h>
 
 /* numerics module */
 #include "np.h"

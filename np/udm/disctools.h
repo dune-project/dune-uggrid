@@ -29,7 +29,7 @@
 #define __DISCTOOLS__
 
 #include "ugtypes.h"
-#include "gm.h"
+#include <gm/gm.h>
 #include "np.h"
 
 #include "namespace.h"
