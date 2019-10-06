@@ -46,19 +46,19 @@
 #include <dev/ugdevices.h>
 
 /* gm module */
-#include "algebra.h"
-#include "evm.h"
-#include "gm.h"
-#include "refine.h"
-#include "rm.h"
-#include "ugm.h"
+#include <gm/algebra.h>
+#include <gm/evm.h>
+#include <gm/gm.h>
+#include <gm/pargm.h>
+#include <gm/refine.h>
+#include <gm/rm.h>
+#include <gm/ugm.h>
 
 /* parallel modules */
 #include "ppif.h"
 #include "ddd.h"
 #include "parallel.h"
 #include "identify.h"
-#include "pargm.h"
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

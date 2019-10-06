@@ -34,11 +34,11 @@
 #include "debug.h"
 #include "parallel.h"
 #include "general.h"
-#include "gm.h"
-#include "refine.h"
-#include "ugm.h"
-#include "evm.h"
-#include "shapes.h"
+#include <gm/evm.h>
+#include <gm/gm.h>
+#include <gm/refine.h>
+#include <gm/shapes.h>
+#include <gm/ugm.h>
 #include <dev/ugdevices.h>
 #include "namespace.h"
 

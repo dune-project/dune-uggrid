@@ -66,7 +66,8 @@
 #include "general.h"
 #include "debug.h"
 #include "scan.h"
-#include "evm.h"
+
+#include <gm/evm.h>
 
 /* dev modules */
 #include <dev/ugdevices.h>
