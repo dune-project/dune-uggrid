@@ -35,8 +35,8 @@
 #include <cstring>
 #include <cassert>
 
-#include "gm.h"       /* for data structure               */
-#include "evm.h"      /* for data structure               */
+#include <gm/evm.h>      /* for data structure               */
+#include <gm/gm.h>       /* for data structure               */
 #include "general.h"
 #include <dev/ugdevices.h>
 

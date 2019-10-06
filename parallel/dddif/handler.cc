@@ -45,16 +45,16 @@
 #include "ugtypes.h"
 #include <dev/ugdevices.h>
 #include <dom/domain.h>
-#include "evm.h"
 #include "parallel.h"
 #include "heaps.h"
-#include "ugm.h"
-#include "algebra.h"
 #include "general.h"
-#include "rm.h"
-#include "refine.h"
-#include "shapes.h"
-#include "pargm.h"
+#include <gm/algebra.h>
+#include <gm/evm.h>
+#include <gm/pargm.h>
+#include <gm/rm.h>
+#include <gm/refine.h>
+#include <gm/shapes.h>
+#include <gm/ugm.h>
 #include "namespace.h"
 
 /* UG namespaces: */

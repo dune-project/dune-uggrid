@@ -32,7 +32,7 @@
 #ifndef __FORMATS__
 #define __FORMATS__
 
-#include "gm.h"
+#include <gm/gm.h>
 #include "udm.h"
 
 #include "namespace.h"

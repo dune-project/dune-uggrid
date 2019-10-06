@@ -34,8 +34,8 @@
 
 #include "parallel.h"
 #include "general.h"
-#include "ugm.h"
-#include "evm.h"
+#include <gm/evm.h>
+#include <gm/ugm.h>
 #include <dev/ugdevices.h>
 #include "namespace.h"
 

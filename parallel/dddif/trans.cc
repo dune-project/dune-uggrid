@@ -39,16 +39,16 @@
 #include "ugtypes.h"
 #include "ugtime.h"
 #include "parallel.h"
-#include "gm.h"
-#include "evm.h"
 #include "general.h"
-#include "ugm.h"
-#include "refine.h"
-#include "algebra.h"
-#include <dom/domain.h>
-#include "debug.h"
 #include <dev/ugdevices.h>
-#include "mgheapmgr.h"
+#include <dom/domain.h>
+#include <gm/algebra.h>
+#include <gm/evm.h>
+#include <gm/gm.h>
+#include <gm/mgheapmgr.h>
+#include <gm/refine.h>
+#include <gm/ugm.h>
+#include "debug.h"
 #include "namespace.h"
 
 /* UG namespaces: */
