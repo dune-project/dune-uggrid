@@ -42,14 +42,14 @@
 
 #ifdef __MGIO_USE_IN_UG__
 
-        #include "heaps.h"
+        #include <low/heaps.h>
         #include "gm.h"
         #include "rm.h"
         #include <dom/domain.h>
 
 #endif
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

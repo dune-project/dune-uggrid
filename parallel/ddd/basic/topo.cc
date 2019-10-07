@@ -43,11 +43,11 @@
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
+#include <low/namespace.h>
+
 #include "memmgr.h"
 
 #include "dddi.h"
-
-#include "namespace.h"
 
 USING_UG_NAMESPACES
 

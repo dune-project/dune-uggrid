@@ -40,14 +40,9 @@
 
 #include <dune/common/unused.hh>
 
-#include "architecture.h"
-#include "debug.h"
-#include "ugtypes.h"
 #include <dev/ugdevices.h>
 #include <dom/domain.h>
 #include "parallel.h"
-#include "heaps.h"
-#include "general.h"
 #include <gm/algebra.h>
 #include <gm/evm.h>
 #include <gm/pargm.h>
@@ -55,7 +50,12 @@
 #include <gm/refine.h>
 #include <gm/shapes.h>
 #include <gm/ugm.h>
-#include "namespace.h"
+#include <low/architecture.h>
+#include <low/debug.h>
+#include <low/heaps.h>
+#include <low/general.h>
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

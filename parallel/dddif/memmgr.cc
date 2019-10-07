@@ -34,18 +34,17 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include "ugtypes.h"
-#include "heaps.h"
-#include "misc.h"
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/misc.h>
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 #include <dev/ugdevices.h>
 
 #include "parallel.h"
-#include "general.h"
 
 #include <gm/ugm.h>
 #include "memmgr.h"
-
-#include "namespace.h"
 
 /* UG namespaces */
 USING_UG_NAMESPACES

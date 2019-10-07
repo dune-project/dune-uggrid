@@ -44,11 +44,11 @@
 #include <cstring>
 
 /* low module */
-#include "initlow.h"
-#include "misc.h"
-#include "general.h"
-#include "defaults.h"
-#include "ugstruct.h"
+#include <low/defaults.h>
+#include <low/general.h>
+#include <low/initlow.h>
+#include <low/misc.h>
+#include <low/ugstruct.h>
 
 /* parallelization module */
 #ifdef ModelP
@@ -73,7 +73,7 @@ using namespace PPIF;
 #include "initug.h"
 
 /** \todo delete this */
-#include "low/debug.h"
+#include <low/debug.h>
 
 
 USING_UG_NAMESPACES

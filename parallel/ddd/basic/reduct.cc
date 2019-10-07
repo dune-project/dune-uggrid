@@ -36,7 +36,7 @@
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 namespace DDD {
 

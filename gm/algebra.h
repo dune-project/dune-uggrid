@@ -48,10 +48,10 @@
 #ifndef __ALGEBRA__
 #define __ALGEBRA__
 
-#include "ugtypes.h"
-#include "gm.h"
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 
-#include "namespace.h"
+#include "gm.h"
 
 START_UGDIM_NAMESPACE
 

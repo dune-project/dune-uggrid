@@ -31,13 +31,13 @@
 #include <config.h>
 #include <cstdlib>
 
-#include "debug.h"
 #include "parallel.h"
-#include "general.h"
+#include <low/debug.h>
+#include <low/general.h>
+#include <low/namespace.h>
 #include <gm/ugm.h>      /* for GetFreeOBJT() */
 #include "memmgr.h"
 #include <dev/ugdevices.h>
-#include "namespace.h"
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

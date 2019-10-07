@@ -23,7 +23,7 @@
 #include <config.h>
 #include <cassert>
 
-#include "general.h"
+#include <low/general.h>
 #include <dev/ugdevices.h>
 
 #include "gm.h"

@@ -31,13 +31,13 @@
 #include <cassert>
 #include <cstddef>
 
-#include "ugtypes.h"
-#include "architecture.h"
-#include "misc.h"
+#include <low/architecture.h>
+#include <low/general.h>
+#include <low/misc.h>
+#include <low/ugtypes.h>
 #include "gm.h"
 #include "evm.h"
 #include "shapes.h"
-#include "general.h"
 
 
 USING_UG_NAMESPACE

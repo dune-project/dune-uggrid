@@ -38,11 +38,12 @@
 #include <cassert>
 
 /* low modules */
-#include "ugtypes.h"
-#include "architecture.h"
-#include "heaps.h"
-#include "general.h"
-#include "debug.h"
+#include <low/architecture.h>
+#include <low/debug.h>
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 
 /* parallel modules */
 #include "parallel.h"
@@ -55,8 +56,6 @@
 
 /* domain module */
 #include <dom/std/std_internal.h>
-
-#include "namespace.h"
 
 USING_UGDIM_NAMESPACE
   USING_UG_NAMESPACE

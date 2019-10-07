@@ -34,16 +34,16 @@
 #include <ctype.h>
 
 #include <dev/ugdevices.h>
-#include "ugtypes.h"
-#include "misc.h"
 #include <gm/algebra.h>
 #include <gm/enrol.h>
 #include <gm/gm.h>
 #include <gm/ugm.h>
-#include "ugenv.h"
-#include "ugstruct.h"
-#include "general.h"
-#include "scan.h" // for ReadArgvChar
+#include <low/misc.h>
+#include <low/general.h>
+#include <low/scan.h> // for ReadArgvChar
+#include <low/ugenv.h>
+#include <low/ugstruct.h>
+#include <low/ugtypes.h>
 
 #include "np.h"
 

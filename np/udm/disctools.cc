@@ -37,8 +37,8 @@
 
 #include <gm/evm.h>      /* for data structure               */
 #include <gm/gm.h>       /* for data structure               */
-#include "general.h"
 #include <dev/ugdevices.h>
+#include <low/general.h>
 
 #include "disctools.h"
 #ifdef ModelP

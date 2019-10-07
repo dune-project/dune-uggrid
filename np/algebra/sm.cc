@@ -26,7 +26,7 @@
 #include <cstddef>
 
 #include "sm.h"
-#include "debug.h"
+#include <low/debug.h>
 
 #define ERR_RETURN(x) REP_ERR_RETURN(x)
 

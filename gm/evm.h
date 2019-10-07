@@ -33,11 +33,11 @@
 
 #include <cmath>
 
-#include "ugtypes.h"
-#include "gm.h"
+#include <low/debug.h>
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 
-#include "debug.h"
-#include "namespace.h"
+#include "gm.h"
 
 START_UGDIM_NAMESPACE
 
