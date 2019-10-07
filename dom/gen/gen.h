@@ -29,7 +29,7 @@
 #ifndef __GEN_DOMAIN__
 #define __GEN_DOMAIN__
 
-#include "ugtypes.h"
+#include <low/ugtypes.h>
 #include <dom/domain.h>
 
 /****************************************************************************/

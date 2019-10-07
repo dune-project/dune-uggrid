@@ -34,9 +34,6 @@
 
 #include <dune/common/unused.hh>
 
-#include "general.h"
-#include "ugtypes.h"
-#include "debug.h"
 #include <dev/ugdevices.h>
 
 #include <gm/gm.h>
@@ -46,6 +43,9 @@
 #include "ddd.h"
 #include "parallel.h"
 #include "identify.h"
+#include <low/debug.h>
+#include <low/general.h>
+#include <low/ugtypes.h>
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

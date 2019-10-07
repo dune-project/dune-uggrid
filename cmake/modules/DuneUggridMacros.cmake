@@ -28,7 +28,7 @@ check_include_file ("rpc/rpc.h" HAVE_RPC_RPC_H)
 # Check whether dune-uggrid is installed
 # to work around includes not relative to dune-uggrid's root directory
 if((NOT dune-uggrid_INSTALLED) AND (NOT PROJECT_NAME STREQUAL dune-uggrid))
-  include_directories(${dune-uggrid_PREFIX} ${dune-uggrid_PREFIX}/low
+  include_directories(${dune-uggrid_PREFIX}
     ${dune-uggrid_PREFIX}/np
     ${dune-uggrid_PREFIX}/np/algebra
     ${dune-uggrid_PREFIX}/np/udm

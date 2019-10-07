@@ -55,17 +55,18 @@
 #include <dom/domain.h>
 
 /* low modules */
-#include "ugtypes.h"
-#include "architecture.h"
-#include "heaps.h"
-#include "ugenv.h"
-#include "bio.h"
-#include "misc.h"
-#include "fileopen.h"
-#include "defaults.h"
-#include "general.h"
-#include "debug.h"
-#include "scan.h"
+#include <low/architecture.h>
+#include <low/bio.h>
+#include <low/debug.h>
+#include <low/defaults.h>
+#include <low/fileopen.h>
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/misc.h>
+#include <low/namespace.h>
+#include <low/scan.h>
+#include <low/ugenv.h>
+#include <low/ugtypes.h>
 
 #include <gm/evm.h>
 
@@ -74,8 +75,6 @@
 
 /* domain module */
 #include <dom/std/std_internal.h>
-
-#include "namespace.h"
 
 USING_UGDIM_NAMESPACE
   USING_UG_NAMESPACE

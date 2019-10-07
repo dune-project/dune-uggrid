@@ -35,19 +35,18 @@
 #include <cassert>
 
 /* low module */
-#include "ugtypes.h"
-#include "fileopen.h"
-#include "misc.h"
-#include "ugenv.h"
-#include "defaults.h"
-#include "debug.h"
-#include "ugstruct.h"
-#include "general.h"
+#include <low/defaults.h>
+#include <low/fileopen.h>
+#include <low/general.h>
+#include <low/misc.h>
+#include <low/namespace.h>
+#include <low/ugenv.h>
+#include <low/debug.h>
+#include <low/ugstruct.h>
+#include <low/ugtypes.h>
 
 /* dev module */
 #include <dev/ugdevices.h>
-
-#include "namespace.h"
 
 /* dddif module */
 #ifdef ModelP

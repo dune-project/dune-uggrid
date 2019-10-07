@@ -66,7 +66,7 @@ if(UG_ENABLE_PARALLEL)
 endif()
 
 #set the include headers
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
+include_directories(${PROJECT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/np
   ${PROJECT_SOURCE_DIR}/np/algebra
   ${PROJECT_SOURCE_DIR}/np/udm

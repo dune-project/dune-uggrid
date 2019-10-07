@@ -35,12 +35,12 @@
 #include <cstring>
 
 /* low module */
-#include "ugtypes.h"
-#include "debug.h"
-#include "heaps.h"
-#include "misc.h"
-#include "general.h"
-#include "namespace.h"
+#include <low/debug.h>
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/misc.h>
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 
 /* dev module */
 #include <dev/ugdevices.h>

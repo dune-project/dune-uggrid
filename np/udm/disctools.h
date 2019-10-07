@@ -28,11 +28,10 @@
 #ifndef __DISCTOOLS__
 #define __DISCTOOLS__
 
-#include "ugtypes.h"
 #include <gm/gm.h>
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 #include "np.h"
-
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 

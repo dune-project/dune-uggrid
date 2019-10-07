@@ -42,11 +42,11 @@
 #include <dune/common/exceptions.hh>
 #include <dune/common/stdstreams.hh>
 
+#include <low/namespace.h>
+#include <low/ugtypes.h>
+
 #include "dddi.h"
 #include "xfer.h"
-
-#include "ugtypes.h"
-#include "namespace.h"
 
 USING_UG_NAMESPACE
 using namespace PPIF;

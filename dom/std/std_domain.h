@@ -43,8 +43,8 @@
 
 #include <dom/domain.h>
 
-#include "dimension.h"
-#include "namespace.h"
+#include <low/dimension.h>
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

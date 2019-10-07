@@ -32,13 +32,13 @@
 
 #include <cstring>
 
-#include "architecture.h"
-#include "general.h"
-#include "debug.h"
-#include "ugenv.h"
 #include <dev/ugdevices.h>
 #include <gm/gm.h>
 #include <gm/rm.h>
+#include <low/architecture.h>
+#include <low/debug.h>
+#include <low/general.h>
+#include <low/ugenv.h>
 #include "np.h"
 
 #include "udm.h"

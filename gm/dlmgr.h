@@ -40,14 +40,14 @@
 #ifndef __DLMGR_H__
 
 #include "gm.h"
-#include "misc.h"
-#include "debug.h"
+#include <low/debug.h>
+#include <low/misc.h>
+#include <low/namespace.h>
 
 #ifdef ModelP
 #include "parallel.h"
 #endif
 
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 

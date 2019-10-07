@@ -34,7 +34,7 @@
 #define __MGHEAPMGR__
 
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

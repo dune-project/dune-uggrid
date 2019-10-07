@@ -38,12 +38,11 @@
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "parallel.h"
-#include "general.h"
+#include <low/general.h>
+#include <low/namespace.h>
 #include <dev/ugdevices.h>
 #include <gm/evm.h>
 #include <gm/ugm.h>
-
-#include "namespace.h"
 
 USING_UG_NAMESPACES
 using namespace PPIF;

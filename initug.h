@@ -30,8 +30,8 @@
 #ifndef __INITUG__
 #define __INITUG__
 
-#include "ugtypes.h"
-#include "namespace.h"
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 
 START_UGDIM_NAMESPACE
 

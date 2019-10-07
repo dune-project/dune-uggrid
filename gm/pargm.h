@@ -36,14 +36,14 @@
 #ifndef __PARGM_H__
 #define __PARGM_H__
 
-#include "ugtypes.h"
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 
 #ifdef ModelP
 #include "ppif.h"
 #include "ddd.h"
 #endif
 
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 

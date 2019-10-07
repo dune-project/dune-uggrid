@@ -36,10 +36,7 @@
 
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
-#include "ugtypes.h"
-#include "ugtime.h"
 #include "parallel.h"
-#include "general.h"
 #include <dev/ugdevices.h>
 #include <dom/domain.h>
 #include <gm/algebra.h>
@@ -48,8 +45,11 @@
 #include <gm/mgheapmgr.h>
 #include <gm/refine.h>
 #include <gm/ugm.h>
-#include "debug.h"
-#include "namespace.h"
+#include <low/debug.h>
+#include <low/general.h>
+#include <low/namespace.h>
+#include <low/ugtime.h>
+#include <low/ugtypes.h>
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

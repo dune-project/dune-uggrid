@@ -3,7 +3,7 @@
 #ifndef __DDD_DEBUGGER__
 #define __DDD_DEBUGGER__
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 void buggy (MULTIGRID *);

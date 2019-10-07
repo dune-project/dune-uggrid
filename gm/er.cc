@@ -66,7 +66,7 @@
 #include <algorithm>
 
 /* low */
-#include "general.h"
+#include <low/general.h>
 
 /* gm */
 #include "rm.h"

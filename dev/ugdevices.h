@@ -25,11 +25,9 @@
 
 #include <cstdio>
 
-#include "ugtypes.h"
-
-#include "ugenv.h"
-
-#include "namespace.h"
+#include <low/namespace.h>
+#include <low/ugenv.h>
+#include <low/ugtypes.h>
 
 START_UG_NAMESPACE
 
