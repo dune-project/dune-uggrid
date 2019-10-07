@@ -50,8 +50,8 @@
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
-#include "ugtypes.h"
-#include "architecture.h"
+#include <low/architecture.h>
+#include <low/ugtypes.h>
 
 #include "include/memmgr.h"
 #include "ppif.h"

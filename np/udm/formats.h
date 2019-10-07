@@ -33,9 +33,8 @@
 #define __FORMATS__
 
 #include <gm/gm.h>
+#include <low/namespace.h>
 #include "udm.h"
-
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 

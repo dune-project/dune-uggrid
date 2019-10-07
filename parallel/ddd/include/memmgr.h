@@ -30,7 +30,7 @@
 #ifndef __MEMMGR__
 #define __MEMMGR__
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

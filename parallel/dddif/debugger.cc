@@ -10,10 +10,10 @@
 
 #include "parallel.h"
 #include "memmgr.h"
-#include "general.h"
 #include <gm/ugm.h>
 #include <dev/ugdevices.h>
-#include "namespace.h"
+#include <low/general.h>
+#include <low/namespace.h>
 
 #include "debugger.h"
 

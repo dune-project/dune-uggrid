@@ -46,13 +46,15 @@
 #include <errno.h>
 #include <vector>
 
-#include "ugtypes.h"
-#include "architecture.h"
-#include "heaps.h"
-#include "ugenv.h"
-#include "debug.h"
-#include "general.h"
-#include "fifo.h"
+#include <low/architecture.h>
+#include <low/heaps.h>
+#include <low/debug.h>
+#include <low/fifo.h>
+#include <low/general.h>
+#include <low/misc.h>
+#include <low/ugenv.h>
+#include <low/ugstruct.h>
+#include <low/ugtypes.h>
 
 #include <dev/ugdevices.h>
 #include <dune/common/unused.hh>
@@ -60,7 +62,6 @@
 #include "evm.h"
 #include "gm.h"
 #include "rm.h"
-#include "misc.h"
 #include "dlmgr.h"
 #include "algebra.h"
 #include "ugm.h"
@@ -69,7 +70,6 @@
 #include "refine.h"
 #include <dom/domain.h>
 #include "pargm.h"
-#include "ugstruct.h"
 #include "mgheapmgr.h"
 
 #ifdef ModelP

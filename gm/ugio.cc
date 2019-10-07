@@ -41,16 +41,17 @@
 
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
-#include "ugtypes.h"
-#include "architecture.h"
-#include "fileopen.h"
-#include "heaps.h"
-#include "defaults.h"
-#include "general.h"
-#include "debug.h"
-#include "bio.h"
-#include "misc.h"
-#include "ugstruct.h"
+#include <low/architecture.h>
+#include <low/bio.h>
+#include <low/debug.h>
+#include <low/defaults.h>
+#include <low/fifo.h>
+#include <low/fileopen.h>
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/misc.h>
+#include <low/ugstruct.h>
+#include <low/ugtypes.h>
 
 #include <dev/ugdevices.h>
 #ifdef ModelP
@@ -58,14 +59,12 @@
 #endif
 #include "gm.h"
 #include "algebra.h"
-#include "misc.h"
 #include "ugm.h"
 #include "ugio.h"
 #include "elements.h"
 #include "shapes.h"
 #include "rm.h"
 #include "mgio.h"
-#include "fifo.h"
 #include "mgheapmgr.h"
 
 /* include refine because of macros accessed  */

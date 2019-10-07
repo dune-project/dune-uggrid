@@ -43,11 +43,12 @@
 #include <cmath>
 
 /* low modules */
-#include "ugtypes.h"
-#include "heaps.h"
-#include "ugenv.h"
-#include "general.h"
-#include "debug.h"
+#include <low/debug.h>
+#include <low/heaps.h>
+#include <low/general.h>
+#include <low/misc.h>
+#include <low/ugenv.h>
+#include <low/ugtypes.h>
 
 /* devices module */
 #include <dev/ugdevices.h>
@@ -55,7 +56,6 @@
 /* grid manager module */
 #include "gm.h"
 #include "algebra.h"
-#include "misc.h"
 #include "enrol.h"
 
 USING_UG_NAMESPACE

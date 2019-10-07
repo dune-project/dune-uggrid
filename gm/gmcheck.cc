@@ -40,20 +40,20 @@
 #include <cassert>
 #include <errno.h>
 
-#include "ugtypes.h"
-#include "heaps.h"
-#include "ugenv.h"
-#include "debug.h"
-#include "general.h"
-#include "fifo.h"
+#include <low/debug.h>
+#include <low/fifo.h>
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/misc.h>
+#include <low/ugenv.h>
+#include <low/ugstruct.h>
+#include <low/ugtypes.h>
 
 #include <dev/ugdevices.h>
-#include "ugstruct.h"
 
 #include "evm.h"
 #include "gm.h"
 #include "rm.h"
-#include "misc.h"
 #include "dlmgr.h"
 #include "algebra.h"
 #include "ugm.h"

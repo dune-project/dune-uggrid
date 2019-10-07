@@ -50,10 +50,10 @@
 #include <cstddef>
 #include <cinttypes>
 
-#include "namespace.h"
-
 #include <dune/uggrid/parallel/ddd/dddtypes.hh>
 #include <dune/uggrid/parallel/ddd/dddtypes_impl.hh>
+
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

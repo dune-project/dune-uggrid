@@ -33,10 +33,10 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "general.h"
+#include <low/general.h>
+#include <low/ugenv.h>
 
 #include "gm.h"
-#include "ugenv.h"
 #include "evm.h"
 #include <dev/ugdevices.h>
 #include "shapes.h"

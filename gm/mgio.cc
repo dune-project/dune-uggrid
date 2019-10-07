@@ -34,16 +34,16 @@
 #include <cstring>
 #include <cassert>
 
-#include "general.h"
-#include "bio.h"
+#include <low/bio.h>
+#include <low/general.h>
 #include "mgio.h"
 
 #ifdef __MGIO_USE_IN_UG__
 
-        #include "defaults.h"
-        #include "fileopen.h"
         #include <dom/domain.h>
-        #include "debug.h"
+        #include <low/debug.h>
+        #include <low/defaults.h>
+        #include <low/fileopen.h>
 
 #endif
 

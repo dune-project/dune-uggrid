@@ -35,11 +35,12 @@
 #include <cstdlib>
 
 /* low module */
-#include "architecture.h"
-#include "debug.h"
-#include "fileopen.h"
-#include "general.h"
-#include "misc.h"
+#include <low/architecture.h>
+#include <low/debug.h>
+#include <low/defaults.h>
+#include <low/fileopen.h>
+#include <low/general.h>
+#include <low/misc.h>
 
 /* dev module */
 #include <dev/ugdevices.h>
@@ -53,7 +54,6 @@
 #include "cw.h"
 #include "elements.h"
 
-#include "defaults.h"
 #ifdef ModelP
 #include "parallel.h"
 using namespace PPIF;

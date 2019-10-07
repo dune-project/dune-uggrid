@@ -36,11 +36,11 @@
 #ifndef __UGM__
 #define __UGM__
 
-#include "ugtypes.h"
+#include <low/namespace.h>
+#include <low/ugtypes.h>
+
 #include "gm.h"
 #include "dlmgr.h"
-
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 

@@ -34,11 +34,10 @@
 #ifndef __REFINE__
 #define __REFINE__
 
-#include "ugtypes.h"
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 #include "gm.h"
 #include "algebra.h"            /* just for ALGEBRA_N_CE */
-
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 

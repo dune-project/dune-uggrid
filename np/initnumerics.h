@@ -25,7 +25,7 @@
 #ifndef __INITNUMERICS__
 #define __INITNUMERICS__
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

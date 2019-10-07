@@ -32,14 +32,13 @@
 #ifndef __NP__
 #define __NP__
 
-#include "ugtypes.h"
 #include <gm/algebra.h>
 #include <gm/gm.h>
+#include <low/namespace.h>
+#include <low/ugenv.h>
+#include <low/ugtypes.h>
 #include "formats.h"
-#include "ugenv.h"
 #include "udm.h"
-
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 
