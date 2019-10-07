@@ -32,11 +32,10 @@
 #ifndef __UDM__
 #define __UDM__
 
-#include "ugtypes.h"
 #include <gm/gm.h>
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 #include "sm.h"
-
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 

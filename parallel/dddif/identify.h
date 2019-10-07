@@ -29,7 +29,7 @@
 #ifndef __IDENT_H__
 #define __IDENT_H__
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

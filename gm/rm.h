@@ -38,7 +38,7 @@
 #include "gm.h"
 #include "refine.h"
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

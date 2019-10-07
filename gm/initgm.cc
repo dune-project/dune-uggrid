@@ -33,10 +33,11 @@
 #include <cstdio>
 
 /* low module */
-#include "ugtypes.h"
-#include "misc.h"
-#include "defaults.h"
-#include "general.h"
+#include <low/defaults.h>
+#include <low/general.h>
+#include <low/misc.h>
+#include <low/ugstruct.h>
+#include <low/ugtypes.h>
 
 /* gm module */
 #include "gm.h"
@@ -48,7 +49,6 @@
 #include "elements.h"
 #include "refine.h"
 #include "rm.h"
-#include "ugstruct.h"
 
 /* own header */
 #include "initgm.h"

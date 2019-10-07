@@ -63,13 +63,15 @@
 
 #include <dune/common/unused.hh>
 
-#include "ugtypes.h"
-#include "architecture.h"
-#include "heaps.h"
-#include "fifo.h"
-#include "ugenv.h"
-#include "debug.h"
-#include "general.h"
+#include <low/architecture.h>
+#include <low/debug.h>
+#include <low/fifo.h>
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/misc.h>
+#include <low/namespace.h>
+#include <low/ugenv.h>
+#include <low/ugtypes.h>
 
 #include <dev/ugdevices.h>
 
@@ -80,7 +82,6 @@
 #include "refine.h"
 #include "ugm.h"
 #include "evm.h"
-#include "misc.h"
 #include "dlmgr.h"
 #include "mgheapmgr.h"
 
@@ -89,8 +90,6 @@
 #endif
 
 #include "cw.h"
-
-#include "namespace.h"
 
 USING_UG_NAMESPACE
 USING_UGDIM_NAMESPACE

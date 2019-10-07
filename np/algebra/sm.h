@@ -22,8 +22,8 @@
 #ifndef __SM__
 #define __SM__
 
-#include "namespace.h"
-#include "ugtypes.h"
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 
 #include <cstddef>
 

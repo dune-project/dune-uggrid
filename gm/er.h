@@ -35,7 +35,7 @@
 
 #include "mgio.h"
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

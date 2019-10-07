@@ -33,7 +33,9 @@
 #ifndef __ELEMENTS__
 #define __ELEMENTS__
 
-#include "namespace.h"
+#include <low/namespace.h>
+
+#include "gm.h"
 
 START_UGDIM_NAMESPACE
 

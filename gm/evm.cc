@@ -34,15 +34,16 @@
 #include <cstdlib>
 #include <cstddef>
 
-#include "ugtypes.h"
-#include "architecture.h"
-#include "misc.h"
-#include "evm.h"
-#include "general.h"
-#include <dev/ugdevices.h>
 #include <dune/common/unused.hh>
 
+#include <low/architecture.h>
+#include <low/general.h>
+#include <low/misc.h>
+#include <dev/ugdevices.h>
+#include <low/ugtypes.h>
+
 #include "elements.h"
+#include "evm.h"
 
 USING_UG_NAMESPACE
   USING_UGDIM_NAMESPACE

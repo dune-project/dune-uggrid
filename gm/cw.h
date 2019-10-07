@@ -29,7 +29,7 @@
 #ifndef __CW__
 #define __CW__
 
-#include "namespace.h"
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

@@ -37,7 +37,8 @@
 #  include <dune/uggrid/parallel/ddd/dddcontext.hh>
 #endif
 
-#include "heaps.h"
+#include <low/heaps.h>
+#include <low/namespace.h>
 
 #ifdef ModelP
 #include "ppif.h"
@@ -46,8 +47,6 @@
 
 #include <gm/gm.h>
 #include <gm/pargm.h>
-
-#include "namespace.h"
 
 START_UGDIM_NAMESPACE
 

@@ -28,11 +28,11 @@
 
 
 #include <dev/ugdevices.h>
-#include "architecture.h"
-#include "debug.h"
-#include "general.h"
+#include <low/architecture.h>
+#include <low/debug.h>
+#include <low/general.h>
+#include <low/misc.h>
 
-#include "misc.h"
 #include "algebra.h"
 #include "refine.h"
 #include "cw.h"

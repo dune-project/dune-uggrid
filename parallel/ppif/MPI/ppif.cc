@@ -60,8 +60,6 @@
 
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
-/*#include "ugtypes.h"*/
-
 using namespace PPIF;
 
 /****************************************************************************/

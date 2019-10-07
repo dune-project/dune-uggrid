@@ -32,7 +32,7 @@
 #include <cstdio>
 
 #include "np.h"
-#include "general.h"
+#include <low/general.h>
 #include "udm.h"
 #include "formats.h"
 

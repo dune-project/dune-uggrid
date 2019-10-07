@@ -68,12 +68,12 @@
 #include <dune/common/unused.hh>
 
 /* low module */
-#include "ugtypes.h"
-#include "debug.h"
-#include "heaps.h"
-#include "misc.h"
-#include "general.h"
-#include "ugtimer.h"
+#include <low/debug.h>
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/misc.h>
+#include <low/ugtimer.h>
+#include <low/ugtypes.h>
 
 /* dev module */
 #include <dev/ugdevices.h>
@@ -100,7 +100,7 @@
 #endif
 
 #ifdef Debug
-#include "architecture.h"
+#include <low/architecture.h>
 #endif
 
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>

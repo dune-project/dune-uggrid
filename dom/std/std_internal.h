@@ -11,8 +11,8 @@
 
 #include <dom/std/std_domain.h>
 
-#include "namespace.h"
-#include "dimension.h"
+#include <low/dimension.h>
+#include <low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

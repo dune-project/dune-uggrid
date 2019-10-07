@@ -42,14 +42,14 @@
 #  include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 #endif
 
-#include "general.h"
 #include "ppif.h"
-#include "ugtypes.h"
+#include <low/general.h>
+#include <low/namespace.h>
+#include <low/ugtypes.h>
 #include "memmgr.h"
 
 #include <gm/pargm.h>
 
-#include "namespace.h"
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

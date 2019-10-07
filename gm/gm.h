@@ -55,16 +55,16 @@
 #include <array>
 #include <numeric>
 
-#include "ugtypes.h"
-#include "heaps.h"
-#include "ugenv.h"
-#include "misc.h"
-#include "debug.h"
 #include <dom/domain.h>
+#include <low/debug.h>
+#include <low/dimension.h>
+#include <low/heaps.h>
+#include <low/namespace.h>
+#include <low/misc.h>
+#include <low/ugenv.h>
+#include <low/ugtypes.h>
 #include "pargm.h"
 #include "cw.h"
-#include "namespace.h"
-#include "dimension.h"
 
 #include <dune/uggrid/parallel/ppif/ppiftypes.hh>
 #ifdef ModelP

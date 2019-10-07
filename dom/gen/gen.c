@@ -37,16 +37,16 @@
 #include <math.h>
 
 /* low modules */
-#include "ugtypes.h"
-#include "heaps.h"
-#include "ugenv.h"
-#include "bio.h"
-#include "misc.h"
-#include "fileopen.h"
-#include "defaults.h"
-#include "general.h"
-#include "debug.h"
-#include "scan.h"
+#include <low/bio.h>
+#include <low/debug.h>
+#include <low/defaults.h>
+#include <low/fileopen.h>
+#include <low/general.h>
+#include <low/heaps.h>
+#include <low/misc.h>
+#include <low/scan.h>
+#include <low/ugenv.h>
+#include <low/ugtypes.h>
 
 #include <gm/evm.h>
 

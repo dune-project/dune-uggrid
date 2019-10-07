@@ -47,18 +47,18 @@
 #include <cassert>
 
 /* low module */
-#include "ugtypes.h"
-#include "architecture.h"
-#include "ugtime.h"
+#include <low/architecture.h>
+#include <low/debug.h>
+#include <low/defaults.h>
+#include <low/fileopen.h>
+#include <low/general.h>
 #include "initug.h"
-#include "defaults.h"
-#include "misc.h"
-#include "ugstruct.h"
-#include "fileopen.h"
-#include "ugenv.h"
-#include "debug.h"
-#include "heaps.h"              /* for MEM declaration */
-#include "general.h"
+#include <low/heaps.h>              /* for MEM declaration */
+#include <low/misc.h>
+#include <low/ugenv.h>
+#include <low/ugstruct.h>
+#include <low/ugtime.h>
+#include <low/ugtypes.h>
 
 /* devices module */
 #include <dev/ugdevices.h>
@@ -80,16 +80,12 @@
 #include "disctools.h"
 #include "udm.h"
 
-/* user interface module */
-#include "ugstruct.h"
-
 #ifdef ModelP
 #include "parallel.h"
 #endif
 
-
 /* own header */
-#include <ui/commands.h>
+#include "commands.h"
 
 USING_UG_NAMESPACES
 using namespace PPIF;
