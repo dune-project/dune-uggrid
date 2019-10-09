@@ -31,7 +31,7 @@
 #include <gm/gm.h>
 #include <low/namespace.h>
 #include <low/ugtypes.h>
-#include "np.h"
+#include <np/np.h>
 
 START_UGDIM_NAMESPACE
 
