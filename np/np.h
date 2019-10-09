@@ -37,8 +37,8 @@
 #include <low/namespace.h>
 #include <low/ugenv.h>
 #include <low/ugtypes.h>
-#include "formats.h"
-#include "udm.h"
+#include <np/udm/formats.h>
+#include <np/udm/udm.h>
 
 START_UGDIM_NAMESPACE
 

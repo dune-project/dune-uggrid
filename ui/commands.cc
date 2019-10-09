@@ -46,13 +46,14 @@
 #include <ctime>
 #include <cassert>
 
+#include <initug.h>
+
 /* low module */
 #include <low/architecture.h>
 #include <low/debug.h>
 #include <low/defaults.h>
 #include <low/fileopen.h>
 #include <low/general.h>
-#include "initug.h"
 #include <low/heaps.h>              /* for MEM declaration */
 #include <low/misc.h>
 #include <low/ugenv.h>
@@ -76,9 +77,9 @@
 #include <gm/ugm.h>
 
 /* numerics module */
-#include "np.h"
-#include "disctools.h"
-#include "udm.h"
+#include <np/np.h>
+#include <np/udm/disctools.h>
+#include <np/udm/udm.h>
 
 #ifdef ModelP
 #include "parallel.h"

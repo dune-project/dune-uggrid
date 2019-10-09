@@ -67,7 +67,7 @@ using namespace PPIF;
 #include "gm/initgm.h"
 
 /* numerics module */
-#include "np/initnumerics.h"
+#include <np/initnumerics.h>
 
 /* own header */
 #include "initug.h"
