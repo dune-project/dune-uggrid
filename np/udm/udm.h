@@ -35,7 +35,7 @@
 #include <gm/gm.h>
 #include <low/namespace.h>
 #include <low/ugtypes.h>
-#include "sm.h"
+#include <np/algebra/sm.h>
 
 START_UGDIM_NAMESPACE
 

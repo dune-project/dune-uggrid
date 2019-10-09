@@ -31,12 +31,12 @@
 #include <config.h>
 #include <cstdio>
 
-#include "np.h"
 #include <low/general.h>
-#include "udm.h"
-#include "formats.h"
 
+#include "np.h"
 #include "initnumerics.h"
+#include <np/udm/formats.h>
+#include <np/udm/udm.h>
 
 USING_UG_NAMESPACES
 
