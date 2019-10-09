@@ -5,9 +5,10 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/test/testsuite.hh>
 
+#include <initug.h>
+
 #include "evm.h"
 #include "gm.h"
-#include "initug.h"
 #include "rm.h"
 
 USING_UGDIM_NAMESPACE

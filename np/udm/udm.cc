@@ -39,7 +39,7 @@
 #include <low/debug.h>
 #include <low/general.h>
 #include <low/ugenv.h>
-#include "np.h"
+#include <np/np.h>
 
 #include "udm.h"
 

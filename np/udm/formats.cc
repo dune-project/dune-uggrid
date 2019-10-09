@@ -45,9 +45,9 @@
 #include <low/ugstruct.h>
 #include <low/ugtypes.h>
 
-#include "np.h"
+#include <np/np.h>
+#include <np/udm/formats.h>
 
-#include "formats.h"
 
 USING_UG_NAMESPACES
 
