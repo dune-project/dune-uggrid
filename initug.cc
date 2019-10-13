@@ -58,13 +58,13 @@ using namespace PPIF;
 #endif
 
 /* devices module */
-#include "dev/ugdevices.h"
+#include <dev/ugdevices.h>
 
 /* domain module */
-#include "dom/domain.h"
+#include <dom/domain.h>
 
 /* grid manager module */
-#include "gm/initgm.h"
+#include <gm/initgm.h>
 
 /* numerics module */
 #include <np/initnumerics.h>
