@@ -73,9 +73,9 @@
 #include <dune/common/stdstreams.hh>
 #include <dune/common/unused.hh>
 
-#include "dddi.h"
-#include "basic/lowcomm.h"
-#include "basic/notify.h"
+#include <parallel/ddd/dddi.h>
+#include "lowcomm.h"
+#include "notify.h"
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 

@@ -32,7 +32,7 @@
 
 #include <dune/uggrid/parallel/ddd/dddtypes.hh>
 
-#include "include/ddd.h"
+#include <parallel/ddd/include/ddd.h>
 
 namespace DDD {
 

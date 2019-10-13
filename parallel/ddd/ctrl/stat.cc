@@ -33,7 +33,7 @@
 #include <cstdio>
 #include <stdarg.h>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 
 
 /****************************************************************************/

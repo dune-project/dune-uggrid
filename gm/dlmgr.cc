@@ -43,7 +43,7 @@
 #include "refine.h"
 
 #ifdef ModelP
-#include "parallel.h"
+#include <parallel/dddif/parallel.h>
 #endif
 
 

@@ -37,7 +37,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 #include "xfer.h"
 
 using namespace PPIF;

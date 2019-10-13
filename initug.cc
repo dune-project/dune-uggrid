@@ -52,8 +52,8 @@
 
 /* parallelization module */
 #ifdef ModelP
-#include "parallel.h"
-#include "ppif.h"
+#include <parallel/dddif/parallel.h>
+#include <parallel/ppif/ppif.h>
 using namespace PPIF;
 #endif
 

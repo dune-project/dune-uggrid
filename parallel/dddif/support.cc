@@ -42,11 +42,11 @@
 #  include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 #endif
 
-#include "ppif.h"
+#include <parallel/ppif/ppif.h>
 #include <low/general.h>
 #include <low/namespace.h>
 #include <low/ugtypes.h>
-#include "memmgr.h"
+#include <parallel/ddd/include/memmgr.h>
 
 #include <gm/pargm.h>
 

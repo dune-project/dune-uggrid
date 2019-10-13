@@ -37,8 +37,8 @@
 #define DebugJoin     10   /* 0 is all, 10 is off */
 
 
-#include "basic/lowcomm.h"
-#include "basic/oopp.h"    /* for object-orientated style via preprocessor */
+#include <parallel/ddd/basic/lowcomm.h>
+#include <parallel/ddd/basic/oopp.h>    /* for object-orientated style via preprocessor */
 
 /****************************************************************************/
 /*                                                                          */
@@ -116,7 +116,7 @@ int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 #define Set_SegmSize   256
 #define Set_BTreeOrder 32
 #endif
-#include "basic/ooppcc.h"
+#include <parallel/ddd/basic/ooppcc.h>
 
 
 
@@ -162,7 +162,7 @@ int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 #define Set_SegmSize   256
 #define Set_BTreeOrder 32
 #endif
-#include "basic/ooppcc.h"
+#include <parallel/ddd/basic/ooppcc.h>
 
 
 
