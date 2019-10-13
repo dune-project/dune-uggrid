@@ -76,6 +76,7 @@
 #include <dev/ugdevices.h>
 
 #include "algebra.h"
+#include "cw.h"
 #include "dlmgr.h"
 #include "gm.h"
 #include "elements.h"
@@ -89,7 +90,6 @@
 #include <parallel/dddif/parallel.h>
 #endif
 
-#include "cw.h"
 
 USING_UG_NAMESPACE
 USING_UGDIM_NAMESPACE
