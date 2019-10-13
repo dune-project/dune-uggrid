@@ -46,8 +46,8 @@
 #include <low/ugtypes.h>
 
 /* parallel modules */
-#include "parallel.h"
-#include "memmgr.h"
+#include <parallel/ddd/include/memmgr.h>
+#include <parallel/dddif/parallel.h>
 
 /* domain module */
 #include <dom/domain.h>

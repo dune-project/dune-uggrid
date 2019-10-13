@@ -53,12 +53,11 @@
 #include <low/architecture.h>
 #include <low/ugtypes.h>
 
-#include "include/memmgr.h"
-#include "ppif.h"
-#include "ctrl/stat.h"
-
-#include "include/ddd.h"
-#include "include/dddio.h"
+#include <parallel/ppif/ppif.h>
+#include <parallel/ddd/ctrl/stat.h>
+#include <parallel/ddd/include/ddd.h>
+#include <parallel/ddd/include/dddio.h>
+#include <parallel/ddd/include/memmgr.h>
 
 START_UGDIM_NAMESPACE
 

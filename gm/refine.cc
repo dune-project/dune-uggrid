@@ -91,12 +91,12 @@
 
 /* parallel modules */
 #ifdef ModelP
-#include "ppif.h"
-#include "ddd.h"
-#include "parallel.h"
-#include "identify.h"
+#include <parallel/ppif/ppif.h>
+#include <parallel/ddd/include/ddd.h>
+#include <parallel/dddif/debugger.h>
+#include <parallel/dddif/identify.h>
+#include <parallel/dddif/parallel.h>
 #include "pargm.h"
-#include "debugger.h"
 #endif
 
 #ifdef Debug

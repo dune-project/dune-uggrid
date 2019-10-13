@@ -41,8 +41,8 @@
 
 #include <dune/common/stdstreams.hh>
 
-#include "dddi.h"
-#include "basic/notify.h"
+#include <parallel/ddd/dddi.h>
+#include "notify.h"
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>

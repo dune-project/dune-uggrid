@@ -65,14 +65,6 @@ if(UG_ENABLE_PARALLEL)
   set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DModelP")
 endif()
 
-#set the include headers
-include_directories(${PROJECT_SOURCE_DIR}
-  ${PROJECT_SOURCE_DIR}/parallel ${PROJECT_SOURCE_DIR}/parallel/ddd
-  ${PROJECT_SOURCE_DIR}/parallel/ppif
-  ${PROJECT_SOURCE_DIR}/parallel/dddif
-  ${PROJECT_SOURCE_DIR}/parallel/ddd/include )
-
-
 set(UG_ENABLED_DIMENSIONS)
 if(UG_ENABLE_2D)
   list(APPEND UG_ENABLED_DIMENSIONS "2")

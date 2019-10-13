@@ -42,7 +42,7 @@
 
 #include "disctools.h"
 #ifdef ModelP
-#include "parallel.h"   /* for PRIO */
+#include <parallel/dddif/parallel.h>   /* for PRIO */
 #endif
 
 USING_UG_NAMESPACES
