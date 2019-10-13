@@ -37,9 +37,9 @@
 
 #include <dune/common/stdstreams.hh>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
+#include <parallel/ddd/basic/notify.h>
 #include "if.h"
-#include "basic/notify.h"
 
 using namespace PPIF;
 

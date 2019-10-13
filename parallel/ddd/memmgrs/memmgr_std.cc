@@ -34,7 +34,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include "ppif.h"
+#include <parallel/ppif/ppif.h>
 
 
 /****************************************************************************/

@@ -37,7 +37,7 @@
 
 #include <new>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 
 USING_UG_NAMESPACE
 

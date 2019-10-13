@@ -44,8 +44,8 @@
 
 
 
-#include "basic/lowcomm.h"
-#include "basic/oopp.h"    /* for object-orientated style via preprocessor */
+#include <parallel/ddd/basic/lowcomm.h>
+#include <parallel/ddd/basic/oopp.h>    /* for object-orientated style via preprocessor */
 #include "sll.h"           /* TODO: remove this in future versions */
 
 START_UGDIM_NAMESPACE
@@ -193,7 +193,7 @@ int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext* context);
 #define Set_SegmSize   256
 #define Set_BTreeOrder 32
 #endif
-#include "basic/ooppcc.h"
+#include <parallel/ddd/basic/ooppcc.h>
 
 
 /* usage of flags in XICopyObj */
@@ -276,7 +276,7 @@ int  Method(Compare) (ClassPtr, ClassPtr, const DDD::DDDContext*);
 #define Set_SegmSize   256
 #define Set_BTreeOrder 32
 #endif
-#include "basic/ooppcc.h"
+#include <parallel/ddd/basic/ooppcc.h>
 
 
 /****************************************************************************/

@@ -30,7 +30,7 @@
 #include "ugm.h"
 
 #ifdef ModelP
-#include "parallel.h"
+#include <parallel/dddif/parallel.h>
 #endif
 
 #include "elements.h"

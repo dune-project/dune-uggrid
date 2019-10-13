@@ -45,7 +45,7 @@
 #include <low/namespace.h>
 #include <low/ugtypes.h>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 #include "xfer.h"
 
 USING_UG_NAMESPACE

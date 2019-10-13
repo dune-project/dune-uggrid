@@ -34,7 +34,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 #include "if.h"
 
 USING_UG_NAMESPACE

@@ -55,10 +55,10 @@
 #include <gm/ugm.h>
 
 /* parallel modules */
-#include "ppif.h"
-#include "ddd.h"
-#include "parallel.h"
+#include <parallel/ddd/include/ddd.h>
+#include <parallel/ppif/ppif.h>
 #include "identify.h"
+#include "parallel.h"
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

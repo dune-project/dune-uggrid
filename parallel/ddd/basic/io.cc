@@ -31,9 +31,9 @@
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
 #include <low/ugtypes.h>
-#include "ppif.h"
-#include "dddio.h"
-#include "ddd/dddi.h"
+#include <parallel/ppif/ppif.h>
+#include <parallel/ddd/include/dddio.h>
+#include <parallel/ddd/dddi.h>
 
 /* PPIF namespace: */
 using namespace PPIF;

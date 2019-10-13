@@ -82,7 +82,7 @@
 #include <np/udm/udm.h>
 
 #ifdef ModelP
-#include "parallel.h"
+#include <parallel/dddif/parallel.h>
 #endif
 
 /* own header */

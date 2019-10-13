@@ -41,8 +41,8 @@
 #include <low/namespace.h>
 
 #ifdef ModelP
-#include "ppif.h"
-#include "ddd.h"
+#include <parallel/ppif/ppif.h>
+#include <parallel/ddd/include/ddd.h>
 #endif
 
 #include <gm/gm.h>

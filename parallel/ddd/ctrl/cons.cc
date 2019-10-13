@@ -38,9 +38,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "dddi.h"
-/*#include "xfer/xfer.h"*/
-#include "basic/lowcomm.h"
+#include <parallel/ddd/dddi.h>
+#include <parallel/ddd/basic/lowcomm.h>
 
 #include <dune/common/stdstreams.hh>
 

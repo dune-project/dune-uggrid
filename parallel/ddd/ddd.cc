@@ -42,8 +42,8 @@
 #include <new>
 
 #include "dddi.h"
-#include "basic/notify.h"
-#include "basic/lowcomm.h"
+#include <parallel/ddd/basic/lowcomm.h>
+#include <parallel/ddd/basic/notify.h>
 
 #include <dune/common/exceptions.hh>
 #include <dune/common/stdstreams.hh>

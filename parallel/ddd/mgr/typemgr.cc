@@ -48,7 +48,7 @@
 #include <dune/common/exceptions.hh>
 #include <dune/common/stdstreams.hh>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 

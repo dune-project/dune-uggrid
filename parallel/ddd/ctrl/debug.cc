@@ -37,7 +37,7 @@
 #include <iostream>
 #include <tuple>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 
 /* PPIF namespace: */
 using namespace PPIF;

@@ -44,7 +44,7 @@
 
 #include <dune/common/stdstreams.hh>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 #include "xfer.h"
 
 using namespace PPIF;

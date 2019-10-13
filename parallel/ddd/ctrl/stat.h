@@ -30,7 +30,7 @@
 #define __DDD_STAT_H__
 
 
-#include "dddaddon.h"
+#include <parallel/ddd/include/dddaddon.h>
 
 START_UGDIM_NAMESPACE
 
