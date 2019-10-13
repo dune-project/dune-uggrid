@@ -59,6 +59,7 @@
 #include <dev/ugdevices.h>
 #include <dune/common/unused.hh>
 
+#include "cw.h"
 #include "evm.h"
 #include "gm.h"
 #include "rm.h"
@@ -76,8 +77,6 @@
 #include <parallel/dddif/identify.h>
 #include <parallel/ppif/ppif.h>
 #endif
-
-#include "cw.h"
 
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
