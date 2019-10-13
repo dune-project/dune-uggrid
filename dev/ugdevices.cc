@@ -50,7 +50,7 @@
 
 /* dddif module */
 #ifdef ModelP
-#include "ppif.h"
+#include <parallel/ppif/ppif.h>
 using namespace PPIF;
 #endif
 

@@ -55,7 +55,7 @@
 
 #include <dev/ugdevices.h>
 #ifdef ModelP
-#include "parallel.h"
+#include <parallel/dddif/parallel.h>
 #endif
 #include "gm.h"
 #include "algebra.h"

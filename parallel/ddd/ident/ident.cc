@@ -64,12 +64,9 @@
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
-#include "dddi.h"
-
-#include "basic/notify.h"
-
-
-#include "basic/oopp.h"    /* for object-orientated style via preprocessor */
+#include <parallel/ddd/dddi.h>
+#include <parallel/ddd/basic/notify.h>
+#include <parallel/ddd/basic/oopp.h>    /* for object-orientated style via preprocessor */
 
 USING_UG_NAMESPACE
 
@@ -234,7 +231,7 @@ namespace {
 /* define container class */
 #define SegmListOf   IdEntry
 #define SegmSize     128
-#include "basic/ooppcc.h"
+#include <parallel/ddd/basic/ooppcc.h>
 
 } /* namespace */
 

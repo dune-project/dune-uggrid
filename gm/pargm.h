@@ -40,8 +40,8 @@
 #include <low/ugtypes.h>
 
 #ifdef ModelP
-#include "ppif.h"
-#include "ddd.h"
+#include <parallel/ddd/include/ddd.h>
+#include <parallel/ppif/ppif.h>
 #endif
 
 

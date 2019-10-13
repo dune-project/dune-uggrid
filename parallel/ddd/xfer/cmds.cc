@@ -44,7 +44,7 @@
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 #include "xfer.h"
 
 

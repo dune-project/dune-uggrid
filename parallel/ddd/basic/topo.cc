@@ -45,9 +45,8 @@
 
 #include <low/namespace.h>
 
-#include "memmgr.h"
-
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
+#include <parallel/ddd/include/memmgr.h>
 
 USING_UG_NAMESPACES
 

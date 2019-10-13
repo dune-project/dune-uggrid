@@ -40,12 +40,13 @@
 #include <gm/refine.h>
 #include <gm/rm.h>
 #include <gm/ugm.h>
-#include "ddd.h"
-#include "parallel.h"
-#include "identify.h"
 #include <low/debug.h>
 #include <low/general.h>
 #include <low/ugtypes.h>
+
+#include <parallel/ddd/include/ddd.h>
+#include "identify.h"
+#include "parallel.h"
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

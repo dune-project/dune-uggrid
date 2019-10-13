@@ -51,7 +51,7 @@
 #include <dune/common/stdstreams.hh>
 #include <dune/common/unused.hh>
 
-#include "dddi.h"
+#include <parallel/ddd/dddi.h>
 #include "if.h"
 
 USING_UG_NAMESPACE

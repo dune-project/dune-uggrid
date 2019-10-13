@@ -73,8 +73,8 @@
 #include "mgheapmgr.h"
 
 #ifdef ModelP
-#include "identify.h"
-#include "parallel/ppif/ppif.h"
+#include <parallel/dddif/identify.h>
+#include <parallel/ppif/ppif.h>
 #endif
 
 #include "cw.h"
