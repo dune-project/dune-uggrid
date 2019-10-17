@@ -6495,13 +6495,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   /* print vector data if */
   if (dataopt && FMT_PR_VEC(theFormat)!=NULL)
   {
-    /* print skip flags */
-    if (READ_FLAG(modifiers,LV_SKIP))
-    {
-      INT_2_bitpattern(VECSKIP(theVector),buffer);
-      UserWriteF("  skip=%s\n",buffer);
-    }
-
     /* print data */
     Data = (void*)(&VVALUE(theVector,0));
     if ((*(FMT_PR_VEC(theFormat)))(VTYPE(theVector),Data,"   ",buffer))

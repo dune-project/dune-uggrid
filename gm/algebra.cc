@@ -354,7 +354,6 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
   VOBJECT(pv) = object;
   VINDEX(pv) = (long)NVEC(theGrid);
   SUCCVC(pv) = FIRSTVECTOR(theGrid);
-  VECSKIP(pv) = 0;
   VSTART(pv) = NULL;
 
   GRID_LINK_VECTOR(theGrid,pv,PrioMaster);
@@ -3888,7 +3887,7 @@ static INT LexAlgDep (GRID *theGrid, const char *data)
   DOUBLE_VECTOR pos,nbpos;
   DOUBLE diff[DIM];
   INT i,order,res;
-  INT Sign[DIM],Order[DIM],xused,yused,zused,error,SpecialTreatSkipVecs;
+  INT Sign[DIM],Order[DIM],xused,yused,zused,error;
   char ord[3];
 
   /* read ordering directions */
@@ -3959,13 +3958,6 @@ static INT LexAlgDep (GRID *theGrid, const char *data)
     return(1);
   }
 
-  /* treat vectors with skipflag set specially? */
-  SpecialTreatSkipVecs = false;
-  if              (strchr(data,'<')!=NULL)
-    SpecialTreatSkipVecs = GM_PUT_AT_BEGIN;
-  else if (strchr(data,'>')!=NULL)
-    SpecialTreatSkipVecs = GM_PUT_AT_END;
-
   theMG   = MYMG(theGrid);
 
   /* find an approximate measure for the mesh size */
@@ -3985,50 +3977,30 @@ static INT LexAlgDep (GRID *theGrid, const char *data)
       SETMUP(theMatrix,0);
       SETMDOWN(theMatrix,0);
 
-      if (SpecialTreatSkipVecs)
-      {
-        if (VECSKIP(theVector) && !VECSKIP(NBVector))
-        {
-          if (SpecialTreatSkipVecs==GM_PUT_AT_BEGIN)
-            order = -1;
-          else
-            order =  1;
-        }
+      VectorPosition(NBVector,nbpos);
 
-        if (VECSKIP(NBVector) && !VECSKIP(theVector))
+      V_DIM_SUBTRACT(nbpos,pos,diff);
+      V_DIM_SCALE(InvMeshSize,diff);
+
+      if (fabs(diff[Order[DIM-1]])<ORDERRES)
+      {
+                                      #ifdef __THREEDIM__
+        if (fabs(diff[Order[DIM-2]])<ORDERRES)
         {
-          if (SpecialTreatSkipVecs==GM_PUT_AT_BEGIN)
-            order =  1;
-          else
-            order = -1;
+          if (diff[Order[DIM-3]]>0.0) order = -Sign[DIM-3];
+          else order =  Sign[DIM-3];
         }
+        else
+                                      #endif
+        if (diff[Order[DIM-2]]>0.0) order = -Sign[DIM-2];
+        else order =  Sign[DIM-2];
       }
       else
       {
-        VectorPosition(NBVector,nbpos);
-
-        V_DIM_SUBTRACT(nbpos,pos,diff);
-        V_DIM_SCALE(InvMeshSize,diff);
-
-        if (fabs(diff[Order[DIM-1]])<ORDERRES)
-        {
-                                        #ifdef __THREEDIM__
-          if (fabs(diff[Order[DIM-2]])<ORDERRES)
-          {
-            if (diff[Order[DIM-3]]>0.0) order = -Sign[DIM-3];
-            else order =  Sign[DIM-3];
-          }
-          else
-                                        #endif
-          if (diff[Order[DIM-2]]>0.0) order = -Sign[DIM-2];
-          else order =  Sign[DIM-2];
-        }
-        else
-        {
-          if (diff[Order[DIM-1]]>0.0) order = -Sign[DIM-1];
-          else order =  Sign[DIM-1];
-        }
+        if (diff[Order[DIM-1]]>0.0) order = -Sign[DIM-1];
+        else order =  Sign[DIM-1];
       }
+      
       if (order==1) SETMUP(theMatrix,1);
       else SETMDOWN(theMatrix,1);
     }
