@@ -1530,9 +1530,6 @@ all degrees of freedom stored in the vector.
 
 . index - Reflects position of the VECTOR in the double linked list.
 
-. skip - Used bitwise to identify components of a VECTOR that have Dirichlet boundary 
-conditions. These components have to be treated differently in some parts of the solver.
-
 . start - Points to first element of the MATRIX list of a VECTOR. This
 list represents the rows of the matrix belonging to degrees of freedom in
 the given VECTOR.
@@ -1562,22 +1559,6 @@ INT VINDEX (VECTOR *v);
 Position of the VECTOR in the doubl linked list. This is useful for
 the implementation of some iterative schemes.
 
-\verbatim
-INT VSKIPME (VECTOR *v,INT n);
-INT VVECSKIP (VECTOR *v,INT n);
-INT VFULLSKIP (VECTOR *v,INT n);
-void SETVSKIPME (VECTOR *v,INT n);
-INT VECSKIP (VECTOR *v);
-INT VECSKIPBIT (VECTOR *v,INT n);
-void SETVECSKIPBIT (VECTOR *v,INT n);
-\endverbatim
-
-????
-Macros to modify the skip flags. VECSKIP returns value of the skip word. Since it is
-a macro it can also be used for assigning a value to the skip word, e.g.
-VECSKIP(v)=0 will reset all bits in the skip word. VECSKIPBIT returns true
-if the n th bit of the skip word is set. SETVECSKIPBIT sets the nth
-bit of the skip word to 1.
 
 \verbatim
 MATRIX *VSTART (VECTOR *v);

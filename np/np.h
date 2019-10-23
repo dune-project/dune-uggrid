@@ -107,12 +107,6 @@ START_UGDIM_NAMESPACE
 #define DISPLAY_NP_FORMAT_SIII                  "%-16.13s = %-2d  %-2d  %-2d\n"
 #define DISPLAY_NP_FORMAT_FF                    "%-7.4g  %-7.4g\n"
 
-#define CLEAR_VECSKIP_OF_GRID(g)                                \
-  { VECTOR *theVector;                                 \
-    for (theVector=FIRSTVECTOR((g)); theVector!= NULL; \
-         theVector=SUCCVC(theVector))                  \
-      VECSKIP(theVector) = 0;}
-
 /****************************************************************************/
 /*                                                                          */
 /* function declarations                                                                                                        */
