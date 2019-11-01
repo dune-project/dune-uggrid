@@ -69,7 +69,7 @@
 #include "elements.h"
 #include "shapes.h"
 #include "refine.h"
-#include <dom/domain.h>
+#include <dune/uggrid/domain/domain.h>
 #include "pargm.h"
 #include "mgheapmgr.h"
 

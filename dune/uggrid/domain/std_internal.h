@@ -7,12 +7,11 @@
 #error internal header! Must not be used in Applications!
 #endif
 
-#include <dom/domain.h>
-
-#include <dom/std/std_domain.h>
-
 #include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/namespace.h>
+
+#include "domain.h"
+#include "std_domain.h"
 
 START_UGDIM_NAMESPACE
 

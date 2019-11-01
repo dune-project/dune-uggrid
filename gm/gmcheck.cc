@@ -60,7 +60,7 @@
 #include "elements.h"
 #include "shapes.h"
 #include "refine.h"
-#include <dom/domain.h>
+#include <dune/uggrid/domain/domain.h>
 
 #ifdef ModelP
 #include <parallel/dddif/parallel.h>
