@@ -34,7 +34,7 @@
 #define __MGHEAPMGR__
 
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

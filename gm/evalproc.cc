@@ -33,8 +33,8 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <low/general.h>
-#include <low/ugenv.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/ugenv.h>
 
 #include "gm.h"
 #include "evm.h"

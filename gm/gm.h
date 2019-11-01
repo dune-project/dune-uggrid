@@ -56,13 +56,13 @@
 #include <numeric>
 
 #include <dom/domain.h>
-#include <low/debug.h>
-#include <low/dimension.h>
-#include <low/heaps.h>
-#include <low/namespace.h>
-#include <low/misc.h>
-#include <low/ugenv.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/dimension.h>
+#include <dune/uggrid/low/heaps.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/ugenv.h>
+#include <dune/uggrid/low/ugtypes.h>
 #include "pargm.h"
 #include "cw.h"
 

@@ -36,8 +36,8 @@
 #include <gm/evm.h>
 #include <gm/ugm.h>
 #include <dev/ugdevices.h>
-#include <low/general.h>
-#include <low/namespace.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/namespace.h>
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

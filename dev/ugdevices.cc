@@ -35,15 +35,15 @@
 #include <cassert>
 
 /* low module */
-#include <low/defaults.h>
-#include <low/fileopen.h>
-#include <low/general.h>
-#include <low/misc.h>
-#include <low/namespace.h>
-#include <low/ugenv.h>
-#include <low/debug.h>
-#include <low/ugstruct.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/defaults.h>
+#include <dune/uggrid/low/fileopen.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugenv.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/ugstruct.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 /* dev module */
 #include <dev/ugdevices.h>

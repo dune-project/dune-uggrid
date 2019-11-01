@@ -25,9 +25,9 @@
 
 #include <cstdio>
 
-#include <low/namespace.h>
-#include <low/ugenv.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugenv.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 START_UG_NAMESPACE
 

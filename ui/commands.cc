@@ -49,17 +49,17 @@
 #include <initug.h>
 
 /* low module */
-#include <low/architecture.h>
-#include <low/debug.h>
-#include <low/defaults.h>
-#include <low/fileopen.h>
-#include <low/general.h>
-#include <low/heaps.h>              /* for MEM declaration */
-#include <low/misc.h>
-#include <low/ugenv.h>
-#include <low/ugstruct.h>
-#include <low/ugtime.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/architecture.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/defaults.h>
+#include <dune/uggrid/low/fileopen.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/heaps.h>              /* for MEM declaration */
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/ugenv.h>
+#include <dune/uggrid/low/ugstruct.h>
+#include <dune/uggrid/low/ugtime.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 /* devices module */
 #include <dev/ugdevices.h>

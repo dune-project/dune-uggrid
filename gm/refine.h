@@ -34,8 +34,8 @@
 #ifndef __REFINE__
 #define __REFINE__
 
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 #include "gm.h"
 #include "algebra.h"            /* just for ALGEBRA_N_CE */
 

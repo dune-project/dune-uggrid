@@ -43,12 +43,12 @@
 #include <cmath>
 
 /* low modules */
-#include <low/debug.h>
-#include <low/heaps.h>
-#include <low/general.h>
-#include <low/misc.h>
-#include <low/ugenv.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/heaps.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/ugenv.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 /* devices module */
 #include <dev/ugdevices.h>

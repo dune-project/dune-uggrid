@@ -11,8 +11,8 @@
 
 #include <dom/std/std_domain.h>
 
-#include <low/dimension.h>
-#include <low/namespace.h>
+#include <dune/uggrid/low/dimension.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

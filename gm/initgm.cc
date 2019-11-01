@@ -33,11 +33,11 @@
 #include <cstdio>
 
 /* low module */
-#include <low/defaults.h>
-#include <low/general.h>
-#include <low/misc.h>
-#include <low/ugstruct.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/defaults.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/ugstruct.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 /* gm module */
 #include "gm.h"

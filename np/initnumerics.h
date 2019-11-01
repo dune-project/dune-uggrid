@@ -25,7 +25,7 @@
 #ifndef __INITNUMERICS__
 #define __INITNUMERICS__
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

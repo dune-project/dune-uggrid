@@ -32,7 +32,7 @@
 #include "simplex.h"
 #include "ugrefine3d.h"
 
-#include <low/general.h>
+#include <dune/uggrid/low/general.h>
 
 /* only compile for 3D version */
 #ifdef __THREEDIM__

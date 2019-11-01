@@ -34,11 +34,11 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include <low/general.h>
-#include <low/heaps.h>
-#include <low/misc.h>
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/heaps.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 #include <dev/ugdevices.h>
 
 #include "parallel.h"
