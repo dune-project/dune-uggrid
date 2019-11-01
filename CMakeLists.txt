@@ -174,7 +174,6 @@ add_subdirectory(dune)
 add_subdirectory(gm)
 add_subdirectory(np)
 add_subdirectory(ui)
-add_subdirectory(lib)
 add_subdirectory(cmake/modules)
 # set variable names for config.h
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
