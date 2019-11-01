@@ -52,8 +52,6 @@
 /* set needed in BVP_Init */
 #include <set>
 
-#include <dom/domain.h>
-
 /* low modules */
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/bio.h>
@@ -74,7 +72,8 @@
 #include <dev/ugdevices.h>
 
 /* domain module */
-#include <dom/std/std_internal.h>
+#include "domain.h"
+#include "std_internal.h"
 
 USING_UGDIM_NAMESPACE
   USING_UG_NAMESPACE

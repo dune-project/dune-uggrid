@@ -6,9 +6,9 @@
 
 #include <dune/common/exceptions.hh>
 
-#include "low/namespace.h"
+#include <dune/uggrid/low/namespace.h>
 
-#include "gm/rm-write2file.h"
+#include <gm/rm-write2file.h>
 
 #include <iostream>
 #include <memory>

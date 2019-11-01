@@ -41,10 +41,10 @@
 #ifndef __STD_DOMAIN__
 #define __STD_DOMAIN__
 
-#include <dom/domain.h>
-
 #include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/namespace.h>
+
+#include "domain.h"
 
 START_UGDIM_NAMESPACE
 
