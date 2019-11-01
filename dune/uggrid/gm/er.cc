@@ -76,7 +76,7 @@
 #include "elements.h"
 
 /* ui  (for new memory model, remove later) */
-#include <ui/commands.h>
+#include <dune/uggrid/commands.h>
 
 /* own header */
 #include "er.h"

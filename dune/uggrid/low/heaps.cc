@@ -42,7 +42,7 @@
 #include "misc.h"
 #include "general.h"
 #include "debug.h"
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 #include "namespace.h"
 USING_UG_NAMESPACE

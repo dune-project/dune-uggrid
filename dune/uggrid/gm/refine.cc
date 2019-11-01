@@ -76,7 +76,7 @@
 #include <dune/uggrid/low/ugtypes.h>
 
 /* dev module */
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* gm module */
 #include "algebra.h"

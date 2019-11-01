@@ -51,7 +51,7 @@
 #include <dune/uggrid/low/ugtypes.h>
 
 /* devices module */
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* grid manager module */
 #include "gm.h"

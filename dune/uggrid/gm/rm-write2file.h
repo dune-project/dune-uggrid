@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include "gm.h"
 #include "rm.h"
 #include "evm.h"
