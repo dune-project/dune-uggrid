@@ -39,7 +39,7 @@
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/ugenv.h>
-#include <np/np.h>
+#include <dune/uggrid/numerics/np.h>
 
 #include "udm.h"
 

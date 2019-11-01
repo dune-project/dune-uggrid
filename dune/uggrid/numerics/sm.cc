@@ -32,7 +32,7 @@
 
 REP_ERR_FILE
 
-#include <np/udm/udm.h>  /* for MAX_MAT_COMP */
+#include <dune/uggrid/numerics/udm.h>  /* for MAX_MAT_COMP */
 
 /****************************************************************************/
 /** \brief Computes the size of a sparse matrix array

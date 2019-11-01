@@ -35,8 +35,8 @@
 
 #include "np.h"
 #include "initnumerics.h"
-#include <np/udm/formats.h>
-#include <np/udm/udm.h>
+#include <dune/uggrid/numerics/formats.h>
+#include <dune/uggrid/numerics/udm.h>
 
 USING_UG_NAMESPACES
 
