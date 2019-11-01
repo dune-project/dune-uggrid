@@ -37,7 +37,7 @@
 #include "misc.h"
 #include "ugenv.h"
 /** \todo this is a hierarchy conflict, remove. (VR) */
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 USING_UG_NAMESPACE
 

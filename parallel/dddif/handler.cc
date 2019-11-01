@@ -40,7 +40,7 @@
 
 #include <dune/common/unused.hh>
 
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/domain/domain.h>
 #include "parallel.h"
 #include <dune/uggrid/gm/algebra.h>

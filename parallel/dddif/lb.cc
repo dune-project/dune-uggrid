@@ -35,7 +35,7 @@
 #include "parallel.h"
 #include <dune/uggrid/gm/evm.h>
 #include <dune/uggrid/gm/ugm.h>
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
 

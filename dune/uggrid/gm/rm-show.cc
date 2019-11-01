@@ -7,7 +7,7 @@
 
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/initlow.h>
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/gm/initgm.h>
 #include <dune/uggrid/gm/rm.h>
 

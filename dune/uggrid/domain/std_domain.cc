@@ -69,7 +69,7 @@
 #include <dune/uggrid/gm/evm.h>
 
 /* dev modules */
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* domain module */
 #include "domain.h"
