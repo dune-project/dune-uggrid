@@ -33,8 +33,8 @@
 #define __UDM__
 
 #include <gm/gm.h>
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 #include <np/algebra/sm.h>
 
 START_UGDIM_NAMESPACE

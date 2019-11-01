@@ -42,8 +42,8 @@
 #include <dune/common/exceptions.hh>
 #include <dune/common/stdstreams.hh>
 
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include <parallel/ddd/dddi.h>
 #include "xfer.h"

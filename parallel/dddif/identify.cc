@@ -40,9 +40,9 @@
 #include <gm/refine.h>
 #include <gm/rm.h>
 #include <gm/ugm.h>
-#include <low/debug.h>
-#include <low/general.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include <parallel/ddd/include/ddd.h>
 #include "identify.h"

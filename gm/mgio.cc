@@ -34,16 +34,16 @@
 #include <cstring>
 #include <cassert>
 
-#include <low/bio.h>
-#include <low/general.h>
+#include <dune/uggrid/low/bio.h>
+#include <dune/uggrid/low/general.h>
 #include "mgio.h"
 
 #ifdef __MGIO_USE_IN_UG__
 
         #include <dom/domain.h>
-        #include <low/debug.h>
-        #include <low/defaults.h>
-        #include <low/fileopen.h>
+        #include <dune/uggrid/low/debug.h>
+        #include <dune/uggrid/low/defaults.h>
+        #include <dune/uggrid/low/fileopen.h>
 
 #endif
 

@@ -31,7 +31,7 @@
 #include <config.h>
 #include <cstdio>
 
-#include <low/general.h>
+#include <dune/uggrid/low/general.h>
 
 #include "np.h"
 #include "initnumerics.h"

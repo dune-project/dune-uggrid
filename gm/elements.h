@@ -33,7 +33,7 @@
 #ifndef __ELEMENTS__
 #define __ELEMENTS__
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 #include "gm.h"
 

@@ -12,8 +12,8 @@
 #include "memmgr.h"
 #include <gm/ugm.h>
 #include <dev/ugdevices.h>
-#include <low/general.h>
-#include <low/namespace.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/namespace.h>
 
 #include "debugger.h"
 

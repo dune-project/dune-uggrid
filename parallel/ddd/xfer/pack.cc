@@ -43,8 +43,8 @@
 #include <parallel/ddd/dddi.h>
 #include "xfer.h"
 
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 USING_UG_NAMESPACE
 

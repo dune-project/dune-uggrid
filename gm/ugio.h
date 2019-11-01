@@ -34,8 +34,8 @@
 #ifndef __UGIO__
 #define __UGIO__
 
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include "gm.h"
 

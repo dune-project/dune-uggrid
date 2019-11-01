@@ -38,12 +38,12 @@
 #include <gm/enrol.h>
 #include <gm/gm.h>
 #include <gm/ugm.h>
-#include <low/misc.h>
-#include <low/general.h>
-#include <low/scan.h> // for ReadArgvChar
-#include <low/ugenv.h>
-#include <low/ugstruct.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/scan.h> // for ReadArgvChar
+#include <dune/uggrid/low/ugenv.h>
+#include <dune/uggrid/low/ugstruct.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include <np/np.h>
 #include <np/udm/formats.h>

@@ -43,7 +43,7 @@
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 #include <parallel/ddd/dddi.h>
 #include <parallel/ddd/include/memmgr.h>
