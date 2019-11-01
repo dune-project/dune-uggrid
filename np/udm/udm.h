@@ -32,7 +32,7 @@
 #ifndef __UDM__
 #define __UDM__
 
-#include <gm/gm.h>
+#include <dune/uggrid/gm/gm.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugtypes.h>
 #include <np/algebra/sm.h>

@@ -34,10 +34,10 @@
 #include <ctype.h>
 
 #include <dev/ugdevices.h>
-#include <gm/algebra.h>
-#include <gm/enrol.h>
-#include <gm/gm.h>
-#include <gm/ugm.h>
+#include <dune/uggrid/gm/algebra.h>
+#include <dune/uggrid/gm/enrol.h>
+#include <dune/uggrid/gm/gm.h>
+#include <dune/uggrid/gm/ugm.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/scan.h> // for ReadArgvChar

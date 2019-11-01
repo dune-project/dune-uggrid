@@ -66,7 +66,7 @@
 #include <dune/uggrid/low/ugenv.h>
 #include <dune/uggrid/low/ugtypes.h>
 
-#include <gm/evm.h>
+#include <dune/uggrid/gm/evm.h>
 
 /* dev modules */
 #include <dev/ugdevices.h>

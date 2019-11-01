@@ -36,10 +36,10 @@
 
 #include <dev/ugdevices.h>
 
-#include <gm/gm.h>
-#include <gm/refine.h>
-#include <gm/rm.h>
-#include <gm/ugm.h>
+#include <dune/uggrid/gm/gm.h>
+#include <dune/uggrid/gm/refine.h>
+#include <dune/uggrid/gm/rm.h>
+#include <dune/uggrid/gm/ugm.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/ugtypes.h>

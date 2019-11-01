@@ -65,16 +65,16 @@
 #include <dev/ugdevices.h>
 
 /* grid manager module */
-#include <gm/algebra.h>
-#include <gm/cw.h>
-#include <gm/elements.h>
-#include <gm/evm.h>
-#include <gm/gm.h>
-#include <gm/mgio.h>
-#include <gm/pargm.h>
-#include <gm/rm.h>
-#include <gm/shapes.h>
-#include <gm/ugm.h>
+#include <dune/uggrid/gm/algebra.h>
+#include <dune/uggrid/gm/cw.h>
+#include <dune/uggrid/gm/elements.h>
+#include <dune/uggrid/gm/evm.h>
+#include <dune/uggrid/gm/gm.h>
+#include <dune/uggrid/gm/mgio.h>
+#include <dune/uggrid/gm/pargm.h>
+#include <dune/uggrid/gm/rm.h>
+#include <dune/uggrid/gm/shapes.h>
+#include <dune/uggrid/gm/ugm.h>
 
 /* numerics module */
 #include <np/np.h>

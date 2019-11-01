@@ -45,8 +45,8 @@
 #include <parallel/ddd/include/ddd.h>
 #endif
 
-#include <gm/gm.h>
-#include <gm/pargm.h>
+#include <dune/uggrid/gm/gm.h>
+#include <dune/uggrid/gm/pargm.h>
 
 START_UGDIM_NAMESPACE
 
