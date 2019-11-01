@@ -1,1 +1,0 @@
-../gm/algebra.h
