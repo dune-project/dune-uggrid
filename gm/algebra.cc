@@ -63,15 +63,15 @@
 
 #include <dune/common/unused.hh>
 
-#include <low/architecture.h>
-#include <low/debug.h>
-#include <low/fifo.h>
-#include <low/general.h>
-#include <low/heaps.h>
-#include <low/misc.h>
-#include <low/namespace.h>
-#include <low/ugenv.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/architecture.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/fifo.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/heaps.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugenv.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include <dev/ugdevices.h>
 

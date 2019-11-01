@@ -53,7 +53,7 @@
 #include <dune/uggrid/parallel/ddd/dddtypes.hh>
 #include <dune/uggrid/parallel/ddd/dddtypes_impl.hh>
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

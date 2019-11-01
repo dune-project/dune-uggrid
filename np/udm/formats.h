@@ -33,7 +33,7 @@
 #define __FORMATS__
 
 #include <gm/gm.h>
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 #include "udm.h"
 
 START_UGDIM_NAMESPACE

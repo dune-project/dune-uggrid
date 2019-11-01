@@ -37,7 +37,7 @@
 #include "gm.h"
 #include "evm.h"
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

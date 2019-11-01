@@ -23,7 +23,7 @@
 #include <config.h>
 #include <cassert>
 
-#include <low/general.h>
+#include <dune/uggrid/low/general.h>
 #include <dev/ugdevices.h>
 
 #include "gm.h"

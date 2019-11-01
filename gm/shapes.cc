@@ -31,10 +31,10 @@
 #include <cassert>
 #include <cstddef>
 
-#include <low/architecture.h>
-#include <low/general.h>
-#include <low/misc.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/architecture.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/ugtypes.h>
 #include "gm.h"
 #include "evm.h"
 #include "shapes.h"

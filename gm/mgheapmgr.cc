@@ -28,9 +28,9 @@
 /****************************************************************************/
 
 #include <config.h>
-#include <low/general.h>
-#include <low/heaps.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/heaps.h>
+#include <dune/uggrid/low/ugtypes.h>
 #include "gm.h"
 #include "algebra.h"
 #include "mgheapmgr.h"

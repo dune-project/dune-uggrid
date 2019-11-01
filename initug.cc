@@ -44,11 +44,11 @@
 #include <cstring>
 
 /* low module */
-#include <low/defaults.h>
-#include <low/general.h>
-#include <low/initlow.h>
-#include <low/misc.h>
-#include <low/ugstruct.h>
+#include <dune/uggrid/low/defaults.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/initlow.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/ugstruct.h>
 
 /* parallelization module */
 #ifdef ModelP
@@ -73,7 +73,7 @@ using namespace PPIF;
 #include "initug.h"
 
 /** \todo delete this */
-#include <low/debug.h>
+#include <dune/uggrid/low/debug.h>
 
 
 USING_UG_NAMESPACES

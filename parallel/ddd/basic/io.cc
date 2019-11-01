@@ -30,7 +30,7 @@
 
 #include <dune/uggrid/parallel/ddd/dddcontext.hh>
 
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/ugtypes.h>
 #include <parallel/ppif/ppif.h>
 #include <parallel/ddd/include/dddio.h>
 #include <parallel/ddd/dddi.h>

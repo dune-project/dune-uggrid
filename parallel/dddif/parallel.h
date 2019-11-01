@@ -37,8 +37,8 @@
 #  include <dune/uggrid/parallel/ddd/dddcontext.hh>
 #endif
 
-#include <low/heaps.h>
-#include <low/namespace.h>
+#include <dune/uggrid/low/heaps.h>
+#include <dune/uggrid/low/namespace.h>
 
 #ifdef ModelP
 #include <parallel/ppif/ppif.h>

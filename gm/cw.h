@@ -29,7 +29,7 @@
 #ifndef __CW__
 #define __CW__
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 
