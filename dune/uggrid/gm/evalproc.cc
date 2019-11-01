@@ -38,7 +38,7 @@
 
 #include "gm.h"
 #include "evm.h"
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include "shapes.h"
 #include "elements.h"
 

@@ -33,7 +33,7 @@
 #include <cstring>
 #include <ctype.h>
 
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/gm/algebra.h>
 #include <dune/uggrid/gm/enrol.h>
 #include <dune/uggrid/gm/gm.h>

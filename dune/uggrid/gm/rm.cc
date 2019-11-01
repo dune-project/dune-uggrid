@@ -43,7 +43,7 @@
 #include <dune/uggrid/low/misc.h>
 
 /* dev module */
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* gm module */
 #include "evm.h"

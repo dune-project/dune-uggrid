@@ -46,7 +46,7 @@
 #include <dune/uggrid/low/ugtypes.h>
 
 /* dev module */
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* dddif module */
 #ifdef ModelP

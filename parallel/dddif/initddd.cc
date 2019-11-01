@@ -37,7 +37,7 @@
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/gm/ugm.h>      /* for GetFreeOBJT() */
 #include "memmgr.h"
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* UG namespaces: */
 USING_UG_NAMESPACES

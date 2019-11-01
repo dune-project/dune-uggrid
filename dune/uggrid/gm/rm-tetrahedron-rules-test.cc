@@ -5,7 +5,7 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/test/testsuite.hh>
 
-#include <initug.h>
+#include <dune/uggrid/initug.h>
 
 #include "evm.h"
 #include "gm.h"
