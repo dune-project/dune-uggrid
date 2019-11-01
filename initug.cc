@@ -61,7 +61,7 @@ using namespace PPIF;
 #include <dev/ugdevices.h>
 
 /* domain module */
-#include <dom/domain.h>
+#include <dune/uggrid/domain/domain.h>
 
 /* grid manager module */
 #include <gm/initgm.h>

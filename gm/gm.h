@@ -55,7 +55,7 @@
 #include <array>
 #include <numeric>
 
-#include <dom/domain.h>
+#include <dune/uggrid/domain/domain.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/heaps.h>
