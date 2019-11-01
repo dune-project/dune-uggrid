@@ -35,11 +35,11 @@
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
-#include <gm/evm.h>
-#include <gm/gm.h>
-#include <gm/refine.h>
-#include <gm/shapes.h>
-#include <gm/ugm.h>
+#include <dune/uggrid/gm/evm.h>
+#include <dune/uggrid/gm/gm.h>
+#include <dune/uggrid/gm/refine.h>
+#include <dune/uggrid/gm/shapes.h>
+#include <dune/uggrid/gm/ugm.h>
 #include <dev/ugdevices.h>
 
 /* UG namespaces: */

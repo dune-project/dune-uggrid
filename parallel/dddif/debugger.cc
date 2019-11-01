@@ -10,7 +10,7 @@
 
 #include "parallel.h"
 #include "memmgr.h"
-#include <gm/ugm.h>
+#include <dune/uggrid/gm/ugm.h>
 #include <dev/ugdevices.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
