@@ -67,7 +67,7 @@ using namespace PPIF;
 #include <dune/uggrid/gm/initgm.h>
 
 /* numerics module */
-#include <np/initnumerics.h>
+#include <dune/uggrid/numerics/initnumerics.h>
 
 /* own header */
 #include "initug.h"
