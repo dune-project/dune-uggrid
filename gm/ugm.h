@@ -36,8 +36,8 @@
 #ifndef __UGM__
 #define __UGM__
 
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include "gm.h"
 #include "dlmgr.h"

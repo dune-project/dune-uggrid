@@ -42,14 +42,14 @@
 
 #ifdef __MGIO_USE_IN_UG__
 
-        #include <low/heaps.h>
+        #include <dune/uggrid/low/heaps.h>
         #include "gm.h"
         #include "rm.h"
         #include <dom/domain.h>
 
 #endif
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

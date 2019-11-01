@@ -33,9 +33,9 @@
 
 #include <cmath>
 
-#include <low/debug.h>
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include "gm.h"
 

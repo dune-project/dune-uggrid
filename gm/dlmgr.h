@@ -40,9 +40,9 @@
 #ifndef __DLMGR_H__
 
 #include "gm.h"
-#include <low/debug.h>
-#include <low/misc.h>
-#include <low/namespace.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/namespace.h>
 
 #ifdef ModelP
 #include <parallel/dddif/parallel.h>

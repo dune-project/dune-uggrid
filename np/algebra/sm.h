@@ -22,8 +22,8 @@
 #ifndef __SM__
 #define __SM__
 
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include <cstddef>
 

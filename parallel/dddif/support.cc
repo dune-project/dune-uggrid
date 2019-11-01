@@ -43,9 +43,9 @@
 #endif
 
 #include <parallel/ppif/ppif.h>
-#include <low/general.h>
-#include <low/namespace.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/ugtypes.h>
 #include <parallel/ddd/include/memmgr.h>
 
 #include <gm/pargm.h>

@@ -3,7 +3,7 @@
 #ifndef __DDD_DEBUGGER__
 #define __DDD_DEBUGGER__
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 void buggy (MULTIGRID *);

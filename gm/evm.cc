@@ -36,11 +36,11 @@
 
 #include <dune/common/unused.hh>
 
-#include <low/architecture.h>
-#include <low/general.h>
-#include <low/misc.h>
+#include <dune/uggrid/low/architecture.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/misc.h>
 #include <dev/ugdevices.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include "elements.h"
 #include "evm.h"

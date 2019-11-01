@@ -5,8 +5,8 @@
 
 #include <dune/common/exceptions.hh>
 
-#include "low/namespace.h"
-#include "low/initlow.h"
+#include <dune/uggrid/low/namespace.h>
+#include <dune/uggrid/low/initlow.h>
 #include "dev/ugdevices.h"
 #include "gm/initgm.h"
 #include "gm/rm.h"

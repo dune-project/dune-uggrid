@@ -29,7 +29,7 @@
 #ifndef __IDENT_H__
 #define __IDENT_H__
 
-#include <low/namespace.h>
+#include <dune/uggrid/low/namespace.h>
 
 START_UGDIM_NAMESPACE
 

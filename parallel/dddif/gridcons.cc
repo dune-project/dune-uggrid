@@ -32,9 +32,9 @@
 #include <cstdlib>
 
 #include "parallel.h"
-#include <low/debug.h>
-#include <low/general.h>
-#include <low/namespace.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/namespace.h>
 #include <gm/evm.h>
 #include <gm/gm.h>
 #include <gm/refine.h>

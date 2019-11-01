@@ -41,17 +41,17 @@
 
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
-#include <low/architecture.h>
-#include <low/bio.h>
-#include <low/debug.h>
-#include <low/defaults.h>
-#include <low/fifo.h>
-#include <low/fileopen.h>
-#include <low/general.h>
-#include <low/heaps.h>
-#include <low/misc.h>
-#include <low/ugstruct.h>
-#include <low/ugtypes.h>
+#include <dune/uggrid/low/architecture.h>
+#include <dune/uggrid/low/bio.h>
+#include <dune/uggrid/low/debug.h>
+#include <dune/uggrid/low/defaults.h>
+#include <dune/uggrid/low/fifo.h>
+#include <dune/uggrid/low/fileopen.h>
+#include <dune/uggrid/low/general.h>
+#include <dune/uggrid/low/heaps.h>
+#include <dune/uggrid/low/misc.h>
+#include <dune/uggrid/low/ugstruct.h>
+#include <dune/uggrid/low/ugtypes.h>
 
 #include <dev/ugdevices.h>
 #ifdef ModelP
