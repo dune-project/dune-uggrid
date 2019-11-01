@@ -14,7 +14,7 @@
 /*            email: ug@ica3.uni-stuttgart.de                                                               */
 /*                                                                                           */
 /* History:   December 8, 1996                                                                  */
-/*                        low part of former np/udm/scan.c, 15.5.97                                             */
+/*                        low part of former np/scan.c, 15.5.97                                             */
 /*                                                                                                                                                      */
 /* Remarks:                                                                                                                             */
 /*                                                                          */

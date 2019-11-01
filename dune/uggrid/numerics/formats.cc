@@ -45,8 +45,8 @@
 #include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>
 
-#include <np/np.h>
-#include <np/udm/formats.h>
+#include <dune/uggrid/numerics/np.h>
+#include <dune/uggrid/numerics/formats.h>
 
 
 USING_UG_NAMESPACES

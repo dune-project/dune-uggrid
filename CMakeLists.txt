@@ -167,7 +167,6 @@ if(UG_ENABLE_PARALLEL)
   add_subdirectory(parallel)
 endif()
 add_subdirectory(dune)
-add_subdirectory(np)
 add_subdirectory(cmake/modules)
 # set variable names for config.h
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})

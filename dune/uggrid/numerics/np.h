@@ -37,8 +37,8 @@
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugenv.h>
 #include <dune/uggrid/low/ugtypes.h>
-#include <np/udm/formats.h>
-#include <np/udm/udm.h>
+#include <dune/uggrid/numerics/formats.h>
+#include <dune/uggrid/numerics/udm.h>
 
 START_UGDIM_NAMESPACE
 
