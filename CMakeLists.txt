@@ -163,16 +163,11 @@ configure_file(libug.pc.in libug.pc)
 configure_file(ug-config.cmake.in ug-config.cmake @ONLY)
 configure_file(ug-config-version.cmake.in ug-config-version.cmake @ONLY)
 
-#install header
-install(FILES initug.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
-
 if(UG_ENABLE_PARALLEL)
   add_subdirectory(parallel)
 endif()
-add_subdirectory(dev)
 add_subdirectory(dune)
 add_subdirectory(np)
-add_subdirectory(ui)
 add_subdirectory(cmake/modules)
 # set variable names for config.h
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})

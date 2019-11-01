@@ -27,7 +27,7 @@
 #define __COMPILE_CW__
 
 
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/general.h>

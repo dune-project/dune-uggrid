@@ -73,7 +73,7 @@
 #include <dune/uggrid/low/ugenv.h>
 #include <dune/uggrid/low/ugtypes.h>
 
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 #include "algebra.h"
 #include "cw.h"

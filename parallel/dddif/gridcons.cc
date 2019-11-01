@@ -40,7 +40,7 @@
 #include <dune/uggrid/gm/refine.h>
 #include <dune/uggrid/gm/shapes.h>
 #include <dune/uggrid/gm/ugm.h>
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* UG namespaces: */
 USING_UG_NAMESPACES
