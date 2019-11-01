@@ -2,6 +2,7 @@ add_subdirectory(domain)
 add_subdirectory(gm)
 add_subdirectory(lib)
 add_subdirectory(low)
+add_subdirectory(numerics)
 add_subdirectory(parallel)
 
 install(

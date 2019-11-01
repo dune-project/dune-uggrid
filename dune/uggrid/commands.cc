@@ -77,9 +77,9 @@
 #include <dune/uggrid/gm/ugm.h>
 
 /* numerics module */
-#include <np/np.h>
-#include <np/udm/disctools.h>
-#include <np/udm/udm.h>
+#include <dune/uggrid/numerics/np.h>
+#include <dune/uggrid/numerics/disctools.h>
+#include <dune/uggrid/numerics/udm.h>
 
 #ifdef ModelP
 #include <parallel/dddif/parallel.h>
