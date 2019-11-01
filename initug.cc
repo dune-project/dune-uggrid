@@ -64,7 +64,7 @@ using namespace PPIF;
 #include <dune/uggrid/domain/domain.h>
 
 /* grid manager module */
-#include <gm/initgm.h>
+#include <dune/uggrid/gm/initgm.h>
 
 /* numerics module */
 #include <np/initnumerics.h>

@@ -32,7 +32,7 @@
 #ifndef __FORMATS__
 #define __FORMATS__
 
-#include <gm/gm.h>
+#include <dune/uggrid/gm/gm.h>
 #include <dune/uggrid/low/namespace.h>
 #include "udm.h"
 

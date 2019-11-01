@@ -43,7 +43,7 @@
 
 #include "parallel.h"
 
-#include <gm/ugm.h>
+#include <dune/uggrid/gm/ugm.h>
 #include "memmgr.h"
 
 /* UG namespaces */

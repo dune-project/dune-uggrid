@@ -47,13 +47,13 @@
 #include <dev/ugdevices.h>
 
 /* gm module */
-#include <gm/algebra.h>
-#include <gm/evm.h>
-#include <gm/gm.h>
-#include <gm/pargm.h>
-#include <gm/refine.h>
-#include <gm/rm.h>
-#include <gm/ugm.h>
+#include <dune/uggrid/gm/algebra.h>
+#include <dune/uggrid/gm/evm.h>
+#include <dune/uggrid/gm/gm.h>
+#include <dune/uggrid/gm/pargm.h>
+#include <dune/uggrid/gm/refine.h>
+#include <dune/uggrid/gm/rm.h>
+#include <dune/uggrid/gm/ugm.h>
 
 /* parallel modules */
 #include <parallel/ddd/include/ddd.h>

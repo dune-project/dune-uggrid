@@ -2,7 +2,7 @@
 
 #include <dune/common/exceptions.hh>
 
-#include "gm/rm-write2file.h"
+#include "rm-write2file.h"
 
 #ifdef __THREEDIM__
 static NS_DIM_PREFIX REFRULE Empty_Rule =
@@ -87,7 +87,7 @@ int WriteSonData(std::FILE* const stream, NS_DIM_PREFIX sondata const& son)
 
   // corners
   num_chars += writeArray(stream, son.corners, MAX_CORNERS_OF_ELEM_DIM);
-  num_chars += fprintf( stream,"},{"); 
+  num_chars += fprintf( stream,"},{");
 
   // nb
   num_chars += writeArray(stream, son.nb, MAX_SIDES_OF_ELEM_DIM);
@@ -126,7 +126,7 @@ void WriteRule2File(std::FILE* const stream, NS_DIM_PREFIX REFRULE const& theRul
   {
     char0 += fprintf( stream,"{%d,%d},",theRule.sonandnode[i][0],theRule.sonandnode[i][1]);
     // new line after 6 sons
-    if( (i%6) ==0 && i !=0) 
+    if( (i%6) ==0 && i !=0)
     {
       // comment
       if (!alreadyCommented)
@@ -151,7 +151,7 @@ void WriteRule2File(std::FILE* const stream, NS_DIM_PREFIX REFRULE const& theRul
     {
       fprintf( stream,"%*s// sons", comment_row - char0, " ");
       alreadyCommented = !alreadyCommented;
-    } 
+    }
     fprintf( stream,"\n    ");
   }
 

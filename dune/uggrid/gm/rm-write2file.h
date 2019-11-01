@@ -17,9 +17,9 @@
 #include <iterator>
 
 #include <dev/ugdevices.h>
-#include "gm/gm.h"
-#include "gm/rm.h"
-#include "gm/evm.h"
+#include "gm.h"
+#include "rm.h"
+#include "evm.h"
 
 #define TET_RULE_FATHER_SIDE_OFFSET 20
 

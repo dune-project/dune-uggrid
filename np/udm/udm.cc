@@ -33,8 +33,8 @@
 #include <cstring>
 
 #include <dev/ugdevices.h>
-#include <gm/gm.h>
-#include <gm/rm.h>
+#include <dune/uggrid/gm/gm.h>
+#include <dune/uggrid/gm/rm.h>
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/general.h>
