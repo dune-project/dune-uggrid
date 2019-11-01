@@ -7,11 +7,11 @@
 
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/initlow.h>
-#include "dev/ugdevices.h"
-#include "gm/initgm.h"
-#include "gm/rm.h"
+#include <dev/ugdevices.h>
+#include <gm/initgm.h>
+#include <gm/rm.h>
 
-#include "gm/rm-write2file.h"
+#include <gm/rm-write2file.h>
 
 int main(int argc, char** argv)
 {

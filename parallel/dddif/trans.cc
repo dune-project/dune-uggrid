@@ -38,7 +38,7 @@
 
 #include "parallel.h"
 #include <dev/ugdevices.h>
-#include <dom/domain.h>
+#include <dune/uggrid/domain/domain.h>
 #include <gm/algebra.h>
 #include <gm/evm.h>
 #include <gm/gm.h>
