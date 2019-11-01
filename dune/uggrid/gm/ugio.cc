@@ -53,7 +53,7 @@
 #include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>
 
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #ifdef ModelP
 #include <parallel/dddif/parallel.h>
 #endif

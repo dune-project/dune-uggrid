@@ -34,7 +34,7 @@
 
 #include <dune/common/unused.hh>
 
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 #include <dune/uggrid/gm/gm.h>
 #include <dune/uggrid/gm/refine.h>

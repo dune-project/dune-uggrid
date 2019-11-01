@@ -46,7 +46,7 @@
 #include <ctime>
 #include <cassert>
 
-#include <initug.h>
+#include <dune/uggrid/initug.h>
 
 /* low module */
 #include <dune/uggrid/low/architecture.h>
@@ -62,7 +62,7 @@
 #include <dune/uggrid/low/ugtypes.h>
 
 /* devices module */
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* grid manager module */
 #include <dune/uggrid/gm/algebra.h>

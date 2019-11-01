@@ -32,7 +32,7 @@
 
 #include <cstring>
 
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/gm/gm.h>
 #include <dune/uggrid/gm/rm.h>
 #include <dune/uggrid/low/architecture.h>

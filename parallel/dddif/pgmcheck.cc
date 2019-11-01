@@ -35,7 +35,7 @@
 #include <cstdlib>
 
 #include "parallel.h"
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/gm/evm.h>
 #include <dune/uggrid/gm/gm.h>
 #include <dune/uggrid/gm/refine.h>

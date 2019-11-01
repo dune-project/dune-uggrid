@@ -37,7 +37,7 @@
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "parallel.h"
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/domain/domain.h>
 #include <dune/uggrid/gm/algebra.h>
 #include <dune/uggrid/gm/evm.h>

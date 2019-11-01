@@ -58,7 +58,7 @@ using namespace PPIF;
 #endif
 
 /* devices module */
-#include <dev/ugdevices.h>
+#include <dune/uggrid/ugdevices.h>
 
 /* domain module */
 #include <dune/uggrid/domain/domain.h>
