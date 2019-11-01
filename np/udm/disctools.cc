@@ -35,8 +35,8 @@
 #include <cstring>
 #include <cassert>
 
-#include <gm/evm.h>      /* for data structure               */
-#include <gm/gm.h>       /* for data structure               */
+#include <dune/uggrid/gm/evm.h>      /* for data structure               */
+#include <dune/uggrid/gm/gm.h>       /* for data structure               */
 #include <dev/ugdevices.h>
 #include <dune/uggrid/low/general.h>
 

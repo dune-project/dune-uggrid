@@ -32,8 +32,8 @@
 #ifndef __NP__
 #define __NP__
 
-#include <gm/algebra.h>
-#include <gm/gm.h>
+#include <dune/uggrid/gm/algebra.h>
+#include <dune/uggrid/gm/gm.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugenv.h>
 #include <dune/uggrid/low/ugtypes.h>

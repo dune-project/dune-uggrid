@@ -8,7 +8,7 @@
 
 #include <dune/uggrid/low/namespace.h>
 
-#include <gm/rm-write2file.h>
+#include <dune/uggrid/gm/rm-write2file.h>
 
 #include <iostream>
 #include <memory>
