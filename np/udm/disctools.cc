@@ -108,8 +108,6 @@ static void PrintSingleVectorX (const VECTOR *v, const VECDATA_DESC *X, INT vcla
     i += sprintf(buffer+i,"u[%d]=%15.8f ",j,VVALUE(v,comp));
   }
   i += sprintf(buffer+i,"   cl %d %d sk ",VCLASS(v),VNCLASS(v));
-  for (j=0; j<ncomp; j++)
-    i += sprintf(buffer+i,"%d ",((VECSKIP(v) & (1<<j))!=0));
   i += sprintf(buffer+i,"n %d t %d o %d\n",VNEW(v),VTYPE(v),VOTYPE(v));
   Printf(buffer);
 
