@@ -406,7 +406,6 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_LDATA,  ELDEF(v.pred),
                  EL_LDATA,  ELDEF(v.succ),
                  EL_GDATA,  ELDEF(v.index),
-                 EL_GDATA,  ELDEF(v.skip),
                  EL_LDATA,  ELDEF(v.start),
 
                  /* TODO: value wird noch ausgelassen. feld variabler laenge? */

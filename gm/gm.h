@@ -507,9 +507,6 @@ struct vector {
   INT id;
 #endif
 
-  /** \brief used bitwise to skip unknowns                */
-  UINT skip;
-
   /** \brief implements matrix                                    */
   struct matrix *start;
 
@@ -1899,7 +1896,6 @@ enum GM_CE {
 
 enum LV_MODIFIERS {
 
-  LV_SKIP                 = (1<<0),                     /* print skip flags in vector                   */
   LV_VO_INFO              = (1<<1),                     /* vector object related info                   */
   LV_POS                  = (1<<2)                      /* position vector  */
 };
@@ -2106,13 +2102,6 @@ enum LV_ID_TYPES {
 #define SUCCVC(v)                                       ((v)->succ)
 #define VINDEX(v)                                       ((v)->index)
 #define V_IN_DATATYPE(v,dt)                     (VDATATYPE(v) & (dt))
-#define VSKIPME(v,n)                            ((((v)->skip)>>n) & 1)
-#define VVECSKIP(v,n)                           ((((v)->skip)>>n) & 15)
-#define VFULLSKIP(v,n)                          (VVECSKIP(v,n)==15)
-#define SETVSKIPME(v,n)                         (((v)->skip=n))
-#define VECSKIP(v)                                      ((v)->skip)
-#define VECSKIPBIT(v,n)                         (((v)->skip) & (1<<n))
-#define SETVECSKIPBIT(v,n)                      (v)->skip = ((v)->skip & (~(1<<n))) | (1<<n)
 #define VSTART(v)                                       ((v)->start)
 #define VVALUE(v,n)                             ((v)->value[n])
 #define VVALUEPTR(v,n)                          (&((v)->value[n]))
@@ -3139,11 +3128,6 @@ enum {GM_ALL_LEVELS = 1,
 
 enum {GM_ORDER_IN_COLS, GM_ORDER_IN_ROWS};
 
-enum {GM_PUT_AT_BEGIN = 1,               /*!< put skip vectors at begin of the list */
-      GM_PUT_AT_END = 2                  /*!< put skip vectors at end of the list */
-};
-#define GM_TAKE_SKIP                            (1<<0)
-#define GM_TAKE_NONSKIP                         (1<<1)
 /*@}*/
 
 /* get/set current multigrid, loop through multigrids */
