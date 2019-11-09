@@ -499,6 +499,9 @@ struct vector {
   /** \brief ordering of unknowns                                 */
   UINT index;
 
+  /** \brief Index if the vector is part of the leaf grid */
+  UINT leafIndex;
+
 #ifndef ModelP   // Dune uses ddd.gid for ids in parallel
   /** \brief A unique and persistent, but not necessarily consecutive index
 
