@@ -44,7 +44,7 @@
 #include "parallel.h"
 
 #include <dune/uggrid/gm/ugm.h>
-#include <parallel/ddd/include/memmgr.h>
+#include <dune/uggrid/parallel/ddd/include/memmgr.h>
 
 /* UG namespaces */
 USING_UG_NAMESPACES

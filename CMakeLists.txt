@@ -163,9 +163,6 @@ configure_file(libug.pc.in libug.pc)
 configure_file(ug-config.cmake.in ug-config.cmake @ONLY)
 configure_file(ug-config-version.cmake.in ug-config-version.cmake @ONLY)
 
-if(UG_ENABLE_PARALLEL)
-  add_subdirectory(parallel)
-endif()
 add_subdirectory(dune)
 add_subdirectory(cmake/modules)
 # set variable names for config.h

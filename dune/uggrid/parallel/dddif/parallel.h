@@ -42,7 +42,7 @@
 #include <dune/uggrid/low/namespace.h>
 
 #ifdef ModelP
-#include <parallel/ddd/include/ddd.h>
+#include <dune/uggrid/parallel/ddd/include/ddd.h>
 #endif
 
 #include <dune/uggrid/gm/gm.h>

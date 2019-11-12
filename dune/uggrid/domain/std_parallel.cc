@@ -46,7 +46,7 @@
 #include <dune/uggrid/low/ugtypes.h>
 
 /* parallel modules */
-#include <parallel/ddd/include/memmgr.h>
+#include <dune/uggrid/parallel/ddd/include/memmgr.h>
 #include <dune/uggrid/parallel/dddif/parallel.h>
 
 /* domain module */

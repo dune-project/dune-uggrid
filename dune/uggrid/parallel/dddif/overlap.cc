@@ -55,7 +55,7 @@
 #include <dune/uggrid/gm/ugm.h>
 
 /* parallel modules */
-#include <parallel/ddd/include/ddd.h>
+#include <dune/uggrid/parallel/ddd/include/ddd.h>
 #include <dune/uggrid/parallel/ppif/ppif.h>
 #include "identify.h"
 #include "parallel.h"

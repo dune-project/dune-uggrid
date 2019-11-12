@@ -40,7 +40,7 @@
 #include <dune/uggrid/low/ugtypes.h>
 
 #ifdef ModelP
-#include <parallel/ddd/include/ddd.h>
+#include <dune/uggrid/parallel/ddd/include/ddd.h>
 #include <dune/uggrid/parallel/ppif/ppif.h>
 #endif
 
