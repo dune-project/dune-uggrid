@@ -44,7 +44,7 @@
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/ugtypes.h>
 
-#include <parallel/ddd/include/ddd.h>
+#include <dune/uggrid/parallel/ddd/include/ddd.h>
 #include "identify.h"
 #include "parallel.h"
 
