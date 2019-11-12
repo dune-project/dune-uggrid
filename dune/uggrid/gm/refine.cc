@@ -92,7 +92,7 @@
 /* parallel modules */
 #ifdef ModelP
 #include <dune/uggrid/parallel/ppif/ppif.h>
-#include <parallel/ddd/include/ddd.h>
+#include <dune/uggrid/parallel/ddd/include/ddd.h>
 #include <dune/uggrid/parallel/dddif/debugger.h>
 #include <dune/uggrid/parallel/dddif/identify.h>
 #include <dune/uggrid/parallel/dddif/parallel.h>

@@ -46,7 +46,7 @@
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugtypes.h>
-#include <parallel/ddd/include/memmgr.h>
+#include <dune/uggrid/parallel/ddd/include/memmgr.h>
 
 #include <dune/uggrid/gm/pargm.h>
 
