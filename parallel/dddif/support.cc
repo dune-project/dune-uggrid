@@ -42,7 +42,7 @@
 #  include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 #endif
 
-#include <parallel/ppif/ppif.h>
+#include <dune/uggrid/parallel/ppif/ppif.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugtypes.h>

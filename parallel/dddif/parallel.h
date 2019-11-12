@@ -35,13 +35,13 @@
 
 #ifdef ModelP
 #  include <dune/uggrid/parallel/ddd/dddcontext.hh>
+#  include <dune/uggrid/parallel/ppif/ppif.h>
 #endif
 
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/namespace.h>
 
 #ifdef ModelP
-#include <parallel/ppif/ppif.h>
 #include <parallel/ddd/include/ddd.h>
 #endif
 

@@ -75,7 +75,7 @@
 
 #ifdef ModelP
 #include <parallel/dddif/identify.h>
-#include <parallel/ppif/ppif.h>
+#include <dune/uggrid/parallel/ppif/ppif.h>
 #endif
 
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>

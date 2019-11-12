@@ -56,9 +56,8 @@
 
 #include <mpi.h>
 
-#include "../ppif.h"
-
-#include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+#include "ppif.h"
+#include "ppifcontext.hh"
 
 using namespace PPIF;
 
