@@ -55,7 +55,7 @@
 
 #include <dune/uggrid/ugdevices.h>
 #ifdef ModelP
-#include <parallel/dddif/parallel.h>
+#include <dune/uggrid/parallel/dddif/parallel.h>
 #endif
 #include "gm.h"
 #include "algebra.h"

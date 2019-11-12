@@ -30,7 +30,7 @@
 #include "ugm.h"
 
 #ifdef ModelP
-#include <parallel/dddif/parallel.h>
+#include <dune/uggrid/parallel/dddif/parallel.h>
 #endif
 
 #include "elements.h"

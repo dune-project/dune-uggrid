@@ -45,7 +45,7 @@
 #include <dune/uggrid/low/namespace.h>
 
 #ifdef ModelP
-#include <parallel/dddif/parallel.h>
+#include <dune/uggrid/parallel/dddif/parallel.h>
 #endif
 
 

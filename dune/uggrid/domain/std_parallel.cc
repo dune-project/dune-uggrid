@@ -47,7 +47,7 @@
 
 /* parallel modules */
 #include <parallel/ddd/include/memmgr.h>
-#include <parallel/dddif/parallel.h>
+#include <dune/uggrid/parallel/dddif/parallel.h>
 
 /* domain module */
 #include "domain.h"

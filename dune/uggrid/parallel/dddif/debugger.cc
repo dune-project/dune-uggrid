@@ -8,16 +8,16 @@
 #include <config.h>
 #include <cstdio>
 
-#include "parallel.h"
-#include "memmgr.h"
 #include <dune/uggrid/gm/ugm.h>
 #include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
 
-#include "debugger.h"
-
+#include <parallel/ddd/include/memmgr.h>
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
+
+#include "debugger.h"
+#include "parallel.h"
 
 USING_UG_NAMESPACES
 using namespace PPIF;
