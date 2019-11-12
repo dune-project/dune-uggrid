@@ -50,7 +50,7 @@
 
 /* dddif module */
 #ifdef ModelP
-#include <parallel/ppif/ppif.h>
+#include <dune/uggrid/parallel/ppif/ppif.h>
 using namespace PPIF;
 #endif
 

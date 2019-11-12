@@ -53,7 +53,7 @@
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/ugtypes.h>
 
-#include <parallel/ppif/ppif.h>
+#include <dune/uggrid/parallel/ppif/ppif.h>
 #include <parallel/ddd/ctrl/stat.h>
 #include <parallel/ddd/include/ddd.h>
 #include <parallel/ddd/include/dddio.h>
