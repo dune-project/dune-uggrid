@@ -63,7 +63,7 @@
 #include <dune/uggrid/domain/domain.h>
 
 #ifdef ModelP
-#include <parallel/dddif/parallel.h>
+#include <dune/uggrid/parallel/dddif/parallel.h>
 #endif
 
 #include "cw.h"

@@ -93,9 +93,9 @@
 #ifdef ModelP
 #include <dune/uggrid/parallel/ppif/ppif.h>
 #include <parallel/ddd/include/ddd.h>
-#include <parallel/dddif/debugger.h>
-#include <parallel/dddif/identify.h>
-#include <parallel/dddif/parallel.h>
+#include <dune/uggrid/parallel/dddif/debugger.h>
+#include <dune/uggrid/parallel/dddif/identify.h>
+#include <dune/uggrid/parallel/dddif/parallel.h>
 #include "pargm.h"
 #endif
 

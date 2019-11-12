@@ -52,7 +52,7 @@
 
 /* parallelization module */
 #ifdef ModelP
-#include <parallel/dddif/parallel.h>
+#include <dune/uggrid/parallel/dddif/parallel.h>
 #include <dune/uggrid/parallel/ppif/ppif.h>
 using namespace PPIF;
 #endif

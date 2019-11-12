@@ -355,7 +355,7 @@ enum {VERTEX_LISTPARTS = 1};
 /* ppif dummies */
 #define Broadcast(context, p,n)  ((int)0)
 
-/* dummys for reduction functions implemented in parallel/dddif/support.c */
+/* dummys for reduction functions implemented in dune/uggrid/parallel/dddif/support.c */
 #define UG_GlobalSumINT(context, x)              x
 #define UG_GlobalMaxINT(context, x)              x
 #define UG_GlobalMinINT(context, x)              x
@@ -383,7 +383,7 @@ enum {VERTEX_LISTPARTS = 1};
 /*                                                                          */
 /****************************************************************************/
 
-/* functions implemented in parallel/dddif/support.c */
+/* functions implemented in dune/uggrid/parallel/dddif/support.c */
 #ifdef ModelP
 INT    UG_GlobalSumINT     (const PPIF::PPIFContext& context, INT x);
 INT    UG_GlobalMaxINT     (const PPIF::PPIFContext& context, INT x);

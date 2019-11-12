@@ -74,7 +74,7 @@
 #include "mgheapmgr.h"
 
 #ifdef ModelP
-#include <parallel/dddif/identify.h>
+#include <dune/uggrid/parallel/dddif/identify.h>
 #include <dune/uggrid/parallel/ppif/ppif.h>
 #endif
 
@@ -4168,7 +4168,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
            DDD depends on storage in the heap, even if no DDD objects
                    are allocated!! (due to free-lists, DDD type definitions
                    etc.) therefore, repeated new/close commands are inhibited
-                   explicitly in parallel/dddif/initddd.c(InitCurrMG()). */
+                   explicitly in dune/uggrid/parallel/dddif/initddd.c(InitCurrMG()). */
   DisposeHeap(MGHEAP(theMG));
 
   /* dispose BVP */
