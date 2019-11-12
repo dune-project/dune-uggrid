@@ -41,7 +41,7 @@
 
 #ifdef ModelP
 #include <parallel/ddd/include/ddd.h>
-#include <parallel/ppif/ppif.h>
+#include <dune/uggrid/parallel/ppif/ppif.h>
 #endif
 
 
