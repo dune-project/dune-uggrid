@@ -1072,7 +1072,7 @@ static void LocalizeSymTab (DDD::DDDContext& context, LC_MSGHANDLE xm,
 }
 
 
-static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
+static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, bool required_newness)
 {
   auto& ctx = context.xferContext();
   const SYMTAB_ENTRY *theSymTab;
@@ -1090,7 +1090,7 @@ static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int requ
 
   for(i=0; i<lenObjTab; i++)               /* for all message items */
   {
-    if (required_newness==TOTALNEW && theObjTab[i].is_new==TOTALNEW)
+    if (required_newness && theObjTab[i].is_new==TOTALNEW)
     {
       TYPE_DESC *desc = &context.typeDefs()[OBJ_TYPE(theObjTab[i].hdr)];
       DDD_OBJ obj   = HDR2OBJ(theObjTab[i].hdr, desc);
@@ -1107,7 +1107,7 @@ static void LocalizeObjects (DDD::DDDContext& context, LC_MSGHANDLE xm, int requ
 
                 #ifdef MERGE_MODE_IN_TESTZUSTAND
 
-    if (required_newness!=TOTALNEW && theObjTab[i].is_new!=TOTALNEW)
+    if (required_newness && theObjTab[i].is_new!=TOTALNEW)
     {
       /*
               implemented merge_mode for Localize. references from all copies
@@ -1166,7 +1166,7 @@ static void CallUpdateHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 
 
 
-static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
+static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, bool required_newness)
 {
   auto& ctx = context.xferContext();
   SYMTAB_ENTRY *theSymTab;
@@ -1189,7 +1189,7 @@ static void UnpackAddData (DDD::DDDContext& context, LC_MSGHANDLE xm, int requir
     {
       int newness = -1;
 
-      if (required_newness==TOTALNEW)
+      if (required_newness)
       {
         if (theObjTab[i].is_new==TOTALNEW)
         {
@@ -1296,7 +1296,7 @@ static void CallSetPriorityHandler (DDD::DDDContext& context, LC_MSGHANDLE xm)
 
 
 
-static void CallObjMkConsHandler (DDD::DDDContext& context, LC_MSGHANDLE xm, int required_newness)
+static void CallObjMkConsHandler (DDD::DDDContext& context, LC_MSGHANDLE xm, bool required_newness)
 {
   auto& ctx = context.xferContext();
   OBJTAB_ENTRY *theObjTab;
@@ -1314,7 +1314,7 @@ static void CallObjMkConsHandler (DDD::DDDContext& context, LC_MSGHANDLE xm, int
   {
     int newness = -1;
 
-    if (required_newness==TOTALNEW)
+    if (required_newness)
     {
       if (theObjTab[i].is_new==TOTALNEW)
       {
@@ -1614,8 +1614,8 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
 
 
   /* unpack all messages and update local topology */
-  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(context, theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(context, theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(context, theMsgs[i], true);
+  for(i=0; i<nRecvMsgs; i++) LocalizeObjects(context, theMsgs[i], false);
 
   /*
           at this point all new objects are established,
@@ -1642,12 +1642,12 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
     CallUpdateHandler(context, theMsgs[i]);
 
   /* for all incoming objects */
-  for(i=0; i<nRecvMsgs; i++) UnpackAddData(context, theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) UnpackAddData(context, theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) UnpackAddData(context, theMsgs[i], true);
+  for(i=0; i<nRecvMsgs; i++) UnpackAddData(context, theMsgs[i], false);
 
   /* for PARTNEW and TOTALNEW objects */
-  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(context, theMsgs[i],  TOTALNEW);
-  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(context, theMsgs[i], !TOTALNEW);
+  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(context, theMsgs[i], true);
+  for(i=0; i<nRecvMsgs; i++) CallObjMkConsHandler(context, theMsgs[i], false);
 
 
 
