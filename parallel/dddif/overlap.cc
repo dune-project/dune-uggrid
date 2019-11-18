@@ -730,7 +730,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
               printf("ConnectOverlapVerticalGrid(): new "
                      " midnode relation between theEdge=%08p"
                      " SonNode=" ID_FMTX "Vertex=" VID_FMTX "\n",
-                     theEdge,ID_PRTX(SonNode),
+                     (void*) theEdge,ID_PRTX(SonNode),
                      VID_PRTX(MYVERTEX(SonNode)));
               ENDDEBUG
                                                                 #endif

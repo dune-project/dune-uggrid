@@ -255,7 +255,7 @@ LINK(OTYPE)
 
 		IFDEBUG(gm,2) 
 			printf("GRID_LINK_" STR(OTYPE) "():" STR(OTYPE)
-				" has listpart=%d for prio=%d obj=%p\n",listpart,Prio,Object);
+				" has listpart=%d for prio=%d obj=%p\n", listpart, Prio, (void*) Object);
 			fflush(stdout);
 		ENDDEBUG 
 
@@ -437,7 +437,8 @@ LINKX(OTYPE)
 	{
 		IFDEBUG(gm,2)
 		printf(" GRID_LINKX_" STR(OTYPE) "():" STR(OTYPE)
-			" calling GRID_LINK_" STR(OTYPE) "(): Object=%p After=%p \n",Object,After);
+			" calling GRID_LINK_" STR(OTYPE) "(): Object=%p After=%p \n",
+			(void*) Object, (void*) After);
 		ENDDEBUG
 
 		CAT(GRID_LINK_,OTYPE) (Grid,Object,Prio);
@@ -460,7 +461,7 @@ LINKX(OTYPE)
 
 	IFDEBUG(gm,2) 
 		printf("GRID_LINKX_" STR(OTYPE) "():" STR(OTYPE)
-			" has listpart=%d for prio=%d obj=%p\n",listpart,Prio,Object);
+			" has listpart=%d for prio=%d obj=%p\n", listpart, Prio, (void*) Object);
 		fflush(stdout);
 	ENDDEBUG 
 
@@ -600,20 +601,20 @@ PRINT_LIST(OTYPE)
 	if (prios==2)
 	{
 		printf ("  fg=%p fg=%p fm=%p lm=%p\n",
-			CAT(LISTPART_FIRST,OTYPE(Grid,0)),
-			CAT(LISTPART_LAST,OTYPE(Grid,0)),
-			CAT(LISTPART_FIRST,OTYPE(Grid,1)),
-			CAT(LISTPART_LAST,OTYPE(Grid,1)));
+			(void*) CAT(LISTPART_FIRST,OTYPE(Grid,0)),
+			(void*) CAT(LISTPART_LAST,OTYPE(Grid,0)),
+			(void*) CAT(LISTPART_FIRST,OTYPE(Grid,1)),
+			(void*) CAT(LISTPART_LAST,OTYPE(Grid,1)));
 	}
 	else
 	{
 		printf ("  fg=%p fg=%p fb=%p lb=%p fm=%p lm=%p\n",
-			CAT(LISTPART_FIRST,OTYPE(Grid,0)),
-			CAT(LISTPART_LAST,OTYPE(Grid,0)),
-			CAT(LISTPART_FIRST,OTYPE(Grid,1)),
-			CAT(LISTPART_LAST,OTYPE(Grid,1)),
-			CAT(LISTPART_FIRST,OTYPE(Grid,2)),
-			CAT(LISTPART_LAST,OTYPE(Grid,2)));
+			(void*) CAT(LISTPART_FIRST,OTYPE(Grid,0)),
+			(void*) CAT(LISTPART_LAST,OTYPE(Grid,0)),
+			(void*) CAT(LISTPART_FIRST,OTYPE(Grid,1)),
+			(void*) CAT(LISTPART_LAST,OTYPE(Grid,1)),
+			(void*) CAT(LISTPART_FIRST,OTYPE(Grid,2)),
+			(void*) CAT(LISTPART_LAST,OTYPE(Grid,2)));
 	}
 }
 

@@ -361,7 +361,7 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
       if (DDD_InfoGlobalId(PARHDRE(e))==gid)
       {
         printf("ELEMENT gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
-               gid, e, level);
+               gid, (void*) e, level);
         buggy_ShowCopies(context, PARHDRE(e));
         buggy_ElemShow(e);
         found = true;
@@ -375,7 +375,7 @@ static void buggy_Search (MULTIGRID *theMG, DDD_GID gid)
       if (DDD_InfoGlobalId(PARHDR(n))==gid)
       {
         printf("NODE gid=" DDD_GID_FMT ", adr=%p, level=%d\n",
-               gid, n, level);
+               gid, (void*) n, level);
         buggy_ShowCopies(context, PARHDR(n));
         buggy_NodeShow(n);
         found = true;
