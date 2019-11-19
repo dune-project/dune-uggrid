@@ -1,4 +1,4 @@
-install(FILES parallel.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
+install(FILES parallel.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid/parallel/dddif/)
 
 if(MPI_C_FOUND)
   include_directories(${PROJECT_SOURCE_DIR}/dune/uggrid/parallel/ddd/include)

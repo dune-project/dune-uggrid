@@ -1,11 +1,10 @@
 install(FILES
+  ppif.h
   ppifcontext.hh
   ppiftypes.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid/parallel/ppif)
 
 if(UG_ENABLE_PARALLEL)
-  install(FILES ppif.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
-
   if(MPI_C_FOUND)
     add_library(ppifmpi OBJECT ppif.cc)
     add_dune_mpi_flags(ppifmpi OBJECT)

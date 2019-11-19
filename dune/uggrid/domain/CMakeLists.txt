@@ -6,4 +6,4 @@ ug_add_dim_libs(domS OBJECT
 install(FILES
   domain.h
   std_domain.h
-  DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid/domain)

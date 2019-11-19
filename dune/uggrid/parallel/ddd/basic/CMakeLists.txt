@@ -6,4 +6,4 @@ if(MPI_C_FOUND)
 endif()
 
 install(FILES notify.h lowcomm.h oopp.h ooppcc.h
-  DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid/parallel/ddd/basic)
