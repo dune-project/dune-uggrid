@@ -145,8 +145,6 @@ if(HAVE_TIME_H AND HAVE_SYS_TIME_H)
   set(TIME_WITH_SYS_TIME True)
 endif()
 
-set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
-
 add_subdirectory(dune)
 add_subdirectory(cmake/modules)
 # set variable names for config.h

@@ -10,4 +10,7 @@ set(SOURCES  cmds.cc
 if(MPI_C_FOUND)
   ug_add_dim_libs(xfer OBJECT SOURCES ${SOURCES})
 endif()
-install(FILES sll.h xfer.h  DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
+
+install(FILES
+  sll.h xfer.h
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid/parallel/ddd/xfer)

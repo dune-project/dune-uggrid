@@ -6,4 +6,4 @@ install(FILES
   np.h
   sm.h
   udm.h
-  DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid/numerics)
