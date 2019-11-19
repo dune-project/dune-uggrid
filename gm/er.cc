@@ -570,7 +570,7 @@ static HRID GetRuleID
    .n   NO:  rules are not equal
    doctext_disabled*/
 /****************************************************************************/
-
+#ifdef __DEBUG_ER__
 static INT RuleCompare (int id, const URULE *ur, const ERULE *er)
 {
   const int ns0   = NSONS_OF_RULE(ur);
@@ -627,7 +627,7 @@ static INT RuleCompare (int id, const URULE *ur, const ERULE *er)
   }
   return (YES);
 }
-
+#endif
 /****************************************************************************/
 /*doctext_disabled
     ExtractERule - extract rule from element
@@ -1267,7 +1267,7 @@ static void FindPathForNeighbours (MGIO_RR_RULE *rule, SHORT myID, SHORT Status[
    .n   none
    doctext_disabled*/
 /****************************************************************************/
-
+#ifdef __THREEDIM__
 static void FillSonPaths (MGIO_RR_RULE *rule)
 {
   SHORT Status[MAX_SONS];
@@ -1287,7 +1287,7 @@ static void FillSonPaths (MGIO_RR_RULE *rule)
 
   return;
 }
-
+#endif
 /****************************************************************************/
 /*doctext_disabled
     GetFSidesOfCorners - fill array for father side the given side corners belong to
