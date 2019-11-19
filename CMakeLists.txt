@@ -147,22 +147,6 @@ endif()
 
 set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
 
-# create and install pkg-config information and
-# cmake package configuration as ug not dune-uggrid
-set(prefix ${CMAKE_INSTALL_PREFIX})
-set(exec_prefix "\${prefix}")
-set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
-if(UG_ENABLE_PARALLEL)
-  set(parallel "yes")
-else()
-  set(parallel "no")
-endif()
-set(VERSION ${DUNE_UGGRID_VERSION})
-configure_file(libug.pc.in libug.pc)
-configure_file(ug-config.cmake.in ug-config.cmake @ONLY)
-configure_file(ug-config-version.cmake.in ug-config-version.cmake @ONLY)
-
 add_subdirectory(dune)
 add_subdirectory(cmake/modules)
 # set variable names for config.h
@@ -173,11 +157,3 @@ set(dune-uggrid_INIT "set(UG_PARALLEL ${parallel})
 set(UG_FOR_DUNE yes)")
 
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
-
-# This comes after finalize as it uses DUNE_INSTALL_LIBDIR
-# computed there.
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libug.pc
-  DESTINATION ${DUNE_INSTALL_LIBDIR}/pkgconfig)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ug-config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/ug-config-version.cmake
-  DESTINATION ${DUNE_INSTALL_LIBDIR}/cmake/ug)
