@@ -2932,7 +2932,7 @@ static int ComputeCopies (GRID *theGrid)
    void
  */
 /****************************************************************************/
-                              #ifdef Debug
+#ifdef Debug
 static void CheckElementContextConsistency(ELEMENT *theElement,
                                            ELEMENTCONTEXT theElementContext)
 {
@@ -3004,7 +3004,7 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
 
   ASSERT(errorflag == 0);
 }
-                                #endif
+#endif
 
 /****************************************************************************/
 /*
@@ -6056,6 +6056,7 @@ static void CheckConsistency (MULTIGRID *theMG, INT level ,INT debugstart, INT g
 }
 #endif
 
+
 static INT CheckMultiGrid (MULTIGRID *theMG)
 {
   INT level;
@@ -6073,6 +6074,7 @@ static INT CheckMultiGrid (MULTIGRID *theMG)
 
   return(0);
 }
+
 
 #ifdef STAT_OUT
 void NS_DIM_PREFIX Manage_Adapt_Timer (int alloc)
