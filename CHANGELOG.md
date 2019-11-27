@@ -1,13 +1,16 @@
 # dune-uggrid 2.7 (unreleased)
 
-* Multiple grids are now also allowed in the parallel implementation [!96][]
-
+* Multiple grids are now also allowed in the parallel implementation
   [!96]: https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/96
 
 *   The `TET_RULESET` compile-time option has been renamed to
     `DUNE_UGGRID_TET_RULESET` and is enabled by default.
     It is no longer necessary to provide the `RefRules.data` file.
     [!134](https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/134)
+
+* Includes moved below dun/uggrid. Headers are installed in the same
+  sub-directory and no longer into ug/. This breaks compatibility to UG 3.13.
+  [!137](https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/137)
 
 # dune-uggrid 2.6.0 (2018-04-03)
 
