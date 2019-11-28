@@ -3159,7 +3159,7 @@ FORMAT                   *CreateFormat (char *name, INT sVertex, INT sMultiGrid,
 
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
-                            const char *format, NS_PREFIX MEM heapSize,
+                            const char *format,
                             INT optimizedIE, INT insertMesh,
                             std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
 MULTIGRID *OpenMGFromDataFile(MULTIGRID *theMG, INT number, char *type,
