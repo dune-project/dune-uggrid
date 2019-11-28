@@ -217,7 +217,6 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv, std::shared_ptr<PPIF::PPIFC
 {
   MULTIGRID *theMG;
   char Multigrid[NAMESIZE],BVPName[NAMESIZE],Format[NAMESIZE];
-  MEM heapSize;
   INT i;
   bool bopt, fopt, hopt, IEopt, emptyGrid;
 
@@ -229,7 +228,6 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv, std::shared_ptr<PPIF::PPIFC
   if ((theMG != NULL) && (theMG == currMG)) CloseCommand(0,NULL);
 
   /* get problem, domain and format */
-  heapSize = 0;
   bopt = fopt = hopt = false;
   IEopt = true;
   emptyGrid = false;
@@ -262,23 +260,14 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv, std::shared_ptr<PPIF::PPIFC
       emptyGrid = true;
       break;
 
-    case 'h' :
-      if (ReadMemSizeFromString(argv[i]+1,&heapSize)!=0)           /* skip leading 'h' in argv */
-      {
-        PrintErrorMessage('E', "NewCommand", "cannot read heapsize specification");
-        return 1;
-      }
-      hopt = true;
-      break;
-
     default :
       PrintErrorMessageF('E', "NewCommand", "Unknown option '%s'", argv[i]);
       return 1;
     }
 
-  if (!(bopt && fopt && hopt))
+  if (!(bopt && fopt))
   {
-    PrintErrorMessage('E', "NewCommand", "the d, p, f and h arguments are mandatory");
+    PrintErrorMessage('E', "NewCommand", "the d, p, and f arguments are mandatory");
     return 1;
   }
 
