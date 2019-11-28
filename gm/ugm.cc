@@ -3013,7 +3013,6 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
  * @param   domain - name of domain description from environment
  * @param   problem - name of problem description from environment
  * @param   format - name of format description from environment
- * @param   heapSize - size of heap to allocate for that multigrid in bytes
  * @param   optimizedIE - allocate NodeElementList
 
    This function creates and initializes a new multigrid structure including
@@ -3027,7 +3026,7 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
 /****************************************************************************/
 
 MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProblem,
-                                           const char *format, MEM heapSize, INT optimizedIE, INT insertMesh,
+                                           const char *format, INT optimizedIE, INT insertMesh,
                                            std::shared_ptr<PPIF::PPIFContext> ppifContext)
 {
   HEAP *theHeap;
@@ -3065,7 +3064,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   theHeap = NewHeap(SIMPLE_HEAP, sizeof(HEAP), malloc(sizeof(HEAP)));
   if (theHeap==NULL)
   {
-    UserWriteF("CreateMultiGrid: cannot allocate %ld bytes\n", heapSize);
+    UserWriteF("CreateMultiGrid: cannot allocate %ld bytes\n", sizeof(HEAP));
     PrintErrorMessage('E', "CreateMultiGrid","Cannot allocate heap!");
 
     DisposeMultiGrid(theMG);

@@ -2943,7 +2943,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   if (heapSize==0) heapSize = mg_general.heapsize * KBYTE;
 
   /* create a virginenal multigrid on the BVP */
-  theMG = CreateMultiGrid(MGName,BndValName,FormatName,heapSize,true,false, ppifContext);
+  theMG = CreateMultiGrid(MGName,BndValName,FormatName,true,false, ppifContext);
   if (theMG==NULL) {
     UserWrite("ERROR(ugio): cannot create multigrid\n");
     CloseMGFile ();

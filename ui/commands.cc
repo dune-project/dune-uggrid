@@ -283,7 +283,7 @@ INT NS_DIM_PREFIX NewCommand (INT argc, char **argv, std::shared_ptr<PPIF::PPIFC
   }
 
   /* allocate the multigrid structure */
-  theMG = CreateMultiGrid(Multigrid,BVPName,Format,heapSize,IEopt,!emptyGrid, ppifContext);
+  theMG = CreateMultiGrid(Multigrid,BVPName,Format,IEopt,!emptyGrid, ppifContext);
   if (theMG==NULL)
   {
     PrintErrorMessage('E',"new","could not create multigrid");
