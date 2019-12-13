@@ -29,15 +29,15 @@ find_package(MPI)
 # set defines that are only used internally.
 # The rest is in cmake/modules/DuneUggrid.cmake
 if(MPI_C_FOUND)
-  set(UG_ENABLE_PARALLEL True CACHE BOOL "Enable a parallel UG (default is True if MPI is there false otherwise")
+  set(UG_ENABLE_PARALLEL True CACHE BOOL "Enable a parallel UG (default is True if MPI is there False otherwise)")
 else()
-  set(UG_ENABLE_PARALLEL False CACHE BOOL "Enable a parallel UG (default is True if MPI is there false otherwise")
+  set(UG_ENABLE_PARALLEL False CACHE BOOL "Enable a parallel UG (default is True if MPI is there False otherwise)")
 endif()
 
 set(UG_ENABLE_DEBUGGING False CACHE BOOL "Enable UG debugging (default is Off)")
 set(UG_ENABLE_2D True CACHE BOOL "Build library for 2d (default is On)")
 set(UG_ENABLE_3D True CACHE BOOL "Build library for 3d (default is On)")
-set(UG_ENABLE_SYSTEM_HEAP ON CACHE BOOL "If ON/True then we are using the operating system heap instead of the one internal to UG (Default: ON")
+set(UG_ENABLE_SYSTEM_HEAP ON CACHE BOOL "If ON/True then we are using the operating system heap instead of the one internal to UG (Default: ON)")
 set(UG_DDD_MAX_MACROBITS "24" CACHE STRING
   "Set number of bits of an unsigned int used to store the process number,
        the remaining bits are used to store the local entity id")
@@ -64,18 +64,6 @@ if(UG_ENABLE_PARALLEL)
   add_definitions("-DModelP")
   set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DModelP")
 endif()
-
-#set the include headers
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/low
-  ${PROJECT_SOURCE_DIR}/gm ${PROJECT_SOURCE_DIR}/dom
-  ${PROJECT_SOURCE_DIR}/np ${PROJECT_SOURCE_DIR}/ui
-  ${PROJECT_SOURCE_DIR}/np/algebra
-  ${PROJECT_SOURCE_DIR}/np/udm
-  ${PROJECT_SOURCE_DIR}/parallel ${PROJECT_SOURCE_DIR}/parallel/ddd
-  ${PROJECT_SOURCE_DIR}/parallel/ppif
-  ${PROJECT_SOURCE_DIR}/parallel/dddif
-  ${PROJECT_SOURCE_DIR}/parallel/ddd/include )
-
 
 set(UG_ENABLED_DIMENSIONS)
 if(UG_ENABLE_2D)
@@ -157,52 +145,13 @@ if(HAVE_TIME_H AND HAVE_SYS_TIME_H)
   set(TIME_WITH_SYS_TIME True)
 endif()
 
-set(CMAKE_INSTALL_PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/ug")
-
-# create and install pkg-config information and
-# cmake package configuration as ug not dune-uggrid
-set(prefix ${CMAKE_INSTALL_PREFIX})
-set(exec_prefix "\${prefix}")
-set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
-if(UG_ENABLE_PARALLEL)
-  set(parallel "yes")
-else()
-  set(parallel "no")
-endif()
-set(VERSION ${DUNE_UGGRID_VERSION})
-configure_file(libug.pc.in libug.pc)
-configure_file(ug-config.cmake.in ug-config.cmake @ONLY)
-configure_file(ug-config-version.cmake.in ug-config-version.cmake @ONLY)
-
-#install header
-install(FILES initug.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})
-
-if(UG_ENABLE_PARALLEL)
-  add_subdirectory(parallel)
-endif()
-add_subdirectory(low)
-add_subdirectory(dev)
 add_subdirectory(dune)
-add_subdirectory(gm)
-add_subdirectory(dom)
-add_subdirectory(np)
-add_subdirectory(ui)
-add_subdirectory(lib)
 add_subdirectory(cmake/modules)
 # set variable names for config.h
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # finalize the dune project, e.g., generate config.h etc.
 # Use package init to set additional information
-set(dune-uggrid_INIT "set(UG_PARALLEL ${parallel})
+set(dune-uggrid_INIT "set(UG_PARALLEL ${UG_ENABLE_PARALLEL})
 set(UG_FOR_DUNE yes)")
 
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
-
-# This comes after finalize as it uses DUNE_INSTALL_LIBDIR
-# computed there.
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libug.pc
-  DESTINATION ${DUNE_INSTALL_LIBDIR}/pkgconfig)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ug-config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/ug-config-version.cmake
-  DESTINATION ${DUNE_INSTALL_LIBDIR}/cmake/ug)
