@@ -2697,15 +2697,12 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
    </ul> */
 /****************************************************************************/
 
-GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG, INT algebraic)
+GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG)
 {
   GRID *theGrid;
-  INT l;
 
-  if (BOTTOMLEVEL(theMG)>TOPLEVEL(theMG) && algebraic) return (NULL);
   if (TOPLEVEL(theMG)+1>=MAXLEVEL) return(NULL);
-  if (algebraic) l = BOTTOMLEVEL(theMG)-1;
-  else l = TOPLEVEL(theMG)+1;
+  INT l = TOPLEVEL(theMG)+1;
 
   /* allocate grid object */
   theGrid = (GRID*)GetMemoryForObject(theMG,sizeof(GRID),GROBJ);
@@ -2744,69 +2741,12 @@ GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG, INT algebraic)
   }
   MYMG(theGrid) = theMG;
   GRID_ON_LEVEL(theMG,l) = theGrid;
-  if (algebraic) BOTTOMLEVEL(theMG) = l;
-  else
-  {
     TOPLEVEL(theMG) = l;
     CURRENTLEVEL(theMG) = l;
-  }
 
   return(theGrid);
 }
 
-
-/****************************************************************************/
-/** \brief Create new amg level
-
- * @param   theMG - multigrid structure
-
-   This function creates and initialized a new grid structure for bottomLevel - 1
-   and returns a pointer to it.
-
-   @return <ul>
-   <li>   pointer to requested object </li>
-   <li>   NULL if out of memory </li>
-   </ul> */
-/****************************************************************************/
-
-GRID * NS_DIM_PREFIX CreateNewLevelAMG (MULTIGRID *theMG)
-{
-  GRID *theGrid;
-  int l;
-
-  if (theMG->bottomLevel-1<=-MAXLEVEL) return(NULL);
-
-  l = theMG->bottomLevel-1;
-
-  /* allocate grid object */
-  theGrid = (GRID*)GetMemoryForObject(theMG,sizeof(GRID),GROBJ);
-  if (theGrid==NULL) return(NULL);
-
-  /* fill in data */
-  CTRL(theGrid) = 0;
-  SETOBJT(theGrid,GROBJ);
-  theGrid->level = l;
-  NE(theGrid) = 0;
-  theGrid->nCon = 0;
-  /* other counters are init in INIT fcts below */
-
-  theGrid->status       = 0;
-  GRID_INIT_ELEMENT_LIST(theGrid);
-  GRID_INIT_NODE_LIST(theGrid);
-  GRID_INIT_VERTEX_LIST(theGrid);
-  GRID_INIT_VECTOR_LIST(theGrid);
-
-  /* fill in further data */
-  theGrid->mg = theMG;
-  theGrid->level = l;
-  theGrid->finer = theMG->grids[l+1];
-  theMG->grids[l+1]->coarser = theGrid;
-
-  theMG->grids[l] = theGrid;
-  theMG->bottomLevel = l;
-
-  return(theGrid);
-}
 
 /****************************************************************************/
 /** \brief Create a multigrid environment item
@@ -3107,7 +3047,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   theMG->vectorIdCounter = 0;
 #endif
   theMG->topLevel = -1;
-  theMG->bottomLevel = 0;
   MG_BVP(theMG) = theBVP;
   MG_NPROPERTY(theMG) = BVPD_NSUBDOM(theBVPDesc);
   RESETMGSTATUS(theMG);
@@ -3116,11 +3055,10 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   for (i=0; i<MAXLEVEL; i++)
   {
     GRID_ON_LEVEL(theMG,i) = NULL;
-    GRID_ON_LEVEL(theMG,-i-1) = NULL;
   }
 
   /* allocate level 0 grid */
-  if (CreateNewLevel(theMG,0)==NULL)
+  if (CreateNewLevel(theMG)==NULL)
   {
     DisposeMultiGrid(theMG);
     return(NULL);
@@ -3788,9 +3726,6 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
     if (DisposeBottomHeapTmpMemory(theMG))
       REP_ERR_RETURN(1);
 
-  if( DisposeAMGLevels(theMG) )
-    REP_ERR_RETURN(1);
-
 #ifdef ModelP
   DDD_XferBegin(theMG->dddContext());
     #ifdef DDDOBJMGR
@@ -3938,7 +3873,6 @@ INT NS_DIM_PREFIX DisposeTopLevel (MULTIGRID *theMG)
   /* level 0 can not be deleted */
   l = theMG->topLevel;
   if (l<=0) DO_NOT_DISPOSE;
-  if (theMG->bottomLevel<0) DO_NOT_DISPOSE;
   theGrid = GRID_ON_LEVEL(theMG,l);
 
   /* is level empty */
@@ -3992,8 +3926,6 @@ INT NS_DIM_PREFIX DisposeGrid (GRID *theGrid)
   if (theGrid->finer != NULL)
     return(1);
 
-  if (GLEVEL(theGrid)==0 && theMG->bottomLevel<0) return (1);
-
   /* clear level */
   while (PFIRSTELEMENT(theGrid)!=NULL)
     if (DisposeElement(theGrid,PFIRSTELEMENT(theGrid),1))
@@ -4019,109 +3951,6 @@ INT NS_DIM_PREFIX DisposeGrid (GRID *theGrid)
   theMG->elemIdCounter = 0;
 
   PutFreeObject(theMG,theGrid,sizeof(GRID),GROBJ);
-
-  return(0);
-}
-
-/****************************************************************************/
-/** \brief Dispose bottom AMG level
-
- * @param   theMG - multigrid to remove from
-
-   This function removes the bottom AMG level from multigrid structure.
-
-   @return <ul>
-   <li>   0 if ok </li>
-   <li>   1 no valid object number </li>
-   <li>   2 no AMG levels </li>
-   </ul> */
-/****************************************************************************/
-
-static INT DisposeAMGLevel (MULTIGRID *theMG)
-{
-  int l;
-  GRID *theGrid;
-
-  /* level 0 can not be deleted */
-  l = theMG->bottomLevel;
-  if (l>=0) return(2);
-  theGrid = theMG->grids[l];
-
-  assert((FIRSTELEMENT(theGrid)==NULL)&&(FIRSTVERTEX(theGrid)==NULL)
-         &&(FIRSTNODE(theGrid)==NULL));
-
-  /* clear level */
-  while (PFIRSTVECTOR(theGrid)!=NULL)
-  {
-    /* In ModelP, the DisposeVector is done on all procs which
-           own copies. We do it without Xfer-communication. */
-    if (DisposeVector(theGrid,PFIRSTVECTOR(theGrid)))
-      return(1);
-  }
-
-        #ifdef ModelP
-  /* stop dangerous mode. from now on DDD will issue warnings again. */
-  DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_ON);
-        #endif
-
-  /* remove from grids array */
-  theMG->grids[l] = NULL;
-  theMG->grids[l+1]->coarser = NULL;
-  (theMG->bottomLevel)++;
-  if (theMG->currentLevel<theMG->bottomLevel)
-    theMG->currentLevel = theMG->bottomLevel;
-
-  PutFreeObject(theMG,theGrid,sizeof(GRID),GROBJ);
-
-  return(0);
-}
-
-/****************************************************************************/
-/** \brief Dispose all AMG level
-
- * @param   theMG - multigrid to remove from
-
-   This function removes all AMG level from multigrid structure.
-
-   @return <ul>
-   <li>   0 if ok </li>
-   <li>   1 if error occured </li>
-   </ul> */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DisposeAMGLevels (MULTIGRID *theMG)
-{
-  INT err;
-
-        #ifdef ModelP
-  /* tell DDD that we will 'inconsistently' delete objects.
-     this is a dangerous mode as it switches DDD warnings off. */
-  /** \briefDD_SetOption(OPT_WARNING_DESTRUCT_HDR, OPT_OFF);*/
-  DDD_XferBegin(theMG->dddContext());
-    #ifdef DDDOBJMGR
-  DDD_ObjMgrBegin();
-        #endif
-        #endif
-
-  while ((err=DisposeAMGLevel(theMG))!=2)
-    if (err==1)
-    {
-      PrintErrorMessage('E',"AMGTransferPreProcess","could not dispose AMG levels");
-      REP_ERR_RETURN(1);
-    }
-
-        #ifdef ModelP
-  /* stop dangerous mode. from now on DDD will issue warnings again. */
-  /*DDD_SetOption(theMG->dddContext(), OPT_WARNING_DESTRUCT_HDR, OPT_ON);*/
-
-  /* rebuild DDD-interfaces because distributed vectors have been
-     deleted without communication */
-  /*DDD_IFRefreshAll(theMG->dddContext());*/
-    #ifdef DDDOBJMGR
-  DDD_ObjMgrEnd();
-        #endif
-  DDD_XferEnd(theMG->dddContext());
-        #endif
 
   return(0);
 }

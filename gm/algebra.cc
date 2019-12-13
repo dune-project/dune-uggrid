@@ -2236,7 +2236,7 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
   }
 
   fullrefine = TOPLEVEL(theMG);
-  for (level=TOPLEVEL(theMG); level>=BOTTOMLEVEL(theMG); level--)
+  for (level=TOPLEVEL(theMG); level>=0; level--)
   {
     theGrid = GRID_ON_LEVEL(theMG,level);
     for (v=PFIRSTVECTOR(theGrid); v!= NULL; v=SUCCVC(v)) {

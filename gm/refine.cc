@@ -6596,7 +6596,7 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
 #endif
     if (newlevel)
     {
-      if (CreateNewLevel(theMG,0)==NULL)
+      if (CreateNewLevel(theMG)==NULL)
         RETURN(GM_FATAL);
       FinerGrid = GRID_ON_LEVEL(theMG,toplevel+1);
     }

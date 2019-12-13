@@ -86,7 +86,6 @@ REP_ERR_FILE
 INT NS_DIM_PREFIX DisposeBottomHeapTmpMemory (MULTIGRID *theMG)
 {
 
-  if (DisposeAMGLevels(theMG)) REP_ERR_RETURN(1);
   if (DisposeConnectionsFromMultiGrid(theMG)) REP_ERR_RETURN(1);
   return(0);
 }

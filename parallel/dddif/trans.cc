@@ -113,55 +113,6 @@ enum GhostCmds { GC_Keep, GC_ToMaster, GC_Delete };
 /****************************************************************************/
 
 
-/****************************************************************************/
-/*
-   AMGAgglomerate -
-
-   SYNOPSIS:
-   void AMGAgglomerate(MULTIGRID *theMG);
-
-   PARAMETERS:
-   .  theMG
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   void
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX AMGAgglomerate(MULTIGRID *theMG)
-{
-  INT level,Size;
-  GRID    *theGrid;
-  VECTOR  *theVector;
-
-  DDD::DDDContext& context = theMG->dddContext();
-  const auto master = theMG->ppifContext().master();
-
-  level = BOTTOMLEVEL(theMG);
-  if (level >= 0)
-  {
-    UserWriteF("AMGAgglomerate(): no amg level found, current bottom level is %d\n", level);
-    return;
-  }
-  theGrid = GRID_ON_LEVEL(theMG,level);
-
-  DDD_XferBegin(context);
-  for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-  {
-    Size = sizeof(VECTOR)-sizeof(DOUBLE)
-           +FMT_S_VEC_TP(MGFORMAT(theMG),VTYPE(theVector));
-    XFERCOPYX(context, theVector,master,PrioMaster,Size);
-    SETPRIO(context, theVector,PrioVGhost);
-  }
-  DDD_XferEnd(context);
-
-  return;
-}
-
-/****************************************************************************/
-
 
 /****************************************************************************/
 /*
@@ -824,11 +775,6 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 #ifdef STAT_OUT
   trans_begin = CURRENT_TIME;
 #endif
-
-  /* dispose negative levels */
-  if (level < 1)
-    if (DisposeAMGLevels(theMG) != 0)
-      return 1;
 
         #ifdef __PERIODIC_BOUNDARY__
   if (MGSetPerVecCount(theMG)) assert(0);

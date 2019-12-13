@@ -159,7 +159,7 @@ static GRID *GetGridOnDemand (MULTIGRID *mg, int level)
   while (level > TOPLEVEL(mg))
   {
     PRINTDEBUG(dddif,1,(PFMT " CreateNewLevel toplevel=%d level=%d",me,TOPLEVEL(mg),level));
-    if (CreateNewLevel(mg,0)==NULL) assert(0);
+    if (CreateNewLevel(mg)==NULL) assert(0);
   }
 
   return GRID_ON_LEVEL(mg,level);
