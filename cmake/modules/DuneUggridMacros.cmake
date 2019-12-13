@@ -5,7 +5,7 @@ set(UG_VERSION "${DUNE_UGGRID_VERSION}")
 # The dune module is alway 3.13.0 or above!
 add_definitions(-DUG_USE_NEW_DIMENSION_DEFINES)
 
-if(UG_PARALLEL STREQUAL "yes")
+if(UG_PARALLEL)
   # Actually we probably should activate UG
   # for everything. But for the time being we fall
   # back to the enable trick. To change this just
