@@ -1,6 +1,7 @@
 #ifndef DUNE_UGGRID_PARALLEL_DDD_DDDTYPES_IMPL_HH
 #define DUNE_UGGRID_PARALLEL_DDD_DDDTYPES_IMPL_HH 1
 
+#include <memory>
 #include <vector>
 
 #include <dune/uggrid/parallel/ppif/ppiftypes.hh>
