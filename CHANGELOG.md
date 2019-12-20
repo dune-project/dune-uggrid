@@ -1,4 +1,6 @@
-# dune-uggrid 2.7 (unreleased)
+# dune-uggrid 2.8 (unreleased)
+
+# dune-uggrid 2.7.0 (unreleased)
 
 * Multiple grids are now also allowed in the parallel implementation
   [!96]: https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/96
