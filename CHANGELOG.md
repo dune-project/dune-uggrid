@@ -1,4 +1,6 @@
-# dune-uggrid 2.7 (unreleased)
+# dune-uggrid 2.8 (unreleased)
+
+# dune-uggrid 2.7.0 (unreleased)
 
 * Multiple grids are now also allowed in the parallel implementation
   [!96]: https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/96
@@ -8,8 +10,8 @@
     It is no longer necessary to provide the `RefRules.data` file.
     [!134](https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/134)
 
-* Header files moved below dune/uggrid. Headers are installed in the same
-  sub-directory and no longer into ug/. This breaks compatibility to UG 3.13.
+* Header files moved below `dune/uggrid`. Headers are installed in the same
+  sub-directory and no longer into `ug/`. This breaks compatibility to UG 3.13.
   [!137](https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/137)
 
 # dune-uggrid 2.6.0 (2018-04-03)
