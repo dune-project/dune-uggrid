@@ -3113,10 +3113,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
 
   theMG->theHeap = theHeap;
   for (i=0; i<MAXLEVEL; i++)
-  {
     GRID_ON_LEVEL(theMG,i) = NULL;
-    GRID_ON_LEVEL(theMG,-i-1) = NULL;
-  }
 
   /* allocate level 0 grid */
   if (CreateNewLevel(theMG,0)==NULL)
