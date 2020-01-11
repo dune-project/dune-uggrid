@@ -1,9 +1,10 @@
+add_subdirectory(include)
+
 install(FILES
   dddconstants.hh
   dddcontext.hh
   dddtypes.hh
   dddtypes_impl.hh
-  include/ddd.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid/parallel/ddd)
 
 if(UG_ENABLE_PARALLEL)
