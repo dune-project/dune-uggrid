@@ -75,7 +75,7 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
    .  py - bottom left position in 2D processor array
    .  dx - size of 2D processor array
    .  dy - size of 2D processor array
-   .  dim - sort dimension 0=x, 1=y, 2=z
+   .  bisectionAxis - axis along which we sort: 0=x, 1=y, 2=z
 
    DESCRIPTION:
    This function, a simple load balancing algorithm, balances all local triangles using a 'recursive coordinate bisection' scheme,
@@ -85,12 +85,12 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
  */
 /****************************************************************************/
 
-static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim)
+static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int bisectionAxis)
 {
   bool (*sort_function)(const LB_INFO&, const LB_INFO&);
 
   /* determine sort function */
-  switch (dim) {
+  switch (bisectionAxis) {
   case 0 :
     sort_function = sort_rcb<0, 1, 2>;
     break;
@@ -131,8 +131,8 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
     const int ni0 = (int)(((double)part0)/((double)(dx))*((double)nItems));
     const int ni1 = nItems-ni0;
 
-    RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px,       py, part0, dy,(dim+1)%DIM);
-    RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px+part0, py, part1, dy,(dim+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px,       py, part0, dy,(bisectionAxis+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px+part0, py, part1, dy,(bisectionAxis+1)%DIM);
 
   }
   else
@@ -145,8 +145,8 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
     const int ni0 = (int)(((double)part0)/((double)(dy))*((double)nItems));
     const int ni1 = nItems-ni0;
 
-    RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px, py      , dx, part0,(dim+1)%DIM);
-    RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px, py+part0, dx, part1,(dim+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px, py      , dx, part0,(bisectionAxis+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px, py+part0, dx, part1,(bisectionAxis+1)%DIM);
   }
 }
 
