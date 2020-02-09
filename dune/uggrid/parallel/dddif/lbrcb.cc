@@ -139,7 +139,11 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
                    { return a.center[bisectionAxis] < b.center[bisectionAxis]; }
   );
 
+  // we simply alternate between the axis hoping for a decent partition
+  // this could be probably improved by sorting along the longest axis but
+  // computing the longest axis is expensive if we have to compute the grids bounding box every time
   const int nextBisectionAxis = (bisectionAxis+1)%DIM;
+
   RecursiveCoordinateBisection(ppifContext, begin, middle, procPartitions[0], nextBisectionAxis);
   RecursiveCoordinateBisection(ppifContext, middle, end, procPartitions[1], nextBisectionAxis);
 }
