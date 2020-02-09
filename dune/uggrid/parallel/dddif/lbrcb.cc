@@ -98,11 +98,11 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
   case 1 :
     sort_function = sort_rcb<1, 0, 2>;
     break;
-                #ifdef __THREEDIM__
+#ifdef __THREEDIM__
   case 2 :
     sort_function = sort_rcb<2, 1, 0>;
     break;
-                #endif
+#endif
   default:
     DUNE_THROW(Dune::Exception, "Rank " << ppifContext.me() << ": "
                      << "RecursiveCoordinateBisection(): Not a valid bisection axis in "
