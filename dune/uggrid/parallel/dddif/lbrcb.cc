@@ -131,8 +131,9 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
     auto middle = begin + (int)(((double)part0)/((double)(dx))*((double)(end-begin)));
     std::nth_element(begin, middle, end, sort_function);
 
-    RecursiveCoordinateBisection(ppifContext, begin, middle, px, py, part0, dy,(bisectionAxis+1)%DIM);
-    RecursiveCoordinateBisection(ppifContext, middle, end, px+part0, py, part1, dy,(bisectionAxis+1)%DIM);
+    const int nextBisectionAxis = (bisectionAxis+1)%DIM;
+    RecursiveCoordinateBisection(ppifContext, begin, middle, px, py, part0, dy, nextBisectionAxis);
+    RecursiveCoordinateBisection(ppifContext, middle, end, px+part0, py, part1, dy, nextBisectionAxis);
 
   }
   else
@@ -144,8 +145,9 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
     auto middle = begin + (int)(((double)part0)/((double)(dy))*((double)(end-begin)));
     std::nth_element(begin, middle, end, sort_function);
 
-    RecursiveCoordinateBisection(ppifContext, begin, middle, px, py, dx, part0,(bisectionAxis+1)%DIM);
-    RecursiveCoordinateBisection(ppifContext, middle, end, px, py+part0, dx, part1,(bisectionAxis+1)%DIM);
+    const int nextBisectionAxis = (bisectionAxis+1)%DIM;
+    RecursiveCoordinateBisection(ppifContext, begin, middle, px, py, dx, part0, nextBisectionAxis);
+    RecursiveCoordinateBisection(ppifContext, middle, end, px, py+part0, dx, part1, nextBisectionAxis);
   }
 }
 
