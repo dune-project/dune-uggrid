@@ -607,7 +607,7 @@ static int XferNodesForOverlap2 (GRID *theGrid)
    .  theGrid
 
    DESCRIPTION:
-   This function sends elements to other procs, keeps overlapping region of one element and maintains correct priorities at interfaces. The destination procs have been computed by theRCB function and put into the elements' PARTITION-entries.
+   This function sends elements to other procs, keeps overlapping region of one element and maintains correct priorities at interfaces. The destination procs have been computed by the RecursiveCoordinateBisection function and put into the elements' PARTITION-entries.
 
    RETURN VALUE:
    void
