@@ -261,13 +261,10 @@ void BalanceGridRCB (MULTIGRID *theMG, int level)
     /* apply coordinate bisection strategy */
     RecursiveCoordinateBisection(ppifContext, lbinfo.data(), lbinfo.size(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
 
-    IFDEBUG(dddif,1)
+IFDEBUG(dddif,1)
     for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
-    {
-      UserWriteF("elem %08x has dest=%d\n",
-                 DDD_InfoGlobalId(PARHDRE(e)), PARTITION(e));
-    }
-    ENDDEBUG
+      UserWriteF("elem %08x has dest=%d\n", DDD_InfoGlobalId(PARHDRE(e)), PARTITION(e));
+ENDDEBUG
 
     for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
       InheritPartition (e);
