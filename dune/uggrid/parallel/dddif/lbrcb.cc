@@ -232,7 +232,7 @@ static void InheritPartition (ELEMENT *e)
 
 void BalanceGridRCB (MULTIGRID *theMG, int level)
 {
-  GRID *theGrid = GRID_ON_LEVEL(theMG,level);       /* balance grid of level */
+  GRID *theGrid = GRID_ON_LEVEL(theMG,level);
   DDD::DDDContext& context = theMG->dddContext();
   const PPIF::PPIFContext& ppifContext = theMG->ppifContext();
 
@@ -248,7 +248,6 @@ void BalanceGridRCB (MULTIGRID *theMG, int level)
       return;
     }
 
-    /* construct LB_INFO list */
     std::vector<LB_INFO> lbinfo(NT(theGrid));
     int i = 0;
     for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
@@ -258,7 +257,6 @@ void BalanceGridRCB (MULTIGRID *theMG, int level)
       ++i;
     }
 
-    /* apply coordinate bisection strategy */
     RecursiveCoordinateBisection(ppifContext, lbinfo.data(), lbinfo.size(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
 
 IFDEBUG(dddif,1)
