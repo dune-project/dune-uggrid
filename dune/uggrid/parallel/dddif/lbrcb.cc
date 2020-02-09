@@ -102,10 +102,10 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
     sort_function = sort_rcb<2, 1, 0>;
     break;
                 #endif
-  default :
-    printf("%d: RecursiveCoordinateBisection(): ERROR no valid sort dimension specified\n", ppifContext.me());
-    std::abort();
-    break;
+  default:
+    DUNE_THROW(Dune::Exception, "Rank " << ppifContext.me() << ": "
+                     << "RecursiveCoordinateBisection(): Not a valid bisection axis in "
+                     << DIM << " dimensions!");
   }
 
   if (nItems==0)
