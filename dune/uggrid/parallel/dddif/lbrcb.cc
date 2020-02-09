@@ -109,15 +109,17 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
                      << DIM << " dimensions!");
   }
 
+  // empty element range: nothing to do
   if (begin == end)
     return;
 
+  // we found a single destination rank for this element subrange: end recursion
   if ((dx<=1)&&(dy<=1))
   {
     for (auto it = begin; it != end; ++it)
     {
-      int dest = py*ppifContext.dimX()+px;
-      PARTITION(it->elem) = dest;
+      const int destinationRank = py*ppifContext.dimX()+px;
+      PARTITION(it->elem) = destinationRank;
     }
     return;
   }
