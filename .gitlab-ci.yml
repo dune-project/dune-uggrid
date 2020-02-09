@@ -12,7 +12,11 @@ before_script:
 # UG-specific job for testing sequential library version
 debian:10 gcc-7-14 sequential:
   image: registry.dune-project.org/docker/ci/debian:10
-  script: duneci-standard-test
+  script: 
+    # run the tests for dune-uggrid
+    - duneci-standard-test
+    # run the tests for dune-grid
+    - cd ../dune-grid && duneci-standard-test 
   variables:
     DUNECI_TOOLCHAIN: gcc-7-14
     DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_PARALLEL=0"
