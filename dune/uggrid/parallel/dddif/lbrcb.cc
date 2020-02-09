@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <vector>
 
+#include <dune/common/exceptions.hh>
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "parallel.h"
@@ -339,10 +340,7 @@ void BalanceGridRCB (MULTIGRID *theMG, int level)
 
   /* distributed grids cannot be redistributed by this function */
   if (not context.isMaster() && FIRSTELEMENT(theGrid) != NULL)
-  {
-    printf("Error: Redistributing distributed grids using recursive coordinate bisection is not implemented!\n");
-    return;
-  }
+    DUNE_THROW(Dune::NotImplemented, "Redistributing distributed grids using recursive coordinate bisection is not implemented!");
 
   if (context.isMaster())
   {
