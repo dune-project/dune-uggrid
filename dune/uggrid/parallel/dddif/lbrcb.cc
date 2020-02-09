@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <array>
 
 #include <dune/common/exceptions.hh>
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
@@ -31,7 +32,7 @@ START_UGDIM_NAMESPACE
 // only used in this source file
 struct LB_INFO {
   ELEMENT *elem;
-  DOUBLE center[DIM];
+  std::array<DOUBLE, DIM> center;
 };
 
 /**
@@ -167,18 +168,18 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
  */
 /****************************************************************************/
 
-static void CenterOfMass (ELEMENT *e, DOUBLE *pos)
+static void CenterOfMass (ELEMENT *e, std::array<DOUBLE, DIM>& pos)
 {
   int i;
 
-  V_DIM_CLEAR(pos)
+  V_DIM_CLEAR(pos.data())
 
   for(i=0; i<CORNERS_OF_ELEM(e); i++)
   {
-    V_DIM_LINCOMB(1.0,pos,1.0,CVECT(MYVERTEX(CORNER(e,i))),pos)
+    V_DIM_LINCOMB(1.0,pos.data(),1.0,CVECT(MYVERTEX(CORNER(e,i))),pos)
   }
 
-  V_DIM_SCALE(1.0/(float)CORNERS_OF_ELEM(e),pos)
+  V_DIM_SCALE(1.0/(float)CORNERS_OF_ELEM(e),pos.data())
 }
 
 /****************************************************************************/
