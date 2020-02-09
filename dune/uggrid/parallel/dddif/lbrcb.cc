@@ -144,10 +144,10 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
 
 /****************************************************************************/
 /*
-   theRCB - balance all local triangles
+   RecursiveCoordinateBisection - balance all local triangles
 
    SYNOPSIS:
-   static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim);
+   static void RecursiveCoordinateBisection (LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim);
 
    PARAMETERS:
    .  theItems - LB_INFO array
@@ -166,7 +166,7 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
  */
 /****************************************************************************/
 
-static void theRCB (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim)
+static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim)
 {
   int i, part0, part1, ni0, ni1;
   bool (*sort_function)(const LB_INFO&, const LB_INFO&);
@@ -185,7 +185,7 @@ static void theRCB (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int
     break;
                 #endif
   default :
-    printf("%d: theRCB(): ERROR no valid sort dimension specified\n", ppifContext.me());
+    printf("%d: RecursiveCoordinateBisection(): ERROR no valid sort dimension specified\n", ppifContext.me());
     std::abort();
     break;
   }
@@ -213,8 +213,8 @@ static void theRCB (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int
     ni0 = (int)(((double)part0)/((double)(dx))*((double)nItems));
     ni1 = nItems-ni0;
 
-    theRCB(ppifContext, theItems,     ni0, px,       py, part0, dy,(dim+1)%DIM);
-    theRCB(ppifContext, theItems+ni0, ni1, px+part0, py, part1, dy,(dim+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px,       py, part0, dy,(dim+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px+part0, py, part1, dy,(dim+1)%DIM);
 
   }
   else
@@ -227,8 +227,8 @@ static void theRCB (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int
     ni0 = (int)(((double)part0)/((double)(dy))*((double)nItems));
     ni1 = nItems-ni0;
 
-    theRCB(ppifContext, theItems,     ni0, px, py      , dx, part0,(dim+1)%DIM);
-    theRCB(ppifContext, theItems+ni0, ni1, px, py+part0, dx, part1,(dim+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px, py      , dx, part0,(dim+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px, py+part0, dx, part1,(dim+1)%DIM);
   }
 }
 
@@ -361,7 +361,7 @@ int BalanceGridRCB (MULTIGRID *theMG, int level)
     }
 
     /* apply coordinate bisection strategy */
-    theRCB(ppifContext, lbinfo.data(), lbinfo.size(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
+    RecursiveCoordinateBisection(ppifContext, lbinfo.data(), lbinfo.size(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
 
     IFDEBUG(dddif,1)
     for (e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
