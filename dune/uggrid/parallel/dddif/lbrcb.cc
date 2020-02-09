@@ -37,32 +37,6 @@ struct LB_INFO {
 };
 
 /**
- * compare entities according to center coordinate.
- * This function implements a lexiographic order by the
- * `d0`-th, `d1`-th and `d2`-th component of the center coordinate.
- */
-template<int d0, int d1, int d2>
-static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
-{
-  constexpr DOUBLE eps = 1e-5;
-
-  if (a.center[d0] < b.center[d0] - eps) return true;
-  if (a.center[d0] > b.center[d0] + eps) return false;
-
-  /* x coordinates are considered to be equal, compare y now */
-  if (a.center[d1] < b.center[d1] - eps) return true;
-  if (a.center[d1] > b.center[d1] + eps) return false;
-
-#ifdef __THREEDIM__
-  /* x and y coordinates are considered to be equal, compare y now */
-  if (a.center[d2] < b.center[d2] - eps) return true;
-  if (a.center[d2] > b.center[d2] + eps) return false;
-#endif
-
-  return false;
-}
-
-/**
  * Bisects a 2D processor array along the longest axis
  *
  * std::array<int, 4> specifies a part of a 2D processor array
@@ -135,26 +109,6 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
                                           const std::array<int, 4> procs,
                                           int bisectionAxis = 0)
 {
-  bool (*sort_function)(const LB_INFO&, const LB_INFO&);
-
-  /* determine sort function */
-  switch (bisectionAxis) {
-  case 0 :
-    sort_function = sort_rcb<0, 1, 2>;
-    break;
-  case 1 :
-    sort_function = sort_rcb<1, 0, 2>;
-    break;
-#ifdef __THREEDIM__
-  case 2 :
-    sort_function = sort_rcb<2, 1, 0>;
-    break;
-#endif
-  default:
-    DUNE_THROW(Dune::Exception, "Rank " << ppifContext.me() << ": "
-                     << "RecursiveCoordinateBisection(): Not a valid bisection axis in "
-                     << DIM << " dimensions!");
-  }
 
   assert(begin < end);
 
@@ -180,7 +134,11 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
   const auto middle = begin + static_cast<int>(numElements*splitRatio);
 
   // partial sort such that middle iterator points to the bisection element
-  std::nth_element(begin, middle, end, sort_function);
+  std::nth_element(begin, middle, end,
+                   [bisectionAxis](const auto& a, const auto& b)
+                   { return a.center[bisectionAxis] < b.center[bisectionAxis]; }
+  );
+
   const int nextBisectionAxis = (bisectionAxis+1)%DIM;
   RecursiveCoordinateBisection(ppifContext, begin, middle, procPartitions[0], nextBisectionAxis);
   RecursiveCoordinateBisection(ppifContext, middle, end, procPartitions[1], nextBisectionAxis);
