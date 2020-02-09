@@ -16,6 +16,7 @@
 #include <iterator>
 
 #include <dune/common/exceptions.hh>
+#include <dune/common/fvector.hh>
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "parallel.h"
@@ -33,7 +34,7 @@ START_UGDIM_NAMESPACE
 // only used in this source file
 struct LB_INFO {
   ELEMENT *elem;
-  std::array<DOUBLE, DIM> center;
+  Dune::FieldVector<DOUBLE, DIM> center;
 };
 
 /**
@@ -148,34 +149,23 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
   RecursiveCoordinateBisection(ppifContext, middle, end, procPartitions[1], nextBisectionAxis);
 }
 
-/****************************************************************************/
-/*
-   CenterOfMass -
-
-   SYNOPSIS:
-   static void CenterOfMass (ELEMENT *e, DOUBLE *pos);
-
-   PARAMETERS:
-   .  e
-   .  pos
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   void
+/**
+ * Compute an element's center of mass
  */
-/****************************************************************************/
-
-static void CenterOfMass (ELEMENT *e, std::array<DOUBLE, DIM>& pos)
+static Dune::FieldVector<DOUBLE, DIM> CenterOfMass (ELEMENT *e)
 {
-  V_DIM_CLEAR(pos.data())
+  Dune::FieldVector<DOUBLE, DIM> center(0.0);
 
-  for(int i=0; i<CORNERS_OF_ELEM(e); i++)
+  const auto corners = CORNERS_OF_ELEM(e);
+  for(int i=0; i<corners; i++)
   {
-    V_DIM_LINCOMB(1.0,pos.data(),1.0,CVECT(MYVERTEX(CORNER(e,i))),pos)
+    auto* corner = CVECT(MYVERTEX(CORNER(e,i)));
+    for(int dimIdx=0; dimIdx < DIM; ++dimIdx)
+        center[dimIdx] += corner[dimIdx];
   }
 
-  V_DIM_SCALE(1.0/(float)CORNERS_OF_ELEM(e),pos.data())
+  center /= corners;
+  return center;
 }
 
 /****************************************************************************/
@@ -250,7 +240,7 @@ void BalanceGridRCB (MULTIGRID *theMG, int level)
     for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
     {
       lbinfo[i].elem = e;
-      CenterOfMass(e, lbinfo[i].center);
+      lbinfo[i].center = CenterOfMass(e);
       ++i;
     }
 
