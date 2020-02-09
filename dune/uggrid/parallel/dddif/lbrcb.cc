@@ -170,11 +170,9 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
 
 static void CenterOfMass (ELEMENT *e, std::array<DOUBLE, DIM>& pos)
 {
-  int i;
-
   V_DIM_CLEAR(pos.data())
 
-  for(i=0; i<CORNERS_OF_ELEM(e); i++)
+  for(int i=0; i<CORNERS_OF_ELEM(e); i++)
   {
     V_DIM_LINCOMB(1.0,pos.data(),1.0,CVECT(MYVERTEX(CORNER(e,i))),pos)
   }
@@ -201,13 +199,11 @@ static void CenterOfMass (ELEMENT *e, std::array<DOUBLE, DIM>& pos)
 
 static void InheritPartition (ELEMENT *e)
 {
-  int i;
   ELEMENT *SonList[MAX_SONS];
-
 
   if (GetAllSons(e,SonList)==0)
   {
-    for(i=0; SonList[i]!=NULL; i++)
+    for(int i=0; SonList[i]!=NULL; i++)
     {
       PARTITION(SonList[i]) = PARTITION(e);
       InheritPartition(SonList[i]);
@@ -237,9 +233,6 @@ static void InheritPartition (ELEMENT *e)
 void BalanceGridRCB (MULTIGRID *theMG, int level)
 {
   GRID *theGrid = GRID_ON_LEVEL(theMG,level);       /* balance grid of level */
-  ELEMENT *e;
-  int i;
-
   DDD::DDDContext& context = theMG->dddContext();
   const PPIF::PPIFContext& ppifContext = theMG->ppifContext();
 
@@ -257,27 +250,28 @@ void BalanceGridRCB (MULTIGRID *theMG, int level)
 
     /* construct LB_INFO list */
     std::vector<LB_INFO> lbinfo(NT(theGrid));
-    for (i=0, e=FIRSTELEMENT(theGrid); e!=NULL; i++, e=SUCCE(e))
+    int i = 0;
+    for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
     {
       lbinfo[i].elem = e;
       CenterOfMass(e, lbinfo[i].center);
+      ++i;
     }
 
     /* apply coordinate bisection strategy */
     RecursiveCoordinateBisection(ppifContext, lbinfo.data(), lbinfo.size(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
 
     IFDEBUG(dddif,1)
-    for (e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
+    for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
     {
       UserWriteF("elem %08x has dest=%d\n",
                  DDD_InfoGlobalId(PARHDRE(e)), PARTITION(e));
     }
     ENDDEBUG
 
-    for (i=0, e=FIRSTELEMENT(theGrid); e!=NULL; i++, e=SUCCE(e))
-    {
+    for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
       InheritPartition (e);
-    }
+
   }
 }
 
