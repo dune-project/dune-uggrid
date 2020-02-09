@@ -307,7 +307,7 @@ DDD_TYPE        NFatherObjType                  (DDD::DDDContext& context, DDD_O
 void            ObjectPriorityUpdate    (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO newPrio);
 
 /* from lbrcb.c */
-int BalanceGridRCB (MULTIGRID *, int);
+void BalanceGridRCB (MULTIGRID *, int);
 
 /* from gridcons.c */
 void    ConstructConsistentGrid                 (GRID *theGrid);

@@ -328,7 +328,7 @@ static void InheritPartition (ELEMENT *e)
  */
 /****************************************************************************/
 
-int BalanceGridRCB (MULTIGRID *theMG, int level)
+void BalanceGridRCB (MULTIGRID *theMG, int level)
 {
   GRID *theGrid = GRID_ON_LEVEL(theMG,level);       /* balance grid of level */
   ELEMENT *e;
@@ -341,7 +341,7 @@ int BalanceGridRCB (MULTIGRID *theMG, int level)
   if (not context.isMaster() && FIRSTELEMENT(theGrid) != NULL)
   {
     printf("Error: Redistributing distributed grids using recursive coordinate bisection is not implemented!\n");
-    return (1);
+    return;
   }
 
   if (context.isMaster())
@@ -349,7 +349,7 @@ int BalanceGridRCB (MULTIGRID *theMG, int level)
     if (NT(theGrid) == 0)
     {
       UserWriteF("WARNING in BalanceGridRCB: no elements in grid\n");
-      return (1);
+      return;
     }
 
     /* construct LB_INFO list */
@@ -376,8 +376,6 @@ int BalanceGridRCB (MULTIGRID *theMG, int level)
       InheritPartition (e);
     }
   }
-
-  return 0;
 }
 
 
