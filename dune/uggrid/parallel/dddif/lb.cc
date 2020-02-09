@@ -354,11 +354,6 @@ void lbs (const char *argv, MULTIGRID *theMG)
 
   switch (mode)
   {
-  /* transfer vectors of coarsest amg grid to master */
-  case (-1) :
-    AMGAgglomerate(theMG);
-    return;
-
   /* dies balanciert ein GRID mit RCB */
   case (0) :
     BalanceGridRCB(theMG,0);
