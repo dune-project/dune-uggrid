@@ -156,7 +156,9 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
                      << DIM << " dimensions!");
   }
 
-  // empty element range: nothing to do
+  assert(begin < end);
+
+  // empty element range for these processors: nothing to do
   if (begin == end)
     return;
 
