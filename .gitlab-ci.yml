@@ -3,9 +3,6 @@
 #  - "https://gitlab.dune-project.org/core/ci-config/raw/master/config/common/master.yml"
 #  - "https://gitlab.dune-project.org/core/ci-config/raw/master/jobs/common/master.yml"
 
-variables:
-  DUNE_CONTROL_PATH: /duneci/modules:$$CI_PROJECT_PATH
-
 before_script:
   - . /duneci/bin/duneci-init-job
   - duneci-install-module https://gitlab.dune-project.org/core/dune-common.git
@@ -13,8 +10,9 @@ before_script:
 
 .common: &common
   script:
-    - duneci-install-module https://gitlab.dune-project.org/core/dune-grid.git
     - duneci-standard-test
+    - export DUNE_CONTROL_PATH=$DUNE_CONTROL_PATH:/duneci/modules:$(pwd)
+    - duneci-install-module https://gitlab.dune-project.org/core/dune-grid.git
     - cd /duneci/modules/dune-grid && duneci-standard-test
   tags: [duneci]
   artifacts:
