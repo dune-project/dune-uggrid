@@ -1,7 +1,7 @@
 ---
-include:
-  - "https://gitlab.dune-project.org/core/ci-config/raw/master/config/common/master.yml"
-  - "https://gitlab.dune-project.org/core/ci-config/raw/master/jobs/common/master.yml"
+#include:
+#  - "https://gitlab.dune-project.org/core/ci-config/raw/master/config/common/master.yml"
+#  - "https://gitlab.dune-project.org/core/ci-config/raw/master/jobs/common/master.yml"
 
 before_script:
   - . /duneci/bin/duneci-init-job
@@ -9,22 +9,21 @@ before_script:
   - duneci-install-module https://gitlab.dune-project.org/core/dune-geometry.git
   - duneci-install-module https://gitlab.dune-project.org/core/dune-grid.git
 
-after_script:
-  - cd ../dune-grid && duneci-standard-test 
-
 # UG-specific job for testing sequential library version
 debian:10 gcc-7-14 sequential:
   image: registry.dune-project.org/docker/ci/debian:10
-  script: duneci-standard-test
+  script:
+    - duneci-standard-test
+    - cd .. && echo $(pwd) && ls -la
   variables:
     DUNECI_TOOLCHAIN: gcc-7-14
     DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_PARALLEL=0"
   tags: [duneci]
 
-debian:10 gcc-7-14 debug:
-  image: registry.dune-project.org/docker/ci/debian:10
-  script: duneci-standard-test
-  variables:
-    DUNECI_TOOLCHAIN: gcc-7-14
-    DUNECI_CMAKE_FLAGS: "-DDebug=1"
-  tags: [duneci]
+#debian:10 gcc-7-14 debug:
+#  image: registry.dune-project.org/docker/ci/debian:10
+#  script: duneci-standard-test
+#  variables:
+#    DUNECI_TOOLCHAIN: gcc-7-14
+#    DUNECI_CMAKE_FLAGS: "-DDebug=1"
+#  tags: [duneci]
