@@ -219,17 +219,16 @@ static void InheritPartition (ELEMENT *e)
 /*
    BalanceGridRCB -
 
-   SYNOPSIS:
-   int BalanceGridRCB (MULTIGRID *theMG, int level);
-
    PARAMETERS:
    .  theMG
    .  level
 
    DESCRIPTION:
+   Load balance one level of a multigrid hierarchy
+   using recursive coordinate bisection
 
    RETURN VALUE:
-   int
+   void
  */
 /****************************************************************************/
 
