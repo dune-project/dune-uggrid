@@ -65,12 +65,9 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
 /*
    RecursiveCoordinateBisection - balance all local triangles
 
-   SYNOPSIS:
-   static void RecursiveCoordinateBisection (LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim);
-
    PARAMETERS:
-   .  theItems - LB_INFO array
-   .  nItems - length of array
+   .  begin - iterator to LB_INFO vector
+   .  end - iterator to LB_INFO vector
    .  px - bottom left position in 2D processor array
    .  py - bottom left position in 2D processor array
    .  dx - size of 2D processor array
@@ -85,7 +82,11 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
  */
 /****************************************************************************/
 
-static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int bisectionAxis)
+static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
+                                          const std::vector<LB_INFO>::iterator& begin,
+                                          const std::vector<LB_INFO>::iterator& end,
+                                          int px, int py, int dx, int dy,
+                                          int bisectionAxis)
 {
   bool (*sort_function)(const LB_INFO&, const LB_INFO&);
 
@@ -108,45 +109,43 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
                      << DIM << " dimensions!");
   }
 
-  if (nItems==0)
+  if (begin == end)
     return;
 
   if ((dx<=1)&&(dy<=1))
   {
-    for(int i=0; i<nItems; i++)
+    for (auto it = begin; it != end; ++it)
     {
       int dest = py*ppifContext.dimX()+px;
-      PARTITION(theItems[i].elem) = dest;
+      PARTITION(it->elem) = dest;
     }
     return;
   }
 
   if (dx>=dy)
   {
-    if (nItems>1) std::sort(theItems, theItems + nItems, sort_function);
+    std::sort(begin, end, sort_function);
 
     const int part0 = dx/2;
     const int part1 = dx-part0;
 
-    const int ni0 = (int)(((double)part0)/((double)(dx))*((double)nItems));
-    const int ni1 = nItems-ni0;
+    auto middle = begin + (int)(((double)part0)/((double)(dx))*((double)(end-begin)));
 
-    RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px,       py, part0, dy,(bisectionAxis+1)%DIM);
-    RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px+part0, py, part1, dy,(bisectionAxis+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, begin, middle, px, py, part0, dy,(bisectionAxis+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, middle, end, px+part0, py, part1, dy,(bisectionAxis+1)%DIM);
 
   }
   else
   {
-    if (nItems>1) std::sort(theItems, theItems + nItems, sort_function);
+    std::sort(begin, end, sort_function);
 
     const int part0 = dy/2;
     const int part1 = dy-part0;
 
-    const int ni0 = (int)(((double)part0)/((double)(dy))*((double)nItems));
-    const int ni1 = nItems-ni0;
+    auto middle = begin + (int)(((double)part0)/((double)(dy))*((double)(end-begin)));
 
-    RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px, py      , dx, part0,(bisectionAxis+1)%DIM);
-    RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px, py+part0, dx, part1,(bisectionAxis+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, begin, middle, px, py, dx, part0,(bisectionAxis+1)%DIM);
+    RecursiveCoordinateBisection(ppifContext, middle, end, px, py+part0, dx, part1,(bisectionAxis+1)%DIM);
   }
 }
 
@@ -257,7 +256,7 @@ void BalanceGridRCB (MULTIGRID *theMG, int level)
       ++i;
     }
 
-    RecursiveCoordinateBisection(ppifContext, lbinfo.data(), lbinfo.size(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
+    RecursiveCoordinateBisection(ppifContext, lbinfo.begin(), lbinfo.end(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
 
 IFDEBUG(dddif,1)
     for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
