@@ -86,7 +86,6 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
 
 static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim)
 {
-  int i, part0, part1, ni0, ni1;
   bool (*sort_function)(const LB_INFO&, const LB_INFO&);
 
   /* determine sort function */
@@ -113,7 +112,7 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
 
   if ((dx<=1)&&(dy<=1))
   {
-    for(i=0; i<nItems; i++)
+    for(int i=0; i<nItems; i++)
     {
       int dest = py*ppifContext.dimX()+px;
       PARTITION(theItems[i].elem) = dest;
@@ -125,11 +124,11 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
   {
     if (nItems>1) std::sort(theItems, theItems + nItems, sort_function);
 
-    part0 = dx/2;
-    part1 = dx-part0;
+    const int part0 = dx/2;
+    const int part1 = dx-part0;
 
-    ni0 = (int)(((double)part0)/((double)(dx))*((double)nItems));
-    ni1 = nItems-ni0;
+    const int ni0 = (int)(((double)part0)/((double)(dx))*((double)nItems));
+    const int ni1 = nItems-ni0;
 
     RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px,       py, part0, dy,(dim+1)%DIM);
     RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px+part0, py, part1, dy,(dim+1)%DIM);
@@ -139,11 +138,11 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
   {
     if (nItems>1) std::sort(theItems, theItems + nItems, sort_function);
 
-    part0 = dy/2;
-    part1 = dy-part0;
+    const int part0 = dy/2;
+    const int part1 = dy-part0;
 
-    ni0 = (int)(((double)part0)/((double)(dy))*((double)nItems));
-    ni1 = nItems-ni0;
+    const int ni0 = (int)(((double)part0)/((double)(dy))*((double)nItems));
+    const int ni1 = nItems-ni0;
 
     RecursiveCoordinateBisection(ppifContext, theItems,     ni0, px, py      , dx, part0,(dim+1)%DIM);
     RecursiveCoordinateBisection(ppifContext, theItems+ni0, ni1, px, py+part0, dx, part1,(dim+1)%DIM);
