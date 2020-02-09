@@ -1,34 +1,12 @@
 // -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 // vi: set et ts=4 sw=2 sts=2:
 /****************************************************************************/
-/*																			*/
 /* File:	  lbrcb.c														*/
-/*																			*/
 /* Purpose:   simple static load balancing scheme for testing initial		*/
 /*            grid distribution												*/
-/*																			*/
-/* Author:	  Klaus Birken                                                                          */
-/*			  Institut fuer Computeranwendungen III                                                 */
-/*			  Universitaet Stuttgart										*/
-/*			  Pfaffenwaldring 27											*/
-/*			  70550 Stuttgart												*/
-/*			  email: birken@ica3.uni-stuttgart.de							*/
-/*																			*/
-/* History:   940416 kb  begin                                                                          */
-/*																			*/
-/* Remarks:                                                                                                                             */
-/*																			*/
 /****************************************************************************/
 
 #ifdef ModelP
-
-/****************************************************************************/
-/*																			*/
-/* include files															*/
-/*			  system include files											*/
-/*			  application include files                                                                     */
-/*																			*/
-/****************************************************************************/
 
 #include <config.h>
 
@@ -50,74 +28,13 @@ using namespace PPIF;
 
 START_UGDIM_NAMESPACE
 
-/****************************************************************************/
-/*																			*/
-/* defines in the following order											*/
-/*																			*/
-/*		  compile time constants defining static data size (i.e. arrays)	*/
-/*		  other constants													*/
-/*		  macros															*/
-/*																			*/
-/****************************************************************************/
-
-
 #define SMALL_DOUBLE         1.0E-5      /* resolution when comparing DOUBLEs */
 
-
-
-/****************************************************************************/
-/*																			*/
-/* data structures used in this source file (exported data structures are	*/
-/*		  in the corresponding include file!)								*/
-/*																			*/
-/****************************************************************************/
-
+// only used in this source file
 struct LB_INFO {
   ELEMENT *elem;
   DOUBLE center[DIM];
 };
-
-
-/****************************************************************************/
-/*																			*/
-/* definition of exported global variables									*/
-/*																			*/
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*																			*/
-/* definition of variables global to this source file only (static!)		*/
-/*																			*/
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*																			*/
-/* forward declarations of functions used before they are defined			*/
-/*																			*/
-/****************************************************************************/
-
-
-/****************************************************************************/
-/*
-   sort_rcb_x -
-
-   SYNOPSIS:
-   static int sort_rcb_x (const void *e1, const void *e2);
-
-   PARAMETERS:
-   .  e1
-   .  e2
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   int
- */
-/****************************************************************************/
 
 /**
  * compare entities according to center coordinate.
@@ -233,13 +150,6 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext, 
   }
 }
 
-
-
-
-
-/****************************************************************************/
-
-
 /****************************************************************************/
 /*
    CenterOfMass -
@@ -271,11 +181,6 @@ static void CenterOfMass (ELEMENT *e, DOUBLE *pos)
 
   V_DIM_SCALE(1.0/(float)CORNERS_OF_ELEM(e),pos)
 }
-
-
-
-/****************************************************************************/
-
 
 /****************************************************************************/
 /*
@@ -375,9 +280,6 @@ void BalanceGridRCB (MULTIGRID *theMG, int level)
     }
   }
 }
-
-
-/****************************************************************************/
 
 END_UGDIM_NAMESPACE
 
