@@ -11,7 +11,7 @@ before_script:
 .common: &common
   script:
     - duneci-standard-test
-    - export DUNE_CONTROL_PATH=$DUNE_CONTROL_PATH:/duneci/modules:$(pwd)
+    - export DUNE_CONTROL_PATH=$(pwd):/duneci/modules:$DUNE_CONTROL_PATH
     - duneci-install-module https://gitlab.dune-project.org/core/dune-grid.git
     - cd /duneci/modules/dune-grid && duneci-standard-test
   tags: [duneci]
