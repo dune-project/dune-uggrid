@@ -28,8 +28,6 @@ using namespace PPIF;
 
 START_UGDIM_NAMESPACE
 
-#define SMALL_DOUBLE         1.0E-5      /* resolution when comparing DOUBLEs */
-
 // only used in this source file
 struct LB_INFO {
   ELEMENT *elem;
@@ -44,17 +42,19 @@ struct LB_INFO {
 template<int d0, int d1, int d2>
 static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
 {
-  if (a.center[d0] < b.center[d0] -SMALL_DOUBLE) return true;
-  if (a.center[d0] > b.center[d0] +SMALL_DOUBLE) return false;
+  constexpr DOUBLE eps = 1e-5;
+
+  if (a.center[d0] < b.center[d0] - eps) return true;
+  if (a.center[d0] > b.center[d0] + eps) return false;
 
   /* x coordinates are considered to be equal, compare y now */
-  if (a.center[d1] < b.center[d1] -SMALL_DOUBLE) return true;
-  if (a.center[d1] > b.center[d1] +SMALL_DOUBLE) return false;
+  if (a.center[d1] < b.center[d1] - eps) return true;
+  if (a.center[d1] > b.center[d1] + eps) return false;
 
 #ifdef __THREEDIM__
   /* x and y coordinates are considered to be equal, compare y now */
-  if (a.center[d2] < b.center[d2] -SMALL_DOUBLE) return true;
-  if (a.center[d2] > b.center[d2] +SMALL_DOUBLE) return false;
+  if (a.center[d2] < b.center[d2] - eps) return true;
+  if (a.center[d2] > b.center[d2] + eps) return false;
 #endif
 
   return false;
