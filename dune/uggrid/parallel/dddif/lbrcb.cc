@@ -126,17 +126,17 @@ struct LB_INFO {
 template<int d0, int d1, int d2>
 static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
 {
-  if (a.center[0] < b.center[0] -SMALL_DOUBLE) return true;
-  if (a.center[0] > b.center[0] +SMALL_DOUBLE) return false;
+  if (a.center[d0] < b.center[d0] -SMALL_DOUBLE) return true;
+  if (a.center[d0] > b.center[d0] +SMALL_DOUBLE) return false;
 
   /* x coordinates are considered to be equal, compare y now */
-  if (a.center[1] < b.center[1] -SMALL_DOUBLE) return true;
-  if (a.center[1] > b.center[1] +SMALL_DOUBLE) return false;
+  if (a.center[d1] < b.center[d1] -SMALL_DOUBLE) return true;
+  if (a.center[d1] > b.center[d1] +SMALL_DOUBLE) return false;
 
 #ifdef __THREEDIM__
   /* x and y coordinates are considered to be equal, compare y now */
-  if (a.center[2] < b.center[2] -SMALL_DOUBLE) return true;
-  if (a.center[2] > b.center[2] +SMALL_DOUBLE) return false;
+  if (a.center[d2] < b.center[d2] -SMALL_DOUBLE) return true;
+  if (a.center[d2] > b.center[d2] +SMALL_DOUBLE) return false;
 #endif
 
   return false;
