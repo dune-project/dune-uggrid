@@ -2957,7 +2957,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     if (DisposeGrid(GRID_ON_LEVEL(theMG,0)))        {DisposeMultiGrid(theMG); return (NULL);}
 
     for (i=0; i<mg_general.nLevel; i++)
-      if (CreateNewLevel(theMG,0)==NULL)              {DisposeMultiGrid(theMG); return (NULL);}
+      if (CreateNewLevel(theMG)==NULL)              {DisposeMultiGrid(theMG); return (NULL);}
 
     /* no coarse mesh */
 
@@ -2995,7 +2995,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   theHeap = MGHEAP(theMG);
   MarkKey = MG_MARK_KEY(theMG);
   if (DisposeGrid(GRID_ON_LEVEL(theMG,0)))                {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-  if (CreateNewLevel(theMG,0)==NULL)                              {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
+  if (CreateNewLevel(theMG)==NULL)                              {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
   theHeap = MGHEAP(theMG);
   theBVP = MG_BVP(theMG);
   if (theBVP==NULL)                                                               {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
@@ -3029,7 +3029,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     /* create levels */
     for (i=1; i<mg_general.nLevel; i++)
     {
-      if (CreateNewLevel(theMG,0)==NULL)              {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
+      if (CreateNewLevel(theMG)==NULL)              {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
       /* replaced by IO_GridCons because of uniformity; Christian Wrobel 980311. TODO remove:
          ConstructConsistentGrid(GRID_ON_LEVEL(theMG,i));
        */
@@ -3227,7 +3227,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
 
   /* create levels */
   for (i=1; i<mg_general.nLevel; i++)
-    if (CreateNewLevel(theMG,0)==NULL)                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
+    if (CreateNewLevel(theMG)==NULL)                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
   /* insert coarse mesh */
   if (InsertMesh(theMG,&theMesh))                                 {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}

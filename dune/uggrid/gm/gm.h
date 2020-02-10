@@ -1543,9 +1543,6 @@ struct multigrid {
   /** \brief last level with complete surface     */
   INT fullrefineLevel;
 
-  /** \brief bottom level for AMG                 */
-  INT bottomLevel;
-
   /** \brief pointer to BndValProblem                             */
   BVP *theBVP;
 
@@ -3005,7 +3002,6 @@ grid::dddContext()
 #define NIDCNT(p)                       ((p)->nodeIdCounter)
 #define EIDCNT(p)                       ((p)->elemIdCounter)
 #define TOPLEVEL(p)                     ((p)->topLevel)
-#define BOTTOMLEVEL(p)                  ((p)->bottomLevel)
 #define CURRENTLEVEL(p)                 ((p)->currentLevel)
 #define FULLREFINELEVEL(p)              ((p)->fullrefineLevel)
 #define MGFORMAT(p)                     ((p)->theFormat)
@@ -3171,7 +3167,6 @@ MULTIGRID       *LoadMultiGrid  (const char *MultigridName, const char *name, co
 INT             SaveMultiGrid (MULTIGRID *theMG, const char *name, const char *type, const char *comment, INT autosave, INT rename);
 INT         DisposeGrid             (GRID *theGrid);
 INT             DisposeMultiGrid                (MULTIGRID *theMG);
-INT         DisposeAMGLevels        (MULTIGRID *theMG);
 INT         Collapse                (MULTIGRID *theMG);
 #ifdef __TWODIM__
 INT                     SaveCnomGridAndValues (MULTIGRID *theMG, char *FileName, char *plotprocName, char *tagName);

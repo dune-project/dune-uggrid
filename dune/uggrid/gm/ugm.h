@@ -101,8 +101,7 @@ ELEMENT * CreateElement          (GRID *theGrid, INT tag, INT objtype,
 INT         CreateSonElementSide    (GRID *theGrid, ELEMENT *theElement,
                                      INT side, ELEMENT *theSon, INT son_side);
 
-GRID            *CreateNewLevel                 (MULTIGRID *theMG, INT algebraic);
-GRID        *CreateNewLevelAMG      (MULTIGRID *theMG);
+GRID            *CreateNewLevel                 (MULTIGRID *theMG);
 
 /* dispose basic objects */
 INT              DisposeElement                 (GRID *theGrid, ELEMENT *theElement, INT dispose_connections);
