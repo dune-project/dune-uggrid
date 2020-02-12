@@ -35,8 +35,6 @@ START_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-INT ComputeSMSizeOfArray (SHORT nr, SHORT nc, const SHORT *comps,
-                          SHORT *NPtr, SHORT *NredPtr);
 INT String2SMArray       (SHORT n, char *str, SHORT *comps);
 
 END_UGDIM_NAMESPACE
