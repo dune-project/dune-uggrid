@@ -35,63 +35,6 @@ REP_ERR_FILE
 #include <dune/uggrid/numerics/udm.h>  /* for MAX_MAT_COMP */
 
 /****************************************************************************/
-/** \brief Computes the size of a sparse matrix array
-
-   \param nr - number of rows
-   \param nc - number of columns
-   \param comps - pointer to integer array
-   \param NPtr - here N is stored
-   \param NredPtr - here Nred is stored
-
-   Positive numbers in the comps-array are transfered,
-   negative ones mean non-existing entries in the sparse matrix. Equal
-   positive numbers mean identified fields.
-
-   \return <ul>
-   <li> 0 ok </li>
-   <li> 1 offset too large (increase MAX_MAT_COMP and recompile) </li>
-   </ul>
- */
-/****************************************************************************/
-
-NS_PREFIX INT NS_DIM_PREFIX ComputeSMSizeOfArray (SHORT nr, SHORT nc, const SHORT *comps,
-                                                  SHORT *NPtr, SHORT *NredPtr)
-{
-  SHORT off,N,Nred;
-  SHORT flag[MAX_NDOF];
-  int i,j;
-
-  /* reset flag field */
-  for (i=0; i<MAX_NDOF; i++)
-    flag[i] = 0;
-
-  N = Nred = 0;
-  for (i=0; i<nr; i++)
-  {
-    for (j=0; j<nc; j++)
-    {
-      off = comps[i*nc+j];
-      if (off>=0)
-      {
-        if (off>=MAX_NDOF) return(1);
-
-        N++;
-        if (flag[off]==0)
-        {
-          Nred++;
-          flag[off] = 1;
-        }
-      }
-    }
-  }
-
-  *NPtr = N;
-  *NredPtr = Nred;
-
-  return (0);
-}
-
-/****************************************************************************/
 /** \brief Transforms a string to a SM array
 
    \param n - size (i.e. rows*cols)
