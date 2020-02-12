@@ -385,62 +385,6 @@ void NS_PREFIX PrintErrorMessageF (char type, const char *procName, const char *
 
 /****************************************************************************/
 /*D
-   SetMuteLevel - set mute level for verbosing level
-
-   SYNOPSIS:
-   void SetMuteLevel (INT mute);
-
-   PARAMETERS:
- * @param   mute - indicator of amount of output
-
-   DESCRIPTION:
-   This function sets the mute level for verbosing level.
-
-   CONVENTION:
-   'mute <= -1' cancels the echoing of `ug`-commands, 'mute >= 0'
-   restores the echoing (which is the default state). 'mute <= -1000' suppresses
-   also the output of `ug` commands.
-
-   RETURN VALUE:
-   void
-   D*/
-/****************************************************************************/
-
-void NS_PREFIX SetMuteLevel (INT mute)
-{
-  mutelevel = mute;
-}
-
-/****************************************************************************/
-/*D
-   GetMuteLevel - return mute level for verbosing level
-
-   SYNOPSIS:
-   INT GetMuteLevel (void);
-
-   PARAMETERS:
-   .  void
-
-   CONVENTION:
-   'mute <= -1' cancels the echoing of `ug`-commands, 'mute >= 0'
-   restores the echoing (which is the default state). 'mute <= -1000' suppresses
-   also the output of `ug` commands.
-
-   DESCRIPTION:
-   This function return the mute level for verbosing level.
-
-   RETURN VALUE:
-   void
-   D*/
-/****************************************************************************/
-
-INT NS_PREFIX GetMuteLevel (void)
-{
-  return (mutelevel);
-}
-
-/****************************************************************************/
-/*D
    InitDevices - Initialize all devices at startup
 
    SYNOPSIS:
