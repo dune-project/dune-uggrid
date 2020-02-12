@@ -78,7 +78,6 @@
 
 /* numerics module */
 #include <dune/uggrid/numerics/np.h>
-#include <dune/uggrid/numerics/disctools.h>
 #include <dune/uggrid/numerics/udm.h>
 
 #ifdef ModelP
