@@ -1,40 +1,22 @@
 // -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 // vi: set et ts=4 sw=2 sts=2:
 /****************************************************************************/
-/*																			*/
 /* File:	  lbrcb.c														*/
-/*																			*/
 /* Purpose:   simple static load balancing scheme for testing initial		*/
 /*            grid distribution												*/
-/*																			*/
-/* Author:	  Klaus Birken                                                                          */
-/*			  Institut fuer Computeranwendungen III                                                 */
-/*			  Universitaet Stuttgart										*/
-/*			  Pfaffenwaldring 27											*/
-/*			  70550 Stuttgart												*/
-/*			  email: birken@ica3.uni-stuttgart.de							*/
-/*																			*/
-/* History:   940416 kb  begin                                                                          */
-/*																			*/
-/* Remarks:                                                                                                                             */
-/*																			*/
 /****************************************************************************/
 
 #ifdef ModelP
-
-/****************************************************************************/
-/*																			*/
-/* include files															*/
-/*			  system include files											*/
-/*			  application include files                                                                     */
-/*																			*/
-/****************************************************************************/
 
 #include <config.h>
 
 #include <algorithm>
 #include <vector>
+#include <array>
+#include <iterator>
 
+#include <dune/common/exceptions.hh>
+#include <dune/common/fvector.hh>
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "parallel.h"
@@ -49,114 +31,70 @@ using namespace PPIF;
 
 START_UGDIM_NAMESPACE
 
-/****************************************************************************/
-/*																			*/
-/* defines in the following order											*/
-/*																			*/
-/*		  compile time constants defining static data size (i.e. arrays)	*/
-/*		  other constants													*/
-/*		  macros															*/
-/*																			*/
-/****************************************************************************/
-
-
-#define SMALL_DOUBLE         1.0E-5      /* resolution when comparing DOUBLEs */
-
-
-
-/****************************************************************************/
-/*																			*/
-/* data structures used in this source file (exported data structures are	*/
-/*		  in the corresponding include file!)								*/
-/*																			*/
-/****************************************************************************/
-
+// only used in this source file
 struct LB_INFO {
   ELEMENT *elem;
-  DOUBLE center[DIM];
+  Dune::FieldVector<DOUBLE, DIM> center;
 };
 
-
-/****************************************************************************/
-/*																			*/
-/* definition of exported global variables									*/
-/*																			*/
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*																			*/
-/* definition of variables global to this source file only (static!)		*/
-/*																			*/
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*																			*/
-/* forward declarations of functions used before they are defined			*/
-/*																			*/
-/****************************************************************************/
-
-
-/****************************************************************************/
-/*
-   sort_rcb_x -
-
-   SYNOPSIS:
-   static int sort_rcb_x (const void *e1, const void *e2);
-
-   PARAMETERS:
-   .  e1
-   .  e2
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   int
+/**
+ * Bisects a 2D processor array along the longest axis
+ *
+ * std::array<int, 4> specifies a part of a 2D processor array
+ * with the entries (x, y, dx, dy), where
+ * (x, y): bottom left position in 2D processor array
+ * (dx, dy): size of the 2D processor array
  */
-/****************************************************************************/
+static std::array<std::array<int, 4>, 2> BisectProcessorArray (const std::array<int, 4>& procs)
+{
+  const int dx = procs[2];
+  const int dy = procs[3];
+  if (dx >= dy)
+  {
+    const int part0Size = dx/2;
+    const int part1Size = dx-part0Size;
+    return {{{ procs[0], procs[1], part0Size, dy },
+             { procs[0]+part0Size, procs[1], part1Size, dy }}};
+  }
+  else
+  {
+    const int part0Size = dy/2;
+    const int part1Size = dy-part0Size;
+    return {{{ procs[0], procs[1], dx, part0Size },
+             { procs[0], procs[1]+part0Size, dx, part1Size }}};
+  }
+}
 
 /**
- * compare entities according to center coordinate.
- * This function implements a lexiographic order by the
- * `d0`-th, `d1`-th and `d2`-th component of the center coordinate.
+ * Compute the number of processor in a processor grid
  */
-template<int d0, int d1, int d2>
-static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
+static int NumProcessorsInPart (const std::array<int, 4>& procs)
 {
-  if (a.center[d0] < b.center[d0] -SMALL_DOUBLE) return true;
-  if (a.center[d0] > b.center[d0] +SMALL_DOUBLE) return false;
+  return procs[2]*procs[3];
+}
 
-  /* x coordinates are considered to be equal, compare y now */
-  if (a.center[d1] < b.center[d1] -SMALL_DOUBLE) return true;
-  if (a.center[d1] > b.center[d1] +SMALL_DOUBLE) return false;
-
-#ifdef __THREEDIM__
-  /* x and y coordinates are considered to be equal, compare y now */
-  if (a.center[d2] < b.center[d2] -SMALL_DOUBLE) return true;
-  if (a.center[d2] > b.center[d2] +SMALL_DOUBLE) return false;
-#endif
-
-  return false;
+/**
+ * Compute the ratio of a processor splitting done by BisectProcessorArray
+ * returns real number between 0 and 1
+ */
+static DOUBLE ComputeProcessorSplitRatio (const std::array<std::array<int, 4>, 2>& parts)
+{
+  const int numProcsPart0 = NumProcessorsInPart(parts[0]);
+  const int numProcsPart1 = NumProcessorsInPart(parts[1]);
+  return static_cast<DOUBLE>(numProcsPart0) / static_cast<DOUBLE>(numProcsPart0 + numProcsPart1);
 }
 
 /****************************************************************************/
 /*
-   theRCB - balance all local triangles
-
-   SYNOPSIS:
-   static void theRCB (LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim);
+   RecursiveCoordinateBisection - balance all local triangles
 
    PARAMETERS:
-   .  theItems - LB_INFO array
-   .  nItems - length of array
-   .  px - bottom left position in 2D processor array
-   .  py - bottom left position in 2D processor array
-   .  dx - size of 2D processor array
-   .  dy - size of 2D processor array
-   .  dim - sort dimension 0=x, 1=y, 2=z
+   .  begin - iterator to LB_INFO vector
+   .  end - iterator to LB_INFO vector
+   .  procs - (px, py, dx, dy) processor grid, where
+              (px, py): bottom left position in 2D processor array
+              (dx, dy): size of the 2D processor array
+   .  bisectionAxis - axis along which we sort: 0=x, 1=y, 2=z
 
    DESCRIPTION:
    This function, a simple load balancing algorithm, balances all local triangles using a 'recursive coordinate bisection' scheme,
@@ -166,115 +104,78 @@ static bool sort_rcb(const LB_INFO& a, const LB_INFO& b)
  */
 /****************************************************************************/
 
-static void theRCB (const PPIF::PPIFContext& ppifContext, LB_INFO *theItems, int nItems, int px, int py, int dx, int dy, int dim)
+static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
+                                          const std::vector<LB_INFO>::iterator& begin,
+                                          const std::vector<LB_INFO>::iterator& end,
+                                          const std::array<int, 4> procs,
+                                          int bisectionAxis = 0)
 {
-  int i, part0, part1, ni0, ni1;
-  bool (*sort_function)(const LB_INFO&, const LB_INFO&);
 
-  /* determine sort function */
-  switch (dim) {
-  case 0 :
-    sort_function = sort_rcb<0, 1, 2>;
-    break;
-  case 1 :
-    sort_function = sort_rcb<1, 0, 2>;
-    break;
-                #ifdef __THREEDIM__
-  case 2 :
-    sort_function = sort_rcb<2, 1, 0>;
-    break;
-                #endif
-  default :
-    printf("%d: theRCB(): ERROR no valid sort dimension specified\n", ppifContext.me());
-    std::abort();
-    break;
-  }
+  assert(begin < end);
 
-  if (nItems==0)
+  // empty element range for these processors: nothing to do
+  if (begin == end)
     return;
 
-  if ((dx<=1)&&(dy<=1))
+  // we found a single destination rank for this element subrange: end recursion
+  if (NumProcessorsInPart(procs) <= 1)
   {
-    for(i=0; i<nItems; i++)
+    for (auto it = begin; it != end; ++it)
     {
-      int dest = py*ppifContext.dimX()+px;
-      PARTITION(theItems[i].elem) = dest;
+      const int destinationRank = procs[1]*ppifContext.dimX()+procs[0];
+      PARTITION(it->elem) = destinationRank;
     }
     return;
   }
 
-  if (dx>=dy)
-  {
-    if (nItems>1) std::sort(theItems, theItems + nItems, sort_function);
+  // bisect processors and bisect element accordingly
+  const auto procPartitions = BisectProcessorArray(procs);
+  const auto splitRatio = ComputeProcessorSplitRatio(procPartitions);
+  const auto numElements = std::distance(begin, end);
+  const auto middle = begin + static_cast<int>(numElements*splitRatio);
 
-    part0 = dx/2;
-    part1 = dx-part0;
+  // partial sort such that middle iterator points to the bisection element
+  std::nth_element(begin, middle, end,
+                   [bisectionAxis](const auto& a, const auto& b)
+                   {
+                      auto eps = (b.center-a.center); eps *= 1e-7;
+                      for (int dimIdx = 0; dimIdx < DIM; ++dimIdx)
+                      {
+                        const int i = (dimIdx+bisectionAxis)%DIM;
+                        if (a.center[i] < b.center[i] - eps[i]) return true;
+                        if (a.center[i] > b.center[i] + eps[i]) return false;
+                      }
+                      return false;
+                   }
+  );
 
-    ni0 = (int)(((double)part0)/((double)(dx))*((double)nItems));
-    ni1 = nItems-ni0;
+  // we simply alternate between the axis hoping for a decent partition
+  // this could be probably improved by sorting along the longest axis but
+  // computing the longest axis is expensive if we have to compute the grids bounding box every time
+  const int nextBisectionAxis = (bisectionAxis+1)%DIM;
 
-    theRCB(ppifContext, theItems,     ni0, px,       py, part0, dy,(dim+1)%DIM);
-    theRCB(ppifContext, theItems+ni0, ni1, px+part0, py, part1, dy,(dim+1)%DIM);
-
-  }
-  else
-  {
-    if (nItems>1) std::sort(theItems, theItems + nItems, sort_function);
-
-    part0 = dy/2;
-    part1 = dy-part0;
-
-    ni0 = (int)(((double)part0)/((double)(dy))*((double)nItems));
-    ni1 = nItems-ni0;
-
-    theRCB(ppifContext, theItems,     ni0, px, py      , dx, part0,(dim+1)%DIM);
-    theRCB(ppifContext, theItems+ni0, ni1, px, py+part0, dx, part1,(dim+1)%DIM);
-  }
+  RecursiveCoordinateBisection(ppifContext, begin, middle, procPartitions[0], nextBisectionAxis);
+  RecursiveCoordinateBisection(ppifContext, middle, end, procPartitions[1], nextBisectionAxis);
 }
 
-
-
-
-
-/****************************************************************************/
-
-
-/****************************************************************************/
-/*
-   CenterOfMass -
-
-   SYNOPSIS:
-   static void CenterOfMass (ELEMENT *e, DOUBLE *pos);
-
-   PARAMETERS:
-   .  e
-   .  pos
-
-   DESCRIPTION:
-
-   RETURN VALUE:
-   void
+/**
+ * Compute an element's center of mass
  */
-/****************************************************************************/
-
-static void CenterOfMass (ELEMENT *e, DOUBLE *pos)
+static Dune::FieldVector<DOUBLE, DIM> CenterOfMass (ELEMENT *e)
 {
-  int i;
+  Dune::FieldVector<DOUBLE, DIM> center(0.0);
 
-  V_DIM_CLEAR(pos)
-
-  for(i=0; i<CORNERS_OF_ELEM(e); i++)
+  const auto corners = CORNERS_OF_ELEM(e);
+  for(int i=0; i<corners; i++)
   {
-    V_DIM_LINCOMB(1.0,pos,1.0,CVECT(MYVERTEX(CORNER(e,i))),pos)
+    auto* corner = CVECT(MYVERTEX(CORNER(e,i)));
+    for(int dimIdx=0; dimIdx < DIM; ++dimIdx)
+        center[dimIdx] += corner[dimIdx];
   }
 
-  V_DIM_SCALE(1.0/(float)CORNERS_OF_ELEM(e),pos)
+  center /= corners;
+  return center;
 }
-
-
-
-/****************************************************************************/
-
 
 /****************************************************************************/
 /*
@@ -295,13 +196,11 @@ static void CenterOfMass (ELEMENT *e, DOUBLE *pos)
 
 static void InheritPartition (ELEMENT *e)
 {
-  int i;
   ELEMENT *SonList[MAX_SONS];
-
 
   if (GetAllSons(e,SonList)==0)
   {
-    for(i=0; SonList[i]!=NULL; i++)
+    for(int i=0; SonList[i]!=NULL; i++)
     {
       PARTITION(SonList[i]) = PARTITION(e);
       InheritPartition(SonList[i]);
@@ -314,74 +213,58 @@ static void InheritPartition (ELEMENT *e)
 /*
    BalanceGridRCB -
 
-   SYNOPSIS:
-   int BalanceGridRCB (MULTIGRID *theMG, int level);
-
    PARAMETERS:
    .  theMG
    .  level
 
    DESCRIPTION:
+   Load balance one level of a multigrid hierarchy
+   using recursive coordinate bisection
 
    RETURN VALUE:
-   int
+   void
  */
 /****************************************************************************/
 
-int BalanceGridRCB (MULTIGRID *theMG, int level)
+void BalanceGridRCB (MULTIGRID *theMG, int level)
 {
-  GRID *theGrid = GRID_ON_LEVEL(theMG,level);       /* balance grid of level */
-  ELEMENT *e;
-  int i;
-
+  GRID *theGrid = GRID_ON_LEVEL(theMG,level);
   DDD::DDDContext& context = theMG->dddContext();
   const PPIF::PPIFContext& ppifContext = theMG->ppifContext();
 
   /* distributed grids cannot be redistributed by this function */
   if (not context.isMaster() && FIRSTELEMENT(theGrid) != NULL)
-  {
-    printf("Error: Redistributing distributed grids using recursive coordinate bisection is not implemented!\n");
-    return (1);
-  }
+    DUNE_THROW(Dune::NotImplemented, "Redistributing distributed grids using recursive coordinate bisection is not implemented!");
 
   if (context.isMaster())
   {
     if (NT(theGrid) == 0)
     {
       UserWriteF("WARNING in BalanceGridRCB: no elements in grid\n");
-      return (1);
+      return;
     }
 
-    /* construct LB_INFO list */
     std::vector<LB_INFO> lbinfo(NT(theGrid));
-    for (i=0, e=FIRSTELEMENT(theGrid); e!=NULL; i++, e=SUCCE(e))
+    int i = 0;
+    for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
     {
       lbinfo[i].elem = e;
-      CenterOfMass(e, lbinfo[i].center);
+      lbinfo[i].center = CenterOfMass(e);
+      ++i;
     }
 
-    /* apply coordinate bisection strategy */
-    theRCB(ppifContext, lbinfo.data(), lbinfo.size(), 0, 0, ppifContext.dimX(), ppifContext.dimY(), 0);
+    RecursiveCoordinateBisection(ppifContext, lbinfo.begin(), lbinfo.end(), {0, 0, ppifContext.dimX(), ppifContext.dimY()});
 
-    IFDEBUG(dddif,1)
-    for (e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
-    {
-      UserWriteF("elem %08x has dest=%d\n",
-                 DDD_InfoGlobalId(PARHDRE(e)), PARTITION(e));
-    }
-    ENDDEBUG
+IFDEBUG(dddif,1)
+    for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
+      UserWriteF("elem %08x has dest=%d\n", DDD_InfoGlobalId(PARHDRE(e)), PARTITION(e));
+ENDDEBUG
 
-    for (i=0, e=FIRSTELEMENT(theGrid); e!=NULL; i++, e=SUCCE(e))
-    {
+    for (auto e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
       InheritPartition (e);
-    }
+
   }
-
-  return 0;
 }
-
-
-/****************************************************************************/
 
 END_UGDIM_NAMESPACE
 
