@@ -161,9 +161,6 @@ static INT CloseCommand (INT argc, char **argv)
   INT i;
   bool closeonlyfirst;
 
-  if (ResetPrintingFormat())
-    REP_ERR_RETURN(1);
-
   closeonlyfirst = true;
   for (i=1; i<argc; i++)
     switch (argv[i][0])
