@@ -184,9 +184,6 @@ typedef struct
 /*                                                                          */
 /****************************************************************************/
 
-INT DisplayPrintingFormat (void);
-INT ResetPrintingFormat (void);
-
 INT CreateFormatCmd (INT argc, char **argv);
 
 INT InitFormats (void);

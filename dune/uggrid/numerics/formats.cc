@@ -109,58 +109,6 @@ static INT theMatVarID;                                 /* env type for MAT_TEMP
 REP_ERR_FILE
 
 
-
-/****************************************************************************/
-/*                                                                          */
-/* functions to set, display and change the printing format                 */
-/*                                                                          */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DisplayPrintingFormat ()
-{
-  INT i;
-
-  if (NPrintVectors==0)
-    UserWrite("no vector symbols printed\n");
-  else
-  {
-    UserWrite("printed vector symbols\n");
-    for (i=0; i<NPrintVectors; i++)
-      UserWriteF("   '%s'\n",ENVITEM_NAME(PrintVector[i]));
-  }
-
-  if (NPrintMatrixs==0)
-    UserWrite("\nno matrix symbols printed\n");
-  else
-  {
-    UserWrite("\nprinted matrix symbols\n");
-    for (i=0; i<NPrintMatrixs; i++)
-      UserWriteF("   '%s'\n",ENVITEM_NAME(PrintMatrix[i]));
-  }
-
-  return (NUM_OK);
-}
-
-/****************************************************************************/
-/** \brief No data will be printed
-
-        After call of this function no data will be printed.
-        Do this when closing a multigrid since all descriptors will go out of scope then.
-
-        \return
-        0: ok
-
-        \sa
-        setformat, showformat
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ResetPrintingFormat (void)
-{
-  NPrintVectors = NPrintMatrixs = 0;
-  return (0);
-}
-
 static char *DisplayVecDD (const VECDATA_DESC *vd, INT type, const DOUBLE *data, const char *indent, char *s)
 {
   INT i,n,off;
