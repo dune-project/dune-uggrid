@@ -1906,8 +1906,6 @@ enum LV_ID_TYPES {
   LV_KEY
 };
 
-#define LV_MOD_DEFAULT          (LV_POS | LV_VO_INFO)
-
 /****************************************************************************/
 /*                                                                          */
 /* Macro definitions for algebra structures                                 */
