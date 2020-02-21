@@ -239,7 +239,6 @@ static VEC_TEMPLATE *CreateVecTemplate (const char *name)
 {
   VEC_TEMPLATE *vt;
   const char *token;
-  INT j;
 
   if (name == NULL) REP_ERR_RETURN_PTR (NULL);
   if (ChangeEnvDir("/newformat")==NULL)
@@ -250,64 +249,10 @@ static VEC_TEMPLATE *CreateVecTemplate (const char *name)
   VT_NSUB(vt) = 0;
   VT_NID(vt) = NO_IDENT;
   token = DEFAULT_NAMES;
-  for (j=0; j<MAX(MAX_VEC_COMP,strlen(DEFAULT_NAMES)); j++)
+  for (size_t j=0; j<MAX(MAX_VEC_COMP,strlen(DEFAULT_NAMES)); j++)
     VT_COMPNAME(vt,j) = token[j];
 
   return (vt);
-}
-
-/****************************************************************************/
-/** \brief Create a MAT_TEMPLATE
-
-   \param theMG		- multigrid
-   \param name		- name of the MAT_TEMPLATE
-
-   Create a MAT_TEMPLATE in the /newformat directory of the environment.
-
-   \return <ul>
-   <li> Pointer to MAT_TEMPLATE if ok </li>
-   <li> NULL if an error occured </li>
-   </ul>
- */
-/****************************************************************************/
-
-static MAT_TEMPLATE *CreateMatTemplate (const char *name)
-{
-  MAT_TEMPLATE *mt;
-  INT j;
-
-  if (name == NULL) REP_ERR_RETURN_PTR (NULL);
-  if (ChangeEnvDir("/newformat")==NULL)
-    REP_ERR_RETURN_PTR(NULL);
-  mt = (MAT_TEMPLATE *) MakeEnvItem (name,theMatVarID,sizeof(MAT_TEMPLATE));
-  if (mt==NULL) REP_ERR_RETURN_PTR (NULL);
-  MT_NSUB(mt) = 0;
-  for (j=0; j<2*MAX_MAT_COMP; j++)
-    MT_COMPNAME(mt,j) = ' ';
-
-  return (mt);
-}
-
-static INT MTmatchesVTxVT (const MAT_TEMPLATE *mt, const VEC_TEMPLATE *rvt, const VEC_TEMPLATE *cvt)
-{
-  INT rt,ct,mtp,nr,nc;
-
-  for (rt=0; rt<NVECTYPES; rt++)
-    for (ct=0; ct<NVECTYPES; ct++)
-    {
-      nr = VT_COMP(rvt,rt);
-      nc = VT_COMP(cvt,ct);
-      if (nr*nc==0)
-        nr = nc = 0;
-
-      mtp = MTP(rt,ct);
-      if (MT_RCOMP(mt,mtp)!=nr)
-        return (NO);
-      if (MT_CCOMP(mt,mtp)!=nc)
-        return (NO);
-    }
-
-  return (YES);
 }
 
 static INT RemoveTemplateSubs (FORMAT *fmt)
@@ -570,7 +515,7 @@ static INT ScanVecOption (INT argc, char **argv,                        /* optio
         REP_ERR_RETURN (1);
       }
       ConstructVecOffsets(VT_COMPS(vt),offset);
-      if (strlen(VT_COMPNAMES(vt))!=offset[NVECTYPES]) {
+      if (strlen(VT_COMPNAMES(vt))!=(size_t)offset[NVECTYPES]) {
         PrintErrorMessageF('E',"newformat",
                            "number of vector comp names != number of comps (in '$%s')",argv[opt]);
         REP_ERR_RETURN (1);
@@ -594,7 +539,7 @@ static INT ScanVecOption (INT argc, char **argv,                        /* optio
                                "no vector comp names specified with ident option (in '$%s')",argv[opt]);
             REP_ERR_RETURN (1);
           }
-          if (strlen(ident)!=offset[NVECTYPES]) {
+          if (strlen(ident)!=(size_t)offset[NVECTYPES]) {
             PrintErrorMessageF('E',"newformat",
                                "number of ident comp names != number of comps (in '$%s')",argv[opt]);
             REP_ERR_RETURN (1);
@@ -721,301 +666,6 @@ static INT ScanVecOption (INT argc, char **argv,                        /* optio
 
   *curropt = opt;
 
-  return (0);
-}
-
-static INT ParseImplicitSMDeclaration (const char *str, const MAT_TEMPLATE *mt, SUBMAT *subm)
-{
-  ENVDIR *dir;
-  ENVITEM *item;
-  VEC_TEMPLATE *rvt,*cvt,*vt;
-  SUBVEC *rsubv,*csubv,*subv;
-  INT i,j,k,type,rtype,ctype;
-  INT n,nr,nc,NC,r_sub,c_sub;
-  const char *p;
-  char *t,tpltname[NAMESIZE],subname[NAMESIZE];
-
-  /* parse row sub in implicit(<rsv>/<rvt>[,<csv>/<cvt>]) */
-  if ((p=strchr(str,'('))==NULL)
-  {
-    PrintErrorMessageF('E',"ParseImplicitSMDeclaration",
-                       "left bracket missing (in '%s')",str);
-    REP_ERR_RETURN (2);
-  }
-  for (t=subname, p++; *p!='\0' && *p!=',' && *p!=')' && *p!='/'; p++)
-    *(t++) = *p;
-  *t = '\0';
-
-  if (*p=='/')
-  {
-    /* parse row template in implicit(<rsv>/<rvt>[,<csv>/<cvt>]) */
-    for (t=tpltname, p++; *p!='\0' && *p!=',' && *p!=')'; p++)
-      *(t++) = *p;
-    *t = '\0';
-    r_sub = true;
-  }
-  else
-  {
-    /* subname actually is meant as a tpltname */
-    strcpy(tpltname,subname);
-    r_sub = false;
-  }
-
-  /* get vector template */
-  if ((dir=ChangeEnvDir("/newformat"))==NULL)
-    REP_ERR_RETURN(2);
-  for (item=ENVITEM_DOWN(dir); item != NULL; item = NEXT_ENVITEM(item))
-    if (ENVITEM_TYPE(item) == theVecVarID)
-      if (strcmp(ENVITEM_NAME(item),tpltname)==0)
-        break;
-  if ((rvt=(VEC_TEMPLATE *)item)==NULL)
-  {
-    PrintErrorMessageF('E',"newformat",
-                       "vec template in '%s' not found (in '%s')",tpltname,str);
-    REP_ERR_RETURN (2);
-  }
-
-  if (r_sub)
-  {
-    /* get sub vector */
-    for (i=0; i<VT_NSUB(rvt); i++)
-      if (strcmp(SUBV_NAME(VT_SUB(rvt,i)),subname)==0)
-        break;
-    if (i>=VT_NSUB(rvt))
-    {
-      PrintErrorMessageF('E',"ParseImplicitSMDeclaration",
-                         "sub vector '%s' of template '%s' not found (in '%s')",subname,tpltname,str);
-      REP_ERR_RETURN (2);
-    }
-    rsubv = VT_SUB(rvt,i);
-  }
-
-  if (*p==',')
-  {
-    /* parse col sub in implicit(<rsv>/<rvt>[,<csv>/<cvt>]) */
-    for (t=subname, p++; *p!='\0' && *p!=',' && *p!=')' && *p!='/'; p++)
-      *(t++) = *p;
-    *t = '\0';
-
-    if (*p=='/')
-    {
-      /* parse col template in implicit(<rsv>/<rvt>[,<csv>/<cvt>]) */
-      for (t=tpltname, p++; *p!='\0' && *p!=',' && *p!=')'; p++)
-        *(t++) = *p;
-      *t = '\0';
-      c_sub = true;
-    }
-    else
-    {
-      /* subname actually is meant as a tpltname */
-      strcpy(tpltname,subname);
-      c_sub = false;
-    }
-
-    /* get vector template */
-    if ((dir=ChangeEnvDir("/newformat"))==NULL)
-      REP_ERR_RETURN(2);
-    for (item=ENVITEM_DOWN(dir); item != NULL; item = NEXT_ENVITEM(item))
-      if (ENVITEM_TYPE(item) == theVecVarID)
-        if (strcmp(ENVITEM_NAME(item),tpltname)==0)
-          break;
-    if ((cvt=(VEC_TEMPLATE *)item)==NULL)
-    {
-      PrintErrorMessageF('E',"newformat",
-                         "col vec template in '%s' not found (in '%s')",tpltname,str);
-      REP_ERR_RETURN (2);
-    }
-
-    if (c_sub)
-    {
-      /* get sub vector */
-      for (i=0; i<VT_NSUB(cvt); i++)
-        if (strcmp(SUBV_NAME(VT_SUB(cvt,i)),subname)==0)
-          break;
-      if (i>=VT_NSUB(cvt))
-      {
-        PrintErrorMessageF('E',"ParseImplicitSMDeclaration",
-                           "col sub vector '%s' of col template '%s' not found (in '%s')",subname,tpltname,str);
-        REP_ERR_RETURN (2);
-      }
-      csubv = VT_SUB(cvt,i);
-    }
-  }
-  else
-  {
-    cvt = rvt;
-    csubv = rsubv;
-    c_sub = r_sub;
-  }
-
-  if (!r_sub && !c_sub)
-  {
-    PrintErrorMessageF('E',"ParseImplicitSMDeclaration",
-                       "neither row nor col sub specified: matrix sub would be identical to matrix template (in '%s')",str);
-    REP_ERR_RETURN (2);
-  }
-
-  /* check compatibility of vec templates with mat templates */
-  if (!MTmatchesVTxVT(mt,rvt,cvt))
-  {
-    PrintErrorMessageF('E',"ParseImplicitSMDeclaration",
-                       "row template and col template do not match matrix template (in '%s')",str);
-    REP_ERR_RETURN(1);
-  }
-
-  if (!r_sub || !c_sub)
-  {
-    /* create subv identical to template */
-    subv = (SUBVEC*)AllocEnvMemory(sizeof(SUBVEC));
-    if (subv==NULL)
-      REP_ERR_RETURN(1);
-    memset(subv,0,sizeof(SUBVEC));
-
-    if (!r_sub)
-    {
-      vt = rvt;
-      rsubv = subv;
-    }
-    else
-    {
-      vt = cvt;
-      csubv = subv;
-    }
-    for (type=0; type<NVECTYPES; type++)
-    {
-      n = SUBV_NCOMP(subv,type) = VT_COMP(vt,type);
-      for (i=0; i<n; i++)
-        SUBV_COMP(subv,type,i) = i;
-    }
-  }
-
-  /* fill sub matrix template (RCOMP, CCOMP, CmpsInType, Comps) */
-  k  = 0;
-  for (rtype=0; rtype<NVECTYPES; rtype++)
-    for (ctype=0; ctype<NVECTYPES; ctype++)
-    {
-      type = MTP(rtype,ctype);
-      SUBM_MCMPPTR_OF_MTYPE(subm,type) = &SUBM_COMP(subm,k);
-      nr = SUBV_NCOMP(rsubv,rtype);
-      nc = SUBV_NCOMP(csubv,ctype);
-      if (nr*nc<=0)
-        nr = nc = 0;
-      SUBM_RCOMP(subm,type) = nr;
-      SUBM_CCOMP(subm,type) = nc;
-
-      NC = MT_CCOMP(mt,type);
-      for (i=0; i<nr; i++)
-        for (j=0; j<nc; j++)
-          SUBM_COMP(subm,k++) = SUBV_COMP(rsubv,rtype,i)*NC + SUBV_COMP(csubv,ctype,j);
-    }
-
-  /* and for the diagonal types (note that blocks are not necessarily quadratic) */
-  for (rtype=0; rtype<NVECTYPES; rtype++)
-  {
-    type = DMTP(rtype);
-    SUBM_MCMPPTR_OF_MTYPE(subm,type) = &(SUBM_COMP(subm,k));
-    nr = SUBV_NCOMP(rsubv,rtype);
-    nc = SUBV_NCOMP(csubv,rtype);
-    if (nr*nc<=0)
-      nr = nc = 0;
-    SUBM_RCOMP(subm,type) = nr;
-    SUBM_CCOMP(subm,type) = nc;
-
-    NC = MT_CCOMP(mt,type);
-    for (i=0; i<nr; i++)
-      for (j=0; j<nc; j++)
-        SUBM_COMP(subm,k++) = SUBV_COMP(rsubv,rtype,i)*NC + SUBV_COMP(csubv,rtype,j);
-  }
-
-  if (!r_sub || !c_sub)
-    FreeEnvMemory(subv);
-
-  return (0);
-}
-
-static INT ScanDepthOption (INT argc, char **argv,                      /* option list						*/
-                            INT *curropt,                                                               /* next option to scan				*/
-                            INT MaxType,                                                                /* bound for type id				*/
-                            const char TypeNames[],                                             /* names of types					*/
-                            const INT TypeUsed[],                                               /* indicate whether type is used	*/
-                            SHORT ConnDepth[])                                                          /* connection depth of matrices		*/
-{
-  INT opt,rtype,ctype;
-  char rt,ct;
-  int depth;
-
-  opt = *curropt;
-
-  if (sscanf(argv[opt],"d %cx%c%d",&rt,&ct,&depth)!=3)
-  {
-    PrintErrorMessageF('E',"newformat","could not read connection depth (in '$%s')",argv[opt]);
-    REP_ERR_RETURN (1);
-  }
-  for (rtype=0; rtype<MaxType; rtype++)
-    if (rt==TypeNames[rtype])
-      break;
-  if (rtype>=MaxType)
-  {
-    PrintErrorMessageF('E',"newformat","no valid rtype name '%c' (in '$%s')",rt,argv[opt]);
-    REP_ERR_RETURN (1);
-  }
-  if (!TypeUsed[rtype])
-  {
-    PrintErrorMessageF('W',"newformat","depth defined in type '%c' without vector? (in '$%s'),",rt,argv[opt]);
-  }
-  for (ctype=0; ctype<MaxType; ctype++)
-    if (ct==TypeNames[ctype])
-      break;
-  if (ctype>=MaxType)
-  {
-    PrintErrorMessageF('E',"newformat","no valid ctype name '%c' (in '$%s')",ct,argv[opt]);
-    REP_ERR_RETURN (1);
-  }
-  if (!TypeUsed[ctype])
-  {
-    PrintErrorMessageF('W',"newformat","depth defined in type '%c' without vector? (in '$%s'),",ct,argv[opt]);
-  }
-
-  ConnDepth[MTP(rtype,ctype)] = depth;
-  *curropt = opt;
-
-  return (0);
-}
-
-static INT ScanIMatOption (INT argc, char **argv,                       /* option list						*/
-                           INT *curropt,                                                                /* next option to scan				*/
-                           INT MaxType,                                                                 /* bound for type id				*/
-                           const char TypeNames[],                                              /* names of types					*/
-                           const INT TypeUsed[],                                                /* indicate whether type is used	*/
-                           SHORT ImatTypes[])                                                           /* connection depth of matrices		*/
-{
-  INT opt,type;
-  char tp,*token;
-  int n;
-
-  opt = *curropt;
-
-  /* read types and sizes of Interpolation matrix */
-  token = strtok(argv[opt]+1,BLANKS);
-  while (token!=NULL)
-  {
-    if (sscanf(token,"%c%d",&tp,&n)!=2)
-    {
-      PrintErrorMessageF('E',"newformat","could not scan type and size (in '$%s')",argv[opt]);
-      REP_ERR_RETURN (1);
-    }
-    for (type=0; type<MaxType; type++)
-      if (tp==TypeNames[type])
-        break;
-    if (type>=MaxType)
-    {
-      PrintErrorMessageF('E',"newformat","no valid type name '%c' (in '$%s')",tp,argv[opt]);
-      REP_ERR_RETURN (1);
-    }
-    ImatTypes[type] = n;
-    token = strtok(NULL,BLANKS);
-  }
-  *curropt = opt;
   return (0);
 }
 
@@ -1179,12 +829,11 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   VectorDescriptor vd[MAXVECTORS];
   MatrixDescriptor md[MAXMATRICES*MAXVECTORS];
   INT opt,i,j,size,type,type2,rtype,ctype,nvec,nmat,nvd,nmd;
-  INT ndata,nodeelementlist;
+  INT nodeelementlist;
   INT po2t[MAXDOMPARTS][MAXVOBJECTS],MaxTypes,TypeUsed[MAXVECTORS];
-  SHORT ConnDepth[NMATTYPES],ImatTypes[NVECTYPES];
+  SHORT ImatTypes[NVECTYPES];
   SHORT VecStorageNeeded[NVECTYPES],MatStorageNeeded[NMATTYPES];
   char formatname[NAMESIZE],TypeNames[NVECTYPES];
-  int n,depth;
 
   /* scan name of format */
   if (sscanf(argv[0],expandfmt(" newformat %" NAMELENSTR "[ -~]"), formatname) != 1 || strlen(formatname) == 0) {
@@ -1212,10 +861,9 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   for (type=0; type<NVECTYPES; type++)
     ImatTypes[type] = VecStorageNeeded[type] = TypeUsed[type] = 0;
   for (type=0; type<NMATTYPES; type++)
-    MatStorageNeeded[type] = ConnDepth[type] = 0;
-  for (type=0; type<NMATTYPES; type++) ConnDepth[type] = 0;
+    MatStorageNeeded[type] = 0;
   nvec = nmat = 0;
-  ndata = nodeelementlist = 0;
+  nodeelementlist = 0;
 
   /* scan type option or set default po2t */
   if (ScanTypeOptions(argc,argv,po2t,&MaxTypes,TypeNames)) {
@@ -1227,52 +875,17 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   for (opt=1; opt<argc; opt++)
     switch (argv[opt][0])
     {
-    case 'T' :
-      /* this case hase been handled before */
-      break;
-
     case 'V' :
       if (ScanVecOption(argc,argv,&opt,po2t,MaxTypes,TypeNames,TypeUsed,&nvec,VecStorageNeeded)) {
         CleanupTempDir();
         REP_ERR_RETURN(1);
       }
       break;
-
-    case 'd' :
-      if (ScanDepthOption(argc,argv,&opt,MaxTypes,TypeNames,TypeUsed,ConnDepth)) {
-        CleanupTempDir();
-        REP_ERR_RETURN(1);
-      }
-      break;
-
-    case 'I' :
-      if (ScanIMatOption(argc,argv,&opt,MaxTypes,TypeNames,TypeUsed,ImatTypes)) {
-        CleanupTempDir();
-        REP_ERR_RETURN(1);
-      }
-      break;
-
-    case 'n' :
-      if (sscanf(argv[opt],"n %d",&n) == 1)
-        ndata = n;
-      break;
-
-    case 'N' :
-      if (argv[opt][1] == 'E')
-        nodeelementlist = true;
-      break;
-
     default :
       PrintErrorMessageF('E',"newformat","(invalid option '%s')",argv[opt]);
       CleanupTempDir();
       REP_ERR_RETURN (1);
     }
-
-  if ((ndata == true) && (nodeelementlist == true)) {
-    PrintErrorMessage('E',"newformat","specify either $n or $NE");
-    CleanupTempDir();
-    REP_ERR_RETURN (1);
-  }
 
   /* remove types not needed from po2t */
   for (i=0; i<MAXDOMPARTS; i++)
@@ -1299,7 +912,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
       }
     }
 
-  if (nodeelementlist || ndata) {
+  if (nodeelementlist) {
     for (opt=0; opt<nvd; opt++)
       if (vd[opt].tp == NODEVEC)
         break;
@@ -1317,17 +930,6 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
     rtype = MTYPE_RT(type); ctype = MTYPE_CT(type);
 
     size = MatStorageNeeded[type];
-    depth = ConnDepth[type];
-
-    /***** ensure symmetry (could be circumvented)
-            if (type<NMATTYPES_NORMAL)
-            {
-                    type2=MTP(ctype,rtype);
-                    if (size<MatStorageNeeded[type2])
-                            size=MatStorageNeeded[type2];
-                    if (depth<ConnDepth[type2])
-                            depth=ConnDepth[type2];
-            } *****/
 
     if (ctype==rtype)
     {
@@ -1346,7 +948,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
     md[nmd].to    = ctype;
     md[nmd].diag  = (type>=NMATTYPES_NORMAL);
     md[nmd].size  = size*sizeof(DOUBLE);
-    md[nmd].depth = depth;
+    md[nmd].depth = 0;
     nmd++;
 
     if (nmd > MAXMATRICES*MAXVECTORS) {
@@ -1360,7 +962,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   newFormat = CreateFormat(formatname,0,0,
                            (ConversionProcPtr)NULL,(ConversionProcPtr)NULL,(ConversionProcPtr)NULL,
                            PrintTypeVectorData,PrintTypeMatrixData,
-                           nvd,vd,nmd,md,ImatTypes,po2t,nodeelementlist,ndata);
+                           nvd,vd,nmd,md,ImatTypes,po2t,nodeelementlist,0);
   if (newFormat==NULL)
   {
     PrintErrorMessage('E',"newformat","failed creating the format");
