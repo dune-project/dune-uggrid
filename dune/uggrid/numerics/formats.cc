@@ -45,7 +45,6 @@
 #include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>
 
-#include <dune/uggrid/numerics/np.h>
 #include <dune/uggrid/numerics/formats.h>
 
 
@@ -1194,7 +1193,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   }
   if (GetFormat(formatname) != NULL) {
     PrintErrorMessage('W',"newformat","format already exists");
-    return (NUM_OK);
+    return 0;
   }
 
   /* install the /newformat directory */
@@ -1385,7 +1384,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   if (RemoveEnvDir((ENVITEM *)dir))
     PrintErrorMessage('W',"InitFormats","could not remove newformat dir");
 
-  return (NUM_OK);
+  return 0;
 }
 
 
