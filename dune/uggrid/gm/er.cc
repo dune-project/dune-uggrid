@@ -75,9 +75,6 @@
 #include "cw.h"
 #include "elements.h"
 
-/* ui  (for new memory model, remove later) */
-#include <dune/uggrid/commands.h>
-
 /* own header */
 #include "er.h"
 
@@ -428,7 +425,10 @@ static HRID Hash_InsertRule (INT etag, INT key, const ERULE *er, const DOUBLE oc
                 +sizeof(DOUBLE)*
                 (2*ER_NSONS(er)                                 /* #DOUBLEs needed			*/
                  -MAX_SONS);                                            /* #DOUBLEs at end of HRULE	*/
-  HRULE *hr       = (HRULE*) GetMemoryForObject(GetCurrentMultigrid(),size,MAOBJ);
+  // I think that nullptr can replace the call to GetCurrentMultigrid, because that method
+  // has been returning nullptr for a long time.
+  // In other words: it seems the method we are in is never called.
+  HRULE *hr       = (HRULE*) GetMemoryForObject(nullptr/*GetCurrentMultigrid()*/,size,MAOBJ);
   HRID id         = global.maxrule[etag]++;
 
 
@@ -1163,8 +1163,11 @@ static INT ExtractRules (MULTIGRID *mg)
     int max_list_len = 0;
 
     /* make tables of subsequent IDs */
+    // I think that nullptr can replace the call to GetCurrentMultigrid, because that method
+    // has been returning nullptr for a long time.
+    // In other words: it seems the method we are in is never called.
     global.hrule[0] = (HRULE**)
-                      GetMemoryForObject(GetCurrentMultigrid(),
+                      GetMemoryForObject(nullptr/*GetCurrentMultigrid()*/,
                                          global.maxrules*sizeof(HRULE*),MAOBJ);
     if (global.hrule[0]==NULL)
       REP_ERR_RETURN(1);
