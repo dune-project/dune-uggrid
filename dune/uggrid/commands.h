@@ -30,23 +30,12 @@
 #ifndef __COMMANDS__
 #define __COMMANDS__
 
-#include <cstdio>
-#include <memory>
-
-#include <dune/uggrid/parallel/ppif/ppiftypes.hh>
-
 #include <dune/uggrid/gm/gm.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 START_UGDIM_NAMESPACE
 
-
-/** This method is not static because it is needed in DUNE */
-INT NewCommand(INT argc, char **argv, std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
-
-/** This method is not static because it is needed in DUNE */
-INT ConfigureCommand (INT argc, char **argv);
 
 /****************************************************************************/
 /*                                                                          */
