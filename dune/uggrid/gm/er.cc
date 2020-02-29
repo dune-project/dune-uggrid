@@ -381,6 +381,7 @@ static void FillOrderedSons (const ERULE *er, DOUBLE oco[])
    doctext_disabled*/
 /****************************************************************************/
 
+#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static INT Hash_Init (int MarkKey)
 {
   int i;
@@ -394,6 +395,7 @@ static INT Hash_Init (int MarkKey)
 
   return (0);
 }
+#endif
 
 /****************************************************************************/
 /*doctext_disabled
@@ -508,6 +510,7 @@ static INT SonsAreEqual (INT nsons, const DOUBLE oco[], const HRULE *hr)
    doctext_disabled*/
 /****************************************************************************/
 
+#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static HRID GetRuleID
 (
         #ifdef Debug
@@ -548,6 +551,7 @@ static HRID GetRuleID
 
   return (Hash_InsertRule(etag,key,er,oco,&HR_NEXT(hr)));
 }
+#endif
 
 /****************************************************************************/
 /*doctext_disabled
@@ -733,6 +737,7 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
    doctext_disabled*/
 /****************************************************************************/
 
+#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static int CountIFElements (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem = (ELEMENT*) obj;
@@ -1058,6 +1063,7 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
 
   return (0);
 }
+#endif
 #endif  /* ModelP */
 
 /****************************************************************************/
@@ -1080,6 +1086,7 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
    doctext_disabled*/
 /****************************************************************************/
 
+#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static INT ExtractRules (MULTIGRID *mg)
 {
   ELEMENT *elem;
@@ -1199,6 +1206,7 @@ static INT ExtractRules (MULTIGRID *mg)
 
   return (0);
 }
+#endif
 
 /****************************************************************************/
 /*doctext_disabled
