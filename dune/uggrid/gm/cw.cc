@@ -256,7 +256,7 @@ void NS_DIM_PREFIX ListCWofObject (const void *obj, INT offset)
   /* print control word entries in ascending order of offsets in word */
   do
   {
-    min = MAX_I;
+    min = INT_MAX;
     for (i=0; i<MAX_CONTROL_ENTRIES; i++)
       if (control_entries[i].used)
         if (control_entries[i].objt_used & cw_objt)
@@ -271,7 +271,7 @@ void NS_DIM_PREFIX ListCWofObject (const void *obj, INT offset)
               min = oiw;
             }
           }
-    if (min==MAX_I)
+    if (min==INT_MAX)
       break;
 
     n = CW_READ(obj,ce);
@@ -308,7 +308,7 @@ void NS_DIM_PREFIX ListAllCWsOfObject (const void *obj)
   /* print control word contents in ascending order of offsets */
   do
   {
-    min = MAX_I;
+    min = INT_MAX;
     for (i=0; i<MAX_CONTROL_WORDS; i++)
       if (control_words[i].used)
         if (control_words[i].objt_used & cw_objt)
@@ -322,7 +322,7 @@ void NS_DIM_PREFIX ListAllCWsOfObject (const void *obj)
             min = offset;
           }
         }
-    if (min==MAX_I)
+    if (min==INT_MAX)
       break;
 
     UserWriteF("cw %s with offset %3d:\n",control_words[cw].name,min);
@@ -359,7 +359,7 @@ static void ListCWofObjectType (INT objt, INT offset, PrintfProcPtr myprintf)
   /* print control word entries in ascending order of offsets in word */
   do
   {
-    min = MAX_I;
+    min = INT_MAX;
     for (i=0; i<MAX_CONTROL_ENTRIES; i++)
       if (control_entries[i].used)
         if (control_entries[i].objt_used & cw_objt)
@@ -374,7 +374,7 @@ static void ListCWofObjectType (INT objt, INT offset, PrintfProcPtr myprintf)
               min = oiw;
             }
           }
-    if (min==MAX_I)
+    if (min==INT_MAX)
       break;
 
     INT_2_bitpattern(control_entries[ce].mask,bitpat);
@@ -415,7 +415,7 @@ static void ListAllCWsOfObjectType (INT objt, PrintfProcPtr myprintf)
   /* print control word contents in ascending order of offsets */
   do
   {
-    min = MAX_I;
+    min = INT_MAX;
     for (i=0; i<MAX_CONTROL_WORDS; i++)
       if (control_words[i].used)
         if (control_words[i].objt_used & cw_objt)
@@ -429,7 +429,7 @@ static void ListAllCWsOfObjectType (INT objt, PrintfProcPtr myprintf)
             min = offset;
           }
         }
-    if (min==MAX_I)
+    if (min==INT_MAX)
       break;
 
     myprintf("cw %-20s with offset in object %3d (UINTs):\n",control_words[cw].name,min);
