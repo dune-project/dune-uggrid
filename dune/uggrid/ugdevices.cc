@@ -35,7 +35,6 @@
 #include <cassert>
 
 /* low module */
-#include <dune/uggrid/low/defaults.h>
 #include <dune/uggrid/low/fileopen.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/misc.h>
@@ -94,15 +93,12 @@ static FILE *logFile=NULL;                                              /* log f
 
 INT NS_PREFIX OpenLogFile (const char *name, int rename)
 {
-  char logpath[BUFFSIZE];
+  char logpath[256];
 
   if (logFile!=NULL) return(1);
 
   /* get path to logfile directory */
-  if (GetDefaultValue(DEFAULTSFILENAME,"logfilesdir",logpath)==0)
-    logFile = FileOpenUsingSearchPath_r(name,"w",logpath,rename);
-  else
-    logFile = fileopen_r(name,"w",rename);
+  logFile = FileOpenUsingSearchPath_r(name,"w",logpath,rename);
 
   if (logFile==NULL) return(2);
 

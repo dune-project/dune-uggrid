@@ -44,7 +44,6 @@
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/bio.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/defaults.h>
 #include <dune/uggrid/low/fifo.h>
 #include <dune/uggrid/low/fileopen.h>
 #include <dune/uggrid/low/general.h>
@@ -3670,7 +3669,7 @@ INT NS_DIM_PREFIX InitUgio ()
 {
   /* read gridpaths from defaults file (iff) */
   gridpaths_set = false;
-  if (ReadSearchingPaths(DEFAULTSFILENAME,"gridpaths")==0)
+  if (ReadSearchingPaths("defaults","gridpaths")==0)
     gridpaths_set = true;
 
   if (MGIO_Init ()) return(1);

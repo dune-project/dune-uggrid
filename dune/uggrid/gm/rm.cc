@@ -37,7 +37,6 @@
 /* low module */
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/defaults.h>
 #include <dune/uggrid/low/fileopen.h>
 #include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/misc.h>
