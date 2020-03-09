@@ -100,7 +100,7 @@ REP_ERR_FILE
    CreateFormat	- Create a new FORMAT structure in the environment
 
    SYNOPSIS:
-   FORMAT *CreateFormat (char *name, INT sVertex, INT sMultiGrid,
+   FORMAT *CreateFormat (const char *name, INT sVertex, INT sMultiGrid,
                 ConversionProcPtr PrintVertex, ConversionProcPtr PrintGrid,
                 ConversionProcPtr PrintMultigrid, INT nvDesc, VectorDescriptor *vDesc,
                 INT nmDesc, MatrixDescriptor *mDesc, INT po2t[MAXDOMPARTS][MAXVOBJECTS]);
@@ -191,7 +191,7 @@ REP_ERR_FILE
    D*/
 /****************************************************************************/
 
-FORMAT * NS_DIM_PREFIX CreateFormat (char *name, INT sVertex, INT sMultiGrid,
+FORMAT * NS_DIM_PREFIX CreateFormat (const char *name, INT sVertex, INT sMultiGrid,
                                      ConversionProcPtr PrintVertex, ConversionProcPtr PrintGrid,
                                      ConversionProcPtr PrintMultigrid,
                                      TaggedConversionProcPtr PrintVector, TaggedConversionProcPtr PrintMatrix,

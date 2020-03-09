@@ -3139,7 +3139,7 @@ FORMAT                   *GetFirstFormat                        (void);
 FORMAT                   *GetNextFormat                         (FORMAT * fmt);
 INT                               ChangeToFormatDir                     (const char *name);
 INT                               DeleteFormat                          (const char *name);
-FORMAT                   *CreateFormat (char *name, INT sVertex, INT sMultiGrid,
+FORMAT                   *CreateFormat (const char *name, INT sVertex, INT sMultiGrid,
                                         ConversionProcPtr PrintVertex,
                                         ConversionProcPtr PrintGrid,
                                         ConversionProcPtr PrintMultigrid,
