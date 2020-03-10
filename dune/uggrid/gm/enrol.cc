@@ -194,18 +194,6 @@ FORMAT * NS_DIM_PREFIX CreateFormat (const char *name,
   fmt = (FORMAT *) MakeEnvItem (name,theFormatDirID,sizeof(FORMAT));
   if (fmt==NULL) REP_ERR_RETURN_PTR(NULL);
 
-  /* fill in data */
-  FMT_S_VERTEX(fmt)               = 0;
-  FMT_S_MG(fmt)                   = 0;
-  FMT_PR_VERTEX(fmt)              = nullptr;
-  FMT_PR_GRID(fmt)                = nullptr;
-  FMT_PR_MG(fmt)                  = nullptr;
-  FMT_PR_VEC(fmt)                 = nullptr;
-  FMT_PR_MAT(fmt)                 = nullptr;
-
-  FMT_NODE_ELEM_LIST(fmt)         = 0;
-  FMT_NODE_DATA(fmt)              = 0;
-
   /* initialize with zero */
   for (i=0; i<MAXVECTORS; i++)
   {

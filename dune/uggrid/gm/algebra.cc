@@ -1028,12 +1028,6 @@ INT NS_DIM_PREFIX DisposeConnectionsFromMultiGrid (MULTIGRID *theMG)
          theElement=SUCCE(theElement))
       if (DisposeConnectionsInNeighborhood(theGrid,theElement))
         REP_ERR_RETURN(1);
-
-    if (NELIST_DEF_IN_GRID(theGrid))
-      for (theNode = PFIRSTNODE(theGrid); theNode != NULL;
-           theNode = SUCCN(theNode))
-        if (DisposeElementList(theGrid,theNode))
-          REP_ERR_RETURN(1);
   }
 
   return(0);
@@ -1795,11 +1789,6 @@ static INT ElementElementCreateConnection (GRID *theGrid, ELEMENT *Elem0, ELEMEN
               RETURN(GM_ERROR);
       }
     }
-    if (NELIST_DEF_IN_GRID(theGrid))
-      for (i=0; i<CORNERS_OF_ELEM(Elem0); i++)
-        if (CreateElementList(theGrid,CORNER(Elem0,i),Elem0))
-          RETURN(GM_ERROR);
-
     return (0);
   }
 

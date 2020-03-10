@@ -89,14 +89,6 @@ USING_UG_NAMESPACES
 
 static char default_type_names[MAXVECTORS];
 
-/** @name Print symbol counters and lists */
-/*@{*/
-static INT NPrintVectors=0;
-static INT NPrintMatrixs=0;
-static VECDATA_DESC *PrintVector[MAX_PRINT_SYM];
-static MATDATA_DESC *PrintMatrix[MAX_PRINT_SYM];
-/*@}*/
-
 /** @name Environment dir and var ids */
 /*@{*/
 static INT theNewFormatDirID;                   /* env type for NewFormat dir           */
@@ -106,118 +98,6 @@ static INT theMatVarID;                                 /* env type for MAT_TEMP
 
 REP_ERR_FILE
 
-
-static char *DisplayVecDD (const VECDATA_DESC *vd, INT type, const DOUBLE *data, const char *indent, char *s)
-{
-  INT i,n,off;
-
-  n = VD_NCMPS_IN_TYPE(vd,type);
-  if (n==0) return (s);
-
-  off = VD_OFFSET(vd,type);
-
-  s += sprintf(s,"%s%s:",indent,ENVITEM_NAME(vd));
-  for (i=0; i<n; i++)
-    s += sprintf(s,VFORMAT,VM_COMP_NAME(vd,off+i),data[VD_CMP_OF_TYPE(vd,type,i)]);
-
-  *(s++) = '\n';
-
-  return (s);
-}
-
-/****************************************************************************/
-/** \brief Print selected vector user data for the 'nsr' format
-
-   \param type - consider only this type
-   \param data - user data
-   \param indent - is printed at the beginning of lines
-   \param s - output string
-
-        Print selected vector user data for the 'nsr' format.
-
-        \return
-        0: ok
-
-        \sa
-        setformat, showformat
- */
-/****************************************************************************/
-
-static INT PrintTypeVectorData (INT type, void *data, const char *indent, char *s)
-{
-  INT i;
-
-  for (i=0; i<NPrintVectors; i++)
-    s = DisplayVecDD(PrintVector[i],type,(double*)data,indent,s);
-
-  /* remove last \n */
-  *s = '\0';
-
-  return(0);
-}
-
-static char *DisplayMatDD (const MATDATA_DESC *md, INT type, const DOUBLE *data, const char *indent, char *s)
-{
-  INT comp,i,j,nr,nc,off;
-
-  nr = MD_ROWS_IN_MTYPE(md,type);
-  nc = MD_COLS_IN_MTYPE(md,type);
-  if (nr==0) return (s);
-
-  /* diagonals get the same name */
-  off = MD_MTYPE_OFFSET(md,MTP(MTYPE_RT(type),MTYPE_CT(type)));
-
-  for (i=0; i<nr; i++)
-  {
-    s += sprintf(s,"%s%s:",indent,ENVITEM_NAME(md));
-    for (j=0; j<nc; j++)
-    {
-      comp = MD_IJ_CMP_OF_MTYPE(md,type,i,j);
-      if (comp<0)
-        s += sprintf(s,MFORMAT,VM_COMP_NAME(md,2*(off+i*nc+j)),
-                     VM_COMP_NAME(md,2*(off+i*nc+j)+1),
-                     0.0);
-      else
-        s += sprintf(s,MFORMAT,VM_COMP_NAME(md,2*(off+i*nc+j)),
-                     VM_COMP_NAME(md,2*(off+i*nc+j)+1),
-                     data[MD_IJ_CMP_OF_MTYPE(md,type,i,j)]);
-    }
-    *(s++) = '\n';
-  }
-
-  return (s);
-}
-
-/****************************************************************************/
-/** \brief Print selected matrix user data for the 'nsr' format
-
-   \param type - consider this mat type
-   \param data - user data
-   \param indent - is printed at the beginning of lines
-   \param s - output string
-
-        Print selected matrix user data for the 'nsr' format.
-
-        \return
-        0: ok
-
-        \sa
-        setformat, showformat
- */
-/****************************************************************************/
-
-static INT PrintTypeMatrixData (INT type, void *data, const char *indent, char *s)
-{
-  INT i;
-
-  for (i=0; i<NPrintMatrixs; i++)
-    s = DisplayMatDD(PrintMatrix[i],type,(double*)data,indent,s);
-
-  /* remove last \n */
-  *s = '\0';
-
-  return(0);
-}
 
 /****************************************************************************/
 /** \brief Create a VEC_TEMPLATE
