@@ -829,7 +829,6 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   VectorDescriptor vd[MAXVECTORS];
   MatrixDescriptor md[MAXMATRICES*MAXVECTORS];
   INT opt,i,j,size,type,type2,rtype,ctype,nvec,nmat,nvd,nmd;
-  INT nodeelementlist;
   INT po2t[MAXDOMPARTS][MAXVOBJECTS],MaxTypes,TypeUsed[MAXVECTORS];
   SHORT ImatTypes[NVECTYPES];
   SHORT VecStorageNeeded[NVECTYPES],MatStorageNeeded[NMATTYPES];
@@ -863,7 +862,6 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   for (type=0; type<NMATTYPES; type++)
     MatStorageNeeded[type] = 0;
   nvec = nmat = 0;
-  nodeelementlist = 0;
 
   /* scan type option or set default po2t */
   if (ScanTypeOptions(argc,argv,po2t,&MaxTypes,TypeNames)) {
@@ -912,17 +910,6 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
       }
     }
 
-  if (nodeelementlist) {
-    for (opt=0; opt<nvd; opt++)
-      if (vd[opt].tp == NODEVEC)
-        break;
-    if (opt == nvd) {
-      PrintErrorMessage('E',"newformat","node data requires node vector");
-      CleanupTempDir();
-      REP_ERR_RETURN (1);
-    }
-  }
-
   /* fill connections needed */
   nmd = 0;
   for (type=0; type<NMATTYPES; type++)
@@ -959,10 +946,7 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
   }
 
   /* create format */
-  newFormat = CreateFormat(formatname,0,0,
-                           (ConversionProcPtr)NULL,(ConversionProcPtr)NULL,(ConversionProcPtr)NULL,
-                           PrintTypeVectorData,PrintTypeMatrixData,
-                           nvd,vd,nmd,md,ImatTypes,po2t,nodeelementlist,0);
+  newFormat = CreateFormat(formatname,nvd,vd,nmd,md,ImatTypes,po2t);
   if (newFormat==NULL)
   {
     PrintErrorMessage('E',"newformat","failed creating the format");

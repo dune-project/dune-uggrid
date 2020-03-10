@@ -100,30 +100,18 @@ REP_ERR_FILE
    CreateFormat	- Create a new FORMAT structure in the environment
 
    SYNOPSIS:
-   FORMAT *CreateFormat (const char *name, INT sVertex, INT sMultiGrid,
-                ConversionProcPtr PrintVertex, ConversionProcPtr PrintGrid,
-                ConversionProcPtr PrintMultigrid, INT nvDesc, VectorDescriptor *vDesc,
+   FORMAT *CreateFormat (const char *name, INT nvDesc, VectorDescriptor *vDesc,
                 INT nmDesc, MatrixDescriptor *mDesc, INT po2t[MAXDOMPARTS][MAXVOBJECTS]);
 
    PARAMETERS:
    .  name - name of new format structure
-   .  sVertex - size of user data space in VERTEX counted in bytes
-   .  sMultiGrid -  size of user data space in MULTIGRID counted in bytes
-   .  PrintVertex - pointer to conversion procedure
-   .  PrintGrid - pointer to conversion procedure (though there are no user data associated directly with a grid,
-                                the user may wish to print grid associated data from his multigrid user data space)
-   .  PrintMultigrid - pointer to conversion procedure
-   .  PrintVector - pointer to conversion procedure tagged with vtype
-   .  PrintMatrix - pointer to conversion procedure tagged with mtype
    .  nvDesc - number of vector descriptors
    .  vDesc - pointer to vector descriptor
    .  nmDesc - number of matrix desciptors
    .  mDesc - pointer to matrix descriptor
    .  ImatTypes - size of interpolation matrices
    .  po2t  - table (part,obj) --> vtype, NOVTYPE if not defined
-   .  nodeelementlist - nodes shoulf have a list of their elements
    .  edata - size of edge data
-   .  ndata - size of node data
 
    DESCRIPTION:
    This function allocates and initializes a new FORMAT structure in the environment.
@@ -191,13 +179,9 @@ REP_ERR_FILE
    D*/
 /****************************************************************************/
 
-FORMAT * NS_DIM_PREFIX CreateFormat (const char *name, INT sVertex, INT sMultiGrid,
-                                     ConversionProcPtr PrintVertex, ConversionProcPtr PrintGrid,
-                                     ConversionProcPtr PrintMultigrid,
-                                     TaggedConversionProcPtr PrintVector, TaggedConversionProcPtr PrintMatrix,
+FORMAT * NS_DIM_PREFIX CreateFormat (const char *name,
                                      INT nvDesc, VectorDescriptor *vDesc, INT nmDesc, MatrixDescriptor *mDesc,
-                                     SHORT ImatTypes[], INT po2t[MAXDOMPARTS][MAXVOBJECTS],
-                                     INT nodeelementlist, INT ndata)
+                                     SHORT ImatTypes[], INT po2t[MAXDOMPARTS][MAXVOBJECTS])
 {
   FORMAT *fmt;
   INT i, j, type, type2, part, obj, MaxDepth, NeighborhoodDepth, MaxType;
@@ -212,16 +196,16 @@ FORMAT * NS_DIM_PREFIX CreateFormat (const char *name, INT sVertex, INT sMultiGr
   if (fmt==NULL) REP_ERR_RETURN_PTR(NULL);
 
   /* fill in data */
-  FMT_S_VERTEX(fmt)               = sVertex;
-  FMT_S_MG(fmt)                   = sMultiGrid;
-  FMT_PR_VERTEX(fmt)              = PrintVertex;
-  FMT_PR_GRID(fmt)                = PrintGrid;
-  FMT_PR_MG(fmt)                  = PrintMultigrid;
-  FMT_PR_VEC(fmt)                 = PrintVector;
-  FMT_PR_MAT(fmt)                 = PrintMatrix;
+  FMT_S_VERTEX(fmt)               = 0;
+  FMT_S_MG(fmt)                   = 0;
+  FMT_PR_VERTEX(fmt)              = nullptr;
+  FMT_PR_GRID(fmt)                = nullptr;
+  FMT_PR_MG(fmt)                  = nullptr;
+  FMT_PR_VEC(fmt)                 = nullptr;
+  FMT_PR_MAT(fmt)                 = nullptr;
 
-  FMT_NODE_ELEM_LIST(fmt) = nodeelementlist;
-  FMT_NODE_DATA(fmt)              = ndata;
+  FMT_NODE_ELEM_LIST(fmt)         = 0;
+  FMT_NODE_DATA(fmt)              = 0;
 
   /* initialize with zero */
   for (i=0; i<MAXVECTORS; i++)

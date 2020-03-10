@@ -3139,17 +3139,11 @@ FORMAT                   *GetFirstFormat                        (void);
 FORMAT                   *GetNextFormat                         (FORMAT * fmt);
 INT                               ChangeToFormatDir                     (const char *name);
 INT                               DeleteFormat                          (const char *name);
-FORMAT                   *CreateFormat (const char *name, INT sVertex, INT sMultiGrid,
-                                        ConversionProcPtr PrintVertex,
-                                        ConversionProcPtr PrintGrid,
-                                        ConversionProcPtr PrintMultigrid,
-                                        TaggedConversionProcPtr PrintVector,
-                                        TaggedConversionProcPtr PrintMatrix,
+FORMAT                   *CreateFormat (const char *name,
                                         INT nvDesc, VectorDescriptor *vDesc,
                                         INT nmDesc, MatrixDescriptor *mDesc,
                                         SHORT ImatTypes[],
-                                        INT po2t[MAXDOMPARTS][MAXVOBJECTS],
-                                        INT nodeelementlist, INT ndata);
+                                        INT po2t[MAXDOMPARTS][MAXVOBJECTS]);
 
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
