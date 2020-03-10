@@ -357,12 +357,6 @@ struct format {
   NS_PREFIX ENVDIR d;
 
   /* variables of format */
-  /** \brief size of vertex user data struc. in bytes*/
-  INT sVertex;
-
-  /** \brief size of mg user data structure in bytes     */
-  INT sMultiGrid;
-
   /** \brief number of doubles in vectors                    */
   INT VectorSizes[MAXVECTORS];
 
@@ -374,30 +368,6 @@ struct format {
 
   /** \brief depth of connection for matrices */
   INT ConnectionDepth[MAXCONNECTIONS];
-
-  /** \todo Please doc me! */
-  INT nodeelementlist;
-  /** \todo Please doc me! */
-  INT nodedata;
-
-  /** \brief print user data to string */
-  ConversionProcPtr PrintVertex;
-  /** \todo Please doc me! */
-  ConversionProcPtr PrintGrid;
-  /** \todo Please doc me! */
-  ConversionProcPtr PrintMultigrid;
-
-  /** \todo Please doc me!
-   *
-   * tag indicates VTYPE
-   */
-  TaggedConversionProcPtr PrintVector;
-
-  /** \todo Please doc me!
-   *
-   * tag indicates MTP
-   */
-  TaggedConversionProcPtr PrintMatrix;
 
   /* table connecting parts, objects and types */
 
@@ -2958,8 +2928,6 @@ START_UGDIM_NAMESPACE
 #define NC(p)                           ((p)->nCon)
 #define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (GFORMAT(p)->OTypeUsed[(tp)]>0)
 #define NIMAT(p)                        ((p)->nIMat)
-#define NELIST_DEF_IN_GRID(p)  (GFORMAT(p)->nodeelementlist)
-#define NDATA_DEF_IN_GRID(p)   (GFORMAT(p)->nodedata)
 
 #define GRID_ATTR(g) ((unsigned char) (GLEVEL(g)+32))
 #define ATTR_TO_GLEVEL(i) (i-32)
@@ -3027,10 +2995,6 @@ grid::dddContext()
 /*                                                                          */
 /****************************************************************************/
 
-#define FMT_NODE_DATA(f)                                ((f)->nodedata)
-#define FMT_NODE_ELEM_LIST(f)                   ((f)->nodeelementlist)
-#define FMT_S_VERTEX(f)                                 ((f)->sVertex)
-#define FMT_S_MG(f)                                             ((f)->sMultiGrid)
 #define FMT_S_VEC_TP(f,t)                               ((f)->VectorSizes[t])
 #define FMT_VTYPE_NAME(f,t)                             ((f)->VTypeNames[t])
 #define FMT_S_MAT_TP(f,t)                               ((f)->MatrixSizes[t])
@@ -3040,11 +3004,6 @@ grid::dddContext()
 #define FMT_CONN_DEPTH_PTR(f)                   ((f)->ConnectionDepth)
 #define FMT_CONN_DEPTH_MAX(f)                   ((f)->MaxConnectionDepth)
 #define FMT_NB_DEPTH(f)                                 ((f)->NeighborhoodDepth)
-#define FMT_PR_VERTEX(f)                                ((f)->PrintVertex)
-#define FMT_PR_GRID(f)                                  ((f)->PrintGrid)
-#define FMT_PR_MG(f)                                    ((f)->PrintMultigrid)
-#define FMT_PR_VEC(f)                                   ((f)->PrintVector)
-#define FMT_PR_MAT(f)                                   ((f)->PrintMatrix)
 #define FMT_PO2T(f,p,o)                                 ((f)->po2t[p][o])
 #define FMT_T2P(f,t)                                    ((f)->t2p[t])
 #define FMT_TYPE_IN_PART(f,t,o)                 ((f)->t2p[o] & (1<<o))

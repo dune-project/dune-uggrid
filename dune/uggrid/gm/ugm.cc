@@ -365,13 +365,7 @@ static VERTEX *CreateBoundaryVertex (GRID *theGrid)
 
   pv = (VERTEX*)GetMemoryForObject(MYMG(theGrid),sizeof(struct bvertex),BVOBJ);
   if (pv==NULL) return(NULL);
-  if ((ds=FMT_S_VERTEX(MGFORMAT(MYMG(theGrid))))>0)
-  {
-    VDATA(pv) = GetMemoryForObject(MYMG(theGrid),ds,NOOBJ);
-    if (VDATA(pv)==NULL) return(NULL);
-  }
-  else
-    VDATA(pv) = NULL;
+  VDATA(pv) = NULL;
 
   /* initialize data */
   CTRL(pv) = 0;
@@ -419,13 +413,7 @@ static VERTEX *CreateInnerVertex (GRID *theGrid)
 
   pv = (VERTEX*)GetMemoryForObject(MYMG(theGrid),sizeof(struct ivertex),IVOBJ);
   if (pv==NULL) return(NULL);
-  if ((ds=FMT_S_VERTEX(MGFORMAT(MYMG(theGrid))))>0)
-  {
-    VDATA(pv) = GetMemoryForObject(MYMG(theGrid),ds,NOOBJ);
-    if (VDATA(pv)==NULL) return(NULL);
-  }
-  else
-    VDATA(pv) = NULL;
+  VDATA(pv) = NULL;
 
   /* initialize data */
   CTRL(pv) = 0;
@@ -477,8 +465,6 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
 
   size = sizeof(NODE);
   if (!VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC)) size -= sizeof(VECTOR *);
-  if (NDATA_DEF_IN_GRID(theGrid)) size += sizeof(void *);
-  if (NELIST_DEF_IN_GRID(theGrid)) size += sizeof(void *);
 
   pn = (NODE *)GetMemoryForObject(MYMG(theGrid),size,NDOBJ);
   if (pn==NULL) return(NULL);
@@ -495,7 +481,6 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
   ID(pn) = (theGrid->mg->nodeIdCounter)++;
   START(pn) = NULL;
   SONNODE(pn) = NULL;
-  if (NELIST_DEF_IN_GRID(theGrid)) NDATA(pn) = NULL;
   MYVERTEX(pn) = vertex;
   if (NOOFNODE(vertex)<NOOFNODEMAX)
     INCNOOFNODE(vertex);
@@ -535,15 +520,6 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
     }
     else
       NVECTOR(pn) = NULL;
-  }
-
-  if (NDATA_DEF_IN_GRID(theGrid)) {
-    NDATA(pn) = (void *) GetMemoryForObject(theGrid->mg,
-                                            NDATA_DEF_IN_GRID(theGrid),-1);
-    if (NDATA(pn) == NULL) {
-      DisposeNode (theGrid,pn);
-      return (NULL);
-    }
   }
 
   theGrid->status |= 1;          /* recalculate stiffness matrix */
@@ -3281,14 +3257,6 @@ INT NS_DIM_PREFIX DisposeNode (GRID *theGrid, NODE *theNode)
 
   /* dispose vector and its matrices from node-vector */
   size = sizeof(NODE);
-  if (NDATA_DEF_IN_GRID(theGrid)) {
-    size += sizeof(void *);
-    PutFreeObject(theGrid->mg,NDATA(theNode),NDATA_DEF_IN_GRID(theGrid),-1);
-  }
-  if (NELIST_DEF_IN_GRID(theGrid)) {
-    DisposeElementList(theGrid,theNode);
-    size += sizeof(void *);
-  }
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
   {
 #ifdef __PERIODIC_BOUNDARY__
@@ -3556,11 +3524,6 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
     else
       DEC_NO_OF_ELEM(theEdge);
   }
-
-  if (NELIST_DEF_IN_GRID(theGrid))
-    for (j=0; j<CORNERS_OF_ELEM(theElement); j++)
-      DisposeElementFromElementList(theGrid,
-                                    CORNER(theElement,j),theElement);
 
   /* dispose matrices from element-vector */
   if (dispose_connections)
@@ -6316,31 +6279,12 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   UserWriteF("VCLASS=%1d VNCLASS=%1d",VCLASS(theVector),VNCLASS(theVector));
   UserWriteF(" key=%d\n", KeyForObject((KEY_OBJECT *)theVector) );
 
-  /* print vector data if */
-  if (dataopt && FMT_PR_VEC(theFormat)!=NULL)
-  {
-    /* print data */
-    Data = (void*)(&VVALUE(theVector,0));
-    if ((*(FMT_PR_VEC(theFormat)))(VTYPE(theVector),Data,"   ",buffer))
-      return;
-    UserWrite(buffer);
-  }
-
   /* print matrix list if */
   if (matrixopt > 0)
     for (theMatrix = VSTART(theVector); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
     {
       UserWrite("    DEST(MATRIX): ");
       ListVector(theMG,MDEST(theMatrix),0,0,modifiers);
-
-      /* print matrix data if */
-      if (dataopt && theFormat->PrintMatrix!=NULL)
-      {
-        Data = (void*)(&MVALUE(theMatrix,0));
-        if ((*(FMT_PR_MAT(theFormat)))(MTYPE(theMatrix), Data, "       ", buffer))
-          return;
-        UserWrite(buffer);
-      }
     }
 }
 
