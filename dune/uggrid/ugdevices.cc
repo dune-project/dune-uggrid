@@ -36,7 +36,6 @@
 
 /* low module */
 #include <dune/uggrid/low/fileopen.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugenv.h>

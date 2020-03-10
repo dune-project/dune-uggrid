@@ -33,7 +33,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/ugenv.h>
 
 #include "gm.h"

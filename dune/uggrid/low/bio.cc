@@ -44,8 +44,6 @@
 #include <rpc/rpc.h>    /* to include xdr.h in a portable way */
 #endif // #if HAVE_RPC_RPC_H
 
-#include "general.h"
-
 #include "bio.h"
 
 USING_UG_NAMESPACE

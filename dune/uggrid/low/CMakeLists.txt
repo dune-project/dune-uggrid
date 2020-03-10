@@ -13,7 +13,6 @@ install(FILES
   debug.h
   dimension.h
   fileopen.h
-  general.h
   heaps.h
   misc.h
   namespace.h

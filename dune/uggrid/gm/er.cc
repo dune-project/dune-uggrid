@@ -65,9 +65,6 @@
 
 #include <algorithm>
 
-/* low */
-#include <dune/uggrid/low/general.h>
-
 /* gm */
 #include "rm.h"
 #include "mgio.h"
