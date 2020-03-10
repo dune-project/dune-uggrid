@@ -34,7 +34,6 @@
 #include <cstdio>
 
 #include "ugtypes.h"
-#include "general.h"
 #include "fifo.h"
 
 USING_UG_NAMESPACE

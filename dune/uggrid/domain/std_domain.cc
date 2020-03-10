@@ -57,7 +57,6 @@
 #include <dune/uggrid/low/bio.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/fileopen.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/namespace.h>

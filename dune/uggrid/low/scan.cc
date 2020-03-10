@@ -35,7 +35,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "general.h"
 #include "debug.h"
 #include "ugenv.h"
 #include "misc.h"

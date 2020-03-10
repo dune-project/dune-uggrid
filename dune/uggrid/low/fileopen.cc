@@ -67,7 +67,6 @@
 #undef PARALLEL
 #endif
 
-#include "general.h"
 #include "ugenv.h"
 #include <dune/uggrid/ugdevices.h>
 

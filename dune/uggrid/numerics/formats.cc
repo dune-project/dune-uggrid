@@ -39,7 +39,6 @@
 #include <dune/uggrid/gm/gm.h>
 #include <dune/uggrid/gm/ugm.h>
 #include <dune/uggrid/low/misc.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/scan.h> // for ReadArgvChar
 #include <dune/uggrid/low/ugenv.h>
 #include <dune/uggrid/low/ugstruct.h>

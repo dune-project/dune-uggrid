@@ -30,7 +30,6 @@
 #include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/misc.h>
 
 #include "algebra.h"

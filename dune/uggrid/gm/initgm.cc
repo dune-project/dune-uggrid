@@ -33,7 +33,6 @@
 #include <cstdio>
 
 /* low module */
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>

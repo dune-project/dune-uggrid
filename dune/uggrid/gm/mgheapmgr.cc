@@ -28,7 +28,6 @@
 /****************************************************************************/
 
 #include <config.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/ugtypes.h>
 #include "gm.h"

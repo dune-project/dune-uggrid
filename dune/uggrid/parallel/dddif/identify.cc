@@ -41,7 +41,6 @@
 #include <dune/uggrid/gm/rm.h>
 #include <dune/uggrid/gm/ugm.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 #include <dune/uggrid/parallel/ddd/include/ddd.h>

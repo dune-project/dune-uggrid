@@ -35,7 +35,6 @@
 #include <cassert>
 
 #include <dune/uggrid/low/bio.h>
-#include <dune/uggrid/low/general.h>
 #include "mgio.h"
 
 #ifdef __MGIO_USE_IN_UG__

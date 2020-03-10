@@ -20,7 +20,6 @@
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include "parallel.h"
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/gm/evm.h>

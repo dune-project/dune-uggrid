@@ -37,7 +37,6 @@
 #include <dune/uggrid/gm/rm.h>
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/ugenv.h>
 
 #include "udm.h"
