@@ -548,138 +548,6 @@ static INT ScanVecOption (INT argc, char **argv,                        /* optio
   return (0);
 }
 
-static INT ScanTypeOptions (INT argc, char **argv, INT po2t[][MAXVOBJECTS], INT *MaxTypes, char TypeNames[])
-{
-  INT i,j,opt,found,max;
-  INT nparts,partlist[MAXDOMPARTS];
-  INT nobjs,objlist[MAXDOMPARTS];
-  char *objstr,*partstr,c,*token;
-  int part;
-
-  /* init po2t */
-  for (i=0; i<MAXDOMPARTS; i++)
-    for (j=0; j<MAXVOBJECTS; j++)
-      po2t[i][j] = NOVTYPE;
-
-  /* scan type specifications from option list */
-  found = max = 0;
-  for (opt=1; opt<argc; opt++)
-    if (argv[opt][0]=='T')
-    {
-      if (max>=(1<<VTYPE_LEN))
-      {
-        printf("I would love to define another type for you, but control flags are rare... (in '$%s')",argv[opt]);
-        ASSERT(false);
-        REP_ERR_RETURN(1);
-      }
-
-      found++;
-
-      /* scan type name */
-      if (sscanf(argv[opt],"T %c",&c)!=1)
-      {
-        PrintErrorMessageF('E',"newformat",
-                           "type name not found (in '$%s')",argv[opt]);
-        REP_ERR_RETURN(1);
-      }
-      for (i=0; i<max; i++)
-        if (c==TypeNames[i])
-        {
-          PrintErrorMessageF('E',"newformat",
-                             "duplicate type names '%c' (in '$%s')",c,argv[opt]);
-          REP_ERR_RETURN(1);
-        }
-      if ((c<FROM_VTNAME) || (TO_VTNAME<c))
-      {
-        PrintErrorMessageF('E',"newformat",
-                           "type name '%c' out of range [%c-%c] (in '$%s')",c,FROM_VTNAME,TO_VTNAME,argv[opt]);
-        REP_ERR_RETURN(1);
-      }
-      TypeNames[max] = c;
-
-      /* separate object list */
-      if ((objstr=strchr(argv[opt],NAMESEP))==NULL)
-      {
-        PrintErrorMessageF('E',"newformat",
-                           "no type sperator ':' found in T-option (in '$%s')",argv[opt]);
-        REP_ERR_RETURN(1);
-      }
-      *(objstr++) = '\0';
-
-      /* scan part list */
-      if ((partstr=strstr(argv[opt],IN_PARTS))==NULL)
-      {
-        PrintErrorMessageF('E',"newformat",
-                           "no '%s' token found in T-option (in '$%s')",IN_PARTS,argv[opt]);
-        REP_ERR_RETURN(1);
-      }
-      token = strtok(partstr+strlen(IN_PARTS),LIST_SEP);
-      nparts = 0;
-      while (token!=NULL)
-      {
-        if (sscanf(token,"%d",&part)!=1)
-        {
-          PrintErrorMessageF('E',"newformat",
-                             "could not scan parts in part-list (in '$%s')",argv[opt]);
-          REP_ERR_RETURN(1);
-        }
-        if ((part<0) || (MAXDOMPARTS<=part))
-        {
-          PrintErrorMessageF('E',"newformat",
-                             "part out of range [%d-%d] (in '$%s')",0,MAXDOMPARTS-1,argv[opt]);
-          REP_ERR_RETURN(1);
-        }
-        partlist[nparts++] = part;
-        token = strtok(NULL,LIST_SEP);
-      }
-
-      /* scan object list */
-      token = strtok(objstr,LIST_SEP);
-      nobjs = 0;
-      while (token!=NULL)
-      {
-        for (i=0; i<MAXVOBJECTS; i++)
-          if (strcmp(token,ObjTypeName[i])==0)
-            break;
-        if (i>=MAXVOBJECTS)
-        {
-          PrintErrorMessageF('E',"newformat",
-                             "could not scan object '%s' in object-list (in '$%s')",token,argv[opt]);
-          REP_ERR_RETURN(1);
-        }
-        objlist[nobjs++] = i;
-        token = strtok(NULL,LIST_SEP);
-      }
-
-      /* update po2t table */
-      for (i=0; i<nparts; i++)
-        for (j=0; j<nobjs; j++)
-          if (po2t[partlist[i]][objlist[j]]!=NOVTYPE)
-          {
-            PrintErrorMessageF('E',"newformat",
-                               "the combination of obj %s in part %d is already defined (in '$%s')",ObjTypeName[objlist[j]],partlist[i],argv[opt]);
-            REP_ERR_RETURN(1);
-          }
-          else
-            po2t[partlist[i]][objlist[j]] = max;
-      max++;
-    }
-
-  if (!found)
-  {
-    /* no T-option: set default types in part 0 */
-    for (max=0; max<MAXVOBJECTS; max++)
-    {
-      TypeNames[max] = default_type_names[max];
-      po2t[0][max] = max;
-    }
-  }
-
-  *MaxTypes = max;
-
-  return (0);
-}
-
 static INT CleanupTempDir (void)
 {
   ENVDIR *dir;
@@ -742,11 +610,19 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
     MatStorageNeeded[type] = 0;
   nvec = nmat = 0;
 
-  /* scan type option or set default po2t */
-  if (ScanTypeOptions(argc,argv,po2t,&MaxTypes,TypeNames)) {
-    CleanupTempDir();
-    REP_ERR_RETURN(1);
+  /* init po2t */
+  for (INT i=0; i<MAXDOMPARTS; i++)
+    for (INT j=0; j<MAXVOBJECTS; j++)
+      po2t[i][j] = NOVTYPE;
+
+  /* no T-option: set default types in part 0 */
+  for (INT j=0; j<MAXVOBJECTS; j++)
+  {
+    TypeNames[j] = default_type_names[j];
+    po2t[0][j] = j;
   }
+
+  MaxTypes = MAXVOBJECTS;
 
   /* scan other options */
   for (opt=1; opt<argc; opt++)
