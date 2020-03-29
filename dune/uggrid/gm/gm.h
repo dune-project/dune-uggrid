@@ -189,8 +189,6 @@ enum {MAX_SONS = 30};
         #error *** MAXVECTORS must not be smaller than MAXVOBJECTS ***
 #endif
 
-/** \brief to indicate type not defined                                 */
-#define NOVTYPE                                                 -1
 /** \brief max number of geometric domain parts                 */
 #define MAXDOMPARTS                                             4
 
@@ -209,7 +207,8 @@ enum {MAX_SONS = 30};
 #define DIAGMATRIXTYPE(rt)  (MAXMATRICES+rt)
 
 /** \brief Type of geometric entity which a certain vector is attached to */
-enum VectorType {NODEVEC,   /**< Vector associated to a node */
+enum VectorType {NOVTYPE=-1,  //** Undefined */
+                 NODEVEC,   /**< Vector associated to a node */
                  EDGEVEC,   /**< Vector associated to an edge */
                  ELEMVEC,   /**< Vector associated to an element */
                  SIDEVEC    /**< Vector associated to an element side */
@@ -3098,11 +3097,8 @@ FORMAT                   *GetFirstFormat                        (void);
 FORMAT                   *GetNextFormat                         (FORMAT * fmt);
 INT                               ChangeToFormatDir                     (const char *name);
 INT                               DeleteFormat                          (const char *name);
-FORMAT                   *CreateFormat (const char *name,
-                                        INT nvDesc, VectorDescriptor *vDesc,
-                                        INT nmDesc, MatrixDescriptor *mDesc,
-                                        SHORT ImatTypes[],
-                                        INT po2t[MAXDOMPARTS][MAXVOBJECTS]);
+FORMAT                   *CreateFormat (INT nvDesc, VectorDescriptor *vDesc,
+                                        SHORT ImatTypes[]);
 
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
