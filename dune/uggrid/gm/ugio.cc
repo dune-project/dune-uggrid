@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include <cmath>
 #include <climits>
 #include <ctime>

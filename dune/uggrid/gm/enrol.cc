@@ -40,6 +40,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include <cmath>
 
 /* low modules */
@@ -56,6 +57,7 @@
 #include "gm.h"
 #include "algebra.h"
 #include "enrol.h"
+#include <dune/uggrid/numerics/udm.h>
 
 USING_UG_NAMESPACE
 USING_UGDIM_NAMESPACE
@@ -103,7 +105,6 @@ REP_ERR_FILE
                 INT nmDesc, MatrixDescriptor *mDesc, INT po2t[MAXDOMPARTS][MAXVOBJECTS]);
 
    PARAMETERS:
-   .  name - name of new format structure
    .  nvDesc - number of vector descriptors
    .  vDesc - pointer to vector descriptor
    .  nmDesc - number of matrix desciptors
@@ -178,20 +179,20 @@ REP_ERR_FILE
    D*/
 /****************************************************************************/
 
-FORMAT * NS_DIM_PREFIX CreateFormat (const char *name,
-                                     INT nvDesc, VectorDescriptor *vDesc, INT nmDesc, MatrixDescriptor *mDesc,
-                                     SHORT ImatTypes[], INT po2t[MAXDOMPARTS][MAXVOBJECTS])
+FORMAT * NS_DIM_PREFIX CreateFormat (INT nvDesc, VectorDescriptor *vDesc, /*INT nmDesc, MatrixDescriptor *mDesc,*/
+                                     SHORT ImatTypes[])
 {
   FORMAT *fmt;
   INT i, j, type, type2, part, obj, MaxDepth, NeighborhoodDepth, MaxType;
 
+  std::string name = "DuneFormat" + std::to_string(DIM) + "d";
 
   /* change to /Formats directory */
   if (ChangeEnvDir("/Formats")==NULL)
     REP_ERR_RETURN_PTR (NULL);
 
   /* allocate new format structure */
-  fmt = (FORMAT *) MakeEnvItem (name,theFormatDirID,sizeof(FORMAT));
+  fmt = (FORMAT *) MakeEnvItem (name.c_str(),theFormatDirID,sizeof(FORMAT));
   if (fmt==NULL) REP_ERR_RETURN_PTR(NULL);
 
   /* initialize with zero */
@@ -207,6 +208,52 @@ FORMAT * NS_DIM_PREFIX CreateFormat (const char *name,
   for (i=FROM_VTNAME; i<=TO_VTNAME; i++)
     FMT_SET_N2T(fmt,i,NOVTYPE);
   MaxDepth = NeighborhoodDepth = 0;
+
+  /* init po2t */
+  INT po2t[MAXDOMPARTS][MAXVOBJECTS];
+  for (INT i=0; i<MAXDOMPARTS; i++)
+    for (INT j=0; j<MAXVOBJECTS; j++)
+      po2t[i][j] = NOVTYPE;
+
+#ifdef __THREEDIM__
+  po2t[0][3] = SIDEVEC;
+#endif
+
+  SHORT MatStorageNeeded[NMATTYPES];
+  for (type=0; type<NMATTYPES; type++)
+    MatStorageNeeded[type] = 0;
+
+  /* fill connections needed */
+  MatrixDescriptor mDesc[MAXMATRICES*MAXVECTORS];
+  INT nmDesc = 0;
+  for (type=0; type<NMATTYPES; type++)
+  {
+    INT rtype = MTYPE_RT(type);
+    INT ctype = MTYPE_CT(type);
+
+    INT size = MatStorageNeeded[type];
+
+    if (ctype==rtype)
+    {
+      /* ensure diag/matrix coexistence (might not be necessary) */
+      type2=(type<NMATTYPES_NORMAL) ? DMTP(rtype) : MTP(rtype,rtype);
+      if ((size<=0) && (MatStorageNeeded[type2]<=0)) continue;
+    }
+    else
+    {
+      /* ensure symmetry of the matrix graph */
+      type2=MTP(ctype,rtype);
+      if ((size<=0) && (MatStorageNeeded[type2]<=0)) continue;
+    }
+
+    mDesc[nmDesc].from  = rtype;
+    mDesc[nmDesc].to    = ctype;
+    mDesc[nmDesc].diag  = (type>=NMATTYPES_NORMAL);
+    mDesc[nmDesc].size  = size*sizeof(DOUBLE);
+    mDesc[nmDesc].depth = 0;
+    nmDesc++;
+  }
+
 
   /* set vector stuff */
   for (i=0; i<nvDesc; i++)
@@ -304,8 +351,8 @@ FORMAT * NS_DIM_PREFIX CreateFormat (const char *name,
       }
   FMT_MAX_TYPE(fmt) = MaxType;
 
-  if (ChangeEnvDir(name)==NULL) REP_ERR_RETURN_PTR(NULL);
-  UserWrite("format "); UserWrite(name); UserWrite(" installed\n");
+  if (ChangeEnvDir(name.c_str())==NULL) REP_ERR_RETURN_PTR(NULL);
+  UserWrite("format "); UserWrite(name.c_str()); UserWrite(" installed\n");
 
   return(fmt);
 }
