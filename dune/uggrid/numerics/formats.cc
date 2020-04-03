@@ -45,6 +45,7 @@
 #include <dune/uggrid/low/ugtypes.h>
 
 #include <dune/uggrid/numerics/formats.h>
+#include <dune/uggrid/numerics/udm.h>
 
 
 USING_UG_NAMESPACES
@@ -71,46 +72,12 @@ USING_UG_NAMESPACES
 /*                                                                          */
 /****************************************************************************/
 
-static char default_type_names[MAXVECTORS];
-
 /** @name Environment dir and var ids */
 /*@{*/
 static INT theNewFormatDirID;                   /* env type for NewFormat dir           */
-static INT theVecVarID;                                 /* env type for VEC_TEMPLATE vars       */
-static INT theMatVarID;                                 /* env type for MAT_TEMPLATE vars       */
 /*@}*/
 
 REP_ERR_FILE
-
-
-static INT RemoveTemplateSubs (FORMAT *fmt)
-{
-  ENVITEM *item;
-  VEC_TEMPLATE *vt;
-  MAT_TEMPLATE *mt;
-  INT i;
-
-  for (item=ENVITEM_DOWN(fmt); item != NULL; item = NEXT_ENVITEM(item))
-    if (ENVITEM_TYPE(item) == theVecVarID)
-    {
-      vt = (VEC_TEMPLATE*) item;
-
-      for (i=0; i<VT_NSUB(vt); i++)
-        if (VT_SUB(vt,i)!=NULL)
-          FreeEnvMemory(VT_SUB(vt,i));
-      VT_NSUB(vt) = 0;
-    }
-    else if (ENVITEM_TYPE(item) == theMatVarID)
-    {
-      mt = (MAT_TEMPLATE*) item;
-
-      for (i=0; i<MT_NSUB(mt); i++)
-        if (MT_SUB(mt,i)!=NULL)
-          FreeEnvMemory(MT_SUB(mt,i));
-      MT_NSUB(mt) = 0;
-    }
-  return (0);
-}
 
 
 static INT CleanupTempDir (void)
@@ -123,9 +90,6 @@ static INT CleanupTempDir (void)
     REP_ERR_RETURN (1);
   }
 
-  if (RemoveTemplateSubs((FORMAT *) dir))
-    REP_ERR_RETURN (1);
-
   ChangeEnvDir("/");
   ENVITEM_LOCKED(dir) = 0;
   if (RemoveEnvDir((ENVITEM *) dir))
@@ -137,11 +101,6 @@ static INT CleanupTempDir (void)
 INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
 {
   ENVDIR *dir;
-  VectorDescriptor vd[MAXVECTORS];
-  INT type;
-  SHORT ImatTypes[NVECTYPES];
-  SHORT VecStorageNeeded[NVECTYPES];
-  char TypeNames[NVECTYPES];
 
   std::string formatname = "DuneFormat" + std::to_string(DIM) + "d";
 
@@ -162,68 +121,19 @@ INT NS_DIM_PREFIX CreateFormatCmd (INT argc, char **argv)
     REP_ERR_RETURN(__LINE__);
   }
 
-  /* init */
-  for (type=0; type<NVECTYPES; type++)
-    ImatTypes[type] = VecStorageNeeded[type] = 0;
-  for (INT j=0; j<MAXVOBJECTS; j++)
-    TypeNames[j] = default_type_names[j];
-
-  /* scan other options */
-#ifdef __THREEDIM__
-  if (ChangeEnvDir("/newformat")==nullptr)
-    abort();
-
-  VEC_TEMPLATE* vt = (VEC_TEMPLATE *) MakeEnvItem ("vt",theVecVarID,sizeof(VEC_TEMPLATE));
-  VT_NSUB(vt) = 0;
-  VT_NID(vt) = NO_IDENT;
-  const char* token = DEFAULT_NAMES;
-  for (size_t j=0; j<MAX(MAX_VEC_COMP,strlen(DEFAULT_NAMES)); j++)
-    VT_COMPNAME(vt,j) = token[j];
-
-  if (vt == NULL) {
-    PrintErrorMessageF('E',"newformat",
-                       "could not allocate environment storage");
-    REP_ERR_RETURN (1);
-  }
-
-  /* read types and sizes */
-  for (INT type=0; type<NVECTYPES; type++)
-    VT_COMP(vt,type) = 0;
-
-  char tp='s';
-  for (type=0; type<MAXVOBJECTS; type++)
-    if (tp==TypeNames[type])
-      break;
-  if (type>=MAXVOBJECTS)
-  {
-    PrintErrorMessageF('E',"newformat","no valid type name '%c'",tp);
-    REP_ERR_RETURN (1);
-  }
-  if (VT_COMP(vt,type) !=0 ) {
-    PrintErrorMessageF('E',"newformat",
-                       "double vector type specification");
-    REP_ERR_RETURN (1);
-  }
-  VT_COMP(vt,type) = 1;
-
-  /* compute storage needed */
-  for (INT type=0; type<NVECTYPES; type++)
-    VecStorageNeeded[type] += 1 * VT_COMP(vt,type);
+  /* fill degrees of freedom needed */
+  VectorDescriptor vd[MAXVECTORS];
+#ifdef __TWODIM__
+  INT nvd = 0;
+#else
+  INT nvd = 1;
+  vd[0].tp    = SIDEVEC;
+  vd[0].size  = sizeof(DOUBLE);
+  vd[0].name  = 's';
 #endif
 
-  /* fill degrees of freedom needed */
-  INT nvd = 0;
-  for (type=0; type<NVECTYPES; type++)
-    if (VecStorageNeeded[type]>0)
-    {
-      vd[nvd].tp    = type;
-      vd[nvd].size  = VecStorageNeeded[type]*sizeof(DOUBLE);
-      vd[nvd].name  = TypeNames[type];
-      nvd++;
-    }
-
   /* create format */
-  FORMAT* newFormat = CreateFormat(nvd,vd,ImatTypes);
+  FORMAT* newFormat = CreateFormat(nvd,vd);
   if (newFormat==NULL)
   {
     PrintErrorMessage('E',"newformat","failed creating the format");
@@ -269,22 +179,8 @@ INT NS_DIM_PREFIX InitFormats ()
   INT tp;
 
   theNewFormatDirID = GetNewEnvDirID();
-  theVecVarID = GetNewEnvVarID();
-  theMatVarID = GetNewEnvVarID();
 
   if (MakeStruct(":SparseFormats")!=0) return(__LINE__);
-
-  /* init default type names */
-  for (tp=0; tp<MAXVECTORS; tp++)
-    switch (tp) {
-    case NODEVEC : default_type_names[tp] = 'n'; break;
-    case EDGEVEC : default_type_names[tp] = 'k'; break;
-    case ELEMVEC : default_type_names[tp] = 'e'; break;
-    case SIDEVEC : default_type_names[tp] = 's'; break;
-    default :
-      PrintErrorMessage('E',"newformat","Huh");
-      return (__LINE__);
-    }
 
   return (0);
 }

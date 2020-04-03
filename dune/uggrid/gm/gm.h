@@ -3097,8 +3097,7 @@ FORMAT                   *GetFirstFormat                        (void);
 FORMAT                   *GetNextFormat                         (FORMAT * fmt);
 INT                               ChangeToFormatDir                     (const char *name);
 INT                               DeleteFormat                          (const char *name);
-FORMAT                   *CreateFormat (INT nvDesc, VectorDescriptor *vDesc,
-                                        SHORT ImatTypes[]);
+FORMAT                   *CreateFormat (INT nvDesc, VectorDescriptor *vDesc);
 
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,

@@ -179,8 +179,7 @@ REP_ERR_FILE
    D*/
 /****************************************************************************/
 
-FORMAT * NS_DIM_PREFIX CreateFormat (INT nvDesc, VectorDescriptor *vDesc, /*INT nmDesc, MatrixDescriptor *mDesc,*/
-                                     SHORT ImatTypes[])
+FORMAT * NS_DIM_PREFIX CreateFormat (INT nvDesc, VectorDescriptor *vDesc)
 {
   FORMAT *fmt;
   INT i, j, type, type2, part, obj, MaxDepth, NeighborhoodDepth, MaxType;
