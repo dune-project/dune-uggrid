@@ -2949,13 +2949,12 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   BVP *theBVP;
   BVP_DESC *theBVPDesc;
   MESH mesh;
-  FORMAT *theFormat;
   INT MarkKey;
 
   if (not ppifContext)
     ppifContext = std::make_shared<PPIF::PPIFContext>();
 
-  theFormat = GetFormat(format);
+  std::unique_ptr<FORMAT> theFormat = CreateFormat();
   if (theFormat==NULL)
   {
     PrintErrorMessage('E',"CreateMultiGrid","format not found");
@@ -2966,7 +2965,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   /* allocate multigrid envitem */
   theMG = MakeMGItem(MultigridName, ppifContext);
   if (theMG==NULL) return(NULL);
-  MGFORMAT(theMG) = theFormat;
+  MGFORMAT(theMG) = std::move(theFormat);
   if (InitElementTypes(theMG)!=GM_OK)
   {
     PrintErrorMessage('E',"CreateMultiGrid","error in InitElementTypes");
@@ -6199,7 +6198,6 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
 
 void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, INT matrixopt, INT dataopt, INT modifiers)
 {
-  FORMAT *theFormat;
   NODE *theNode;
   EDGE *theEdge;
   ELEMENT *theElement;
@@ -6207,7 +6205,7 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   DOUBLE_VECTOR pos;
   void *Data;
 
-  theFormat = MGFORMAT(theMG);
+  FORMAT* theFormat = theMG->theFormat.get();
 
   /* print index and type of vector */
   UserWriteF("IND=" VINDEX_FFMTE " VTYPE=%d(%c) ",

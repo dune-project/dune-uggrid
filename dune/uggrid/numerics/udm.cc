@@ -203,11 +203,10 @@ static INT SetScalVecSettings (VECDATA_DESC *vd)
 
 static INT SetCompactTypesOfVec (VECDATA_DESC *vd)
 {
-  FORMAT *fmt;
   INT tp;
 
   /* fill bitwise fields */
-  fmt = MGFORMAT(VD_MG(vd));
+  FORMAT* fmt = MGFORMAT(VD_MG(vd)).get();
   VD_DATA_TYPES(vd) = VD_OBJ_USED(vd) = 0;
   VD_MAXTYPE(vd) = 0;
   for (tp=0; tp<NVECTYPES; tp++)
@@ -452,11 +451,10 @@ static INT SetScalMatSettings (MATDATA_DESC *md)
 
 static INT SetCompactTypesOfMat (MATDATA_DESC *md)
 {
-  FORMAT *fmt;
   INT rt,ct;
 
   /* fill bitwise fields */
-  fmt = MGFORMAT(MD_MG(md));
+  FORMAT* fmt = MGFORMAT(MD_MG(md)).get();
   MD_ROW_DATA_TYPES(md) = MD_COL_DATA_TYPES(md) =
                             MD_ROW_OBJ_USED(md) = MD_COL_OBJ_USED(md) = 0;
   for (rt=0; rt<NVECTYPES; rt++)

@@ -1414,7 +1414,8 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   else strcpy(mg_general.ident,"---");
   strcpy(mg_general.DomainName,BVPD_NAME(&theBVPDesc));
   strcpy(mg_general.MultiGridName,MGNAME(theMG));
-  strcpy(mg_general.Formatname,ENVITEM_NAME(MGFORMAT(theMG)));
+  std::string formatName = "DuneFormat" + std::to_string( DIM ) + "d";
+  strcpy(mg_general.Formatname,formatName.c_str());
   mg_general.VectorTypes  = 0;
 
   /* parallel part */
