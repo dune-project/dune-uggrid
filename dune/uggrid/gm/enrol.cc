@@ -90,107 +90,29 @@ USING_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-static INT theFormatDirID;                      /* env type for Format dir				*/
 static INT theSymbolVarID;                      /* env type for Format vars                     */
 
 REP_ERR_FILE
 
-/****************************************************************************/
-/*D
-   CreateFormat	- Create a new FORMAT structure in the environment
-
-   SYNOPSIS:
-   FORMAT *CreateFormat (const char *name, INT nvDesc, VectorDescriptor *vDesc,
-                INT nmDesc, MatrixDescriptor *mDesc, INT po2t[MAXDOMPARTS][MAXVOBJECTS]);
-
-   PARAMETERS:
-   .  nvDesc - number of vector descriptors
-   .  vDesc - pointer to vector descriptor
-   .  nmDesc - number of matrix desciptors
-   .  mDesc - pointer to matrix descriptor
-   .  ImatTypes - size of interpolation matrices
-   .  po2t  - table (part,obj) --> vtype, NOVTYPE if not defined
-   .  edata - size of edge data
-
-   DESCRIPTION:
-   This function allocates and initializes a new FORMAT structure in the environment.
-   The parameters vDesc and mDesc are pointers to structures which describe the
-   VECTOR or MATRIX types used.
-   VectorDescriptor is defined as
-   .vb
-          typedef struct {
-          int tp;
-          int size;
-          ConversionProcPtr print;
-          } VectorDescriptor ;
-   .ve
-        The components have the following meaning
-
-   .   tp - this is just an abstract vector type
-   .   size - the data size of a VECTOR structure on this position in bytes
-   .   print - pointer to a function which is called for printing the contents of the data
-                        fields.
-
-        MatrixDescriptor has the definition
-   .vb
-           typedef struct {
-           int from;
-           int to;
-           int size;
-           int depth;
-           ConversionProcPtr print;
-           } MatrixDescriptor ;
-   .ve
-        The meaning of the components is
-
-   .   from - this connection goes from vtype
-   .   to - to vtype
-   .   size - this defines the size in bytes per connection
-   .   depth - this connection has the depth defined here
-   .   print - function to print the data.
-
-   EXAMPLES:
-   A small example to create a format looks like the following. In this format only
-   vectors in nodes are used and therfore all connections connect two nodevectors.
-   .vb
-   HRR_TODO: man page for CreateFormat:
-      // we need dofs only in nodes
-      vd[0].tp    = NODEVEC;
-      vd[0].size  = 3*sizeof(DOUBLE);
-      vd[0].print = Print_3_NodeVectorData;
-
-      // and the following connection: node-node
-      md[0].from  = NODEVEC;
-      md[0].to    = NODEVEC;
-      md[0].size  = sizeof(DOUBLE);
-      md[0].depth = 0;
-      md[0].print = Print_1_NodeNodeMatrixData;
-
-      newFormat = CreateFormat("full scalar",0,0,
-                  (ConversionProcPtr)NULL,(ConversionProcPtr)NULL,
-                  (ConversionProcPtr)NULL,1,vd,1,md,po2t);
-   .ve
-
-   RETURN VALUE:
-   FORMAT *
-   .n     pointer to FORMAT
-   .n     NULL if out of memory.
-   D*/
-/****************************************************************************/
-
-FORMAT * NS_DIM_PREFIX CreateFormat (INT nvDesc, VectorDescriptor *vDesc)
+std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
 {
-  FORMAT *fmt;
   INT i, j, type, type2, part, obj, MaxDepth, NeighborhoodDepth, MaxType;
 
   std::string name = "DuneFormat" + std::to_string(DIM) + "d";
 
-  /* change to /Formats directory */
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN_PTR (NULL);
+/* fill degrees of freedom needed */
+  VectorDescriptor vDesc[MAXVECTORS];
+#ifdef __TWODIM__
+  INT nvDesc = 0;
+#else
+  INT nvDesc = 1;
+  vDesc[0].tp    = SIDEVEC;
+  vDesc[0].size  = sizeof(DOUBLE);
+  vDesc[0].name  = 's';
+#endif
 
   /* allocate new format structure */
-  fmt = (FORMAT *) MakeEnvItem (name.c_str(),theFormatDirID,sizeof(FORMAT));
+  auto fmt = std::make_unique<FORMAT>();
   if (fmt==NULL) REP_ERR_RETURN_PTR(NULL);
 
   /* initialize with zero */
@@ -349,166 +271,7 @@ FORMAT * NS_DIM_PREFIX CreateFormat (INT nvDesc, VectorDescriptor *vDesc)
       }
   FMT_MAX_TYPE(fmt) = MaxType;
 
-  if (ChangeEnvDir(name.c_str())==NULL) REP_ERR_RETURN_PTR(NULL);
-  UserWrite("format "); UserWrite(name.c_str()); UserWrite(" installed\n");
-
-  return(fmt);
-}
-
-/****************************************************/
-/*D
-   DeleteFormat - remove previously enroled format
-
-   SYNOPSIS:
-   INT DeleteFormat (const char *name)
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function removes the specified format.
-
-   RETURN VALUE:
-   INT
-   .n   GM_OK if removed or non existent
-   .n   GM_ERROR if an error occured
-   D*/
-/****************************************************/
-
-INT NS_DIM_PREFIX DeleteFormat (const char *name)
-{
-  FORMAT *fmt;
-
-  fmt = GetFormat(name);
-  if (fmt==NULL)
-  {
-    PrintErrorMessageF('W',"DeleteFormat","format '%s' doesn't exist",name);
-    return (GM_OK);
-  }
-
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN (GM_ERROR);
-  ENVITEM_LOCKED(fmt) = 0;
-  if (RemoveEnvDir((ENVITEM *)fmt))
-    REP_ERR_RETURN (GM_ERROR);
-
-  return (GM_OK);
-}
-
-/****************************************************/
-/*D
-   GetFormat - Get a format pointer from the environment
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function searches the directory /Formats for a format
-
-   RETURN VALUE:
-   FORMAT *
-   .n   pointer to FORMAT
-   .n   NULL  if not found or error.
-   D*/
-/****************************************************/
-
-FORMAT* NS_DIM_PREFIX GetFormat (const char *name)
-{
-  return((FORMAT *) SearchEnv(name,"/Formats",theFormatDirID,theFormatDirID));
-}
-
-/****************************************************************************/
-/*D
-   GetFirstFormat - Get first format definition
-
-   SYNOPSIS:
-   FORMAT *GetFirstFormat (void);
-
-   PARAMETERS:
-   .  void - none
-
-   DESCRIPTION:
-   This function returns the first format definition.
-
-   RETURN VALUE:
-   FORMAT *
-   .n     pointer to a FORMAT
-   .n     NULL if not found or error.
-   D*/
-/****************************************************************************/
-
-FORMAT * NS_DIM_PREFIX GetFirstFormat (void)
-{
-  ENVITEM *fmt;
-
-  if ((fmt=(ENVITEM*)ChangeEnvDir("/Formats")) == NULL) return (NULL);
-
-  for (fmt=ENVITEM_DOWN(fmt); fmt!=NULL; fmt=NEXT_ENVITEM(fmt))
-    if (ENVITEM_TYPE(fmt) == theFormatDirID)
-      return ((FORMAT*)fmt);
-  return (NULL);
-}
-
-/****************************************************************************/
-/*D
-   GetNextFormat - Get next format definition
-
-   SYNOPSIS:
-   FORMAT *GetNextFormat (void);
-
-   PARAMETERS:
-   .  fmt - predecessor format
-
-   DESCRIPTION:
-   This function returns the next format definition following the specified one.
-
-   RETURN VALUE:
-   FORMAT *
-   .n     pointer to a FORMAT
-   .n     NULL if not found or error.
-   D*/
-/****************************************************************************/
-
-FORMAT * NS_DIM_PREFIX GetNextFormat (FORMAT *fmt)
-{
-  ENVITEM *nextfmt;
-
-  if (fmt == NULL) return (NULL);
-
-  for (nextfmt=NEXT_ENVITEM(fmt); nextfmt!=NULL; nextfmt=NEXT_ENVITEM(nextfmt))
-    if (ENVITEM_TYPE(nextfmt) == theFormatDirID)
-      return ((FORMAT*)nextfmt);
-  return (NULL);
-}
-
-/****************************************************/
-/*D
-   ChangeToFormatDir - change to format directory with name
-
-   SYNOPSIS:
-   INT ChangeToFormatDir (const char *name)
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function changes to the format directory with name.
-
-   RETURN VALUE:
-   INT
-   .n   0: ok
-   .n   1: could not change to /Formats/<name> dir
-   D*/
-/****************************************************/
-
-INT NS_DIM_PREFIX ChangeToFormatDir (const char *name)
-{
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN (1);
-  if (ChangeEnvDir(name)==NULL)
-    REP_ERR_RETURN (2);
-
-  return (0);
+  return std::move(fmt);
 }
 
 
@@ -538,12 +301,6 @@ INT NS_DIM_PREFIX InitEnrol ()
   if (ChangeEnvDir("/")==NULL)
   {
     PrintErrorMessage('F',"InitEnrol","could not changedir to root");
-    return(__LINE__);
-  }
-  theFormatDirID = GetNewEnvDirID();
-  if (MakeEnvItem("Formats",theFormatDirID,sizeof(ENVDIR))==NULL)
-  {
-    PrintErrorMessage('F',"InitEnrol","could not install '/Formats' dir");
     return(__LINE__);
   }
   theSymbolVarID = GetNewEnvVarID();

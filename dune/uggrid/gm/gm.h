@@ -352,9 +352,6 @@ typedef INT (*TaggedConversionProcPtr)(INT,            /**< Tag for data identif
 /* struct documentation is in gm.doc */
 struct format {
 
-  /** \brief fields for environment variable */
-  NS_PREFIX ENVDIR d;
-
   /* variables of format */
   /** \brief number of doubles in vectors                    */
   INT VectorSizes[MAXVECTORS];
@@ -1519,7 +1516,7 @@ struct multigrid {
   BVP_DESC theBVPD;
 
   /** \brief pointer to format definitions                */
-  struct format *theFormat;
+  std::unique_ptr<format> theFormat;
 
   /** \brief associated heap structure                    */
   NS_PREFIX HEAP *theHeap;
@@ -2970,7 +2967,6 @@ grid::dddContext()
 #define CURRENTLEVEL(p)                 ((p)->currentLevel)
 #define FULLREFINELEVEL(p)              ((p)->fullrefineLevel)
 #define MGFORMAT(p)                     ((p)->theFormat)
-#define DATAFORMAT(p)                   MGFORMAT(p)
 #define MG_BVP(p)                               ((p)->theBVP)
 #define MG_BVPD(p)                              (&((p)->theBVPD))
 #define MGBNDSEGDESC(p,i)               (&((p)->segments[i]))
@@ -3092,12 +3088,7 @@ MULTIGRID               *GetFirstMultigrid                      (void);
 MULTIGRID               *GetNextMultigrid                       (const MULTIGRID *theMG);
 
 /* format definition */
-FORMAT                   *GetFormat                             (const char *name);
-FORMAT                   *GetFirstFormat                        (void);
-FORMAT                   *GetNextFormat                         (FORMAT * fmt);
-INT                               ChangeToFormatDir                     (const char *name);
-INT                               DeleteFormat                          (const char *name);
-FORMAT                   *CreateFormat (INT nvDesc, VectorDescriptor *vDesc);
+std::unique_ptr<FORMAT> CreateFormat ();
 
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
