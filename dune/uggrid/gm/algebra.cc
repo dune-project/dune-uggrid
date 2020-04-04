@@ -686,11 +686,10 @@ INT NS_DIM_PREFIX ReinspectSonSideVector (GRID *g, ELEMENT *elem, INT side, VECT
 {
   MULTIGRID *mg;
   VECTOR *vold,*vnew;
-  FORMAT *fmt;
   INT partnew,partold,vtnew,vtold,dsnew,dsold;
 
   mg  = MYMG(g);
-  fmt = MGFORMAT(mg);
+  const FORMAT* fmt = mg->theFormat.get();
 
   vold = *vHandle;
 
@@ -1946,13 +1945,12 @@ static INT ConnectWithNeighborhood (ELEMENT *theElement, GRID *theGrid, ELEMENT 
 
 INT NS_DIM_PREFIX CreateConnectionsInNeighborhood (GRID *theGrid, ELEMENT *theElement)
 {
-  FORMAT *theFormat;
   INT MaxDepth;
   INT *ConDepth;
   INT *MatSize;
 
   /* set pointers */
-  theFormat = GFORMAT(theGrid);
+  FORMAT* theFormat = theGrid->mg->theFormat.get();
   MaxDepth = FMT_CONN_DEPTH_MAX(theFormat);
   ConDepth = FMT_CONN_DEPTH_PTR(theFormat);
   MatSize = FMT_S_MATPTR(theFormat);
@@ -2021,14 +2019,13 @@ static INT ConnectInsertedWithNeighborhood (ELEMENT *theElement, GRID *theGrid, 
 
 INT NS_DIM_PREFIX InsertedElementCreateConnection (GRID *theGrid, ELEMENT *theElement)
 {
-  FORMAT *theFormat;
   INT MaxDepth;
 
   if (!MG_COARSE_FIXED(MYMG(theGrid)))
     RETURN (1);
 
   /* set pointers */
-  theFormat = GFORMAT(theGrid);
+  FORMAT* theFormat = theGrid->mg->theFormat.get();
   MaxDepth = (INT)(floor(0.5*(double)FMT_CONN_DEPTH_MAX(theFormat)));
 
   /* reset used flags in neighborhood */
@@ -2280,7 +2277,7 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
       if (NVEC(g)>0)
         continue;                               /* skip this level */
 
-      fmt = MGFORMAT(MYMG(g));
+      fmt = g->mg->theFormat.get();
 
       /* loop nodes and edges */
       for (nd=PFIRSTNODE(g); nd!=NULL; nd=SUCCN(nd)) {
@@ -2675,13 +2672,12 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
 
 INT NS_DIM_PREFIX ElementCheckConnection (GRID *theGrid, ELEMENT *theElement)
 {
-  FORMAT *theFormat;
   INT MaxDepth;
   INT *ConDepth;
   INT *MatSize;
 
   /* set pointers */
-  theFormat = GFORMAT(theGrid);
+  FORMAT* theFormat = theGrid->mg->theFormat.get();
   MaxDepth = FMT_CONN_DEPTH_MAX(theFormat);
   ConDepth = FMT_CONN_DEPTH_PTR(theFormat);
   MatSize = FMT_S_MATPTR(theFormat);
@@ -2932,7 +2928,6 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
 
 INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 {
-  FORMAT *fmt;
   ELEMENT *theElement;
   NODE *theNode;
   VECTOR *theVector;
@@ -2957,7 +2952,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   }
 
   s2p = BVPD_S2P_PTR(MG_BVPD(MYMG(theGrid)));
-  fmt = MGFORMAT(MYMG(theGrid));
+  FORMAT* fmt = theGrid->mg->theFormat.get();
 
   /* reset USED flag */
   for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;

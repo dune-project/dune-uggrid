@@ -90,7 +90,6 @@ USING_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-static INT theFormatDirID;                      /* env type for Format dir				*/
 static INT theSymbolVarID;                      /* env type for Format vars                     */
 
 REP_ERR_FILE
@@ -178,19 +177,27 @@ REP_ERR_FILE
    D*/
 /****************************************************************************/
 
-FORMAT * NS_DIM_PREFIX CreateFormat (INT nvDesc, VectorDescriptor *vDesc)
+std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
 {
-  FORMAT *fmt;
   INT i, j, type, type2, part, obj, MaxDepth, NeighborhoodDepth, MaxType;
 
   std::string name = "DuneFormat" + std::to_string(DIM) + "d";
 
-  /* change to /Formats directory */
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN_PTR (NULL);
+/* fill degrees of freedom needed */
+  VectorDescriptor vDesc[MAXVECTORS];
+#ifdef __TWODIM__
+  INT nvDesc = 0;
+#else
+  INT nvDesc = 1;
+  vDesc[0].tp    = SIDEVEC;
+  vDesc[0].size  = sizeof(DOUBLE);
+  vDesc[0].name  = 's';
+#endif
+
+
 
   /* allocate new format structure */
-  fmt = (FORMAT *) MakeEnvItem (name.c_str(),theFormatDirID,sizeof(FORMAT));
+  auto fmt = std::make_unique<FORMAT>();
   if (fmt==NULL) REP_ERR_RETURN_PTR(NULL);
 
   /* initialize with zero */
@@ -349,166 +356,7 @@ FORMAT * NS_DIM_PREFIX CreateFormat (INT nvDesc, VectorDescriptor *vDesc)
       }
   FMT_MAX_TYPE(fmt) = MaxType;
 
-  if (ChangeEnvDir(name.c_str())==NULL) REP_ERR_RETURN_PTR(NULL);
-  UserWrite("format "); UserWrite(name.c_str()); UserWrite(" installed\n");
-
-  return(fmt);
-}
-
-/****************************************************/
-/*D
-   DeleteFormat - remove previously enroled format
-
-   SYNOPSIS:
-   INT DeleteFormat (const char *name)
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function removes the specified format.
-
-   RETURN VALUE:
-   INT
-   .n   GM_OK if removed or non existent
-   .n   GM_ERROR if an error occured
-   D*/
-/****************************************************/
-
-INT NS_DIM_PREFIX DeleteFormat (const char *name)
-{
-  FORMAT *fmt;
-
-  fmt = GetFormat(name);
-  if (fmt==NULL)
-  {
-    PrintErrorMessageF('W',"DeleteFormat","format '%s' doesn't exist",name);
-    return (GM_OK);
-  }
-
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN (GM_ERROR);
-  ENVITEM_LOCKED(fmt) = 0;
-  if (RemoveEnvDir((ENVITEM *)fmt))
-    REP_ERR_RETURN (GM_ERROR);
-
-  return (GM_OK);
-}
-
-/****************************************************/
-/*D
-   GetFormat - Get a format pointer from the environment
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function searches the directory /Formats for a format
-
-   RETURN VALUE:
-   FORMAT *
-   .n   pointer to FORMAT
-   .n   NULL  if not found or error.
-   D*/
-/****************************************************/
-
-FORMAT* NS_DIM_PREFIX GetFormat (const char *name)
-{
-  return((FORMAT *) SearchEnv(name,"/Formats",theFormatDirID,theFormatDirID));
-}
-
-/****************************************************************************/
-/*D
-   GetFirstFormat - Get first format definition
-
-   SYNOPSIS:
-   FORMAT *GetFirstFormat (void);
-
-   PARAMETERS:
-   .  void - none
-
-   DESCRIPTION:
-   This function returns the first format definition.
-
-   RETURN VALUE:
-   FORMAT *
-   .n     pointer to a FORMAT
-   .n     NULL if not found or error.
-   D*/
-/****************************************************************************/
-
-FORMAT * NS_DIM_PREFIX GetFirstFormat (void)
-{
-  ENVITEM *fmt;
-
-  if ((fmt=(ENVITEM*)ChangeEnvDir("/Formats")) == NULL) return (NULL);
-
-  for (fmt=ENVITEM_DOWN(fmt); fmt!=NULL; fmt=NEXT_ENVITEM(fmt))
-    if (ENVITEM_TYPE(fmt) == theFormatDirID)
-      return ((FORMAT*)fmt);
-  return (NULL);
-}
-
-/****************************************************************************/
-/*D
-   GetNextFormat - Get next format definition
-
-   SYNOPSIS:
-   FORMAT *GetNextFormat (void);
-
-   PARAMETERS:
-   .  fmt - predecessor format
-
-   DESCRIPTION:
-   This function returns the next format definition following the specified one.
-
-   RETURN VALUE:
-   FORMAT *
-   .n     pointer to a FORMAT
-   .n     NULL if not found or error.
-   D*/
-/****************************************************************************/
-
-FORMAT * NS_DIM_PREFIX GetNextFormat (FORMAT *fmt)
-{
-  ENVITEM *nextfmt;
-
-  if (fmt == NULL) return (NULL);
-
-  for (nextfmt=NEXT_ENVITEM(fmt); nextfmt!=NULL; nextfmt=NEXT_ENVITEM(nextfmt))
-    if (ENVITEM_TYPE(nextfmt) == theFormatDirID)
-      return ((FORMAT*)nextfmt);
-  return (NULL);
-}
-
-/****************************************************/
-/*D
-   ChangeToFormatDir - change to format directory with name
-
-   SYNOPSIS:
-   INT ChangeToFormatDir (const char *name)
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function changes to the format directory with name.
-
-   RETURN VALUE:
-   INT
-   .n   0: ok
-   .n   1: could not change to /Formats/<name> dir
-   D*/
-/****************************************************/
-
-INT NS_DIM_PREFIX ChangeToFormatDir (const char *name)
-{
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN (1);
-  if (ChangeEnvDir(name)==NULL)
-    REP_ERR_RETURN (2);
-
-  return (0);
+  return std::move(fmt);
 }
 
 
@@ -538,12 +386,6 @@ INT NS_DIM_PREFIX InitEnrol ()
   if (ChangeEnvDir("/")==NULL)
   {
     PrintErrorMessage('F',"InitEnrol","could not changedir to root");
-    return(__LINE__);
-  }
-  theFormatDirID = GetNewEnvDirID();
-  if (MakeEnvItem("Formats",theFormatDirID,sizeof(ENVDIR))==NULL)
-  {
-    PrintErrorMessage('F',"InitEnrol","could not install '/Formats' dir");
     return(__LINE__);
   }
   theSymbolVarID = GetNewEnvVarID();

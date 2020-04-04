@@ -912,7 +912,7 @@ void NS_DIM_PREFIX InitCurrMG (MULTIGRID *MG)
     /* InitCurrMG was called for the first time, init
        DDD-types now. */
     InitDDDTypes(MG->dddContext());
-    dddctrl.currFormat = MGFORMAT(MG);
+    dddctrl.currFormat = MG->theFormat.get();
   }
   else
   {
