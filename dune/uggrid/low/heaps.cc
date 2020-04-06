@@ -40,7 +40,6 @@
 #include "architecture.h"
 #include "heaps.h"
 #include "misc.h"
-#include "general.h"
 #include "debug.h"
 #include <dune/uggrid/ugdevices.h>
 

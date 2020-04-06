@@ -35,10 +35,6 @@ START_UG_NAMESPACE
 INT               InitDevices();
 INT           ExitDevices               (void);
 
-/* set/get mute level for output control */
-void              SetMuteLevel                          (INT mute);
-INT               GetMuteLevel                          (void);
-
 /* text output to shell with log file mechanism */
 void              UserWrite                             (const char *s);
 int               UserWriteF                            (const char *format, ...);

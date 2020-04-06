@@ -40,7 +40,6 @@
 #include <dune/uggrid/gm/shapes.h>
 #include <dune/uggrid/gm/ugm.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
 
 /* UG namespaces: */

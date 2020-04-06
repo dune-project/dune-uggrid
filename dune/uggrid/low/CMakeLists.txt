@@ -1,7 +1,7 @@
 add_subdirectory(test)
 
 # dimension-independent lib
-add_library(low OBJECT ugenv.cc heaps.cc fifo.cc misc.cc defaults.cc initlow.cc
+add_library(low OBJECT ugenv.cc heaps.cc fifo.cc misc.cc initlow.cc
   fileopen.cc ugstruct.cc debug.cc bio.cc scan.cc ugtimer.cc)
 
 if(DUNE_BUILD_BOTH_LIBS)
@@ -11,10 +11,8 @@ endif()
 
 install(FILES
   debug.h
-  defaults.h
   dimension.h
   fileopen.h
-  general.h
   heaps.h
   misc.h
   namespace.h

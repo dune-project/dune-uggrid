@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include <cmath>
 #include <climits>
 #include <ctime>
@@ -44,10 +45,8 @@
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/bio.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/defaults.h>
 #include <dune/uggrid/low/fifo.h>
 #include <dune/uggrid/low/fileopen.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugstruct.h>
@@ -1415,7 +1414,8 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   else strcpy(mg_general.ident,"---");
   strcpy(mg_general.DomainName,BVPD_NAME(&theBVPDesc));
   strcpy(mg_general.MultiGridName,MGNAME(theMG));
-  strcpy(mg_general.Formatname,ENVITEM_NAME(MGFORMAT(theMG)));
+  std::string formatName = "DuneFormat" + std::to_string( DIM ) + "d";
+  strcpy(mg_general.Formatname,formatName.c_str());
   mg_general.VectorTypes  = 0;
 
   /* parallel part */
@@ -3670,7 +3670,7 @@ INT NS_DIM_PREFIX InitUgio ()
 {
   /* read gridpaths from defaults file (iff) */
   gridpaths_set = false;
-  if (ReadSearchingPaths(DEFAULTSFILENAME,"gridpaths")==0)
+  if (ReadSearchingPaths("defaults","gridpaths")==0)
     gridpaths_set = true;
 
   if (MGIO_Init ()) return(1);

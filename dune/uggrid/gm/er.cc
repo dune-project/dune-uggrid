@@ -65,18 +65,12 @@
 
 #include <algorithm>
 
-/* low */
-#include <dune/uggrid/low/general.h>
-
 /* gm */
 #include "rm.h"
 #include "mgio.h"
 #include "ugm.h"
 #include "cw.h"
 #include "elements.h"
-
-/* ui  (for new memory model, remove later) */
-#include <dune/uggrid/commands.h>
 
 /* own header */
 #include "er.h"
@@ -384,6 +378,7 @@ static void FillOrderedSons (const ERULE *er, DOUBLE oco[])
    doctext_disabled*/
 /****************************************************************************/
 
+#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static INT Hash_Init (int MarkKey)
 {
   int i;
@@ -397,6 +392,7 @@ static INT Hash_Init (int MarkKey)
 
   return (0);
 }
+#endif
 
 /****************************************************************************/
 /*doctext_disabled
@@ -428,7 +424,10 @@ static HRID Hash_InsertRule (INT etag, INT key, const ERULE *er, const DOUBLE oc
                 +sizeof(DOUBLE)*
                 (2*ER_NSONS(er)                                 /* #DOUBLEs needed			*/
                  -MAX_SONS);                                            /* #DOUBLEs at end of HRULE	*/
-  HRULE *hr       = (HRULE*) GetMemoryForObject(GetCurrentMultigrid(),size,MAOBJ);
+  // I think that nullptr can replace the call to GetCurrentMultigrid, because that method
+  // has been returning nullptr for a long time.
+  // In other words: it seems the method we are in is never called.
+  HRULE *hr       = (HRULE*) GetMemoryForObject(nullptr/*GetCurrentMultigrid()*/,size,MAOBJ);
   HRID id         = global.maxrule[etag]++;
 
 
@@ -508,6 +507,7 @@ static INT SonsAreEqual (INT nsons, const DOUBLE oco[], const HRULE *hr)
    doctext_disabled*/
 /****************************************************************************/
 
+#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static HRID GetRuleID
 (
         #ifdef Debug
@@ -548,6 +548,7 @@ static HRID GetRuleID
 
   return (Hash_InsertRule(etag,key,er,oco,&HR_NEXT(hr)));
 }
+#endif
 
 /****************************************************************************/
 /*doctext_disabled
@@ -733,6 +734,7 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
    doctext_disabled*/
 /****************************************************************************/
 
+#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static int CountIFElements (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem = (ELEMENT*) obj;
@@ -1058,6 +1060,7 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
 
   return (0);
 }
+#endif
 #endif  /* ModelP */
 
 /****************************************************************************/
@@ -1080,6 +1083,7 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
    doctext_disabled*/
 /****************************************************************************/
 
+#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
 static INT ExtractRules (MULTIGRID *mg)
 {
   ELEMENT *elem;
@@ -1163,8 +1167,11 @@ static INT ExtractRules (MULTIGRID *mg)
     int max_list_len = 0;
 
     /* make tables of subsequent IDs */
+    // I think that nullptr can replace the call to GetCurrentMultigrid, because that method
+    // has been returning nullptr for a long time.
+    // In other words: it seems the method we are in is never called.
     global.hrule[0] = (HRULE**)
-                      GetMemoryForObject(GetCurrentMultigrid(),
+                      GetMemoryForObject(nullptr/*GetCurrentMultigrid()*/,
                                          global.maxrules*sizeof(HRULE*),MAOBJ);
     if (global.hrule[0]==NULL)
       REP_ERR_RETURN(1);
@@ -1196,6 +1203,7 @@ static INT ExtractRules (MULTIGRID *mg)
 
   return (0);
 }
+#endif
 
 /****************************************************************************/
 /*doctext_disabled

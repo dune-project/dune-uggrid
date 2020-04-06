@@ -31,9 +31,6 @@
 #include <config.h>
 #include <cstdio>
 
-#include <dune/uggrid/low/general.h>
-
-#include "np.h"
 #include "initnumerics.h"
 #include <dune/uggrid/numerics/formats.h>
 #include <dune/uggrid/numerics/udm.h>

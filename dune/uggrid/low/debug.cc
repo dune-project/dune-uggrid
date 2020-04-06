@@ -30,7 +30,6 @@
 /****************************************************************************/
 
 #include <config.h>
-#include "general.h"
 
 #ifdef Debug
 #define compile_debug

@@ -31,7 +31,6 @@
 #include <cstdio>
 #include <cassert>
 
-#include "general.h"
 #include "ugtimer.h"
 
 /****************************************************************************/

@@ -37,9 +37,7 @@
 #include <dune/uggrid/gm/rm.h>
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/ugenv.h>
-#include <dune/uggrid/numerics/np.h>
 
 #include "udm.h"
 
@@ -151,7 +149,7 @@ INT NS_DIM_PREFIX ConstructVecOffsets (const SHORT *NCmpInType, SHORT *offset)
   for (type=0; type<NVECTYPES; type++)
     offset[type+1] = offset[type] + NCmpInType[type];
 
-  return (NUM_OK);
+  return 0;
 }
 
 /****************************************************************************/
@@ -184,7 +182,7 @@ static INT SetScalVecSettings (VECDATA_DESC *vd)
     if (VD_ISDEF_IN_TYPE(vd,tp))
     {
       if (VD_NCMPS_IN_TYPE(vd,tp)!=1)
-        return (NUM_OK);                                                        /* no scalar */
+        return 0;                                                        /* no scalar */
       else
         VD_SCALCMP(vd) = VD_CMP_OF_TYPE(vd,tp,0);
     }
@@ -196,20 +194,19 @@ static INT SetScalVecSettings (VECDATA_DESC *vd)
     {
       VD_SCALTYPEMASK(vd) |= 1<<tp;
       if (VD_SCALCMP(vd)!=VD_CMP_OF_TYPE(vd,tp,0))
-        return (NUM_OK);                                                        /* no scalar */
+        return 0;                                                        /* no scalar */
     }
 
   VD_IS_SCALAR(vd) = true;
-  return (NUM_OK);
+  return 0;
 }
 
 static INT SetCompactTypesOfVec (VECDATA_DESC *vd)
 {
-  FORMAT *fmt;
   INT tp;
 
   /* fill bitwise fields */
-  fmt = MGFORMAT(VD_MG(vd));
+  FORMAT* fmt = MGFORMAT(VD_MG(vd)).get();
   VD_DATA_TYPES(vd) = VD_OBJ_USED(vd) = 0;
   VD_MAXTYPE(vd) = 0;
   for (tp=0; tp<NVECTYPES; tp++)
@@ -265,7 +262,7 @@ INT NS_DIM_PREFIX FillRedundantComponentsOfVD (VECDATA_DESC *vd)
   SetScalVecSettings(vd);
   VD_SUCC_COMP(vd) = VDCompsSubsequent(vd);
 
-  return (NUM_OK);
+  return 0;
 }
 
 /****************************************************************************/
@@ -398,7 +395,7 @@ INT NS_DIM_PREFIX ConstructMatOffsets (const SHORT *RowsInType, const SHORT *Col
   for (type=0; type<NMATTYPES; type++)
     offset[type+1] = offset[type] + RowsInType[type]*ColsInType[type];
 
-  return (NUM_OK);
+  return 0;
 }
 
 /****************************************************************************/
@@ -431,7 +428,7 @@ static INT SetScalMatSettings (MATDATA_DESC *md)
     if (MD_ISDEF_IN_MTYPE(md,mtp))
     {
       if ((MD_ROWS_IN_MTYPE(md,mtp)!=1) || (MD_COLS_IN_MTYPE(md,mtp)!=1))
-        return (NUM_OK);                                                        /* no scalar */
+        return 0;                                                        /* no scalar */
       else
         MD_SCALCMP(md) = MD_MCMP_OF_MTYPE(md,mtp,0);
     }
@@ -444,21 +441,20 @@ static INT SetScalMatSettings (MATDATA_DESC *md)
       MD_SCAL_RTYPEMASK(md) |= 1<<MTYPE_RT(mtp);
       MD_SCAL_CTYPEMASK(md) |= 1<<MTYPE_CT(mtp);
       if (MD_SCALCMP(md)!=MD_MCMP_OF_MTYPE(md,mtp,0))
-        return (NUM_OK);                                                        /* no scalar */
+        return 0;                                                        /* no scalar */
     }
 
   MD_IS_SCALAR(md) = true;
 
-  return (NUM_OK);
+  return 0;
 }
 
 static INT SetCompactTypesOfMat (MATDATA_DESC *md)
 {
-  FORMAT *fmt;
   INT rt,ct;
 
   /* fill bitwise fields */
-  fmt = MGFORMAT(MD_MG(md));
+  FORMAT* fmt = MGFORMAT(MD_MG(md)).get();
   MD_ROW_DATA_TYPES(md) = MD_COL_DATA_TYPES(md) =
                             MD_ROW_OBJ_USED(md) = MD_COL_OBJ_USED(md) = 0;
   for (rt=0; rt<NVECTYPES; rt++)
@@ -511,7 +507,7 @@ INT NS_DIM_PREFIX FillRedundantComponentsOfMD (MATDATA_DESC *md)
   SetScalMatSettings(md);
   MD_SUCC_COMP(md) = MDCompsSubsequent(md);
 
-  return (NUM_OK);
+  return 0;
 }
 
 /****************************************************************************/
@@ -632,5 +628,5 @@ INT NS_DIM_PREFIX InitUserDataManager ()
   MatrixVarID = GetNewEnvVarID();
   VectorVarID = GetNewEnvVarID();
 
-  return (NUM_OK);
+  return 0;
 }

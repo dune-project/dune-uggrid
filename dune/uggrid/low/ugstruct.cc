@@ -34,7 +34,6 @@
 #include <cstdio>
 
 #include "ugtypes.h"
-#include "general.h"
 #include "heaps.h"
 #include "misc.h"
 #include "ugenv.h"

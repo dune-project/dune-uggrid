@@ -15,12 +15,6 @@
 #error Internal UG-lib header, must not be used in applications!
 #endif
 
-/* --- numerical limits ---*/
-
-#include <limits.h>
-#define MAX_S            SHRT_MAX
-#define MAX_I            INT_MAX
-
 /* SMALL..: least number s.t. 1 + SMALL../SMALL_FAC != 1 */
 #define SMALL_FAC 10
 
@@ -36,14 +30,5 @@
 /* !!! set after testing? */
 #define ALIGNMENT 8                     /* power of 2 and >= sizeof(int) ! */
 #define ALIGNMASK 0xFFFFFFF8            /* compatible to alignment */
-
-/* --- printf/scanf format strings --- */
-
-/* ANSI-printf does not support %lX, where x is eEgGf */
-#define _fmt_le                 "le"
-#define _fmt_lE                 "lE"
-#define _fmt_lg                 "lg"
-#define _fmt_lG                 "lG"
-#define _fmt_lf                 "lf"
 
 #endif

@@ -44,8 +44,6 @@
 #include <cstring>
 
 /* low module */
-#include <dune/uggrid/low/defaults.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/initlow.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugstruct.h>
