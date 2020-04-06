@@ -35,14 +35,12 @@
 #include <cassert>
 
 #include <dune/uggrid/low/bio.h>
-#include <dune/uggrid/low/general.h>
 #include "mgio.h"
 
 #ifdef __MGIO_USE_IN_UG__
 
         #include <dune/uggrid/domain/domain.h>
         #include <dune/uggrid/low/debug.h>
-        #include <dune/uggrid/low/defaults.h>
         #include <dune/uggrid/low/fileopen.h>
 
 #endif
@@ -1682,7 +1680,7 @@ int NS_DIM_PREFIX MGIO_Init ()
 
   /* path to grid-dirs */
   mgpathes_set = 0;
-  if (ReadSearchingPaths(DEFAULTSFILENAME,"mgpaths")==0)
+  if (ReadSearchingPaths("defaults","mgpaths")==0)
     mgpathes_set = 1;
 
 #endif

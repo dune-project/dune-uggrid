@@ -35,9 +35,7 @@
 #include <cassert>
 
 /* low module */
-#include <dune/uggrid/low/defaults.h>
 #include <dune/uggrid/low/fileopen.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugenv.h>
@@ -94,15 +92,12 @@ static FILE *logFile=NULL;                                              /* log f
 
 INT NS_PREFIX OpenLogFile (const char *name, int rename)
 {
-  char logpath[BUFFSIZE];
+  char logpath[256];
 
   if (logFile!=NULL) return(1);
 
   /* get path to logfile directory */
-  if (GetDefaultValue(DEFAULTSFILENAME,"logfilesdir",logpath)==0)
-    logFile = FileOpenUsingSearchPath_r(name,"w",logpath,rename);
-  else
-    logFile = fileopen_r(name,"w",rename);
+  logFile = FileOpenUsingSearchPath_r(name,"w",logpath,rename);
 
   if (logFile==NULL) return(2);
 
@@ -381,62 +376,6 @@ void NS_PREFIX PrintErrorMessageF (char type, const char *procName, const char *
 
   /* garbage collection */
   va_end(args);
-}
-
-/****************************************************************************/
-/*D
-   SetMuteLevel - set mute level for verbosing level
-
-   SYNOPSIS:
-   void SetMuteLevel (INT mute);
-
-   PARAMETERS:
- * @param   mute - indicator of amount of output
-
-   DESCRIPTION:
-   This function sets the mute level for verbosing level.
-
-   CONVENTION:
-   'mute <= -1' cancels the echoing of `ug`-commands, 'mute >= 0'
-   restores the echoing (which is the default state). 'mute <= -1000' suppresses
-   also the output of `ug` commands.
-
-   RETURN VALUE:
-   void
-   D*/
-/****************************************************************************/
-
-void NS_PREFIX SetMuteLevel (INT mute)
-{
-  mutelevel = mute;
-}
-
-/****************************************************************************/
-/*D
-   GetMuteLevel - return mute level for verbosing level
-
-   SYNOPSIS:
-   INT GetMuteLevel (void);
-
-   PARAMETERS:
-   .  void
-
-   CONVENTION:
-   'mute <= -1' cancels the echoing of `ug`-commands, 'mute >= 0'
-   restores the echoing (which is the default state). 'mute <= -1000' suppresses
-   also the output of `ug` commands.
-
-   DESCRIPTION:
-   This function return the mute level for verbosing level.
-
-   RETURN VALUE:
-   void
-   D*/
-/****************************************************************************/
-
-INT NS_PREFIX GetMuteLevel (void)
-{
-  return (mutelevel);
 }
 
 /****************************************************************************/

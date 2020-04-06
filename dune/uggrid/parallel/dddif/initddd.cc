@@ -33,7 +33,6 @@
 
 #include "parallel.h"
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/gm/ugm.h>      /* for GetFreeOBJT() */
 #include <dune/uggrid/parallel/ddd/include/memmgr.h>
@@ -913,7 +912,7 @@ void NS_DIM_PREFIX InitCurrMG (MULTIGRID *MG)
     /* InitCurrMG was called for the first time, init
        DDD-types now. */
     InitDDDTypes(MG->dddContext());
-    dddctrl.currFormat = MGFORMAT(MG);
+    dddctrl.currFormat = MG->theFormat.get();
   }
   else
   {

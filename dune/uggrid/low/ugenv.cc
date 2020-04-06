@@ -33,7 +33,6 @@
 
 #include "ugtypes.h"
 #include "heaps.h"
-#include "general.h"
 #include "misc.h"
 #include "ugenv.h"
 /** \todo this is a hierarchy conflict, remove. (VR) */

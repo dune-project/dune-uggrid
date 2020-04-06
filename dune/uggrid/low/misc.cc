@@ -40,7 +40,6 @@
 
 #include "ugtypes.h"
 #include "architecture.h"
-#include "general.h"
 #include "misc.h"
 #include "heaps.h"
 

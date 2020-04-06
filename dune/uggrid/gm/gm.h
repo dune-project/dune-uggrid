@@ -189,8 +189,6 @@ enum {MAX_SONS = 30};
         #error *** MAXVECTORS must not be smaller than MAXVOBJECTS ***
 #endif
 
-/** \brief to indicate type not defined                                 */
-#define NOVTYPE                                                 -1
 /** \brief max number of geometric domain parts                 */
 #define MAXDOMPARTS                                             4
 
@@ -209,7 +207,8 @@ enum {MAX_SONS = 30};
 #define DIAGMATRIXTYPE(rt)  (MAXMATRICES+rt)
 
 /** \brief Type of geometric entity which a certain vector is attached to */
-enum VectorType {NODEVEC,   /**< Vector associated to a node */
+enum VectorType {NOVTYPE=-1,  //** Undefined */
+                 NODEVEC,   /**< Vector associated to a node */
                  EDGEVEC,   /**< Vector associated to an edge */
                  ELEMVEC,   /**< Vector associated to an element */
                  SIDEVEC    /**< Vector associated to an element side */
@@ -353,16 +352,7 @@ typedef INT (*TaggedConversionProcPtr)(INT,            /**< Tag for data identif
 /* struct documentation is in gm.doc */
 struct format {
 
-  /** \brief fields for environment variable */
-  NS_PREFIX ENVDIR d;
-
   /* variables of format */
-  /** \brief size of vertex user data struc. in bytes*/
-  INT sVertex;
-
-  /** \brief size of mg user data structure in bytes     */
-  INT sMultiGrid;
-
   /** \brief number of doubles in vectors                    */
   INT VectorSizes[MAXVECTORS];
 
@@ -374,30 +364,6 @@ struct format {
 
   /** \brief depth of connection for matrices */
   INT ConnectionDepth[MAXCONNECTIONS];
-
-  /** \todo Please doc me! */
-  INT nodeelementlist;
-  /** \todo Please doc me! */
-  INT nodedata;
-
-  /** \brief print user data to string */
-  ConversionProcPtr PrintVertex;
-  /** \todo Please doc me! */
-  ConversionProcPtr PrintGrid;
-  /** \todo Please doc me! */
-  ConversionProcPtr PrintMultigrid;
-
-  /** \todo Please doc me!
-   *
-   * tag indicates VTYPE
-   */
-  TaggedConversionProcPtr PrintVector;
-
-  /** \todo Please doc me!
-   *
-   * tag indicates MTP
-   */
-  TaggedConversionProcPtr PrintMatrix;
 
   /* table connecting parts, objects and types */
 
@@ -1550,7 +1516,7 @@ struct multigrid {
   BVP_DESC theBVPD;
 
   /** \brief pointer to format definitions                */
-  struct format *theFormat;
+  std::unique_ptr<format> theFormat;
 
   /** \brief associated heap structure                    */
   NS_PREFIX HEAP *theHeap;
@@ -1905,8 +1871,6 @@ enum LV_ID_TYPES {
   LV_GID,
   LV_KEY
 };
-
-#define LV_MOD_DEFAULT          (LV_POS | LV_VO_INFO)
 
 /****************************************************************************/
 /*                                                                          */
@@ -2960,8 +2924,6 @@ START_UGDIM_NAMESPACE
 #define NC(p)                           ((p)->nCon)
 #define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (GFORMAT(p)->OTypeUsed[(tp)]>0)
 #define NIMAT(p)                        ((p)->nIMat)
-#define NELIST_DEF_IN_GRID(p)  (GFORMAT(p)->nodeelementlist)
-#define NDATA_DEF_IN_GRID(p)   (GFORMAT(p)->nodedata)
 
 #define GRID_ATTR(g) ((unsigned char) (GLEVEL(g)+32))
 #define ATTR_TO_GLEVEL(i) (i-32)
@@ -3005,7 +2967,6 @@ grid::dddContext()
 #define CURRENTLEVEL(p)                 ((p)->currentLevel)
 #define FULLREFINELEVEL(p)              ((p)->fullrefineLevel)
 #define MGFORMAT(p)                     ((p)->theFormat)
-#define DATAFORMAT(p)                   MGFORMAT(p)
 #define MG_BVP(p)                               ((p)->theBVP)
 #define MG_BVPD(p)                              (&((p)->theBVPD))
 #define MGBNDSEGDESC(p,i)               (&((p)->segments[i]))
@@ -3029,10 +2990,6 @@ grid::dddContext()
 /*                                                                          */
 /****************************************************************************/
 
-#define FMT_NODE_DATA(f)                                ((f)->nodedata)
-#define FMT_NODE_ELEM_LIST(f)                   ((f)->nodeelementlist)
-#define FMT_S_VERTEX(f)                                 ((f)->sVertex)
-#define FMT_S_MG(f)                                             ((f)->sMultiGrid)
 #define FMT_S_VEC_TP(f,t)                               ((f)->VectorSizes[t])
 #define FMT_VTYPE_NAME(f,t)                             ((f)->VTypeNames[t])
 #define FMT_S_MAT_TP(f,t)                               ((f)->MatrixSizes[t])
@@ -3042,11 +2999,6 @@ grid::dddContext()
 #define FMT_CONN_DEPTH_PTR(f)                   ((f)->ConnectionDepth)
 #define FMT_CONN_DEPTH_MAX(f)                   ((f)->MaxConnectionDepth)
 #define FMT_NB_DEPTH(f)                                 ((f)->NeighborhoodDepth)
-#define FMT_PR_VERTEX(f)                                ((f)->PrintVertex)
-#define FMT_PR_GRID(f)                                  ((f)->PrintGrid)
-#define FMT_PR_MG(f)                                    ((f)->PrintMultigrid)
-#define FMT_PR_VEC(f)                                   ((f)->PrintVector)
-#define FMT_PR_MAT(f)                                   ((f)->PrintMatrix)
 #define FMT_PO2T(f,p,o)                                 ((f)->po2t[p][o])
 #define FMT_T2P(f,t)                                    ((f)->t2p[t])
 #define FMT_TYPE_IN_PART(f,t,o)                 ((f)->t2p[o] & (1<<o))
@@ -3136,22 +3088,7 @@ MULTIGRID               *GetFirstMultigrid                      (void);
 MULTIGRID               *GetNextMultigrid                       (const MULTIGRID *theMG);
 
 /* format definition */
-FORMAT                   *GetFormat                             (const char *name);
-FORMAT                   *GetFirstFormat                        (void);
-FORMAT                   *GetNextFormat                         (FORMAT * fmt);
-INT                               ChangeToFormatDir                     (const char *name);
-INT                               DeleteFormat                          (const char *name);
-FORMAT                   *CreateFormat (char *name, INT sVertex, INT sMultiGrid,
-                                        ConversionProcPtr PrintVertex,
-                                        ConversionProcPtr PrintGrid,
-                                        ConversionProcPtr PrintMultigrid,
-                                        TaggedConversionProcPtr PrintVector,
-                                        TaggedConversionProcPtr PrintMatrix,
-                                        INT nvDesc, VectorDescriptor *vDesc,
-                                        INT nmDesc, MatrixDescriptor *mDesc,
-                                        SHORT ImatTypes[],
-                                        INT po2t[MAXDOMPARTS][MAXVOBJECTS],
-                                        INT nodeelementlist, INT ndata);
+std::unique_ptr<FORMAT> CreateFormat ();
 
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,

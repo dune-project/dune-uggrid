@@ -40,7 +40,6 @@
 /* low modules */
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugtypes.h>

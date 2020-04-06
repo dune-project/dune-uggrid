@@ -40,12 +40,12 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include <cmath>
 
 /* low modules */
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/heaps.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugenv.h>
 #include <dune/uggrid/low/ugtypes.h>
@@ -57,6 +57,7 @@
 #include "gm.h"
 #include "algebra.h"
 #include "enrol.h"
+#include <dune/uggrid/numerics/udm.h>
 
 USING_UG_NAMESPACE
 USING_UGDIM_NAMESPACE
@@ -90,138 +91,30 @@ USING_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-static INT theFormatDirID;                      /* env type for Format dir				*/
 static INT theSymbolVarID;                      /* env type for Format vars                     */
 
 REP_ERR_FILE
 
-/****************************************************************************/
-/*D
-   CreateFormat	- Create a new FORMAT structure in the environment
-
-   SYNOPSIS:
-   FORMAT *CreateFormat (char *name, INT sVertex, INT sMultiGrid,
-                ConversionProcPtr PrintVertex, ConversionProcPtr PrintGrid,
-                ConversionProcPtr PrintMultigrid, INT nvDesc, VectorDescriptor *vDesc,
-                INT nmDesc, MatrixDescriptor *mDesc, INT po2t[MAXDOMPARTS][MAXVOBJECTS]);
-
-   PARAMETERS:
-   .  name - name of new format structure
-   .  sVertex - size of user data space in VERTEX counted in bytes
-   .  sMultiGrid -  size of user data space in MULTIGRID counted in bytes
-   .  PrintVertex - pointer to conversion procedure
-   .  PrintGrid - pointer to conversion procedure (though there are no user data associated directly with a grid,
-                                the user may wish to print grid associated data from his multigrid user data space)
-   .  PrintMultigrid - pointer to conversion procedure
-   .  PrintVector - pointer to conversion procedure tagged with vtype
-   .  PrintMatrix - pointer to conversion procedure tagged with mtype
-   .  nvDesc - number of vector descriptors
-   .  vDesc - pointer to vector descriptor
-   .  nmDesc - number of matrix desciptors
-   .  mDesc - pointer to matrix descriptor
-   .  ImatTypes - size of interpolation matrices
-   .  po2t  - table (part,obj) --> vtype, NOVTYPE if not defined
-   .  nodeelementlist - nodes shoulf have a list of their elements
-   .  edata - size of edge data
-   .  ndata - size of node data
-
-   DESCRIPTION:
-   This function allocates and initializes a new FORMAT structure in the environment.
-   The parameters vDesc and mDesc are pointers to structures which describe the
-   VECTOR or MATRIX types used.
-   VectorDescriptor is defined as
-   .vb
-          typedef struct {
-          int tp;
-          int size;
-          ConversionProcPtr print;
-          } VectorDescriptor ;
-   .ve
-        The components have the following meaning
-
-   .   tp - this is just an abstract vector type
-   .   size - the data size of a VECTOR structure on this position in bytes
-   .   print - pointer to a function which is called for printing the contents of the data
-                        fields.
-
-        MatrixDescriptor has the definition
-   .vb
-           typedef struct {
-           int from;
-           int to;
-           int size;
-           int depth;
-           ConversionProcPtr print;
-           } MatrixDescriptor ;
-   .ve
-        The meaning of the components is
-
-   .   from - this connection goes from vtype
-   .   to - to vtype
-   .   size - this defines the size in bytes per connection
-   .   depth - this connection has the depth defined here
-   .   print - function to print the data.
-
-   EXAMPLES:
-   A small example to create a format looks like the following. In this format only
-   vectors in nodes are used and therfore all connections connect two nodevectors.
-   .vb
-   HRR_TODO: man page for CreateFormat:
-      // we need dofs only in nodes
-      vd[0].tp    = NODEVEC;
-      vd[0].size  = 3*sizeof(DOUBLE);
-      vd[0].print = Print_3_NodeVectorData;
-
-      // and the following connection: node-node
-      md[0].from  = NODEVEC;
-      md[0].to    = NODEVEC;
-      md[0].size  = sizeof(DOUBLE);
-      md[0].depth = 0;
-      md[0].print = Print_1_NodeNodeMatrixData;
-
-      newFormat = CreateFormat("full scalar",0,0,
-                  (ConversionProcPtr)NULL,(ConversionProcPtr)NULL,
-                  (ConversionProcPtr)NULL,1,vd,1,md,po2t);
-   .ve
-
-   RETURN VALUE:
-   FORMAT *
-   .n     pointer to FORMAT
-   .n     NULL if out of memory.
-   D*/
-/****************************************************************************/
-
-FORMAT * NS_DIM_PREFIX CreateFormat (char *name, INT sVertex, INT sMultiGrid,
-                                     ConversionProcPtr PrintVertex, ConversionProcPtr PrintGrid,
-                                     ConversionProcPtr PrintMultigrid,
-                                     TaggedConversionProcPtr PrintVector, TaggedConversionProcPtr PrintMatrix,
-                                     INT nvDesc, VectorDescriptor *vDesc, INT nmDesc, MatrixDescriptor *mDesc,
-                                     SHORT ImatTypes[], INT po2t[MAXDOMPARTS][MAXVOBJECTS],
-                                     INT nodeelementlist, INT ndata)
+std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
 {
-  FORMAT *fmt;
   INT i, j, type, type2, part, obj, MaxDepth, NeighborhoodDepth, MaxType;
 
+  std::string name = "DuneFormat" + std::to_string(DIM) + "d";
 
-  /* change to /Formats directory */
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN_PTR (NULL);
+/* fill degrees of freedom needed */
+  VectorDescriptor vDesc[MAXVECTORS];
+#ifdef __TWODIM__
+  INT nvDesc = 0;
+#else
+  INT nvDesc = 1;
+  vDesc[0].tp    = SIDEVEC;
+  vDesc[0].size  = sizeof(DOUBLE);
+  vDesc[0].name  = 's';
+#endif
 
   /* allocate new format structure */
-  fmt = (FORMAT *) MakeEnvItem (name,theFormatDirID,sizeof(FORMAT));
+  auto fmt = std::make_unique<FORMAT>();
   if (fmt==NULL) REP_ERR_RETURN_PTR(NULL);
-
-  /* fill in data */
-  FMT_S_VERTEX(fmt)               = sVertex;
-  FMT_S_MG(fmt)                   = sMultiGrid;
-  FMT_PR_VERTEX(fmt)              = PrintVertex;
-  FMT_PR_GRID(fmt)                = PrintGrid;
-  FMT_PR_MG(fmt)                  = PrintMultigrid;
-  FMT_PR_VEC(fmt)                 = PrintVector;
-  FMT_PR_MAT(fmt)                 = PrintMatrix;
-
-  FMT_NODE_ELEM_LIST(fmt) = nodeelementlist;
-  FMT_NODE_DATA(fmt)              = ndata;
 
   /* initialize with zero */
   for (i=0; i<MAXVECTORS; i++)
@@ -236,6 +129,52 @@ FORMAT * NS_DIM_PREFIX CreateFormat (char *name, INT sVertex, INT sMultiGrid,
   for (i=FROM_VTNAME; i<=TO_VTNAME; i++)
     FMT_SET_N2T(fmt,i,NOVTYPE);
   MaxDepth = NeighborhoodDepth = 0;
+
+  /* init po2t */
+  INT po2t[MAXDOMPARTS][MAXVOBJECTS];
+  for (INT i=0; i<MAXDOMPARTS; i++)
+    for (INT j=0; j<MAXVOBJECTS; j++)
+      po2t[i][j] = NOVTYPE;
+
+#ifdef __THREEDIM__
+  po2t[0][3] = SIDEVEC;
+#endif
+
+  SHORT MatStorageNeeded[NMATTYPES];
+  for (type=0; type<NMATTYPES; type++)
+    MatStorageNeeded[type] = 0;
+
+  /* fill connections needed */
+  MatrixDescriptor mDesc[MAXMATRICES*MAXVECTORS];
+  INT nmDesc = 0;
+  for (type=0; type<NMATTYPES; type++)
+  {
+    INT rtype = MTYPE_RT(type);
+    INT ctype = MTYPE_CT(type);
+
+    INT size = MatStorageNeeded[type];
+
+    if (ctype==rtype)
+    {
+      /* ensure diag/matrix coexistence (might not be necessary) */
+      type2=(type<NMATTYPES_NORMAL) ? DMTP(rtype) : MTP(rtype,rtype);
+      if ((size<=0) && (MatStorageNeeded[type2]<=0)) continue;
+    }
+    else
+    {
+      /* ensure symmetry of the matrix graph */
+      type2=MTP(ctype,rtype);
+      if ((size<=0) && (MatStorageNeeded[type2]<=0)) continue;
+    }
+
+    mDesc[nmDesc].from  = rtype;
+    mDesc[nmDesc].to    = ctype;
+    mDesc[nmDesc].diag  = (type>=NMATTYPES_NORMAL);
+    mDesc[nmDesc].size  = size*sizeof(DOUBLE);
+    mDesc[nmDesc].depth = 0;
+    nmDesc++;
+  }
+
 
   /* set vector stuff */
   for (i=0; i<nvDesc; i++)
@@ -333,166 +272,7 @@ FORMAT * NS_DIM_PREFIX CreateFormat (char *name, INT sVertex, INT sMultiGrid,
       }
   FMT_MAX_TYPE(fmt) = MaxType;
 
-  if (ChangeEnvDir(name)==NULL) REP_ERR_RETURN_PTR(NULL);
-  UserWrite("format "); UserWrite(name); UserWrite(" installed\n");
-
-  return(fmt);
-}
-
-/****************************************************/
-/*D
-   DeleteFormat - remove previously enroled format
-
-   SYNOPSIS:
-   INT DeleteFormat (const char *name)
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function removes the specified format.
-
-   RETURN VALUE:
-   INT
-   .n   GM_OK if removed or non existent
-   .n   GM_ERROR if an error occured
-   D*/
-/****************************************************/
-
-INT NS_DIM_PREFIX DeleteFormat (const char *name)
-{
-  FORMAT *fmt;
-
-  fmt = GetFormat(name);
-  if (fmt==NULL)
-  {
-    PrintErrorMessageF('W',"DeleteFormat","format '%s' doesn't exist",name);
-    return (GM_OK);
-  }
-
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN (GM_ERROR);
-  ENVITEM_LOCKED(fmt) = 0;
-  if (RemoveEnvDir((ENVITEM *)fmt))
-    REP_ERR_RETURN (GM_ERROR);
-
-  return (GM_OK);
-}
-
-/****************************************************/
-/*D
-   GetFormat - Get a format pointer from the environment
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function searches the directory /Formats for a format
-
-   RETURN VALUE:
-   FORMAT *
-   .n   pointer to FORMAT
-   .n   NULL  if not found or error.
-   D*/
-/****************************************************/
-
-FORMAT* NS_DIM_PREFIX GetFormat (const char *name)
-{
-  return((FORMAT *) SearchEnv(name,"/Formats",theFormatDirID,theFormatDirID));
-}
-
-/****************************************************************************/
-/*D
-   GetFirstFormat - Get first format definition
-
-   SYNOPSIS:
-   FORMAT *GetFirstFormat (void);
-
-   PARAMETERS:
-   .  void - none
-
-   DESCRIPTION:
-   This function returns the first format definition.
-
-   RETURN VALUE:
-   FORMAT *
-   .n     pointer to a FORMAT
-   .n     NULL if not found or error.
-   D*/
-/****************************************************************************/
-
-FORMAT * NS_DIM_PREFIX GetFirstFormat (void)
-{
-  ENVITEM *fmt;
-
-  if ((fmt=(ENVITEM*)ChangeEnvDir("/Formats")) == NULL) return (NULL);
-
-  for (fmt=ENVITEM_DOWN(fmt); fmt!=NULL; fmt=NEXT_ENVITEM(fmt))
-    if (ENVITEM_TYPE(fmt) == theFormatDirID)
-      return ((FORMAT*)fmt);
-  return (NULL);
-}
-
-/****************************************************************************/
-/*D
-   GetNextFormat - Get next format definition
-
-   SYNOPSIS:
-   FORMAT *GetNextFormat (void);
-
-   PARAMETERS:
-   .  fmt - predecessor format
-
-   DESCRIPTION:
-   This function returns the next format definition following the specified one.
-
-   RETURN VALUE:
-   FORMAT *
-   .n     pointer to a FORMAT
-   .n     NULL if not found or error.
-   D*/
-/****************************************************************************/
-
-FORMAT * NS_DIM_PREFIX GetNextFormat (FORMAT *fmt)
-{
-  ENVITEM *nextfmt;
-
-  if (fmt == NULL) return (NULL);
-
-  for (nextfmt=NEXT_ENVITEM(fmt); nextfmt!=NULL; nextfmt=NEXT_ENVITEM(nextfmt))
-    if (ENVITEM_TYPE(nextfmt) == theFormatDirID)
-      return ((FORMAT*)nextfmt);
-  return (NULL);
-}
-
-/****************************************************/
-/*D
-   ChangeToFormatDir - change to format directory with name
-
-   SYNOPSIS:
-   INT ChangeToFormatDir (const char *name)
-
-   PARAMETERS:
-   .  name - name of the format
-
-   DESCRIPTION:
-   This function changes to the format directory with name.
-
-   RETURN VALUE:
-   INT
-   .n   0: ok
-   .n   1: could not change to /Formats/<name> dir
-   D*/
-/****************************************************/
-
-INT NS_DIM_PREFIX ChangeToFormatDir (const char *name)
-{
-  if (ChangeEnvDir("/Formats")==NULL)
-    REP_ERR_RETURN (1);
-  if (ChangeEnvDir(name)==NULL)
-    REP_ERR_RETURN (2);
-
-  return (0);
+  return std::move(fmt);
 }
 
 
@@ -522,12 +302,6 @@ INT NS_DIM_PREFIX InitEnrol ()
   if (ChangeEnvDir("/")==NULL)
   {
     PrintErrorMessage('F',"InitEnrol","could not changedir to root");
-    return(__LINE__);
-  }
-  theFormatDirID = GetNewEnvDirID();
-  if (MakeEnvItem("Formats",theFormatDirID,sizeof(ENVDIR))==NULL)
-  {
-    PrintErrorMessage('F',"InitEnrol","could not install '/Formats' dir");
     return(__LINE__);
   }
   theSymbolVarID = GetNewEnvVarID();

@@ -33,7 +33,6 @@
 
 #include "parallel.h"
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/gm/evm.h>
 #include <dune/uggrid/gm/gm.h>

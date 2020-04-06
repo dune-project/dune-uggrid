@@ -32,7 +32,6 @@
 #include <cstddef>
 
 #include <dune/uggrid/low/architecture.h>
-#include <dune/uggrid/low/general.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugtypes.h>
 #include "gm.h"

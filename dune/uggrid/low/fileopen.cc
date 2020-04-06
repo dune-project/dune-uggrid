@@ -67,8 +67,6 @@
 #undef PARALLEL
 #endif
 
-#include "defaults.h"
-#include "general.h"
 #include "ugenv.h"
 #include <dune/uggrid/ugdevices.h>
 
@@ -137,27 +135,6 @@ static char BasePath[BASE_PATH_SIZE] = "./";
 
 REP_ERR_FILE
 
-
-/****************************************************************************/
-/*																			*/
-/* Function:  MakePathsItem													*/
-/*																			*/
-/* Purpose:   create a Paths environment item								*/
-/*																			*/
-/* Input:	  name of the Paths, number of Paths	                                                */
-/*																			*/
-/* Output:	  PATHS *: pointer to the Paths struct							*/
-/*			  NULL: if an error occured                                                                     */
-/*																			*/
-/****************************************************************************/
-
-static PATHS *MakePathsItem (const char *name, INT nPaths)
-{
-  if (ChangeEnvDir("/Paths") == NULL) return (NULL);
-  if (strlen(name)>=NAMESIZE || strlen(name)<=1) return (NULL);
-
-  return ((PATHS *) MakeEnvItem(name,thePathsVarID,sizeof(PATHS)+(nPaths-1)*sizeof(PATH)));
-}
 
 /****************************************************************************/
 /*																			*/
@@ -568,39 +545,7 @@ int NS_PREFIX filetype (const char *fname)
 
 INT NS_PREFIX ReadSearchingPaths (const char *filename, const char *paths)
 {
-  PATHS *thePaths;
-  INT i,nPaths;
-  char *Path[MAXPATHS];
-  char *token,buffer[BUFFLEN];
-
-  if (GetDefaultValue(filename,paths,buffer)!=0)
-    return (1);
-
-  /* get Paths */
-  nPaths = 0;
-  token = strtok(buffer,SEPERATOR);
-  while (token!=NULL)
-  {
-    if (nPaths>=MAXPATHS)
-      return (2);                       /* too many paths */
-
-    Path[nPaths++] = token;
-    token = strtok(NULL,SEPERATOR);
-  }
-
-  /* create env item */
-  if ((thePaths=MakePathsItem(paths,nPaths))==NULL)
-    return (3);
-
-  /* fill data */
-  thePaths->nPaths = nPaths;
-  for (i=0; i<nPaths; i++)
-  {
-    strcpy(thePaths->path[i],Path[i]);
-    AppendTrailingSlash(thePaths->path[i]);
-  }
-
-  return (0);
+  return (1);
 }
 
 /****************************************************************************/

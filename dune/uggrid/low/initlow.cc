@@ -44,8 +44,6 @@
 /* low module */
 #include "ugtypes.h"
 #include "misc.h"
-#include "defaults.h"
-#include "general.h"
 #include "heaps.h"
 #include "ugenv.h"
 #include "fileopen.h"
