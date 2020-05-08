@@ -64,9 +64,6 @@ using namespace PPIF;
 /* grid manager module */
 #include <dune/uggrid/gm/initgm.h>
 
-/* numerics module */
-#include <dune/uggrid/numerics/initnumerics.h>
-
 /* own header */
 #include "initug.h"
 
@@ -197,17 +194,6 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
   {
     printf
       ("ERROR in InitUg while InitGm (line %d): called routine line %d\n",
-      (int) HiWrd (err), (int) LoWrd (err));
-    printf ("aborting ug\n");
-
-    return (1);
-  }
-
-  /* init the numerics module */
-  if ((err = InitNumerics ()) != 0)
-  {
-    printf
-      ("ERROR in InitUg while InitNumerics (line %d): called routine line %d\n",
       (int) HiWrd (err), (int) LoWrd (err));
     printf ("aborting ug\n");
 

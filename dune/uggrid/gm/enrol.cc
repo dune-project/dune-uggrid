@@ -57,7 +57,6 @@
 #include "gm.h"
 #include "algebra.h"
 #include "enrol.h"
-#include <dune/uggrid/numerics/udm.h>
 
 USING_UG_NAMESPACE
 USING_UGDIM_NAMESPACE
@@ -140,24 +139,26 @@ std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
   po2t[0][3] = SIDEVEC;
 #endif
 
-  SHORT MatStorageNeeded[NMATTYPES];
-  for (type=0; type<NMATTYPES; type++)
+  SHORT MatStorageNeeded[MAXCONNECTIONS];
+  for (type=0; type<MAXCONNECTIONS; type++)
     MatStorageNeeded[type] = 0;
 
   /* fill connections needed */
   MatrixDescriptor mDesc[MAXMATRICES*MAXVECTORS];
   INT nmDesc = 0;
-  for (type=0; type<NMATTYPES; type++)
+  for (type=0; type<MAXCONNECTIONS; type++)
   {
-    INT rtype = MTYPE_RT(type);
-    INT ctype = MTYPE_CT(type);
+    INT rtype = (((type)<MAXMATRICES) ? (type)/MAXVECTORS : (type)%MAXVECTORS);
+    INT ctype = ((type)%MAXVECTORS);
 
     INT size = MatStorageNeeded[type];
 
     if (ctype==rtype)
     {
       /* ensure diag/matrix coexistence (might not be necessary) */
-      type2=(type<NMATTYPES_NORMAL) ? DMTP(rtype) : MTP(rtype,rtype);
+#define MTP(rt,ct)          ((rt)*MAXVECTORS+(ct))
+#define DMTP(rt)            (MAXMATRICES+rt)
+      type2=(type<MAXMATRICES) ? DMTP(rtype) : MTP(rtype,rtype);
       if ((size<=0) && (MatStorageNeeded[type2]<=0)) continue;
     }
     else
@@ -169,7 +170,7 @@ std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
 
     mDesc[nmDesc].from  = rtype;
     mDesc[nmDesc].to    = ctype;
-    mDesc[nmDesc].diag  = (type>=NMATTYPES_NORMAL);
+    mDesc[nmDesc].diag  = (type>=MAXMATRICES);
     mDesc[nmDesc].size  = size*sizeof(DOUBLE);
     mDesc[nmDesc].depth = 0;
     nmDesc++;
@@ -272,7 +273,7 @@ std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
       }
   FMT_MAX_TYPE(fmt) = MaxType;
 
-  return std::move(fmt);
+  return fmt;
 }
 
 
