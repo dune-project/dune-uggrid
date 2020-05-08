@@ -5,7 +5,7 @@ project("dune-uggrid" C CXX)
 set(BUILD_DOCS 1)
 
 # general stuff
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.13)
 
 # Guess the dune-common build directory if it is not yet set
 if(NOT (dune-common_DIR OR dune-common_ROOT OR
