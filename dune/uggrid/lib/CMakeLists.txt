@@ -3,7 +3,7 @@ if(UG_ENABLE_PARALLEL)
   set(_parallel_libs basic ppifmpi)
 endif()
 
-set(_dim_libs numerics ug_gm ugui)
+set(_dim_libs ug_gm ugui)
 
 foreach(_l ${_parallel_libs})
   list(APPEND _parallel_objs $<TARGET_OBJECTS:${_l}>)
