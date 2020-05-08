@@ -32,12 +32,6 @@ UG KERNEL:
 	This module of `ug` realizes a small 2/3D color graphics model. Some features are scalar or vector plots 
 	with arbitrary viewpoint and cutplanes on the viewed domain, solution or grid.
 
-.   'numerical~procedures~(numerics)' - This layer provides ready to use linear algebra 
-    routines and iterative methods (such as multigrid) for standard applications.
-	The numerical procedures is also a toolset for the construction of new solvers on very high language level.
-	Since they are implemented as commands, it is possible to access them on the script or command line level.
-	This allows a quick and easy formulation of your appropriate solver and rapid prototyping of new ideas.
-
 .   'grid~management~(gm)' - The grid manager module performs all operations which manipulate the grid. It controls the creation 
 	and deletion of new elements during refine and provides a well defined interface to the layers above.
 	For more details see man page `gm`.
@@ -221,7 +215,6 @@ ug31
     |            |----graphics/
     |            |    \----uggraph/
     |            |----low/
-    |            |----numerics/
     |            |----overview/
     |            \----ui/
     |----dom/
@@ -243,7 +236,6 @@ ug31
     |    |----man7/
     |    |----man8/
     |    \----man9/
-    |----numerics/
     |----parallel/
     |    |----ddd/
     |    |    |----analyser/
