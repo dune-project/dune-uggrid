@@ -10,10 +10,6 @@
 #ifndef UG_UGTIME_H
 #define UG_UGTIME_H
 
-#ifndef UGLIB
-#error Internal UG-lib header, must not be used in applications!
-#endif
-
 /* stolen from autoconf-docs */
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>

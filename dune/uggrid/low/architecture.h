@@ -11,10 +11,6 @@
 #ifndef UG_ARCHITECTURE_H
 #define UG_ARCHITECTURE_H
 
-#ifndef UGLIB
-#error Internal UG-lib header, must not be used in applications!
-#endif
-
 /* SMALL..: least number s.t. 1 + SMALL../SMALL_FAC != 1 */
 #define SMALL_FAC 10
 

@@ -53,9 +53,6 @@ if(UG_ENABLE_DEBUGGING)
   set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DDebug")
 endif()
 
-add_definitions(-DUGLIB)
-set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DUGLIB")
-
 #Always build parallel libs if MPI is found
 if(UG_ENABLE_PARALLEL)
   if(NOT MPI_C_FOUND)
