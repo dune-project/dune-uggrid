@@ -1610,34 +1610,6 @@ typedef union object_with_key KEY_OBJECT;
 
 /****************************************************************************/
 /*                                                                                                                                                      */
-/*                                      structs for evaluation functions                                                */
-/*                                                                                                                                                      */
-/****************************************************************************/
-
-/*----------- typedef for functions ----------------------------------------*/
-
-typedef INT (*PreprocessingProcPtr)(const char *, MULTIGRID *);
-typedef DOUBLE (*ElementEvalProcPtr)(const ELEMENT *,const DOUBLE **,DOUBLE *);
-typedef DOUBLE (*MatrixEvalProcPtr)(const MATRIX *);
-
-/*----------- definition of structs ----------------------------------------*/
-
-struct elementvalues {
-
-  /** \brief Fields for environment list variable */
-  NS_PREFIX ENVVAR v;
-
-  /** \brief Prepare eval values */
-  PreprocessingProcPtr PreprocessProc;
-
-  /** \brief Pointer to corresponding function */
-  ElementEvalProcPtr EvalProc;
-};
-
-typedef struct elementvalues EVALUES ;
-
-/****************************************************************************/
-/*                                                                                                                                                      */
 /* algebraic dependency for vector ordering                                                             */
 /*                                                                                                                                                      */
 /****************************************************************************/
@@ -3105,9 +3077,6 @@ INT             SaveMultiGrid (MULTIGRID *theMG, const char *name, const char *t
 INT         DisposeGrid             (GRID *theGrid);
 INT             DisposeMultiGrid                (MULTIGRID *theMG);
 INT         Collapse                (MULTIGRID *theMG);
-#ifdef __TWODIM__
-INT                     SaveCnomGridAndValues (MULTIGRID *theMG, char *FileName, char *plotprocName, char *tagName);
-#endif
 
 /* coarse grid manipulations */
 NODE        *InsertInnerNode            (GRID *theGrid, const DOUBLE *pos);
@@ -3193,10 +3162,6 @@ void            WriteCW                                 (void *obj, INT ce, INT 
 /* ordering of degrees of freedom */
 ALG_DEP         *CreateAlgebraicDependency              (const char *name, DependencyProcPtr DependencyProc);
 FIND_CUT        *CreateFindCutProc                              (const char *name, FindCutProcPtr FindCutProc);
-
-/* functions for evaluation-fct management */
-INT              InitEvalProc                                                           (void);
-EVALUES         *GetElementValueEvalProc                                        (const char *name);
 
 /* miscellaneous */
 INT             RenumberMultiGrid                                       (MULTIGRID *theMG, INT *nboe, INT *nioe, INT *nbov, INT *niov, NODE ***vid_n, INT *foid, INT *non, INT MarkKey);

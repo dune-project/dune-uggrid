@@ -3,10 +3,6 @@
 #ifndef UG_STD_INTERNAL_H
 #define UG_STD_INTERNAL_H
 
-#ifndef UGLIB
-#error internal header! Must not be used in Applications!
-#endif
-
 #include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/namespace.h>
 

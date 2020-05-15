@@ -128,13 +128,6 @@ INT NS_DIM_PREFIX InitGm ()
     return (err);
   }
 
-  /* init evalproc.c */
-  if ((err=InitEvalProc())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
   /* rm.c */
   if ((err=InitRuleManager())!=0)
   {
