@@ -132,8 +132,6 @@ macro(ug_add_dim_libs LIB_NAME)
     set(_append "APPEND") # Do not overwrite but append next lib in export
   endforeach()
 endmacro()
-# !!! maybe make this configurable later
-set(DYNAMIC_MEMORY_ALLOCMODEL True)
 
 check_include_file(sys/time.h HAVE_SYS_TIME_H)
 check_include_file(time.h HAVE_TIME_H)
@@ -148,7 +146,6 @@ add_subdirectory(cmake/modules)
 set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # finalize the dune project, e.g., generate config.h etc.
 # Use package init to set additional information
-set(dune-uggrid_INIT "set(UG_PARALLEL ${UG_ENABLE_PARALLEL})
-set(UG_FOR_DUNE yes)")
+set(dune-uggrid_INIT "set(UG_PARALLEL ${UG_ENABLE_PARALLEL})")
 
 finalize_dune_project(GENERATE_CONFIG_H_CMAKE)
