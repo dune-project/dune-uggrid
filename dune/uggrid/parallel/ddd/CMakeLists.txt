@@ -18,7 +18,7 @@ if(UG_ENABLE_PARALLEL)
   add_subdirectory(prio)
   add_subdirectory(xfer)
 
-  if(HAVE_MPI)
+  if(MPI_FOUND)
     ug_add_dim_libs(ddd OBJECT ddd.cc)
   endif()
 endif()
