@@ -88,6 +88,9 @@ NS_DIM_PREFIX NodeIF, NS_DIM_PREFIX NodeAllIF;
 DDD_IF NS_DIM_PREFIX BorderVectorIF, NS_DIM_PREFIX BorderVectorSymmIF,
 NS_DIM_PREFIX OuterVectorIF, NS_DIM_PREFIX OuterVectorSymmIF,
 NS_DIM_PREFIX VectorVIF, NS_DIM_PREFIX VectorVAllIF, NS_DIM_PREFIX VectorIF;
+/* DDD interfaces for facet (side vector) communication */
+DDD_IF NS_DIM_PREFIX FacetVHIF;
+
 /* DDD interfaces for edge communication */
 DDD_IF NS_DIM_PREFIX EdgeIF, NS_DIM_PREFIX BorderEdgeSymmIF, NS_DIM_PREFIX EdgeHIF, NS_DIM_PREFIX EdgeVHIF,
 NS_DIM_PREFIX EdgeSymmVHIF;
@@ -769,6 +772,13 @@ static void ddd_IfInit(DDD::DDDContext& context)
   B[0] = PrioVGhost; B[1] = PrioVHGhost; B[2] = PrioHGhost;
   dddctrl.VectorIF = DDD_IFDefine(context, 1,O,1,A,3,B);
   DDD_IFSetName(context, dddctrl.VectorIF, "VectorIF: Master->VGhost/VHGhost/HGhost");
+
+  // The Dune InteriorBorder_All_Interface for facets
+  A[0] = PrioMaster; A[1] = PrioBorder;
+  B[0] = PrioMaster; B[1] = PrioBorder; B[2] = PrioVGhost; B[3] = PrioHGhost; B[4] = PrioVHGhost;
+  dddctrl.FacetVHIF = DDD_IFDefine(context, 1,O,2,A,5,B);
+  DDD_IFSetName(context, dddctrl.FacetVHIF, "FacetVHIF: Master/Border->Master/Border/VGhost/HGhost/VHGhost");
+
 
   /* define vertex interfaces */
   O[0] = dddctrl.TypeIVertex; O[1] = dddctrl.TypeBVertex;
