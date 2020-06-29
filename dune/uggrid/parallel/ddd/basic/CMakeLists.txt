@@ -2,6 +2,7 @@ add_subdirectory(test)
 
 if(MPI_C_FOUND)
   add_library(basic OBJECT io.cc lowcomm.cc notify.cc reduct.cc topo.cc)
+  dune_target_link_libraries(basic ${PROJECT_NAME})
   add_dune_mpi_flags(basic OBJECT)
 endif()
 

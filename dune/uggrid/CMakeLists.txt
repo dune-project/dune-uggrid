@@ -9,4 +9,5 @@ install(
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid)
 
 add_library(devices OBJECT ugdevices.cc)
+dune_target_link_libraries(devices ${PROJECT_NAME})
 ug_add_dim_libs(ugui OBJECT ugdevices.cc)
