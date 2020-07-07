@@ -121,21 +121,14 @@ typedef int (*PrintfProcPtr)(const char *, ...);
 /*																			*/
 /****************************************************************************/
 
-#if (defined Debug && !defined compile_debug)
+#ifdef Debug
 
 extern int Debuginit;
 extern int Debugdddif;
 extern int Debugdev;
 extern int Debuggm;
-extern int Debuggraph;
-extern int Debuggui;
 extern int Debuglow;
 extern int Debugdom;
-extern int Debugmachines;
-extern int Debugnp;
-extern int Debugui;
-extern int Debugappl;
-extern int Debugpclib;
 
 /* for reporting of erros (using the REP_ERR_RETURN-macro) */
 extern int rep_err_count;
