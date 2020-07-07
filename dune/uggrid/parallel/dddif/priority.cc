@@ -115,16 +115,6 @@ inline void EDGE_PRIORITY_SET(DDD::DDDContext& context, GRID* grid, EDGE* edge, 
 
 /****************************************************************************/
 /*																			*/
-/* definition of variables global to this source file only (static!)		*/
-/*																			*/
-/****************************************************************************/
-
-REP_ERR_FILE
-
-
-
-/****************************************************************************/
-/*																			*/
 /* forward declarations of functions used before they are defined			*/
 /*																			*/
 /****************************************************************************/

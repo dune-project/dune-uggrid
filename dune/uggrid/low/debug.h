@@ -69,18 +69,13 @@
 #ifdef ModelP
 #define REP_ERR_RETURN(err)             { assert(((err)==0));return (err);}
 #define REP_ERR_RETURN_PTR(p)   { assert(((p)!=NULL));return (p);}
-#define REP_ERR_RETURN_VOID             { assert(false);return;}
-#define REP_ERR_GOTO(st,lbl)    { st; assert(false); goto lbl;}
 #else
 #define REP_ERR_RETURN(err)             { if (err) REP_ERR_INC  return (err);}
 #define REP_ERR_RETURN_PTR(p)   { if (p == NULL) REP_ERR_INC  return (p);}
-#define REP_ERR_RETURN_VOID             { REP_ERR_INC  return;}
-#define REP_ERR_GOTO(st,lbl)    { REP_ERR_INC st; goto lbl;}
 #endif
 #define REP_ERR_ENCOUNTERED             (rep_err_count)
 
 #define REP_ERR_RESET                   rep_err_count = 0;
-#define REP_ERR_FILE                    static char *this_file=__FILE__;
 
 #else /* Debug */
 
@@ -94,12 +89,9 @@
 
 #define REP_ERR_RETURN(err)             {return (err);}
 #define REP_ERR_RETURN_PTR(p)   {return (p);}
-#define REP_ERR_RETURN_VOID             {return;}
-#define REP_ERR_GOTO(st,lbl)    {st; goto lbl;}
 #define REP_ERR_ENCOUNTERED             (false)
 #define REP_ERR_INC
 #define REP_ERR_RESET
-#define REP_ERR_FILE
 
 #define PrintDebug(...)
 

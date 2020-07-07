@@ -140,8 +140,6 @@ static INT theBVPDirID;         /*!<  env type for BVP dir                      
 
 static STD_BVP *currBVP;
 
-REP_ERR_FILE
-
 /****************************************************************************/
 /*                                                                          */
 /* forward declarations of functions used before they are defined	    */
