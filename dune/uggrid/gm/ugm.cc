@@ -132,8 +132,6 @@ static INT theMGRootDirID;                      /* env dir ID for the multigrids
 
 static UINT UsedOBJT;           /* for the dynamic OBJECT management	*/
 
-REP_ERR_FILE
-
 /****************************************************************************/
 /*                                                                          */
 /* forward declarations of functions used before they are defined           */

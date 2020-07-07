@@ -69,14 +69,6 @@ USING_UG_NAMESPACE
 #define CALC_B_OFFSET(bhm,i)    (((i)==0) ? 0 : (B_OFFSET(theVHM,(i)-1)+B_SIZE(theVHM,(i)-1)))
 
 /****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-REP_ERR_FILE
-
-/****************************************************************************/
 /** \brief Install a new heap structure
 
    \param type - type of heap

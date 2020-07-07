@@ -389,8 +389,6 @@ static INT TriSectionEdge[64][2] =
 static INT CondensedEdgeOfSide[4] = {0x07,0x32,0x2C,0x19};
 #endif
 
-REP_ERR_FILE
-
 /****************************************************************************/
 /*																			*/
 /* forward declarations of functions used before they are defined			*/

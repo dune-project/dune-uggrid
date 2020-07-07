@@ -96,9 +96,6 @@ using namespace PPIF;
 /*																			*/
 /****************************************************************************/
 
-REP_ERR_FILE
-
-
 /* count for errors to report from communication scatter functions */
 static INT check_distributed_objects_errors = 0;
 

@@ -157,8 +157,6 @@ static VECTOR **GBNV_list=NULL;         /* list pointer							*/
 /* for LexOrderVectorsInGrid */
 static DOUBLE InvMeshSize;
 
-REP_ERR_FILE
-
 /****************************************************************************/
 /** \brief Compute part information of geometrical object
  *
