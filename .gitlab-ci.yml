@@ -1,6 +1,7 @@
 ---
 include:
   - project: 'core/ci-config'
+    ref: master
     file: 'config/common/master.yml'
 
 before_script:
