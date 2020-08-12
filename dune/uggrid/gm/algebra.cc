@@ -622,20 +622,6 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
   MATRIX *theMatrix, *next;
   INT Size;
 
-#ifdef __PERIODIC_BOUNDARY__
-  SETPVCOUNT(theVector,PVCOUNT(theVector)-1);
-  if (((INT)PVCOUNT(theVector)) > 0)
-  {
-    PRINTDEBUG(gm,1,("DisposeVector: v=" VINDEX_FMTX
-                     " NOT disposed count=%d\n",
-                     VINDEX_PRTX(theVector),PVCOUNT(theVector)));
-    return (0);
-  }
-  PRINTDEBUG(gm,1,("DisposeVector: v=" VINDEX_FMTX
-                   " disposed count=%d\n",
-                   VINDEX_PRTX(theVector),PVCOUNT(theVector)));
-#endif
-
   if (theVector == NULL)
     return(0);
 
@@ -2418,16 +2404,6 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
   MGCreateConnection(theMG);
     #endif
 
-    #ifdef __PERIODIC_BOUNDARY__
-  IFDEBUG(gm,1)
-  INT i;
-
-  for (i=0; i<=TOPLEVEL(theMG); i++)
-    if (Grid_CheckPeriodicity(GRID_ON_LEVEL(theMG,i)))
-      return (GM_ERROR);
-  ENDDEBUG
-    #endif
-
   SetSurfaceClasses(theMG);
 
   return(GM_OK);
@@ -2861,7 +2837,6 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
           }
           else
                                         #endif
-                                        #ifndef __PERIODIC_BOUNDARY__
           {
             errors++;
             UserWriteF("%s vector=" VINDEX_FMTX " is referenced by "
@@ -2878,14 +2853,6 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
                          GID(NBNODE(LINK1(&(VecObject->ed)))) );
                                                 #endif
           }
-                                        #else
-          /* TODO: check whether reference to node is valid */
-          if (HEAPCHECK(VecObject) || VecObject==NULL)
-            UserWriteF("%s vector=" VINDEX_FMTX " is referenced by "
-                       "obj0=%x, but points to ZOMBIE obj1=%x\n",
-                       ObjectString, VINDEX_PRTX(theVector),
-                       theObject, VecObject);
-                                        #endif
         }
       }
     }
@@ -3376,29 +3343,6 @@ static INT PropagateVectorClass (GRID *theGrid, INT vclass)
 
   return(0);
 }
-#ifdef __PERIODIC_BOUNDARY__
-static INT PropagatePeriodicVectorClass (GRID *theGrid, INT vclass)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix;
-
-  /* set vector classes in the algebraic neighborhood to vclass-1 */
-  /* use matrices to determine next vectors!!!!!                   */
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-    if ((VCLASS(theVector)==vclass)&&(VSTART(theVector)!=NULL))
-      for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL;
-           theMatrix=MNEXT(theMatrix))
-        if ((VCLASS(MDEST(theMatrix))<vclass)
-            &&(CEXTRA(MMYCON(theMatrix))!=1)) {
-          SETVCLASS(MDEST(theMatrix),vclass);
-        }
-
-  /* only for this value valid */
-  ASSERT(vclass==1);
-
-  return(0);
-}
-#endif
 
 
 /****************************************************************************/
@@ -3450,19 +3394,6 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
                   dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
-
-#ifdef __PERIODIC_BOUNDARY__
-  /* set vector classes in the periodic neighbourhood to 1 */
-  if (PropagatePeriodicVectorClass(theGrid,1)) REP_ERR_RETURN(1);
-
-    #ifdef ModelP
-  PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 4. communication\n"))
-  /* exchange VCLASS of vectors */
-  DDD_IFAExchange(context,
-                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
-                  Gather_VectorVClass, Scatter_VectorVClass);
-        #endif
-#endif
 
         #ifdef ModelP
   /* send VCLASS to ghosts */
@@ -3612,29 +3543,6 @@ static INT PropagateNextVectorClass (GRID *theGrid, INT vnclass)
   return(0);
 }
 
-#ifdef __PERIODIC_BOUNDARY__
-static INT PropagatePeriodicNextVectorClass (GRID *theGrid)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix;
-
-  /* set vector classes in the periodic neighborhood to 1 */
-  /* use matrices to determine next vectors!!!!!                   */
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-    if ((VNCLASS(theVector)==1)&&(VSTART(theVector)!=NULL))
-      for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL;
-           theMatrix=MNEXT(theMatrix))
-        if ((VNCLASS(MDEST(theMatrix))<1)
-            &&(CEXTRA(MMYCON(theMatrix))!=1)) {
-          SETVNCLASS(MDEST(theMatrix),1);
-          PRINTDEBUG(gm,1,("VNCLASS(%d)=1\n",VINDEX(MDEST(theMatrix))));
-        }
-
-  return(0);
-}
-#endif
-
 /****************************************************************************/
 /** \brief Compute VNCLASS in all vectors of a grid level
 
@@ -3679,21 +3587,7 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
   DDD_IFAExchange(context,
                   dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
-        #endif
 
-#ifdef __PERIODIC_BOUNDARY__
-  if (PropagatePeriodicNextVectorClass(theGrid)) REP_ERR_RETURN(1);
-
-    #ifdef ModelP
-  PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 4. communication\n"))
-  /* exchange VNCLASS of vectors */
-  DDD_IFAExchange(context,
-                  dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
-                  Gather_VectorVNClass, Scatter_VectorVNClass);
-        #endif
-#endif
-
-        #ifdef ModelP
   /* send VCLASS to ghosts */
   DDD_IFAOneway(context,
                 dddctrl.VectorIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),

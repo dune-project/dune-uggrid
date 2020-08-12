@@ -145,15 +145,6 @@ INT             MaxNextNodeClass                        (const ELEMENT *theEleme
 INT             MinNodeClass                            (const ELEMENT *theElement);
 INT             MinNextNodeClass                        (const ELEMENT *theElement);
 
-#ifdef __PERIODIC_BOUNDARY__
-INT             MG_GeometricToPeriodic          (MULTIGRID *mg, INT fl, INT tl);
-INT                     Grid_GeometricToPeriodic        (GRID *g);
-INT                     MGSetPerVecCount                        (MULTIGRID *mg);
-INT                     GridSetPerVecCount                      (GRID *g);
-INT                     SetPerVecVOBJECT                        (GRID *g);
-INT                     Grid_CheckPeriodicity           (GRID *g);
-#endif
-
 END_UGDIM_NAMESPACE
 
 #endif
