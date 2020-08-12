@@ -940,9 +940,6 @@ static void NodeObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
 
   /* set pointer of vector to its node */
   if (ddd_ctrl(context).nodeData && NVECTOR(theNode))
-#ifdef __PERIODIC_BOUNDARY__
-    if (VOBJECT(NVECTOR(theNode))==NULL || PRIO((NODE *)VOBJECT(NVECTOR(theNode)))<PRIO(theNode))
-#endif
     VOBJECT(NVECTOR(theNode)) = (GEOM_OBJECT*)theNode;
 
 }

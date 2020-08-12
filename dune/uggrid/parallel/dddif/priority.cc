@@ -65,12 +65,7 @@ using namespace PPIF;
                       (THEFLAG(e)) ? PrioVGhost : (USED(e)) ?              \
                       PrioHGhost : (assert(0),0))
 
-#ifdef __PERIODIC_BOUNDARY__
-/* to set correct priority of periodic vectors having master nodes */
-#define SETPRIOPV SETPRIO
-#else
 #define SETPRIOPV SETPRIOX
-#endif
 
 /* macros for setting object priorities with related objects */
 inline void NODE_PRIORITY_SET(DDD::DDDContext& context, GRID* grid, NODE* node, INT prio)

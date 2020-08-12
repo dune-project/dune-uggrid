@@ -115,9 +115,6 @@ START_UGDIM_NAMESPACE
 /*#define __OVERLAP2__*/
 #endif
 
-/* if periodic boundaries are used */
-/*  #define __PERIODIC_BOUNDARY__ */
-
 /****************************************************************************/
 /*                                                                          */
 /* defines in the following order                                           */
@@ -1625,35 +1622,6 @@ struct AlgebraicDependency {
 };
 
 typedef struct AlgebraicDependency ALG_DEP;
-
-/****************************************************************************/
-/*                                                                          */
-/* periodic boundary info                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-#ifdef __PERIODIC_BOUNDARY__
-
-/* node counter for periodic vector */
-#define PVCOUNT(p)              VINDEX(p)
-#define SETPVCOUNT(p,n) (VINDEX(p)=(n))
-
-/* maximal count of periodic objects */
-#define MAX_PERIODIC_OBJ        DIM+1
-
-typedef INT (* PeriodicBoundaryInfoProcPtr)(
-  VERTEX *vtx,                                                                  /* vertex, for which to examine boundary   */
-  INT *n,                                                                               /* number of periodic boundaries of vertex */
-  INT *periodic_ids,                                                            /* n ids of periodic boundaries            */
-  DOUBLE_VECTOR own_coord,                                              /* own coord from vertex                   */
-  DOUBLE_VECTOR *periodic_coords                                /* n coords of periodic boundaries         */
-  );
-
-INT SetPeriodicBoundaryInfoProcPtr (PeriodicBoundaryInfoProcPtr PBI);
-INT GetPeriodicBoundaryInfoProcPtr (PeriodicBoundaryInfoProcPtr *PBI);
-
-#endif
-
 
 /****************************************************************************/
 /*                                                                          */
