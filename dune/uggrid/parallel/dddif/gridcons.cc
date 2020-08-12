@@ -120,10 +120,6 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
   INT j;
   EDGE    *theEdge;
 
-#ifdef __PERIODIC_BOUNDARY__
-  SetPerVecVOBJECT(theGrid);
-#endif
-
   /* this is the simplest fix for VFATHER zombies  */
   /* just reset all VFATHER pointers and set them  */
   /* only by master nodes of this or upper levels. */

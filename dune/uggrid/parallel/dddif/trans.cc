@@ -775,10 +775,6 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   trans_begin = CURRENT_TIME;
 #endif
 
-        #ifdef __PERIODIC_BOUNDARY__
-  if (MGSetPerVecCount(theMG)) assert(0);
-        #endif
-
   /* send new destination to ghost elements */
   UpdateGhostDests(theMG);
 

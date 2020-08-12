@@ -235,78 +235,6 @@ static INT CheckVectorPrio (DDD::DDDContext& context, ELEMENT *theElement, VECTO
  */
 /****************************************************************************/
 
-#ifdef __PERIODIC_BOUNDARY__
-#define MAX_PERIODIC_PROCS      128
-
-static INT CheckPerNodeVecPrio (DDD::DDDContext& context, NODE *theNode)
-{
-  INT nerrors = 0;
-  VECTOR *vec = NVECTOR(theNode);
-  int *vpl,*proclist = PROCLIST(context, theNode);
-  int j,Proclist[MAX_PERIODIC_PROCS];
-
-  /* copy proclist */
-  j = 0;
-  while (*proclist != -1)
-  {
-    Proclist[j] = proclist[0];
-    Proclist[j+1] = proclist[1];
-
-    proclist += 2;
-    j+=2;
-    assert(j < MAX_PERIODIC_PROCS);
-  }
-  Proclist[j] = -1;
-  proclist = Proclist;
-
-  /* get the vec proclist */
-  vpl = PROCLIST(context, vec);
-
-  /* compare both lists using criteria:          */
-  /* 1. each proc from node proclist must also   */
-  /* store vec (P(node) included in P(vec))      */
-  /* 2. vec priority has to be greater than node */
-  /*    prio, except the BorderPrio case!        */
-  while (*proclist != -1)
-  {
-    INT proc = proclist[0];
-    INT prio = proclist[1];
-
-    while (*vpl != -1)
-    {
-      INT vproc = vpl[0];
-      INT vprio = vpl[1];
-
-      if (proc == vproc)
-      {
-        if (prio > vprio && GHOSTPRIO(vprio))
-        {
-          UserWriteF(PFMT "Vec=" VINDEX_FMTX " Node=" ID_FMTX
-                     ": ERROR proclist mismatch in PRIO for proc=%d prio=%d!\n",
-                     me,VINDEX_PRTX(vec),ID_PRTX(theNode),proc,prio);
-          nerrors++;
-        }
-        /* found */
-        break;
-      }
-
-      vpl += 2;
-    }
-    if (*vpl == -1)
-    {
-      UserWriteF(PFMT "Vec=" VINDEX_FMTX " Node=" ID_FMTX
-                 ": ERROR proclist mismatch in PROC for proc=%d prio=%d!\n",
-                 me,VINDEX_PRTX(vec),ID_PRTX(theNode),proc,prio);
-      nerrors++;
-    }
-
-    proclist += 2;
-  }
-
-  return(nerrors);
-}
-#endif
-
 static INT CheckNodePrio (DDD::DDDContext& context, ELEMENT *theElement, NODE *theNode)
 {
   INT nmaster;
@@ -331,16 +259,6 @@ static INT CheckNodePrio (DDD::DDDContext& context, ELEMENT *theElement, NODE *t
     {
       nerrors += CheckVectorPrio(context, theElement,NVECTOR(theNode));
     }
-#ifdef __PERIODIC_BOUNDARY__
-    if (PRIO(theNode) > PRIO(NVECTOR(theNode)) && GHOSTPRIO(PRIO(NVECTOR(theNode))))
-    {
-      UserWriteF("NODE=" ID_FMTX " ERROR: WRONG PRIO of VEC" VINDEX_FMTX,
-                 ID_PRTX(theNode),VINDEX_PRTX(NVECTOR(theNode)));
-      nerrors++;
-    }
-    /* compare proclists of vector and node */
-    nerrors += CheckPerNodeVecPrio(theNode);
-#endif
   }
 
   return(nerrors);
