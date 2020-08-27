@@ -1,6 +1,8 @@
-target_sources_dims(duneuggrid PRIVATE
-  jcmds.cc
-  join.cc)
+if(MPI_C_FOUND)
+  target_sources_dims(duneuggrid PRIVATE
+    jcmds.cc
+    join.cc)
+endif()
 
 install(FILES
   join.h

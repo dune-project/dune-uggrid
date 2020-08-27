@@ -19,19 +19,19 @@ macro(target_sources_dims target)
 endmacro()
 
 
+add_subdirectory(domain)
+add_subdirectory(gm)
+add_subdirectory(lib)
+add_subdirectory(low)
+add_subdirectory(parallel)
+
+install(
+  FILES ugdevices.h initug.h
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid)
+
 target_sources(duneuggrid PRIVATE
   ugdevices.cc)
 
 target_sources_dims(duneuggrid PRIVATE
   initug.cc
   ugdevices.cc)
-
-install(
-  FILES ugdevices.h initug.h
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid)
-
-add_subdirectory(domain)
-add_subdirectory(gm)
-add_subdirectory(lib)
-add_subdirectory(low)
-add_subdirectory(parallel)

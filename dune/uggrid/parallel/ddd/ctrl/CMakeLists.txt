@@ -1,7 +1,9 @@
-target_sources_dims(duneuggrid PRIVATE
-  cons.cc
-  debug.cc
-  stat.cc)
+if(MPI_C_FOUND)
+  target_sources_dims(duneuggrid PRIVATE
+    cons.cc
+    debug.cc
+    stat.cc)
+endif()
 
 install(FILES
   stat.h

@@ -1,6 +1,8 @@
-target_sources_dims(duneuggrid PRIVATE
-  typemgr.cc
-  objmgr.cc
-  cplmgr.cc
-  prio.cc
-  attr.cc)
+if(MPI_C_FOUND)
+  target_sources_dims(duneuggrid PRIVATE
+    typemgr.cc
+    objmgr.cc
+    cplmgr.cc
+    prio.cc
+    attr.cc)
+endif()
