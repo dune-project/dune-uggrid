@@ -1,4 +1,5 @@
-set(SOURCES  cmds.cc
+target_sources_dims(duneuggrid PRIVATE
+  cmds.cc
   cmdmsg.cc
   cplmsg.cc
   ctrl.cc
@@ -6,10 +7,6 @@ set(SOURCES  cmds.cc
   supp.cc
   unpack.cc
   xfer.cc)
-
-if(MPI_C_FOUND)
-  ug_add_dim_libs(xfer OBJECT SOURCES ${SOURCES})
-endif()
 
 install(FILES
   sll.h xfer.h

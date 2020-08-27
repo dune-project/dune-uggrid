@@ -18,7 +18,7 @@ if(UG_ENABLE_PARALLEL)
   add_subdirectory(prio)
   add_subdirectory(xfer)
 
-  if(HAVE_MPI)
-    ug_add_dim_libs(ddd OBJECT ddd.cc)
-  endif()
+  target_sources_dims(duneuggrid PRIVATE ddd.cc)
 endif()
+
+target_sources(duneuggrid PRIVATE dddcontext.cc)

@@ -1,6 +1,7 @@
-if(MPI_C_FOUND)
-  ug_add_dim_libs(ctrl OBJECT SOURCES cons.cc debug.cc stat.cc)
-endif()
+target_sources_dims(duneuggrid PRIVATE
+  cons.cc
+  debug.cc
+  stat.cc)
 
 install(FILES
   stat.h
