@@ -1,5 +1,4 @@
-ug_add_dim_libs(domS OBJECT
-  SOURCES
+target_sources_dims(duneuggrid PRIVATE
   std_domain.cc
   std_parallel.cc)
 
