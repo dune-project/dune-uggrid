@@ -206,9 +206,11 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
                    EL_CONTINUE);
         #endif
 
+  // The argument after EL_END has to be a char* pointer but ge is a generic_element* pointer,
+  // so we have to cast it to char* in the DDD_TypeDefine calls to get the correct address.
   if (etype==Inside)
   {
-    DDD_TypeDefine(context, dddType, ge, EL_END, desc->inner_size);
+    DDD_TypeDefine(context, dddType, ge, EL_END, (char*)(ge) + desc->inner_size);
 
     /* init type mapping arrays */
     MAP_TYPES(MAPPED_INNER_OBJT_TAG(tag), dddType);
@@ -218,7 +220,7 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
   {
     DDD_TypeDefine(context, dddType, ge,
                    EL_LDATA, r+side_offset[tag],  ps*desc->sides_of_elem,
-                   EL_END, desc->bnd_size);
+                   EL_END, (char*)(ge) + desc->bnd_size);
 
     /* init type mapping arrays */
     MAP_TYPES(MAPPED_BND_OBJT_TAG(tag), dddType);
