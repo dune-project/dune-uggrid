@@ -29,6 +29,7 @@
 /****************************************************************************/
 
 #include <config.h>
+#include <cstddef>
 #include <cstdlib>
 
 #include "parallel.h"
@@ -56,7 +57,7 @@ using namespace PPIF;
 
 
 /* macro for easier definition of DDD_TYPEs */
-#define  ELDEF(comp)    &(comp),sizeof(comp)
+#define ELDEF(type,member)   offsetof(type,member), sizeof(type :: member)
 
 /* macro for easy definition of type mapping UG<->DDD */
 #define MAP_TYPES(ugt,dddt)   { int _ugt=(ugt); \
@@ -136,37 +137,36 @@ enum ElemTypeFlag { Inside, Boundary };
 static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE dddType, int etype)
 {
   auto& dddctrl = ddd_ctrl(context);
-  struct generic_element  *ge=0;
   GENERAL_ELEMENT                 *desc = element_descriptors[tag];
   UINT gbits = 0;
 
   size_t ps  = sizeof(void *);
-  void   **r = ge->refs;
+  size_t r = offsetof(generic_element,refs);
 
   /* compute global fields of control word entry */
   gbits = ~(((1<<NSONS_LEN)-1)<<NSONS_SHIFT);
   PRINTDEBUG(dddif,1,("ddd_InitGenericElement(): gbits=%08x size=%d\n",
-                      gbits,sizeof(ge->control)));
+                      gbits,sizeof(generic_element::control)));
 
   /* initialize base part (valid for all elements) */
-  DDD_TypeDefine(context, dddType, ge,
-                 EL_DDDHDR, &(ge->ddd),
+  DDD_TypeDefine(context, dddType,
+                 EL_DDDHDR, offsetof(generic_element,ddd),
                  /* TODO: delete this					*/
-                 /*		EL_GDATA,  ELDEF(ge->control),	*/
-                 EL_GBITS,  ELDEF(ge->control), &gbits,
+                 /*		EL_GDATA,  ELDEF(generic_element,control),	*/
+                 EL_GBITS,  ELDEF(generic_element,control), &gbits,
 
                  /* TODO: id muss umgerechnet werden! (?) */
-                 EL_GDATA,  ELDEF(ge->id),
-                 EL_GDATA,  ELDEF(ge->flag),
-                 EL_GDATA,  ELDEF(ge->property),
+                 EL_GDATA,  ELDEF(generic_element,id),
+                 EL_GDATA,  ELDEF(generic_element,flag),
+                 EL_GDATA,  ELDEF(generic_element,property),
 
                  /* LDATA, because Dune indices are local */
-                 EL_LDATA,  ELDEF(ge->levelIndex),
-                 EL_LDATA,  ELDEF(ge->leafIndex),
+                 EL_LDATA,  ELDEF(generic_element,levelIndex),
+                 EL_LDATA,  ELDEF(generic_element,leafIndex),
 
-                 EL_GDATA,  ELDEF(ge->lb1),
-                 EL_LDATA,  ELDEF(ge->pred),
-                 EL_LDATA,  ELDEF(ge->succ),
+                 EL_GDATA,  ELDEF(generic_element,lb1),
+                 EL_LDATA,  ELDEF(generic_element,pred),
+                 EL_LDATA,  ELDEF(generic_element,succ),
                  EL_CONTINUE);
 
 
@@ -176,39 +176,39 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
      TODO: this should be replaced by a more explicit TypeGenericElement in
      later versions (code would be more readable). */
 
-  DDD_TypeDefine(context, dddType, ge,
-                 EL_OBJPTR, r+n_offset[tag],       ps*desc->corners_of_elem, dddctrl.TypeNode,
-                 EL_OBJPTR, r+father_offset[tag],  ps,                       dddType,
+  DDD_TypeDefine(context, dddType,
+                 EL_OBJPTR, r+n_offset[tag]*sizeof(void*),       ps*desc->corners_of_elem, dddctrl.TypeNode,
+                 EL_OBJPTR, r+father_offset[tag]*sizeof(void*),  ps,                       dddType,
                  /* TODO: delete
                     #ifdef __TWODIM__
-                                 EL_LDATA, r+sons_offset[tag],    ps*desc->max_sons_of_elem,
+                                 EL_LDATA, r+sons_offset[tag]*sizeof(void*),    ps*desc->max_sons_of_elem,
                     #endif
                     #ifdef __THREEDIM__
-                                 EL_LDATA, r+sons_offset[tag],    ps*1,
+                                 EL_LDATA, r+sons_offset[tag]*sizeof(void*),    ps*1,
                     #endif
                   */
-                 EL_LDATA, r+sons_offset[tag],    ps*2,
-                 EL_OBJPTR, r+nb_offset[tag],      ps*desc->sides_of_elem,   dddType,
+                 EL_LDATA, r+sons_offset[tag]*sizeof(void*),     ps*2,
+                 EL_OBJPTR, r+nb_offset[tag]*sizeof(void*),      ps*desc->sides_of_elem,   dddType,
                  EL_CONTINUE);
 
 
   /* optional components */
 
   if (ddd_ctrl(context).elemData)
-    DDD_TypeDefine(context, dddType, ge,
-                   EL_OBJPTR, r+evector_offset[tag], ps*1,     dddctrl.TypeVector,
+    DDD_TypeDefine(context, dddType,
+                   EL_OBJPTR, r+evector_offset[tag]*sizeof(void*), ps*1,     dddctrl.TypeVector,
                    EL_CONTINUE);
 
         #ifdef __THREEDIM__
   if (ddd_ctrl(context).sideData)
-    DDD_TypeDefine(context, dddType, ge,
-                   EL_OBJPTR, r+svector_offset[tag], ps*desc->sides_of_elem, dddctrl.TypeVector,
+    DDD_TypeDefine(context, dddType,
+                   EL_OBJPTR, r+svector_offset[tag]*sizeof(void*), ps*desc->sides_of_elem, dddctrl.TypeVector,
                    EL_CONTINUE);
         #endif
 
   if (etype==Inside)
   {
-    DDD_TypeDefine(context, dddType, ge, EL_END, desc->inner_size);
+    DDD_TypeDefine(context, dddType, EL_END, static_cast<size_t>(desc->inner_size));
 
     /* init type mapping arrays */
     MAP_TYPES(MAPPED_INNER_OBJT_TAG(tag), dddType);
@@ -216,9 +216,9 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
   }
   else
   {
-    DDD_TypeDefine(context, dddType, ge,
-                   EL_LDATA, r+side_offset[tag],  ps*desc->sides_of_elem,
-                   EL_END, desc->bnd_size);
+    DDD_TypeDefine(context, dddType,
+                   EL_LDATA, r+side_offset[tag]*sizeof(void*),  ps*desc->sides_of_elem,
+                   EL_END, static_cast<size_t>(desc->bnd_size));
 
     /* init type mapping arrays */
     MAP_TYPES(MAPPED_BND_OBJT_TAG(tag), dddType);
@@ -380,13 +380,6 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
 {
   auto& dddctrl = ddd_ctrl(context);
   INT size;
-  VECTOR v;
-  NODE n;
-  struct ivertex iv;
-  struct bvertex bv;
-
-  MATRIX m;
-  EDGE e;
   UINT gbits = 0;
 
   /* 1. DDD objects (with DDD_HEADER) */
@@ -397,27 +390,27 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
    * place (`ElementObjMkCons`).
    */
   gbits = ~(((1 << VECTORSIDE_LEN)-1) << VECTORSIDE_SHIFT);
-  DDD_TypeDefine(context, dddctrl.TypeVector, &v,
-                 EL_DDDHDR, &v.ddd,
-                 EL_GBITS,  ELDEF(v.control), &gbits,
+  DDD_TypeDefine(context, dddctrl.TypeVector,
+                 EL_DDDHDR, offsetof(VECTOR,ddd),
+                 EL_GBITS,  ELDEF(VECTOR,control), &gbits,
 
                  /* object must be LDATA, because reftype may be a non-DDD-object */
                  /* (e.g., edge). therefore, 'object' must be updated by MKCONS-  */
                  /* handler of associated object. 960404 KB */
                  /* TODO: decide whether LDATA or OBJPTR for different VectorTypes*/
-                 /* EL_OBJPTR, ELDEF(v.object), TypeNode, */
-                 EL_LDATA,  ELDEF(v.object),
-                 EL_LDATA,  ELDEF(v.pred),
-                 EL_LDATA,  ELDEF(v.succ),
-                 EL_GDATA,  ELDEF(v.index),
-                 EL_GDATA,  ELDEF(v.leafIndex),
-                 EL_LDATA,  ELDEF(v.start),
+                 /* EL_OBJPTR, ELDEF(VECTOR,object), TypeNode, */
+                 EL_LDATA,  ELDEF(VECTOR,object),
+                 EL_LDATA,  ELDEF(VECTOR,pred),
+                 EL_LDATA,  ELDEF(VECTOR,succ),
+                 EL_GDATA,  ELDEF(VECTOR,index),
+                 EL_GDATA,  ELDEF(VECTOR,leafIndex),
+                 EL_LDATA,  ELDEF(VECTOR,start),
 
                  /* TODO: value wird noch ausgelassen. feld variabler laenge? */
                  /* bei entscheidung 'value': kein weiteres feld
                          bei ent. 'userdata *': EL_GDATA-feld        */
-                 EL_GDATA,  ELDEF(v.value),
-                 EL_END,    &v+1
+                 EL_GDATA,  ELDEF(VECTOR,value),
+                 EL_END,    sizeof(VECTOR)
                  );
 
   /* set mergemode to maximum */
@@ -427,111 +420,111 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
   gbits = ~((((1<<ONEDGE_LEN)-1)<<ONEDGE_SHIFT) |
             (((1<<NOOFNODE_LEN)-1)<<NOOFNODE_SHIFT));
   PRINTDEBUG(dddif,1,("ddd_DefineTypes(): TypeI/BVertex gbits=%08x size=%d\n",
-                      gbits,sizeof(iv.control)));
+                      gbits,sizeof(ivertex::control)));
 
-  DDD_TypeDefine(context, dddctrl.TypeIVertex, &iv,
-                 EL_DDDHDR, &iv.ddd,
+  DDD_TypeDefine(context, dddctrl.TypeIVertex,
+                 EL_DDDHDR, offsetof(ivertex,ddd),
                  /* TODO: delete
-                                 EL_GDATA,  ELDEF(iv.control),
+                                 EL_GDATA,  ELDEF(ivertex,control),
                   */
-                 EL_GBITS,  ELDEF(iv.control), &gbits,
+                 EL_GBITS,  ELDEF(ivertex,control), &gbits,
 
                  /* TODO: muss umgerechnet werden! */
-                 EL_GDATA,  ELDEF(iv.id),
-                 EL_GDATA,  ELDEF(iv.x),
-                 EL_GDATA,  ELDEF(iv.xi),
-                 EL_LDATA,  ELDEF(iv.leafIndex),
-                 EL_LDATA,  ELDEF(iv.pred),
-                 EL_LDATA,  ELDEF(iv.succ),
-                 EL_LDATA,  ELDEF(iv.data),
+                 EL_GDATA,  ELDEF(ivertex,id),
+                 EL_GDATA,  ELDEF(ivertex,x),
+                 EL_GDATA,  ELDEF(ivertex,xi),
+                 EL_LDATA,  ELDEF(ivertex,leafIndex),
+                 EL_LDATA,  ELDEF(ivertex,pred),
+                 EL_LDATA,  ELDEF(ivertex,succ),
+                 EL_LDATA,  ELDEF(ivertex,data),
 
                  /* TODO muss father LDATA oder OBJPTR sein?     */
                  /* LDATA, father ist nur lokal gueltig und      */
                  /* ist abhaengig von vertikaler Lastverteilung  */
                 #ifdef __TWODIM__
                  /* TODO: ref-typ muss eigentlich {TypeTrElem,TypeTrBElem} sein! */
-                 EL_OBJPTR, ELDEF(iv.father), dddctrl.TypeTrElem,
+                 EL_OBJPTR, ELDEF(ivertex,father), dddctrl.TypeTrElem,
                 #endif
                 #ifdef __THREEDIM__
-                 EL_LDATA,  ELDEF(iv.father),
+                 EL_LDATA,  ELDEF(ivertex,father),
                 #endif
 
                 #ifdef TOPNODE
                  /* TODO topnode wirklich OBJPTR? */
-                 EL_LDATA,  ELDEF(iv.topnode),
+                 EL_LDATA,  ELDEF(ivertex,topnode),
                 #endif
-                 EL_END,    &iv+1
+                 EL_END,    sizeof(ivertex)
                  );
 
   /* set mergemode to maximum */
   DDD_PrioMergeDefault(context, dddctrl.TypeIVertex, PRIOMERGE_MAXIMUM);
 
 
-  DDD_TypeDefine(context, dddctrl.TypeBVertex, &bv,
-                 EL_DDDHDR, &bv.ddd,
+  DDD_TypeDefine(context, dddctrl.TypeBVertex,
+                 EL_DDDHDR, offsetof(bvertex,ddd),
                  /* TODO: delete
-                                 EL_GDATA,  ELDEF(bv.control),
+                                 EL_GDATA,  ELDEF(bvertex,control),
                   */
-                 EL_GBITS,  ELDEF(bv.control), &gbits,
+                 EL_GBITS,  ELDEF(bvertex,control), &gbits,
 
                  /* TODO: muss umgerechnet werden! Nooeee! */
-                 EL_GDATA,  ELDEF(bv.id),
-                 EL_GDATA,  ELDEF(bv.x),
-                 EL_GDATA,  ELDEF(bv.xi),
-                 EL_LDATA,  ELDEF(bv.leafIndex),
-                 EL_LDATA,  ELDEF(bv.pred),
-                 EL_LDATA,  ELDEF(bv.succ),
-                 EL_LDATA,  ELDEF(bv.data),
+                 EL_GDATA,  ELDEF(bvertex,id),
+                 EL_GDATA,  ELDEF(bvertex,x),
+                 EL_GDATA,  ELDEF(bvertex,xi),
+                 EL_LDATA,  ELDEF(bvertex,leafIndex),
+                 EL_LDATA,  ELDEF(bvertex,pred),
+                 EL_LDATA,  ELDEF(bvertex,succ),
+                 EL_LDATA,  ELDEF(bvertex,data),
 
                  /* TODO muss father LDATA oder OBJPTR sein?     */
                  /* LDATA, father ist nur lokal gueltig und      */
                  /* ist abhaengig von vertikaler Lastverteilung  */
                 #ifdef __TWODIM__
                  /* TODO: ref-typ muss eigentlich {TypeTrElem,TypeTrBElem} sein! */
-                 EL_OBJPTR, ELDEF(bv.father), dddctrl.TypeTrElem,
+                 EL_OBJPTR, ELDEF(bvertex,father), dddctrl.TypeTrElem,
                 #endif
                 #ifdef __THREEDIM__
-                 EL_LDATA,  ELDEF(bv.father),
+                 EL_LDATA,  ELDEF(bvertex,father),
                 #endif
 
                 #ifdef TOPNODE
                  /* TODO topnode wirklich OBJPTR?, Nooeee! */
-                 EL_LDATA,  ELDEF(bv.topnode),
+                 EL_LDATA,  ELDEF(bvertex,topnode),
                 #endif
-                 EL_LDATA,  ELDEF(bv.bndp),     /* different from IVertex */
-                 EL_END,    &bv+1
+                 EL_LDATA,  ELDEF(bvertex,bndp),     /* different from IVertex */
+                 EL_END,    sizeof(bvertex)
                  );
 
   /* set mergemode to maximum */
   DDD_PrioMergeDefault(context, dddctrl.TypeBVertex, PRIOMERGE_MAXIMUM);
 
 
-  DDD_TypeDefine(context, dddctrl.TypeNode, &n,
-                 EL_DDDHDR, &n.ddd,
-                 EL_GDATA,  ELDEF(n.control),
+  DDD_TypeDefine(context, dddctrl.TypeNode,
+                 EL_DDDHDR, offsetof(NODE,ddd),
+                 EL_GDATA,  ELDEF(NODE,control),
 
                  /* TODO: muss umgerechnet werden! */
-                 EL_GDATA,  ELDEF(n.id),
-                 EL_LDATA,  ELDEF(n.levelIndex),
-                 EL_GDATA,  ELDEF(n.isLeaf),
-                 EL_LDATA,  ELDEF(n.pred),
-                 EL_LDATA,  ELDEF(n.succ),
+                 EL_GDATA,  ELDEF(NODE,id),
+                 EL_LDATA,  ELDEF(NODE,levelIndex),
+                 EL_GDATA,  ELDEF(NODE,isLeaf),
+                 EL_LDATA,  ELDEF(NODE,pred),
+                 EL_LDATA,  ELDEF(NODE,succ),
 
                  /* TODO was ist start? */
-                 EL_LDATA,  ELDEF(n.start),
+                 EL_LDATA,  ELDEF(NODE,start),
 
                  /* father may be one of node or edge */
-                 EL_OBJPTR, ELDEF(n.father),   DDD_TYPE_BY_HANDLER, NFatherObjType,
+                 EL_OBJPTR, ELDEF(NODE,father),   DDD_TYPE_BY_HANDLER, NFatherObjType,
 
-                 EL_OBJPTR, ELDEF(n.son),      dddctrl.TypeNode,
+                 EL_OBJPTR, ELDEF(NODE,son),      dddctrl.TypeNode,
 
                  /* TODO: ref-typ muss eigentlich {TypeIVertex,TypeBVertex} sein! */
-                 EL_OBJPTR, ELDEF(n.myvertex), dddctrl.TypeIVertex,
+                 EL_OBJPTR, ELDEF(NODE,myvertex), dddctrl.TypeIVertex,
                  EL_CONTINUE);
 
   if (ddd_ctrl(context).nodeData)
-    DDD_TypeDefine(context, dddctrl.TypeNode, &n,
-                   EL_OBJPTR, ELDEF(n.vector), dddctrl.TypeVector,
+    DDD_TypeDefine(context, dddctrl.TypeNode,
+                   EL_OBJPTR, ELDEF(NODE,vector), dddctrl.TypeVector,
                    EL_CONTINUE);
 
   /* The size of a NODE object may be less than sizeof(NODE).
@@ -541,8 +534,8 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
    * Compare the corresponding computation in the method CreateNode (in ugm.c)
    */
   size = sizeof(NODE) - (dddctrl.nodeData ? 0 : sizeof(VECTOR*));
-  DDD_TypeDefine(context, dddctrl.TypeNode, &n,
-                 EL_END, ((char *)&n)+size);
+  DDD_TypeDefine(context, dddctrl.TypeNode,
+                 EL_END, size);
 
   /* set mergemode to maximum */
   DDD_PrioMergeDefault(context, dddctrl.TypeNode, PRIOMERGE_MAXIMUM);
@@ -572,13 +565,13 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
      will not be the real size ued by DDD. this size has to be computed
      by UG_MSIZE(mat). this is relevant only in gather/scatter of matrices
      in handler.c. */
-  DDD_TypeDefine(context, dddctrl.TypeMatrix, &m,
-                 EL_GDATA,  ELDEF(m.control),
-                 EL_LDATA,  ELDEF(m.next),
-                 EL_OBJPTR, ELDEF(m.vect),   dddctrl.TypeVector,
+  DDD_TypeDefine(context, dddctrl.TypeMatrix,
+                 EL_GDATA,  ELDEF(MATRIX,control),
+                 EL_LDATA,  ELDEF(MATRIX,next),
+                 EL_OBJPTR, ELDEF(MATRIX,vect),   dddctrl.TypeVector,
                  /* TODO: not needed
-                    EL_LDATA,  ELDEF(m.value), */
-                 EL_END,    &m+1
+                    EL_LDATA,  ELDEF(MATRIX,value), */
+                 EL_END,    sizeof(MATRIX)
                  );
 
   /* compute global fields it control word entry */
@@ -586,42 +579,42 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
   PRINTDEBUG(dddif,1,("ddd_DefineTypes(): TypeEdge gbits=%08x size=%d\n",
                       gbits,sizeof(e.links[0].control)));
 
-  DDD_TypeDefine(context, dddctrl.TypeEdge, &e,
+  DDD_TypeDefine(context, dddctrl.TypeEdge,
                  /* link 0 data */
                  /*TODO: now unique
                     #ifdef __TWODIM__
-                                 EL_GDATA,  ELDEF(e.links[0].control),
+                                 EL_GDATA,  ELDEF(EDGE,links[0].control),
                     #endif
                     #ifdef __THREEDIM__
-                                 EL_LDATA,  ELDEF(e.links[0].control),
+                                 EL_LDATA,  ELDEF(EDGE,links[0].control),
                     #endif
                   */
-                 EL_GBITS,  ELDEF(e.links[0].control), &gbits,
-                 EL_LDATA,  ELDEF(e.links[0].next),
-                 EL_OBJPTR, ELDEF(e.links[0].nbnode), dddctrl.TypeNode,
+                 EL_GBITS,  ELDEF(EDGE,links[0].control), &gbits,
+                 EL_LDATA,  ELDEF(EDGE,links[0].next),
+                 EL_OBJPTR, ELDEF(EDGE,links[0].nbnode), dddctrl.TypeNode,
 
                  /* link 1 data */
-                 EL_GDATA,  ELDEF(e.links[1].control),
-                 EL_LDATA,  ELDEF(e.links[1].next),
-                 EL_OBJPTR, ELDEF(e.links[1].nbnode), dddctrl.TypeNode,
+                 EL_GDATA,  ELDEF(EDGE,links[1].control),
+                 EL_LDATA,  ELDEF(EDGE,links[1].next),
+                 EL_OBJPTR, ELDEF(EDGE,links[1].nbnode), dddctrl.TypeNode,
 
-                 EL_LDATA,  ELDEF(e.levelIndex),
-                 EL_LDATA,  ELDEF(e.leafIndex),
-                 EL_GDATA,  ELDEF(e.id),
-                 EL_DDDHDR, &e.ddd,
+                 EL_LDATA,  ELDEF(EDGE,levelIndex),
+                 EL_LDATA,  ELDEF(EDGE,leafIndex),
+                 EL_GDATA,  ELDEF(EDGE,id),
+                 EL_DDDHDR, offsetof(EDGE,ddd),
 
-                 EL_OBJPTR, ELDEF(e.midnode),  dddctrl.TypeNode,
+                 EL_OBJPTR, ELDEF(EDGE,midnode),  dddctrl.TypeNode,
                  EL_CONTINUE);
 
   if (dddctrl.edgeData)
-    DDD_TypeDefine(context, dddctrl.TypeEdge, &e,
-                   EL_OBJPTR, ELDEF(e.vector), dddctrl.TypeVector,
+    DDD_TypeDefine(context, dddctrl.TypeEdge,
+                   EL_OBJPTR, ELDEF(EDGE,vector), dddctrl.TypeVector,
                    EL_CONTINUE);
 
   /* See the corresponding line for TypeNode for an explanation of why
    * the object size is modified here. */
   size = sizeof(EDGE) - ((ddd_ctrl(context).edgeData) ? 0 : sizeof(VECTOR*));
-  DDD_TypeDefine(context, dddctrl.TypeEdge, &e, EL_END, ((char *)&e)+size);
+  DDD_TypeDefine(context, dddctrl.TypeEdge, EL_END, size);
 
   /* set mergemode to maximum */
   DDD_PrioMergeDefault(context, dddctrl.TypeEdge, PRIOMERGE_MAXIMUM);
