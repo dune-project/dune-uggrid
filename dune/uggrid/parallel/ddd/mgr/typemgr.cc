@@ -37,6 +37,7 @@
 #include <config.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdlib>
 #include <cstdio>
 #include <stdarg.h>
@@ -390,25 +391,22 @@ static int NormalizeDesc (TYPE_DESC *desc)
 
 static void AttachMask(const DDD::DDDContext& context, TYPE_DESC *desc)
 {
-  int i, k;
-  ELEM_DESC *e;
-  unsigned char  *mp;
   unsigned char mask;
 
   /* get storage for mask */
   desc->cmask = std::make_unique<unsigned char[]>(desc->size);
 
   /* set default: EL_LDATA for unspecified regions (gaps) */
-  for(i=0; i<desc->size; i++)
+  for (std::size_t i=0; i<desc->size; i++)
   {
     desc->cmask[i] = 0x00;                    /* dont-copy-flag */
   }
 
   /* create mask from element list */
-  for(i=0; i<desc->nElements; i++)
+  for (int i=0; i<desc->nElements; i++)
   {
-    e = &desc->element[i];
-    mp = desc->cmask.get() + e->offset;
+    ELEM_DESC *e = &desc->element[i];
+    unsigned char* mp = desc->cmask.get() + e->offset;
 
     switch (e->type)
     {
@@ -423,7 +421,7 @@ static void AttachMask(const DDD::DDDContext& context, TYPE_DESC *desc)
       break;
     }
 
-    for(k=0; k<e->size; k++)
+    for (std::size_t k=0; k<e->size; k++)
     {
       if (e->type==EL_GBITS)
       {
@@ -464,11 +462,10 @@ static void AttachMask(const DDD::DDDContext& context, TYPE_DESC *desc)
 /*                                                                          */
 /* Purpose:   define object structure at runtime                            */
 /*                                                                          */
-/* Input:     typ, adr, t0, p0, s0, [r0 [, rh0]], t1, p1, s1 ...                    */
+/* Input:     context typ, t0, p0, s0, [r0 [, rh0]], t1, p1, s1 ...         */
 /*            with typ:  previously declared DDD_TYPE                       */
-/*                 adr:  example struct address                             */
 /*                 t:    element type                                       */
-/*                 p:    pointer into example structure                     */
+/*                 p:    offset of member in data structure                 */
 /*                 s:    size of element in byte                            */
 /*                 r:    (only for EL_OBJPTR): referenced DDD_TYPE          */
 /*                 rt:   (only for EL_OBJPTR and DDD_TYPE_BY_HANDLER):      */
@@ -483,12 +480,11 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
   auto& nDescr = context.typemgrContext().nDescr;
 
   size_t argsize;
-  char      *argp;
+  size_t argoffset;
   int argtyp, argno;
   DDD_TYPE argrefs;
   int i, nPtr;
   va_list ap;
-  char      *adr;
   char      *gbits;
 
   /* TODO: only master should be able to define types, other
@@ -533,8 +529,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
   /* start variable arguments after "typ"-parameter */
   va_start(ap, typ);
 
-  adr = va_arg(ap, char *);
-  argno = 2;
+  argno = 1;
 
 
   /* loop over variable argument list */
@@ -545,9 +540,8 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
   {
     HandlerGetRefType arg_rt_handler = NULL;
 
-    /* get the pointer to the object (no special treatment for fortran	*/
-    /* needed )															*/
-    argp = va_arg(ap, char *);
+    /* get the offset of the member in the object */
+    argoffset = va_arg(ap, size_t);
     argno+=2;
 
     /* handle several types of ELEM_DESCs */
@@ -606,7 +600,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 
       /* initialize ELEM_DESC */
       ConstructEl(&desc->element[i],
-                  argtyp, (int)(argp-adr), argsize, argrefs);
+                  argtyp, argoffset, argsize, argrefs);
 
       /* set reftype-handler function pointer, if any */
       if (argrefs==DDD_TYPE_BY_HANDLER)
@@ -617,7 +611,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
       i++;
 
 #                               ifdef DebugTypeDefine
-      Dune::dinfo << "    PTR, " << std::setw(5) << (argp-adr)
+      Dune::dinfo << "    PTR, " << std::setw(5) << argoffset
                   << ", " << std::setw(6) << argsize << "\n";
 #                               endif
 
@@ -632,14 +626,14 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 
       /* initialize ELEM_DESC */
       ConstructEl(&desc->element[i],
-                  argtyp, (int)(argp-adr), argsize, 0);
+                  argtyp, argoffset, argsize, 0);
 
       if (CheckBounds(desc, &desc->element[i], argno) == ERROR)
         return;
       i++;
 
 #                               ifdef DebugTypeDefine
-      Dune::dinfo << "    DAT, " << std::setw(5) << (argp-adr)
+      Dune::dinfo << "    DAT, " << std::setw(5) << argoffset
                   << ", " << std::setw(6) << argsize << "\n";
 #                               endif
 
@@ -654,7 +648,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
 
       /* initialize ELEM_DESC */
       ConstructEl(&desc->element[i],
-                  argtyp, (int)(argp-adr), argsize, 0);
+                  argtyp, argoffset, argsize, 0);
 
       /* read forth arg from cmdline */
       gbits = va_arg(ap, char *); argno++;
@@ -666,7 +660,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
         return;
 
 #                               ifdef DebugTypeDefine
-      Dune::dinfo << "   BITS, " << std::setw(5) << (argp-adr)
+      Dune::dinfo << "   BITS, " << std::setw(5) << argoffset
                   << ", " << std::setw(6) << argsize << ", ";
       Dune::dinfo << std::setfill('0') << std::hex;
       for(int ii=0; ii<argsize; ii++)
@@ -697,13 +691,13 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
       {
         /* do recursive TypeDefine */
         i = RecursiveRegister(context, desc,
-                              i, argtyp, (int)(argp-adr), argno);
+                              i, argtyp, argoffset, argno);
         if (i==ERROR) HARD_EXIT;                                       /* return; */
 
 #ifdef DebugTypeDefine
         Dune::dinfo
           << "    " << std::setw(3) << argtyp
-          << ", " << std::setw(5) << (argp-adr)
+          << ", " << std::setw(5) << argoffset
           << ", " << std::setw(6) << context.typeDefs()[argtyp].size << "\n";
 #endif
       }
@@ -732,7 +726,7 @@ void DDD_TypeDefine(DDD::DDDContext& context, DDD_TYPE typ, ...)
   if (argtyp==EL_END)        /* and not EL_CONTINUE */
   {
     /* compute aligned object length */
-    desc->size = (size_t) (va_arg(ap, char *) - adr);
+    desc->size = va_arg(ap, size_t);
     desc->size = CEIL(desc->size);
 
     /* do normalization */
@@ -867,7 +861,7 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
         case EL_GBITS :
           out << "bitwise global: ";
           out << std::setfill('0') << std::hex;
-          for(int ii=0; ii<e->size; ii++)
+          for (size_t ii=0; ii<e->size; ii++)
             out << setw(2) << int(e->gbits[ii]) << " ";
           out << std::setfill(' ') << std::dec << "\n";
           break;
@@ -1008,20 +1002,18 @@ void ddd_TypeMgrInit(DDD::DDDContext& context)
   {
     DDD_TYPE hdr_type;
 
-    DDD_HEADER *hdr = 0;
-
     /* hdr_type will be EL_DDDHDR (=0) per default */
     hdr_type = DDD_TypeDeclare(context, "DDD_HDR");
-    DDD_TypeDefine(context, hdr_type, hdr,
+    DDD_TypeDefine(context, hdr_type,
 
-                   EL_GDATA, &hdr->typ,     sizeof(hdr->typ),
-                   EL_LDATA, &hdr->prio,    sizeof(hdr->prio),
-                   EL_GDATA, &hdr->attr,    sizeof(hdr->attr),
-                   EL_LDATA, &hdr->flags,   sizeof(hdr->flags),
-                   EL_LDATA, &hdr->myIndex, sizeof(hdr->myIndex),
-                   EL_GDATA, &hdr->gid,     sizeof(hdr->gid),
+                   EL_GDATA, offsetof(DDD_HEADER,typ),     sizeof(DDD_HEADER::typ),
+                   EL_LDATA, offsetof(DDD_HEADER,prio),    sizeof(DDD_HEADER::prio),
+                   EL_GDATA, offsetof(DDD_HEADER,attr),    sizeof(DDD_HEADER::attr),
+                   EL_LDATA, offsetof(DDD_HEADER,flags),   sizeof(DDD_HEADER::flags),
+                   EL_LDATA, offsetof(DDD_HEADER,myIndex), sizeof(DDD_HEADER::myIndex),
+                   EL_GDATA, offsetof(DDD_HEADER,gid),     sizeof(DDD_HEADER::gid),
 
-                   EL_END,   hdr+1  );
+                   EL_END,   sizeof(DDD_HEADER)  );
   }
 }
 
