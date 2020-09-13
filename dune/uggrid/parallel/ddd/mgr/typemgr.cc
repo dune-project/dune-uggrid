@@ -391,25 +391,22 @@ static int NormalizeDesc (TYPE_DESC *desc)
 
 static void AttachMask(const DDD::DDDContext& context, TYPE_DESC *desc)
 {
-  int i, k;
-  ELEM_DESC *e;
-  unsigned char  *mp;
   unsigned char mask;
 
   /* get storage for mask */
   desc->cmask = std::make_unique<unsigned char[]>(desc->size);
 
   /* set default: EL_LDATA for unspecified regions (gaps) */
-  for(i=0; i<desc->size; i++)
+  for (std::size_t i=0; i<desc->size; i++)
   {
     desc->cmask[i] = 0x00;                    /* dont-copy-flag */
   }
 
   /* create mask from element list */
-  for(i=0; i<desc->nElements; i++)
+  for (int i=0; i<desc->nElements; i++)
   {
-    e = &desc->element[i];
-    mp = desc->cmask.get() + e->offset;
+    ELEM_DESC *e = &desc->element[i];
+    unsigned char* mp = desc->cmask.get() + e->offset;
 
     switch (e->type)
     {
@@ -424,7 +421,7 @@ static void AttachMask(const DDD::DDDContext& context, TYPE_DESC *desc)
       break;
     }
 
-    for(k=0; k<e->size; k++)
+    for (std::size_t k=0; k<e->size; k++)
     {
       if (e->type==EL_GBITS)
       {
@@ -864,7 +861,7 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
         case EL_GBITS :
           out << "bitwise global: ";
           out << std::setfill('0') << std::hex;
-          for(int ii=0; ii<e->size; ii++)
+          for (size_t ii=0; ii<e->size; ii++)
             out << setw(2) << int(e->gbits[ii]) << " ";
           out << std::setfill(' ') << std::dec << "\n";
           break;
