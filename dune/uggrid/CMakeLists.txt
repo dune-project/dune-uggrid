@@ -25,8 +25,7 @@ target_sources(duneuggrid PRIVATE
   ugdevices.cc)
 
 target_sources_dims(duneuggrid PRIVATE
-  initug.cc
-  ugdevices.cc)
+  initug.cc)
 
 install(
   FILES ugdevices.h initug.h
