@@ -25,6 +25,7 @@ before_script:
 debian:11 gcc-9-20:
   <<: *common
   image: registry.dune-project.org/docker/ci/debian:11
+  allow_failure: true
   variables:
     DUNECI_TOOLCHAIN: gcc-9-20
 
