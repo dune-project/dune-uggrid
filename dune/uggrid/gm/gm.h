@@ -2517,7 +2517,7 @@ enum {TETRAHEDRON = 4,
 /** \brief This structure contains all topological properties
     of an element and more ..
  */
-typedef struct {
+struct GENERAL_ELEMENT {
   INT tag;                           /**< Element type to be defined       */
 
   /* the following parameters determine size of refs array in element */
@@ -2559,7 +2559,7 @@ typedef struct {
   INT edge_of_two_sides[MAX_SIDES_OF_ELEM][MAX_SIDES_OF_ELEM];
 
   /* ... the refinement rules should be placed here later */
-} GENERAL_ELEMENT;
+};
 
 END_UGDIM_NAMESPACE
 
