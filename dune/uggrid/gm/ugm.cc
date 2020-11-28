@@ -316,7 +316,6 @@ INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, INT t
 static VERTEX *CreateBoundaryVertex (GRID *theGrid)
 {
   VERTEX *pv;
-  INT ds;
   INT i;
 
   pv = (VERTEX*)GetMemoryForObject(MYMG(theGrid),sizeof(struct bvertex),BVOBJ);
@@ -364,7 +363,6 @@ static VERTEX *CreateBoundaryVertex (GRID *theGrid)
 static VERTEX *CreateInnerVertex (GRID *theGrid)
 {
   VERTEX *pv;
-  INT ds;
   INT i;
 
   pv = (VERTEX*)GetMemoryForObject(MYMG(theGrid),sizeof(struct ivertex),IVOBJ);
@@ -6152,7 +6150,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   ELEMENT *theElement;
   MATRIX *theMatrix;
   DOUBLE_VECTOR pos;
-  void *Data;
 
   FORMAT* theFormat = theMG->theFormat.get();
 
