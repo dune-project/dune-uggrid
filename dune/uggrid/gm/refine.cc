@@ -1245,7 +1245,6 @@ static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *t
   case PYRAMID :
   case PRISM :
   {
-    NODE *edgenode=NULL;
     INT trisectionedge=-1;
 
     for (k=0; k<CORNERS_OF_SIDE(theNeighbor,j); k++)
