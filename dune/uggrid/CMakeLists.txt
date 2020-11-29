@@ -3,7 +3,6 @@ set(UG_ENABLED_DIMENSIONS 2 3)
 # define dimension specific object libraries
 foreach(dim ${UG_ENABLED_DIMENSIONS})
   add_library(duneuggrid${dim}d OBJECT)
-  target_include_directories(duneuggrid${dim}d PRIVATE ddd/include)
   target_compile_definitions(duneuggrid${dim}d PRIVATE "UG_DIM_${dim}")
   target_compile_definitions(duneuggrid${dim}d PRIVATE ${UG_COMPILE_DEFINITIONS})
   add_dune_mpi_flags(duneuggrid${dim}d OBJECT)

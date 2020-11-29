@@ -1006,7 +1006,6 @@ INT NS_DIM_PREFIX DisposeConnectionsFromMultiGrid (MULTIGRID *theMG)
   {
     GRID *theGrid = GRID_ON_LEVEL(theMG,i);
     ELEMENT *theElement;
-    NODE *theNode;
 
     theGrid = GRID_ON_LEVEL(theMG,i);
     for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
