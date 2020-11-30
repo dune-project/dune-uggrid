@@ -42,6 +42,8 @@
 #include "fileopen.h"
 #include "debug.h"
 
+#include <dune/uggrid/parallel/ppif/ppif.h>
+
 USING_UG_NAMESPACE
 
 /****************************************************************************/
@@ -69,26 +71,16 @@ USING_UG_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-int Debuginit           =       0;
-int Debugdddif              =       0;      /* temporary setting for debugging ModelP */
-int Debugdev                =       0;
-int Debugdom                =       0;
-int Debuggm                 =       0;
-int Debuggraph              =       0;
-int Debuggui        =   0;
-int Debuglow                =       0;
-int Debugmachines   =       0;
-int Debugnp         =       0;
-int Debugui                 =       0;
-int Debugappl               =       0;
-int Debugpclib              =       0;
+int NS_PREFIX Debuginit               =       0;
+int NS_PREFIX Debugdddif              =       0;      /* temporary setting for debugging ModelP */
+int NS_PREFIX Debugdev                =       0;
+int NS_PREFIX Debugdom                =       0;
+int NS_PREFIX Debuggm                 =       0;
+int NS_PREFIX Debuglow                =       0;
 
-int rep_err_count;
-int rep_err_line[REP_ERR_MAX];
-const char  *rep_err_file[REP_ERR_MAX];
-
-/* from dddif/ppif.h */
-extern int me, master;
+int NS_PREFIX rep_err_count;
+int NS_PREFIX rep_err_line[REP_ERR_MAX];
+const char* NS_PREFIX rep_err_file[REP_ERR_MAX];
 
 /****************************************************************************/
 /*																			*/
@@ -122,7 +114,7 @@ static char                             *debugfilename;
 /*																			*/
 /****************************************************************************/
 
-int PrintDebug (const char *format, ...)
+int NS_PREFIX PrintDebug (const char *format, ...)
 {
   char buffer[4096];
   va_list args;
@@ -131,7 +123,7 @@ int PrintDebug (const char *format, ...)
 
   vsprintf(buffer,format,args);
         #ifdef ModelP
-  if (me==master) {
+  if (PPIF::me==PPIF::master) {
         #endif
 
   /* use specific debug function for displaying */
@@ -153,7 +145,7 @@ else
   return (0);
 }
 
-void SetPrintDebugProc (PrintfProcPtr print)
+void NS_PREFIX SetPrintDebugProc (PrintfProcPtr print)
 {
   printdebug = print;
 }

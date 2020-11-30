@@ -108,8 +108,6 @@ using namespace PPIF;
 
 static DOUBLE hghost_overlap = 1.0;
 
-REP_ERR_FILE;
-
 /****************************************************************************/
 /*                                                                          */
 /* forward declarations of functions used before they are defined           */

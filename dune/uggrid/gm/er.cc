@@ -241,8 +241,6 @@ static struct {
 
 } global;                                                       /* static globals of this module		*/
 
-REP_ERR_FILE
-
 /****************************************************************************/
 /*																			*/
 /* forward declarations of functions used before they are defined			*/

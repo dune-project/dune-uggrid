@@ -61,4 +61,4 @@ debian:10 gcc-8-17 debug:
   image: registry.dune-project.org/docker/ci/debian:10
   variables:
     DUNECI_TOOLCHAIN: gcc-8-17
-    DUNECI_CMAKE_FLAGS: "-DDebug=1"
+    DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_DEBUGGING:BOOL=1"
