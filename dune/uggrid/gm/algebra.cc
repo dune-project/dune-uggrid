@@ -61,8 +61,6 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <dune/common/unused.hh>
-
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/fifo.h>
@@ -1394,9 +1392,9 @@ static void PrintVectorTriple (int i)
   VECTOR *vec0 = GBNV_list[i];
   VECTOR *vec1 = GBNV_list[i+1];
   VECTOR *vec2 = GBNV_list[i+2];
-  DUNE_UNUSED VERTEX *vtx0 = MYVERTEX((NODE*)VOBJECT(vec0));
-  DUNE_UNUSED VERTEX *vtx1 = MYVERTEX((NODE*)VOBJECT(vec1));
-  DUNE_UNUSED VERTEX *vtx2 = MYVERTEX((NODE*)VOBJECT(vec2));
+  [[maybe_unused]] VERTEX *vtx0 = MYVERTEX((NODE*)VOBJECT(vec0));
+  [[maybe_unused]] VERTEX *vtx1 = MYVERTEX((NODE*)VOBJECT(vec1));
+  [[maybe_unused]] VERTEX *vtx2 = MYVERTEX((NODE*)VOBJECT(vec2));
   PrintDebug("0: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec0),XC(vtx0),YC(vtx0));
   PrintDebug("1: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec1),XC(vtx1),YC(vtx1));
   PrintDebug("2: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec2),XC(vtx2),YC(vtx2));

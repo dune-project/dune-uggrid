@@ -32,8 +32,6 @@
 #include <config.h>
 #include <cstdio>
 
-#include <dune/common/unused.hh>
-
 #include <dune/uggrid/ugdevices.h>
 
 #include <dune/uggrid/gm/gm.h>
@@ -846,7 +844,7 @@ static INT IdentifyEdge (GRID *theGrid,
   if (0)
     if (CORNERTYPE(Nodes[0]) && CORNERTYPE(Nodes[1]))
     {
-      DUNE_UNUSED EDGE *FatherEdge;
+      [[maybe_unused]] EDGE *FatherEdge;
       FatherEdge = GetEdge((NODE *)NFATHER(Nodes[0]),(NODE *)NFATHER(Nodes[1]));
       ASSERT(FatherEdge != NULL);
       return(0);
@@ -1568,7 +1566,7 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
   /* identification is only done between master objects */
   ASSERT(identlevel-1 == LEVEL(theEdge));
 
-  DUNE_UNUSED INT nedges = GetSonEdges(theEdge,SonEdges);
+  [[maybe_unused]] INT nedges = GetSonEdges(theEdge,SonEdges);
 
   if (newsonobjects)
   {
