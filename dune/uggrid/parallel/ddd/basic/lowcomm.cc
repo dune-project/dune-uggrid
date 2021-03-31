@@ -71,7 +71,6 @@
 
 #include <dune/common/exceptions.hh>
 #include <dune/common/stdstreams.hh>
-#include <dune/common/unused.hh>
 
 #include <dune/uggrid/parallel/ddd/dddi.h>
 #include "lowcomm.h"

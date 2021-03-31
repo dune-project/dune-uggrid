@@ -38,8 +38,6 @@
 #include <cstring>
 #include <cassert>
 
-#include <dune/common/unused.hh>
-
 #include <dune/uggrid/ugdevices.h>
 #include <dune/uggrid/domain/domain.h>
 #include "parallel.h"
@@ -764,7 +762,7 @@ static void VertexUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 
 static void VertexObjMkCons (DDD::DDDContext&, DDD_OBJ obj, int newness)
 {
-  DUNE_UNUSED VERTEX  *theVertex      = (VERTEX *) obj;
+  [[maybe_unused]] VERTEX *theVertex = (VERTEX *) obj;
 
   PRINTDEBUG(dddif,1,(PFMT " VertexObjMkCons(): v=" VID_FMTX
                       " I/BVOBJ=%d newness=%d\n",
@@ -1175,7 +1173,7 @@ static void ElementLDataConstructor (DDD::DDDContext& context, DDD_OBJ obj)
 {
   INT i;
   ELEMENT *pe                     = (ELEMENT *)obj;
-  DUNE_UNUSED INT level           = LEVEL(pe);
+  [[maybe_unused]] INT level      = LEVEL(pe);
   /* TODO: delete
   GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
   INT prio            = EPRIO(pe); */
@@ -1215,7 +1213,7 @@ static void ElementLDataConstructor (DDD::DDDContext& context, DDD_OBJ obj)
 
 static void ElementUpdate (DDD::DDDContext&, DDD_OBJ obj)
 {
-  DUNE_UNUSED ELEMENT *pe                     = (ELEMENT *)obj;
+  [[maybe_unused]] ELEMENT *pe = (ELEMENT *)obj;
 
   PRINTDEBUG(dddif,1,(PFMT " ElementUpdate(): pe=" EID_FMTX
                       " EOBJ=%d\n",me,EID_PRTX(pe),OBJT(pe)))
@@ -2042,7 +2040,7 @@ static void EdgePriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO 
 {
   EDGE    *theEdge        = (EDGE *)obj;
   INT level           = LEVEL(theEdge);
-  DUNE_UNUSED INT old                     = PRIO(theEdge);
+  [[maybe_unused]] INT old = PRIO(theEdge);
 
   GetGridOnDemand(ddd_ctrl(context).currMG,level);
 
@@ -2066,7 +2064,7 @@ static void EdgeObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
 
 static void EdgeXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
-  DUNE_UNUSED EDGE *pe        =       (EDGE *)obj;
+  [[maybe_unused]] EDGE *pe = (EDGE *)obj;
 
   PRINTDEBUG(dddif,1,(PFMT " EdgeXferCopy(): edge=%x/%08x proc=%d prio=%d\n",
                       me,pe,DDD_InfoGlobalId(PARHDR(pe)),proc,prio));

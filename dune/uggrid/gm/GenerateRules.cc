@@ -22,10 +22,6 @@
 #include <cstdlib>
 #include <cassert>
 
-#ifndef TEST_GR
-#  include <dune/common/unused.hh>
-#endif
-
 #include "GenerateRules.h"
 
 #include "gm.h"
@@ -1173,13 +1169,8 @@ static int MakeRule6 (SHORT pattern)
   return (0);
 }
 
-int main (int argc, char **argv)
+int main ([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
-#ifndef TEST_GR
-  DUNE_UNUSED_PARAMETER(argc);
-  DUNE_UNUSED_PARAMETER(argv);
-#endif
-
   FILE *stream;
   SHORT pattern,nRefEdge,nRE,i;
   int MINnRefEdge,MAXnRefEdge,j,err,SaveList;

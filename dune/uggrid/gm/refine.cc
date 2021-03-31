@@ -65,8 +65,6 @@
 
 #include <algorithm>
 
-#include <dune/common/unused.hh>
-
 /* low module */
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/heaps.h>
@@ -1455,7 +1453,7 @@ static INT SetElementRules (GRID *theGrid, ELEMENT *firstElement, INT *cnt)
   INT thePattern,theEdgePattern,theSidePattern=0;
   ELEMENT *theElement;
 
-  DUNE_UNUSED const int me = theGrid->ppifContext().me();
+  [[maybe_unused]] const int me = theGrid->ppifContext().me();
 
   /* set refinement rules from edge- and sidepattern */
   (*cnt) = 0;
@@ -2689,7 +2687,7 @@ static int ComputeCopies (GRID *theGrid)
   int cnt = 0;
   PRINTDEBUG(gm,1,("ComputeCopies on level %d\n",GLEVEL(theGrid)));
 
-  DUNE_UNUSED const int me = theGrid->ppifContext().me();
+  [[maybe_unused]] const int me = theGrid->ppifContext().me();
 
   /* set class of all dofs on next level to 0 */
   ClearNextNodeClasses(theGrid);
@@ -2774,7 +2772,7 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
                                            ELEMENTCONTEXT theElementContext)
 {
   int i;
-  DUNE_UNUSED int errorflag = 0;
+  [[maybe_unused]] int errorflag = 0;
   int errortype[MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM];
   int correcttype[MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM];
 
@@ -3094,7 +3092,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
         fatherEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),0),
                              CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),1));
 
-        DUNE_UNUSED NODE* Node0 = MIDNODE(fatherEdge);
+        [[maybe_unused]] NODE* Node0 = MIDNODE(fatherEdge);
 
         /* if side node exists all mid nodes must exist */
         ASSERT(Node0 != NULL);
@@ -3190,7 +3188,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
 {
   int s;
   ELEMENT *theSon,*SonList[MAX_SONS];
-  DUNE_UNUSED const int me = theGrid->ppifContext().me();
+  [[maybe_unused]] const int me = theGrid->ppifContext().me();
 
   /* something to do ? */
   if ((REFINE(theElement)==NO_REFINEMENT)||(theGrid==NULL)) return(GM_OK);

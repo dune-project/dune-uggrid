@@ -34,8 +34,6 @@
 #include <cstdlib>
 #include <cstddef>
 
-#include <dune/common/unused.hh>
-
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/ugdevices.h>
@@ -146,7 +144,7 @@ REP_ERR_FILE
 
 bool NS_DIM_PREFIX PointInPolygon (const COORD_POINT *Points, INT n, COORD_POINT Point)
 {
-  DUNE_UNUSED DOUBLE D[POLYMAX] ,tau[POLYMAX],xa,ya,xe,ye;
+  [[maybe_unused]] DOUBLE D[POLYMAX] ,tau[POLYMAX],xa,ya,xe,ye;
   int i, left, right;
 
   assert (n<=POLYMAX);
