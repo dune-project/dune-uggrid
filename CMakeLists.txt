@@ -25,9 +25,6 @@ include(DuneMacros)
 # start a dune project with information from dune.module
 dune_project()
 
-# helper variable to collect compile definitions to set for all dimension targets
-set(UG_COMPILE_DEFINITIONS "UG_USE_NEW_DIMENSION_DEFINES")
-
 find_package(MPI)
 # set defines that are only used internally.
 # The rest is in cmake/modules/DuneUggrid.cmake
