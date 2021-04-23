@@ -1,7 +1,8 @@
 # dune-uggrid 2.8 (unreleased)
 
 * Removes support for `_2` and `_3` macros.
-# dune-uggrid 2.7.0 (unreleased)
+
+# dune-uggrid 2.7.0 (2019-12-20)
 
 * Multiple grids are now also allowed in the parallel implementation
   [!96]: https://gitlab.dune-project.org/staging/dune-uggrid/merge_requests/96
