@@ -154,7 +154,7 @@ static INT DisposeEdge (GRID *theGrid, EDGE *theEdge);
  */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX GetFreeOBJT ()
+GM_OBJECTS NS_DIM_PREFIX GetFreeOBJT ()
 {
   INT i;
 
@@ -166,10 +166,10 @@ INT NS_DIM_PREFIX GetFreeOBJT ()
   if (i<MAXOBJECTS)
   {
     SET_FLAG(UsedOBJT,1<<i);
-    return (i);
+    return (GM_OBJECTS)i;
   }
   else
-    return (-1);
+    return NOOBJ;
 }
 
 /****************************************************************************/
@@ -186,7 +186,7 @@ INT NS_DIM_PREFIX GetFreeOBJT ()
  */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX ReleaseOBJT (INT type)
+INT NS_DIM_PREFIX ReleaseOBJT (GM_OBJECTS type)
 {
   if (type>=MAXOBJECTS)
     RETURN (GM_ERROR);
@@ -284,7 +284,7 @@ static void DestructDDDObject(DDD::DDDContext& context, void *object, INT type)
 }
 #endif
 
-INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, INT type)
+INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, GM_OBJECTS type)
 {
   #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
