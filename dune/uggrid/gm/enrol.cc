@@ -251,7 +251,6 @@ std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
         FMT_MAX_PART(fmt) = MAX(FMT_MAX_PART(fmt),i);
         MaxType = MAX(MaxType,po2t[i][j]);
       }
-  FMT_MAX_TYPE(fmt) = MaxType;
 
   return fmt;
 }

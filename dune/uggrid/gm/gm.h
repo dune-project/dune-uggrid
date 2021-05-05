@@ -393,10 +393,6 @@ struct format {
   /** \brief largest part used                                            */
   INT MaxPart;
   /* both derived from po2t                                       */
-
-  /** \brief largest type used */
-  INT MaxType;
-  /* derived from VectorSizes                                     */
 };
 
 typedef struct {
@@ -2946,7 +2942,6 @@ grid::dddContext()
 #define FMT_TYPE_USES_OBJ(f,t,o)                ((f)->t2o[o] & (1<<o))
 #define FMT_USES_OBJ(f,o)                               ((f)->OTypeUsed[o])
 #define FMT_MAX_PART(f)                                 ((f)->MaxPart)
-#define FMT_MAX_TYPE(f)                                 ((f)->MaxType)
 
 #define FMT_N2T(f,c)                                    (((c)<FROM_VTNAME) ? NOVTYPE : ((c)>TO_VTNAME) ? NOVTYPE : (f)->n2t[(c)-FROM_VTNAME])
 #define FMT_SET_N2T(f,c,t)                              ((f)->n2t[(c)-FROM_VTNAME] = t)
