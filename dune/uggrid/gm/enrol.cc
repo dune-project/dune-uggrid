@@ -98,17 +98,6 @@ std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
 
   std::string name = "DuneFormat" + std::to_string(DIM) + "d";
 
-/* fill degrees of freedom needed */
-  VectorDescriptor vDesc[MAXVECTORS];
-#ifdef __TWODIM__
-  INT nvDesc = 0;
-#else
-  INT nvDesc = 1;
-  vDesc[0].tp    = SIDEVEC;
-  vDesc[0].size  = sizeof(DOUBLE);
-  vDesc[0].name  = 's';
-#endif
-
   /* allocate new format structure */
   auto fmt = std::make_unique<FORMAT>();
   if (fmt==NULL) REP_ERR_RETURN_PTR(NULL);
@@ -176,19 +165,12 @@ std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
 
 
   /* set vector stuff */
-  for (i=0; i<nvDesc; i++)
-  {
-    if ((vDesc[i].tp<0)||(vDesc[i].tp>=MAXVECTORS)||(vDesc[i].size<0)) REP_ERR_RETURN_PTR(NULL);
-    FMT_S_VEC_TP(fmt,vDesc[i].tp) = vDesc[i].size;
-    if ((vDesc[i].name<FROM_VTNAME) || (TO_VTNAME<vDesc[i].name))
-    {
-      PrintErrorMessageF('E',"CreateFormat","type name '%c' out of range (%c-%c)",vDesc[i].name,FROM_VTNAME,TO_VTNAME);
-      REP_ERR_RETURN_PTR (NULL);
-    }
-    FMT_VTYPE_NAME(fmt,vDesc[i].tp) = vDesc[i].name;
-    FMT_SET_N2T(fmt,vDesc[i].name,vDesc[i].tp);
-    FMT_T2N(fmt,vDesc[i].tp) = vDesc[i].name;
-  }
+#ifdef __THREEDIM__
+  FMT_S_VEC_TP(fmt,SIDEVEC) = sizeof(DOUBLE);
+  FMT_VTYPE_NAME(fmt,SIDEVEC) = 's';
+  FMT_SET_N2T(fmt,'S',SIDEVEC);
+  FMT_T2N(fmt,SIDEVEC) = 's';
+#endif
 
   /* copy part,obj to type table and derive t2p, t2o lists */
   for (type=0; type<MAXVECTORS; type++)
