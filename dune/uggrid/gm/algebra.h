@@ -133,7 +133,6 @@ INT GetDomainPart (const INT s2p[], const GEOM_OBJECT *obj, INT side);
 
 /** @name basic create and dispose functions */
 /*@{*/
-INT         CreateVector                                    (GRID *theGrid, INT ObjectType, GEOM_OBJECT *object, VECTOR **vHandle);
 INT         CreateSideVector                (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle);
 INT         ReinspectSonSideVector  (GRID *g, ELEMENT *elem, INT side, VECTOR **vHandle);
 CONNECTION *CreateConnection        (GRID *theGrid, VECTOR *from, VECTOR *to);
@@ -160,10 +159,7 @@ INT             DisposeElementFromElementList (GRID *theGrid, NODE *theNode, ELE
 
 /** @name Query functions */
 /*@{*/
-INT             GetVectorsOfElement                     (const ELEMENT *theElement, INT *cnt, VECTOR **vList);
 INT             GetVectorsOfSides                               (const ELEMENT *theElement, INT *cnt, VECTOR **vList);
-INT             GetVectorsOfEdges                               (const ELEMENT *theElement, INT *cnt, VECTOR **vList);
-INT             GetVectorsOfNodes                               (const ELEMENT *theElement, INT *cnt, VECTOR **vList);
 INT                     GetVectorsOfOType                               (const ELEMENT *theElement, INT type, INT *cnt, VECTOR **vList);
 INT                     DataTypeFilterVList                             (INT dt, VECTOR **vec, INT *cnt);
 INT                     GetVectorsOfDataTypesInObjects  (const ELEMENT *theElement, INT dt, INT obj, INT *cnt, VECTOR *VecList[]);

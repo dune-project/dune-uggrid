@@ -72,9 +72,6 @@ inline void NODE_PRIORITY_SET(DDD::DDDContext& context, GRID* grid, NODE* node, 
 {
   /* set priorities of node */
   SETPRIOX(context, node, prio);
-
-  if (VEC_DEF_IN_OBJ_OF_GRID(grid, NODEVEC) and NVECTOR(node) != nullptr)
-    SETPRIOPV(context, NVECTOR(node),prio);
 }
 
 inline void PRIO_SET_EDGE(DDD::DDDContext& context, EDGE* edge, INT prio)
@@ -86,10 +83,6 @@ inline void EDGE_PRIORITY_SET(DDD::DDDContext& context, GRID* grid, EDGE* edge, 
 {
   /* set priorities of node for 3D */
   PRIO_SET_EDGE(context, edge, prio);
-
-  /* set priority of edge vector */
-  if (VEC_DEF_IN_OBJ_OF_GRID(grid, EDGEVEC) and EDVECTOR(edge) != nullptr)
-    SETPRIOX(context, EDVECTOR(edge),prio);
 }
 
 
@@ -417,13 +410,6 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
       PRINTDEBUG(gm,1,("SetGhostObjectPriorities(): e=" EID_FMTX " new prio=%d\n",
                        EID_PRTX(theElement),prio))
       SETEPRIOX(context, theElement, prio);
-
-      if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-      {
-        theVector = EVECTOR(theElement);
-        if (theVector != NULL)
-          SETPRIOX(context, theVector,prio);
-      }
     }
 
     /* set edge priorities */
