@@ -306,7 +306,7 @@ INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *
  */
 /****************************************************************************/
 
-static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
+static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjType,
                                GEOM_OBJECT *object, VECTOR **vHandle)
 {
   MULTIGRID *theMG;
@@ -362,45 +362,6 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
   PRINTDEBUG(gm,1,("%s-vector created (%d): p=%d, t=%d\n",ObjTypeName[VOTYPE(pv)],ID(VOBJECT(pv)),VPART(pv),VTYPE(pv)));
 
   return (0);
-}
-
-/****************************************************************************/
-/** \brief Return pointer to a new vector structure
- *
- * @param  theGrid - grid where vector should be inserted
- * @param  VectorObjType - one of the types defined in gm
- * @param  object  - associate vector with this object
- * @param  vHandle - handle of new vector, i.e. a pointer to a pointer where
-                                a pointer to the new vector is placed.
-
-   This function returns a pointer to a new vector structure. First the free list
-   is checked for a free entry, if none is available, a new structure is allocated
-   from the heap.
-
- * @return <ul>
- *   <li>     0 if ok  </li>
- *   <li>     1 if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX CreateVector (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *object, VECTOR **vHandle)
-{
-  MULTIGRID *mg;
-  INT part;
-
-  *vHandle = NULL;
-  mg = MYMG(theGrid);
-
-  part = GetDomainPart(BVPD_S2P_PTR(MG_BVPD(mg)),object,NOSIDE);
-
-  if (part < 0)
-    REP_ERR_RETURN(1);
-  if (CreateVectorInPart(theGrid,part,VectorObjType,object,vHandle)) {
-    REP_ERR_RETURN(1);
-  }
-  else
-    return (0);
 }
 
 INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle)
@@ -899,49 +860,20 @@ INT NS_DIM_PREFIX DisposeConnectionFromVector (GRID *theGrid, VECTOR *theVector)
 
 INT NS_DIM_PREFIX DisposeConnectionFromElement (GRID *theGrid, ELEMENT *theElement)
 {
-  INT i;
-  VECTOR *vList[20];
-  INT cnt;
 
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-    {
-      if (DisposeConnectionFromVector(theGrid,vList[i])) RETURN(GM_ERROR);
-      SETVBUILDCON(vList[i],1);
-    }
-  }
     #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
+    INT cnt;
+    VECTOR *vList[20];
     GetVectorsOfSides(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
+    for (INT i=0; i<cnt; i++)
     {
       if (DisposeConnectionFromVector(theGrid,vList[i])) RETURN(GM_ERROR);
       SETVBUILDCON(vList[i],1);
     }
   }
     #endif
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-    {
-      if (DisposeConnectionFromVector(theGrid,vList[i])) RETURN(GM_ERROR);
-      SETVBUILDCON(vList[i],1);
-    }
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-    {
-      if (DisposeConnectionFromVector(theGrid,vList[i])) RETURN(GM_ERROR);
-      SETVBUILDCON(vList[i],1);
-    }
-  }
-
   return(GM_OK);
 }
 
@@ -1111,41 +1043,6 @@ CONNECTION * NS_DIM_PREFIX GetConnection (const VECTOR *FromVector, const VECTOR
 }
 
 /****************************************************************************/
-/** \brief Get a pointer list to all element data
-
- * @param theElement - that element
- * @param cnt - how many vectors
- * @param vList - array to store vector list
-
-   This function returns a pointer to the VECTOR associated with the
-   element (if the element is allowed to have one). cnt will either
-   be 0 or 1.
-
- * @return <ul>
- *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfElement (const ELEMENT *theElement, INT *cnt, VECTOR **vList)
-{
-  *cnt = 0;
-  if (EVECTOR(theElement) != NULL)
-    vList[(*cnt)++] = EVECTOR(theElement);
-
-  IFDEBUG(gm,0)
-  if (*cnt)
-  {
-    assert(vList[0] != NULL);
-    assert(VOTYPE(vList[0]) == ELEMVEC);
-  }
-  ENDDEBUG
-
-  return(GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Get a pointer list to all side data
 
  * @param theElement - that element
@@ -1185,82 +1082,6 @@ INT NS_DIM_PREFIX GetVectorsOfSides (const ELEMENT *theElement, INT *cnt, VECTOR
 #endif
 
 /****************************************************************************/
-/** \brief Get a pointer list to all edge data
-
- * @param theElement -  that element
- * @param cnt - how many vectors
- * @param vList - array to store vector list
-
-   This function gets a pointer array to all VECTORs in edges of the element.
-
- * @return <ul>
- *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfEdges (const ELEMENT *theElement, INT *cnt, VECTOR **vList)
-{
-  EDGE *theEdge;
-  INT i;
-
-  *cnt = 0;
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
-    if ((theEdge =
-           GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,i,0)),
-                   CORNER(theElement,CORNER_OF_EDGE(theElement,i,1)))) != NULL)
-      if (EDVECTOR(theEdge) != NULL)
-        vList[(*cnt)++] = EDVECTOR(theEdge);
-
-  IFDEBUG(gm,0)
-  for (i=0; i<(*cnt); i++)
-  {
-    assert(vList[i] != NULL);
-    assert(VOTYPE(vList[i]) == EDGEVEC);
-  }
-  ENDDEBUG
-
-  return(GM_OK);
-}
-
-/****************************************************************************/
-/** \brief Get a pointer list to all node data
-
- * @param theElement -  that element
- * @param cnt - how many vectors
- * @param vList - array to store vector list
-
-   This function gets a pointer array to all VECTORs in nodes of the element.
-
- * @return <ul>
- *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfNodes (const ELEMENT *theElement, INT *cnt, VECTOR **vList)
-{
-  INT i;
-
-  *cnt = 0;
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
-    if (NVECTOR(CORNER(theElement,i)) != NULL)
-      vList[(*cnt)++] = NVECTOR(CORNER(theElement,i));
-
-  IFDEBUG(gm,0)
-  for (i=0; i<(*cnt); i++)
-  {
-    assert(vList[i] != NULL);
-    assert(VOTYPE(vList[i]) == NODEVEC);
-  }
-  ENDDEBUG
-
-  return (GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Get a pointer list to all vector data of specified object type
 
  * @param theElement -  that element
@@ -1281,12 +1102,6 @@ INT NS_DIM_PREFIX GetVectorsOfOType (const ELEMENT *theElement, INT type, INT *c
 {
   switch (type)
   {
-  case NODEVEC :
-    return (GetVectorsOfNodes(theElement,cnt,vList));
-  case ELEMVEC :
-    return (GetVectorsOfElement(theElement,cnt,vList));
-  case EDGEVEC :
-    return (GetVectorsOfEdges(theElement,cnt,vList));
         #ifdef __THREEDIM__
   case SIDEVEC :
     return (GetVectorsOfSides(theElement,cnt,vList));
@@ -1345,27 +1160,6 @@ INT NS_DIM_PREFIX GetVectorsOfDataTypesInObjects (const ELEMENT *theElement, INT
   INT i,n;
 
   *cnt = n = 0;
-
-  if (obj & BITWISE_TYPE(NODEVEC))
-  {
-    if (GetVectorsOfNodes(theElement,&i,VecList) != GM_OK)
-      return(GM_ERROR);
-    n += i;
-  }
-
-  if (obj & BITWISE_TYPE(EDGEVEC))
-  {
-    if (GetVectorsOfEdges(theElement,&i,VecList+n) != GM_OK)
-      return(GM_ERROR);
-    n += i;
-  }
-
-  if (obj & BITWISE_TYPE(ELEMVEC))
-  {
-    if (GetVectorsOfElement(theElement,&i,VecList+n) != GM_OK)
-      return(GM_ERROR);
-    n += i;
-  }
 
     #ifdef __THREEDIM__
   if (obj & BITWISE_TYPE(SIDEVEC))
@@ -1433,10 +1227,6 @@ INT NS_DIM_PREFIX PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxLis
 
   /* count boundary node vectors */
   GBNV_n = 0;
-  for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-    if (VOTYPE(vec)==NODEVEC)
-      if (OBJT(MYVERTEX((NODE*)VOBJECT(vec)))==BVOBJ)
-        GBNV_n++;
 
   /* allocate list storage: 3 pointers each */
   GBNV_mg = MYMG(theGrid);
@@ -1447,14 +1237,6 @@ INT NS_DIM_PREFIX PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxLis
 
   /* store offset in vector index field */
   i = 0;
-  for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-    if (VOTYPE(vec)==NODEVEC)
-      if (OBJT(MYVERTEX((NODE*)VOBJECT(vec)))==BVOBJ)
-      {
-        VINDEX(vec) = i;
-        GBNV_list[i] = vec;
-        i += 3;
-      }
 
   /* loop elements and fill neighbours */
   /* TODO: parallel also orphan(?) elements to be complete */
@@ -1565,9 +1347,6 @@ INT NS_DIM_PREFIX GetBoundaryNeighbourVectors (INT dt, INT obj, INT *cnt, VECTOR
     /* no (more) vector found */
     return (0);
 
-  if (VOTYPE(vec)!=NODEVEC)
-    REP_ERR_RETURN(1);
-
   IFDEBUG(gm,2)
   PrintDebug("GetBoundaryNeighbourVectors:\n");
   PrintVectorTriple(GBNV_curr);
@@ -1634,24 +1413,6 @@ INT NS_DIM_PREFIX GetAllVectorsOfElement (GRID *theGrid, ELEMENT *theElement, VE
   INT cnt;
 
   cnt = 0;
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    if (GetVectorsOfNodes(theElement,&i,vec) == GM_ERROR)
-      RETURN(-1);
-    cnt += i;
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    if (GetVectorsOfEdges(theElement,&i,vec+cnt) == GM_ERROR)
-      RETURN(-1);
-    cnt += i;
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    if (GetVectorsOfElement(theElement,&i,vec+cnt) == GM_ERROR)
-      RETURN(-1);
-    cnt += i;
-  }
     #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
@@ -2042,10 +1803,6 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
   VECTOR *vList[20];
   INT i,cnt;
 
-#if defined(ModelP) and defined(__THREEDIM__)
-  auto& dddContext = theGrid->dddContext();
-#endif
-
   if (!MG_COARSE_FIXED(MYMG(theGrid)))
     RETURN (1);
 
@@ -2053,34 +1810,9 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
   if (theGrid == NULL)
     return (0);
 
-#if defined(ModelP) and defined(__THREEDIM__)
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferBegin(dddContext);
-#endif
-
   /* set EBUILDCON-flags also in elements accessing a vector with VBUILDCON true */
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
   {
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    {
-      EDGE *ed;
-
-      for (i=0; i<EDGES_OF_ELEM(theElement); i++) {
-        ed = GetEdge(CORNER(theElement,
-                            CORNER_OF_EDGE(theElement,i,0)),
-                     CORNER(theElement,
-                            CORNER_OF_EDGE(theElement,i,1)));
-        ASSERT (ed != NULL);
-        if (EDVECTOR(ed) == NULL) {
-          CreateVector(theGrid,EDGEVEC,(GEOM_OBJECT *)ed,vList);
-          EDVECTOR(ed) = vList[0];
-#if defined(ModelP) and defined(__THREEDIM__)
-          SETPRIO(dddContext, EDVECTOR(ed),PRIO(ed));
-#endif
-        }
-      }
-    }
-
             #ifdef ModelP
     if (!EMASTER(theElement)) continue;
                 #endif
@@ -2096,27 +1828,9 @@ INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
       for (i=0; i<cnt; i++)
         if (VBUILDCON(vList[i])) {SETEBUILDCON(theElement,1); break;}
     }
-    if (EBUILDCON(theElement)) continue;
         #endif
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    {
-      GetVectorsOfEdges(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++)
-        if (VBUILDCON(vList[i])) {SETEBUILDCON(theElement,1); break;}
-    }
     if (EBUILDCON(theElement)) continue;
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-    {
-      GetVectorsOfNodes(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++)
-        if (VBUILDCON(vList[i])) {SETEBUILDCON(theElement,1); break;}
-    }
   }
-
-#if defined(ModelP) and defined(__THREEDIM__)
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferEnd(theGrid->dddContext());
-#endif
 
   /* run over all elements with EBUILDCON true and build connections */
   for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
@@ -2246,9 +1960,6 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
   INT j,n;
 #endif
   ELEMENT *elem;
-  NODE *nd;
-  LINK *li;
-  EDGE *ed;
   INT side,i;
 
 
@@ -2261,43 +1972,10 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 
       fmt = g->mg->theFormat.get();
 
-      /* loop nodes and edges */
-      for (nd=PFIRSTNODE(g); nd!=NULL; nd=SUCCN(nd)) {
-        /* node vector */
-        if (FMT_USES_OBJ(fmt,NODEVEC))
-        {
-          ASSERT(NVECTOR(nd)==NULL);
-          if (CreateVector (g,NODEVEC,(GEOM_OBJECT *)nd,&vec))
-            REP_ERR_RETURN (GM_ERROR);
-          NVECTOR(nd) = vec;
-        }
-
-        /* edge vectors */
-        if (FMT_USES_OBJ(fmt,EDGEVEC))
-          for (li=START(nd); li!=NULL; li=NEXT(li)) {
-            ed = MYEDGE(li);
-            if (li==LINK0(ed))                                     /* to avoid double access of edges*/
-            {
-              ASSERT(EDVECTOR(ed)==NULL);
-              if (CreateVector(g,EDGEVEC,(GEOM_OBJECT *)ed,&vec))
-                REP_ERR_RETURN (GM_ERROR);
-              EDVECTOR(ed) = vec;
-            }
-          }
-      }
-
       /* loop elements and element sides */
       for (elem=PFIRSTELEMENT(g); elem!=NULL; elem=SUCCE(elem)) {
         /* to tell GridCreateConnection to build connections */
         if (EMASTER(elem)) SETEBUILDCON(elem,1);
-
-        /* element vector */
-        if (FMT_USES_OBJ(fmt,ELEMVEC)) {
-          ASSERT(EVECTOR(elem)==NULL);
-          if (CreateVector (g,ELEMVEC,(GEOM_OBJECT *)elem,&vec))
-            REP_ERR_RETURN (GM_ERROR);
-          SET_EVECTOR(elem,vec);
-        }
 
         /* side vectors */
         if (FMT_USES_OBJ(fmt,SIDEVEC))
@@ -2735,12 +2413,6 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
       errors++;
       UserWriteF("%s ID=%ld  has NO VECTOR", ObjectString,
                  ID(theObject));
-                        #ifdef ModelP
-                        #ifdef __THREEDIM__
-      if (VectorObjType == EDGEVEC)
-        UserWriteF(" prio=%d",PRIO((EDGE*)theObject));
-                        #endif
-                        #endif
       UserWrite("\n");
     }
   }
@@ -2892,15 +2564,9 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
 INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 {
   ELEMENT *theElement;
-  NODE *theNode;
   VECTOR *theVector;
-  EDGE *theEdge;
-  LINK *theLink;
   INT errors;
   INT *s2p;
-#       ifdef __THREEDIM__
-  INT i;
-#       endif
 
   errors = 0;
 
@@ -2928,20 +2594,11 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
   {
-
-    /* check element vectors */
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-    {
-      theVector = EVECTOR(theElement);
-      errors += CheckVector(fmt,s2p,(GEOM_OBJECT *) theElement, "ELEMENT",
-                            theVector, ELEMVEC,NOSIDE);
-    }
-
                 #ifdef __THREEDIM__
     /* check side vectors */
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
     {
-      for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+      for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         theVector = SVECTOR(theElement,i);
         errors += CheckVector(fmt,s2p,(GEOM_OBJECT *) theElement, "ELEMSIDE",
@@ -2949,32 +2606,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
       }
     }
                 #endif
-  }
-
-  for (theNode=PFIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode))
-  {
-
-    /* check node vectors */
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-    {
-      theVector = NVECTOR(theNode);
-      errors += CheckVector(fmt,s2p,(GEOM_OBJECT *) theNode, "NODE", theVector,
-                            NODEVEC,NOSIDE);
-    }
-
-    /* check edge vectors */
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    {
-      for (theLink=START(theNode); theLink!=NULL; theLink=NEXT(theLink))
-      {
-        theEdge = GetEdge(theNode,NBNODE(theLink));
-        if (theEdge != NULL) {
-          theVector = EDVECTOR(theEdge);
-          errors += CheckVector(fmt,s2p,(GEOM_OBJECT *) theEdge, "EDGE",
-                                theVector, EDGEVEC,NOSIDE);
-        }
-      }
-    }
   }
 
   /* check USED flag */
@@ -3103,12 +2734,6 @@ INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
   VECTOR *vList[20];
   INT cnt;
 
-  if (VOTYPE(theVector) == ELEMVEC)
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-      if (vList[i]==theVector) RETURN(1);
-  }
         #ifdef __THREEDIM__
   if (VOTYPE(theVector) == SIDEVEC)
   {
@@ -3117,18 +2742,6 @@ INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
       if (vList[i]==theVector) RETURN(1);
   }
     #endif
-  if (VOTYPE(theVector) == EDGEVEC)
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-      if (vList[i]==theVector) RETURN(1);
-  }
-  if (VOTYPE(theVector) == NODEVEC)
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-      if (vList[i]==theVector) RETURN(1);
-  }
 
   return (0);
 }
@@ -3152,7 +2765,6 @@ INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
 INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 {
   INT i;
-  EDGE *theEdge;
         #ifdef __THREEDIM__
   ELEMENT *theElement;
   INT theSide,j;
@@ -3171,17 +2783,6 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 
   switch (VOTYPE(theVector))
   {
-  case NODEVEC :
-    for (i=0; i<DIM; i++)
-      position[i] = CVECT(MYVERTEX((NODE*)VOBJECT(theVector)))[i];
-    return (0);
-
-  case EDGEVEC :
-    theEdge = (EDGE*)VOBJECT(theVector);
-    for (i=0; i<DIM; i++)
-      position[i] = 0.5*(CVECT(MYVERTEX(NBNODE(LINK0(theEdge))))[i] +
-                         CVECT(MYVERTEX(NBNODE(LINK1(theEdge))))[i]   );
-    return (0);
                 #ifdef __THREEDIM__
   case SIDEVEC :
     theElement = (ELEMENT *)VOBJECT(theVector);
@@ -3195,10 +2796,6 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
     }
     return (0);
                 #endif
-  case ELEMVEC :
-    /* calculate center of mass */
-    CalculateCenterOfMass( (ELEMENT *) VOBJECT(theVector), position );
-    return (0);
 
   default : PrintErrorMessage('E',"VectorPosition","unrecognized object type for vector");
     assert(0);
@@ -3229,11 +2826,6 @@ INT NS_DIM_PREFIX SeedVectorClasses (GRID *theGrid, ELEMENT *theElement)
   VECTOR *vList[20];
   INT cnt;
 
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVCLASS(vList[i],3);
-  }
         #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
@@ -3241,16 +2833,6 @@ INT NS_DIM_PREFIX SeedVectorClasses (GRID *theGrid, ELEMENT *theElement)
     for (i=0; i<cnt; i++) SETVCLASS(vList[i],3);
   }
     #endif
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVCLASS(vList[i],3);
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVCLASS(vList[i],3);
-  }
   return (0);
 }
 
@@ -3447,32 +3029,17 @@ INT NS_DIM_PREFIX ClearNextVectorClasses (GRID *theGrid)
 
 INT NS_DIM_PREFIX SeedNextVectorClasses (GRID *theGrid, ELEMENT *theElement)
 {
-  INT i;
-  VECTOR *vList[20];
-  INT cnt;
 
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVNCLASS(vList[i],3);
-  }
         #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
+    VECTOR *vList[20];
+    INT cnt;
     GetVectorsOfSides(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVNCLASS(vList[i],3);
+    for (INT i=0; i<cnt; i++)
+      SETVNCLASS(vList[i],3);
   }
         #endif
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVNCLASS(vList[i],3);
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVNCLASS(vList[i],3);
-  }
   return (0);
 }
 
@@ -3611,33 +3178,18 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
 
 INT NS_DIM_PREFIX MaxNextVectorClass (GRID *theGrid, ELEMENT *theElement)
 {
-  INT i,m;
+  INT m = 0;
+#ifdef __THREEDIM__
   VECTOR *vList[20];
-  INT cnt;
 
-  m = 0;
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) m = MAX(m,VNCLASS(vList[i]));
-  }
-        #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
+    INT cnt;
     GetVectorsOfSides(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) m = MAX(m,VNCLASS(vList[i]));
+    for (INT i=0; i<cnt; i++)
+      m = MAX(m,VNCLASS(vList[i]));
   }
-        #endif
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) m = MAX(m,VNCLASS(vList[i]));
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) m = MAX(m,VNCLASS(vList[i]));
-  }
+#endif
   return (m);
 }
 
@@ -4100,9 +3652,6 @@ INT NS_DIM_PREFIX InitAlgebra (void)
   for (i=0; i<MAXVOBJECTS; i++)
     switch (i)
     {
-    case NODEVEC : ObjTypeName[i] = "nd"; break;
-    case EDGEVEC : ObjTypeName[i] = "ed"; break;
-    case ELEMVEC : ObjTypeName[i] = "el"; break;
     case SIDEVEC : ObjTypeName[i] = "si"; break;
     default : ObjTypeName[i] = "";
     }

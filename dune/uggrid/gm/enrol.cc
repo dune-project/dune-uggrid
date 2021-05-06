@@ -123,7 +123,7 @@ std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
       po2t[i][j] = NOVTYPE;
 
 #ifdef __THREEDIM__
-  po2t[0][3] = SIDEVEC;
+  po2t[0][0] = SIDEVEC;
 #endif
 
   SHORT MatStorageNeeded[MAXCONNECTIONS];
@@ -230,10 +230,7 @@ std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
     /* set connection depth information */
     FMT_CONN_DEPTH_TP(fmt,type) = mDesc[i].depth;
     MaxDepth = MAX(MaxDepth,mDesc[i].depth);
-    if ((FMT_TYPE_USES_OBJ(fmt,mDesc[i].from,ELEMVEC))&&(FMT_TYPE_USES_OBJ(fmt,mDesc[i].to,ELEMVEC)))
-      NeighborhoodDepth = MAX(NeighborhoodDepth,mDesc[i].depth);
-    else
-      NeighborhoodDepth = MAX(NeighborhoodDepth,mDesc[i].depth+1);
+    NeighborhoodDepth = MAX(NeighborhoodDepth,mDesc[i].depth+1);
 
   }
   FMT_CONN_DEPTH_MAX(fmt) = MaxDepth;

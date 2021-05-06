@@ -411,11 +411,9 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
                          GEOM_OBJECT *Father, INT NodeType, INT with_vector)
 {
   NODE *pn;
-  VECTOR *pv;
   INT size;
 
-  size = sizeof(NODE);
-  if (!VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC)) size -= sizeof(VECTOR *);
+  size = sizeof(NODE) - sizeof(VECTOR *);
 
   pn = (NODE *)GetMemoryForObject(MYMG(theGrid),size,NDOBJ);
   if (pn==NULL) return(NULL);
@@ -457,21 +455,6 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
   }
   else
     SETNSUBDOM(pn,0);
-
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    if (with_vector)
-    {
-      if (CreateVector (theGrid,NODEVEC,(GEOM_OBJECT *)pn,&pv))
-      {
-        DisposeNode (theGrid,pn);
-        return (NULL);
-      }
-      NVECTOR(pn) = pv;
-    }
-    else
-      NVECTOR(pn) = NULL;
-  }
 
   theGrid->status |= 1;          /* recalculate stiffness matrix */
 
@@ -2074,7 +2057,6 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
   EDGE *pe,*father_edge;
   NODE *from,*to,*n1,*n2;
   LINK *link0,*link1;
-  VECTOR *pv;
 #ifdef __THREEDIM__
   VERTEX *theVertex;
   NODE *nbn1,*nbn2,*nbn3,*nbn4;
@@ -2094,10 +2076,7 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
     return(pe);
   }
 
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    pe = (EDGE*)GetMemoryForObject(theGrid->mg,sizeof(EDGE),EDOBJ);
-  else
-    pe = (EDGE*)GetMemoryForObject(theGrid->mg,sizeof(EDGE)-sizeof(VECTOR*),EDOBJ);
+  pe = (EDGE*)GetMemoryForObject(theGrid->mg,sizeof(EDGE)-sizeof(VECTOR*),EDOBJ);
   if (pe==NULL) return(NULL);
 
   /* initialize data */
@@ -2298,20 +2277,6 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
     }     /* end switch */
   }   /* end (theFather!=NULL) */
 
-  /* create vector if */
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    if (with_vector) {
-      if (CreateVector (theGrid,EDGEVEC,(GEOM_OBJECT *)pe,&pv)) {
-        DisposeEdge (theGrid,pe);
-        return (NULL);
-      }
-      EDVECTOR(pe) = pv;
-    }
-    else
-      EDVECTOR(pe) = NULL;
-  }
-
   /* put in neighbor lists */
   NEXT(link0) = START(from);
   START(from) = link0;
@@ -2438,22 +2403,6 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
            }
            UserWriteF("\n");)
 
-
-  /* create element vector if */
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    if (with_vector)
-    {
-      if (CreateVector (theGrid,ELEMVEC,(GEOM_OBJECT *)pe,&pv))
-      {
-        DisposeElement(theGrid,pe,true);
-        return (NULL);
-      }
-      SET_EVECTOR(pe,pv);
-    }
-    else
-      SET_EVECTOR(pe,NULL);
-  }
 
   /* create side vectors if */
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
@@ -3083,15 +3032,7 @@ static INT DisposeEdge (GRID *theGrid, EDGE *theEdge)
   if (MIDNODE(theEdge) != NULL)
     SETNFATHER(MIDNODE(theEdge),NULL);
 
-  /* dispose vector and its matrices from edge-vector if */
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    if (DisposeVector (theGrid,EDVECTOR(theEdge)))
-      RETURN(1);
-    PutFreeObject(theGrid->mg,theEdge,sizeof(EDGE),EDOBJ);
-  }
-  else
-    PutFreeObject(theGrid->mg,theEdge,sizeof(EDGE)-sizeof(VECTOR*),EDOBJ);
+  PutFreeObject(theGrid->mg,theEdge,sizeof(EDGE)-sizeof(VECTOR*),EDOBJ);
 
   /* check error condition */
   if (found!=2) RETURN(1);
@@ -3202,13 +3143,7 @@ INT NS_DIM_PREFIX DisposeNode (GRID *theGrid, NODE *theNode)
 
   /* dispose vector and its matrices from node-vector */
   size = sizeof(NODE);
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    if (DisposeVector (theGrid,NVECTOR(theNode)))
-      RETURN(1);
-  }
-  else
-    size -= sizeof(VECTOR *);
+  size -= sizeof(VECTOR *);
   PutFreeObject(theGrid->mg,theNode,size,NDOBJ);
 
   /* return ok */
@@ -3555,11 +3490,6 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
             #endif
     }
   }
-
-  /* dispose vector in center of element */
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-    if (DisposeVector (theGrid,EVECTOR(theElement)))
-      RETURN(1);
 
 #ifdef ModelP
   /* free message buffer */
@@ -6164,28 +6094,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   if (READ_FLAG(modifiers,LV_VO_INFO))
     switch (VOTYPE(theVector))
     {
-    case NODEVEC :
-    {
-      theNode = (NODE*)VOBJECT(theVector);
-                                #if defined __OVERLAP2__
-      if ( theNode == NULL )
-        UserWriteF("NODE-V NULL                ");
-      else
-                                #endif
-      UserWriteF("NODE-V nodeID=" ID_FMTX
-                 "                ",
-                 ID_PRTX(theNode));
-    }
-    break;
-    case EDGEVEC :
-    {
-      theEdge = (EDGE*)VOBJECT(theVector);
-      UserWriteF("EDGE-V fromID=" ID_FFMT
-                 " to__ID=%7ld ",
-                 ID_PRT(NBNODE(LINK0(theEdge))),
-                 ID(NBNODE(LINK1(theEdge))));
-    }
-    break;
                 #ifdef __THREEDIM__
     case SIDEVEC :
     {
@@ -6196,14 +6104,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
     }
     break;
                 #endif
-    case ELEMVEC :
-    {
-      theElement = (ELEMENT*)VOBJECT(theVector);
-      UserWriteF("ELEM-V elemID=" EID_FFMT
-                 "                ",
-                 EID_PRT(theElement));
-    }
-    break;
 
     default : PrintErrorMessage( 'E', "ListVector", "unrecognized VECTOR type" );
       assert(0);

@@ -832,11 +832,6 @@ static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
 
   /* element vector */
   evector_offset[tag] = 0;
-  if (VEC_DEF_IN_OBJ_OF_MG(theMG,ELEMVEC))
-  {
-    evector_offset[tag] = p_count;
-    p_count++;
-  }
 
   /* side vector */
   svector_offset[tag] = 0;

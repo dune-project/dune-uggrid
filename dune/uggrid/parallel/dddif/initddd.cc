@@ -920,9 +920,6 @@ void NS_DIM_PREFIX InitCurrMG (MULTIGRID *MG)
   auto& dddctrl = ddd_ctrl(MG->dddContext());
   dddctrl.currMG = MG;
 
-  dddctrl.nodeData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,NODEVEC);
-  dddctrl.edgeData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,EDGEVEC);
-  dddctrl.elemData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,ELEMVEC);
   dddctrl.sideData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,SIDEVEC);
 
   if (dddctrl.currFormat == NULL)

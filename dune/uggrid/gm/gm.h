@@ -179,9 +179,9 @@ enum {MAX_SONS = 30};
 /****************************************************************************/
 
 /** \brief Number of different data types                                    */
-#define MAXVOBJECTS                                             4
+#define MAXVOBJECTS                                             1
 /** \brief max number of abstract vector types                  */
-#define MAXVECTORS                                              4
+#define MAXVECTORS                                              1
 #if (MAXVECTORS<MAXVOBJECTS)
         #error *** MAXVECTORS must not be smaller than MAXVOBJECTS ***
 #endif
@@ -205,9 +205,6 @@ enum {MAX_SONS = 30};
 
 /** \brief Type of geometric entity which a certain vector is attached to */
 enum VectorType {NOVTYPE=-1,  //** Undefined */
-                 NODEVEC,   /**< Vector associated to a node */
-                 EDGEVEC,   /**< Vector associated to an edge */
-                 ELEMVEC,   /**< Vector associated to an element */
                  SIDEVEC    /**< Vector associated to an element side */
 };
 
