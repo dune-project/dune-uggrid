@@ -1598,40 +1598,6 @@ typedef struct grid GRID;
 typedef struct multigrid MULTIGRID;
 typedef union object_with_key KEY_OBJECT;
 
-/****************************************************************************/
-/*                                                                                                                                                      */
-/* algebraic dependency for vector ordering                                                             */
-/*                                                                                                                                                      */
-/****************************************************************************/
-
-typedef INT (*DependencyProcPtr)(GRID *, const char *);
-
-struct AlgebraicDependency {
-
-  /* fields for enironment list variable */
-  NS_PREFIX ENVVAR v;
-
-  DependencyProcPtr DependencyProc;             /* pointer to dependency function                       */
-};
-
-typedef struct AlgebraicDependency ALG_DEP;
-
-/****************************************************************************/
-/*                                                                          */
-/* find cut for vector ordering                                             */
-/*                                                                          */
-/****************************************************************************/
-
-typedef VECTOR *(*FindCutProcPtr)(GRID *, VECTOR *, INT *);
-
-typedef struct {
-
-  /* fields for enironment list variable */
-  NS_PREFIX ENVVAR v;
-
-  FindCutProcPtr FindCutProc;           /* pointer to find cut function                         */
-
-} FIND_CUT;
 
 /****************************************************************************/
 /*                                                                          */
@@ -3117,10 +3083,6 @@ void            ListAllCWsOfObject              (const void *obj);
 void            ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf);
 UINT ReadCW                                     (const void *obj, INT ce);
 void            WriteCW                                 (void *obj, INT ce, INT n);
-
-/* ordering of degrees of freedom */
-ALG_DEP         *CreateAlgebraicDependency              (const char *name, DependencyProcPtr DependencyProc);
-FIND_CUT        *CreateFindCutProc                              (const char *name, FindCutProcPtr FindCutProc);
 
 /* miscellaneous */
 INT             RenumberMultiGrid                                       (MULTIGRID *theMG, INT *nboe, INT *nioe, INT *nbov, INT *niov, NODE ***vid_n, INT *foid, INT *non, INT MarkKey);
