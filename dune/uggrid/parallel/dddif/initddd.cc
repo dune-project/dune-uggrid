@@ -561,19 +561,6 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
 
   /* 2. DDD data objects (without DDD_HEADER) */
 
-  /* NOTE: the size of matrix objects computed by the DDD Typemanager
-     will not be the real size ued by DDD. this size has to be computed
-     by UG_MSIZE(mat). this is relevant only in gather/scatter of matrices
-     in handler.c. */
-  DDD_TypeDefine(context, dddctrl.TypeMatrix,
-                 EL_GDATA,  ELDEF(MATRIX,control),
-                 EL_LDATA,  ELDEF(MATRIX,next),
-                 EL_OBJPTR, ELDEF(MATRIX,vect),   dddctrl.TypeVector,
-                 /* TODO: not needed
-                    EL_LDATA,  ELDEF(MATRIX,value), */
-                 EL_END,    sizeof(MATRIX)
-                 );
-
   /* compute global fields it control word entry */
   gbits = ~(((1<<NO_OF_ELEM_LEN)-1)<<NO_OF_ELEM_SHIFT);
   PRINTDEBUG(dddif,1,("ddd_DefineTypes(): TypeEdge gbits=%08x size=%d\n",
@@ -914,21 +901,7 @@ void NS_DIM_PREFIX InitCurrMG (MULTIGRID *MG)
 
   dddctrl.sideData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,SIDEVEC);
 
-  if (dddctrl.currFormat == NULL)
-  {
-    /* InitCurrMG was called for the first time, init
-       DDD-types now. */
-    InitDDDTypes(MG->dddContext());
-    dddctrl.currFormat = MG->theFormat.get();
-  }
-  else
-  {
-    /* InitCurrMG has been called before. This is not allowed,
-       cf. comment in ugm.c(DisposeMultiGrid()). */
-    PrintErrorMessage('E',"InitCurrMG",
-                      "opening more than one MG is not allowed in parallel");
-    ASSERT(0); exit(1);
-  }
+  InitDDDTypes(MG->dddContext());
 }
 
 
@@ -1047,7 +1020,6 @@ int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
   {
     dddctrl.ugtypes[i] = -1;
   }
-  dddctrl.currFormat = NULL;
 
   /* declare DDD_TYPES, definition must be done later */
   ddd_DeclareTypes(context);

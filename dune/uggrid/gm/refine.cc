@@ -84,7 +84,6 @@
 #include "elements.h"
 #include "rm.h"
 #include "ugm.h"
-#include "mgheapmgr.h"
 
 /* parallel modules */
 #ifdef ModelP
@@ -3203,12 +3202,6 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
     }
   }
 
-  /* remove connections in neighborhood of sons */
-  for (s=0; SonList[s]!=NULL; s++)
-  {
-    DisposeConnectionsInNeighborhood(theGrid,SonList[s]);
-  }
-
   /* remove son elements */
         #ifndef ModelP
   IFDEBUG(gm,1)
@@ -3231,7 +3224,8 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
     PRINTDEBUG(gm,1,(PFMT "UnrefineElement(): DisposeElement[%d]="
                      EID_FMTX "\n",me,s,EID_PRTX(SonList[s])));
 
-    if (DisposeElement(theGrid,SonList[s],true)!=0) RETURN(GM_FATAL);
+    if (DisposeElement(theGrid,SonList[s])!=0)
+      RETURN(GM_FATAL);
   }
 
   return (GM_OK);
@@ -5589,7 +5583,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
         {
           if (LEVEL(theElement)>0 && EFATHER(theElement)==NULL)
           {
-            DisposeElement(theGrid,theElement,true);
+            DisposeElement(theGrid,theElement);
             continue;
           }
         }
@@ -5637,7 +5631,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
         {
           if (LEVEL(theElement)>0 && EFATHER(theElement)==NULL)
           {
-            DisposeElement(theGrid,theElement,true);
+            DisposeElement(theGrid,theElement);
             continue;
           }
         }
@@ -5938,8 +5932,6 @@ void NS_DIM_PREFIX Print_Adapt_Timer (const MULTIGRID* theMG, int total_adapted)
 
 static INT      PreProcessAdaptMultiGrid(MULTIGRID *theMG)
 {
-  if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
-
   /* The matrices for the calculation are removed, to remember the
      recalculating the MGSTATUS is set to 1 */
 
@@ -6168,30 +6160,6 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
                 #endif
 
     nrefined += ComputeCopies(theGrid);
-
-    if (hFlag)
-    {
-      /* dispose connections that may be changed on next level, this is determined */
-      /* by the neighborhood of elements were MARK != REFINE.                                    */
-      /* This will leave some flags where to rebuild connections later			 */
-      if (level<toplevel)
-      {
-        for (theElement=FIRSTELEMENT(FinerGrid); theElement!=NULL; theElement=SUCCE(theElement))
-        {
-          ELEMENT *theFather = EFATHER(theElement);
-          ASSERT(theFather != NULL);
-          /*
-                                                  if (REFINE(EFATHER(theElement))!=MARK(EFATHER(theElement)))
-           */
-          if (REFINEMENT_CHANGES(theFather))
-          {
-            ASSERT(EMASTER(theFather));
-            if (DisposeConnectionsInNeighborhood(FinerGrid,theElement)!=GM_OK)
-              RETURN(GM_FATAL);
-          }
-        }
-      }
-    }
 
     /** \todo bug fix to force new level creation */
     if (!hFlag)

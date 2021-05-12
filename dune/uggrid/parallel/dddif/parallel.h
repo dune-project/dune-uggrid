@@ -213,7 +213,6 @@ struct DDD_CTRL
 {
   /* data from ug */
   MULTIGRID *currMG;
-  FORMAT    *currFormat;
   int nodeData;
   int edgeData;
   int elemData;

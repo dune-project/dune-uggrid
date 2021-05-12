@@ -62,7 +62,6 @@
 #include "shapes.h"
 #include "rm.h"
 #include "mgio.h"
-#include "mgheapmgr.h"
 
 /* include refine because of macros accessed  */
 #include "refine.h"
@@ -1907,9 +1906,6 @@ static INT IO_GridCons(MULTIGRID *theMG)
       ASSERT((PARTITION(theElement)==me && EMASTER(theElement))
              || (PARTITION(theElement)!=me && !EMASTER(theElement)));
     }
-    for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-      if (!MASTER(theVector))
-        DisposeConnectionFromVector(theGrid,theVector);
 
 #ifdef ModelP
     /* spread element refine info */
@@ -2872,15 +2868,11 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     /* no coarse mesh */
 
     if (CreateAlgebra (theMG))                                      {DisposeMultiGrid(theMG); return (NULL);}
-    if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
     if (PrepareAlgebraModification(theMG))          {DisposeMultiGrid(theMG); return (NULL);}
 
         #ifdef ModelP
-    if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-
     DDD_IdentifyBegin(theMG->dddContext());
     /* no elements to insert */
-    if (MGCreateConnection(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
     DDD_IdentifyEnd(theMG->dddContext());
 
     if (MGIO_PARFILE)
@@ -2946,16 +2938,10 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     }
 
     if (CreateAlgebra (theMG))                                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-    if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
     if (PrepareAlgebraModification(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-
-                #ifdef ModelP
-    if (DisposeBottomHeapTmpMemory(theMG))      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #endif
 
     DDD_IdentifyBegin(theMG->dddContext());
     /* no elements to insert */
-    if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
     DDD_IdentifyEnd(theMG->dddContext());
 
     if (MGIO_PARFILE)
@@ -3170,12 +3156,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
 
   /* now CreateAlgebra  is necessary to have the coarse grid nodevectors for DDD identification in Evaluate_pinfo */
   if (CreateAlgebra (theMG))                                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-  if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
   if (PrepareAlgebraModification(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-        #ifdef ModelP
-  if (DisposeBottomHeapTmpMemory(theMG))      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-        #endif
-
 
   i = MG_ELEMUSED | MG_NODEUSED | MG_EDGEUSED | MG_VERTEXUSED |  MG_VECTORUSED;
   ClearMultiGridUsedFlags(theMG,0,TOPLEVEL(theMG),i);
@@ -3209,9 +3190,6 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   if (mg_general.nLevel==1)
   {             /* if we are here now, all other processors (wich haven't returned yet) are here TOO
                    because mg_general.nLevel is a global quantity. */
-
-    /* no fine grid elements */
-    if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
     /* close identification context */
     DDD_IdentifyEnd(theMG->dddContext());
@@ -3344,7 +3322,6 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
         }
 #endif
   }
-  if (MGCreateConnection(theMG))                                  {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
   theGrid = GRID_ON_LEVEL(theMG,0);
   ClearNextNodeClasses(theGrid);
   for (theElement=FIRSTELEMENT(theGrid);

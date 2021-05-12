@@ -447,7 +447,7 @@ INT ConnectGridOverlap (GRID *theGrid)
             UserWriteF("ConnectGridOverlap(): disposing useless yellow ghost  e=" EID_FMTX
                        "f=" EID_FMTX "this ghost is useless!\n",
                        EID_PRTX(theSon),EID_PRTX(theElement));
-            DisposeElement(UPGRID(theGrid),theSon,true);
+            DisposeElement(UPGRID(theGrid),theSon);
           }
           else
           {

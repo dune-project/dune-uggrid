@@ -3,12 +3,10 @@ target_sources_dims(duneuggrid PRIVATE
   cw.cc
   dlmgr.cc
   elements.cc
-  enrol.cc
   er.cc
   evm.cc
   gmcheck.cc
   initgm.cc
-  mgheapmgr.cc
   mgio.cc
   refine.cc
   rm-write2file.cc
