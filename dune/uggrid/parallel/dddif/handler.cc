@@ -233,7 +233,6 @@ static void VectorUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
   INT nmat    = 0;
-  MATRIX  *mat;
   VECTOR  *pv             = (VECTOR *)obj;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(pv)));
   /* TODO: define this static global                    */
@@ -255,10 +254,6 @@ static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc,
 
   if (flag) {
     if (DDD_XferWithAddData(context)) {
-      for(mat=VSTART(pv); mat!=NULL; mat=MNEXT(mat)) {
-        ASSERT(nmat<256);
-        sizeArray[nmat++] = UG_MSIZE(mat);
-      }
       PRINTDEBUG(dddif,2,(PFMT " VectorXferCopy(): v=" VINDEX_FMTX
                           " AddData nmat=%d\n",me,VINDEX_PRTX(pv),nmat))
       DDD_XferAddDataX(context, nmat, ddd_ctrl(context).TypeMatrix,sizeArray);
@@ -279,362 +274,6 @@ static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc,
    */
 }
 
-static void VectorGatherMatX (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **Data)
-{
-  VECTOR  *vec = (VECTOR *)obj;
-  MATRIX  *mat;
-  INT nmat = 0;
-
-  PRINTDEBUG(dddif,3,(PFMT " VectorGatherMatX(): v=" VINDEX_FMTX
-                      " VOBJID=%d cnt=%d type=%d veobj=%d vtype=%d\n",
-                      me,VINDEX_PRTX(vec),ID(VOBJECT(vec)),cnt,type_id,
-                      OBJT(vec),VTYPE(vec)))
-
-  if (cnt<=0) return;
-
-  for (mat=VSTART((VECTOR *) vec); mat!=NULL; mat=MNEXT(mat))
-  {
-    int Size;
-
-    IFDEBUG(dddif,0)
-    if (cnt<nmat+1)
-    {
-      PRINTDEBUG(dddif,0,(PFMT " VectorGatherMatX(): v=" VINDEX_FMTX
-                          " cnt=%d nmat=%d type=%d veobj=%d\n",
-                          me,VINDEX_PRTX(vec),cnt,nmat,type_id,OBJT(vec)))
-      assert(0);
-    }
-    ENDDEBUG
-
-      Size = UG_MSIZE(mat);
-    memcpy(Data[nmat],mat,Size);
-
-    PRINTDEBUG(dddif,3,(PFMT " VectorGatherMatX(): v=" VINDEX_FMTX
-                        " mat=%x Size=%d vectoID=" VINDEX_FMTX "\n",
-                        me,VINDEX_PRTX(vec),mat,Size,VINDEX_PRTX(MDEST(mat))))
-
-    nmat++;
-  }
-}
-
-
-static void VectorScatterConnX (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TYPE type_id, char **Data, int newness)
-{
-  VECTOR          *vec            = (VECTOR *)obj;
-  CONNECTION      *first          = NULL,
-  *last           = NULL;
-  INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(vec)));
-  GRID            *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
-  INT prio            = PRIO(vec);
-  INT i;
-  INT nconn           = 0;
-  INT newconn         = 0;
-
-  PRINTDEBUG(dddif,3,(PFMT " VectorScatterConnX(): v=" VINDEX_FMTX
-                      " cnt=%d type=%d veobj=%d vtype=%d\n",\
-                      me,VINDEX_PRTX(vec),cnt,type_id,OBJT(vec),VTYPE(vec)))
-
-#if ! defined __OVERLAP2__
-  if (GHOSTPRIO(prio))
-  {
-    PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v=" VINDEX_FMTX
-                        " USELESS since ghost vector\n",
-                        me,VINDEX_PRTX(vec)))
-    return;
-  }
-#endif
-
-  if (cnt<=0) return;
-
-  for (i=0; i<cnt; i++)
-  {
-    MATRIX *mcopy = (MATRIX *)Data[i];
-
-    /* reset MNEXT */
-    MNEXT(mcopy) = NULL;
-
-    if (MDEST(mcopy)==NULL)
-    {
-      /* destination vector is not on this processor  */
-      /* -> matrix entry is useless, throw away       */
-      PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v=" VINDEX_FMTX
-                          " mat=%x Size=%d, USELESS no dest vector \n",
-                          me,VINDEX_PRTX(vec),mcopy,UG_MSIZE(mcopy)))
-      continue;
-    }
-
-#if ! defined __OVERLAP2__
-    if (GHOST(MDEST(mcopy)))
-    {
-      /* destination vector has only prio Ghost on this processor */
-      /* -> matrix entry is useless, throw away                     */
-      PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v=" VINDEX_FMTX
-                          " mat=%x Size=%d, USELESS dest vect is ghost\n",
-                          me,VINDEX_PRTX(vec),mcopy,UG_MSIZE(mcopy)))
-      continue;
-    }
-#endif
-
-    {
-      MATRIX *m,*mat=NULL;
-
-      /* does matrix entry already exist? */
-      /* TODO not nice, linear search, change this! */
-      for (m=VSTART((VECTOR *)vec);
-           m!=NULL && (mat==NULL);
-           m=MNEXT(m))
-      {
-        if (MDEST(m)==MDEST(mcopy)) mat=m;
-      }
-
-      /* matrix entry is really new */
-      if (mat == NULL)
-      {
-        /* handle diagonal entry */
-        if (MDIAG(mcopy))
-        {
-          /* matrix diagonal entry, no other vector is involved */
-          CONNECTION *conn = (CONNECTION *)
-                             GetMemoryForObject(ddd_ctrl(context).currMG,UG_MSIZE(mcopy),MAOBJ);
-
-          nconn++; newconn++;
-
-          if (conn==NULL)
-          {
-            UserWriteF("%2d:  VectorScatterConnX(): can't get mem "
-                       "for conn=%x\n",conn);
-            return;
-          }
-
-          PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v="
-                              VINDEX_FMTX " conn=%x Size=%d, DIAG\n",
-                              me,VINDEX_PRTX(vec),conn,UG_MSIZE(mcopy)))
-
-
-          /* TODO: define clearly
-             memcpy(conn,mcopy,UG_MSIZE(mcopy)); */
-          memset(conn,0,UG_MSIZE(mcopy));
-          memcpy(conn,mcopy,sizeof(MATRIX)-sizeof(DOUBLE));
-
-          if (first==NULL) first = conn;
-          else MNEXT(last) = conn;
-          last = conn;
-        }
-        /* handle off-diagonal entry */
-        else
-        {
-          /* matrix off-diagonal entry, another vector is involved */
-          VECTOR *other = MDEST(mcopy);
-          MATRIX *m, *back=NULL, *newm;
-
-          /* does connection already exist for other vec? */
-          /* TODO not nice, linear search, change this! */
-
-          for (m=VSTART((VECTOR *)other);
-               m!=NULL && back==NULL;
-               m=MNEXT(m))
-          {
-            if (MDEST(m)==vec) back=m;
-          }
-
-          /* no backward entry, create connection */
-          if (back==NULL)
-          {
-            MATRIX *otherm;
-            CONNECTION *conn = (CONNECTION *)
-                               GetMemoryForObject(ddd_ctrl(context).currMG,2*UG_MSIZE(mcopy),MAOBJ);
-
-            nconn++; newconn++;
-
-            if (conn==NULL)
-            {
-              UserWriteF("%2d:  VectorScatterConnX(): can't get "
-                         "mem for mat=%x\n",mcopy);
-              return;
-            }
-
-
-            if (MOFFSET(mcopy))
-            {
-              newm =         (MATRIX *) ((char *)conn+UG_MSIZE(mcopy));
-              otherm = (MATRIX *) conn;
-
-              PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v="
-                                  VINDEX_FMTX " conn=%x newm=%x Size=%d vectoID="
-                                  VINDEX_FMTX " GETMEM\n",
-                                  me,VINDEX_PRTX(vec),conn,newm, UG_MSIZE(mcopy),
-                                  VINDEX_PRTX(MDEST(mcopy))))
-            }
-            else
-            {
-              newm = (MATRIX *) conn;
-              otherm = (MATRIX *) ((char *)conn+UG_MSIZE(mcopy));
-
-              PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v="
-                                  VINDEX_FMTX " conn=%x newm=%x Size=%d vectoID="
-                                  VINDEX_FMTX " GETMEM\n",
-                                  me,VINDEX_PRTX(vec),conn,newm, UG_MSIZE(mcopy),
-                                  VINDEX_PRTX(MDEST(mcopy))))
-            }
-
-            MDEST(otherm) = NULL;
-          }
-          /* backward entry found, use existing connection */
-          else
-          {
-            nconn++;
-            /*
-               newm = MADJ(back);
-             */
-            if (MOFFSET(back))
-            {
-              newm = (MATRIX *) ((char *)back-UG_MSIZE(mcopy));
-              SETMOFFSET(mcopy,0);
-            }
-            else
-            {
-              newm = (MATRIX *) ((char *)back+UG_MSIZE(mcopy));
-              SETMOFFSET(mcopy,1);
-            }
-
-            PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v="
-                                VINDEX_FMTX " back=%x newm=%x Size=%d vectoID="
-                                VINDEX_FMTX " REUSE\n",
-                                me,VINDEX_PRTX(vec),back,newm,UG_MSIZE(mcopy),
-                                VINDEX_PRTX(MDEST(mcopy))))
-          }
-
-          /* TODO: define clearly
-             memcpy(newm,mcopy,UG_MSIZE(mcopy)); */
-          memset(newm,0,UG_MSIZE(mcopy));
-          memcpy(newm,mcopy,sizeof(MATRIX)-sizeof(DOUBLE));
-
-          if (first==NULL) first = newm;
-          else MNEXT(last) = newm;
-          last = newm;
-        }
-      }
-      /* matrix entry does already exist */
-      else
-      {
-        PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX(): v="
-                            VINDEX_FMTX " mat=%x Size=%d vectoID=" VINDEX_FMTX
-                            " FOUND\n",me,VINDEX_PRTX(vec),mat,UG_MSIZE(mcopy),
-                            VINDEX_PRTX(MDEST(mcopy))))
-      }
-    }
-  }
-
-  /* enter matrix list at the beginning of existing list for this vector */
-  /* ensure diagonal entry being at first position */
-  if (nconn > 0)
-  {
-    if (VSTART(vec)!=NULL)
-    {
-      MNEXT(last) = MNEXT(VSTART(vec));
-      MNEXT(VSTART(vec)) = first;
-    }
-    else
-    {
-      MNEXT(last) = NULL;
-      VSTART(vec) = first;
-    }
-
-                #ifdef Debug
-    /*
-                    {
-                    MATRIX *mat;
-            PRINTDEBUG(dddif,4,(PFMT " VectorScatterConnX():  v="
-                    VINDEX_FMTX "new matrices:\n",me,VINDEX_PRTX(vec)));
-                    for (mat=first; mat!=NULL; mat=MNEXT(mat))
-                    {
-                    PRINTDEBUG(dddif,4,(PFMT "     mat=%x dest=" EID_FMTX "\n",me,mat,VINDEX_PRTX(MDEST(mat))));
-                    }
-                    }
-     */
-                #endif
-  }
-
-#ifdef Debug
-  {
-    MATRIX *mat=NULL;
-
-    for (mat=VSTART(vec); mat!=NULL; mat=MNEXT(mat))
-    {
-      if (MDEST(mat) == MDEST(MADJ(mat)))
-      {
-        if (MDIAG(mat)) continue;
-
-        if (!MDIAG(mat))
-          PRINTDEBUG(dddif,1,(PFMT " VectorScatterConnX(): NOT DIAGONAL v="
-                              VINDEX_FMTX " conn=%x mat=%x Size=%d vectoID=" VINDEX_FMTX
-                              "\n",me,VINDEX_PRTX(vec),MMYCON(mat),mat,UG_MSIZE(mat),
-                              VINDEX_PRTX(MDEST(mat))));
-      }
-    }
-  }
-#endif
-
-  /* count new connections */
-  NC(theGrid) += newconn;
-}
-
-
-
-static void VectorObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
-{
-  VECTOR          *vec            = (VECTOR *) obj;
-  MATRIX          *theMatrix,*Prev,*Next;
-  INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(vec)));
-  GRID        *theGrid    = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
-
-
-  PRINTDEBUG(dddif,2,(PFMT " VectorObjMkCons(): v=" VINDEX_FMTX
-                      " VEOBJ=%d\n",
-                      me,VINDEX_PRTX(vec),OBJT(vec)))
-
-  /*
-          NOTE (TODO): this might be too less. for n2n transfer, connections
-          might be set up consisting of two matrix structures transfered from
-          different procs. this code will NOT handle that case, the connection
-          will be created with the first matrix and destroyed here. When the
-          second message arrives, the second matrix will lead to construction
-          of a second connection, which will also be deleted here. we would
-          need a mkcons after all messages to handle that case. (NIY in ddd 1.6.5)
-
-          THIS case is handeled in newer DDD version (s.l. 970127)!!
-   */
-
-  /* kill inconsistent connections */
-  for (theMatrix = VSTART((VECTOR *)vec);
-       theMatrix!=NULL; theMatrix=Next)
-  {
-    MATRIX *theAdjoint = MADJ(theMatrix);
-
-    Next = MNEXT(theMatrix);
-
-    if (MDEST(theAdjoint) == NULL)
-    {
-      PRINTDEBUG(dddif,4,(PFMT " VectorObjMkCons(): v=" VINDEX_FMTX
-                          " mat=%x vectoID=%d, KILLING incomplete connection\n",
-                          me,VINDEX_PRTX(vec),theMatrix,ID(MDEST(theMatrix))))
-
-      ASSERT(!MDIAG(theMatrix));
-
-      {
-        INT size = ((MDIAG(theMatrix)) ? UG_MSIZE(theMatrix) : 2*UG_MSIZE(theMatrix));
-        PutFreeObject(ddd_ctrl(context).currMG,MMYCON(theMatrix),size,MAOBJ);
-      }
-
-
-      MNEXT(Prev) = Next;
-
-      NC(theGrid)--;
-      continue;
-    }
-    Prev = theMatrix;
-  }
-}
 
 static void VectorPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO isnew)
 {
@@ -664,28 +303,6 @@ static void VectorPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRI
     ASSERT(old <= 0);
     return;
   }
-
-  /* dispose connections for geom levels not for amg levels */
-#if ! defined __OVERLAP2__
-  if (level>=0)
-    if (GHOSTPRIO(isnew))
-    {
-      MATRIX *theMatrix,*next;
-
-      for (theMatrix=VSTART(pv); theMatrix!=NULL;
-           theMatrix = next)
-      {
-        next = MNEXT(theMatrix);
-
-        PRINTDEBUG(dddif,2,(PFMT " VectorPriorityUpdate(): v="
-                            VINDEX_FMTX " old=%d new=%d dispose conn=%x\n",
-                            me,VINDEX_PRTX(pv),old,isnew,MMYCON(theMatrix)))
-
-        if (DisposeConnection(theGrid,MMYCON(theMatrix)))
-          ASSERT(0);
-      }
-    }
-#endif
 
         #ifdef __EXCHANGE_CONNECTIONS__
   IFDEBUG(dddif,1)
@@ -1252,7 +869,8 @@ static void ElementDelete (DDD::DDDContext& context, DDD_OBJ obj)
                       me,EID_PRTX(pe),OBJT(pe),level,NC(theGrid)))
 
   /* dispose element without connections (false) */
-  if (DisposeElement(theGrid, pe, false)) ASSERT(0);
+  if (DisposeElement(theGrid, pe))
+    ASSERT(0);
 }
 
 
@@ -2175,9 +1793,6 @@ void NS_DIM_PREFIX ddd_HandlerInit (DDD::DDDContext& context, INT handlerSet)
 
   DDD_SetHandlerUPDATE           (context, dddctrl.TypeVector, VectorUpdate);
   DDD_SetHandlerXFERCOPY         (context, dddctrl.TypeVector, VectorXferCopy);
-  DDD_SetHandlerXFERGATHERX      (context, dddctrl.TypeVector, VectorGatherMatX);
-  DDD_SetHandlerXFERSCATTERX     (context, dddctrl.TypeVector, VectorScatterConnX);
-  DDD_SetHandlerOBJMKCONS        (context, dddctrl.TypeVector, VectorObjMkCons);
   DDD_SetHandlerSETPRIORITY      (context, dddctrl.TypeVector, VectorPriorityUpdate);
   /* TODO: not used
           DDD_SetHandlerDELETE           (context, dddctrl.TypeVector, VectorDelete);

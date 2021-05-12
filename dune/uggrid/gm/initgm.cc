@@ -39,7 +39,6 @@
 
 /* gm module */
 #include "gm.h"
-#include "enrol.h"
 #include "algebra.h"
 #include "cw.h"
 #include "ugm.h"
@@ -94,21 +93,6 @@ INT NS_DIM_PREFIX InitGm ()
 
   /* elements.c */
   if ((err=PreInitElementTypes())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-
-  /* enrol.c */
-  if ((err=InitEnrol())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* algebra.c */
-  if ((err=InitAlgebra())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);

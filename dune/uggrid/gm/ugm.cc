@@ -69,7 +69,6 @@
 #include "refine.h"
 #include <dune/uggrid/domain/domain.h>
 #include "pargm.h"
-#include "mgheapmgr.h"
 
 #ifdef ModelP
 #include <dune/uggrid/parallel/dddif/identify.h>
@@ -2383,7 +2382,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
   /* create edges */
   for (i=0; i<EDGES_OF_ELEM(pe); i++)
     if (CreateEdge (theGrid,pe,i,with_vector) == NULL) {
-      DisposeElement(theGrid,pe,true);
+      DisposeElement(theGrid,pe);
       return(NULL);
     }
 
@@ -2412,7 +2411,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
       {
         if (CreateSideVector (theGrid,i,(GEOM_OBJECT *)pe,&pv))
         {
-          DisposeElement(theGrid,pe,true);
+          DisposeElement(theGrid,pe);
           return (NULL);
         }
         SET_SVECTOR(pe,i,pv);
@@ -2587,7 +2586,6 @@ GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG)
   GLEVEL(theGrid) = l;
   GATTR(theGrid) = GRID_ATTR(theGrid);
   NE(theGrid) = 0;
-  NC(theGrid) = 0;
   /* other counters are init in INIT fcts below */
 
   GSTATUS(theGrid,0);
@@ -2685,14 +2683,12 @@ INT NS_DIM_PREFIX ClearMultiGridUsedFlags (MULTIGRID *theMG, INT FromLevel, INT 
   NODE *theNode;
   EDGE *theEdge;
   VECTOR *theVector;
-  MATRIX *theMatrix;
 
   elem = mask & MG_ELEMUSED;
   node = mask & MG_NODEUSED;
   edge = mask & MG_EDGEUSED;
   vertex = mask & MG_VERTEXUSED;
   vector = mask & MG_VECTORUSED;
-  matrix = mask & MG_MATRIXUSED;
 
   for (level=FromLevel; level<=ToLevel; level++)
   {
@@ -2719,14 +2715,11 @@ INT NS_DIM_PREFIX ClearMultiGridUsedFlags (MULTIGRID *theMG, INT FromLevel, INT 
         if (vertex) SETUSED(MYVERTEX(theNode),0);
       }
     }
-    if (vector || matrix)
+    if (vector)
     {
       for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
       {
         if (vector) SETUSED(theVector,0);
-        if (matrix)
-          for (theMatrix=VSTART(theVector); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-            SETUSED(theMatrix,0);
       }
     }
 
@@ -2853,18 +2846,9 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   if (not ppifContext)
     ppifContext = std::make_shared<PPIF::PPIFContext>();
 
-  std::unique_ptr<FORMAT> theFormat = CreateFormat();
-  if (theFormat==NULL)
-  {
-    PrintErrorMessage('E',"CreateMultiGrid","format not found");
-    return(NULL);
-  }
-
-
   /* allocate multigrid envitem */
   theMG = MakeMGItem(MultigridName, ppifContext);
   if (theMG==NULL) return(NULL);
-  MGFORMAT(theMG) = std::move(theFormat);
   if (InitElementTypes(theMG)!=GM_OK)
   {
     PrintErrorMessage('E',"CreateMultiGrid","error in InitElementTypes");
@@ -3197,7 +3181,6 @@ static INT DisposeVertex (GRID *theGrid, VERTEX *theVertex)
 
  * @param   theGrid - grid to remove from
  * @param   theElement - element to remove
- * @param   dispose_connections - also dispose connections (true/false)
 
    This function removes an element from the data structure and inserts it
    into the free list. This includes all elementsides, sidevectors and the
@@ -3209,7 +3192,7 @@ static INT DisposeVertex (GRID *theGrid, VERTEX *theVertex)
    </ul> */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispose_connections)
+INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
 {
   INT i,j,tag;
   NODE    *theNode;
@@ -3398,11 +3381,6 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
       DEC_NO_OF_ELEM(theEdge);
   }
 
-  /* dispose matrices from element-vector */
-  if (dispose_connections)
-    if (DisposeConnectionFromElement(theGrid,theElement))
-      RETURN(1);
-
   for (j=0; j<CORNERS_OF_ELEM(theElement); j++)
   {
     theNode = CORNER(theElement,j);
@@ -3549,10 +3527,6 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
   INT tl = TOPLEVEL(theMG);
   INT l,i;
 
-  if (MG_COARSE_FIXED(theMG))
-    if (DisposeBottomHeapTmpMemory(theMG))
-      REP_ERR_RETURN(1);
-
 #ifdef ModelP
   DDD_XferBegin(theMG->dddContext());
     #ifdef DDDOBJMGR
@@ -3582,7 +3556,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
       }
     }
     while (PFIRSTELEMENT(theGrid)!=NULL)
-      if (DisposeElement(theGrid,PFIRSTELEMENT(theGrid),1))
+      if (DisposeElement(theGrid,PFIRSTELEMENT(theGrid)))
         return(1);
     while (PFIRSTNODE(theGrid)!=NULL)
     {
@@ -3752,7 +3726,7 @@ INT NS_DIM_PREFIX DisposeGrid (GRID *theGrid)
 
   /* clear level */
   while (PFIRSTELEMENT(theGrid)!=NULL)
-    if (DisposeElement(theGrid,PFIRSTELEMENT(theGrid),1))
+    if (DisposeElement(theGrid,PFIRSTELEMENT(theGrid)))
       return(2);
 
   while (PFIRSTNODE(theGrid)!=NULL)
@@ -3796,8 +3770,6 @@ INT NS_DIM_PREFIX DisposeGrid (GRID *theGrid)
 INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 {
   INT level;
-
-  if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
 
         #ifdef ModelP
   /* tell DDD that we will 'inconsistently' delete objects.
@@ -4608,7 +4580,7 @@ INT NS_DIM_PREFIX DeleteElement (MULTIGRID *theMG, ELEMENT *theElement) /* 3D VE
   }
 
   /* delete element now */
-  DisposeElement(theGrid,theElement,true);
+  DisposeElement(theGrid,theElement);
 
   return(GM_OK);
 }
@@ -5581,7 +5553,6 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
   EDGE *theEdge;
   LINK *theLink;
   VECTOR *vec;
-  MATRIX *mat;
   char c;
   DOUBLE hmin,hmax,h;
   INT l,cl,minl,i,soe,eos,coe,side,e;
@@ -5622,9 +5593,9 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
           if (SIDE_ON_BND(theElement,i))
             ns++;
 
-    UserWriteF("%c %3d %8d %8ld %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",c,l,(int)TOPLEVEL(theMG),
+    UserWriteF("%c %3d %8d %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",c,l,(int)TOPLEVEL(theMG),
                (long)NV(theGrid),(long)NN(theGrid),(long)NE(theGrid),(long)NT(theGrid),
-               (long)ns,(long)NVEC(theGrid),(long)NC(theGrid),(float)hmin,(float)hmax);
+               (long)ns,(long)NVEC(theGrid),(float)hmin,(float)hmax);
   }
 
   /* surface grid up to current level */
@@ -5643,23 +5614,12 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
       for (theLink=START(theNode); theLink!=NULL; theLink=NEXT(theLink))
         SETUSED(MYEDGE(theLink),0);
     }
-    for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-      for (mat=VSTART(vec); mat!=NULL; mat=MNEXT(mat))
-        SETCUSED(MMYCON(mat),0);
 
     /* count vectors and connections */
     for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
       if ((l==cl) || (VNCLASS(vec)<1))
       {
         nvec++;
-        for (mat=VSTART(vec); mat!=NULL; mat=MNEXT(mat))
-        {
-          if (MUSED(mat)) continue;
-          SETCUSED(MMYCON(mat),1);
-
-          if ((l==cl) || (VNCLASS(MDEST(mat))<1))
-            nc++;
-        }
       }
 
     /* count other objects */
@@ -6053,7 +6013,6 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
 
  * @param   theMG - multigrid structure to list
  * @param   theVector - vector to list
- * @param   matrixopt - list line of matrix corresponding to theVector
  * @param   dataopt - list user data if true
  * @param   modifiers - flags modifying output style and verbose level
 
@@ -6062,21 +6021,14 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
  */
 /****************************************************************************/
 
-void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, INT matrixopt, INT dataopt, INT modifiers)
+void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, INT dataopt, INT modifiers)
 {
-  NODE *theNode;
-  EDGE *theEdge;
-  ELEMENT *theElement;
-  MATRIX *theMatrix;
   DOUBLE_VECTOR pos;
-
-  FORMAT* theFormat = theMG->theFormat.get();
 
   /* print index and type of vector */
   UserWriteF("IND=" VINDEX_FFMTE " VTYPE=%d(%c) ",
              VINDEX_PRTE(theVector),
-             VTYPE(theVector),
-             FMT_T2N(theFormat,VTYPE(theVector)));
+             VTYPE(theVector));
 
   if (READ_FLAG(modifiers,LV_POS))
   {
@@ -6097,7 +6049,7 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
                 #ifdef __THREEDIM__
     case SIDEVEC :
     {
-      theElement = (ELEMENT*)VOBJECT(theVector);
+      ELEMENT *theElement = (ELEMENT*)VOBJECT(theVector);
       UserWriteF("SIDE-V elemID=" EID_FFMT
                  "                ",
                  EID_PRT(theElement));
@@ -6111,14 +6063,6 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
 
   UserWriteF("VCLASS=%1d VNCLASS=%1d",VCLASS(theVector),VNCLASS(theVector));
   UserWriteF(" key=%d\n", KeyForObject((KEY_OBJECT *)theVector) );
-
-  /* print matrix list if */
-  if (matrixopt > 0)
-    for (theMatrix = VSTART(theVector); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-    {
-      UserWrite("    DEST(MATRIX): ");
-      ListVector(theMG,MDEST(theMatrix),0,0,modifiers);
-    }
 }
 
 /****************************************************************************/
@@ -6720,7 +6664,7 @@ static INT BElem2IElem (GRID *grid, ELEMENT **elemH)
   if (ielem==NULL)
     REP_ERR_RETURN(1);
 
-  if (DisposeElement(grid,elem,NO))
+  if (DisposeElement(grid,elem))
     REP_ERR_RETURN(1);
 
   *elemH = ielem;

@@ -104,7 +104,7 @@ INT         CreateSonElementSide    (GRID *theGrid, ELEMENT *theElement,
 GRID            *CreateNewLevel                 (MULTIGRID *theMG);
 
 /* dispose basic objects */
-INT              DisposeElement                 (GRID *theGrid, ELEMENT *theElement, INT dispose_connections);
+INT              DisposeElement                 (GRID *theGrid, ELEMENT *theElement);
 INT              DisposeTopLevel                (MULTIGRID *theMG);
 INT              DisposeNode                    (GRID *theGrid, NODE *theNode);
 

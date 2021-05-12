@@ -187,7 +187,7 @@ enum {MAX_SONS = 30};
 #endif
 
 /** \brief max number of geometric domain parts                 */
-#define MAXDOMPARTS                                             4
+#define MAXDOMPARTS                                             1
 
 /** \brief transforms type into bitpattern                              */
 #define BITWISE_TYPE(t) (1<<(t))
@@ -207,16 +207,6 @@ enum {MAX_SONS = 30};
 enum VectorType {NOVTYPE=-1,  //** Undefined */
                  SIDEVEC    /**< Vector associated to an element side */
 };
-
-/** @name Some constants for abstract vector type names */
-/*@{*/
-/** \todo Please doc me! */
-#define FROM_VTNAME                                             '0'
-/** \todo Please doc me! */
-#define TO_VTNAME                                               'z'
-/** \todo Please doc me! */
-#define MAXVTNAMES                                              (1+TO_VTNAME-FROM_VTNAME)
-/*@}*/
 
 /****************************************************************************/
 /*                                                                          */
@@ -343,71 +333,6 @@ typedef INT (*TaggedConversionProcPtr)(INT,            /**< Tag for data identif
 
 /*----------- definition of structs ----------------------------------------*/
 
-/* struct documentation is in gm.doc */
-struct format {
-
-  /* variables of format */
-  /** \brief number of doubles in vectors                    */
-  INT VectorSizes[MAXVECTORS];
-
-  /** \brief a single char for abstract type name    */
-  char VTypeNames[MAXVECTORS];
-
-  /** \brief number of doubles in matrices                */
-  INT MatrixSizes[MAXCONNECTIONS];
-
-  /** \brief depth of connection for matrices */
-  INT ConnectionDepth[MAXCONNECTIONS];
-
-  /* table connecting parts, objects and types */
-
-  /** \brief (part,obj) --> vtype, -1 if not defined */
-  INT po2t[MAXDOMPARTS][MAXVOBJECTS];
-
-  /* derived components */
-  /** \brief maximal connection depth                     */
-  INT MaxConnectionDepth;
-  /** \brief geometrical depth corresponding                      */
-  INT NeighborhoodDepth;
-
-  /* algebraic con with depth 1                           */
-  /* both derived from ConnectionDepth            */
-  /** \brief type --> part, bitwise, not unique           */
-  INT t2p[MAXVECTORS];
-  /** \brief type --> object, bitwise, not unique         */
-  INT t2o[MAXVECTORS];
-
-  /* both derived from po2t                                       */
-  /** \brief type --> type name                                           */
-  char t2n[MAXVECTORS];
-
-  /** \brief type name --> type                                           */
-  INT n2t[MAXVTNAMES];
-
-  /** \brief 0 if vector not needed for geom object       */
-  INT OTypeUsed[MAXVOBJECTS];
-
-  /** \brief largest part used                                            */
-  INT MaxPart;
-  /* both derived from po2t                                       */
-};
-
-typedef struct {
-
-  /** \brief Abstract type is described here
-   *
-   * description only complete with po2t info
-   */
-  int tp;
-
-  /** \brief A single char as name of abstract type */
-  char name;
-
-  /* \brief Data size in bytes */
-  int size;
-
-} VectorDescriptor ;
-
 typedef struct {
 
   /** \brief This connection goes from position 'from'      */
@@ -495,9 +420,6 @@ struct matrix {
   /** \brief User data */
   DOUBLE value[1];
 };
-
-typedef struct matrix MATRIX;
-typedef struct matrix CONNECTION;
 
 /****************************************************************************/
 /*                                                                          */
@@ -1436,9 +1358,6 @@ struct grid {
   /** \brief Number of vectors on this grid level */
   INT nVector[NS_DIM_PREFIX MAX_PRIOS];
 
-  /** \brief Number of connections on this grid level */
-  INT nCon;
-
   DATA_STATUS data_status;          /* memory management for vectors|matrix */
                                     /* status for consistent and collect    */
   /* pointers */
@@ -1504,9 +1423,6 @@ struct multigrid {
 
   /** \brief description of BVP-properties                */
   BVP_DESC theBVPD;
-
-  /** \brief pointer to format definitions                */
-  std::unique_ptr<format> theFormat;
 
   /** \brief associated heap structure                    */
   NS_PREFIX HEAP *theHeap;
@@ -1585,8 +1501,6 @@ struct multigrid {
 /****************************************************************************/
 
 /* geometrical part */
-typedef struct format FORMAT;
-
 typedef union  vertex VERTEX;
 typedef struct elementlist ELEMENTLIST;
 typedef struct node NODE;
@@ -2070,13 +1984,10 @@ enum LV_ID_TYPES {
 #define SETXFERMATX(p,n)                        CW_WRITE(p,XFERMATX_CE,n)
 #endif
 
-#define MINC(m)                                         ((MATRIX*)(((char *)(m))+UG_MSIZE(m)))
-#define MDEC(m)                                         ((MATRIX*)(((char *)(m))-UG_MSIZE(m)))
 #define MNEXT(m)                                        ((m)->next)
 #define MDEST(m)                                        ((m)->vect)
 #define MADJ(m)                                         ((MDIAG(m)) ? (m) : ((MOFFSET(m)) ? (MDEC(m)) : (MINC(m))))
 #define MROOT(m)                                        MDEST(MADJ(m))
-#define MMYCON(m)                                       ((MOFFSET(m)) ? (MDEC(m)) : (m))
 #define MVALUE(m,n)                             ((m)->value[n])
 #define MVALUEPTR(m,n)                          (&((m)->value[n]))
 #define MDESTINDEX(m)                           ((m)->vect->index)
@@ -2820,8 +2731,11 @@ START_UGDIM_NAMESPACE
 #endif
 #define NE(p)                           ((p)->nEdge)
 #define NS(p)                           ((p)->nSide)
-#define NC(p)                           ((p)->nCon)
-#define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (GFORMAT(p)->OTypeUsed[(tp)]>0)
+#ifdef __THREEDIM__
+#define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (true)   // 3d grids have side vectors
+#else
+#define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (false)  // 2d grids have no vectors at all
+#endif
 #define NIMAT(p)                        ((p)->nIMat)
 
 #define GRID_ATTR(g) ((unsigned char) (GLEVEL(g)+32))
@@ -2865,7 +2779,6 @@ grid::dddContext()
 #define TOPLEVEL(p)                     ((p)->topLevel)
 #define CURRENTLEVEL(p)                 ((p)->currentLevel)
 #define FULLREFINELEVEL(p)              ((p)->fullrefineLevel)
-#define MGFORMAT(p)                     ((p)->theFormat)
 #define MG_BVP(p)                               ((p)->theBVP)
 #define MG_BVPD(p)                              (&((p)->theBVPD))
 #define MGBNDSEGDESC(p,i)               (&((p)->segments[i]))
@@ -2875,40 +2788,27 @@ grid::dddContext()
 #define MG_NPROPERTY(p)                 ((p)->nProperty)
 #define GRID_ON_LEVEL(p,i)              ((p)->grids[i])
 #define MGNAME(p)                               ((p)->v.name)
-#define VEC_DEF_IN_OBJ_OF_MG(p,tp)       (MGFORMAT(p)->OTypeUsed[(tp)]>0)
-#define NELIST_DEF_IN_MG(p)     (MGFORMAT(p)->nodeelementlist)
-#define NDATA_DEF_IN_MG(p)      (MGFORMAT(p)->nodedata)
+#ifdef __THREEDIM__
+#define VEC_DEF_IN_OBJ_OF_MG(p,tp)     (true)   // 3d grids have side vectors
+#else
+#define VEC_DEF_IN_OBJ_OF_MG(p,tp)     (false)  // 2d grids have no vectors at all
+#endif
 #define MG_SAVED(p)                             ((p)->saved)
-#define MG_FILENAME(p)                  ((p)->filename)
-#define MG_COARSE_FIXED(p)              ((p)->CoarseGridFixed)
-#define MG_MARK_KEY(p)              ((p)->MarkKey)
 
 /****************************************************************************/
 /*                                                                          */
+#define MG_FILENAME(p)                  ((p)->filename)
+#define MG_COARSE_FIXED(p)              ((p)->CoarseGridFixed)
+#define MG_MARK_KEY(p)              ((p)->MarkKey)
 /* macros for formats                                                       */
 /*                                                                          */
 /****************************************************************************/
 
-#define FMT_S_VEC_TP(f,t)                               ((f)->VectorSizes[t])
-#define FMT_VTYPE_NAME(f,t)                             ((f)->VTypeNames[t])
-#define FMT_S_MAT_TP(f,t)                               ((f)->MatrixSizes[t])
-#define FMT_S_MATPTR(f)                                 ((f)->MatrixSizes)
-#define FMT_S_IMAT_TP(f,t)                              ((f)->IMatrixSizes[t])
-#define FMT_CONN_DEPTH_TP(f,t)                  ((f)->ConnectionDepth[t])
-#define FMT_CONN_DEPTH_PTR(f)                   ((f)->ConnectionDepth)
-#define FMT_CONN_DEPTH_MAX(f)                   ((f)->MaxConnectionDepth)
-#define FMT_NB_DEPTH(f)                                 ((f)->NeighborhoodDepth)
-#define FMT_PO2T(f,p,o)                                 ((f)->po2t[p][o])
-#define FMT_T2P(f,t)                                    ((f)->t2p[t])
-#define FMT_TYPE_IN_PART(f,t,o)                 ((f)->t2p[o] & (1<<o))
-#define FMT_T2O(f,o)                                    ((f)->t2o[o])
-#define FMT_TYPE_USES_OBJ(f,t,o)                ((f)->t2o[o] & (1<<o))
-#define FMT_USES_OBJ(f,o)                               ((f)->OTypeUsed[o])
-#define FMT_MAX_PART(f)                                 ((f)->MaxPart)
-
-#define FMT_N2T(f,c)                                    (((c)<FROM_VTNAME) ? NOVTYPE : ((c)>TO_VTNAME) ? NOVTYPE : (f)->n2t[(c)-FROM_VTNAME])
-#define FMT_SET_N2T(f,c,t)                              ((f)->n2t[(c)-FROM_VTNAME] = t)
-#define FMT_T2N(f,t)                                    (((f)->t2n[t]))
+#ifdef __THREEDIM__
+#define FMT_S_VEC_TP(f,t)                               (sizeof(double))
+#else
+#define FMT_S_VEC_TP(f,t)                               (0)
+#endif
 
 /** \brief Constants for USED flags of objects */
 enum {MG_ELEMUSED =    1,
@@ -2985,9 +2885,6 @@ MULTIGRID               *GetMultigrid                           (const char *nam
 MULTIGRID               *GetFirstMultigrid                      (void);
 MULTIGRID               *GetNextMultigrid                       (const MULTIGRID *theMG);
 
-/* format definition */
-std::unique_ptr<FORMAT> CreateFormat ();
-
 /* create, saving and disposing a multigrid structure */
 MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
                             const char *format,
@@ -3029,11 +2926,8 @@ INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theN
 #endif
 
 /* algebraic connections */
-CONNECTION      *CreateExtraConnection  (GRID *theGrid, VECTOR *from, VECTOR *to);
 INT             DisposeExtraConnections (GRID *theGrid);
 INT             DisposeConnectionsInGrid (GRID *theGrid);
-MATRIX          *GetMatrix                              (const VECTOR *FromVector, const VECTOR *ToVector);
-CONNECTION      *GetConnection                  (const VECTOR *FromVector, const VECTOR *ToVector);
 INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
                                      VECTOR **vec);
 
@@ -3048,7 +2942,7 @@ INT         MultiGridStatus             (const MULTIGRID *theMG, INT gridflag, I
 void            ListGrids                               (const MULTIGRID *theMG);
 void            ListNode                                (const MULTIGRID *theMG, const NODE *theNode, INT dataopt, INT bopt, INT nbopt, INT vopt);
 void            ListElement                     (const MULTIGRID *theMG, const ELEMENT *theElement, INT dataopt, INT bopt, INT nbopt, INT vopt);
-void            ListVector                      (const MULTIGRID *theMG, const VECTOR *theVector, INT matrixopt, INT dataopt, INT modifiers);
+void            ListVector                      (const MULTIGRID *theMG, const VECTOR *theVector, INT dataopt, INT modifiers);
 
 /* query */
 LINK            *GetLink                                (const NODE *from, const NODE *to);
