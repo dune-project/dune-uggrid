@@ -132,8 +132,6 @@ static INT theMGRootDirID;                      /* env dir ID for the multigrids
 
 static UINT UsedOBJT;           /* for the dynamic OBJECT management	*/
 
-REP_ERR_FILE
-
 /****************************************************************************/
 /*                                                                          */
 /* forward declarations of functions used before they are defined           */
@@ -156,7 +154,7 @@ static INT DisposeEdge (GRID *theGrid, EDGE *theEdge);
  */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX GetFreeOBJT ()
+GM_OBJECTS NS_DIM_PREFIX GetFreeOBJT ()
 {
   INT i;
 
@@ -168,10 +166,10 @@ INT NS_DIM_PREFIX GetFreeOBJT ()
   if (i<MAXOBJECTS)
   {
     SET_FLAG(UsedOBJT,1<<i);
-    return (i);
+    return (GM_OBJECTS)i;
   }
   else
-    return (-1);
+    return NOOBJ;
 }
 
 /****************************************************************************/
@@ -188,7 +186,7 @@ INT NS_DIM_PREFIX GetFreeOBJT ()
  */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX ReleaseOBJT (INT type)
+INT NS_DIM_PREFIX ReleaseOBJT (GM_OBJECTS type)
 {
   if (type>=MAXOBJECTS)
     RETURN (GM_ERROR);
@@ -286,7 +284,7 @@ static void DestructDDDObject(DDD::DDDContext& context, void *object, INT type)
 }
 #endif
 
-INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, INT type)
+INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, GM_OBJECTS type)
 {
   #ifdef ModelP
   if (type!=MAOBJ && type!=COOBJ)
@@ -640,7 +638,6 @@ NODE * NS_DIM_PREFIX GetMidNode (const ELEMENT *theElement, INT edge)
   NODE *theNode;
   VERTEX *theVertex;
 
-  HEAPFAULT(theElement);
   theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,edge,0)),
                     CORNER(theElement,CORNER_OF_EDGE(theElement,edge,1)));
   if (theEdge == NULL) return(NULL);
@@ -3037,8 +3034,6 @@ static INT DisposeEdge (GRID *theGrid, EDGE *theEdge)
   NODE *from,*to;
   INT found;
 
-  HEAPFAULT(theEdge);
-
   /* reconstruct data */
   link0 = LINK0(theEdge);
   link1 = LINK1(theEdge);
@@ -3126,8 +3121,6 @@ INT NS_DIM_PREFIX DisposeNode (GRID *theGrid, NODE *theNode)
   VERTEX *theVertex;
   GEOM_OBJECT *father;
   INT size;
-
-  HEAPFAULT(theNode);
 
   /* call DisposeElement first! */
   assert(START(theNode) == NULL);
@@ -3239,7 +3232,11 @@ INT NS_DIM_PREFIX DisposeNode (GRID *theGrid, NODE *theNode)
 
 static INT DisposeVertex (GRID *theGrid, VERTEX *theVertex)
 {
-  HEAPFAULT(theVertex);
+  // The following call to HEAPFAULT triggers a failing assertion in some
+  // distributed settings.  I don't know whether this is the sign of a hidden bug
+  // somewhere, or whether HEAPFAULT is an obsolete left-over of UG3's
+  // hand-written manual memory heap.
+  //HEAPFAULT(theVertex);
 
   PRINTDEBUG(gm,1,(PFMT "DisposeVertex(): Gridlevel=%d theVertex=" VID_FMTX "\n",
                    theGrid->ppifContext().me(),GLEVEL(theGrid),VID_PRTX(theVertex)));
@@ -3291,8 +3288,6 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
   DOUBLE *local,fac;
   INT k,m,o,l;
         #endif
-
-  HEAPFAULT(theElement);
 
   GRID_UNLINK_ELEMENT(theGrid,theElement);
 
@@ -3390,12 +3385,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
     {
       bnds = ELEM_BNDS(theElement,i);
       if (bnds != NULL)
-      {
-#ifndef __SWAPBYTES__  /* Don't check for bnds HEAPFAULTs on little endian machines!! */
-        HEAPFAULT(bnds);
-#endif
         BNDS_Dispose(MGHEAP(MYMG(theGrid)),bnds);
-      }
     }
 
         #ifdef __THREEDIM__
@@ -6775,12 +6765,10 @@ static INT RemoveSpuriousBoundarySides (HEAP *heap, ELEMENT *elem, INT side)
 
   PRINTDEBUG(gm,1,("spurious bsides between elem %ld and elem %ld removed",(long)ID(elem),(long)ID(nb)));
 
-  HEAPFAULT(bside);
   if (BNDS_Dispose(heap,bside))
     REP_ERR_RETURN(1);
   SET_BNDS(elem,side,NULL);
 
-  HEAPFAULT(nbbside);
   if (BNDS_Dispose(heap,nbbside))
     REP_ERR_RETURN(2);
   SET_BNDS(nb,nbside,NULL);

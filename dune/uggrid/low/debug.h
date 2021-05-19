@@ -48,9 +48,6 @@
 #define REP_ERR_MAX             10
 #define DEBUG_TIME_MAX  100
 
-/* if HEAPCHECK is true p is a pointer to a zombie object */
-#define HEAPCHECK(ptr) (((int *)ptr)[1] == -1)
-
 #ifdef Debug
 
 #include <cassert>
@@ -60,8 +57,6 @@
 #define PRINTDEBUG_EXT(m,n,s) IFDEBUG(m,n) PrintDebug("-" STR(m) "-"); PrintDebug s; ENDDEBUG
 #define ENDDEBUG  }
 #define RETURN(rcode)   {INT rc; rc = rcode; assert(!rc); return (rc);}
-#define SETHEAPFAULT(p,v)       {int *hf_pr; hf_pr=(int*)(((char*)(p))+sizeof(void*)); hf_pr[0]=(int)(v);}
-#define HEAPFAULT(p)  assert(((int*)(((char*)(p))+sizeof(void*)))[0]!=-1);
 #define ASSERT(exp)             assert(exp)
 #define REP_ERR_INC             {rep_err_line[rep_err_count] = __LINE__;  \
                                  rep_err_file[rep_err_count] = this_file; \
@@ -69,18 +64,13 @@
 #ifdef ModelP
 #define REP_ERR_RETURN(err)             { assert(((err)==0));return (err);}
 #define REP_ERR_RETURN_PTR(p)   { assert(((p)!=NULL));return (p);}
-#define REP_ERR_RETURN_VOID             { assert(false);return;}
-#define REP_ERR_GOTO(st,lbl)    { st; assert(false); goto lbl;}
 #else
 #define REP_ERR_RETURN(err)             { if (err) REP_ERR_INC  return (err);}
 #define REP_ERR_RETURN_PTR(p)   { if (p == NULL) REP_ERR_INC  return (p);}
-#define REP_ERR_RETURN_VOID             { REP_ERR_INC  return;}
-#define REP_ERR_GOTO(st,lbl)    { REP_ERR_INC st; goto lbl;}
 #endif
 #define REP_ERR_ENCOUNTERED             (rep_err_count)
 
 #define REP_ERR_RESET                   rep_err_count = 0;
-#define REP_ERR_FILE                    static char *this_file=__FILE__;
 
 #else /* Debug */
 
@@ -89,17 +79,13 @@
 #define PRINTDEBUG(m,n,s) /* no debugging */
 #define PRINTDEBUG_EXT(m,n,s) /* no debugging */
 #define RETURN(rcode)   return (rcode)
-#define HEAPFAULT(ptr)
 #define ASSERT(exp)
 
 #define REP_ERR_RETURN(err)             {return (err);}
 #define REP_ERR_RETURN_PTR(p)   {return (p);}
-#define REP_ERR_RETURN_VOID             {return;}
-#define REP_ERR_GOTO(st,lbl)    {st; goto lbl;}
 #define REP_ERR_ENCOUNTERED             (false)
 #define REP_ERR_INC
 #define REP_ERR_RESET
-#define REP_ERR_FILE
 
 #define PrintDebug(...)
 
@@ -121,21 +107,14 @@ typedef int (*PrintfProcPtr)(const char *, ...);
 /*																			*/
 /****************************************************************************/
 
-#if (defined Debug && !defined compile_debug)
+#ifdef Debug
 
 extern int Debuginit;
 extern int Debugdddif;
 extern int Debugdev;
 extern int Debuggm;
-extern int Debuggraph;
-extern int Debuggui;
 extern int Debuglow;
 extern int Debugdom;
-extern int Debugmachines;
-extern int Debugnp;
-extern int Debugui;
-extern int Debugappl;
-extern int Debugpclib;
 
 /* for reporting of erros (using the REP_ERR_RETURN-macro) */
 extern int rep_err_count;

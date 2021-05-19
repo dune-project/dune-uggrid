@@ -92,8 +92,6 @@ USING_UGDIM_NAMESPACE
 
 static INT theSymbolVarID;                      /* env type for Format vars                     */
 
-REP_ERR_FILE
-
 std::unique_ptr<FORMAT> NS_DIM_PREFIX CreateFormat ()
 {
   INT i, j, type, type2, part, obj, MaxDepth, NeighborhoodDepth, MaxType;

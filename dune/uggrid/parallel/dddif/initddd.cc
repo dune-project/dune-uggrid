@@ -577,7 +577,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
   /* compute global fields it control word entry */
   gbits = ~(((1<<NO_OF_ELEM_LEN)-1)<<NO_OF_ELEM_SHIFT);
   PRINTDEBUG(dddif,1,("ddd_DefineTypes(): TypeEdge gbits=%08x size=%d\n",
-                      gbits,sizeof(e.links[0].control)));
+                      gbits,sizeof(link::control)));
 
   DDD_TypeDefine(context, dddctrl.TypeEdge,
                  /* link 0 data */

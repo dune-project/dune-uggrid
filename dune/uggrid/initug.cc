@@ -110,10 +110,6 @@ USING_UG_NAMESPACES
 INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
 {
   INT err;
-#ifdef Debug
-  char buffer[256];
-  char debugfilename[NAMESIZE];
-#endif
 
 #ifdef ModelP
   /* init ppif module */
@@ -158,10 +154,9 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
     for (i = 1; i < *argcp; i++)
       if (strncmp ((*argvp)[i], "-dbgfile", 8) == 0)
         break;
-    if ((i < *argcp)
-        && (GetDefaultValue (DEFAULTSFILENAME, UGDEBUGRFILE, buffer) == 0)
-        && (sscanf (buffer, " %s ", debugfilename) == 1))
+    if (i < *argcp)
     {
+      const char* debugfilename = "dune-uggrid.dbg";
       if (SetPrintDebugToFile (debugfilename) != 0)
       {
         printf ("ERROR while opening debug file '%s'\n", debugfilename);

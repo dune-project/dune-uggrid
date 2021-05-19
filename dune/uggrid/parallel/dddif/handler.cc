@@ -1130,7 +1130,7 @@ DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD::DDDContext& context, DDD_OBJ obj, DDD
     if (OBJT((NODE *)ref) != NDOBJ)
       UserWriteF("NFatherObjType(): wrong OBJT=%d\n",OBJT((NODE *)ref));
                         #endif
-    HEAPFAULT(ref);
+
     ASSERT(OBJT((NODE *)ref) == NDOBJ);
     return(dddctrl.TypeNode);
 
@@ -1139,7 +1139,7 @@ DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD::DDDContext& context, DDD_OBJ obj, DDD
     if (OBJT((EDGE *)ref) != EDOBJ)
       UserWriteF("NFatherObjType(): wrong OBJT=%d\n",OBJT((EDGE *)ref));
                         #endif
-    HEAPFAULT(ref);
+
     ASSERT(OBJT((EDGE *)ref) == EDOBJ);
     return(dddctrl.TypeEdge);
 

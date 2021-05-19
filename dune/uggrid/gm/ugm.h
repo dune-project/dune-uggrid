@@ -80,8 +80,8 @@ INT              InitUGManager                  (void);
 INT              ExitUGManager ();
 
 /* object handling */
-INT              GetFreeOBJT                    (void);
-INT              ReleaseOBJT                    (INT type);
+GM_OBJECTS              GetFreeOBJT                    (void);
+INT              ReleaseOBJT                    (GM_OBJECTS);
 
 /* create basic objects */
 /** \todo Commented out because no definitions exist for these declarations
@@ -132,7 +132,7 @@ void            GetNbSideByNodes                (ELEMENT *theNeighbor, INT *nbsi
 
 
 void *GetMemoryForObject (MULTIGRID *mg, INT size, INT type);
-INT PutFreeObject (MULTIGRID *mg, void *object, INT size, INT type);
+INT PutFreeObject (MULTIGRID *mg, void *object, INT size, GM_OBJECTS type);
 
 /* determination of node classes */
 INT             ClearNodeClasses                        (GRID *theGrid);

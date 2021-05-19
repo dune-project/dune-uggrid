@@ -109,9 +109,6 @@ static void RecursiveCoordinateBisection (const PPIF::PPIFContext& ppifContext,
                                           const std::array<int, 4> procs,
                                           int bisectionAxis = 0)
 {
-
-  assert(begin < end);
-
   // empty element range for these processors: nothing to do
   if (begin == end)
     return;

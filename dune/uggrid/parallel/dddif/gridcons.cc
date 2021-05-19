@@ -80,16 +80,6 @@ using namespace PPIF;
 
 /****************************************************************************/
 /*																			*/
-/* definition of variables global to this source file only (static!)		*/
-/*																			*/
-/****************************************************************************/
-
-REP_ERR_FILE
-
-
-
-/****************************************************************************/
-/*																			*/
 /* forward declarations of functions used before they are defined			*/
 /*																			*/
 /****************************************************************************/
@@ -319,9 +309,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
           assert(0);
           break;
         }
-                                #ifdef Debug
-        if (theFather != NULL) HEAPFAULT(theFather);
-                                #endif
+
         VFATHER(theVertex) = theFather;
 
         if (OBJT(theVertex) == BVOBJ)
