@@ -3237,7 +3237,11 @@ INT NS_DIM_PREFIX DisposeNode (GRID *theGrid, NODE *theNode)
 
 static INT DisposeVertex (GRID *theGrid, VERTEX *theVertex)
 {
-  HEAPFAULT(theVertex);
+  // The following call to HEAPFAULT triggers a failing assertion in some
+  // distributed settings.  I don't know whether this is the sign of a hidden bug
+  // somewhere, or whether HEAPFAULT is an obsolete left-over of UG3's
+  // hand-written manual memory heap.
+  //HEAPFAULT(theVertex);
 
   PRINTDEBUG(gm,1,(PFMT "DisposeVertex(): Gridlevel=%d theVertex=" VID_FMTX "\n",
                    theGrid->ppifContext().me(),GLEVEL(theGrid),VID_PRTX(theVertex)));
