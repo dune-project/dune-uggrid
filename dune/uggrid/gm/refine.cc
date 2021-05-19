@@ -4151,7 +4151,6 @@ static INT RefineElementYellow (GRID *theGrid, ELEMENT *theElement, NODE **theCo
   /* check son nodes validity */
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
-    HEAPFAULT(theContext[i]);
     assert (theContext[i] != NULL);
   }
         #endif

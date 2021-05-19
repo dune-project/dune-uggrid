@@ -161,15 +161,6 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
     return(nerrors++);
   }
 
-  if (theFather!=NULL && HEAPCHECK(theFather))
-  {
-    UserWriteF("elem=" EID_FMTX " node=" ID_FMTX " vertex=" VID_FMTX
-               " VFATHER=%x is pointer to ZOMBIE\n",EID_PRTX(theElement),ID_PRTX(theNode),
-               VID_PRTX(theVertex),theFather);
-    return(nerrors++);
-  }
-
-
   if (theFather!=NULL && MASTER(theNode) && EPRIO(theFather)==PrioHGhost)
   {
         #ifdef ModelP
@@ -418,14 +409,6 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
     }
     if (FatherNode != NULL)
     {
-      if (HEAPCHECK(FatherNode))
-      {
-        UserWriteF("elem=" EID_FMTX " cornernode=%d NID=" ID_FMTX
-                   " has father pointer to ZOMBIE\n",EID_PRTX(theElement),ID_PRTX(theNode));
-        nerrors++;
-        break;
-      }
-
       if (OBJT(FatherNode) != NDOBJ)
       {
         UserWriteF(" cornernode=" ID_FMTX
@@ -480,15 +463,6 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
       }
       if (FatherEdge != NULL)
       {
-        if (HEAPCHECK(FatherEdge))
-        {
-          UserWriteF("elem=" EID_FMTX " edge=%d/%x midnode NID=" ID_FMTX
-                     " fatherpointer to edge=%d/%x is ZOMBIE\n",EID_PRTX(theElement),
-                     ID_PRTX(theNode),i,FatherEdge);
-          nerrors++;
-          break;
-        }
-
         if (OBJT(FatherEdge) != EDOBJ)
         {
           UserWriteF(" midnode=" ID_FMTX
@@ -647,13 +621,6 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
       return(nerrors);
   }
 
-  if (HEAPCHECK(theNode))
-  {
-    UserWriteF("elem=" EID_FMTX " edge=%d/%x midnode NID=" ID_FMTX
-               " is pointer to ZOMBIE\n",EID_PRTX(theElement),i,theEdge,ID_PRTX(theNode));
-    return(nerrors++);
-  }
-
   theVertex = MYVERTEX(theNode);
   if (theVertex == NULL)
   {
@@ -796,8 +763,6 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
     NbElement = NBELEM(theElement,i);
     if (NbElement != NULL)
     {
-      HEAPFAULT(NbElement);
-
       /* lets see if NbElement has the neighbor theElement */
       for (j=0; j<SIDES_OF_ELEM(NbElement); j++)
         if (NBELEM(NbElement,j) == theElement)
@@ -1028,7 +993,6 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   theFather = EFATHER(theElement);
   if (theFather != NULL)
   {
-    HEAPFAULT(theFather);
     /* check MIDNODE information of father */
     for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
     {

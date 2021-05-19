@@ -246,7 +246,6 @@ void NS_DIM_PREFIX ListCWofObject (const void *obj, INT offset)
   INT i,n,ce,last_ce,sub,min,cw_objt,oiw;
 
   ASSERT(obj!=NULL);
-  HEAPFAULT(obj);
 
   cw_objt = BITWISE_TYPE(OBJT(obj));
   sub = -1;
@@ -298,7 +297,6 @@ void NS_DIM_PREFIX ListAllCWsOfObject (const void *obj)
   INT i,cw,last_cw,sub,min,cw_objt,offset;
 
   ASSERT(obj!=NULL);
-  HEAPFAULT(obj);
 
   cw_objt = BITWISE_TYPE(OBJT(obj));
   sub = -1;
@@ -660,7 +658,7 @@ UINT NS_DIM_PREFIX ReadCW (const void *obj, INT ceID)
   UINT off_in_obj,mask,i,off_in_wrd,cw,cw_objt;
 
   ASSERT(obj!=NULL);
-  HEAPFAULT(obj);
+
   if ((ceID<0) || (ceID>=MAX_CONTROL_ENTRIES))
   {
     printf("ReadCW: ceID=%d out of range\n",ceID);
@@ -733,7 +731,7 @@ void NS_DIM_PREFIX WriteCW (void *obj, INT ceID, INT n)
   UINT *pcw;
 
   ASSERT(obj!=NULL);
-  HEAPFAULT(obj);
+
   if ((ceID<0) || (ceID>=MAX_CONTROL_ENTRIES))
   {
     printf("WriteCW: ceID=%d out of range\n",ceID);

@@ -184,8 +184,6 @@ static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
                        "SonLevel=%d to dest=%d\n", me,EGID(theSon),theSon,
                        ID(theSon),LEVEL(theSon), EPROCPRIO(context, theNeighbor,PrioMaster)))
 
-      HEAPFAULT(theNeighbor);
-
       if (EPROCPRIO(context, theNeighbor,PrioMaster)>=context.procs()) break;
 
       XFERECOPYX(context, theSon,EPROCPRIO(context, theNeighbor,PrioMaster),PrioHGhost,

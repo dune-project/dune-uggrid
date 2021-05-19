@@ -48,9 +48,6 @@
 #define REP_ERR_MAX             10
 #define DEBUG_TIME_MAX  100
 
-/* if HEAPCHECK is true p is a pointer to a zombie object */
-#define HEAPCHECK(ptr) (((int *)ptr)[1] == -1)
-
 #ifdef Debug
 
 #include <cassert>
@@ -60,8 +57,6 @@
 #define PRINTDEBUG_EXT(m,n,s) IFDEBUG(m,n) PrintDebug("-" STR(m) "-"); PrintDebug s; ENDDEBUG
 #define ENDDEBUG  }
 #define RETURN(rcode)   {INT rc; rc = rcode; assert(!rc); return (rc);}
-#define SETHEAPFAULT(p,v)       {int *hf_pr; hf_pr=(int*)(((char*)(p))+sizeof(void*)); hf_pr[0]=(int)(v);}
-#define HEAPFAULT(p)  assert(((int*)(((char*)(p))+sizeof(void*)))[0]!=-1);
 #define ASSERT(exp)             assert(exp)
 #define REP_ERR_INC             {rep_err_line[rep_err_count] = __LINE__;  \
                                  rep_err_file[rep_err_count] = this_file; \
@@ -84,7 +79,6 @@
 #define PRINTDEBUG(m,n,s) /* no debugging */
 #define PRINTDEBUG_EXT(m,n,s) /* no debugging */
 #define RETURN(rcode)   return (rcode)
-#define HEAPFAULT(ptr)
 #define ASSERT(exp)
 
 #define REP_ERR_RETURN(err)             {return (err);}

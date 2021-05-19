@@ -626,8 +626,6 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
   if (theVector == NULL)
     return(0);
 
-  HEAPFAULT(theVector);
-
   /* remove all connections concerning the vector */
   for (theMatrix=VSTART(theVector); theMatrix!=NULL; theMatrix=next)
   {
@@ -757,8 +755,6 @@ INT NS_DIM_PREFIX DisposeConnection (GRID *theGrid, CONNECTION *theConnection)
 {
   VECTOR *from, *to;
   MATRIX *Matrix, *ReverseMatrix, *SearchMatrix;
-
-  HEAPFAULT(theConnection);
 
   /* remove matrix(s) from their list(s) */
   Matrix = CMATRIX0(theConnection);

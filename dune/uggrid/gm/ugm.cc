@@ -638,7 +638,6 @@ NODE * NS_DIM_PREFIX GetMidNode (const ELEMENT *theElement, INT edge)
   NODE *theNode;
   VERTEX *theVertex;
 
-  HEAPFAULT(theElement);
   theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,edge,0)),
                     CORNER(theElement,CORNER_OF_EDGE(theElement,edge,1)));
   if (theEdge == NULL) return(NULL);
@@ -3035,8 +3034,6 @@ static INT DisposeEdge (GRID *theGrid, EDGE *theEdge)
   NODE *from,*to;
   INT found;
 
-  HEAPFAULT(theEdge);
-
   /* reconstruct data */
   link0 = LINK0(theEdge);
   link1 = LINK1(theEdge);
@@ -3124,8 +3121,6 @@ INT NS_DIM_PREFIX DisposeNode (GRID *theGrid, NODE *theNode)
   VERTEX *theVertex;
   GEOM_OBJECT *father;
   INT size;
-
-  HEAPFAULT(theNode);
 
   /* call DisposeElement first! */
   assert(START(theNode) == NULL);
@@ -3294,8 +3289,6 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
   INT k,m,o,l;
         #endif
 
-  HEAPFAULT(theElement);
-
   GRID_UNLINK_ELEMENT(theGrid,theElement);
 
         #ifdef __CENTERNODE__
@@ -3392,12 +3385,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement, INT dispos
     {
       bnds = ELEM_BNDS(theElement,i);
       if (bnds != NULL)
-      {
-#ifndef __SWAPBYTES__  /* Don't check for bnds HEAPFAULTs on little endian machines!! */
-        HEAPFAULT(bnds);
-#endif
         BNDS_Dispose(MGHEAP(MYMG(theGrid)),bnds);
-      }
     }
 
         #ifdef __THREEDIM__
@@ -6777,12 +6765,10 @@ static INT RemoveSpuriousBoundarySides (HEAP *heap, ELEMENT *elem, INT side)
 
   PRINTDEBUG(gm,1,("spurious bsides between elem %ld and elem %ld removed",(long)ID(elem),(long)ID(nb)));
 
-  HEAPFAULT(bside);
   if (BNDS_Dispose(heap,bside))
     REP_ERR_RETURN(1);
   SET_BNDS(elem,side,NULL);
 
-  HEAPFAULT(nbbside);
   if (BNDS_Dispose(heap,nbbside))
     REP_ERR_RETURN(2);
   SET_BNDS(nb,nbside,NULL);

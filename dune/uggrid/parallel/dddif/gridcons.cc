@@ -309,9 +309,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
           assert(0);
           break;
         }
-                                #ifdef Debug
-        if (theFather != NULL) HEAPFAULT(theFather);
-                                #endif
+
         VFATHER(theVertex) = theFather;
 
         if (OBJT(theVertex) == BVOBJ)

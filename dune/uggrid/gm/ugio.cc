@@ -2411,7 +2411,6 @@ static INT InsertLocalTree (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMENT 
         NodeList[i] = CreateMidNode(upGrid,theElement,theVertex,i-offset);
         if (NodeList[i]==NULL) REP_ERR_RETURN(1);
         ID(NodeList[i]) = ref->newcornerid[r_index];
-        HEAPFAULT(NodeList[i]);
       }
     }
     else
@@ -2419,7 +2418,6 @@ static INT InsertLocalTree (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMENT 
       ASSERT(ID(NodeList[i]) == ref->newcornerid[r_index]);
     }
     SETNTYPE(NodeList[i],MID_NODE);
-    HEAPFAULT(NodeList[i]);
     r_index++;
   }
   offset = i;
