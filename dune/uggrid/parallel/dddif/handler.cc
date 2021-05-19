@@ -252,13 +252,6 @@ static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc,
         #endif
 #endif
 
-  if (flag) {
-    if (DDD_XferWithAddData(context)) {
-      PRINTDEBUG(dddif,2,(PFMT " VectorXferCopy(): v=" VINDEX_FMTX
-                          " AddData nmat=%d\n",me,VINDEX_PRTX(pv),nmat))
-      DDD_XferAddDataX(context, nmat, ddd_ctrl(context).TypeMatrix,sizeArray);
-    }
-  }
   /*
           else
           {

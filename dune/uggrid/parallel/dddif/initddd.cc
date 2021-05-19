@@ -344,9 +344,6 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
 
   /* 2. DDD data objects (without DDD_HEADER) */
 
-  dddctrl.TypeMatrix = DDD_TypeDeclare(context, "Matrix");
-  MAP_TYPES(MAOBJ, dddctrl.TypeMatrix);
-
   dddctrl.TypeBndP = DDD_TypeDeclare(context, "BndP");
   static const INT objtBndP = GetFreeOBJT();
   MAP_TYPES(objtBndP, dddctrl.TypeBndP);
@@ -864,7 +861,6 @@ static void InitDDDTypes(DDD::DDDContext& context)
         #endif
 
   /* display dependent types */
-  DDD_TypeDisplay(context, dddctrl.TypeMatrix);
         #ifdef __TWODIM__
   DDD_TypeDisplay(context, dddctrl.TypeEdge);
         #endif
