@@ -19,6 +19,3 @@ else()
   #add_definitions("-DENABLE_UG=1")
   set(UG_DEFINITIONS "ENABLE_UG=1")
 endif()
-
-include(CheckIncludeFile)
-check_include_file ("rpc/rpc.h" HAVE_RPC_RPC_H)

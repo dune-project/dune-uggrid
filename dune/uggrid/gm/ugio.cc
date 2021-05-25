@@ -1356,8 +1356,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
     if (name==NULL) REP_ERR_RETURN(1);
     strcpy(filename,name);
   }
-  if (strcmp(itype,"xdr")==0) mode = BIO_XDR;
-  else if (strcmp(itype,"asc")==0) mode = BIO_ASCII;
+  if (strcmp(itype,"asc")==0) mode = BIO_ASCII;
   else if (strcmp(itype,"bin")==0) mode = BIO_BIN;
   else REP_ERR_RETURN(1);
   sprintf(buf,".ug.mg.");
