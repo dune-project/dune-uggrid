@@ -62,7 +62,6 @@ START_UG_NAMESPACE
 /****************************************************************************/
 
 /* mode of file */
-#define BIO_XDR                                 0
 #define BIO_ASCII                                       1
 #define BIO_BIN                                         2
 

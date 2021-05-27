@@ -1,6 +1,7 @@
 # dune-uggrid 2.8 (unreleased)
 
 * Removes support for `_2` and `_3` macros.
+* Remove support for XDR.
 
 # dune-uggrid 2.7.0 (2019-12-20)
 

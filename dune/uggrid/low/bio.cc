@@ -40,10 +40,6 @@
 #include <cstdio>
 #include <cstring>
 
-#if HAVE_RPC_RPC_H
-#include <rpc/rpc.h>    /* to include xdr.h in a portable way */
-#endif // #if HAVE_RPC_RPC_H
-
 #include "bio.h"
 
 USING_UG_NAMESPACE
@@ -88,9 +84,6 @@ typedef int (*W_string_proc)(const char *string);
 static FILE *stream;
 static int n_byte;
 static fpos_t pos;
-#if HAVE_RPC_RPC_H
-static XDR xdrs;
-#endif // #if HAVE_RPC_RPC_H
 
 /* low level read/write functions */
 static R_mint_proc Read_mint;
@@ -107,99 +100,6 @@ static W_string_proc Write_string;
 /*                                                                          */
 /****************************************************************************/
 
-/****************************************************************************/
-/*                                                                          */
-/* debug i/o                                                                */
-/*                                                                          */
-/****************************************************************************/
-
-#if HAVE_RPC_RPC_H
-static int XDR_Read_mint (int n, int *intList)
-{
-  int i;
-
-  for (i=0; i<n; i++)
-  {
-    /*if (!xdr_int(&xdrs,&(intList[i]))) return (1); quick hack to cure Cray's xdr_int error Christian Wrobel 980529*/
-    if (!xdr_u_int(&xdrs,(unsigned int*)&(intList[i]))) return (1);
-#if defined __T3D__ || defined __T3E__
-    intList[i] = (short int) intList[i];            /* sign extension due to xdr_u_int, 4/8 Byte conversion and bug in Cray's xdr on certain platforms; Christian Wrobel 980529 */
-#endif
-  }
-  return (0);
-}
-
-static int XDR_Write_mint (int n, const int *intList)
-{
-  int i;
-
-  for (i=0; i<n; i++)
-  {
-    /*if (!xdr_int(&xdrs,&(intList[i]))) return (1); quick hack to cure Cray's
-       xdr_int error Christian Wrobel 980529*/
-    if (!xdr_u_int(&xdrs,(unsigned int*)&(intList[i]))) return (1);
-    n_byte += 4;
-  }
-  return (0);
-}
-
-static int XDR_Read_mdouble (int n, double *doubleList)
-{
-  int i;
-
-  for (i=0; i<n; i++)
-    if (!xdr_double(&xdrs,&(doubleList[i]))) return (1);
-  return (0);
-}
-
-static int XDR_Write_mdouble (int n, const double *doubleList)
-{
-  int i;
-
-  for (i=0; i<n; i++)
-  {
-    if (!xdr_double(&xdrs,(double*) &(doubleList[i]))) return (1);
-    n_byte += 8;
-  }
-  return (0);
-}
-
-static int XDR_Read_string (char *string)
-{
-  int i,len;
-
-  if (fscanf(stream,"%d ",&len)!=1) return (1);
-  for (i=0; i<len; i++)
-  {
-    string[i] = fgetc(stream);
-    if (string[i]==EOF)
-      return (1);
-  }
-  string[i] = fgetc(stream);
-  if (string[i]!='\n') return (1);
-  string[i] = '\0';
-
-  return (0);
-}
-
-static int XDR_Write_string (const char *string)
-{
-  int i,m,len;
-
-  len = strlen(string);
-  m = fprintf(stream,"%d ",len);
-  if (m<0) return (1);
-  n_byte += m;
-  for (i=0; i<len; i++)
-    if (fputc(string[i],stream)==EOF)
-      return (1);
-  m = fprintf(stream,"\n");
-  if (m<0) return (1);
-  n_byte += len+m;
-
-  return (0);
-}
-#endif // #if HAVE_RPC_RPC_H
 
 /****************************************************************************/
 /*                                                                          */
@@ -370,21 +270,6 @@ int NS_PREFIX Bio_Initialize (FILE *file, int mode, char rw)
 
   switch (mode)
   {
-  case BIO_XDR :
-#if HAVE_RPC_RPC_H
-    if (rw=='r') xdrstdio_create(&xdrs,file,XDR_DECODE);
-    else if (rw=='w') xdrstdio_create(&xdrs,file,XDR_ENCODE);
-    else return (1);
-    Read_mint       = XDR_Read_mint;
-    Read_mdouble = XDR_Read_mdouble;
-    Read_string = XDR_Read_string;
-    Write_mint      = XDR_Write_mint;
-    Write_mdouble = XDR_Write_mdouble;
-    Write_string = XDR_Write_string;
-#else // #if HAVE_RPC_RPC_H
-    return (1);
-#endif // #else // #if HAVE_RPC_RPC_H
-    break;
   case BIO_ASCII :
     Read_mint       = ASCII_Read_mint;
     Read_mdouble = ASCII_Read_mdouble;
