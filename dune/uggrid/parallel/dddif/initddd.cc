@@ -637,6 +637,9 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
 
    RETURN VALUE:
    void
+
+   \note Not all of these interfaces are actually needed by Dune.
+     Those can be removed.
  */
 /****************************************************************************/
 
@@ -779,6 +782,11 @@ static void ddd_IfInit(DDD::DDDContext& context)
   dddctrl.Facet_InteriorBorder_All_IF = DDD_IFDefine(context, 1,O,2,A,5,B);
   DDD_IFSetName(context, dddctrl.Facet_InteriorBorder_All_IF, "Facet_InteriorBorder_All_IF: Master/Border->Master/Border/VGhost/HGhost/VHGhost");
 
+  // The Dune All_All_Interface for facets
+  A[0] = PrioMaster; A[1] = PrioBorder; A[2] = PrioVGhost; A[3] = PrioHGhost; A[4] = PrioVHGhost;
+  B[0] = PrioMaster; B[1] = PrioBorder; B[2] = PrioVGhost; B[3] = PrioHGhost; B[4] = PrioVHGhost;
+  dddctrl.Facet_All_All_IF = DDD_IFDefine(context, 1,O,5,A,5,B);
+  DDD_IFSetName(context, dddctrl.Facet_All_All_IF, "Facet_All_All_IF: Master/Border/VGhost/HGhost/VHGhost->Master/Border/VGhost/HGhost/VHGhost");
 
   /* define vertex interfaces */
   O[0] = dddctrl.TypeIVertex; O[1] = dddctrl.TypeBVertex;
