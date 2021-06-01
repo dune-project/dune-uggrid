@@ -204,7 +204,8 @@ extern DDD_IF BorderNodeIF, BorderNodeSymmIF, OuterNodeIF, NodeVIF,
 extern DDD_IF BorderVectorIF, BorderVectorSymmIF,
               OuterVectorIF, OuterVectorSymmIF,
               VectorVIF, VectorVAllIF, VectorIF;
-extern DDD_IF Facet_InteriorBorder_All_IF;
+extern DDD_IF Facet_All_All_IF,
+              Facet_InteriorBorder_All_IF;
 extern DDD_IF EdgeIF, BorderEdgeSymmIF, EdgeHIF, EdgeVHIF,
               EdgeSymmVHIF;
 
@@ -258,7 +259,8 @@ struct DDD_CTRL
   DDD_IF BorderVectorIF, BorderVectorSymmIF,
          OuterVectorIF, OuterVectorSymmIF,
          VectorVIF, VectorVAllIF, VectorIF;
-  DDD_IF Facet_InteriorBorder_All_IF;
+  DDD_IF Facet_All_All_IF,
+         Facet_InteriorBorder_All_IF;
   DDD_IF VertexIF;
   DDD_IF EdgeIF, BorderEdgeSymmIF, EdgeHIF, EdgeVHIF,
          EdgeSymmVHIF;
