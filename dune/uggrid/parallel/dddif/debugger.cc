@@ -565,8 +565,8 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
       do {
         printf("%04d: buggy> ", proc);
         fflush(stdout);
-        scanf("%s", buff);
-      } while (buff[0] == 0);
+        int received = scanf("%s", buff);
+      } while (received > 0 && buff[0] == 0);
 
       switch (buff[0])
       {
