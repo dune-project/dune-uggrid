@@ -544,7 +544,7 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
 {
   char buff[100];
   DDD_GID gid;
-  int proc, cmd;
+  int proc, cmd, received;
 
   Synchronize(theMG->ppifContext());
 
@@ -565,8 +565,8 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
       do {
         printf("%04d: buggy> ", proc);
         fflush(stdout);
-        scanf("%s", buff);
-      } while (buff[0] == 0);
+        received = scanf("%s", buff);
+      } while (received > 0 && buff[0] == 0);
 
       switch (buff[0])
       {
