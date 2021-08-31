@@ -1,4 +1,4 @@
-# dune-uggrid 2.8 (unreleased)
+# dune-uggrid 2.8 (2021-08-31)
 
 * Added support for All_All communication on facets.
 * Removes support for `_2` and `_3` macros.
