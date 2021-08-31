@@ -1,5 +1,6 @@
 # dune-uggrid 2.8 (unreleased)
 
+* Added support for All_All communication on facets.
 * Removes support for `_2` and `_3` macros.
 * Remove support for XDR.
 
