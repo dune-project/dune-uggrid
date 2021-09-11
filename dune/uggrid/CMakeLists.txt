@@ -5,6 +5,9 @@ foreach(dim ${UG_ENABLED_DIMENSIONS})
   add_library(duneuggrid${dim}d OBJECT)
   target_compile_definitions(duneuggrid${dim}d PRIVATE "UG_DIM_${dim}")
   target_compile_definitions(duneuggrid${dim}d PRIVATE ${UG_COMPILE_DEFINITIONS})
+  target_link_libraries(duneuggrid${dim}d PRIVATE ${DUNE_LIBS})
+  target_include_directories(duneuggrid${dim}d PRIVATE ${PROJECT_BINARY_DIR})
+  target_include_directories(duneuggrid${dim}d PRIVATE ${PROJECT_SOURCE_DIR})
   add_dune_mpi_flags(duneuggrid${dim}d OBJECT)
 
   # register dimension-dependent objects in duneuggrid library

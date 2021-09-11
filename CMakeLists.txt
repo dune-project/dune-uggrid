@@ -1,11 +1,8 @@
-# set up project
+cmake_minimum_required(VERSION 3.13)
 project("dune-uggrid" C CXX)
 
 #circumvent not building docs
 set(BUILD_DOCS 1)
-
-# general stuff
-cmake_minimum_required(VERSION 3.13)
 
 # Guess the dune-common build directory if it is not yet set
 if(NOT (dune-common_DIR OR dune-common_ROOT OR
@@ -23,7 +20,7 @@ list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
 include(DuneMacros)
 
 # start a dune project with information from dune.module
-dune_project()
+dune_project(duneuggrid)
 
 find_package(MPI)
 # set defines that are only used internally.
@@ -61,7 +58,6 @@ if(UG_ENABLE_PARALLEL)
 endif()
 
 # define target for duneuggrid
-dune_add_library(duneuggrid)
 target_compile_definitions(duneuggrid PUBLIC ${UG_COMPILE_DEFINITIONS})
 add_dune_mpi_flags(duneuggrid)
 
