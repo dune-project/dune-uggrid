@@ -35,8 +35,6 @@ add_executable(rm3-writeRefRules2file rm-writeRefRules2file.cc rm-write2file.h r
 target_compile_definitions(rm3-writeRefRules2file PRIVATE -DUG_DIM_3)
 target_link_libraries(rm3-writeRefRules2file PRIVATE duneuggrid ${DUNE_LIBS})
 
-message("------------------------- DUNE_LIBS=${DUNE_LIBS}")
-
 install(FILES
   algebra.h
   cw.h

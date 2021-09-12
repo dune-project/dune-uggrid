@@ -13,31 +13,22 @@ endif()
 
 #find dune-common and set the module path
 find_package(dune-common REQUIRED)
-list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
-     "${CMAKE_SOURCE_DIR}/cmake/modules")# make sure our own modules are found
-
-#include the dune macros
-include(DuneMacros)
 
 # start a dune project with information from dune.module
 dune_project(duneuggrid)
 
-find_package(MPI)
-# set defines that are only used internally.
-# The rest is in cmake/modules/DuneUggrid.cmake
-if(MPI_C_FOUND)
-  set(UG_ENABLE_PARALLEL True CACHE BOOL "Enable a parallel UG (default is True if MPI is there False otherwise)")
-else()
-  set(UG_ENABLE_PARALLEL False CACHE BOOL "Enable a parallel UG (default is True if MPI is there False otherwise)")
-endif()
-
-set(UG_ENABLE_DEBUGGING False CACHE BOOL "Enable UG debugging (default is Off)")
-set(UG_ENABLE_SYSTEM_HEAP ON CACHE BOOL "If ON/True then we are using the operating system heap instead of the one internal to UG (Default: ON)")
+set(UG_ENABLE_PARALLEL ${HAVE_MPI} CACHE BOOL
+  "Enable a parallel UG (default is True if MPI is there False otherwise)")
+set(UG_ENABLE_DEBUGGING OFF CACHE BOOL
+  "Enable UG debugging (default is Off)")
+set(UG_ENABLE_SYSTEM_HEAP ON CACHE BOOL
+  "If ON/True then we are using the operating system heap instead of the one internal to UG (Default: ON)")
 set(UG_DDD_MAX_MACROBITS "24" CACHE STRING
-  "Set number of bits of an unsigned int used to store the process number,
-       the remaining bits are used to store the local entity id")
+  "Set number of bits of an unsigned int used to store the process number, "
+  "the remaining bits are used to store the local entity id")
+set(DUNE_UGGRID_TET_RULESET ON CACHE BOOL
+  "Use complete rule set for refinement of tetrahedral elements")
 
-set(DUNE_UGGRID_TET_RULESET True CACHE BOOL "Use complete rule set for refinement of tetrahedral elements")
 if(TET_RULESET)
   set(DUNE_UGGRID_TET_RULESET True)
   message(DEPRECATION "The TET_RULESET option has been renamed to DUNE_UGGRID_TET_RULESET")
@@ -50,7 +41,7 @@ endif()
 
 #Always build parallel libs if MPI is found
 if(UG_ENABLE_PARALLEL)
-  if(NOT MPI_C_FOUND)
+  if(NOT HAVE_MPI)
     message(SEND_ERROR "A parallel UG was requested but MPI was not found. Either change variable UG_ENABLE_PARALLEL or install MPI." )
   endif()
   list(APPEND UG_COMPILE_DEFINITIONS "ModelP")
