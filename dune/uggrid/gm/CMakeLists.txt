@@ -27,12 +27,12 @@ dune_add_test(
 # rm3-show
 add_executable(rm3-show rm-show.cc)
 target_compile_definitions(rm3-show PRIVATE -DUG_DIM_3)
-target_link_libraries(rm3-show PRIVATE dune-uggrid)
+target_link_libraries(rm3-show PRIVATE Dune::uggrid)
 
 # rm3-writeRefRules2file
 add_executable(rm3-writeRefRules2file rm-writeRefRules2file.cc rm-write2file.h rm-write2file.cc)
 target_compile_definitions(rm3-writeRefRules2file PRIVATE -DUG_DIM_3)
-target_link_libraries(rm3-writeRefRules2file PRIVATE dune-uggrid)
+target_link_libraries(rm3-writeRefRules2file PRIVATE Dune::uggrid)
 
 install(FILES
   algebra.h
