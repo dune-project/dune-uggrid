@@ -18,7 +18,7 @@ if(UG_ENABLE_PARALLEL)
   add_subdirectory(prio)
   add_subdirectory(xfer)
 
-  target_sources_dims(duneuggrid PRIVATE ddd.cc)
+  target_sources_dims(dune-uggrid PRIVATE ddd.cc)
 endif()
 
-target_sources(duneuggrid PRIVATE dddcontext.cc)
+target_sources(dune-uggrid PRIVATE dddcontext.cc)

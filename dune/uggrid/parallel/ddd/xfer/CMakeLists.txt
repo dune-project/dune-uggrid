@@ -1,4 +1,4 @@
-target_sources_dims(duneuggrid PRIVATE
+target_sources_dims(dune-uggrid PRIVATE
   cmdmsg.cc
   cmds.cc
   cplmsg.cc

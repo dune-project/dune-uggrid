@@ -15,7 +15,7 @@ endif()
 find_package(dune-common REQUIRED)
 
 # start a dune project with information from dune.module
-dune_project(duneuggrid)
+dune_project(dune-uggrid)
 
 set(UG_ENABLE_PARALLEL ${HAVE_MPI} CACHE BOOL
   "Enable a parallel UG (default is True if MPI is there False otherwise)")
@@ -48,9 +48,9 @@ if(UG_ENABLE_PARALLEL)
   set(UG_EXTRAFLAGS "${UG_EXTRAFLAGS} -DModelP")
 endif()
 
-# define target for duneuggrid
-target_compile_definitions(duneuggrid PUBLIC ${UG_COMPILE_DEFINITIONS})
-add_dune_mpi_flags(duneuggrid)
+# define target for dune-uggrid
+target_compile_definitions(dune-uggrid PUBLIC ${UG_COMPILE_DEFINITIONS})
+add_dune_mpi_flags(dune-uggrid)
 
 check_include_file(sys/time.h HAVE_SYS_TIME_H)
 check_include_file(time.h HAVE_TIME_H)

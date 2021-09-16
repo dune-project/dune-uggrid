@@ -1,4 +1,4 @@
-target_sources_dims(duneuggrid PRIVATE
+target_sources_dims(dune-uggrid PRIVATE
   std_domain.cc
   std_parallel.cc)
 

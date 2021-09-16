@@ -2,16 +2,16 @@ set(UG_ENABLED_DIMENSIONS 2 3)
 
 # define dimension specific object libraries
 foreach(dim ${UG_ENABLED_DIMENSIONS})
-  add_library(duneuggrid${dim}d OBJECT)
-  target_compile_definitions(duneuggrid${dim}d PRIVATE "UG_DIM_${dim}")
-  target_compile_definitions(duneuggrid${dim}d PRIVATE ${UG_COMPILE_DEFINITIONS})
-  target_link_libraries(duneuggrid${dim}d PRIVATE ${DUNE_LIBS})
-  target_include_directories(duneuggrid${dim}d PRIVATE ${PROJECT_BINARY_DIR})
-  target_include_directories(duneuggrid${dim}d PRIVATE ${PROJECT_SOURCE_DIR})
-  add_dune_mpi_flags(duneuggrid${dim}d OBJECT)
+  add_library(dune-uggrid${dim}d OBJECT)
+  target_compile_definitions(dune-uggrid${dim}d PRIVATE "UG_DIM_${dim}")
+  target_compile_definitions(dune-uggrid${dim}d PRIVATE ${UG_COMPILE_DEFINITIONS})
+  target_link_libraries(dune-uggrid${dim}d PRIVATE ${DUNE_LIBS})
+  target_include_directories(dune-uggrid${dim}d PRIVATE ${PROJECT_BINARY_DIR})
+  target_include_directories(dune-uggrid${dim}d PRIVATE ${PROJECT_SOURCE_DIR})
+  add_dune_mpi_flags(dune-uggrid${dim}d OBJECT)
 
-  # register dimension-dependent objects in duneuggrid library
-  target_sources(duneuggrid PRIVATE $<TARGET_OBJECTS:duneuggrid${dim}d>)
+  # register dimension-dependent objects in dune-uggrid library
+  target_sources(dune-uggrid PRIVATE $<TARGET_OBJECTS:dune-uggrid${dim}d>)
 endforeach()
 
 # macro that adds sources to all dimension-targets `${target}${dim}d`,
@@ -23,10 +23,10 @@ macro(target_sources_dims target)
 endmacro()
 
 
-target_sources(duneuggrid PRIVATE
+target_sources(dune-uggrid PRIVATE
   ugdevices.cc)
 
-target_sources_dims(duneuggrid PRIVATE
+target_sources_dims(dune-uggrid PRIVATE
   initug.cc)
 
 install(

@@ -1,1 +1,1 @@
-target_sources_dims(duneuggrid PRIVATE ident.cc)
+target_sources_dims(dune-uggrid PRIVATE ident.cc)

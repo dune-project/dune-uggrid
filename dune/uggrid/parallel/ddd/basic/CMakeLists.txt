@@ -1,6 +1,6 @@
 add_subdirectory(test)
 
-target_sources(duneuggrid PRIVATE
+target_sources(dune-uggrid PRIVATE
   io.cc
   lowcomm.cc
   notify.cc

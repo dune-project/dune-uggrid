@@ -1,8 +1,8 @@
 if(UG_ENABLE_PARALLEL)
-  target_sources(duneuggrid PRIVATE ppif.cc)
+  target_sources(dune-uggrid PRIVATE ppif.cc)
 endif()
 
-target_sources(duneuggrid PRIVATE ppifcontext.cc)
+target_sources(dune-uggrid PRIVATE ppifcontext.cc)
 
 install(FILES
   ppif.h

@@ -1,1 +1,1 @@
-target_sources_dims(duneuggrid PRIVATE pcmds.cc)
+target_sources_dims(dune-uggrid PRIVATE pcmds.cc)
