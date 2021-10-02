@@ -2,6 +2,7 @@
 #define DUNE_UGGRID_PARALLEL_DDD_DDDTYPES_HH 1
 
 #include <cinttypes>
+#include <cstddef>
 
 namespace DDD {
 
