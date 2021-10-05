@@ -163,8 +163,6 @@ enum REFINE_CE {
 #define SETPREDNEW2(r,n)                                (r).predicted_new[(r).step][2] = (n)
 #define REAL(r)                                                 (r).real[(r).step]
 #define SETREAL(r,n)                                    (r).real[(r).step] = (n)
-#define PREDMAX(r)                                              (r).predicted_max[(r).step]
-#define SETPREDMAX(r,n)                                 (r).predicted_max[(r).step] = (n)
 
 /* macros for listing */
 #define REFINE_ELEMENT_LIST(d,e,s)                                           \
@@ -231,7 +229,6 @@ typedef struct refineinfo
   float predicted_new[RINFO_MAX][3];
   /* count of elements, would be created */
   float real[RINFO_MAX];                      /* count of elements before refinement */
-  float predicted_max[RINFO_MAX];        /* count of elements which can be created */
 } REFINEINFO;
 
 typedef INT (*Get_Sons_of_ElementSideProcPtr)(ELEMENT *theElement, INT side, INT *Sons_of_Side,ELEMENT *SonList[MAX_SONS], INT *SonSides, INT NeedSons);

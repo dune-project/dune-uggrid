@@ -420,25 +420,6 @@ INT NS_DIM_PREFIX SetRefineInfo (MULTIGRID *theMG)
 
 
 /****************************************************************************/
-/** \brief Test entries of refineinfo structure
-
-   This function tests entries of refineinfo structure
-
-   \return <ul>
-   .n   GM_OK if MG can be refined
-   .n   GM_ERROR if MG refinement will lead to heap overflow
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX TestRefineInfo (MULTIGRID *theMG)
-{
-  if (PREDNEW0(REFINEINFO(theMG)) > PREDMAX(REFINEINFO(theMG)))
-    return(GM_ERROR);
-  else
-    return(GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Drop marks from leafelements to first regular
 
    This function drops marks from leafelements to first regular, and resets
@@ -6050,18 +6031,8 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
   /* evaluate prediction */
   if (mgtest)
   {
-    UserWriteF("refinetest: predicted_new0=%9.0f predicted_new1=%9.0f"
-               " predicted_max=%9.0f\n",
-               PREDNEW0(REFINEINFO(theMG)), PREDNEW1(REFINEINFO(theMG)),
-               PREDMAX(REFINEINFO(theMG)));
-
-    /* refinement possible or not */
-    if (TestRefineInfo(theMG) != GM_OK)
-    {
-      UserWriteF("Too much marked elements: "
-                 "Number of marked elements would cause heap overflow\n");
-      return(GM_ERROR);
-    }
+    UserWriteF("refinetest: predicted_new0=%9.0f predicted_new1=%9.0f\n",
+               PREDNEW0(REFINEINFO(theMG)), PREDNEW1(REFINEINFO(theMG)));
   }
 
   /* set flags for different modes */

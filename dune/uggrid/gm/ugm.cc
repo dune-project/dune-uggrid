@@ -5429,7 +5429,6 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   {
     float New;
     float newpergreen;
-    float predmax;
 
     SETMARKCOUNT(REFINEINFO(theMG),markcount[MAXLEVEL]);
 
@@ -5444,22 +5443,21 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
     SETPREDNEW1(REFINEINFO(theMG),New);
 
     SETREAL(REFINEINFO(theMG),mg_sum);
-    SETPREDMAX(REFINEINFO(theMG),predmax);
   }
 
   /* list heap info */
   if (verbose && gridflag)
   {
-    UserWriteF(" EST %2d  ELEMS=%9.0f MARKCOUNT=%9.0f PRED_NEW0=%9.0f PRED_NEW1=%9.0f PRED_MAX=%9.0f\n",
+    UserWriteF(" EST %2d  ELEMS=%9.0f MARKCOUNT=%9.0f PRED_NEW0=%9.0f PRED_NEW1=%9.0f\n",
                REFINESTEP(REFINEINFO(theMG)),REAL(REFINEINFO(theMG)),MARKCOUNT(REFINEINFO(theMG)),
-               PREDNEW0(REFINEINFO(theMG)),PREDNEW1(REFINEINFO(theMG)),PREDMAX(REFINEINFO(theMG)));
+               PREDNEW0(REFINEINFO(theMG)),PREDNEW1(REFINEINFO(theMG)));
     UserWriteF(" EST TRACE step=%d\n",refine_info.step);
     for (i=0; i<refine_info.step; i++)
-      UserWriteF(" EST  %2d  ELEMS=%9.0f MARKS=%9.0f REAL=%9.0f PRED0=%9.0f PRED1=%9.0f PRED_MAX=%9.0f\n",
+      UserWriteF(" EST  %2d  ELEMS=%9.0f MARKS=%9.0f REAL=%9.0f PRED0=%9.0f PRED1=%9.0f\n",
                  i,refine_info.real[i],refine_info.markcount[i],
                  ((i<refine_info.step) ? refine_info.real[i+1]-refine_info.real[i] : 0),
                  refine_info.predicted_new[i][0],
-                 refine_info.predicted_new[i][1],refine_info.predicted_max[i]);
+                 refine_info.predicted_new[i][1]);
   }
 
   /* compute and list green rule info */
