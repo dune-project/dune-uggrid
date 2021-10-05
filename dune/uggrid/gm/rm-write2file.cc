@@ -168,9 +168,9 @@ void Write2File(std::FILE* stream, std::vector<NS_DIM_PREFIX REFRULE> const& rul
   std::fprintf( stream, "static const std::size_t nTetrahedronRefinementRules = %zd;\n", rules.size() );
   std::fprintf( stream, "static REFRULE tetrahedronRefinementRules[] =\n{\n");
 
-  for( int i=0; i < rules.size(); i++)
+  for (std::size_t i=0; i < rules.size(); i++)
   {
-    std::fprintf( stream, "  // Rule %d\n",i);
+    std::fprintf( stream, "  // Rule %lu\n",i);
     WriteRule2File(stream, rules[i]);
     std::fprintf( stream,",\n\n");
   }
