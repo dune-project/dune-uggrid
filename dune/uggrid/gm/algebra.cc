@@ -226,8 +226,6 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjT
 
   *vHandle = pv;
 
-  PRINTDEBUG(gm,1,("%s-vector created (%d): p=%d, t=%d\n",ObjTypeName[VOTYPE(pv)],ID(VOBJECT(pv)),VPART(pv),VTYPE(pv)));
-
   return (0);
 }
 

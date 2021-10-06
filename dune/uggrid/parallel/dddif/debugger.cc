@@ -135,7 +135,6 @@ void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
                                 #endif
 
       /* display dependent types */
-      DDD_TypeDisplay(context, dddctrl.TypeMatrix);
                                 #ifdef __TWODIM__
       DDD_TypeDisplay(context, dddctrl.TypeEdge);
                                 #endif
