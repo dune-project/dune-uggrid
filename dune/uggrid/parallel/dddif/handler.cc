@@ -198,7 +198,6 @@ static GRID *GetGridOnDemand (MULTIGRID *mg, int level)
 /*				 TypeEdge													*/
 /*																			*/
 /*			DDD data objects:												*/
-/*				TypeMatrix,                                                                                             */
 /*				2-Dim:														*/
 /*				TypeEdge													*/
 /*																			*/
@@ -856,10 +855,6 @@ static void ElementDelete (DDD::DDDContext& context, DDD_OBJ obj)
   ELEMENT *pe                     = (ELEMENT *)obj;
   INT level           = LEVEL(pe);
   GRID    *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
-
-  PRINTDEBUG(dddif,1,(PFMT " ElementDelete(): e=" EID_FMTX " EOBJ=%d l=%d "
-                      "ncon=%d\n",
-                      me,EID_PRTX(pe),OBJT(pe),level,NC(theGrid)))
 
   /* dispose element without connections (false) */
   if (DisposeElement(theGrid, pe))
