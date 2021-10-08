@@ -125,7 +125,7 @@ FULLREFRULEPTR NS_DIM_PREFIX theFullRefRule;
 /****************************************************************************/
 
 #ifdef __TWODIM__
-static REFRULE Empty_Rule =
+[[maybe_unused]] static REFRULE Empty_Rule =
 {-1,-1,NO_CLASS,-1,{-1,-1,-1,-1},-1,
  {{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1}},
  {{-1,{-1,-1,-1,-1},{-1,-1,-1,-1},-1},
@@ -468,7 +468,7 @@ static INT theBFRRVarID;
 
 #ifndef DUNE_UGGRID_TET_RULESET
 /* define the regular rules for tetrahedron */
-static REFRULE TetrahedronRules[MAX_TET_RULES] =
+[[maybe_unused]] static REFRULE TetrahedronRules[MAX_TET_RULES] =
 {
   /* TET_NO_REF */
   {TETRAHEDRON,0,NO_CLASS,0,
