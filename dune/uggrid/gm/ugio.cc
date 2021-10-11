@@ -2790,7 +2790,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   MGIO_BD_GENERAL bd_general;
   MGIO_PARINFO cg_pinfo;
   MGIO_REFINEMENT *refinement;
-  BNDP **BndPList;
+  BNDP **BndPList = nullptr;
   DOUBLE *Positions;
   BVP *theBVP;
   BVP_DESC theBVPDesc;
