@@ -194,7 +194,7 @@ struct mesh
   /** @name Parallel part */
   /*@}*/
   /** \brief Level of vertex NULL if all vertex on level 0 */
-  char *VertexLevel;
+  unsigned char *VertexLevel;
 
   /** \brief Priority of vertex   NULL if all vertex are master               */
   char *VertexPrio;
