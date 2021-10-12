@@ -1264,6 +1264,8 @@ static INT CheckElementSubdomains (GRID *theGrid, ELEMENT *theElement, INT *Node
   }
   else if (EFATHER(theElement)!=NULL)
   {
+    theFather = EFATHER(theElement);
+
     /* extended check on higher levels */
     for (i=0; i<EDGES_OF_ELEM(theElement); i++)
     {
