@@ -2790,7 +2790,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   MGIO_BD_GENERAL bd_general;
   MGIO_PARINFO cg_pinfo;
   MGIO_REFINEMENT *refinement;
-  BNDP **BndPList;
+  BNDP **BndPList = nullptr;
   DOUBLE *Positions;
   BVP *theBVP;
   BVP_DESC theBVPDesc;
@@ -3114,7 +3114,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   }
   if (MGIO_PARFILE)
   {
-    theMesh.VertexLevel = (char*)GetTmpMem(theHeap,(cg_general.nBndPoint+cg_general.nInnerPoint)*sizeof(char),MarkKey);
+    theMesh.VertexLevel = (unsigned char*)GetTmpMem(theHeap,(cg_general.nBndPoint+cg_general.nInnerPoint)*sizeof(char),MarkKey);
     if (theMesh.VertexLevel==NULL) {UserWriteF("ERROR: cannot allocate %d bytes for VertexLevel\n",(int)(cg_general.nBndPoint+cg_general.nInnerPoint)*sizeof(char)); CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
   }
   else

@@ -64,24 +64,6 @@
 
 START_UGDIM_NAMESPACE
 
-/** \brief Offset of additional parameters for boundary condition function call */
-enum DOM_IN_PARAMS {
-
-  DOM_GLB_X,              /*!< General bnd cond. x-coordinate               */
-  DOM_GLB_Y,              /*!< General bnd cond. y-coordinate               */
-  DOM_GLB_Z,              /*!< General bnd cond. z-coordinate               */
-  DOM_EVAL_FOR_SD,        /*!< Evaluate bc for this subdomain               */
-  DOM_N_IN_PARAMS
-};
-
-#define DOM_LOC_X       DOM_GLB_X       /*!< Parametrized bnd cond. local x-coord.*/
-#define DOM_LOC_Y       DOM_GLB_Y       /*!< parametrized bnd cond. local y-coord.*/
-
-#define DOM_PARAM_OFFSET        DOM_N_IN_PARAMS
-
-/** \brief Subdomain of BC evaluation unknown */
-#define DOM_EVAL_SD_UNKNOWN             -1.0
-
 /** \brief Boundary types */
 enum BoundaryType {FIXED, FREE, PERIODIC, NON_PERIODIC};
 
@@ -212,7 +194,7 @@ struct mesh
   /** @name Parallel part */
   /*@}*/
   /** \brief Level of vertex NULL if all vertex on level 0 */
-  char *VertexLevel;
+  unsigned char *VertexLevel;
 
   /** \brief Priority of vertex   NULL if all vertex are master               */
   char *VertexPrio;

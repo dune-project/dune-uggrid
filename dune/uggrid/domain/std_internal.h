@@ -502,7 +502,11 @@ struct parameter_patch {
   /** \brief Ids of points */
   INT points[CORNERS_OF_BND_SEG];
 
-  /** \brief Parameter range */
+  /** \brief Parameter range
+   *
+   * The range is an axis-aligned rectangle, described by two points
+   * in DIM_OF_BND-dimensional space.
+   */
   DOUBLE range[2][DIM_OF_BND];
 
   /** \brief Pointer to definition function */

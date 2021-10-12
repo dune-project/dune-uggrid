@@ -91,24 +91,7 @@ USING_UGDIM_NAMESPACE
 /****************************************************************************/
 
 #define SMALL_DIFF   SMALL_C*100
-#define RESOLUTION   100
 
-#define DEFAULTDOMMEMORY 50000
-
-#define OPTIONLEN 32
-
-#define V2_LINCOMB(a,A,b,B,C)              {(C)[0] = (a)*(A)[0] + (b)*(B)[0];\
-                                            (C)[1] = (a)*(A)[1] + (b)*(B)[1];}
-
-#define V2_EUKLIDNORM_OF_DIFF(A,B,b)    (b) = sqrt((double)(((A)[0]-(B)[0])*((A)[0]-(B)[0])+((A)[1]-(B)[1])*((A)[1]-(B)[1])));
-
-#define V3_EUKLIDNORM_OF_DIFF(A,B,b)    (b) = (sqrt((double)(((A)[0]-(B)[0])*((A)[0]-(B)[0])+((A)[1]-(B)[1])*((A)[1]-(B)[1])+((A)[2]-(B)[2])*((A)[2]-(B)[2]))));
-
-#ifdef __TWODIM__
-#define V_DIM_EUKLIDNORM_OF_DIFF(A,B,b) V2_EUKLIDNORM_OF_DIFF(A,B,b)
-#else
-#define V_DIM_EUKLIDNORM_OF_DIFF(A,B,b) V3_EUKLIDNORM_OF_DIFF(A,B,b)
-#endif
 
 /****************************************************************************/
 /*                                                                          */
@@ -1725,7 +1708,6 @@ ResolvePointOnSegment (PATCH * patch, int depth, double resolution2,
 }
 
 /* domain interface function: for description see domain.h */
-/* TODO: syntax for manpages??? */
 BNDP *NS_DIM_PREFIX
 BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
 {
@@ -1736,10 +1718,7 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
   PATCH *p;
   INT j, pid;
   int i;
-  DOUBLE pos[2];
-#       ifdef __THREEDIM__
-  DOUBLE lc;
-#       endif
+  DOUBLE pos[DIM_OF_BND];
 
   theBVP = GetSTD_BVP (aBVP);
 
@@ -1823,7 +1802,7 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
   /* check point on line or on point patch */
   if (abs(pos[0] - PARAM_PATCH_RANGE (p)[0][0]) < SMALL_DIFF)
   {
-    lc = (pos[1] - PARAM_PATCH_RANGE (p)[0][1])
+    const DOUBLE lc = (pos[1] - PARAM_PATCH_RANGE (p)[0][1])
          / (PARAM_PATCH_RANGE (p)[1][1] - PARAM_PATCH_RANGE (p)[0][1]);
     if (abs(lc) < SMALL_DIFF)
       return (CreateBndPOnPoint
@@ -1837,7 +1816,7 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
   }
   else if (abs(pos[0] - PARAM_PATCH_RANGE (p)[1][0]) < SMALL_DIFF)
   {
-    lc = (pos[1] - PARAM_PATCH_RANGE (p)[0][1])
+    const DOUBLE lc = (pos[1] - PARAM_PATCH_RANGE (p)[0][1])
          / (PARAM_PATCH_RANGE (p)[1][1] - PARAM_PATCH_RANGE (p)[0][1]);
     if (abs(lc) < SMALL_DIFF)
       return (CreateBndPOnPoint
@@ -1851,7 +1830,7 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
   }
   else if (abs(pos[1] - PARAM_PATCH_RANGE (p)[0][1]) < SMALL_DIFF)
   {
-    lc = (pos[0] - PARAM_PATCH_RANGE (p)[0][0])
+    const DOUBLE lc = (pos[0] - PARAM_PATCH_RANGE (p)[0][0])
          / (PARAM_PATCH_RANGE (p)[1][0] - PARAM_PATCH_RANGE (p)[0][0]);
     if (abs(lc) < SMALL_DIFF)
       return (CreateBndPOnPoint
@@ -1865,7 +1844,7 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
   }
   else if (abs(pos[1] - PARAM_PATCH_RANGE (p)[1][1]) < SMALL_DIFF)
   {
-    lc = (pos[0] - PARAM_PATCH_RANGE (p)[0][0])
+    const DOUBLE lc = (pos[0] - PARAM_PATCH_RANGE (p)[0][0])
          / (PARAM_PATCH_RANGE (p)[1][0] - PARAM_PATCH_RANGE (p)[0][0]);
     if (abs(lc) < SMALL_DIFF)
       return (CreateBndPOnPoint
@@ -1883,7 +1862,7 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
   if (abs(pos[0] - PARAM_PATCH_RANGE (p)[0][0]) < SMALL_DIFF)
     return (CreateBndPOnPoint
               (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 0)]));
-  else if (abs(pos[0] - PARAM_PATCH_RANGE (p)[0][1]) < SMALL_DIFF)
+  else if (abs(pos[0] - PARAM_PATCH_RANGE (p)[1][0]) < SMALL_DIFF)
     return (CreateBndPOnPoint
               (Heap, currBVP->patches[PARAM_PATCH_POINTS (p, 1)]));
 #endif
@@ -1916,24 +1895,6 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
 
   return ((BNDP *) ps);
 }
-
-/****************************************************************************/
-/** \brief  Decompose a strip into triangles
- *
- * \todo Which function does this doc block belong to?
- *
- * @param  n,m - stripe with n+1 nodes on the bottom and m+1 nodes on the top
- * @param  c0,c1,c2,c3 - corner node ids
- * @param  s0,s1,s2,s3 - side node ids
- *
- * This function splits a stripe into triangles and calls AddBoundaryElements().
- *
- * @return <ul>
- *   <li>    0 if ok </li>
- *   <li>    1 if error occured </li>
- * </ul>
- */
-/****************************************************************************/
 
 static INT
 AddBoundaryElement (INT n, INT * nodelist,
