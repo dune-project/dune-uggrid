@@ -542,7 +542,7 @@ LINKX(OTYPE)
 	{
 		IFDEBUG(gm,2)
 		printf(" GRID_LINKX_" STR(OTYPE) "():" STR(OTYPE)
-			" calling GRID_LINK_" STR(OTYPE) "(): Object=%p After=%p \n",Object,After);
+			" calling GRID_LINK_" STR(OTYPE) "(): Object=%p After=%p \n", (void*) Object, (void*) After);
 		ENDDEBUG
 
 		CAT(GRID_LINK_,OTYPE) (Grid,Object,Prio);
@@ -551,7 +551,7 @@ LINKX(OTYPE)
 
 	IFDEBUG(gm,2) 
 		printf("GRID_LINKX_" STR(OTYPE) "():" STR(OTYPE)
-			" has listpart=%d for prio=%d obj=%p\n",listpart,Prio,Object);
+			" has listpart=%d for prio=%d obj=%p\n", listpart, Prio, (void*) Object);
 		fflush(stdout);
 	ENDDEBUG 
 

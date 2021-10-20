@@ -5470,8 +5470,8 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
   ELEMENT *NextElement;
   ELEMENTCONTEXT theContext;
   GRID *UpGrid;
-  const int me = theGrid->ppifContext().me();
 #ifdef ModelP
+  const int me = theGrid->ppifContext().me();
   auto& dddContext = theGrid->dddContext();
 #endif
 

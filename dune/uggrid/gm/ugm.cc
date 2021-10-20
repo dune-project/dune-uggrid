@@ -5267,9 +5267,11 @@ INT NS_DIM_PREFIX MultiGridStatus (const MULTIGRID *theMG, INT gridflag, INT gre
   INT master_elements,hghost_elements,vghost_elements,vhghost_elements;
         #endif
 
+#ifdef ModelP
   const auto& ppifContext = theMG->ppifContext();
   const int me = ppifContext.me();
   const int procs = ppifContext.procs();
+#endif
 
   mg_red = mg_green = mg_yellow = mg_sum = 0;
   mg_sum_div_red = mg_redplusgreen_div_red = 0.0;
