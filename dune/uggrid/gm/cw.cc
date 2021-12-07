@@ -90,14 +90,6 @@ typedef struct {
   INT objt_used;             /**< Bitwise object ID				*/
 } CONTROL_ENTRY_PREDEF;
 
-typedef struct {
-
-  INT read;             /**< Number of accesses to read		*/
-  INT write;            /**< Number of accesses to write		*/
-  INT max;              /**< Max value assigned to ce			*/
-
-} CE_USAGE;
-
 /****************************************************************************/
 /*                                                                          */
 /* definition of exported global variables                                  */
@@ -226,8 +218,6 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
   CE_INIT_UNUSED,
   CE_INIT_UNUSED,
 };
-
-static CE_USAGE ce_usage[MAX_CONTROL_ENTRIES];
 
 /****************************************************************************/
 /** \brief Print all control entries of an objects control word
@@ -665,9 +655,6 @@ UINT NS_DIM_PREFIX ReadCW (const void *obj, INT ceID)
     assert(false);
   }
 
-  /* update statistics */
-  ce_usage[ceID].read++;
-
   ce = control_entries+ceID;
 
   if (!ce->used)
@@ -737,10 +724,6 @@ void NS_DIM_PREFIX WriteCW (void *obj, INT ceID, INT n)
     printf("WriteCW: ceID=%d out of range\n",ceID);
     assert(false);
   }
-
-  /* update statistics */
-  ce_usage[ceID].write++;
-  ce_usage[ceID].max = MAX(n,ce_usage[ceID].max);
 
   ce = control_entries+ceID;
 
