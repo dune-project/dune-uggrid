@@ -1,6 +1,6 @@
 # dune-uggrid 2.9 (unreleased)
 
-# dune-uggrid 2.8 (unreleased)
+# dune-uggrid 2.8 (2021-09-06)
 
 * Added support for All_All communication on facets.
 * Removes support for `_2` and `_3` macros.
@@ -29,29 +29,29 @@
   grid refinement.  This better algorithm, which involves a complete rule set
   for tetrahedral elements, leads to refined grids with smaller closures.
   It also fixes at least one [bug](https://gitlab.dune-project.org/core/dune-grid/issues/27).
-  *Beware:* when TET_RULESET is set, UG wants to read a table from the file `RefRule.data`
+  *Beware:* when `TET_RULESET` is set, UG wants to read a table from the file `RefRule.data`
   (in `uggrid/lib/ugdata`).  This file needs to be in the current directory, otherwise `UGGrid`
   will abort. The long-term plan is to compile the data file into the binary, and make
   the new closure algorithm the default.
 * Many now unused parts of UG have been removed from the source.
-* The memory management of UG got a major overhault:
+* The memory management of UG got a major overhaul:
   - As malloc/free memory management was used for a long time, we removed
     the manual heap management of UG.
-  - DYNAMIC_MEMORY_ALLOCMODEL was used by default, now we removed the
-    switch and cleanupup all #ifdef's
-  - The FROM_BOOTOM/FROM_TOP flags during memory allocation didn't have
-    any influence, as we use the system heap. The enums and deprecated
+  - `DYNAMIC_MEMORY_ALLOCMODEL` was used by default, now we removed the
+    switch and cleaned up all `#ifdef`s
+  - The `FROM_BOTTOM`/`FROM_TOP` flags during memory allocation didn't have
+    any influence, as we use the system heap. The enums were deprecated
     and the interface updated.
   - unified the different memory allocation methods
-  - removed user data from the MULTIGRID structure
+  - removed user data from the `MULTIGRID` structure
   - removed virtual heap management
-* The InsertElement algorithm was completely rewritten. Up to now the user
+* The `InsertElement` algorithm has been completely rewritten. Up to now the user
   had to ensure that enough memory was allocated in order to create a
-  lookup for the InsertElement neighbor search. This was necessary to
+  lookup for the `InsertElement` neighbor search. This was necessary to
   ensure an O(n) complexity. Otherwise loading large meshes was
-  prohibetively slow. The new implementation uses modern C++ data
+  prohibitively slow. The new implementation uses modern C++ data
   structures. To speed up the neighbor search we maintain a hash-map
-  (i.e. unordere_map) from a face to an element. The new
+  (i.e. `unordered_map`) from a face to an element. The new
   implementation is as fast as the old one, can dynamically adapt to
   the mesh size and uses less memory.
 
@@ -81,13 +81,13 @@ changes not mentioned here.
 
 # UG Release 3.12.1 (11-05-2015)
 
-* Fix bug in Makefile.am which prevented building of tarballs.
+* Fix bug in `Makefile.am` which prevented building of tarballs.
 
 
 
 # UG Release 3.12.0 (11-05-2015)
 
-The major change is this release is the official transformation of the
+The major change in this release is the official transformation of the
 entire code base to C++.  While pretty much everybody (read: all Dune users)
 has compiled UG as C++ for many years now, the code itself was still
 officially C.  In the 3.12.0 release all .c files have now been renamed
