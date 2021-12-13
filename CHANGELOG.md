@@ -1,5 +1,8 @@
 # dune-uggrid 2.9 (unreleased)
 
+- The `dune-uggrid` module does not set the preprocessor flag `HAVE_UG` anymore.
+  Use `HAVE_DUNE_UGGRID` instead.
+
 # dune-uggrid 2.8 (2021-09-06)
 
 * Added support for All_All communication on facets.
