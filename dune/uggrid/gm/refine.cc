@@ -499,7 +499,7 @@ static INT InitClosureFIFO (void)
 
 static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, INT NewPattern)
 {
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   INT j;
   EDGE    *theEdge;
   ELEMENT *NbElement;
@@ -507,7 +507,7 @@ static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, 
 
   if (MARKCLASS(theElement)==RED_CLASS && thePattern!=NewPattern)
   {
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
     for (j=0; j<EDGES_OF_ELEM(theElement); j++)
     {
       if (EDGE_IN_PAT(thePattern,j)==0 &&
@@ -565,7 +565,7 @@ static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, 
       }
     }
                 #endif
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     UserWriteF("UpdateFIFOLists(): ERROR fifo for 3D NOT implemented!\n");
     ASSERT(0);
                 #endif
@@ -779,7 +779,7 @@ static int Gather_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data,
 
   refinedata = 0;
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   GetEdgeInfo(theElement,&refinedata,PATTERN);
         #endif
 
@@ -827,7 +827,7 @@ static int Scatter_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data
 
   refinedata = ((INT *)data)[0];
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   SetEdgeInfo(theElement,refinedata,PATTERN,|);
         #endif
 
@@ -903,7 +903,7 @@ static INT ExchangeElementRefine (GRID *theGrid)
   return(GM_OK);
 }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 /****************************************************************************/
 /*
@@ -1010,7 +1010,7 @@ static INT ExchangeClosureInfo (GRID *theGrid)
   /* exchange information of elements to compute closure */
   if (ExchangeElementClosureInfo(theGrid) != GM_OK) RETURN(GM_ERROR);
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* exchange information of edges to compute closure */
   if (ExchangeEdgeClosureInfo(theGrid) != GM_OK) RETURN(GM_ERROR);
         #endif
@@ -1058,7 +1058,7 @@ static INT ComputePatterns (GRID *theGrid)
                 #ifdef ModelP
     if (EGHOST(theElement))
     {
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
       SETSIDEPATTERN(theElement,0);
                         #endif
       continue;
@@ -1081,7 +1081,7 @@ static INT ComputePatterns (GRID *theGrid)
           SETPATTERN(theEdge,1);
         }
 
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
       /* SIDEPATTERN must be reset here for master elements, */
       /* because it overlaps with MARK (980217 s.l.)         */
       SETSIDEPATTERN(theElement,0);
@@ -1103,7 +1103,7 @@ static INT ComputePatterns (GRID *theGrid)
     }
     else
     {
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
       /* SIDEPATTERN must be reset here for master elements, */
       /* because it overlaps with MARK (980217 s.l.)         */
       SETSIDEPATTERN(theElement,0);
@@ -1115,7 +1115,7 @@ static INT ComputePatterns (GRID *theGrid)
   return(GM_OK);
 }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 #ifdef DUNE_UGGRID_TET_RULESET
 
 /****************************************************************************/
@@ -1443,12 +1443,12 @@ static INT SetElementRules (GRID *theGrid, ELEMENT *firstElement, INT *cnt)
     /* compute element pattern */
     GetEdgeInfo(theElement,&theEdgePattern,PATTERN);
 
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
     thePattern = theEdgePattern;
     PRINTDEBUG(gm,2,(PFMT "SetElementRules(): e=" EID_FMTX " edgepattern=%d\n",
                      me,EID_PRTX(theElement),theEdgePattern));
                 #endif
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     theSidePattern = SIDEPATTERN(theElement);
     thePattern = theSidePattern<<EDGES_OF_ELEM(theElement) | theEdgePattern;
     PRINTDEBUG(gm,2,(PFMT "SetElementRules(): e=" EID_FMTX
@@ -1512,7 +1512,7 @@ static INT SetElementRules (GRID *theGrid, ELEMENT *firstElement, INT *cnt)
 
     REFINE_ELEMENT_LIST(1,theElement,"");
 
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     /* choose best tet_red rule according to (*theFullRefRule)() */
     if (TAG(theElement)==TETRAHEDRON && MARKCLASS(theElement)==RED_CLASS)
     {
@@ -1574,7 +1574,7 @@ static INT SetElementRules (GRID *theGrid, ELEMENT *firstElement, INT *cnt)
 
 static int Gather_AddEdgePattern (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   INT pat;
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -1588,7 +1588,7 @@ static int Gather_AddEdgePattern (DDD::DDDContext&, DDD_OBJ obj, void *data)
   return(GM_OK);
         #endif
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   INT addpattern;
   EDGE    *theEdge = (EDGE *)obj;
 
@@ -1623,7 +1623,7 @@ static int Gather_AddEdgePattern (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
 static int Scatter_AddEdgePattern (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   INT pat;
   ELEMENT *theElement = (ELEMENT *)obj;
 
@@ -1637,7 +1637,7 @@ static int Scatter_AddEdgePattern (DDD::DDDContext&, DDD_OBJ obj, void *data)
   return(GM_OK);
         #endif
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   INT addpattern;
   EDGE    *theEdge = (EDGE *)obj;
 
@@ -1676,12 +1676,12 @@ static INT ExchangeAddPatterns (GRID *theGrid)
   const auto& dddctrl = ddd_ctrl(context);
 
   /* exchange addpatterns of edges */
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   DDD_IFAOneway(context,
                 dddctrl.ElementVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_AddEdgePattern, Scatter_AddEdgePattern);
         #endif
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   DDD_IFAOneway(context,
                 dddctrl.EdgeVHIF,GRID_ATTR(theGrid),IF_FORWARD,sizeof(INT),
                 Gather_AddEdgePattern, Scatter_AddEdgePattern);
@@ -1768,7 +1768,7 @@ static INT BuildGreenClosure (GRID *theGrid)
   INT i;
   ELEMENT *theElement;
   EDGE    *theEdge;
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   INT j;
         #endif
 
@@ -1847,7 +1847,7 @@ static INT BuildGreenClosure (GRID *theGrid)
       }
     }
 
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     /* if side node exists element needs to be green */
     for (i=0; i<SIDES_OF_ELEM(theElement); i++)
     {
@@ -2046,7 +2046,7 @@ static int Scatter_ElementInfo (DDD::DDDContext&, DDD_OBJ obj, void *Data)
   COMPARE_MACRO(theElement,theMaster,COARSEN,PrintDebug)
   COMPARE_MACRO(theElement,theMaster,USED,PrintDebug)
   /*	#ifndef DUNE_UGGRID_TET_RULESET */
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   COMPARE_MACRO(theElement,theMaster,SIDEPATTERN,PrintDebug)
         #endif
   /*	#endif */
@@ -2135,7 +2135,7 @@ static int GridClosure (GRID *theGrid)
   /* fifo loop */
   do
   {
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
                 #if defined(ModelP) && defined(DUNE_UGGRID_TET_RULESET)
     /* edge pattern is needed consistently in CorrectTetrahedronSidePattern() */
     if (!refine_seq)
@@ -2396,7 +2396,7 @@ INT NS_DIM_PREFIX GetSons (const ELEMENT *theElement, ELEMENT *SonList[MAX_SONS]
 
 static INT RestrictElementMark(ELEMENT *theElement)
 {
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
         #ifdef DUNE_UGGRID_TET_RULESET
   EDGE *theEdge;
   int j,Rule,Pattern;
@@ -2411,7 +2411,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
     /* for different restrictions              */
     switch (TAG(theElement))
     {
-                        #ifdef __TWODIM__
+                        #ifdef UG_DIM_2
     case TRIANGLE :
       SETMARK(theElement,T_RED);
       break;
@@ -2419,7 +2419,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
       SETMARK(theElement,Q_RED);
       break;
                         #endif
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
     case TETRAHEDRON :
 #ifdef DUNE_UGGRID_TET_RULESET
       if (MARK(theElement)!=RED)
@@ -2449,7 +2449,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
     /** \todo edit this for new element type or for different restrictions */
     switch (TAG(theElement))
     {
-                        #ifdef __TWODIM__
+                        #ifdef UG_DIM_2
     case TRIANGLE :
       SETMARK(theElement,T_RED);
       break;
@@ -2458,7 +2458,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
       SETMARK(theElement,Q_RED);
       break;
                         #endif
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
     case TETRAHEDRON :
 #ifdef DUNE_UGGRID_TET_RULESET
       /* theElement is not marked from outside, */
@@ -2780,7 +2780,7 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
       }
   }
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* check side nodes */
   for (i=CORNERS_OF_ELEM(theElement)+EDGES_OF_ELEM(theElement);
        i<CORNERS_OF_ELEM(theElement)+EDGES_OF_ELEM(theElement)+
@@ -2846,7 +2846,7 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
 static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementContext)
 {
   bool toCreate;
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   ELEMENT *theNeighbor;                         /* neighbor and a son of current elem.	*/
   EDGE *fatherEdge;
   INT j;
@@ -2951,7 +2951,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
   UserWriteF("\n");
   ENDDEBUG
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* nodes on refined sides */
   NODE** SideNodes = theElementContext+CORNERS_OF_ELEM(theElement)+
               EDGES_OF_ELEM(theElement);
@@ -3265,13 +3265,13 @@ INT NS_DIM_PREFIX GetSonSideNodes (const ELEMENT *theElement, INT side, INT *nod
   for (i=0; i<nedges; i++)
   {
     /** \todo delete
-       #ifdef __TWODIM__
+       #ifdef UG_DIM_2
        ASSERT(OBJT(NFATHER(SideNodes[i])) == NDOBJ);
        ASSERT(OBJT(NFATHER(SideNodes[i+1])) == NDOBJ);
         theEdge = GetEdge((NODE *)NFATHER(SideNodes[i]),
                                           (NODE *)NFATHER(SideNodes[i+1]));
        #endif
-       #ifdef __THREEDIM__
+       #ifdef UG_DIM_3
        ASSERT(OBJT(NFATHER(SideNodes[i])) == NDOBJ);
        ASSERT(OBJT(NFATHER(SideNodes[(i+1)%nedges])) == NDOBJ);
         theEdge = GetEdge((NODE *)NFATHER(SideNodes[i]),
@@ -3299,7 +3299,7 @@ INT NS_DIM_PREFIX GetSonSideNodes (const ELEMENT *theElement, INT side, INT *nod
     }
   }
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* determine side node */
   {
     NODE *theNode;
@@ -3400,10 +3400,10 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
     UserWriteF("   son[%d]=" EID_FMTX "\n",i,EID_PRTX(SonList[i]));
   ENDDEBUG
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   markclass = RED_CLASS;
         #endif
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* The following line used to read: markclass = (enum MarkClass) MARKCLASS(theElement);
      This works well within the UG grid refinement context.  However, now I want to use this
      method within the DUNE UGGridLeafIntersectionIterator.  The problem is that the user
@@ -3493,7 +3493,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
       ENDDEBUG
 
       /* sonside on side */
-                                #ifdef __TWODIM__
+                                #ifdef UG_DIM_2
       assert(n<=2);
       if (n==2)
       {
@@ -3509,7 +3509,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
         nsons++;
       }
                                 #endif
-                                #ifdef __THREEDIM__
+                                #ifdef UG_DIM_3
       if (n==3 || n==4)
       {
         INT edge0,edge1,sonside,side0,side1;
@@ -3674,10 +3674,10 @@ static INT Sort_Node_Ptr (INT n,NODE **nodes)
   switch (n)
   {
 
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
   case 2 :
                 #endif
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
   case 3 :
   case 4 :
                 #endif
@@ -4076,7 +4076,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
                  NbSortTable[i]->elem);
       SET_NBELEM(NbSortTable[i]->elem,NbSortTable[i]->side,
                  ElemSortTable[i]->elem);
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
       if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
         if (DisposeDoubledSideVector(theGrid,ElemSortTable[i]->elem,
                                      ElemSortTable[i]->side,
@@ -5090,7 +5090,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
     }
   }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   /* If there are side vectors for the elements, then the CreateElement methods called above have
    * allocated one side vector for each new element face.  Therefore, for each face shared by
    * two elements there are now two side vectors, even though there should be only one (shared).
@@ -5279,10 +5279,10 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
                 }
             switch (pts)
             {
-                                                        #ifdef __TWODIM__
+                                                        #ifdef UG_DIM_2
             case (LINEPOINTS) :
                                                         #endif
-                                                        #ifdef __THREEDIM__
+                                                        #ifdef UG_DIM_3
             case (TRIPOINTS) :
             case (QUADPOINTS) :
                                                         #endif
@@ -5310,7 +5310,7 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
         ASSERT(SonList[side]!=NULL);
 
         /* dispose doubled side vectors if */
-                                #ifdef __THREEDIM__
+                                #ifdef UG_DIM_3
         if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
         {
           INT l;

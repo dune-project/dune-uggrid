@@ -101,7 +101,7 @@ INT         DisposeVector            (GRID *theGrid, VECTOR *theVector);
 
 /** @name More create and dispose */
 /*@{*/
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT             DisposeDoubledSideVector                (GRID *theGrid, ELEMENT *Elem0, INT Side0, ELEMENT *Elem1, INT Side1);
 #endif
 INT             DisposeElementList(GRID *theGrid, NODE *theNode);

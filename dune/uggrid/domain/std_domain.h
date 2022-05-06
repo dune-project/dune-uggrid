@@ -61,7 +61,7 @@ typedef struct {
   /** \brief Table segment to part */
   const INT *sg2part;
 
-# ifdef __THREEDIM__
+# ifdef UG_DIM_3
   /** \brief Table line to part */
   const INT **ln2part;
 # endif

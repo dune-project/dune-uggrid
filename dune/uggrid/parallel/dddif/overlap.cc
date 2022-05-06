@@ -369,10 +369,10 @@ INT ConnectGridOverlap (GRID *theGrid)
       if (!THEFLAG(theElement) && !THEFLAG(theNeighbor)) continue;
 
       /* connect only TO master copies */
-                        #ifdef __TWODIM__
+                        #ifdef UG_DIM_2
       if (!IS_REFINED(theNeighbor) || !MASTERPRIO(prio)) continue;
                         #endif
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
       if (!IS_REFINED(theNeighbor)) continue;
                         #endif
 
@@ -722,7 +722,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
               assert (MIDNODE(theEdge)==NULL ||
                       MIDNODE(theEdge) == SonNode);
 
-                                                                #ifdef __TWODIM__
+                                                                #ifdef UG_DIM_2
               IFDEBUG(dddif,1)
               printf("ConnectOverlapVerticalGrid(): new "
                      " midnode relation between theEdge=%p"
@@ -731,7 +731,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
                      VID_PRTX(MYVERTEX(SonNode)));
               ENDDEBUG
                                                                 #endif
-                                                                #ifdef __THREEDIM__
+                                                                #ifdef UG_DIM_3
               printf("ConnectOverlapVerticalGrid(): new "
                      " midnode relation between theEdge=" ID_FMTX
                      " SonNode=" ID_FMTX "\n",

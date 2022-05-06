@@ -523,7 +523,7 @@ static void NodeObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
 
   /* TODO: this needs to be done here not in NodeUpdate() for 2D,       */
   /* since father would be overwritten by ElemScatterEdge()                     */
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   if (NFATHER(theNode) != NULL)
   {
     switch (NTYPE(theNode))
@@ -581,7 +581,7 @@ static void NodeUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 
   /* TODO: can this be done in NodeObjMkCons() also	*/
   /* to unify 2 and 3D case							*/
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   if (NFATHER(theNode) != NULL)
   {
     switch (NTYPE(theNode))
@@ -914,7 +914,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
     /* add edges of element */
     /* must be done before any XferCopyObj-call! herein    */
     /* or directly after XferCopyObj-call for this element */
-            #ifdef __TWODIM__
+            #ifdef UG_DIM_2
     DDD_XferAddData(context, EDGES_OF_ELEM(pe), dddctrl.TypeEdge);
             #endif
   }
@@ -1002,7 +1002,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
 
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 static void ElemGatherEdge (DDD::DDDContext& context, ELEMENT *pe, int cnt, char *data)
 {
   INT i;
@@ -1169,7 +1169,7 @@ static void ElemScatterEdge (DDD::DDDContext& context, ELEMENT *pe, int cnt, cha
         }
   }
 }
-#endif /* end __TWODIM__ */
+#endif /* end UG_DIM_2 */
 
 
 /****************************************************************************/
@@ -1183,7 +1183,7 @@ static void ElemGatherI (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TYP
     return;
   }
 
-    #ifdef __TWODIM__
+    #ifdef UG_DIM_2
   /* now: type_id is always TypeEdge */
   ElemGatherEdge(context, (ELEMENT *)obj, cnt, (char *)data);
         #endif
@@ -1199,7 +1199,7 @@ static void ElemScatterI (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TY
     return;
   }
 
-    #ifdef __TWODIM__
+    #ifdef UG_DIM_2
   /* type_id is always TypeEdge */
   ElemScatterEdge(context, (ELEMENT *)obj, cnt, (char *)data, newness);
         #endif
@@ -1226,7 +1226,7 @@ static void ElemGatherB (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TYP
   }
 
   /* now: type_id is TypeEdge or other */
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   if (type_id==ddd_ctrl(context).TypeEdge)
   {
     ElemGatherEdge(context, pe, cnt, (char *)data);
@@ -1259,7 +1259,7 @@ static void ElemScatterB (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TY
   }
 
   /* now: type_id is TypeEdge or other */
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   if (type_id==ddd_ctrl(context).TypeEdge)
   {
     ElemScatterEdge(context, pe, cnt, (char *)data, newness);
@@ -1419,7 +1419,7 @@ static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness
     }
   }
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* update element count of edges for new created elements */
   if (newness == XFER_NEW)
     /* increment elem counter in edges */
@@ -1725,7 +1725,7 @@ static void ElemHandlerInit (DDD::DDDContext& context, DDD_TYPE etype, INT handl
   DDD_SetHandlerXFERCOPY        (context, etype, ElementXferCopy);
   DDD_SetHandlerSETPRIORITY     (context, etype, ElementPriorityUpdate);
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   DDD_SetHandlerUPDATE          (context, etype, ElementUpdate);
         #endif
 
@@ -1808,7 +1808,7 @@ void NS_DIM_PREFIX ddd_HandlerInit (DDD::DDDContext& context, INT handlerSet)
 
 
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   IElemHandlerInit(context, dddctrl.TypeTrElem, handlerSet);
   BElemHandlerInit(context, dddctrl.TypeTrBElem, handlerSet);
 
@@ -1816,7 +1816,7 @@ void NS_DIM_PREFIX ddd_HandlerInit (DDD::DDDContext& context, INT handlerSet)
   BElemHandlerInit(context, dddctrl.TypeQuBElem, handlerSet);
         #endif
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   IElemHandlerInit(context, dddctrl.TypeTeElem, handlerSet);
   BElemHandlerInit(context, dddctrl.TypeTeBElem, handlerSet);
 

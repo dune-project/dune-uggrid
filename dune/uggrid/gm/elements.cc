@@ -78,7 +78,7 @@ INT NS_DIM_PREFIX reference2tag[MAX_CORNERS_OF_ELEM+1];
 /*																			*/
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 static GENERAL_ELEMENT def_triangle = {
   3,                                                                                    /* tag							*/
   4,                                                                                    /* max number of sons			*/
@@ -111,7 +111,7 @@ static GENERAL_ELEMENT def_quadrilateral = {
 } ;
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 static GENERAL_ELEMENT def_tetrahedron = {
   4,                                                                                    /* tag							*/
   12,                                                                                   /* max number of sons			*/
@@ -281,7 +281,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 {
   INT tag;
   INT i,j,k,l,n,from,to;
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   INT m,n1,n2;
         #endif
 
@@ -371,7 +371,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     for (j=0; j<MAX_EDGES_OF_ELEM; j++)
       el->edge_of_corner[i][j] = -1;
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   switch (tag)
   {
   case TRIANGLE :
@@ -460,7 +460,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
   }
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   /* edge_of_two_sides(i,j) */
   for (i=0; i<MAX_SIDES_OF_ELEM; i++)
     for (j=0; j<MAX_SIDES_OF_ELEM; j++)
@@ -811,10 +811,10 @@ static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
   /* the sons */
   sons_offset[tag] = 0;
   /*
-     #ifdef __TWODIM__
+     #ifdef UG_DIM_2
                   sons_offset[tag] = p_count; p_count += el->max_sons_of_elem;
      #endif
-     #ifdef __THREEDIM__
+     #ifdef UG_DIM_3
                   sons_offset[tag] = p_count; p_count++;
      #endif
    */
@@ -835,7 +835,7 @@ static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
 
   /* side vector */
   svector_offset[tag] = 0;
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   if (VEC_DEF_IN_OBJ_OF_MG(theMG,SIDEVEC))
   {
     svector_offset[tag] = p_count;
@@ -880,14 +880,14 @@ INT NS_DIM_PREFIX PreInitElementTypes (void)
 {
   INT err;
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   err = PreProcessElementDescription(&def_triangle);
   if (err!=GM_OK) return(err);
   err = PreProcessElementDescription(&def_quadrilateral);
   if (err!=GM_OK) return(err);
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   err = PreProcessElementDescription(&def_tetrahedron);
   if (err!=GM_OK) return(err);
   err = PreProcessElementDescription(&def_pyramid);
@@ -922,14 +922,14 @@ INT NS_DIM_PREFIX InitElementTypes (MULTIGRID *theMG)
   if (theMG==NULL)
     return(GM_ERROR);
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   err = ProcessElementDescription(theMG,&def_triangle);
   if (err!=GM_OK) return(err);
   err = ProcessElementDescription(theMG,&def_quadrilateral);
   if (err!=GM_OK) return(err);
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   err = ProcessElementDescription(theMG,&def_tetrahedron);
   if (err!=GM_OK) return(err);
   err = ProcessElementDescription(theMG,&def_pyramid);

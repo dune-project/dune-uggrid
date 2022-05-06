@@ -112,18 +112,18 @@ void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
       DDD_TypeDisplay(context, dddctrl.TypeIVertex);
       DDD_TypeDisplay(context, dddctrl.TypeBVertex);
       DDD_TypeDisplay(context, dddctrl.TypeNode);
-                                #ifdef __THREEDIM__
+                                #ifdef UG_DIM_3
       DDD_TypeDisplay(context, dddctrl.TypeEdge);
                                 #endif
 
-                                #ifdef __TWODIM__
+                                #ifdef UG_DIM_2
       DDD_TypeDisplay(context, dddctrl.TypeTrElem);
       DDD_TypeDisplay(context, dddctrl.TypeTrBElem);
       DDD_TypeDisplay(context, dddctrl.TypeQuElem);
       DDD_TypeDisplay(context, dddctrl.TypeQuBElem);
                                 #endif
 
-                                #ifdef __THREEDIM__
+                                #ifdef UG_DIM_3
       DDD_TypeDisplay(context, dddctrl.TypeTeElem);
       DDD_TypeDisplay(context, dddctrl.TypeTeBElem);
       DDD_TypeDisplay(context, dddctrl.TypePyElem);
@@ -135,7 +135,7 @@ void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
                                 #endif
 
       /* display dependent types */
-                                #ifdef __TWODIM__
+                                #ifdef UG_DIM_2
       DDD_TypeDisplay(context, dddctrl.TypeEdge);
                                 #endif
     }

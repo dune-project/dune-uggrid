@@ -180,10 +180,10 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
                  EL_OBJPTR, r+n_offset[tag]*sizeof(void*),       ps*desc->corners_of_elem, dddctrl.TypeNode,
                  EL_OBJPTR, r+father_offset[tag]*sizeof(void*),  ps,                       dddType,
                  /* TODO: delete
-                    #ifdef __TWODIM__
+                    #ifdef UG_DIM_2
                                  EL_LDATA, r+sons_offset[tag]*sizeof(void*),    ps*desc->max_sons_of_elem,
                     #endif
-                    #ifdef __THREEDIM__
+                    #ifdef UG_DIM_3
                                  EL_LDATA, r+sons_offset[tag]*sizeof(void*),    ps*1,
                     #endif
                   */
@@ -199,7 +199,7 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
                    EL_OBJPTR, r+evector_offset[tag]*sizeof(void*), ps*1,     dddctrl.TypeVector,
                    EL_CONTINUE);
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   if (ddd_ctrl(context).sideData)
     DDD_TypeDefine(context, dddType,
                    EL_OBJPTR, r+svector_offset[tag]*sizeof(void*), ps*desc->sides_of_elem, dddctrl.TypeVector,
@@ -317,14 +317,14 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
   MAP_TYPES(NDOBJ, dddctrl.TypeNode);
   dddctrl.dddObj[NDOBJ] = true;
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   dddctrl.TypeTrElem  = DDD_TypeDeclare(context, "TrElem");
   dddctrl.TypeTrBElem = DDD_TypeDeclare(context, "TrBElem");
   dddctrl.TypeQuElem  = DDD_TypeDeclare(context, "QuElem");
   dddctrl.TypeQuBElem = DDD_TypeDeclare(context, "QuBElem");
         #endif /* TWODIM */
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   dddctrl.TypeTeElem  = DDD_TypeDeclare(context, "TeElem");
   dddctrl.TypeTeBElem = DDD_TypeDeclare(context, "TeBElem");
   dddctrl.TypePyElem  = DDD_TypeDeclare(context, "PyElem");
@@ -438,11 +438,11 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  /* TODO muss father LDATA oder OBJPTR sein?     */
                  /* LDATA, father ist nur lokal gueltig und      */
                  /* ist abhaengig von vertikaler Lastverteilung  */
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
                  /* TODO: ref-typ muss eigentlich {TypeTrElem,TypeTrBElem} sein! */
                  EL_OBJPTR, ELDEF(ivertex,father), dddctrl.TypeTrElem,
                 #endif
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
                  EL_LDATA,  ELDEF(ivertex,father),
                 #endif
 
@@ -476,11 +476,11 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  /* TODO muss father LDATA oder OBJPTR sein?     */
                  /* LDATA, father ist nur lokal gueltig und      */
                  /* ist abhaengig von vertikaler Lastverteilung  */
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
                  /* TODO: ref-typ muss eigentlich {TypeTrElem,TypeTrBElem} sein! */
                  EL_OBJPTR, ELDEF(bvertex,father), dddctrl.TypeTrElem,
                 #endif
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
                  EL_LDATA,  ELDEF(bvertex,father),
                 #endif
 
@@ -538,14 +538,14 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
   DDD_PrioMergeDefault(context, dddctrl.TypeNode, PRIOMERGE_MAXIMUM);
 
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   ddd_InitGenericElement(context, TRIANGLE,      dddctrl.TypeTrElem,  Inside);
   ddd_InitGenericElement(context, TRIANGLE,      dddctrl.TypeTrBElem, Boundary);
   ddd_InitGenericElement(context, QUADRILATERAL, dddctrl.TypeQuElem,  Inside);
   ddd_InitGenericElement(context, QUADRILATERAL, dddctrl.TypeQuBElem, Boundary);
         #endif /* TWODIM */
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   ddd_InitGenericElement(context, TETRAHEDRON, dddctrl.TypeTeElem,  Inside);
   ddd_InitGenericElement(context, TETRAHEDRON, dddctrl.TypeTeBElem, Boundary);
   ddd_InitGenericElement(context, PYRAMID,     dddctrl.TypePyElem,  Inside);
@@ -566,10 +566,10 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
   DDD_TypeDefine(context, dddctrl.TypeEdge,
                  /* link 0 data */
                  /*TODO: now unique
-                    #ifdef __TWODIM__
+                    #ifdef UG_DIM_2
                                  EL_GDATA,  ELDEF(EDGE,links[0].control),
                     #endif
-                    #ifdef __THREEDIM__
+                    #ifdef UG_DIM_3
                                  EL_LDATA,  ELDEF(EDGE,links[0].control),
                     #endif
                   */
@@ -638,13 +638,13 @@ static void ddd_IfInit(DDD::DDDContext& context)
 
 
   /* define element interfaces */
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   O[0] = dddctrl.TypeTrElem; O[1] = dddctrl.TypeTrBElem;
   O[2] = dddctrl.TypeQuElem; O[3] = dddctrl.TypeQuBElem;
   nO = 4;
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   O[0] = dddctrl.TypeTeElem; O[1] = dddctrl.TypeTeBElem;
   O[2] = dddctrl.TypePyElem; O[3] = dddctrl.TypePyBElem;
   O[4] = dddctrl.TypePrElem; O[5] = dddctrl.TypePrBElem;
@@ -850,14 +850,14 @@ static void InitDDDTypes(DDD::DDDContext& context)
   DDD_TypeDisplay(context, dddctrl.TypeNode);
   DDD_TypeDisplay(context, dddctrl.TypeEdge);
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   DDD_TypeDisplay(context, dddctrl.TypeTrElem);
   DDD_TypeDisplay(context, dddctrl.TypeTrBElem);
   DDD_TypeDisplay(context, dddctrl.TypeQuElem);
   DDD_TypeDisplay(context, dddctrl.TypeQuBElem);
         #endif
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   DDD_TypeDisplay(context, dddctrl.TypeTeElem);
   DDD_TypeDisplay(context, dddctrl.TypeTeBElem);
   DDD_TypeDisplay(context, dddctrl.TypePyElem);
@@ -869,7 +869,7 @@ static void InitDDDTypes(DDD::DDDContext& context)
         #endif
 
   /* display dependent types */
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   DDD_TypeDisplay(context, dddctrl.TypeEdge);
         #endif
   ENDDEBUG

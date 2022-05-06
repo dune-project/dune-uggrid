@@ -537,11 +537,11 @@ NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *t
   if (theVertex==NULL)
   {
     if ((OBJT(v0) == BVOBJ) && (OBJT(v1) == BVOBJ))
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
       if (OBJT(theElement) == BEOBJ)
         if (SIDE_ON_BND(theElement,edge))
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
       if (EDSUBDOM(theEdge) == 0)
 #endif
     {
@@ -676,7 +676,7 @@ static INT SideOfNbElement(const ELEMENT *theElement, INT side)
   return(MAX_SIDES_OF_ELEM);
 }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 
 /****************************************************************************/
@@ -1407,7 +1407,7 @@ INT GetSideIDFromScratchOld (ELEMENT *theElement, NODE *theNode)
   return(SIDES_OF_ELEM(theFather));
 }
 
-#endif /* __THREEDIM__ */
+#endif /* UG_DIM_3 */
 
 
 /****************************************************************************/
@@ -1603,7 +1603,7 @@ INT NS_DIM_PREFIX GetNodeContext (const ELEMENT *theElement, NODE **theElementCo
   NODE *theNode, **MidNodes, **CenterNode;
   EDGE *theEdge;
   INT i,Corner0, Corner1;
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   NODE **SideNodes;
         #endif
 
@@ -1635,7 +1635,7 @@ INT NS_DIM_PREFIX GetNodeContext (const ELEMENT *theElement, NODE **theElementCo
     MidNodes[i] = MIDNODE(theEdge);
   }
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   SideNodes = theElementContext+CORNERS_OF_ELEM(theElement)+
               EDGES_OF_ELEM(theElement);
   for (i=0; i<SIDES_OF_ELEM(theElement); i++)
@@ -1818,7 +1818,7 @@ EDGE * NS_DIM_PREFIX GetFatherEdge (const EDGE *theEdge)
   /* one node is center node -> no father edge */
   if (CENTERTYPE(theNode0) || CENTERTYPE(theNode1)) return(NULL);
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* one node is side node -> no father edge */
   if (SIDETYPE(theNode0) || SIDETYPE(theNode1)) return(NULL);
         #endif
@@ -1859,7 +1859,7 @@ EDGE * NS_DIM_PREFIX GetFatherEdge (const EDGE *theEdge)
   return NULL;
 }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 /****************************************************************************/
 /** \brief Return pointer to father edge if it exists
@@ -2056,7 +2056,7 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
   EDGE *pe,*father_edge;
   NODE *from,*to,*n1,*n2;
   LINK *link0,*link1;
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   VERTEX *theVertex;
   NODE *nbn1,*nbn2,*nbn3,*nbn4;
   INT sc,found,side,k,j;
@@ -2133,7 +2133,7 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
     }
     switch(NTYPE(n1)|(NTYPE(n2)<<4))
     {
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
     case (CORNER_NODE | (CORNER_NODE<<4)) :
       father_edge = GetEdge(NFATHER(n1),NFATHER(n2));
       if (father_edge!=NULL) SETEDSUBDOM(pe,EDSUBDOM(father_edge));
@@ -2152,7 +2152,7 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
       if (NBNODE(LINK0(father_edge))==NFATHER(n1) || NBNODE(LINK1(father_edge))==NFATHER(n1)) SETEDSUBDOM(pe,EDSUBDOM(father_edge));
       break;
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
     case (CORNER_NODE | (CORNER_NODE<<4)) :
       father_edge = GetEdge(NFATHER(n1),NFATHER(n2));
       if (father_edge!=NULL) SETEDSUBDOM(pe,EDSUBDOM(father_edge));
@@ -2534,14 +2534,14 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
     ReinspectSonSideVector(theGrid,theSon,son_side,&vec);
     SET_SVECTOR(theSon,son_side,vec);
   }
-    #ifdef __TWODIM__
+    #ifdef UG_DIM_2
   theEdge = GetEdge(CORNER(theSon,CORNER_OF_EDGE(theSon,son_side,0)),
                     CORNER(theSon,CORNER_OF_EDGE(theSon,son_side,1)));
   ASSERT(theEdge != NULL);
   SETEDSUBDOM(theEdge,0);
         #endif
 
-    #ifdef __THREEDIM__
+    #ifdef UG_DIM_3
   /** \todo is this necessary?
      for (i=0; i<EDGES_OF_SIDE(theSon,son_side); i++) {
           int k  = EDGE_OF_SIDE(theSon,son_side,i);
@@ -3201,7 +3201,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
   BNDS    *bnds;
   ELEMENT *theFather;
   ELEMENT *succe = SUCCE(theElement);
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   VECTOR  *theVector;
   DOUBLE *local,fac;
   INT k,m,o,l;
@@ -3306,7 +3306,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
         BNDS_Dispose(MGHEAP(MYMG(theGrid)),bnds);
     }
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* reset VFATHER of sidenodes */
   for (j=0; j<SIDES_OF_ELEM(theElement); j++) {
     theNode = GetSideNode(theElement,j);
@@ -3350,7 +3350,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
     {
       theVertex = MYVERTEX(MIDNODE(theEdge));
       if (VFATHER(theVertex) == theElement) {
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
         theFather = NBELEM(theElement,j);
         VFATHER(theVertex) = theFather;
         if (theFather != NULL)
@@ -3369,7 +3369,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
           SETONEDGE(theVertex,j);
         }
                             #endif
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
         VFATHER(theVertex) = NULL;
                             #endif
       }
@@ -3429,7 +3429,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
   {
     ELEMENT *theNeighbor = NBELEM(theElement,i);
 
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
     {
       theVector = SVECTOR(theElement,i);
@@ -3617,7 +3617,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
                         CORNER(theElement,
                                CORNER_OF_EDGE(theElement,i,1)));
       SETLEVEL(theEdge,0);
-                        #if (defined ModelP) && (defined __THREEDIM__)
+                        #if (defined ModelP) && (defined UG_DIM_3)
       DDD_AttrSet(PARHDR(theEdge),GRID_ATTR(theGrid));
                         #endif
     }
@@ -3957,7 +3957,7 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
 
   SetStringValue(":bndp0",XC(theVertex));
   SetStringValue(":bndp1",YC(theVertex));
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   SetStringValue(":bndp2",ZC(theVertex));
         #endif
 
@@ -4013,7 +4013,7 @@ INT NS_DIM_PREFIX DeleteNode (GRID *theGrid, NODE *theNode)
   return(GM_OK);
 }
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 
 
 /****************************************************************************/
@@ -4057,7 +4057,7 @@ INT NS_DIM_PREFIX CheckOrientation (INT n, VERTEX **vertices)
 #define SWAP_IJ(a,i,j,t)                        {t = a[i]; a[i] = a[j]; a[j] = t;}
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 
 /****************************************************************************/
@@ -4310,7 +4310,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   ELEMENT          *theElement,*Neighbor[MAX_SIDES_OF_ELEM];
   BNDS         *bnds[MAX_SIDES_OF_ELEM];
   BNDP         *bndp[MAX_CORNERS_OF_ELEM];
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   VERTEX           *theVertex;
   NODE             *theNode;
         #endif
@@ -4326,7 +4326,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   }
 
   /* check parameters */
-    #ifdef __TWODIM__
+    #ifdef UG_DIM_2
   switch (n)
   {
   case 3 :
@@ -4341,7 +4341,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   }
     #endif
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   switch (n)
   {
   case 4 :
@@ -4370,7 +4370,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
     Vertex[i] = MYVERTEX(Node[i]);
   }
 
-    #ifdef __TWODIM__
+    #ifdef UG_DIM_2
   /* find orientation */
   if (!CheckOrientation(n,Vertex))
   {
@@ -4415,7 +4415,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   }
         #endif
 
-    #ifdef __THREEDIM__
+    #ifdef UG_DIM_3
   if (!CheckOrientation (n,Vertex))
   {
     sideNode[0] = Node[0];
@@ -4518,7 +4518,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
         return(NULL);
       }
       SET_NBELEM(Neighbor[i],NeighborSide[i],theElement);
-            #ifdef __THREEDIM__
+            #ifdef UG_DIM_3
       if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
         if (DisposeDoubledSideVector(theGrid,Neighbor[i],
                                      NeighborSide[i],theElement,i))
@@ -4735,7 +4735,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
    </ul> */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 bool NS_DIM_PREFIX PointInElement (const DOUBLE *x, const ELEMENT *theElement)  /* 2D version */
 {
   COORD_POINT point[MAX_CORNERS_OF_ELEM],thePoint;
@@ -4759,7 +4759,7 @@ bool NS_DIM_PREFIX PointInElement (const DOUBLE *x, const ELEMENT *theElement)  
 }
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 bool NS_DIM_PREFIX PointInElement (const DOUBLE *global, const ELEMENT *theElement)
 {
   DOUBLE *x[MAX_CORNERS_OF_ELEM];
@@ -4811,7 +4811,7 @@ bool NS_DIM_PREFIX PointInElement (const DOUBLE *global, const ELEMENT *theEleme
    </ul> */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 INT NS_DIM_PREFIX PointOnSide(const DOUBLE *global, const ELEMENT *theElement, INT side)
 {
   INT n;
@@ -4878,7 +4878,7 @@ INT NS_DIM_PREFIX PointOnSide(const DOUBLE *global, const ELEMENT *theElement, I
    </ul> */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 DOUBLE NS_DIM_PREFIX DistanceFromSide(const DOUBLE *global, const ELEMENT *theElement, INT side)
 {
   INT n;
@@ -5878,7 +5878,7 @@ void NS_DIM_PREFIX ListNode (const MULTIGRID *theMG, const NODE *theNode, INT da
   {
     for (theLink=START(theNode); theLink!=NULL; theLink=NEXT(theLink))
     {
-                        #if defined __THREEDIM__ && defined ModelP
+                        #if defined UG_DIM_3 && defined ModelP
       UserWriteF("   EDGE=%x/%08x ",MYEDGE(theLink),
                  DDD_InfoGlobalId(PARHDR(MYEDGE(theLink))));
                         #else
@@ -5992,7 +5992,7 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
       {
         for(j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
         {
-                                                #if defined(ModelP) && defined(__THREEDIM__)
+                                                #if defined(ModelP) && defined(UG_DIM_3)
           UserWriteF("    NODE[ID=%ld]: ",
                      (long)(ID(CORNER(theElement,
                                       CORNER_OF_SIDE(theElement,i,j)))));
@@ -6034,10 +6034,10 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   {
     if (VectorPosition(theVector,pos))
       return;
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
     UserWriteF("POS=(%10.2e,%10.2e)",pos[_X_],pos[_Y_]);
                 #endif
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     UserWriteF("POS=(%10.2e,%10.2e,%10.2e)",pos[_X_],pos[_Y_],pos[_Z_]);
                 #endif
   }
@@ -6046,7 +6046,7 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   if (READ_FLAG(modifiers,LV_VO_INFO))
     switch (VOTYPE(theVector))
     {
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     case SIDEVEC :
     {
       ELEMENT *theElement = (ELEMENT*)VOBJECT(theVector);
@@ -7191,7 +7191,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
   strcat(out,"\n");
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
     sprintf(tmp,"    N%d=" ID_FMTX " x=%g  y=%g\n",
             i,
             ID_PRTX(CORNER(theElement,i)),
@@ -7199,7 +7199,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
             CVECT(MYVERTEX(CORNER(theElement,i)))[1]
             );
                 #endif
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     sprintf(tmp,"    N%d=" ID_FMTX " x=%g  y=%g z=%g\n",
             i,
             ID_PRTX(CORNER(theElement,i)),
@@ -7231,7 +7231,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
 
         for (j=0; j<CORNERS_OF_ELEM(SonList[i]); j++)
         {
-                                        #ifdef __TWODIM__
+                                        #ifdef UG_DIM_2
           sprintf(tmp,"        N%d= " ID_FMTX " x=%g  y=%g\n",
                   j,
                   ID_PRTX(CORNER(SonList[i],j)),
@@ -7239,7 +7239,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
                   CVECT(MYVERTEX(CORNER(SonList[i],j)))[1]
                   );
                                         #endif
-                                        #ifdef __THREEDIM__
+                                        #ifdef UG_DIM_3
           sprintf(tmp,"        N%d= " ID_FMTX " x=%g  y=%g z=%g\n",
                   j,
                   ID_PRTX(CORNER(SonList[i],j)),
@@ -7267,13 +7267,13 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
     {
       for(j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
       {
-                                #ifdef __TWODIM__
+                                #ifdef UG_DIM_2
         sprintf(tmp,"    NODE[ID=%ld]: x=%g y=%g",
                 (long)(ID(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j)))),
                 CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j))))[0],
                 CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j))))[1]);
                                 #endif
-                                #ifdef __THREEDIM__
+                                #ifdef UG_DIM_3
         sprintf(tmp,"    NODE[ID=%ld]: x=%g y=%g z=%g",
                 (long)(ID(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j)))),
                 CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j))))[0],

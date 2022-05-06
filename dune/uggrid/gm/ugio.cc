@@ -1198,7 +1198,7 @@ static INT WriteElementParInfo (GRID *theGrid,
     pinfo->v_ident[k] = VXGID(theVertex);
   }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   for (k=0; k<EDGES_OF_ELEM(theElement); k++)
   {
     EDGE* theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0)),
@@ -1701,7 +1701,7 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
   auto& dddContext = theGrid->dddContext();
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   INT svec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),SIDEVEC);
 #else
   INT svec = 0;
@@ -2332,7 +2332,7 @@ static INT InsertLocalTree (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMENT 
   }
   offset = i;
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   for (; i<SIDES_OF_ELEM(theElement)+offset; i++)
   {
     if (theRule->pattern[i-CORNERS_OF_ELEM(theElement)]!=1)
@@ -2714,7 +2714,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   char buf[64],itype[10];
   int *vidlist;
   INT MarkKey;
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   ELEMENT *theNeighbor;
   INT k;
 #endif
@@ -3306,7 +3306,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   {
     theGrid = GRID_ON_LEVEL(theMG,i);
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
     if (VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),SIDEVEC))
       for (theElement = FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
         for (j=0; j<SIDES_OF_ELEM(theElement); j++)

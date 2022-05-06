@@ -606,7 +606,7 @@ GetNumberOfPatches (PATCH * p)
     return (1);
   case POINT_PATCH_TYPE :
     return (POINT_PATCH_N (p));
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   case LINE_PATCH_TYPE :
     return (LINE_PATCH_N (p));
 #endif
@@ -625,7 +625,7 @@ GetPatchId (PATCH * p, INT i)
     return (PATCH_ID (p));
   case POINT_PATCH_TYPE :
     return (POINT_PATCH_PID (p, i));
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   case LINE_PATCH_TYPE :
     return (LINE_PATCH_PID (p, i));
 #endif
@@ -669,7 +669,7 @@ CreateBndPOnPoint (HEAP * Heap, PATCH * p)
                            PARAM_PATCH_RANGE (pp)[1][1]));
       switch (POINT_PATCH_CID (p, j))
       {
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
       case 0 :
         ps->local[j][0] = PARAM_PATCH_RANGE (pp)[0][0];
         break;
@@ -677,7 +677,7 @@ CreateBndPOnPoint (HEAP * Heap, PATCH * p)
         ps->local[j][0] = PARAM_PATCH_RANGE (pp)[1][0];
         break;
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
       case 0 :
         ps->local[j][0] = PARAM_PATCH_RANGE (pp)[0][0];
         ps->local[j][1] = PARAM_PATCH_RANGE (pp)[0][1];
@@ -706,7 +706,7 @@ CreateBndPOnPoint (HEAP * Heap, PATCH * p)
     {
       switch (POINT_PATCH_CID (p, j))
       {
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
       case 0 :
         ps->local[j][0] = 0.0;
         break;
@@ -714,7 +714,7 @@ CreateBndPOnPoint (HEAP * Heap, PATCH * p)
         ps->local[j][0] = 1.0;
         break;
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
       case 0 :
         ps->local[j][0] = 0.0;
         ps->local[j][1] = 0.0;
@@ -767,7 +767,7 @@ CreateCornerPoints (HEAP * Heap, STD_BVP * theBVP, BNDP ** bndp)
   return (0);
 }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 /** \brief Add a line between two vertices to the boundary data structure
 
    \param i, j  The line goes from vertex i to vertex j
@@ -890,7 +890,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   PATCH **corners, **sides, *thePatch;
   unsigned short* segmentsPerPoint, *freeSegmentsPerPoint, *cornerCounters;
   INT i, j, n, m, maxSubDomains, ncorners, nlines, nsides;
-#       ifdef __THREEDIM__
+#       ifdef UG_DIM_3
   PATCH **lines;
   INT err;
   INT nn;
@@ -1115,7 +1115,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
   /* create line patches */
   nlines = 0;
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   /* The maximum number of boundary lines is equal to the number of
      boundary faces (nsides) times the max number of lines per face (=4)
      divided by two. */
@@ -1209,7 +1209,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
       POINT_PATCH_PID (thePatch, j) += m;
     theBVP->patches[n++] = thePatch;
   }
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   for (i = 0; i < nlines; i++)
   {
     thePatch = lines[i];
@@ -1439,7 +1439,7 @@ GetNumberOfCommonPatches (PATCH * p0, PATCH * p1, INT * Pid)
   return (cnt);
 }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 static INT
 GetCommonPatchId (PATCH * p0, PATCH * p1, INT k)
 {
@@ -1798,7 +1798,7 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
   pid = i + theBVP->sideoffset;
   p = theBVP->patches[pid];
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   /* check point on line or on point patch */
   if (abs(pos[0] - PARAM_PATCH_RANGE (p)[0][0]) < SMALL_DIFF)
   {
@@ -1857,7 +1857,7 @@ BVP_InsertBndP (HEAP * Heap, BVP * aBVP, INT argc, char **argv)
               currBVP->patches[PARAM_PATCH_POINTS (p, 2)], lc));
   }
 #endif
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   /* check point on point patch */
   if (abs(pos[0] - PARAM_PATCH_RANGE (p)[0][0]) < SMALL_DIFF)
     return (CreateBndPOnPoint
@@ -2005,13 +2005,13 @@ PatchGlobal (const PATCH * p, DOUBLE * lambda, DOUBLE * global)
     return ((*PARAM_PATCH_BS (p))(PARAM_PATCH_BSD (p), lambda, global));
   else if (PATCH_TYPE (p) == LINEAR_PATCH_TYPE)
   {
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
     global[0] = (1 - lambda[0]) * LINEAR_PATCH_POS (p, 0)[0]
                 + lambda[0] * LINEAR_PATCH_POS (p, 1)[0];
     global[1] = (1 - lambda[0]) * LINEAR_PATCH_POS (p, 0)[1]
                 + lambda[0] * LINEAR_PATCH_POS (p, 1)[1];
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
     if (LINEAR_PATCH_N(p) ==3) {
       /* Linear interpolation for a triangle boundary segment */
@@ -2059,11 +2059,11 @@ FreeBNDS_Global (BND_PS * ps, DOUBLE * local, DOUBLE * global)
   }
 
   /* claculate global coordinates */
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   for (i = 0; i < DIM; i++)
     global[i] = (1.0 - local[0]) * pos[0][i] + local[0] * pos[1][i];
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   switch (ps->n)
   {
   case 3 :
@@ -2093,11 +2093,11 @@ local2lambda (BND_PS * ps, DOUBLE local[], DOUBLE lambda[])
 
   if ((PATCH_TYPE (p) == PARAMETRIC_PATCH_TYPE)
       || (PATCH_TYPE (p) == LINEAR_PATCH_TYPE))
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
     lambda[0] =
       (1.0 - local[0]) * ps->local[0][0] + local[0] * ps->local[1][0];
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
     switch (ps->n)
     {
     case 3 :
@@ -2152,14 +2152,14 @@ BNDS_Global (BNDS * aBndS, DOUBLE * local, DOUBLE * global)
 static INT
 SideIsCooriented (BND_PS * ps)
 {
-#       ifdef __TWODIM__
+#       ifdef UG_DIM_2
   if (BND_LOCAL (ps, 1)[0] > BND_LOCAL (ps, 0)[0])
     return (YES);
   else
     return (NO);
 #       endif
 
-#       ifdef __THREEDIM__
+#       ifdef UG_DIM_3
   DOUBLE vp, x0[2], x1[2];
 
   ASSERT (BND_N (ps) >= 3);
@@ -2326,7 +2326,7 @@ BndPointGlobal (const BNDP * aBndP, DOUBLE * global)
     }
 
     return (0);
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   case LINE_PATCH_TYPE :
     s = currBVP->patches[LINE_PATCH_PID (p, 0)];
 
@@ -2409,7 +2409,7 @@ BNDP_BndPDesc (BNDP * theBndP, INT * move, INT * part)
     *move = PATCH_IS_FREE (p) ? DIM : 0;
     return (0);
 
-#               ifdef __THREEDIM__
+#               ifdef UG_DIM_3
   case LINE_PATCH_TYPE :
     if (STD_BVP_NDOMPART (currBVP) > 1)
       *part = DPI_LN2P (DOMAIN_PARTINFO (STD_BVP_DOMAIN (currBVP)),
@@ -2449,7 +2449,7 @@ BNDP_BndEDesc (BNDP * aBndP0, BNDP * aBndP1, INT * part)
   if (cnt == 0)
     return (1);
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   if (cnt > 1)
   {
     pid = GetCommonLinePatchId (p0, p1);
@@ -2484,7 +2484,7 @@ BNDP_CreateBndS (HEAP * Heap, BNDP ** aBndP, INT n)
   PATCH *p[4];
   DOUBLE *lambda[4];
   INT i, j, l, pid;
-#       ifdef __THREEDIM__
+#       ifdef UG_DIM_3
   INT k;
 #       endif
 
@@ -2501,7 +2501,7 @@ BNDP_CreateBndS (HEAP * Heap, BNDP ** aBndP, INT n)
   }
 
   pid = -1;
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   if (n != 2)
     return (NULL);
   /* find common patch of boundary points */
@@ -2520,7 +2520,7 @@ BNDP_CreateBndS (HEAP * Heap, BNDP ** aBndP, INT n)
       }
     }
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   switch (n)
   {
   case 3 :
@@ -2627,7 +2627,7 @@ BNDP_CreateBndP (HEAP * Heap, BNDP * aBndP0, BNDP * aBndP1, DOUBLE lcoord)
     return (NULL);
   bp->n = cnt;
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   if (cnt > 1)
   {
     PATCH *p;
@@ -2764,7 +2764,7 @@ BNDP_SaveInsertedBndP (BNDP * theBndP, char *data, INT max_data_size)
   case POINT_PATCH_TYPE :
     pid = POINT_PATCH_PID (p, 0) - currBVP->sideoffset;
     break;
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   case LINE_PATCH_TYPE :
     pid = LINE_PATCH_PID (p, 0) - currBVP->sideoffset;
     break;
@@ -2773,13 +2773,13 @@ BNDP_SaveInsertedBndP (BNDP * theBndP, char *data, INT max_data_size)
 
   PRINTDEBUG (dom, 1, (" Insert pid %d %d\n", bp->patch_id, pid));
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   if (sprintf (data, "bn %d %f", pid, (float) bp->local[0][0]) >
       max_data_size)
     return (1);
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   if (sprintf (data, "bn %d %f %f", (int) pid,
                (float) bp->local[0][0],
                (float) bp->local[0][1]) > max_data_size)

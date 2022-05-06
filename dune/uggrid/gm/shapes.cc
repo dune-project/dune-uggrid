@@ -75,11 +75,11 @@ USING_UG_NAMESPACE
 /****************************************************************************/
 
 /* local midpoints */
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 static DOUBLE_VECTOR_2D LMP_Triangle            = {0.333333333333333333, 0.333333333333333333};
 static DOUBLE_VECTOR_2D LMP_Quadrilateral       = {0.5, 0.5};
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 static DOUBLE_VECTOR_3D LMP_Tetrahedron         = {0.25, 0.25, 0.25};
 static DOUBLE_VECTOR_3D LMP_Pyramid             = {0.5, 0.5, 0.33333333333333333};
 static DOUBLE_VECTOR_3D LMP_Prism               = {0.333333333333333333,
@@ -108,7 +108,7 @@ static DOUBLE_VECTOR_3D LMP_Hexahedron          = {0.5, 0.5, 0.5};
 
 DOUBLE * NS_DIM_PREFIX LMP (INT n)
 {
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   switch (n)
   {
   case 3 : return (LMP_Triangle);
@@ -116,7 +116,7 @@ DOUBLE * NS_DIM_PREFIX LMP (INT n)
   }
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   switch (n)
   {
   case 4 : return (LMP_Tetrahedron);
@@ -200,7 +200,7 @@ INT NS_DIM_PREFIX UG_GlobalToLocal (INT n, const DOUBLE **Corners,
  */
 /****************************************************************************/
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT NS_DIM_PREFIX TetraSideNormals (ELEMENT *theElement, DOUBLE **theCorners, DOUBLE_VECTOR theNormals[MAX_SIDES_OF_ELEM])
 {
   ELEMENT e;
@@ -244,7 +244,7 @@ INT NS_DIM_PREFIX TetraSideNormals (ELEMENT *theElement, DOUBLE **theCorners, DO
  */
 /****************************************************************************/
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT NS_DIM_PREFIX TetMaxSideAngle (ELEMENT *theElement, const DOUBLE **theCorners, DOUBLE *MaxAngle)
 {
   DOUBLE_VECTOR theNormal[MAX_SIDES_OF_ELEM];
@@ -282,7 +282,7 @@ INT NS_DIM_PREFIX TetMaxSideAngle (ELEMENT *theElement, const DOUBLE **theCorner
  */
 /****************************************************************************/
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT NS_DIM_PREFIX TetAngleAndLength (ELEMENT *theElement, const DOUBLE **theCorners, DOUBLE *Angle, DOUBLE *Length)
 {
   DOUBLE_VECTOR theNormals[MAX_SIDES_OF_ELEM],theEdge[MAX_EDGES_OF_ELEM];

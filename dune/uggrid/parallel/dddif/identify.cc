@@ -401,7 +401,7 @@ static INT Identify_by_ObjectList (DDD::DDDContext& context, DDD_HDR *IdentObjec
   return 0;
 }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 
 static void IdentifySideVector (DDD::DDDContext& context, ELEMENT* theElement, ELEMENT *theNeighbor,
@@ -523,13 +523,13 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
 
   case (MID_NODE) :
   {
-                        #ifdef __TWODIM__
+                        #ifdef UG_DIM_2
     NODE **EdgeNodes;
     EdgeNodes = Nodes;
                         #endif
 
     EDGE *theEdge;
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
     NODE *EdgeNodes[MAX_SIDE_NODES];
 
     /* identification of cornernodes is done */
@@ -554,7 +554,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
     if (Vec)
       IdentObjectHdr[nobject++] = PARHDR(NVECTOR(theNode));
 
-                        #ifdef __TWODIM__
+                        #ifdef UG_DIM_2
     if (!NEW_NIDENT(theNode)) break;
                         #endif
 
@@ -580,7 +580,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
     break;
   }
 
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
   case (SIDE_NODE) :
   {
     INT i;
@@ -658,12 +658,12 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
 
   nobject = nident = 0;
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   /* no identfication to nonrefined neighbors */
   if (MARK(theNeighbor) == NO_REFINEMENT) return(0);
         #endif
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* identification of sonedges is done in Identify_SonEdges() */
   {
     EDGE *FatherEdge;
@@ -686,7 +686,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
   /* edge locked -> already identified */
   if (EDIDENT(theEdge) == IDENT) return(0);
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   IdentObjectHdr[nobject++] = PARHDR(theEdge);
         #endif
 
@@ -704,7 +704,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
     ASSERT(NFATHER(theNode0)!=NULL);
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(theNode0));
   }
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* since midnodes are identified later in Debug case */
   /* choose fatheredge here (s.l. 980227)              */
   else if (MIDTYPE(theNode0))
@@ -716,7 +716,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
   else
   {
     /* side node */
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     ASSERT(SIDETYPE(theNode0));
                 #endif
     IdentHdr[nident++] = PARHDR(theNode0);
@@ -727,7 +727,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
     ASSERT(NFATHER(theNode1)!=NULL);
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(theNode1));
   }
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* since midnodes are identified later in Debug case */
   /* choose fatheredge here (s.l. 980227)              */
   else if (MIDTYPE(theNode1))
@@ -739,7 +739,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
   else
   {
     /* side node */
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     ASSERT(SIDETYPE(theNode1));
                 #endif
     IdentHdr[nident++] = PARHDR(theNode1);
@@ -795,7 +795,7 @@ static INT IdentifyEdge (GRID *theGrid,
   NODE *Nodes[2];
   EDGE *theEdge;
   INT nobject,nident;
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   INT edge,corner0,corner1;
         #endif
   int *proclist;
@@ -805,12 +805,12 @@ static INT IdentifyEdge (GRID *theGrid,
 
   nobject = nident = 0;
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   Nodes[0] = CORNER(Son,CORNER_OF_EDGE(Son,SonSide,0));
   Nodes[1] = CORNER(Son,CORNER_OF_EDGE(Son,SonSide,1));
         #endif
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   edge = EDGE_OF_SIDE(Son,SonSide,edgeofside);
   corner0 = CORNER_OF_EDGE(Son,edge,0);
   corner1 = CORNER_OF_EDGE(Son,edge,1);
@@ -828,12 +828,12 @@ static INT IdentifyEdge (GRID *theGrid,
   theEdge = GetEdge(Nodes[0],Nodes[1]);
   ASSERT(theEdge!=NULL);
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   /* no identfication to nonrefined neighbors */
   if (MARK(theNeighbor) == NO_REFINEMENT) return(0);
         #endif
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* identification of sonedges is done in Identify_SonEdges() */
   if (0)
     if (CORNERTYPE(Nodes[0]) && CORNERTYPE(Nodes[1]))
@@ -872,17 +872,17 @@ static INT IdentifyEdge (GRID *theGrid,
                       DDD_InfoGlobalId(PARHDRE(Son)),Son,ID(Son),
                       NTYPE(Nodes[0]), NTYPE(Nodes[1]), Vec))
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   IdentObjectHdr[nobject++] = PARHDR(theEdge);
         #endif
 
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   /* identify to proclist of neighbor */
   proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
         #endif
 
   /* identify to proclist of father edge or neighbor*/
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   if (0)
   {
     EDGE *fatherEdge = NULL;
@@ -900,7 +900,7 @@ static INT IdentifyEdge (GRID *theGrid,
 
   if (CORNERTYPE(Nodes[0]))
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(Nodes[0]));
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* since midnodes are identified later in Debug case */
   /* choose fatheredge here (s.l. 980227)              */
   else if (MIDTYPE(Nodes[0]))
@@ -911,7 +911,7 @@ static INT IdentifyEdge (GRID *theGrid,
 
   if (CORNERTYPE(Nodes[1]))
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(Nodes[1]));
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* since midnodes are identified later in Debug case */
   /* choose fatheredge here (s.l. 980227)              */
   else if (MIDTYPE(Nodes[1]))
@@ -1024,7 +1024,7 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
         }
       }
 
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
       if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
       {
         auto& context = theGrid->dddContext();
@@ -1767,7 +1767,7 @@ static int Scatter_SonNodeInfo (DDD::DDDContext& context, DDD_OBJ obj, void *dat
 }
 
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 /****************************************************************************/
 /*

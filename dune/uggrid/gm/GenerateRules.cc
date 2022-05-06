@@ -31,7 +31,7 @@
 #include <dune/uggrid/low/general.h>
 
 /* only compile for 3D version */
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 /****************************************************************************/
 /*																			*/

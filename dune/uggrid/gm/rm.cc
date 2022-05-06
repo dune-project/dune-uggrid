@@ -77,7 +77,7 @@ USING_UG_NAMESPACES
 #define NOINDEX         -1
 
 /* rule count for element types */
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 #define MAX_TRI_RULES   18
 #define MAX_QUA_RULES   17
 #else
@@ -112,7 +112,7 @@ INT NS_DIM_PREFIX CenterNodeIndex[TAGS] = {0,0,0,0,0,0,0,0};
 REFRULE * NS_DIM_PREFIX RefRules[TAGS] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 SHORT const* NS_DIM_PREFIX Pattern2Rule[TAGS];
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 /* define the standard regular rules for tetrahedrons */
 FULLREFRULEPTR NS_DIM_PREFIX theFullRefRule;
 #endif
@@ -124,7 +124,7 @@ FULLREFRULEPTR NS_DIM_PREFIX theFullRefRule;
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 [[maybe_unused]] static REFRULE Empty_Rule =
 {-1,-1,NO_CLASS,-1,{-1,-1,-1,-1},-1,
  {{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1}},
@@ -461,7 +461,7 @@ static REFRULE QuadrilateralRules[MAX_QUA_RULES] =
 
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 static INT theBFRRDirID;      /* env type for BestFullRefRule       */
 static INT theBFRRVarID;
@@ -1484,7 +1484,7 @@ static REFRULE HexahedronRules[MAX_HEX_RULES] =
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 INT NS_DIM_PREFIX GetRule_AnisotropicRed (ELEMENT *theElement, INT *Rule)
 {
@@ -2047,7 +2047,7 @@ static INT MaxArea (ELEMENT *theElement)
   return (refrule);
 }
 
-#endif /* __THREEDIM__ */
+#endif /* UG_DIM_3 */
 
 
 /****************************************************************************/
@@ -2084,7 +2084,7 @@ INT NS_DIM_PREFIX MarkForRefinement (ELEMENT *theElement, enum RefinementRule ru
   /* choose dimension */
   switch (DIM)
   {
-                #ifdef __TWODIM__
+                #ifdef UG_DIM_2
   /* 2D case */
   case (2) :
 
@@ -2194,10 +2194,10 @@ INT NS_DIM_PREFIX MarkForRefinement (ELEMENT *theElement, enum RefinementRule ru
       return(GM_ERROR);
     }
     break;
-                        #endif /* __TWODIM__ */
+                        #endif /* UG_DIM_2 */
 
 
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
   /* 3D case */
   case (3) :
     switch (TAG(theElement))
@@ -2410,7 +2410,7 @@ INT NS_DIM_PREFIX MarkForRefinement (ELEMENT *theElement, enum RefinementRule ru
       return(GM_ERROR);
     }
     break;
-                        #endif /* __THREEDIM__ */
+                        #endif /* UG_DIM_3 */
 
   default :
     return(GM_ERROR);
@@ -2457,7 +2457,7 @@ INT NS_DIM_PREFIX EstimateHere (const ELEMENT *theElement)
 
 INT NS_DIM_PREFIX Patterns2Rules(ELEMENT *theElement, INT pattern)
 {
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   switch (TAG(theElement)) {
   case (TRIANGLE) :
     switch (pattern) {
@@ -2524,7 +2524,7 @@ INT NS_DIM_PREFIX Patterns2Rules(ELEMENT *theElement, INT pattern)
     assert(0); return(-1);
   }
         #endif
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   switch (TAG(theElement)) {
   case (TETRAHEDRON) :
 #ifdef DUNE_UGGRID_TET_RULESET
@@ -2720,7 +2720,7 @@ INT NS_DIM_PREFIX GetRefinementMark (ELEMENT *theElement, INT *rule, void *data)
 
   mark = MARK(theElement);
 
-        #if defined(__THREEDIM__)
+        #if defined(UG_DIM_3)
   /* tetrahedra have three red rules */
   if (TAG(theElement)==TETRAHEDRON &&
       (mark==TET_RED_2_4 || mark==TET_RED_0_5 || mark==TET_RED_1_3))
@@ -2735,7 +2735,7 @@ INT NS_DIM_PREFIX GetRefinementMark (ELEMENT *theElement, INT *rule, void *data)
   case RED :
     *rule=RED;
     break;
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   case Q_BLUE_0 :
     *rule = BLUE;
     break;
@@ -2788,7 +2788,7 @@ INT NS_DIM_PREFIX GetRefinementMarkType (ELEMENT *theElement)
   switch (rule)
   {
   case RED :
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   case BLUE :
 #endif
     return(1);
@@ -2951,7 +2951,7 @@ INT NS_DIM_PREFIX ShowRefRule (INT tag, INT nb)
 
 
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 /****************************************************************************/
 /** \brief
@@ -3104,9 +3104,9 @@ static INT InitRuleManager3D (void)
 }
 
 
-#endif /* __THREEDIM__ */
+#endif /* UG_DIM_3 */
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 
 
 /****************************************************************************/
@@ -3215,7 +3215,7 @@ static INT InitRuleManager2D (void)
 
   return (GM_OK);
 }
-#endif /* __TWODIM__ */
+#endif /* UG_DIM_2 */
 
 
 /****************************************************************************/

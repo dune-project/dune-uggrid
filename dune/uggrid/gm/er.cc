@@ -376,7 +376,7 @@ static void FillOrderedSons (const ERULE *er, DOUBLE oco[])
    doctext_disabled*/
 /****************************************************************************/
 
-#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
+#if (defined UG_DIM_3) || (defined __DEBUG_ER__)
 static INT Hash_Init (int MarkKey)
 {
   int i;
@@ -505,7 +505,7 @@ static INT SonsAreEqual (INT nsons, const DOUBLE oco[], const HRULE *hr)
    doctext_disabled*/
 /****************************************************************************/
 
-#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
+#if (defined UG_DIM_3) || (defined __DEBUG_ER__)
 static HRID GetRuleID
 (
         #ifdef Debug
@@ -732,7 +732,7 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
    doctext_disabled*/
 /****************************************************************************/
 
-#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
+#if (defined UG_DIM_3) || (defined __DEBUG_ER__)
 static int CountIFElements (DDD::DDDContext&, DDD_OBJ obj)
 {
   ELEMENT *elem = (ELEMENT*) obj;
@@ -1081,7 +1081,7 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
    doctext_disabled*/
 /****************************************************************************/
 
-#if (defined __THREEDIM__) || (defined __DEBUG_ER__)
+#if (defined UG_DIM_3) || (defined __DEBUG_ER__)
 static INT ExtractRules (MULTIGRID *mg)
 {
   ELEMENT *elem;
@@ -1273,7 +1273,7 @@ static void FindPathForNeighbours (MGIO_RR_RULE *rule, SHORT myID, SHORT Status[
    .n   none
    doctext_disabled*/
 /****************************************************************************/
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 static void FillSonPaths (MGIO_RR_RULE *rule)
 {
   SHORT Status[MAX_SONS];
@@ -1348,7 +1348,7 @@ static INT GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SIDE
       /* edge mid node */
       int ed = corners[co]-coe;
 
-                        #ifdef __TWODIM__
+                        #ifdef UG_DIM_2
       corner_on_side[co][ed] = true;
                         #else
       int i;
@@ -1360,7 +1360,7 @@ static INT GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SIDE
       }
                         #endif
     }
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
   else if (corners[co]<(coe+eoe+soe))
   {
     /* side mid */
@@ -1613,7 +1613,7 @@ static void HRule2Mrule (const HRULE *hr, MGIO_RR_RULE *mr)
       }
   }
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* 2D: not even in rm */
   /* son path */
   FillSonPaths(mr);
@@ -1930,7 +1930,7 @@ static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrule
               }
             }
                                                 #ifndef ModelP
-                                                #ifdef __THREEDIM__
+                                                #ifdef UG_DIM_3
             /* check path
                     NOT CONSISTENT in rm since not used (says Stefan, 971219)
                if (s>0)
@@ -2063,7 +2063,7 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
   for (tag=0; tag<TAGS; tag++)
     global.maxrule[tag] = UGMAXRULE(tag);
 
-        #if (defined __THREEDIM__) || (defined __DEBUG_ER__)
+        #if (defined UG_DIM_3) || (defined __DEBUG_ER__)
   /* incomplete refrule set: extract non-existing rules that are realized in mg */
   if (ExtractRules(mg))
     REP_ERR_RETURN(1);

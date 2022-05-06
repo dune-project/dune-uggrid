@@ -148,7 +148,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
   for (ELEMENT* theElement = PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
   {
     /* This is the SideVector part */
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
       for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
         SETVCOUNT(SVECTOR(theElement,i), (NBELEM(theElement,i) ? 2 : 1));
@@ -157,7 +157,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
     /* Here comes the rest, all the way to the end of the element loop */
 
     /* TODO: delete now done in ElementObjMkCons()
-       #ifdef __THREEDIM__
+       #ifdef UG_DIM_3
                     if (EVGHOST(theElement))
                     {
                             ELEMENT *NbElement;
@@ -261,7 +261,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
           break;
         }
 
-                                        #ifdef __THREEDIM__
+                                        #ifdef UG_DIM_3
         case (SIDE_NODE) :
         {
           /* always compute new coords for this case! */
