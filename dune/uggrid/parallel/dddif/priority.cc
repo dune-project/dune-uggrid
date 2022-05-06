@@ -432,7 +432,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
         EDGE_PRIORITY_SET(context, theGrid,theEdge,PrioMaster);
     }
 
-                        #ifdef __THREEDIM__
+                        #ifdef UG_DIM_3
     /* if one(all) of the side nodes is (are) a hghost (vghost) node   */
     /* then its a hghost (vghost) side vector                          */
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))

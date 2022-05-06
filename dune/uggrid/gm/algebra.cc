@@ -118,7 +118,7 @@ USING_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 static MULTIGRID *GBNV_mg;                      /* multigrid							*/
 static INT GBNV_MarkKey;                        /* key for Mark/Release					*/
 #endif
@@ -139,7 +139,7 @@ static DOUBLE InvMeshSize;
 #ifdef ModelP
 INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *object)
 {
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   return sizeof(double);
 #else
   return 0;
@@ -179,7 +179,7 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjT
   *vHandle = NULL;
 
   theMG = MYMG(theGrid);
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   vtype = SIDEVEC;
 #else
   vtype = NOVTYPE;
@@ -382,7 +382,7 @@ INT NS_DIM_PREFIX ReinspectSonSideVector (GRID *g, ELEMENT *elem, INT side, VECT
  */
 /****************************************************************************/
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT Side0, ELEMENT *Elem1, INT Side1)
 {
   VECTOR *Vector0, *Vector1;
@@ -480,7 +480,7 @@ INT NS_DIM_PREFIX DisposeElementList (GRID *theGrid, NODE *theNode)
  */
 /****************************************************************************/
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT NS_DIM_PREFIX GetVectorsOfSides (const ELEMENT *theElement, INT *cnt, VECTOR **vList)
 {
   INT i;
@@ -524,7 +524,7 @@ INT NS_DIM_PREFIX GetVectorsOfOType (const ELEMENT *theElement, INT type, INT *c
 {
   switch (type)
   {
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   case SIDEVEC :
     return (GetVectorsOfSides(theElement,cnt,vList));
         #endif
@@ -583,7 +583,7 @@ INT NS_DIM_PREFIX GetVectorsOfDataTypesInObjects (const ELEMENT *theElement, INT
 
   *cnt = n = 0;
 
-    #ifdef __THREEDIM__
+    #ifdef UG_DIM_3
   if (obj & BITWISE_TYPE(SIDEVEC))
   {
     INT i;
@@ -639,7 +639,7 @@ static void PrintVectorTriple (int i)
 
 INT NS_DIM_PREFIX PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxListLen)
 {
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   ELEMENT *elem;
   VECTOR *v0,*v1;
   INT i;
@@ -690,16 +690,16 @@ INT NS_DIM_PREFIX PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxLis
 
   return (0);
 
-#endif /* __TWODIM__ */
+#endif /* UG_DIM_2 */
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   /* 3D requires somewhat more work! */
 
   /* but it should be possible to create an oriented list
      of neighbours for each boundary vector */
 
   REP_ERR_RETURN (1);
-#endif /* __THREEDIM__ */
+#endif /* UG_DIM_3 */
 }
 
 /****************************************************************************/
@@ -835,7 +835,7 @@ INT NS_DIM_PREFIX GetAllVectorsOfElement (GRID *theGrid, ELEMENT *theElement, VE
   INT cnt;
 
   cnt = 0;
-    #ifdef __THREEDIM__
+    #ifdef UG_DIM_3
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
     INT i;
@@ -867,7 +867,7 @@ INT NS_DIM_PREFIX GetAllVectorsOfElement (GRID *theGrid, ELEMENT *theElement, VE
  */
 /****************************************************************************/
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT NS_DIM_PREFIX GetElementInfoFromSideVector (const VECTOR *theVector, ELEMENT **Elements, INT *Sides)
 {
   INT i;
@@ -1042,7 +1042,7 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
 INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 {
   GRID *g;
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   VECTOR *nbvec;
   ELEMENT *nbelem;
   INT j,n;
@@ -1064,7 +1064,7 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
         if (EMASTER(elem)) SETEBUILDCON(elem,1);
 
         /* side vectors */
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
           for (INT side=0; side<SIDES_OF_ELEM(elem); side++)
             if (SVECTOR(elem,side)==NULL) {
               VECTOR *vec;
@@ -1076,7 +1076,7 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 #endif
       }
     }
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
     /* dispose doubled side vectors */
       for (elem=PFIRSTELEMENT(g); elem!=NULL; elem=SUCCE(elem))
       {
@@ -1318,7 +1318,7 @@ static INT CheckVector (const INT s2p[], GEOM_OBJECT *theObject, const char *Obj
   if (theVector == NULL)
   {
     /* check if size is really 0 */
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
     VectorType vtype = SIDEVEC;
 #else
     VectorType vtype = NOVTYPE;
@@ -1412,7 +1412,7 @@ static INT CheckVector (const INT s2p[], GEOM_OBJECT *theObject, const char *Obj
         }
         else
         {
-                                        #ifdef __THREEDIM__
+                                        #ifdef UG_DIM_3
           if (VectorObjType == SIDEVEC)
           {
             /* TODO: check side vector */
@@ -1491,7 +1491,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
   {
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
     /* check side vectors */
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
     {
@@ -1547,7 +1547,7 @@ INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
 {
   VECTOR *vList[20];
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   if (VOTYPE(theVector) == SIDEVEC)
   {
     INT cnt;
@@ -1578,7 +1578,7 @@ INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
 
 INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 {
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   ELEMENT *theElement;
   INT theSide,j;
         #endif
@@ -1596,7 +1596,7 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 
   switch (VOTYPE(theVector))
   {
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
   case SIDEVEC :
     theElement = (ELEMENT *)VOBJECT(theVector);
     theSide = VECTORSIDE(theVector);
@@ -1635,7 +1635,7 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 
 INT NS_DIM_PREFIX SeedVectorClasses (GRID *theGrid, ELEMENT *theElement)
 {
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   INT cnt;
 
   VECTOR *vList[20];
@@ -1815,7 +1815,7 @@ INT NS_DIM_PREFIX ClearNextVectorClasses (GRID *theGrid)
 INT NS_DIM_PREFIX SeedNextVectorClasses (GRID *theGrid, ELEMENT *theElement)
 {
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
     VECTOR *vList[20];

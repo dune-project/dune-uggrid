@@ -51,7 +51,7 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 
 #define CORNER_COORDINATES_TRIANGLE(e,n,x)                                \
                                    {(n)=3;                                \
@@ -71,7 +71,7 @@ START_UGDIM_NAMESPACE
                  CORNER_COORDINATES_TRIANGLE((e),(n),(x))       \
   else           CORNER_COORDINATES_QUADRILATERAL((e),(n),(x))}
 
-#endif /* __TWODIM__ */
+#endif /* UG_DIM_2 */
 
 
 #define LOCAL_TO_GLOBAL_TRIANGLE(x,local,global)          \
@@ -131,7 +131,7 @@ START_UGDIM_NAMESPACE
   else TRANSFORMATION_OF_QUADRILATERAL((x),(local),(M)); }
 
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 #define CORNER_COORDINATES_TETRAHEDRON(e,n,x)                              \
                                   {(n) = 4;                                \
                                                                    (x)[0]=CVECT(MYVERTEX(CORNER((e),0)));  \
@@ -173,7 +173,7 @@ START_UGDIM_NAMESPACE
    else if (TAG((e))==PRISM)      CORNER_COORDINATES_PRISM((e),(n),(x))      \
    else CORNER_COORDINATES_HEXAHEDRON((e),(n),(x))}
 
-#endif /* __THREEDIM__ */
+#endif /* UG_DIM_3 */
 
 
 #define LOCAL_TO_GLOBAL_TETRAHEDRON(x,local,global)                       \
@@ -436,13 +436,13 @@ START_UGDIM_NAMESPACE
   else TRANSFORMATION_OF_HEXAHEDRON((x),(local),(M));}
 
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 #define LOCAL_TO_GLOBAL(n,x,local,global)                       LOCAL_TO_GLOBAL_2D(n,x,local,global)
 #define AREA_OF_ELEMENT(n,x,area)                                       AREA_OF_ELEMENT_2D(n,x,area)
 #define TRANSFORMATION(n,x,local,M)                                     TRANSFORMATION_2D(n,x,local,M)
-#endif /* __TWODIM__ */
+#endif /* UG_DIM_2 */
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 #define TRANSFORMATION_BND(n,x,local,M)                         TRANSFORMATION_2D(n,x,local,M)
 #define LOCAL_TO_GLOBAL_BND(n,x,local,global)           LOCAL_TO_GLOBAL_2D(n,x,local,global)
 #define AREA_OF_ELEMENT_BND(n,x,area)                           AREA_OF_ELEMENT_2D(n,x,area)
@@ -451,7 +451,7 @@ START_UGDIM_NAMESPACE
 #define LOCAL_TO_GLOBAL(n,x,local,global)                       LOCAL_TO_GLOBAL_3D(n,x,local,global)
 #define AREA_OF_ELEMENT(n,x,area)                                       AREA_OF_ELEMENT_3D(n,x,area)
 #define TRANSFORMATION(n,x,local,M)                                     TRANSFORMATION_3D(n,x,local,M)
-#endif /* __THREEDIM__ */
+#endif /* UG_DIM_3 */
 
 #define INVERSE_TRANSFORMATION(n,x,local,Jinv,Jdet)   \
 {   DOUBLE_VECTOR J[DIM];                             \
@@ -479,7 +479,7 @@ START_UGDIM_NAMESPACE
 DOUBLE  *LMP                  (INT n);
 INT      UG_GlobalToLocal     (INT n, const DOUBLE **Corners, const DOUBLE *EvalPoint, DOUBLE *LocalCoord);
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 DOUBLE  N                   (const INT i, const DOUBLE *LocalCoord);
 INT     TetraSideNormals    (ELEMENT *theElement, DOUBLE **theCorners, DOUBLE_VECTOR theNormals[MAX_SIDES_OF_ELEM]);
 INT     TetMaxSideAngle     (ELEMENT *theElement, const DOUBLE **theCorners, DOUBLE *MaxAngle);

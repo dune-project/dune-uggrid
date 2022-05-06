@@ -233,11 +233,11 @@ struct DDD_CTRL
 
   DDD_TYPE TypeUnknown;
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
   DDD_TYPE TypeTrElem, TypeTrBElem, TypeQuElem, TypeQuBElem;
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
   DDD_TYPE TypeTeElem, TypeTeBElem;
   DDD_TYPE TypePyElem, TypePyBElem;
   DDD_TYPE TypePrElem, TypePrBElem;

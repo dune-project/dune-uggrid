@@ -255,7 +255,7 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
     }
     break;
 
-                #ifdef __THREEDIM__
+                #ifdef UG_DIM_3
   case (SIDE_NODE) :
     if (theFather == NULL)
     {
@@ -514,7 +514,7 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
 
   /** \todo Commented out because it uses GetElemLink, which does not exist */
 #if 0
-#       if defined(__TWODIM__)
+#       if defined(UG_DIM_2)
   {
     int elemlink,no_of_elem,No_Of_Elem;
     NODE *n0,*n1;
@@ -675,7 +675,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   ELEMENT *SonList[MAX_SONS];
   VERTEX  *theVertex,*Vertices[MAX_CORNERS_OF_ELEM];
 
-#if defined(ModelP) && defined(__TWODIM__)
+#if defined(ModelP) && defined(UG_DIM_2)
   auto& dddContext = theGrid->dddContext();
 #endif
 
@@ -879,7 +879,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
         if (OBJT(theElement) == IEOBJ)
                                 #ifdef ModelP
           if (EMASTER(theElement))
-                                #if defined(__TWODIM__)
+                                #if defined(UG_DIM_2)
             if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(dddContext, theElement,i)==0)
                                 #endif
                                 #endif
@@ -891,7 +891,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
         {
                                   #ifdef ModelP
           if (EMASTER(theElement))
-                                  #if defined(__TWODIM__)
+                                  #if defined(UG_DIM_2)
             if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(dddContext, theElement,i)==0)
                                   #endif
                                   #endif
@@ -911,7 +911,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
         else if (ECLASS(theElement)!=YELLOW_CLASS)
                                         #ifdef ModelP
           if (EMASTER(theElement))
-                                    #if defined(__TWODIM__)
+                                    #if defined(UG_DIM_2)
             if (hghost_overlap!=0.0 || EdgeHasTMasterCopy(dddContext, theElement,i)==0)
                                         #endif
                                         #endif
@@ -1114,7 +1114,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   return (0);
 }
 
-#if defined(__TWODIM__) || defined(ModelP)
+#if defined(UG_DIM_2) || defined(ModelP)
 
 INT CheckSubdomains (MULTIGRID *theMG)
 {

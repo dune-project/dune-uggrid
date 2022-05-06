@@ -77,7 +77,7 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 #ifdef Sideon
 #error ****   two dimensional case cannot have side data        ****
 #endif
@@ -234,11 +234,11 @@ enum RefinementRule
 {NO_REFINEMENT = 0,
  COPY = 1,
  RED =  2,
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
  BLUE = 3,   // For quadrilaterals
 #endif
  COARSE = 4,
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
  // The BISECTION* rules are all triangle rules
  BISECTION_1 = 5,
  BISECTION_2_Q = 6,
@@ -246,7 +246,7 @@ enum RefinementRule
  BISECTION_2_T2 = 8,
  BISECTION_3 = 9
 #endif
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
  TETRA_RED_HEX = 5,
 
@@ -632,7 +632,7 @@ struct link {
   struct node *nbnode;
 
   /** \brief ptr to neighboring elem                              */
-#if defined(__TWODIM__)
+#if defined(UG_DIM_2)
   union element *elem;
 #endif
 
@@ -1270,11 +1270,11 @@ struct hexahedron {
 /** \brief Objects that can hold an element */
 union element {
   struct generic_element ge;
-    #ifdef __TWODIM__
+    #ifdef UG_DIM_2
   struct triangle tr;
   struct quadrilateral qu;
         #endif
-    #ifdef __THREEDIM__
+    #ifdef UG_DIM_3
   struct tetrahedron te;
   struct pyramid py;
   struct prism pr;
@@ -1750,13 +1750,13 @@ enum LV_ID_TYPES {
    add the weighted significant digits of the coordinates; the weights
    may not have a common divisor to ensure uniqueness of the result;
    take from this again the sigificant digits */
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 #define COORDINATE_TO_KEY(coord,dummy_int_ptr)  ((INT)(SIGNIFICANT_DIGITS((SIGNIFICANT_DIGITS((coord)[0],(dummy_int_ptr))*1.246509423749342 + \
                                                                            SIGNIFICANT_DIGITS((coord)[1],(dummy_int_ptr))*PI)\
                                                                           , (dummy_int_ptr))))
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 #define COORDINATE_TO_KEY(coord,dummy_int_ptr)  ((INT)(SIGNIFICANT_DIGITS((SIGNIFICANT_DIGITS((coord)[0],(dummy_int_ptr))*1.246509423749342 + \
                                                                            SIGNIFICANT_DIGITS((coord)[1],(dummy_int_ptr))*PI + \
                                                                            SIGNIFICANT_DIGITS((coord)[2],(dummy_int_ptr))*0.76453456834568356936598)\
@@ -2276,7 +2276,7 @@ enum GM_OBJECTS {
 #define MYEDGE(p)                                       ((EDGE *)((p)-LOFFSET(p)))
 #define REVERSE(p)                                      ((p)+(1-LOFFSET(p)*2))
 
-#if defined(__TWODIM__)
+#if defined(UG_DIM_2)
 #define LELEM(p)                                        ((p)->elem)
 #define SET_LELEM(p,e)                                  ((p)->elem = (e))
 #endif
@@ -2488,7 +2488,7 @@ START_UGDIM_NAMESPACE
 /** \todo NbElem is declared in ugm.h, but never defined.
     We need a clean solution. */
 /*
-   #if defined(__TWODIM__)
+   #if defined(UG_DIM_2)
    #define NBELEM(p,i)     NbElem((p),(i))
    #else
  */
@@ -2504,11 +2504,11 @@ START_UGDIM_NAMESPACE
 #define INNER_BOUNDARY(p,i) (InnerBoundary(p,i))
 /* TODO: replace by function call */
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 #define EDGE_ON_BND(p,i) (ELEM_BNDS(p,i) != NULL)
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 #define EDGE_ON_BND(p,i) (SIDE_ON_BND(p,SIDE_WITH_EDGE(p,i,0)) || \
                           SIDE_ON_BND(p,SIDE_WITH_EDGE(p,i,1)))
 #endif
@@ -2525,7 +2525,7 @@ START_UGDIM_NAMESPACE
 /** \todo Set_NbElem is declared in ugm.h, but never defined.
     We need a clean solution. */
 /*
-   #if defined(__TWODIM__)
+   #if defined(UG_DIM_2)
    #define SET_NBELEM(p,i,q)       Set_NbElem((p),(i),(q))
    #else
  */
@@ -2533,7 +2533,7 @@ START_UGDIM_NAMESPACE
 /*
    #endif
  */
-#if defined(__TWODIM__)
+#if defined(UG_DIM_2)
 #define VOID_NBELEM(p,i)        NBELEM(p,i)
 #else
 #define VOID_NBELEM(p,i)        ((p)->ge.refs[nb_offset[TAG(p)]+(i)])
@@ -2731,7 +2731,7 @@ START_UGDIM_NAMESPACE
 #endif
 #define NE(p)                           ((p)->nEdge)
 #define NS(p)                           ((p)->nSide)
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 #define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (true)   // 3d grids have side vectors
 #else
 #define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (false)  // 2d grids have no vectors at all
@@ -2788,7 +2788,7 @@ grid::dddContext()
 #define MG_NPROPERTY(p)                 ((p)->nProperty)
 #define GRID_ON_LEVEL(p,i)              ((p)->grids[i])
 #define MGNAME(p)                               ((p)->v.name)
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 #define VEC_DEF_IN_OBJ_OF_MG(p,tp)     (true)   // 3d grids have side vectors
 #else
 #define VEC_DEF_IN_OBJ_OF_MG(p,tp)     (false)  // 2d grids have no vectors at all
@@ -2804,7 +2804,7 @@ grid::dddContext()
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 #define FMT_S_VEC_TP(f,t)                               (sizeof(double))
 #else
 #define FMT_S_VEC_TP(f,t)                               (0)
@@ -2921,7 +2921,7 @@ INT         SetRefineInfo           (MULTIGRID *theMG);
 
 
 /* moving nodes */
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theNode);
 #endif
 
@@ -2949,7 +2949,7 @@ LINK            *GetLink                                (const NODE *from, const
 EDGE            *GetSonEdge                             (const EDGE *theEdge);
 INT                     GetSonEdges                             (const EDGE *theEdge, EDGE *SonEdges[MAX_SON_EDGES]);
 EDGE            *GetFatherEdge                  (const EDGE *theEdge);
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 EDGE            *FatherEdge                             (NODE **SideNodes, INT ncorners, NODE **Nodes, EDGE *theEdge);
 #endif
 EDGE            *GetEdge                                (const NODE *from, const NODE *to);

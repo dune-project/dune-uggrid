@@ -86,7 +86,7 @@ INT              ReleaseOBJT                    (GM_OBJECTS);
 /* create basic objects */
 /** \todo Commented out because no definitions exist for these declarations
 
-   #if defined(__TWODIM__)
+   #if defined(UG_DIM_2)
    int      GetElemLink (NODE *from, NODE *to, ELEMENT *theElement);
    ELEMENT *NbElem     (const ELEMENT *theElement, int i);
    void     Set_NbElem (ELEMENT *theElement, int i, ELEMENT *Neighbor);
@@ -121,7 +121,7 @@ NODE            *CreateMidNode                  (GRID *theGrid, ELEMENT *theElem
 NODE            *GetCenterNode                  (const ELEMENT *theElement);
 NODE        *CreateCenterNode       (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex);
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 NODE            *CreateSideNode                 (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex, INT side);
 NODE            *GetSideNode                    (const ELEMENT *theElement, INT side);
 #endif

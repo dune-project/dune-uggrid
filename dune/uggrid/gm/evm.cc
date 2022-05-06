@@ -70,11 +70,11 @@ USING_UG_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 const DOUBLE NS_DIM_PREFIX unit_vec[DIM][DIM]={{1,0},{0,1}};
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 const DOUBLE NS_DIM_PREFIX unit_vec[DIM][DIM]={{1,0,0},{0,1,0},{0,0,1}};
 #endif
 
@@ -476,7 +476,7 @@ DOUBLE NS_DIM_PREFIX GeneralElementVolume (INT tag, DOUBLE *x_co[])
 {
   switch (tag)
   {
-#               ifdef __TWODIM__
+#               ifdef UG_DIM_2
   case TRIANGLE :
     return(c_tarea (x_co[0],x_co[1],x_co[2]));
 
@@ -484,7 +484,7 @@ DOUBLE NS_DIM_PREFIX GeneralElementVolume (INT tag, DOUBLE *x_co[])
     return(c_qarea (x_co[0],x_co[1],x_co[2],x_co[3]));
 #               endif
 
-#               ifdef __THREEDIM__
+#               ifdef UG_DIM_3
   case TETRAHEDRON :
     return(V_te(x_co[0],x_co[1],x_co[2],x_co[3]));
 

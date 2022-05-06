@@ -24,7 +24,7 @@ START_UGDIM_NAMESPACE
 typedef DOUBLE COORD_BND_VECTOR[DIM_OF_BND];
 
 enum PatchType {POINT_PATCH_TYPE,
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
                 LINE_PATCH_TYPE,
 #endif
                 LINEAR_PATCH_TYPE,
@@ -416,7 +416,7 @@ struct point_patch {
   struct point_on_patch pop[1];
 };
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 /** \brief ???
  *
  * \todo Please doc me!
@@ -534,7 +534,7 @@ union patch {
   struct point_patch po;
   struct linear_patch lp;
   struct parameter_patch pa;
-    #ifdef __THREEDIM__
+    #ifdef UG_DIM_3
   struct line_patch li;
         #endif
 } ;

@@ -195,7 +195,7 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef __TWODIM__
+#ifdef UG_DIM_2
 
 #define V_BDIM_COPY(A,C)                        V1_COPY(A,C)
 
@@ -216,7 +216,7 @@ START_UGDIM_NAMESPACE
 
 #endif
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 
 #define V_BDIM_COPY(A,C)                        V2_COPY(A,C)
 

@@ -4,7 +4,7 @@
 
 #include "rm-write2file.h"
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 static NS_DIM_PREFIX REFRULE Empty_Rule =
 {-1,-1,NS_DIM_PREFIX NO_CLASS,-1,
  {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},

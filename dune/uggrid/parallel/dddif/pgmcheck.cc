@@ -284,7 +284,7 @@ static INT CheckEdgePrio (DDD::DDDContext& context, ELEMENT *theElement, EDGE *t
 {
   INT nerrors = 0;
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   INT nmaster;
 
   /* check edge prio */
@@ -473,7 +473,7 @@ static int Gather_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD
     ((DDD_GID *)data)[i] = GID(CORNER(theElement,i));
   }
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* copy edge gids into buffer */
   for (INT i=CORNERS_OF_ELEM(theElement),j=0; i<EDGES_OF_ELEM(theElement); i++,j++)
   {
@@ -505,7 +505,7 @@ static int Scatter_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DD
     }
   }
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   /* compare edge gids with buffer gids */
   for (INT i=CORNERS_OF_ELEM(theElement),j=0; i<EDGES_OF_ELEM(theElement); i++,j++)
   {
@@ -526,7 +526,7 @@ static int Scatter_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DD
   return 0;
 }
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 static int Gather_EdgeObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   INT i;
@@ -637,10 +637,10 @@ static INT CheckDistributedObjects (GRID *theGrid)
   const auto& dddctrl = ddd_ctrl(context);
 
   INT nerrors;
-        #ifdef __TWODIM__
+        #ifdef UG_DIM_2
   INT size = MAX_CORNERS_OF_ELEM;       /* compare the 3/4 node ids */
         #endif
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   INT size = MAX_CORNERS_OF_ELEM+MAX_EDGES_OF_ELEM;             /* compare 8 nodes + 12 edges */
         #endif
 
@@ -651,7 +651,7 @@ static INT CheckDistributedObjects (GRID *theGrid)
                  dddctrl.ElementSymmVHIF,GRID_ATTR(theGrid),IF_BACKWARD,size*sizeof(DDD_GID),
                  Gather_ElemObjectGids, Scatter_ElemObjectGids);
 
-        #ifdef __THREEDIM__
+        #ifdef UG_DIM_3
   if (0)
     DDD_IFAOnewayX(context,
                    dddctrl.BorderEdgeSymmIF,GRID_ATTR(theGrid),IF_BACKWARD,3*sizeof(DDD_GID),

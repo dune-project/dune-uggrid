@@ -341,7 +341,7 @@ INT                     InitRuleManager                 (void);
 INT                     Patterns2Rules                  (ELEMENT *theElement,INT pattern);
 ELEMENT         *ELEMENT_TO_MARK                (ELEMENT *theElement);
 
-#ifdef __THREEDIM__
+#ifdef UG_DIM_3
 INT             GetRule_AnisotropicRed  (ELEMENT *theElement, INT *Rule);
 #endif
 
