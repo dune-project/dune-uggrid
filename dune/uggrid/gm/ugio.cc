@@ -62,7 +62,6 @@
 #include "shapes.h"
 #include "rm.h"
 #include "mgio.h"
-#include "mgheapmgr.h"
 
 /* include refine because of macros accessed  */
 #include "refine.h"
@@ -1139,7 +1138,6 @@ static INT WriteElementParInfo (GRID *theGrid,
   int *pl;
   NODE *theNode;
   VERTEX *theVertex;
-  EDGE *theEdge;
 #ifdef ModelP
   auto& dddContext = theGrid->dddContext();
 #endif
@@ -1200,35 +1198,10 @@ static INT WriteElementParInfo (GRID *theGrid,
     pinfo->v_ident[k] = VXGID(theVertex);
   }
 
-#ifdef __TWODIM__
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    VECTOR *v;
-    for (k=0; k<EDGES_OF_ELEM(theElement); k++) {
-      theEdge=GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0)),
-                      CORNER(theElement,CORNER_OF_EDGE(theElement,k,1)));
-      v = EDVECTOR(theEdge);
-      pinfo->prio_edge[k] = PRIO(v);
-      pinfo->ncopies_edge[k] = NCOPIES(dddContext, v);
-      if (n_max<pinfo->ncopies_edge[k]+s)
-      {
-        PrintErrorMessage('E',"WriteElementParInfo","increase PROCLISTSIZE in gm/ugio.c\n");
-        REP_ERR_RETURN(1);
-      }
-      pinfo->ed_ident[k] = GID(v);
-      if (pinfo->ncopies_edge[k]>0) {
-        pl = PROCLIST(dddContext, v);
-        for (i=0,j=2; i<pinfo->ncopies_edge[k]; i++,j+=2)
-          ActProcListPos[s++] = pl[j];
-      }
-    }
-  }
-#endif
-
 #ifdef __THREEDIM__
   for (k=0; k<EDGES_OF_ELEM(theElement); k++)
   {
-    theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0)),
+    EDGE* theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0)),
                       CORNER(theElement,CORNER_OF_EDGE(theElement,k,1)));
     pinfo->prio_edge[k] = PRIO(theEdge);
     pinfo->ncopies_edge[k] = NCOPIES(dddContext, theEdge);
@@ -1719,25 +1692,19 @@ INT NS_DIM_PREFIX SaveMultiGrid (MULTIGRID *theMG, const char *name, const char 
 static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pinfo)
 {
   INT i,j,s,prio,where,oldwhere;
-  INT evec,nvec,edvec,svec;
   GRID            *vgrid;
   ELEMENT         *theFather,*After,*Next,*Succe;
   NODE            *theNode;
   VERTEX          *theVertex;
-  VECTOR          *theVector;
-  EDGE            *theEdge;
 
 #ifdef ModelP
   auto& dddContext = theGrid->dddContext();
 #endif
 
-  evec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),ELEMVEC);
-  nvec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),NODEVEC);
-  edvec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),EDGEVEC);
 #ifdef __THREEDIM__
-  svec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),SIDEVEC);
+  INT svec = VEC_DEF_IN_OBJ_OF_MG(MYMG(theGrid),SIDEVEC);
 #else
-  svec = 0;
+  INT svec = 0;
 #endif
   /* this function does not support side vectors                        */
   /* proclist and identificator need to be stored for each  side vector */
@@ -1768,19 +1735,10 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
     }
     else
       GRID_LINK_ELEMENT(theGrid,theElement,prio);
-    if (evec)
-    {
-      theVector = EVECTOR(theElement);
-      GRID_UNLINK_VECTOR(theGrid,theVector);
-      SETPRIO(dddContext, EVECTOR(theElement),prio);
-      GRID_LINK_VECTOR(theGrid,theVector,prio);
-    }
   }
   for (i=0; i<pinfo->ncopies_elem; i++)
   {
     DDD_IdentifyNumber(dddContext, PARHDRE(theElement),pinfo->proclist[s],pinfo->e_ident);
-    if (evec)
-      DDD_IdentifyNumber(dddContext, PARHDR(EVECTOR(theElement)),pinfo->proclist[s],pinfo->e_ident);
     s++;
   }
 
@@ -1794,20 +1752,11 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
         GRID_UNLINK_NODE(theGrid,theNode);
         SETPRIO(dddContext, theNode,prio);
         GRID_LINK_NODE(theGrid,theNode,prio);
-        if (nvec)
-        {
-          theVector = NVECTOR(theNode);
-          GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(dddContext, NVECTOR(theNode),prio);
-          GRID_LINK_VECTOR(theGrid,theVector,prio);
-        }
       }
       PRINTDEBUG(gm,1,("Evaluate-pinfo():nid=%d prio=%d\n",ID(theNode),prio);fflush(stdout));
       for (i=0; i<pinfo->ncopies_node[j]; i++)
       {
         DDD_IdentifyNumber(dddContext, PARHDR(theNode),pinfo->proclist[s],pinfo->n_ident[j]);
-        if (nvec)
-          DDD_IdentifyNumber(dddContext, PARHDR(NVECTOR(theNode)),pinfo->proclist[s],pinfo->n_ident[j]);
         s++;
       }
       SETUSED(theNode,1);
@@ -1839,54 +1788,19 @@ static INT Evaluate_pinfo (GRID *theGrid, ELEMENT *theElement, MGIO_PARINFO *pin
       s += pinfo->ncopies_vertex[j];
   }
 
-#ifdef __TWODIM__
-  if (edvec) {
-    for (j=0; j<EDGES_OF_ELEM(theElement); j++) {
-      theEdge=GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,j,0)),
-                      CORNER(theElement,CORNER_OF_EDGE(theElement,j,1)));
-      if (USED(theEdge) == 0) {
-        theVector = EDVECTOR(theEdge);
-        if ((prio = pinfo->prio_edge[j]) != PrioMaster) {
-          GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(dddContext, theVector,prio);
-          GRID_LINK_VECTOR(theGrid,theVector,prio);
-        }
-        for (i=0; i<pinfo->ncopies_edge[j]; i++) {
-          DDD_IdentifyNumber(dddContext, PARHDR(theVector),
-                             pinfo->proclist[s],pinfo->ed_ident[j]);
-          s++;
-        }
-        SETUSED(theEdge,1);
-      }
-      else
-        s += pinfo->ncopies_edge[j];
-    }
-  }
-#endif
-
 #if (MGIO_DIM==3)
   for (j=0; j<EDGES_OF_ELEM(theElement); j++)
   {
-    theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
+    EDGE* theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
                       CORNER_OF_EDGE_PTR(theElement,j,1));
     if (USED(theEdge) == 0)
     {
       if ((prio = pinfo->prio_edge[j]) != PrioMaster)
-      {
         SETPRIO(dddContext, theEdge,prio);
-        if (edvec)
-        {
-          theVector = EDVECTOR(theEdge);
-          GRID_UNLINK_VECTOR(theGrid,theVector);
-          SETPRIO(dddContext, EDVECTOR(theEdge),prio);
-          GRID_LINK_VECTOR(theGrid,theVector,prio);
-        }
-      }
+
       for (i=0; i<pinfo->ncopies_edge[j]; i++)
       {
         DDD_IdentifyNumber(dddContext, PARHDR(theEdge),pinfo->proclist[s],pinfo->ed_ident[j]);
-        if (edvec)
-          DDD_IdentifyNumber(dddContext, PARHDR(EDVECTOR(theEdge)),pinfo->proclist[s],pinfo->ed_ident[j]);
         s++;
       }
       SETUSED(theEdge,1);
@@ -1991,9 +1905,6 @@ static INT IO_GridCons(MULTIGRID *theMG)
       ASSERT((PARTITION(theElement)==me && EMASTER(theElement))
              || (PARTITION(theElement)!=me && !EMASTER(theElement)));
     }
-    for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-      if (!MASTER(theVector))
-        DisposeConnectionFromVector(theGrid,theVector);
 
 #ifdef ModelP
     /* spread element refine info */
@@ -2956,15 +2867,11 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     /* no coarse mesh */
 
     if (CreateAlgebra (theMG))                                      {DisposeMultiGrid(theMG); return (NULL);}
-    if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
     if (PrepareAlgebraModification(theMG))          {DisposeMultiGrid(theMG); return (NULL);}
 
         #ifdef ModelP
-    if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-
     DDD_IdentifyBegin(theMG->dddContext());
     /* no elements to insert */
-    if (MGCreateConnection(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
     DDD_IdentifyEnd(theMG->dddContext());
 
     if (MGIO_PARFILE)
@@ -3030,16 +2937,10 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     }
 
     if (CreateAlgebra (theMG))                                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-    if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
     if (PrepareAlgebraModification(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-
-                #ifdef ModelP
-    if (DisposeBottomHeapTmpMemory(theMG))      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-                #endif
 
     DDD_IdentifyBegin(theMG->dddContext());
     /* no elements to insert */
-    if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
     DDD_IdentifyEnd(theMG->dddContext());
 
     if (MGIO_PARFILE)
@@ -3254,12 +3155,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
 
   /* now CreateAlgebra  is necessary to have the coarse grid nodevectors for DDD identification in Evaluate_pinfo */
   if (CreateAlgebra (theMG))                                      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-  if (DisposeBottomHeapTmpMemory(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
   if (PrepareAlgebraModification(theMG))          {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-        #ifdef ModelP
-  if (DisposeBottomHeapTmpMemory(theMG))      {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-        #endif
-
 
   i = MG_ELEMUSED | MG_NODEUSED | MG_EDGEUSED | MG_VERTEXUSED |  MG_VECTORUSED;
   ClearMultiGridUsedFlags(theMG,0,TOPLEVEL(theMG),i);
@@ -3293,9 +3189,6 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   if (mg_general.nLevel==1)
   {             /* if we are here now, all other processors (wich haven't returned yet) are here TOO
                    because mg_general.nLevel is a global quantity. */
-
-    /* no fine grid elements */
-    if (MGCreateConnection(theMG))                         {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
     /* close identification context */
     DDD_IdentifyEnd(theMG->dddContext());
@@ -3428,7 +3321,6 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
         }
 #endif
   }
-  if (MGCreateConnection(theMG))                                  {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
   theGrid = GRID_ON_LEVEL(theMG,0);
   ClearNextNodeClasses(theGrid);
   for (theElement=FIRSTELEMENT(theGrid);

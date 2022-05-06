@@ -42,7 +42,6 @@
 #include <dune/uggrid/gm/algebra.h>
 #include <dune/uggrid/gm/evm.h>
 #include <dune/uggrid/gm/gm.h>
-#include <dune/uggrid/gm/mgheapmgr.h>
 #include <dune/uggrid/gm/refine.h>
 #include <dune/uggrid/gm/ugm.h>
 #include <dune/uggrid/low/debug.h>
@@ -769,8 +768,6 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   }
 #endif
 
-  if (DisposeBottomHeapTmpMemory(theMG)) REP_ERR_RETURN(1);
-
 #ifdef STAT_OUT
   trans_begin = CURRENT_TIME;
 #endif
@@ -818,10 +815,6 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   /* TODO this is an extra communication. eventually integrate this
               with grid distribution phase. */
   ConstructConsistentMultiGrid(theMG);
-
-    #ifndef __EXCHANGE_CONNECTIONS__
-  MGCreateConnection(theMG);
-        #endif
 
   /* the grid has changed at least on one processor, thus reset MGSTATUS on all processors */
   RESETMGSTATUS(theMG);

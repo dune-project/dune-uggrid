@@ -214,7 +214,6 @@ struct DDD_CTRL
 {
   /* data from ug */
   MULTIGRID *currMG;
-  FORMAT    *currFormat;
   int nodeData;
   int edgeData;
   int elemData;
@@ -246,7 +245,6 @@ struct DDD_CTRL
 #endif
 
   /* DDD data objects */
-  DDD_TYPE TypeMatrix;
   DDD_TYPE TypeBndP;
   DDD_TYPE TypeEdge;
   DDD_TYPE TypeBndS;

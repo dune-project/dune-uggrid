@@ -81,7 +81,6 @@
 #include "ugm.h"
 #include "evm.h"
 #include "dlmgr.h"
-#include "mgheapmgr.h"
 
 #ifdef ModelP
 #include <dune/uggrid/parallel/dddif/parallel.h>
@@ -103,15 +102,8 @@ USING_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-/** \brief Resolution for LexAlgDep */
-#define ORDERRES                1e-3
-
 /** \brief For GetDomainPart indicating an element is meant rather than an element side */
 #define NOSIDE          -1
-
-/** \brief Constants for the direction of domain halfening */
-#define BV_VERTICAL     0
-#define BV_HORIZONTAL   1
 
 /****************************************************************************/
 /*                                                                          */
@@ -122,23 +114,9 @@ USING_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-const char* NS_DIM_PREFIX ObjTypeName[MAXVOBJECTS];
-
-/****************************************************************************/
-/*                                                                          */
 /* definition of variables global to this source file only (static!)        */
 /*                                                                          */
 /****************************************************************************/
-
-static INT theAlgDepDirID;                      /* env type for Alg Dep dir	*/
-static INT theAlgDepVarID;                      /* env type for ALG_DEP vars	*/
-
-static INT theFindCutDirID;                     /* env type for FindCut dir                     */
-static INT theFindCutVarID;                     /* env type for FIND_CUT vars                   */
 
 #ifdef __TWODIM__
 static MULTIGRID *GBNV_mg;                      /* multigrid							*/
@@ -157,130 +135,15 @@ static VECTOR **GBNV_list=NULL;         /* list pointer							*/
 /* for LexOrderVectorsInGrid */
 static DOUBLE InvMeshSize;
 
-/****************************************************************************/
-/** \brief Compute part information of geometrical object
- *
- * @param  s2p - table translating subdomain to domain part
- * @param  obj - geometric object (node, element or edge)
- * @param  side - if element side is meant for obj==element side has to be >=0, negative else
-
-   Compute the part info for a geometrical object including element sides.
-
- * @return <ul>
- *   <li>   part if ok </li>
- *   <li>   -n else </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetDomainPart (const INT s2p[], const GEOM_OBJECT *obj, INT side)
-{
-  NODE *nd,*n0,*n1;
-  EDGE *ed;
-  ELEMENT *elem;
-  VERTEX *v0,*v1;
-  BNDS *bs;
-  INT part=-1,subdom,move,left,right;
-
-  switch (OBJT(obj))
-  {
-  case NDOBJ :
-    nd = (NODE*)obj;
-    v0 = MYVERTEX(nd);
-    if (OBJT(v0)==IVOBJ) {
-      subdom = NSUBDOM(nd);
-      ASSERT(subdom>0);
-      part = s2p[subdom];
-    }
-    else
-    {
-      /* get part info from domain module */
-      if (BNDP_BndPDesc(V_BNDP(v0),&move,&part))
-        REP_ERR_RETURN(-2);
-      ASSERT(NSUBDOM(nd) == 0);
-    }
-    break;
-
-  case IEOBJ :
-  case BEOBJ :
-    elem = (ELEMENT*)obj;
-    if (side==NOSIDE)
-    {
-      /* get info for element */
-
-      subdom = SUBDOMAIN(elem);
-      ASSERT(subdom>0);
-      part = s2p[subdom];
-    }
-    else
-    {
-      /* get info for element side */
-
-      ASSERT(side<SIDES_OF_ELEM(elem));
-      ASSERT(side>=0);
-
-      if ((OBJT(elem)==BEOBJ) && ((bs = ELEM_BNDS(elem,side))!=NULL))
-      {
-        /* this is a boundary side: ask domain module */
-        if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&left,&right,&part))
-          REP_ERR_RETURN(-3);
-      }
-      else
-      {
-        /* there still is the possibility that the side is a boundary side
-           because VECTORs are created while CreateElement but boundary sides later
-           by CreateSonElementSide.
-           The vector eventually will be reallocated by ReinspectSonSideVector later */
-        subdom = SUBDOMAIN(elem);
-
-        // The following assertion is out-commented, for the following reason:
-        // It fails in test-ug, which is likely to indicate a bug that I don't understand.
-        // However, Dune UGGrid does not use the 'part' information anyway,
-        // and therefore I am not motivated to actually go and find the bug.
-        // ASSERT(subdom>0);
-        part = s2p[subdom];
-      }
-    }
-    break;
-
-  case EDOBJ :
-    ed = (EDGE*)obj;
-    n0 = NBNODE(LINK0(ed));
-    n1 = NBNODE(LINK1(ed));
-    v0 = MYVERTEX(n0);
-    v1 = MYVERTEX(n1);
-    if ((OBJT(v0)==BVOBJ) && (OBJT(v1)==BVOBJ))
-      if (BNDP_BndEDesc(V_BNDP(v0),V_BNDP(v1),&part) == 0)
-        return(part);
-    subdom = EDSUBDOM(ed);
-    if (subdom > 0)
-      return(s2p[subdom]);
-    subdom = NSUBDOM(n0);
-    if (subdom > 0)
-      return(s2p[subdom]);
-    subdom = NSUBDOM(n1);
-    if (subdom > 0)
-      return(s2p[subdom]);
-    REP_ERR_RETURN(-4);
-
-  default : REP_ERR_RETURN (-5);
-  }
-  return (part);
-}
 
 #ifdef ModelP
 INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *object)
 {
-  MULTIGRID *mg;
-  INT part,vtype;
-
-  mg = MYMG(theGrid);
-  part = GetDomainPart(BVPD_S2P_PTR(MG_BVPD(mg)),object,NOSIDE);
-  if (part < 0)
-    REP_ERR_RETURN(-1);
-  vtype = FMT_PO2T(MGFORMAT(mg),part,VectorObjType);
-
-  return(FMT_S_VEC_TP(MGFORMAT(mg),vtype));
+#ifdef __THREEDIM__
+  return sizeof(double);
+#else
+  return 0;
+#endif
 }
 #endif
 
@@ -306,7 +169,7 @@ INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *
  */
 /****************************************************************************/
 
-static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
+static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjType,
                                GEOM_OBJECT *object, VECTOR **vHandle)
 {
   MULTIGRID *theMG;
@@ -316,7 +179,11 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
   *vHandle = NULL;
 
   theMG = MYMG(theGrid);
-  vtype = FMT_PO2T(MGFORMAT(theMG),DomPart,VectorObjType);
+#ifdef __THREEDIM__
+  vtype = SIDEVEC;
+#else
+  vtype = NOVTYPE;
+#endif
   ds = FMT_S_VEC_TP(MGFORMAT(theMG),vtype);
   if (ds == 0)
     return (0);                         /* HRR: this is ok now, no XXXXVEC in part of the domain */
@@ -359,227 +226,20 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, INT VectorObjType,
 
   *vHandle = pv;
 
-  PRINTDEBUG(gm,1,("%s-vector created (%d): p=%d, t=%d\n",ObjTypeName[VOTYPE(pv)],ID(VOBJECT(pv)),VPART(pv),VTYPE(pv)));
-
   return (0);
-}
-
-/****************************************************************************/
-/** \brief Return pointer to a new vector structure
- *
- * @param  theGrid - grid where vector should be inserted
- * @param  VectorObjType - one of the types defined in gm
- * @param  object  - associate vector with this object
- * @param  vHandle - handle of new vector, i.e. a pointer to a pointer where
-                                a pointer to the new vector is placed.
-
-   This function returns a pointer to a new vector structure. First the free list
-   is checked for a free entry, if none is available, a new structure is allocated
-   from the heap.
-
- * @return <ul>
- *   <li>     0 if ok  </li>
- *   <li>     1 if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX CreateVector (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *object, VECTOR **vHandle)
-{
-  MULTIGRID *mg;
-  INT part;
-
-  *vHandle = NULL;
-  mg = MYMG(theGrid);
-
-  part = GetDomainPart(BVPD_S2P_PTR(MG_BVPD(mg)),object,NOSIDE);
-
-  if (part < 0)
-    REP_ERR_RETURN(1);
-  if (CreateVectorInPart(theGrid,part,VectorObjType,object,vHandle)) {
-    REP_ERR_RETURN(1);
-  }
-  else
-    return (0);
 }
 
 INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle)
 {
-  MULTIGRID *mg;
-  INT part;
-
   *vHandle = NULL;
-  mg = MYMG(theGrid);
-  part = GetDomainPart(BVPD_S2P_PTR(MG_BVPD(mg)),object,side);
-  if (part<0)
-    REP_ERR_RETURN(1);
 
-  if (CreateVectorInPart(theGrid,part,SIDEVEC,object,vHandle))
+  if (CreateVectorInPart(theGrid,0 /*part*/,SIDEVEC,object,vHandle))
     REP_ERR_RETURN(1);
 
   SETVECTORSIDE(*vHandle,side);
   SETVCOUNT(*vHandle,1);
 
   return (0);
-}
-
-/****************************************************************************/
-/** \brief Return pointer to a new connection structure
- *
- * @param  theGrid - grid where matrix should be inserted
- * @param  from - source vector
- * @param  to - destination vector
-
-   This function allocates a new CONNECTION and inserts the two
-   MATRIX structures in the lists of from and to vector.
-   Since the operation is symmetric, the order of from and to
-   is not important.
-
- * @return <ul>
- *   <li>   NULL if error occured. </li>
- *   <li>   else a pointer to the new CONNECTION is returned. </li>
- * </ul>
- */
-/****************************************************************************/
-
-CONNECTION * NS_DIM_PREFIX CreateConnection (GRID *theGrid, VECTOR *from, VECTOR *to)
-{
-  MULTIGRID *theMG;
-  CONNECTION *pc;
-  MATRIX *pm;
-  INT RootType, DestType, MType, ds, Diag, Size;
-
-  /* set Diag, RootType and DestType	*/
-  Diag = ((from == to) ? 1 : 0);
-  RootType = VTYPE(from);
-  DestType = VTYPE(to);
-  if (Diag)
-    MType=DIAGMATRIXTYPE(RootType);
-  else
-    MType=MATRIXTYPE(RootType,DestType);
-
-  /* check expected size */
-  theMG = MYMG(theGrid);
-  ds = FMT_S_MAT_TP(MGFORMAT(theMG),MType);
-  if (ds == 0)
-    return (NULL);
-  Size = sizeof(MATRIX)-sizeof(DOUBLE)+ds;
-  if (MSIZEMAX<Size) return (NULL);
-
-  /* is there already the desired connection ? */
-  pc = GetConnection(from,to);
-  if (pc != NULL)
-  {
-    SETCEXTRA(pc,0);
-    return (pc);
-  }
-
-  if (Diag)
-    pc = (CONNECTION*)GetMemoryForObject(theMG,Size,MAOBJ);
-  else
-    pc = (CONNECTION*)GetMemoryForObject(theMG,2*Size,COOBJ);
-  if (pc==NULL) return (NULL);
-
-  /* initialize data */
-  pm = CMATRIX0(pc);
-  SETOBJT(pm,MAOBJ);
-  SETMROOTTYPE(pm,RootType);
-  SETMDESTTYPE(pm,DestType);
-  SETMDIAG(pm,Diag);
-  SETMOFFSET(pm,0);
-  SETMSIZE(pm,Size);
-  SETMNEW(pm,1);
-  SETCEXTRA(pc,0);
-  MDEST(pm) = to;
-  if (!Diag)
-  {
-    pm = CMATRIX1(pc);
-    CTRL(pm) = 0;
-    SETOBJT(pm,MAOBJ);
-    SETMROOTTYPE(pm,DestType);
-    SETMDESTTYPE(pm,RootType);
-    SETMDIAG(pm,Diag);
-    SETMOFFSET(pm,1);
-    SETMSIZE(pm,Size);
-    SETMNEW(pm,1);
-    MDEST(pm) = from;
-  }
-
-  /* set sizes */
-  if (!Diag)
-  {
-    Size = (char*)pm - (char*)pc;
-    SETMSIZE(pc,Size);
-    SETMSIZE(pm,Size);
-  }
-
-  /* put in matrix list */
-  if (Diag)
-  {
-    /* insert at first place in the list (only one matrix) */
-    MNEXT(CMATRIX0(pc)) = VSTART(from);
-    VSTART(from) = CMATRIX0(pc);
-  }
-  else
-  {
-    /* insert at second place in the list (both matrices) */
-    pm = VSTART(from);
-    if (pm == NULL)
-    {
-      MNEXT(CMATRIX0(pc)) = NULL;
-      VSTART(from) = CMATRIX0(pc);
-    }
-    else
-    {
-      MNEXT(CMATRIX0(pc)) = MNEXT(pm);
-      MNEXT(pm) = CMATRIX0(pc);
-    }
-
-    pm = VSTART(to);
-    if (pm == NULL)
-    {
-      MNEXT(CMATRIX1(pc)) = NULL;
-      VSTART(to) = CMATRIX1(pc);
-    }
-    else
-    {
-      MNEXT(CMATRIX1(pc)) = MNEXT(pm);
-      MNEXT(pm) = CMATRIX1(pc);
-    }
-  }
-
-  /* counters */
-  theGrid->nCon++;
-
-  return(pc);
-}
-
-/****************************************************************************/
-/** \brief Return pointer to a new matrix structure with extra flag set.
- *
- * @param  theGrid - grid level where connection will be inserted.
- * @param  from,to - Pointers to vectors where connection is inserted.
-
-   This function returns a pointer to a new CONNECTION
-   structure with extra flag set. This e.g. for a direct solver
-   or ILU with fill in. The new connections can be distinguished
-   from the connections necessary for the stiffness matrix.
-
- * @return <ul>
- *   <li>   NULL if error occured. </li>
- *   <li>   else pointer to new CONNECTION </li>
-   </ul>
- */
-/****************************************************************************/
-
-CONNECTION      *NS_DIM_PREFIX CreateExtraConnection    (GRID *theGrid, VECTOR *from, VECTOR *to)
-{
-  CONNECTION *pc;
-
-  pc = CreateConnection(theGrid,from,to);
-  if (pc==NULL) return(NULL);
-  SETCEXTRA(pc,1);
-  return(pc);
 }
 
 INT NS_DIM_PREFIX CreateElementList (GRID *theGrid, NODE *theNode, ELEMENT *theElement)
@@ -620,19 +280,10 @@ INT NS_DIM_PREFIX CreateElementList (GRID *theGrid, NODE *theNode, ELEMENT *theE
 
 INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
 {
-  MATRIX *theMatrix, *next;
   INT Size;
 
   if (theVector == NULL)
     return(0);
-
-  /* remove all connections concerning the vector */
-  for (theMatrix=VSTART(theVector); theMatrix!=NULL; theMatrix=next)
-  {
-    next = MNEXT(theMatrix);
-    if (DisposeConnection(theGrid,MMYCON(theMatrix)))
-      RETURN (1);
-  }
 
   /* now remove vector from vector list */
   GRID_UNLINK_VECTOR(theGrid,theVector);
@@ -671,53 +322,29 @@ INT NS_DIM_PREFIX ReinspectSonSideVector (GRID *g, ELEMENT *elem, INT side, VECT
 {
   MULTIGRID *mg;
   VECTOR *vold,*vnew;
-  INT partnew,partold,vtnew,vtold,dsnew,dsold;
+  INT partnew,partold,vtnew;
 
   mg  = MYMG(g);
-  const FORMAT* fmt = mg->theFormat.get();
 
   vold = *vHandle;
 
   /* check whether part has actually changed */
   partold = (vold!=NULL) ? VPART(vold) : BVPD_S2P(MG_BVPD(mg),SUBDOMAIN(elem));
-  partnew = GetDomainPart(BVPD_S2P_PTR(MG_BVPD(mg)),(GEOM_OBJECT*)elem,side);
-  if (partnew<0)
-    REP_ERR_RETURN(GM_ERROR);
+  partnew = 0;
   if (partnew==partold)
     return (GM_OK);
 
-  /* check whether vtype has actually changed */
-  vtold = (vold!=NULL) ? VTYPE(vold) : FMT_PO2T(fmt,partold,SIDEVEC);
-  vtnew = FMT_PO2T(fmt,partnew,SIDEVEC);
-  if (vtnew==vtold)
-  {
-    if (vold!=NULL)
-    {
-      /* just change part */
-      SETVPART(vold,partnew);
-    }
-    PRINTDEBUG(gm,1,("SIDEVEC (%d,%d): part\n",ID(elem),side));
-    return (GM_OK);
-  }
-
   /* check whether size has actually changed */
-  dsold = FMT_S_VEC_TP(fmt,vtold);
-  dsnew = FMT_S_VEC_TP(fmt,vtnew);
-  if (dsold==dsnew)
-  {
     if (vold!=NULL)
     {
       /* just change part and type */
       SETVTYPE(vold,vtnew);
       SETVPART(vold,partnew);
 
-      DisposeConnectionFromVector(g,vold);
-
       SETVBUILDCON(vold,1);
     }
     PRINTDEBUG(gm,1,("SIDEVEC (%d,%d): part and type\n",ID(elem),side));
     return (GM_OK);
-  }
 
   PRINTDEBUG(gm,1,("SIDEVEC (%d,%d): part, type and size\n",ID(elem),side));
 
@@ -732,66 +359,6 @@ INT NS_DIM_PREFIX ReinspectSonSideVector (GRID *g, ELEMENT *elem, INT side, VECT
   *vHandle = vnew;
 
   return (GM_OK);
-}
-
-/****************************************************************************/
-/** \brief Remove connection from the data structure
- *
- * @param  theGrid - the grid to remove from
- * @param  theConnection - connection to dispose
-
-   This function removes a connection from the data structure. The connection
-   is removed from the list of the two vectors and is placed in the
-   free list.
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DisposeConnection (GRID *theGrid, CONNECTION *theConnection)
-{
-  VECTOR *from, *to;
-  MATRIX *Matrix, *ReverseMatrix, *SearchMatrix;
-
-  /* remove matrix(s) from their list(s) */
-  Matrix = CMATRIX0(theConnection);
-  to = MDEST(Matrix);
-  if (MDIAG(Matrix))
-  {
-    from = to;
-    VSTART(to) = MNEXT(Matrix);
-  }
-  else
-  {
-    ReverseMatrix = CMATRIX1(theConnection);
-    from = MDEST(ReverseMatrix);
-    if (VSTART(from) == Matrix)
-      VSTART(from) = MNEXT(Matrix);
-    else
-      for (SearchMatrix=VSTART(from); SearchMatrix!=NULL; SearchMatrix=MNEXT(SearchMatrix))
-        if (MNEXT(SearchMatrix) == Matrix)
-          MNEXT(SearchMatrix) = MNEXT(Matrix);
-    if (VSTART(to) == ReverseMatrix)
-      VSTART(to) = MNEXT(ReverseMatrix);
-    else
-      for (SearchMatrix=VSTART(to); SearchMatrix!=NULL; SearchMatrix=MNEXT(SearchMatrix))
-        if (MNEXT(SearchMatrix) == ReverseMatrix)
-          MNEXT(SearchMatrix) = MNEXT(ReverseMatrix);
-  }
-
-  /* free connection object */
-  if (MDIAG(Matrix))
-    PutFreeObject(MYMG(theGrid),Matrix,UG_MSIZE(Matrix),MAOBJ);
-  else
-    PutFreeObject(MYMG(theGrid),Matrix,2*UG_MSIZE(Matrix),COOBJ);
-
-  theGrid->nCon--;
-
-  /* return ok */
-  return(0);
 }
 
 /****************************************************************************/
@@ -856,163 +423,6 @@ INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT S
 }
 #endif
 
-/****************************************************************************/
-/** \brief Remove all connections associated with a vector
- *
- * @param  theGrid - grid level where vector belongs to
- * @param  theVector - vector where connections are disposed from
-
-   This function removes all connections from a vector.
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DisposeConnectionFromVector (GRID *theGrid, VECTOR *theVector)
-{
-  while(VSTART(theVector) != NULL)
-    if (DisposeConnection (theGrid,MMYCON(VSTART(theVector))))
-      return (1);
-
-  return (0);
-}
-
-
-/****************************************************************************/
-/** \brief Removes all connections from all vectors associated with an element
- *
- * @param  theGrid - grid level where element is on
- * @param  theElement - element from which to dispose connections
-
-   This function removes all connections from all vectors
-   associated with an element.
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DisposeConnectionFromElement (GRID *theGrid, ELEMENT *theElement)
-{
-  INT i;
-  VECTOR *vList[20];
-  INT cnt;
-
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-    {
-      if (DisposeConnectionFromVector(theGrid,vList[i])) RETURN(GM_ERROR);
-      SETVBUILDCON(vList[i],1);
-    }
-  }
-    #ifdef __THREEDIM__
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-  {
-    GetVectorsOfSides(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-    {
-      if (DisposeConnectionFromVector(theGrid,vList[i])) RETURN(GM_ERROR);
-      SETVBUILDCON(vList[i],1);
-    }
-  }
-    #endif
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-    {
-      if (DisposeConnectionFromVector(theGrid,vList[i])) RETURN(GM_ERROR);
-      SETVBUILDCON(vList[i],1);
-    }
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-    {
-      if (DisposeConnectionFromVector(theGrid,vList[i])) RETURN(GM_ERROR);
-      SETVBUILDCON(vList[i],1);
-    }
-  }
-
-  return(GM_OK);
-}
-
-/****************************************************************************/
-/** \brief Remove matrices
- *
- * @param  theGrid - the grid to remove from
- * @param  theElement - that element
- * @param  Depth -  that many slices around the element
-
-   This function removes connections concerning an element from the data structure
-   and stores flags saying: "connection has to be rebuild",
-   it does this in a neighborhood of the elem of depth Depth, where depth
-   is the distance in the element-neighborship-graph (see also FORMAT).
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-static INT DisposeConnectionFromElementInNeighborhood (GRID *theGrid, ELEMENT *theElement, INT Depth)
-{
-  INT i;
-
-  if (Depth < 0) RETURN (GM_ERROR);
-
-  if (theElement==NULL) RETURN (GM_OK);
-
-  /* create connection at that depth */
-  if (DisposeConnectionFromElement(theGrid,theElement))
-    RETURN (GM_ERROR);
-  SETEBUILDCON(theElement,1);
-
-  /* dispose connection in neighborhood */
-  if (Depth > 0)
-  {
-    for (i=0; i<SIDES_OF_ELEM(theElement); i++)
-      if (DisposeConnectionFromElementInNeighborhood(theGrid,NBELEM(theElement,i),Depth-1))
-        RETURN (GM_ERROR);
-  }
-
-  RETURN (GM_OK);
-}
-
-INT NS_DIM_PREFIX DisposeConnectionsInNeighborhood (GRID *theGrid, ELEMENT *theElement)
-{
-  INT Depth;
-  Depth = (INT)(floor(0.5*(double)FMT_CONN_DEPTH_MAX(MGFORMAT(MYMG(theGrid)))));
-  return(DisposeConnectionFromElementInNeighborhood(theGrid,theElement,Depth));
-}
-
-INT NS_DIM_PREFIX DisposeConnectionsFromMultiGrid (MULTIGRID *theMG)
-{
-  INT i;
-
-  for (i=0; i<=TOPLEVEL(theMG); i++)
-  {
-    GRID *theGrid = GRID_ON_LEVEL(theMG,i);
-    ELEMENT *theElement;
-
-    theGrid = GRID_ON_LEVEL(theMG,i);
-    for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
-         theElement=SUCCE(theElement))
-      if (DisposeConnectionsInNeighborhood(theGrid,theElement))
-        REP_ERR_RETURN(1);
-  }
-
-  return(0);
-}
 
 INT NS_DIM_PREFIX DisposeElementFromElementList (GRID *theGrid, NODE *theNode,
                                                  ELEMENT *theElement)
@@ -1055,97 +465,6 @@ INT NS_DIM_PREFIX DisposeElementList (GRID *theGrid, NODE *theNode)
 }
 
 /****************************************************************************/
-/** \brief Return pointer to matrix if it exists
-
- * @param FromVector - starting vector of the Matrix
- * @param ToVector - destination vector of the Matrix
-
-   This function returns pointer to matrix if it exists. The function
-   runs through the single linked list, since the list is
-   assumed to be small (sparse matrix!) the cost is assumed to be negligible.
-
- * @return <ul>
- *   <li>      pointer to Matrix, </li>
- *   <li>      NULL if Matrix does not exist. </li>
-   </ul>
- */
-/****************************************************************************/
-
-MATRIX * NS_DIM_PREFIX GetMatrix (const VECTOR *FromVector, const VECTOR *ToVector)
-{
-  MATRIX *theMatrix;
-
-  for (theMatrix=VSTART(FromVector); theMatrix!=NULL; theMatrix = MNEXT(theMatrix))
-    if (MDEST(theMatrix)==ToVector)
-      return (theMatrix);
-
-  /* return not found */
-  return (NULL);
-}
-
-/****************************************************************************/
-/** \brief Return pointer to connection if it exists
-
- * @param FromVector - starting vector of the con
- * @param ToVector - destination vector of the con
-
-   This function returns pointer to connection if it exists.
-
- * @return <ul>
- *   <li>      pointer to </li>
- *   <li>      NULL if connection does not exist.  </li>
-   </ul>
- */
-/****************************************************************************/
-
-CONNECTION * NS_DIM_PREFIX GetConnection (const VECTOR *FromVector, const VECTOR *ToVector)
-{
-  MATRIX *Matrix;
-
-  Matrix = GetMatrix(FromVector,ToVector);
-  if (Matrix != NULL)
-    return (MMYCON(Matrix));
-
-  /* return not found */
-  return (NULL);
-}
-
-/****************************************************************************/
-/** \brief Get a pointer list to all element data
-
- * @param theElement - that element
- * @param cnt - how many vectors
- * @param vList - array to store vector list
-
-   This function returns a pointer to the VECTOR associated with the
-   element (if the element is allowed to have one). cnt will either
-   be 0 or 1.
-
- * @return <ul>
- *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfElement (const ELEMENT *theElement, INT *cnt, VECTOR **vList)
-{
-  *cnt = 0;
-  if (EVECTOR(theElement) != NULL)
-    vList[(*cnt)++] = EVECTOR(theElement);
-
-  IFDEBUG(gm,0)
-  if (*cnt)
-  {
-    assert(vList[0] != NULL);
-    assert(VOTYPE(vList[0]) == ELEMVEC);
-  }
-  ENDDEBUG
-
-  return(GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Get a pointer list to all side data
 
  * @param theElement - that element
@@ -1185,82 +504,6 @@ INT NS_DIM_PREFIX GetVectorsOfSides (const ELEMENT *theElement, INT *cnt, VECTOR
 #endif
 
 /****************************************************************************/
-/** \brief Get a pointer list to all edge data
-
- * @param theElement -  that element
- * @param cnt - how many vectors
- * @param vList - array to store vector list
-
-   This function gets a pointer array to all VECTORs in edges of the element.
-
- * @return <ul>
- *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfEdges (const ELEMENT *theElement, INT *cnt, VECTOR **vList)
-{
-  EDGE *theEdge;
-  INT i;
-
-  *cnt = 0;
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
-    if ((theEdge =
-           GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,i,0)),
-                   CORNER(theElement,CORNER_OF_EDGE(theElement,i,1)))) != NULL)
-      if (EDVECTOR(theEdge) != NULL)
-        vList[(*cnt)++] = EDVECTOR(theEdge);
-
-  IFDEBUG(gm,0)
-  for (i=0; i<(*cnt); i++)
-  {
-    assert(vList[i] != NULL);
-    assert(VOTYPE(vList[i]) == EDGEVEC);
-  }
-  ENDDEBUG
-
-  return(GM_OK);
-}
-
-/****************************************************************************/
-/** \brief Get a pointer list to all node data
-
- * @param theElement -  that element
- * @param cnt - how many vectors
- * @param vList - array to store vector list
-
-   This function gets a pointer array to all VECTORs in nodes of the element.
-
- * @return <ul>
- *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfNodes (const ELEMENT *theElement, INT *cnt, VECTOR **vList)
-{
-  INT i;
-
-  *cnt = 0;
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
-    if (NVECTOR(CORNER(theElement,i)) != NULL)
-      vList[(*cnt)++] = NVECTOR(CORNER(theElement,i));
-
-  IFDEBUG(gm,0)
-  for (i=0; i<(*cnt); i++)
-  {
-    assert(vList[i] != NULL);
-    assert(VOTYPE(vList[i]) == NODEVEC);
-  }
-  ENDDEBUG
-
-  return (GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Get a pointer list to all vector data of specified object type
 
  * @param theElement -  that element
@@ -1281,12 +524,6 @@ INT NS_DIM_PREFIX GetVectorsOfOType (const ELEMENT *theElement, INT type, INT *c
 {
   switch (type)
   {
-  case NODEVEC :
-    return (GetVectorsOfNodes(theElement,cnt,vList));
-  case ELEMVEC :
-    return (GetVectorsOfElement(theElement,cnt,vList));
-  case EDGEVEC :
-    return (GetVectorsOfEdges(theElement,cnt,vList));
         #ifdef __THREEDIM__
   case SIDEVEC :
     return (GetVectorsOfSides(theElement,cnt,vList));
@@ -1342,34 +579,14 @@ INT NS_DIM_PREFIX DataTypeFilterVList (INT dt, VECTOR **vec, INT *cnt)
 
 INT NS_DIM_PREFIX GetVectorsOfDataTypesInObjects (const ELEMENT *theElement, INT dt, INT obj, INT *cnt, VECTOR *VecList[])
 {
-  INT i,n;
+  INT n;
 
   *cnt = n = 0;
-
-  if (obj & BITWISE_TYPE(NODEVEC))
-  {
-    if (GetVectorsOfNodes(theElement,&i,VecList) != GM_OK)
-      return(GM_ERROR);
-    n += i;
-  }
-
-  if (obj & BITWISE_TYPE(EDGEVEC))
-  {
-    if (GetVectorsOfEdges(theElement,&i,VecList+n) != GM_OK)
-      return(GM_ERROR);
-    n += i;
-  }
-
-  if (obj & BITWISE_TYPE(ELEMVEC))
-  {
-    if (GetVectorsOfElement(theElement,&i,VecList+n) != GM_OK)
-      return(GM_ERROR);
-    n += i;
-  }
 
     #ifdef __THREEDIM__
   if (obj & BITWISE_TYPE(SIDEVEC))
   {
+    INT i;
     if (GetVectorsOfSides(theElement,&i,VecList+n) != GM_OK)
       return(GM_ERROR);
     n += i;
@@ -1424,7 +641,7 @@ INT NS_DIM_PREFIX PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxLis
 {
 #ifdef __TWODIM__
   ELEMENT *elem;
-  VECTOR *vec,*v0,*v1;
+  VECTOR *v0,*v1;
   INT i;
 
   if (GBNV_list!=NULL)
@@ -1433,10 +650,6 @@ INT NS_DIM_PREFIX PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxLis
 
   /* count boundary node vectors */
   GBNV_n = 0;
-  for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-    if (VOTYPE(vec)==NODEVEC)
-      if (OBJT(MYVERTEX((NODE*)VOBJECT(vec)))==BVOBJ)
-        GBNV_n++;
 
   /* allocate list storage: 3 pointers each */
   GBNV_mg = MYMG(theGrid);
@@ -1447,14 +660,6 @@ INT NS_DIM_PREFIX PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxLis
 
   /* store offset in vector index field */
   i = 0;
-  for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-    if (VOTYPE(vec)==NODEVEC)
-      if (OBJT(MYVERTEX((NODE*)VOBJECT(vec)))==BVOBJ)
-      {
-        VINDEX(vec) = i;
-        GBNV_list[i] = vec;
-        i += 3;
-      }
 
   /* loop elements and fill neighbours */
   /* TODO: parallel also orphan(?) elements to be complete */
@@ -1565,9 +770,6 @@ INT NS_DIM_PREFIX GetBoundaryNeighbourVectors (INT dt, INT obj, INT *cnt, VECTOR
     /* no (more) vector found */
     return (0);
 
-  if (VOTYPE(vec)!=NODEVEC)
-    REP_ERR_RETURN(1);
-
   IFDEBUG(gm,2)
   PrintDebug("GetBoundaryNeighbourVectors:\n");
   PrintVectorTriple(GBNV_curr);
@@ -1630,31 +832,13 @@ INT NS_DIM_PREFIX FinishBoundaryNeighbourVectors ()
 
 INT NS_DIM_PREFIX GetAllVectorsOfElement (GRID *theGrid, ELEMENT *theElement, VECTOR **vec)
 {
-  INT i;
   INT cnt;
 
   cnt = 0;
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    if (GetVectorsOfNodes(theElement,&i,vec) == GM_ERROR)
-      RETURN(-1);
-    cnt += i;
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    if (GetVectorsOfEdges(theElement,&i,vec+cnt) == GM_ERROR)
-      RETURN(-1);
-    cnt += i;
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    if (GetVectorsOfElement(theElement,&i,vec+cnt) == GM_ERROR)
-      RETURN(-1);
-    cnt += i;
-  }
     #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
+    INT i;
     if (GetVectorsOfSides(theElement,&i,vec+cnt) == GM_ERROR)
       RETURN(-1);
     cnt += i;
@@ -1662,143 +846,6 @@ INT NS_DIM_PREFIX GetAllVectorsOfElement (GRID *theGrid, ELEMENT *theElement, VE
     #endif
 
   return (cnt);
-}
-
-/****************************************************************************/
-/** \brief Remove all extra connections from the grid
-
- * @param theGrid - grid to remove from
-
-   This function removes all extra connections from the grid, i.e. those
-   that have been allocated with the CreateExtraConnection function.
-
- * @return <ul>
- *   <li>      0 if ok
- *   <li>      1 if error occured
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DisposeExtraConnections (GRID *theGrid)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix, *nextMatrix;
-  CONNECTION *theCon;
-
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-  {
-    theMatrix = VSTART(theVector);
-    while (theMatrix!=NULL)
-    {
-      nextMatrix = MNEXT(theMatrix);
-      theCon = MMYCON(theMatrix);
-      if (CEXTRA(theCon)) DisposeConnection(theGrid,theCon);
-      theMatrix = nextMatrix;
-    }
-  }
-  return(GM_OK);
-}
-
-INT NS_DIM_PREFIX DisposeConnectionsInGrid (GRID *theGrid)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix, *nextMatrix;
-  CONNECTION *theCon;
-
-  for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-  {
-    theMatrix = VSTART(theVector);
-    while (theMatrix!=NULL)
-    {
-      nextMatrix = MNEXT(theMatrix);
-      theCon = MMYCON(theMatrix);
-      DisposeConnection(theGrid,theCon);
-      theMatrix = nextMatrix;
-    }
-  }
-  return(GM_OK);
-}
-
-/****************************************************************************/
-/** \brief Create connections of two elements
-
- * @param theGrid - pointer to grid
- * @param Elem0,Elem1 - elements to be connected
- * @param ActDepth - distance of the two elements in the element neighborship graph
- * @param ConDepth - Array containing the connection depth desired
- * @param MatSize - Array containing the connection size. This is constructed from the information in the FORMAT.
-
-   This function creates connections between all the VECTORs associated
-   with two given elements according to the specifications in the ConDepth array.
-
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-static INT ElementElementCreateConnection (GRID *theGrid, ELEMENT *Elem0, ELEMENT *Elem1, INT ActDepth, INT *ConDepth, INT *MatSize)
-{
-  INT cnt0,cnt1,i,j,itype,jtype,mtype,size;
-  VECTOR *vec0[MAX_SIDES_OF_ELEM+MAX_EDGES_OF_ELEM+MAX_CORNERS_OF_ELEM+1];
-  VECTOR *vec1[MAX_SIDES_OF_ELEM+MAX_EDGES_OF_ELEM+MAX_CORNERS_OF_ELEM+1];
-
-  cnt0 = GetAllVectorsOfElement(theGrid,Elem0,vec0);
-  if (Elem0 == Elem1)
-  {
-    for (i=0; i<cnt0; i++)
-    {
-      itype=VTYPE(vec0[i]);
-      for (j=i; j<cnt0; j++)
-      {
-        if (i==j)
-        {
-          mtype = DIAGMATRIXTYPE(itype);
-          size  = MatSize[mtype];
-        }
-        else
-        {
-          jtype = VTYPE(vec0[j]);
-          size  = MatSize[MATRIXTYPE(jtype,itype)];
-          mtype = MATRIXTYPE(itype,jtype);
-          if (MatSize[mtype]>size) size=MatSize[mtype];
-        }
-        if (size > 0)
-          if (ActDepth <= ConDepth[mtype])
-            if (CreateConnection(theGrid,vec0[i],vec0[j])==NULL)
-              RETURN(GM_ERROR);
-      }
-    }
-    return (0);
-  }
-
-  cnt1 = GetAllVectorsOfElement(theGrid,Elem1,vec1);
-  for (i=0; i<cnt0; i++)
-  {
-    itype=VTYPE(vec0[i]);
-    for (j=0; j<cnt1; j++)
-    {
-      if (vec0[i]==vec1[j])
-      {
-        mtype = DIAGMATRIXTYPE(itype);
-        size  = MatSize[mtype];
-      }
-      else
-      {
-        jtype = VTYPE(vec1[j]);
-        size  = MatSize[MATRIXTYPE(jtype,itype)];
-        mtype = MATRIXTYPE(itype,jtype);
-        if (MatSize[mtype]>size) size=MatSize[mtype];
-      }
-      if (size > 0)
-        if (ActDepth <= ConDepth[mtype])
-          if (CreateConnection(theGrid,vec0[i],vec1[j])==NULL)
-            RETURN(GM_ERROR);
-    }
-  }
-
-  return (0);
 }
 
 /****************************************************************************/
@@ -1884,248 +931,6 @@ static INT ResetUsedFlagInNeighborhood (ELEMENT *theElement, INT ActDepth, INT M
       if (ResetUsedFlagInNeighborhood(NBELEM(theElement,i),ActDepth+1,MaxDepth)) RETURN (1);
 
   return (0);
-}
-
-static INT ConnectWithNeighborhood (ELEMENT *theElement, GRID *theGrid, ELEMENT *centerElement, INT *ConDepth, INT *MatSize, INT ActDepth, INT MaxDepth)
-{
-  int i;
-
-  /* is anything to do ? */
-  if (theElement==NULL) return (0);
-
-  /* action */
-  if (ActDepth>=0)
-    if (ElementElementCreateConnection(theGrid,centerElement,theElement,
-                                       ActDepth,ConDepth,MatSize))
-      RETURN (1);
-
-  /* call all neighbors recursively */
-  if (ActDepth<MaxDepth)
-    for (i=0; i<SIDES_OF_ELEM(theElement); i++)
-      if (ConnectWithNeighborhood(NBELEM(theElement,i),theGrid,
-                                  centerElement,ConDepth,MatSize,
-                                  ActDepth+1,MaxDepth)) RETURN (1);
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Create connection of an element
-
- * @param theGrid - pointer to grid
- * @param theElement - pointer to an element
-
-   This function creates connection for all VECTORs of an element
-   with the depth specified in the FORMAT structure.
-
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX CreateConnectionsInNeighborhood (GRID *theGrid, ELEMENT *theElement)
-{
-  INT MaxDepth;
-  INT *ConDepth;
-  INT *MatSize;
-
-  /* set pointers */
-  FORMAT* theFormat = theGrid->mg->theFormat.get();
-  MaxDepth = FMT_CONN_DEPTH_MAX(theFormat);
-  ConDepth = FMT_CONN_DEPTH_PTR(theFormat);
-  MatSize = FMT_S_MATPTR(theFormat);
-
-  /* reset used flags in neighborhood */
-  if (ResetUsedFlagInNeighborhood(theElement,0,MaxDepth))
-    RETURN (1);
-
-  /* create connection in neighborhood */
-  if (ConnectWithNeighborhood(theElement,theGrid,theElement,ConDepth,
-                              MatSize,0,MaxDepth))
-    RETURN (1);
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Create connection of an inserted element
-
-   This function creates connection of an inserted element ,
-   i.e. an element is inserted interactively by the user.
-
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-static INT ConnectInsertedWithNeighborhood (ELEMENT *theElement, GRID *theGrid, INT ActDepth, INT MaxDepth)
-{
-  int i;
-
-  /* is anything to do ? */
-  if (theElement==NULL) return (0);
-
-  /* action */
-  if (ActDepth>=0)
-    if (CreateConnectionsInNeighborhood(theGrid,theElement))
-      RETURN (1);
-
-  /* call all neighbors recursively */
-  if (ActDepth<MaxDepth)
-    for (i=0; i<SIDES_OF_ELEM(theElement); i++)
-      if (ConnectInsertedWithNeighborhood(NBELEM(theElement,i),theGrid,ActDepth+1,MaxDepth)) RETURN (1);
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Create connection of an inserted element
-
- * @param theGrid - grid level
- * @param theElement -  pointer to an element
-
-   This function creates connections of an inserted element ,
-   i.e. when an element is inserted interactively by the user. This function
-   is inefficient and only intended for that purpose.
-
- * @return <ul>
- *   <li>  0 if ok
- *   <li>  1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX InsertedElementCreateConnection (GRID *theGrid, ELEMENT *theElement)
-{
-  INT MaxDepth;
-
-  if (!MG_COARSE_FIXED(MYMG(theGrid)))
-    RETURN (1);
-
-  /* set pointers */
-  FORMAT* theFormat = theGrid->mg->theFormat.get();
-  MaxDepth = (INT)(floor(0.5*(double)FMT_CONN_DEPTH_MAX(theFormat)));
-
-  /* reset used flags in neighborhood */
-  if (ResetUsedFlagInNeighborhood(theElement,0,MaxDepth))
-    RETURN (1);
-
-  /* call 'CreateConnectionsInNeighborhood'
-     in a neighborhood of theElement */
-  if (ConnectInsertedWithNeighborhood (theElement,theGrid,0,MaxDepth))
-    RETURN (1);
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Create all connections needed on a grid level
-
- * @param theGrid - pointer to grid
-
-   This function creates all connections needed on the grid.
-
- * @return <ul>
- *   <li>    0 if ok
- *   <li>    1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GridCreateConnection (GRID *theGrid)
-{
-  ELEMENT *theElement;
-  VECTOR *vList[20];
-  INT i,cnt;
-
-#if defined(ModelP) and defined(__THREEDIM__)
-  auto& dddContext = theGrid->dddContext();
-#endif
-
-  if (!MG_COARSE_FIXED(MYMG(theGrid)))
-    RETURN (1);
-
-  /* lets see if there's something to do */
-  if (theGrid == NULL)
-    return (0);
-
-#if defined(ModelP) and defined(__THREEDIM__)
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferBegin(dddContext);
-#endif
-
-  /* set EBUILDCON-flags also in elements accessing a vector with VBUILDCON true */
-  for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
-  {
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    {
-      EDGE *ed;
-
-      for (i=0; i<EDGES_OF_ELEM(theElement); i++) {
-        ed = GetEdge(CORNER(theElement,
-                            CORNER_OF_EDGE(theElement,i,0)),
-                     CORNER(theElement,
-                            CORNER_OF_EDGE(theElement,i,1)));
-        ASSERT (ed != NULL);
-        if (EDVECTOR(ed) == NULL) {
-          CreateVector(theGrid,EDGEVEC,(GEOM_OBJECT *)ed,vList);
-          EDVECTOR(ed) = vList[0];
-#if defined(ModelP) and defined(__THREEDIM__)
-          SETPRIO(dddContext, EDVECTOR(ed),PRIO(ed));
-#endif
-        }
-      }
-    }
-
-            #ifdef ModelP
-    if (!EMASTER(theElement)) continue;
-                #endif
-
-    /* see if it is set */
-    if (EBUILDCON(theElement)) continue;
-
-    /* check flags in vectors */
-                #ifdef __THREEDIM__
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-    {
-      GetVectorsOfSides(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++)
-        if (VBUILDCON(vList[i])) {SETEBUILDCON(theElement,1); break;}
-    }
-    if (EBUILDCON(theElement)) continue;
-        #endif
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    {
-      GetVectorsOfEdges(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++)
-        if (VBUILDCON(vList[i])) {SETEBUILDCON(theElement,1); break;}
-    }
-    if (EBUILDCON(theElement)) continue;
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-    {
-      GetVectorsOfNodes(theElement,&cnt,vList);
-      for (i=0; i<cnt; i++)
-        if (VBUILDCON(vList[i])) {SETEBUILDCON(theElement,1); break;}
-    }
-  }
-
-#if defined(ModelP) and defined(__THREEDIM__)
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    DDD_XferEnd(theGrid->dddContext());
-#endif
-
-  /* run over all elements with EBUILDCON true and build connections */
-  for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
-       theElement=SUCCE(theElement))
-    if (EBUILDCON(theElement))             /* this is the trigger ! */
-      if (CreateConnectionsInNeighborhood(theGrid,theElement))
-        RETURN (1);
-
-  return(GM_OK);
 }
 
 
@@ -2226,8 +1031,7 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
 
  * @param theGrid - pointer to grid
 
-   This function allocates VECTORs in all geometrical objects of the grid
-   (where described by format) and then calls GridCreateConnection.
+   This function allocates VECTORs in all geometrical objects of the grid.
 
  * @return <ul>
  *   <li>    GM_OK if ok
@@ -2238,18 +1042,13 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
 INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 {
   GRID *g;
-  FORMAT *fmt;
-  VECTOR *vec;
 #ifdef __THREEDIM__
   VECTOR *nbvec;
   ELEMENT *nbelem;
   INT j,n;
 #endif
   ELEMENT *elem;
-  NODE *nd;
-  LINK *li;
-  EDGE *ed;
-  INT side,i;
+  INT i;
 
 
   if (MG_COARSE_FIXED(theMG) == false) {
@@ -2259,63 +1058,29 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
       if (NVEC(g)>0)
         continue;                               /* skip this level */
 
-      fmt = g->mg->theFormat.get();
-
-      /* loop nodes and edges */
-      for (nd=PFIRSTNODE(g); nd!=NULL; nd=SUCCN(nd)) {
-        /* node vector */
-        if (FMT_USES_OBJ(fmt,NODEVEC))
-        {
-          ASSERT(NVECTOR(nd)==NULL);
-          if (CreateVector (g,NODEVEC,(GEOM_OBJECT *)nd,&vec))
-            REP_ERR_RETURN (GM_ERROR);
-          NVECTOR(nd) = vec;
-        }
-
-        /* edge vectors */
-        if (FMT_USES_OBJ(fmt,EDGEVEC))
-          for (li=START(nd); li!=NULL; li=NEXT(li)) {
-            ed = MYEDGE(li);
-            if (li==LINK0(ed))                                     /* to avoid double access of edges*/
-            {
-              ASSERT(EDVECTOR(ed)==NULL);
-              if (CreateVector(g,EDGEVEC,(GEOM_OBJECT *)ed,&vec))
-                REP_ERR_RETURN (GM_ERROR);
-              EDVECTOR(ed) = vec;
-            }
-          }
-      }
-
       /* loop elements and element sides */
       for (elem=PFIRSTELEMENT(g); elem!=NULL; elem=SUCCE(elem)) {
         /* to tell GridCreateConnection to build connections */
         if (EMASTER(elem)) SETEBUILDCON(elem,1);
 
-        /* element vector */
-        if (FMT_USES_OBJ(fmt,ELEMVEC)) {
-          ASSERT(EVECTOR(elem)==NULL);
-          if (CreateVector (g,ELEMVEC,(GEOM_OBJECT *)elem,&vec))
-            REP_ERR_RETURN (GM_ERROR);
-          SET_EVECTOR(elem,vec);
-        }
-
         /* side vectors */
-        if (FMT_USES_OBJ(fmt,SIDEVEC))
-          for (side=0; side<SIDES_OF_ELEM(elem); side++)
+#ifdef __THREEDIM__
+          for (INT side=0; side<SIDES_OF_ELEM(elem); side++)
             if (SVECTOR(elem,side)==NULL) {
+              VECTOR *vec;
               if (CreateSideVector (g,side,
                                     (GEOM_OBJECT *)elem,&vec))
                 REP_ERR_RETURN (GM_ERROR);
               SET_SVECTOR(elem,side,vec);
             }
+#endif
       }
     }
 #ifdef __THREEDIM__
     /* dispose doubled side vectors */
-    if (FMT_USES_OBJ(fmt,SIDEVEC))
       for (elem=PFIRSTELEMENT(g); elem!=NULL; elem=SUCCE(elem))
       {
-        for(side=0; side<SIDES_OF_ELEM(elem); side++)
+        for(INT side=0; side<SIDES_OF_ELEM(elem); side++)
         {
           if(OBJT(elem)==BEOBJ)
           {
@@ -2323,7 +1088,7 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
             {
               nbelem = NBELEM(elem,side);
               ASSERT(nbelem!=NULL);
-              vec=SVECTOR(elem,side);
+              VECTOR *vec=SVECTOR(elem,side);
               n=0;
               for(j=0; j<SIDES_OF_ELEM(nbelem); j++)
               {
@@ -2348,7 +1113,7 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
           {
             nbelem = NBELEM(elem,side);
             ASSERT(nbelem!=NULL);
-            vec=SVECTOR(elem,side);
+            VECTOR* vec=SVECTOR(elem,side);
             n=0;
             for(j=0; j<SIDES_OF_ELEM(nbelem); j++)
             {
@@ -2374,19 +1139,12 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
       }
 #endif
     MG_COARSE_FIXED(theMG) = true;
-
-    /* now connections */
-    if (MGCreateConnection(theMG))
-      REP_ERR_RETURN (1);
   }
 
   /* now we should be safe to clear the InsertElement face map */
   theMG->facemap.clear();
 
     #ifdef ModelP
-    #ifndef __EXCHANGE_CONNECTIONS__
-  MGCreateConnection(theMG);
-    #endif
   /* update VNEW-flags */
   auto& context = theMG->dddContext();
   const auto& dddctrl = ddd_ctrl(context);
@@ -2396,8 +1154,6 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
   DDD_IFOneway(context,
                dddctrl.VectorIF,IF_FORWARD,sizeof(INT),
                Gather_VectorVNew,Scatter_GhostVectorVNew);
-    #else
-  MGCreateConnection(theMG);
     #endif
 
   SetSurfaceClasses(theMG);
@@ -2405,39 +1161,6 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
   return(GM_OK);
 }
 
-/****************************************************************************/
-/** \brief Create all connections in multigrid
-
- * @param theMG - pointer to mulrigrid
-
-   This function creates all connections in multigrid.
-
- * @return <ul>
- *   <li>    0 if ok
- *   <li>    1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX MGCreateConnection (MULTIGRID *theMG)
-{
-  INT i;
-  GRID *theGrid;
-  ELEMENT *theElement;
-
-  if (!MG_COARSE_FIXED(theMG))
-    RETURN (1);
-
-  for (i=0; i<=theMG->topLevel; i++)
-  {
-    theGrid = GRID_ON_LEVEL(theMG,i);
-    for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
-      SETEBUILDCON(theElement,1);
-    if (GridCreateConnection(theGrid)) RETURN (1);
-  }
-
-  return (0);
-}
 
 
 INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
@@ -2445,7 +1168,6 @@ INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
   int j,k;
   ELEMENT *theElement;
   VECTOR *theVector;
-  MATRIX *theMatrix;
 
   j = theMG->topLevel;
   for (k=0; k<=j; k++)
@@ -2460,8 +1182,6 @@ INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
     for (theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,k)); theVector!= NULL; theVector=SUCCVC(theVector))
     {
       SETVNEW(theVector,0);
-      for (theMatrix=VSTART(theVector); theMatrix!=NULL; theMatrix = MNEXT(theMatrix))
-        SETMNEW(theMatrix,0);
     }
   }
 
@@ -2491,7 +1211,6 @@ static INT ElementElementCheck (GRID *theGrid, ELEMENT *Elem0, ELEMENT *Elem1, I
   INT cnt0,cnt1,i,j,itype,jtype,mtype,size;
   VECTOR *vec0[MAX_SIDES_OF_ELEM+MAX_EDGES_OF_ELEM+MAX_CORNERS_OF_ELEM+1];
   VECTOR *vec1[MAX_SIDES_OF_ELEM+MAX_EDGES_OF_ELEM+MAX_CORNERS_OF_ELEM+1];
-  CONNECTION *theCon;
   char msg[128];
   INT errors = 0;
 
@@ -2518,36 +1237,6 @@ static INT ElementElementCheck (GRID *theGrid, ELEMENT *Elem0, ELEMENT *Elem1, I
           mtype = MATRIXTYPE(itype,jtype);
           if (MatSize[mtype]>size) size=MatSize[mtype];
         }
-        if (size > 0)
-          if (ActDepth <= ConDepth[mtype])
-          {
-            /* check connection in both directions */
-            theCon = GetConnection(vec0[i],vec0[j]);
-            if (theCon==NULL)
-            {
-              errors++;
-              UserWriteF("%s vec0[%d]=" VINDEX_FMTX
-                         " to vec0[%d]=" VINDEX_FMTX "\n",
-                         msg,i,VINDEX_PRTX(vec0[i]),
-                         j,VINDEX_PRTX(vec0[j]));
-            }
-            else
-            {
-              theCon = GetConnection(vec0[j],vec0[i]);
-              if (theCon==NULL)
-              {
-                errors++;
-                UserWriteF("%s vec0[%d]=" VINDEX_FMTX
-                           " to vec0[%d]=" VINDEX_FMTX "\n",
-                           msg,j,VINDEX_PRTX(vec0[j]),
-                           i,VINDEX_PRTX(vec0[i]));
-              }
-              else
-              {
-                SETCUSED(theCon,1);
-              }
-            }
-          }
       }
     }
     return (errors);
@@ -2571,34 +1260,6 @@ static INT ElementElementCheck (GRID *theGrid, ELEMENT *Elem0, ELEMENT *Elem1, I
         mtype = MATRIXTYPE(itype,jtype);
         if (MatSize[mtype]>size) size=MatSize[mtype];
       }
-      if (size > 0)
-        if (ActDepth <= ConDepth[mtype])
-        {
-          /* check connection in both directions */
-          theCon = GetConnection(vec0[i],vec1[j]);
-          if (theCon==NULL)
-          {
-            errors++;
-            UserWriteF("%s vec0[%d]=" VINDEX_FMTX
-                       " to vec1[%d]=" VINDEX_FMTX "\n",
-                       msg,i,VINDEX_PRTX(vec0[i]),
-                       j,VINDEX_PRTX(vec1[j]));
-          }
-          else
-          {
-            theCon = GetConnection(vec1[j],vec0[i]);
-            if (theCon == NULL)
-            {
-              errors++;
-              UserWriteF("%s vec1[%d]=" VINDEX_FMTX
-                         " to vec0[%d]=%x/" VINDEX_FMTX "\n",
-                         msg,j,VINDEX_PRTX(vec1[j]),
-                         i,VINDEX_PRTX(vec0[i]));
-            }
-            else
-              SETCUSED(theCon,1);
-          }
-        }
     }
   }
 
@@ -2626,75 +1287,6 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
   return (0);
 }
 
-/****************************************************************************/
-/** \brief Check connection of the element
-
- * @param theGrid - pointer to grid
- * @param theElement - pointer to element
-
-   This function checks all connections of the given element.
-
- * @return <ul>
- *   <li>  number of errors
- *   <li>  0 if ok
- *   <li>  != 0 if errors occured in that connection.
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ElementCheckConnection (GRID *theGrid, ELEMENT *theElement)
-{
-  INT MaxDepth;
-  INT *ConDepth;
-  INT *MatSize;
-
-  /* set pointers */
-  FORMAT* theFormat = theGrid->mg->theFormat.get();
-  MaxDepth = FMT_CONN_DEPTH_MAX(theFormat);
-  ConDepth = FMT_CONN_DEPTH_PTR(theFormat);
-  MatSize = FMT_S_MATPTR(theFormat);
-
-  /* call elements recursivly */
-  return(CheckNeighborhood(theGrid,theElement,theElement,ConDepth,0,MaxDepth,MatSize));
-}
-
-/****************************************************************************/
-/** \brief Check if connections are correctly allocated
-
- * @param theGrid -  grid level to check
-
-   This function checks if connections are correctly allocated.
-
- * @return <ul>
- *   <li>    GM_OK if ok
- *   <li>    GM_ERROR	if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-static INT CheckConnections (GRID *theGrid)
-{
-  ELEMENT *theElement;
-  INT errors;
-  INT error;
-
-  errors = 0;
-
-  for (theElement=FIRSTELEMENT(theGrid);
-       theElement!=NULL;
-       theElement=SUCCE(theElement))
-  {
-    if ((error=ElementCheckConnection(theGrid,theElement))!=0)
-    {
-      UserWriteF("element=" EID_FMTX " has bad connections\n",
-                 EID_PRTX(theElement));
-      errors+=error;
-    }
-  }
-
-  return(errors);
-}
-
 
 /****************************************************************************/
 /** \brief Checks validity of geom_object	and its vector
@@ -2717,36 +1309,32 @@ static INT CheckConnections (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObject, const char *ObjectString,
+static INT CheckVector (const INT s2p[], GEOM_OBJECT *theObject, const char *ObjectString,
                         VECTOR *theVector, INT VectorObjType, INT side)
 {
   GEOM_OBJECT *VecObject;
-  MATRIX *mat;
-  INT errors = 0,vtype,DomPart,ds;
+  INT errors = 0,DomPart;
 
   if (theVector == NULL)
   {
     /* check if size is really 0 */
-    DomPart = GetDomainPart(s2p,theObject,side);
-    vtype = FMT_PO2T(fmt,DomPart,VectorObjType);
-    ds = FMT_S_VEC_TP(fmt,vtype);
+#ifdef __THREEDIM__
+    VectorType vtype = SIDEVEC;
+#else
+    VectorType vtype = NOVTYPE;
+#endif
+    INT ds = FMT_S_VEC_TP(nullptr,vtype);
     if (ds>0)
     {
       errors++;
       UserWriteF("%s ID=%ld  has NO VECTOR", ObjectString,
                  ID(theObject));
-                        #ifdef ModelP
-                        #ifdef __THREEDIM__
-      if (VectorObjType == EDGEVEC)
-        UserWriteF(" prio=%d",PRIO((EDGE*)theObject));
-                        #endif
-                        #endif
       UserWrite("\n");
     }
   }
   else
   {
-    ds = FMT_S_VEC_TP(fmt,VTYPE(theVector));
+    INT ds = FMT_S_VEC_TP(fmt,VTYPE(theVector));
     if (ds==0)
     {
       errors++;
@@ -2772,10 +1360,8 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
       if (VOTYPE(theVector) != VectorObjType)
       {
         errors++;
-        UserWriteF("%s vector=" VINDEX_FMTX " has incompatible type=%d, "
-                   "should be type=%s\n",
-                   ObjectString, VINDEX_PRTX(theVector), VTYPE(theVector),
-                   ObjTypeName[VectorObjType]);
+        UserWriteF("%s vector=" VINDEX_FMTX " has incompatible type=%d\n",
+                   ObjectString, VINDEX_PRTX(theVector), VTYPE(theVector));
       }
 
       if (VecObject != theObject)
@@ -2852,22 +1438,6 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
         }
       }
     }
-    /* check connectivity of matrices */
-    for (mat=VSTART(theVector); mat!=NULL; mat=MNEXT(mat))
-      if (MDEST(mat)==NULL)
-      {
-        errors++;
-        UserWriteF("%s vector=" VINDEX_FMTX ": matrix dest==NULL\n",
-                   ObjectString, VINDEX_PRTX(theVector));
-      }
-      else if (MDEST(MADJ(mat))!=theVector)
-      {
-        errors++;
-        UserWriteF("%s vector=" VINDEX_FMTX ": adj matrix dest does not coincide"
-                   " with vector conn=%x mat=%x mdest=%x\n",
-                   ObjectString, VINDEX_PRTX(theVector),MMYCON(mat),MDEST(mat),MDEST(MADJ(mat)));
-      }
-
   }
 
   return(errors);
@@ -2892,21 +1462,15 @@ static INT CheckVector (const FORMAT *fmt, const INT s2p[], GEOM_OBJECT *theObje
 INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 {
   ELEMENT *theElement;
-  NODE *theNode;
   VECTOR *theVector;
-  EDGE *theEdge;
-  LINK *theLink;
   INT errors;
   INT *s2p;
-#       ifdef __THREEDIM__
-  INT i;
-#       endif
 
   errors = 0;
 
   if ((GLEVEL(theGrid)==0) && !MG_COARSE_FIXED(MYMG(theGrid)))
   {
-    if ((NVEC(theGrid)>0) || (NC(theGrid)>0))
+    if (NVEC(theGrid)>0)
     {
       errors++;
       UserWriteF("coarse grid not fixed but vectors allocated\n");
@@ -2915,7 +1479,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   }
 
   s2p = BVPD_S2P_PTR(MG_BVPD(MYMG(theGrid)));
-  FORMAT* fmt = theGrid->mg->theFormat.get();
 
   /* reset USED flag */
   for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;
@@ -2928,53 +1491,18 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
   {
-
-    /* check element vectors */
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-    {
-      theVector = EVECTOR(theElement);
-      errors += CheckVector(fmt,s2p,(GEOM_OBJECT *) theElement, "ELEMENT",
-                            theVector, ELEMVEC,NOSIDE);
-    }
-
                 #ifdef __THREEDIM__
     /* check side vectors */
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
     {
-      for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+      for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         theVector = SVECTOR(theElement,i);
-        errors += CheckVector(fmt,s2p,(GEOM_OBJECT *) theElement, "ELEMSIDE",
+        errors += CheckVector(s2p,(GEOM_OBJECT *) theElement, "ELEMSIDE",
                               theVector, SIDEVEC,i);
       }
     }
                 #endif
-  }
-
-  for (theNode=PFIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode))
-  {
-
-    /* check node vectors */
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-    {
-      theVector = NVECTOR(theNode);
-      errors += CheckVector(fmt,s2p,(GEOM_OBJECT *) theNode, "NODE", theVector,
-                            NODEVEC,NOSIDE);
-    }
-
-    /* check edge vectors */
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-    {
-      for (theLink=START(theNode); theLink!=NULL; theLink=NEXT(theLink))
-      {
-        theEdge = GetEdge(theNode,NBNODE(theLink));
-        if (theEdge != NULL) {
-          theVector = EDVECTOR(theEdge);
-          errors += CheckVector(fmt,s2p,(GEOM_OBJECT *) theEdge, "EDGE",
-                                theVector, EDGEVEC,NOSIDE);
-        }
-      }
-    }
   }
 
   /* check USED flag */
@@ -2994,88 +1522,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
     }
     else
       SETVCUSED(theVector,0);
-  }
-
-  /* check validity of all defined connections */
-  errors += CheckConnections(theGrid);
-
-  /* reset flags in connections */
-  for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-  {
-    MATRIX  *theMatrix;
-
-    for (theMatrix=VSTART(theVector); theMatrix!=NULL;
-         theMatrix = MNEXT(theMatrix)) SETCUSED(MMYCON(theMatrix),0);
-  }
-
-  /* set flags in connections */
-#if defined __OVERLAP2__
-  for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-#else
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-#endif
-  {
-    MATRIX  *theMatrix;
-
-    for (theMatrix=VSTART(theVector); theMatrix!=NULL;
-         theMatrix = MNEXT(theMatrix)) SETMUSED(MADJ(theMatrix),1);
-  }
-
-  /* check matrices and connections */
-  for (theVector=PFIRSTVECTOR(theGrid);
-       theVector!=NULL;
-       theVector=SUCCVC(theVector))
-  {
-    MATRIX  *theMatrix;
-                #ifdef ModelP
-    INT prio = PRIO(theVector);
-                #endif
-
-    for (theMatrix=VSTART(theVector);
-         theMatrix!=NULL;
-         theMatrix = MNEXT(theMatrix))
-    {
-      MATRIX *Adj = MADJ(theMatrix);
-
-      if (MDEST(theMatrix) == NULL)
-      {
-        errors++;
-        UserWriteF("ERROR: matrix %x has no dest, start vec="
-                   VINDEX_FMTX "\n",
-                   theMatrix,VINDEX_PRTX(theVector));
-      }
-      if (MDEST(Adj) != theVector)
-      {
-        errors++;
-        UserWriteF("ERROR: dest=%x of adj matrix "
-                   " unequal vec=" VINDEX_FMTX "\n",
-                   MDEST(Adj),VINDEX_PRTX(theVector));
-      }
-
-                        #if defined ModelP && ! defined  __OVERLAP2__
-      if (prio != PrioHGhost)
-                        #endif
-      if (MUSED(theMatrix)!=1 &&  !CEXTRA(MMYCON(theMatrix)))
-      {
-        errors++;
-        UserWriteF("ERROR: connection dead vec=" VINDEX_FMTX
-                   " vector=" VINDEX_FMTX " con=%x mat=%x matadj=%x level(vec)=%d is_extra_con %d\n",
-                   VINDEX_PRTX(theVector),VINDEX_PRTX(MDEST(theMatrix)),
-                   MMYCON(theMatrix),MDEST(theMatrix),MDEST(MADJ(theMatrix)),
-                   GLEVEL(theGrid),CEXTRA(MMYCON(theMatrix)));
-      }
-
-                        #if defined ModelP && ! defined  __OVERLAP2__
-      if (GHOSTPRIO(prio) && !CEXTRA(MMYCON(theMatrix)))
-      {
-        errors++;
-        UserWriteF("ERROR: ghost vector has matrix vec="
-                   VINDEX_FMTX " con=%x mat=%x\n",
-                   VINDEX_PRTX(theVector),MMYCON(theMatrix),theMatrix);
-      }
-                        #endif
-    }
   }
 
   return(errors);
@@ -3099,36 +1545,17 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 
 INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
 {
-  INT i;
   VECTOR *vList[20];
-  INT cnt;
 
-  if (VOTYPE(theVector) == ELEMVEC)
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-      if (vList[i]==theVector) RETURN(1);
-  }
         #ifdef __THREEDIM__
   if (VOTYPE(theVector) == SIDEVEC)
   {
+    INT cnt;
     GetVectorsOfSides(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
+    for (INT i=0; i<cnt; i++)
       if (vList[i]==theVector) RETURN(1);
   }
     #endif
-  if (VOTYPE(theVector) == EDGEVEC)
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-      if (vList[i]==theVector) RETURN(1);
-  }
-  if (VOTYPE(theVector) == NODEVEC)
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++)
-      if (vList[i]==theVector) RETURN(1);
-  }
 
   return (0);
 }
@@ -3151,8 +1578,6 @@ INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
 
 INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 {
-  INT i;
-  EDGE *theEdge;
         #ifdef __THREEDIM__
   ELEMENT *theElement;
   INT theSide,j;
@@ -3171,22 +1596,11 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 
   switch (VOTYPE(theVector))
   {
-  case NODEVEC :
-    for (i=0; i<DIM; i++)
-      position[i] = CVECT(MYVERTEX((NODE*)VOBJECT(theVector)))[i];
-    return (0);
-
-  case EDGEVEC :
-    theEdge = (EDGE*)VOBJECT(theVector);
-    for (i=0; i<DIM; i++)
-      position[i] = 0.5*(CVECT(MYVERTEX(NBNODE(LINK0(theEdge))))[i] +
-                         CVECT(MYVERTEX(NBNODE(LINK1(theEdge))))[i]   );
-    return (0);
                 #ifdef __THREEDIM__
   case SIDEVEC :
     theElement = (ELEMENT *)VOBJECT(theVector);
     theSide = VECTORSIDE(theVector);
-    for (i=0; i<DIM; i++)
+    for (INT i=0; i<DIM; i++)
     {
       position[i] = 0.0;
       for(j=0; j<CORNERS_OF_SIDE(theElement,theSide); j++)
@@ -3195,10 +1609,6 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
     }
     return (0);
                 #endif
-  case ELEMVEC :
-    /* calculate center of mass */
-    CalculateCenterOfMass( (ELEMENT *) VOBJECT(theVector), position );
-    return (0);
 
   default : PrintErrorMessage('E',"VectorPosition","unrecognized object type for vector");
     assert(0);
@@ -3225,32 +1635,17 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 
 INT NS_DIM_PREFIX SeedVectorClasses (GRID *theGrid, ELEMENT *theElement)
 {
-  INT i;
-  VECTOR *vList[20];
+        #ifdef __THREEDIM__
   INT cnt;
 
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVCLASS(vList[i],3);
-  }
-        #ifdef __THREEDIM__
+  VECTOR *vList[20];
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
     GetVectorsOfSides(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVCLASS(vList[i],3);
+    for (INT i=0; i<cnt; i++)
+      SETVCLASS(vList[i],3);
   }
     #endif
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVCLASS(vList[i],3);
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVCLASS(vList[i],3);
-  }
   return (0);
 }
 
@@ -3318,28 +1713,6 @@ static int Scatter_GhostVectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 }
 #endif
 
-static INT PropagateVectorClass (GRID *theGrid, INT vclass)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix;
-
-  /* set vector classes in the algebraic neighborhood to vclass-1 */
-  /* use matrices to determine next vectors!!!!!                   */
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-    if ((VCLASS(theVector)==vclass)&&(VSTART(theVector)!=NULL))
-      for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL;
-           theMatrix=MNEXT(theMatrix))
-        if ((VCLASS(MDEST(theMatrix))<vclass)
-            &&(CEXTRA(MMYCON(theMatrix))!=1))
-          SETVCLASS(MDEST(theMatrix),vclass-1);
-
-  /* only for this values valid */
-  ASSERT(vclass==3 || vclass==2);
-
-  return(0);
-}
-
 
 /****************************************************************************/
 /** \brief Compute vector classes after initialization
@@ -3369,9 +1742,6 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
 
-  /* set vector classes in the algebraic neighborhood to 2 */
-  if (PropagateVectorClass(theGrid,3)) REP_ERR_RETURN(1);
-
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 2. communication\n"))
   /* exchange VCLASS of vectors */
@@ -3379,9 +1749,6 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
                   dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVClass, Scatter_VectorVClass);
     #endif
-
-  /* set vector classes in the algebraic neighborhood to 1 */
-  if (PropagateVectorClass(theGrid,2)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateVectorClasses(): 3. communication\n"))
@@ -3447,32 +1814,17 @@ INT NS_DIM_PREFIX ClearNextVectorClasses (GRID *theGrid)
 
 INT NS_DIM_PREFIX SeedNextVectorClasses (GRID *theGrid, ELEMENT *theElement)
 {
-  INT i;
-  VECTOR *vList[20];
-  INT cnt;
 
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVNCLASS(vList[i],3);
-  }
         #ifdef __THREEDIM__
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
+    VECTOR *vList[20];
+    INT cnt;
     GetVectorsOfSides(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVNCLASS(vList[i],3);
+    for (INT i=0; i<cnt; i++)
+      SETVNCLASS(vList[i],3);
   }
         #endif
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVNCLASS(vList[i],3);
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) SETVNCLASS(vList[i],3);
-  }
   return (0);
 }
 
@@ -3517,28 +1869,6 @@ static int Scatter_GhostVectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data
 }
 #endif
 
-static INT PropagateNextVectorClass (GRID *theGrid, INT vnclass)
-{
-  VECTOR *theVector;
-  MATRIX *theMatrix;
-
-  /* set vector classes in the algebraic neighborhood to vnclass-1 */
-  /* use matrices to determine next vectors!!!!!                   */
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-    if ((VNCLASS(theVector)==vnclass)&&(VSTART(theVector)!=NULL))
-      for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL;
-           theMatrix=MNEXT(theMatrix))
-        if ((VNCLASS(MDEST(theMatrix))<vnclass)
-            &&(CEXTRA(MMYCON(theMatrix))!=1))
-          SETVNCLASS(MDEST(theMatrix),vnclass-1);
-
-  /* only for this values valid */
-  ASSERT(vnclass==3 || vnclass==2);
-
-  return(0);
-}
-
 /****************************************************************************/
 /** \brief Compute VNCLASS in all vectors of a grid level
 
@@ -3565,8 +1895,6 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
                   Gather_VectorVNClass, Scatter_VectorVNClass);
     #endif
 
-  if (PropagateNextVectorClass(theGrid,3)) REP_ERR_RETURN(1);
-
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 2. communication\n"))
   /* exchange VNCLASS of vectors */
@@ -3574,8 +1902,6 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
                   dddctrl.BorderVectorSymmIF,GRID_ATTR(theGrid),sizeof(INT),
                   Gather_VectorVNClass, Scatter_VectorVNClass);
     #endif
-
-  if (PropagateNextVectorClass(theGrid,2)) REP_ERR_RETURN(1);
 
     #ifdef ModelP
   PRINTDEBUG(gm,1,("\nPropagateNextVectorClasses(): 3. communication\n"))
@@ -3592,523 +1918,5 @@ INT NS_DIM_PREFIX PropagateNextVectorClasses (GRID *theGrid)
 
   return(0);
 }
-
-/****************************************************************************/
-/** \brief Returns highest vector class of a dof on next level
-
- * @param theGrid - pointer to a grid
- * @param theElement - pointer to a element
-
-   This function returns highest VNCLASS of a vector associated with the
-   element.
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX MaxNextVectorClass (GRID *theGrid, ELEMENT *theElement)
-{
-  INT i,m;
-  VECTOR *vList[20];
-  INT cnt;
-
-  m = 0;
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,ELEMVEC))
-  {
-    GetVectorsOfElement(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) m = MAX(m,VNCLASS(vList[i]));
-  }
-        #ifdef __THREEDIM__
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-  {
-    GetVectorsOfSides(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) m = MAX(m,VNCLASS(vList[i]));
-  }
-        #endif
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC))
-  {
-    GetVectorsOfEdges(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) m = MAX(m,VNCLASS(vList[i]));
-  }
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC))
-  {
-    GetVectorsOfNodes(theElement,&cnt,vList);
-    for (i=0; i<cnt; i++) m = MAX(m,VNCLASS(vList[i]));
-  }
-  return (m);
-}
-
-/****************************************************************************/
-/** \brief Create a new find cut procedure in environment
-
- * @param name - name
- * @param FindCutProc -  the find cut procedure
-
-   This function creates a new find cut dependency in environement.
-
- */
-/****************************************************************************/
-
-FIND_CUT * NS_DIM_PREFIX CreateFindCutProc (const char *name, FindCutProcPtr FindCutProc)
-{
-  FIND_CUT *newFindCut;
-
-  if (ChangeEnvDir("/FindCut")==NULL)
-  {
-    UserWrite("cannot change to dir '/FindCut'\n");
-    return(NULL);
-  }
-  newFindCut = (FIND_CUT *) MakeEnvItem (name,theFindCutVarID,sizeof(FIND_CUT));
-  if (newFindCut==NULL) return(NULL);
-
-  newFindCut->FindCutProc = FindCutProc;
-
-  return (newFindCut);
-}
-
-/****************************************************************************/
-/** \brief Create a new algebraic dependency in environment
-
- * @param name - name
- * @param DependencyProc -  the dependency procedure
-
-   This function creates a new algebraic dependency in environement.
-
- */
-/****************************************************************************/
-
-ALG_DEP * NS_DIM_PREFIX CreateAlgebraicDependency (const char *name, DependencyProcPtr DependencyProc)
-{
-  ALG_DEP *newAlgDep;
-
-  if (ChangeEnvDir("/Alg Dep")==NULL)
-  {
-    UserWrite("cannot change to dir '/Alg Dep'\n");
-    return(NULL);
-  }
-  newAlgDep = (ALG_DEP *) MakeEnvItem (name,theAlgDepVarID,sizeof(ALG_DEP));
-  if (newAlgDep==NULL) return(NULL);
-
-  newAlgDep->DependencyProc = DependencyProc;
-
-  return (newAlgDep);
-}
-
-/****************************************************************************/
-/** \brief Put `every` vector !VCUSED into the new order list
-
- * @param theGrid - pointer to grid
-   .  CutVectors -
-   .  nb -
-
-   This function can be used as a find-cut-procedure for the streamwise ordering
-   algorithm. But it just puts `all` the remaining vectors into the new order
-   list instead of removing only as much as necessary to get rid of cyclic
-   dependencies.
-
-   It is used as default when no cut procedure is specified.
-
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-static VECTOR *FeedbackVertexVectors (GRID *theGrid, VECTOR *LastVector, INT *nb)
-{
-  VECTOR *theVector;
-
-  /* push all remaining vectors */
-  *nb = 0;
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-    if (!VCUSED(theVector))
-    {
-      (*nb)++;
-      PREDVC(LastVector) = theVector;
-      LastVector = theVector;
-      SETVCUSED(theVector,1);
-    }
-  return (LastVector);
-}
-
-
-/****************************************************************************/
-/** \brief Dependency function for lexicographic ordering
-
- * @param theGrid - pointer to grid
- * @param data - option string from orderv command
-
-   This function defines a dependency function for lexicographic ordering.
-
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-static INT LexAlgDep (GRID *theGrid, const char *data)
-{
-  MULTIGRID *theMG;
-  VECTOR *theVector,*NBVector;
-  MATRIX *theMatrix;
-  DOUBLE_VECTOR pos,nbpos;
-  DOUBLE diff[DIM];
-  INT i,order,res;
-  INT Sign[DIM],Order[DIM],xused,yused,zused,error;
-  char ord[3];
-
-  /* read ordering directions */
-        #ifdef __TWODIM__
-  res = sscanf(data,expandfmt("%2[rlud]"),ord);
-        #else
-  res = sscanf(data,expandfmt("%3[rlbfud]"),ord);
-        #endif
-  if (res!=1)
-  {
-    PrintErrorMessage('E',"LexAlgDep","could not read order type");
-    return(1);
-  }
-  if (strlen(ord)!=DIM)
-  {
-                #ifdef __TWODIM__
-    PrintErrorMessage('E',"LexAlgDep","specify 2 chars out of 'rlud'");
-                #else
-    PrintErrorMessage('E',"LexAlgDep","specify 3 chars out of 'rlbfud'");
-                #endif
-    return(1);
-  }
-  error = xused = yused = zused = false;
-  for (i=0; i<DIM; i++)
-    switch (ord[i])
-    {
-    case 'r' :
-      if (xused) error = true;
-      xused = true;
-      Order[i] = _X_; Sign[i] =  1; break;
-    case 'l' :
-      if (xused) error = true;
-      xused = true;
-      Order[i] = _X_; Sign[i] = -1; break;
-
-                        #ifdef __TWODIM__
-    case 'u' :
-      if (yused) error = true;
-      yused = true;
-      Order[i] = _Y_; Sign[i] =  1; break;
-    case 'd' :
-      if (yused) error = true;
-      yused = true;
-      Order[i] = _Y_; Sign[i] = -1; break;
-                        #else
-    case 'b' :
-      if (yused) error = true;
-      yused = true;
-      Order[i] = _Y_; Sign[i] =  1; break;
-    case 'f' :
-      if (yused) error = true;
-      yused = true;
-      Order[i] = _Y_; Sign[i] = -1; break;
-
-    case 'u' :
-      if (zused) error = true;
-      zused = true;
-      Order[i] = _Z_; Sign[i] =  1; break;
-    case 'd' :
-      if (zused) error = true;
-      zused = true;
-      Order[i] = _Z_; Sign[i] = -1; break;
-                        #endif
-    }
-  if (error)
-  {
-    PrintErrorMessage('E',"LexAlgDep","bad combination of 'rludr' or 'rlbfud' resp.");
-    return(1);
-  }
-
-  theMG   = MYMG(theGrid);
-
-  /* find an approximate measure for the mesh size */
-  // The following method wants the domain radius, which has been removed.
-  // Dune has been setting this radius to 1.0 for years now, so I don't think it matters.
-  DOUBLE BVPD_RADIUS = 1.0;
-  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM) / BVPD_RADIUS;
-
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-  {
-    VectorPosition(theVector,pos);
-
-    for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-    {
-      NBVector = MDEST(theMatrix);
-
-      SETMUP(theMatrix,0);
-      SETMDOWN(theMatrix,0);
-
-      VectorPosition(NBVector,nbpos);
-
-      V_DIM_SUBTRACT(nbpos,pos,diff);
-      V_DIM_SCALE(InvMeshSize,diff);
-
-      if (fabs(diff[Order[DIM-1]])<ORDERRES)
-      {
-                                      #ifdef __THREEDIM__
-        if (fabs(diff[Order[DIM-2]])<ORDERRES)
-        {
-          if (diff[Order[DIM-3]]>0.0) order = -Sign[DIM-3];
-          else order =  Sign[DIM-3];
-        }
-        else
-                                      #endif
-        if (diff[Order[DIM-2]]>0.0) order = -Sign[DIM-2];
-        else order =  Sign[DIM-2];
-      }
-      else
-      {
-        if (diff[Order[DIM-1]]>0.0) order = -Sign[DIM-1];
-        else order =  Sign[DIM-1];
-      }
-      
-      if (order==1) SETMUP(theMatrix,1);
-      else SETMDOWN(theMatrix,1);
-    }
-  }
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Dependency function for lexicographic ordering
-
- * @param theGrid - pointer to grid
- * @param data - option string from orderv command
-
-   This function defines a dependency function for lexicographic ordering.
-
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-static INT StrongLexAlgDep (GRID *theGrid, const char *data)
-{
-  MULTIGRID *theMG;
-  VECTOR *theVector,*NBVector;
-  MATRIX *theMatrix;
-  DOUBLE_VECTOR pos,nbpos;
-  DOUBLE diff[DIM];
-  INT i,order,res;
-  INT Sign[DIM],Order[DIM],xused,yused,zused,error;
-  char ord[3];
-
-  /* read ordering directions */
-        #ifdef __TWODIM__
-  res = sscanf(data,expandfmt("%2[rlud]"),ord);
-        #else
-  res = sscanf(data,expandfmt("%3[rlbfud]"),ord);
-        #endif
-  if (res!=1)
-  {
-    PrintErrorMessage('E',"LexAlgDep","could not read order type");
-    return(1);
-  }
-  if (strlen(ord)!=DIM)
-  {
-                #ifdef __TWODIM__
-    PrintErrorMessage('E',"LexAlgDep","specify 2 chars out of 'rlud'");
-                #else
-    PrintErrorMessage('E',"LexAlgDep","specify 3 chars out of 'rlbfud'");
-                #endif
-    return(1);
-  }
-  error = xused = yused = zused = false;
-  for (i=0; i<DIM; i++)
-    switch (ord[i])
-    {
-    case 'r' :
-      if (xused) error = true;
-      xused = true;
-      Order[i] = _X_; Sign[i] =  1; break;
-    case 'l' :
-      if (xused) error = true;
-      xused = true;
-      Order[i] = _X_; Sign[i] = -1; break;
-
-                        #ifdef __TWODIM__
-    case 'u' :
-      if (yused) error = true;
-      yused = true;
-      Order[i] = _Y_; Sign[i] =  1; break;
-    case 'd' :
-      if (yused) error = true;
-      yused = true;
-      Order[i] = _Y_; Sign[i] = -1; break;
-                        #else
-    case 'b' :
-      if (yused) error = true;
-      yused = true;
-      Order[i] = _Y_; Sign[i] =  1; break;
-    case 'f' :
-      if (yused) error = true;
-      yused = true;
-      Order[i] = _Y_; Sign[i] = -1; break;
-
-    case 'u' :
-      if (zused) error = true;
-      zused = true;
-      Order[i] = _Z_; Sign[i] =  1; break;
-    case 'd' :
-      if (zused) error = true;
-      zused = true;
-      Order[i] = _Z_; Sign[i] = -1; break;
-                        #endif
-    }
-  if (error)
-  {
-    PrintErrorMessage('E',"LexAlgDep","bad combination of 'rludr' or 'rlbfud' resp.");
-    return(1);
-  }
-
-  theMG   = MYMG(theGrid);
-
-  /* find an approximate measure for the mesh size */
-  InvMeshSize = POW2(GLEVEL(theGrid)) * pow(NN(GRID_ON_LEVEL(theMG,0)),1.0/DIM);
-
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-  {
-    VectorPosition(theVector,pos);
-
-    for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-    {
-      NBVector = MDEST(theMatrix);
-
-      SETMUP(theMatrix,0);
-      SETMDOWN(theMatrix,0);
-      SETMUSED(theMatrix,0);
-
-      VectorPosition(NBVector,nbpos);
-
-      V_DIM_SUBTRACT(nbpos,pos,diff);
-      V_DIM_SCALE(InvMeshSize,diff);
-
-      if (fabs(diff[Order[DIM-1]])<ORDERRES)
-      {
-                                #ifdef __THREEDIM__
-        if (fabs(diff[Order[DIM-2]])<ORDERRES)
-        {
-          if (diff[Order[DIM-3]]>0.0) order = -Sign[DIM-3];
-          else order =  Sign[DIM-3];
-        }
-        else
-                                #endif
-        if (diff[Order[DIM-2]]>0.0) order = -Sign[DIM-2];
-        else order =  Sign[DIM-2];
-        SETMUSED(theMatrix,1);
-      }
-      else
-      {
-        if (diff[Order[DIM-1]]>0.0) order = -Sign[DIM-1];
-        else order =  Sign[DIM-1];
-      }
-      switch (order)
-      {
-      case  1 : SETMUP(theMatrix,1); break;
-      case -1 : SETMDOWN(theMatrix,1); break;
-      case  0 : SETMUP(theMatrix,1); SETMDOWN(theMatrix,1); break;
-      }
-    }
-  }
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-  {
-    SETVCUSED(theVector,0);
-    SETVCFLAG(theVector,0);
-
-    for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-      if (MUP(theMatrix) && !MUSED(theMatrix))
-        break;
-    if (theMatrix==NULL)
-      SETVCUSED(theVector,1);
-  }
-  for (theVector=FIRSTVECTOR(theGrid); theVector!=NULL; theVector=SUCCVC(theVector))
-    for (theMatrix=MNEXT(VSTART(theVector)); theMatrix!=NULL; theMatrix=MNEXT(theMatrix))
-      if (MUSED(theMatrix) && MUSED(MADJ(theMatrix)))
-      {
-        SETMUP(theMatrix,1);
-        SETMDOWN(theMatrix,1);
-      }
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Init algebra
- *
- * This function inits algebra.
- *
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
- * </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX InitAlgebra (void)
-{
-  INT i;
-
-  /* install the /Alg Dep directory */
-  if (ChangeEnvDir("/")==NULL)
-  {
-    PrintErrorMessage('F',"InitAlgebra","could not changedir to root");
-    return(__LINE__);
-  }
-  theAlgDepDirID = GetNewEnvDirID();
-  if (MakeEnvItem("Alg Dep",theAlgDepDirID,sizeof(ENVDIR))==NULL)
-  {
-    PrintErrorMessage('F',"InitAlgebra","could not install '/Alg Dep' dir");
-    return(__LINE__);
-  }
-  theAlgDepVarID = GetNewEnvVarID();
-
-  /* install the /FindCut directory */
-  if (ChangeEnvDir("/")==NULL)
-  {
-    PrintErrorMessage('F',"InitAlgebra","could not changedir to root");
-    return(__LINE__);
-  }
-  theFindCutDirID = GetNewEnvDirID();
-  if (MakeEnvItem("FindCut",theFindCutDirID,sizeof(ENVDIR))==NULL)
-  {
-    PrintErrorMessage('F',"InitAlgebra","could not install '/FindCut' dir");
-    return(__LINE__);
-  }
-  theFindCutVarID = GetNewEnvVarID();
-
-  /* init standard algebraic dependencies */
-  if (CreateAlgebraicDependency ("lex",LexAlgDep)==NULL) return(__LINE__);
-  if (CreateAlgebraicDependency ("stronglex",StrongLexAlgDep)==NULL) return(__LINE__);
-
-  /* init default find cut proc */
-  if (CreateFindCutProc ("lex",FeedbackVertexVectors)==NULL) return(__LINE__);
-
-  for (i=0; i<MAXVOBJECTS; i++)
-    switch (i)
-    {
-    case NODEVEC : ObjTypeName[i] = "nd"; break;
-    case EDGEVEC : ObjTypeName[i] = "ed"; break;
-    case ELEMVEC : ObjTypeName[i] = "el"; break;
-    case SIDEVEC : ObjTypeName[i] = "si"; break;
-    default : ObjTypeName[i] = "";
-    }
-
-  return (0);
-}
-
 
 /*@}*/

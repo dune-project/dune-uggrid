@@ -344,9 +344,6 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
 
   /* 2. DDD data objects (without DDD_HEADER) */
 
-  dddctrl.TypeMatrix = DDD_TypeDeclare(context, "Matrix");
-  MAP_TYPES(MAOBJ, dddctrl.TypeMatrix);
-
   dddctrl.TypeBndP = DDD_TypeDeclare(context, "BndP");
   static const INT objtBndP = GetFreeOBJT();
   MAP_TYPES(objtBndP, dddctrl.TypeBndP);
@@ -560,19 +557,6 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
         #endif /* THREEDIM */
 
   /* 2. DDD data objects (without DDD_HEADER) */
-
-  /* NOTE: the size of matrix objects computed by the DDD Typemanager
-     will not be the real size ued by DDD. this size has to be computed
-     by UG_MSIZE(mat). this is relevant only in gather/scatter of matrices
-     in handler.c. */
-  DDD_TypeDefine(context, dddctrl.TypeMatrix,
-                 EL_GDATA,  ELDEF(MATRIX,control),
-                 EL_LDATA,  ELDEF(MATRIX,next),
-                 EL_OBJPTR, ELDEF(MATRIX,vect),   dddctrl.TypeVector,
-                 /* TODO: not needed
-                    EL_LDATA,  ELDEF(MATRIX,value), */
-                 EL_END,    sizeof(MATRIX)
-                 );
 
   /* compute global fields it control word entry */
   gbits = ~(((1<<NO_OF_ELEM_LEN)-1)<<NO_OF_ELEM_SHIFT);
@@ -885,7 +869,6 @@ static void InitDDDTypes(DDD::DDDContext& context)
         #endif
 
   /* display dependent types */
-  DDD_TypeDisplay(context, dddctrl.TypeMatrix);
         #ifdef __TWODIM__
   DDD_TypeDisplay(context, dddctrl.TypeEdge);
         #endif
@@ -920,26 +903,12 @@ void NS_DIM_PREFIX InitCurrMG (MULTIGRID *MG)
   auto& dddctrl = ddd_ctrl(MG->dddContext());
   dddctrl.currMG = MG;
 
-  dddctrl.nodeData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,NODEVEC);
-  dddctrl.edgeData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,EDGEVEC);
-  dddctrl.elemData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,ELEMVEC);
+  dddctrl.nodeData = 0;
+  dddctrl.edgeData = 0;
+  dddctrl.elemData = 0;
   dddctrl.sideData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,SIDEVEC);
 
-  if (dddctrl.currFormat == NULL)
-  {
-    /* InitCurrMG was called for the first time, init
-       DDD-types now. */
-    InitDDDTypes(MG->dddContext());
-    dddctrl.currFormat = MG->theFormat.get();
-  }
-  else
-  {
-    /* InitCurrMG has been called before. This is not allowed,
-       cf. comment in ugm.c(DisposeMultiGrid()). */
-    PrintErrorMessage('E',"InitCurrMG",
-                      "opening more than one MG is not allowed in parallel");
-    ASSERT(0); exit(1);
-  }
+  InitDDDTypes(MG->dddContext());
 }
 
 
@@ -1058,7 +1027,6 @@ int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
   {
     dddctrl.ugtypes[i] = -1;
   }
-  dddctrl.currFormat = NULL;
 
   /* declare DDD_TYPES, definition must be done later */
   ddd_DeclareTypes(context);

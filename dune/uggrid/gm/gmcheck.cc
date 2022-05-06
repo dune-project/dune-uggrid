@@ -72,22 +72,6 @@ using namespace PPIF;
 
 /****************************************************************************/
 /*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/* compile time constants defining static data size (i.e. arrays)           */
-/* other constants                                                          */
-/* macros                                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-#define RESOLUTION       20     /* resolution for creating boundary midnode */
-#define SMALL1 0.001
-
-#define ORDERRES                1e-3    /* resolution for OrderNodesInGrid			*/
-#define LINKTABLESIZE   32              /* max number of inks per node for ordering	*/
-
-/****************************************************************************/
-/*                                                                          */
 /* data structures used in this source file (exported data structures are   */
 /*		  in the corresponding include file!)								*/
 /*																			*/
