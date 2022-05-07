@@ -963,7 +963,7 @@ static int Scatter_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
   INT pattern;
   EDGE    *theEdge = (EDGE *)obj;
 
-  pattern = MAX(PATTERN(theEdge),((INT *)data)[0]);
+  pattern = std::max((INT)PATTERN(theEdge),((INT *)data)[0]);
 
   PRINTDEBUG(gm,1,("Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
                    ID_PRTX(theEdge),pattern))
@@ -1641,7 +1641,7 @@ static int Scatter_AddEdgePattern (DDD::DDDContext&, DDD_OBJ obj, void *data)
   INT addpattern;
   EDGE    *theEdge = (EDGE *)obj;
 
-  addpattern = MIN(ADDPATTERN(theEdge),((INT *)data)[0]);
+  addpattern = std::min((INT)ADDPATTERN(theEdge),((INT *)data)[0]);
 
   PRINTDEBUG(gm,4,("Gather_AddEdgePattern(): edge=" ID_FMTX "pat=%08x\n",
                    ID_PRTX(theEdge),addpattern));

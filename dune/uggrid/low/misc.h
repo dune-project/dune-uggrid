@@ -59,15 +59,6 @@ START_UG_NAMESPACE
 
 
 /* cleanup old definitions of macros */
-#ifdef MIN
-#undef MIN
-#endif
-#ifdef MAX
-#undef MAX
-#endif
-
-#define MIN(x,y)                 (((x)<(y)) ? (x) : (y))
-#define MAX(x,y)                 (((x)>(y)) ? (x) : (y))
 #define POW2(i)                  (1<<(i))
 
 #define SET_FLAG(flag,bitpattern)               (flag |=  (bitpattern))

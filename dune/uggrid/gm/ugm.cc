@@ -4646,14 +4646,14 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
         return(GM_OK);
       SETMOVE(VList[i],move);
       V_BNDP(VList[i]) = theMesh->theBndPs[i];
-      maxlevel = MAX(maxlevel,theMesh->VertexLevel[i]);
+      maxlevel = std::max(maxlevel,(INT)theMesh->VertexLevel[i]);
     }
     for (i=theMesh->nBndP; i<nv; i++)
     {
       theGrid = GRID_ON_LEVEL(theMG,theMesh->VertexLevel[i]);
       VList[i] = CreateInnerVertex(theGrid);
       V_DIM_COPY(theMesh->Position[i-theMesh->nBndP],CVECT(VList[i]));
-      maxlevel = MAX(maxlevel,theMesh->VertexLevel[i]);
+      maxlevel = std::max(maxlevel,(INT)theMesh->VertexLevel[i]);
     }
   }
   else
@@ -5581,8 +5581,8 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
       {
         nbVertex = MYVERTEX(NBNODE(theLink));
         V_DIM_EUKLIDNORM_OF_DIFF(CVECT(myVertex),CVECT(nbVertex),h);
-        hmin = MIN(hmin,h);
-        hmax = MAX(hmax,h);
+        hmin = std::min(hmin,h);
+        hmax = std::max(hmax,h);
       }
     }
     ns = 0;
@@ -5628,7 +5628,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
       {
         nt++;
 
-        minl = MIN(minl,l);
+        minl = std::min(minl,l);
 
         coe = CORNERS_OF_ELEM(theElement);
         for (i=0; i<coe; i++)
@@ -5679,8 +5679,8 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
             ne++;
 
             V_DIM_EUKLIDNORM_OF_DIFF(CVECT(v0),CVECT(v1),h);
-            hmin = MIN(hmin,h);
-            hmax = MAX(hmax,h);
+            hmin = std::min(hmin,h);
+            hmax = std::max(hmax,h);
           }
         }
       }
@@ -5720,7 +5720,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
       {
         nt++;
 
-        minl = MIN(minl,l);
+        minl = std::min(minl,l);
 
         coe = CORNERS_OF_ELEM(theElement);
         for (i=0; i<coe; i++)
@@ -5754,8 +5754,8 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
             n1 = CORNER(theElement,CORNER_OF_EDGE(theElement,e,1));
             v1 = MYVERTEX(n1);
             V_DIM_EUKLIDNORM_OF_DIFF(CVECT(v0),CVECT(v1),h);
-            hmin = MIN(hmin,h);
-            hmax = MAX(hmax,h);
+            hmin = std::min(hmin,h);
+            hmax = std::max(hmax,h);
           }
         }
       }
@@ -6087,7 +6087,7 @@ static INT MaxNodeClass (const ELEMENT *theElement)
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++) {
     INT c = NCLASS(CORNER(theElement,i));
 
-    m = MAX(m,c);
+    m = std::max(m,c);
   }
 
   return (m);
@@ -6115,7 +6115,7 @@ INT NS_DIM_PREFIX MaxNextNodeClass (const ELEMENT *theElement)
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++) {
     INT c = NNCLASS(CORNER(theElement,i));
 
-    m = MAX(m,c);
+    m = std::max(m,c);
   }
 
   return (m);
@@ -6143,7 +6143,7 @@ INT NS_DIM_PREFIX MinNodeClass (const ELEMENT *theElement)
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++) {
     INT c = NCLASS(CORNER(theElement,i));
 
-    m = MIN(m,c);
+    m = std::min(m,c);
   }
 
   return (m);
@@ -6171,7 +6171,7 @@ INT NS_DIM_PREFIX MinNextNodeClass (const ELEMENT *theElement)
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++) {
     INT c = NNCLASS(CORNER(theElement,i));
 
-    m = MIN(m,c);
+    m = std::min(m,c);
   }
 
   return (m);
@@ -6239,7 +6239,7 @@ static int Scatter_NodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
-  SETNCLASS(theNode,MAX(NCLASS(theNode),((INT *)data)[0]));
+  SETNCLASS(theNode,std::max((INT)NCLASS(theNode),((INT *)data)[0]));
 
   return(0);
 }
@@ -6414,7 +6414,7 @@ static int Scatter_NextNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   NODE *theNode = (NODE *)obj;
 
-  SETNNCLASS(theNode,MAX(NNCLASS(theNode),((INT *)data)[0]));
+  SETNNCLASS(theNode,std::max((INT)NNCLASS(theNode),((INT *)data)[0]));
 
   return(GM_OK);
 }

@@ -232,8 +232,8 @@ static int PartitionElementsForDD(GRID *theGrid, int hor_boxes, int vert_boxes )
     for( i=0; i<nrcorners; i++ )
     {
       coord = CVECT(MYVERTEX(CORNER(theElement,i)));
-      xmax = MAX(xmax,coord[0]);
-      ymax = MAX(ymax,coord[1]);
+      xmax = std::max(xmax,coord[0]);
+      ymax = std::max(ymax,coord[1]);
     }
     ASSERT(xmax>0.0 && xmax<1.00001);                   /* this function works only for the unit square! */
     ASSERT(ymax>0.0 && ymax<1.00001);

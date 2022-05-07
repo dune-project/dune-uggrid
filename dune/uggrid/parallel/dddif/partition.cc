@@ -251,7 +251,7 @@ static int Scatter_ElementRestriction (DDD::DDDContext&, DDD_OBJ obj, void *data
   {
     PRINTDEBUG(gm,4,(PFMT "Scatter_ElementRestriction(): restricting sons of e=" EID_FMTX "\n",
                      me,EID_PRTX(theElement)))
-    used = MAX(USED(theElement),((int *)data)[0]);
+    used = std::max((INT)USED(theElement),((int *)data)[0]);
     SETUSED(theElement,used);
   }
 

@@ -112,7 +112,7 @@ USING_UGDIM_NAMESPACE
 /*  n_edge = 12*30 (12 max_edges_of_elem) (30 probably 30 elements per edge)		*/
 /*  n_node = 100*8 (8 max_node_of_elem) 100 probably elements per node)				*/
 /*#define PROCLISTSIZE      (ELEMPROCLISTSIZE*MAX_SONS * 2) size not enough and change to static variable; Christian Wrobel 980128 */
-#define PROCLISTSIZE_VALUE      (ELEMPROCLISTSIZE*MAX_SONS * MAX(13,(int)(2.0+log((double)procs))))
+#define PROCLISTSIZE_VALUE      (ELEMPROCLISTSIZE*MAX_SONS * std::max(13,(int)(2.0+log((double)procs))))
 #define PROCLISTSIZE proc_list_size
 
 /* orphan condition for elements */
@@ -202,7 +202,7 @@ static INT RenumberNodes (MULTIGRID *theMG, INT *foid, INT *non)
     for (theNode=FIRSTNODE(GRID_ON_LEVEL(theMG,0)); theNode!=NULL; theNode=SUCCN(theNode))
     {
       ID(theNode) = ID(MYVERTEX(theNode));
-      nid = MAX(nid,ID(theNode));
+      nid = std::max(nid,ID(theNode));
     }
     nid++;
     non[0] = nid;
@@ -1532,7 +1532,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
       cge->ge = TAG(theElement);
       nref=0;
       if (nRefinements (theElement,&nref)) REP_ERR_RETURN(1);
-      hr_max = MAX(hr_max,nref);
+      hr_max = std::max(hr_max,nref);
       cge->nref = nref;
       for (j=0; j<CORNERS_OF_ELEM(theElement); j++)
         cge->cornerid[j] = ID(CORNER(theElement,j));
@@ -3070,8 +3070,8 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   {
     cge = MGIO_CG_ELEMENT_PS(cg_element,i);
     Element_corner_uniq_subdom[i] = ge_element[cge->ge].nCorner;
-    max = MAX(max,ge_element[cge->ge].nCorner);
-    max = MAX(max,ge_element[cge->ge].nSide);
+    max = std::max(max,ge_element[cge->ge].nCorner);
+    max = std::max(max,ge_element[cge->ge].nSide);
     if (MGIO_PARFILE) theMesh.ElementLevel[1][i] = cge->level;
     else theMesh.ElementLevel[1][i] = 0;
     Element_SideOnBnd_uniq_subdom[i] = cge->se_on_bnd;
