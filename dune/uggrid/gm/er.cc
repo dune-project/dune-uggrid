@@ -1187,7 +1187,7 @@ static INT ExtractRules (MULTIGRID *mg)
         list_len++;
         n++;
       }
-      max_list_len = MAX(max_list_len,list_len);
+      max_list_len = std::max(max_list_len,list_len);
     }
     ASSERT(maxrules==n);
 

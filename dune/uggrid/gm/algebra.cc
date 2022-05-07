@@ -948,7 +948,7 @@ static int Scatter_VectorVNew (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
-  SETVNEW(theVector,MAX(VNEW(theVector),((INT *)data)[0]));
+  SETVNEW(theVector,std::max((INT)VNEW(theVector),((INT *)data)[0]));
 
   return(0);
 }
@@ -1692,7 +1692,7 @@ static int Scatter_VectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
-  SETVCLASS(theVector,MAX(VCLASS(theVector),((INT *)data)[0]));
+  SETVCLASS(theVector,std::max((INT)VCLASS(theVector),((INT *)data)[0]));
 
   PRINTDEBUG(gm,2,("Scatter_VectorVClass(): v=" VINDEX_FMTX " vclass=%d\n",
                    VINDEX_PRTX(theVector),VCLASS(theVector)))
@@ -1848,7 +1848,7 @@ static int Scatter_VectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   VECTOR *theVector = (VECTOR *)obj;
 
-  SETVNCLASS(theVector,MAX(VNCLASS(theVector),((INT *)data)[0]));
+  SETVNCLASS(theVector,std::max((INT)VNCLASS(theVector),((INT *)data)[0]));
 
   PRINTDEBUG(gm,2,("Scatter_VectorVNClass(): v=" VINDEX_FMTX " vnclass=%d\n",
                    VINDEX_PRTX(theVector),VNCLASS(theVector)))

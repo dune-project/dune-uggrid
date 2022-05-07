@@ -946,8 +946,8 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     }
     PARAM_PATCH_BS (thePatch) = theSegment->BndSegFunc;
     PARAM_PATCH_BSD (thePatch) = theSegment->data;
-    maxSubDomains = MAX (maxSubDomains, theSegment->left);
-    maxSubDomains = MAX (maxSubDomains, theSegment->right);
+    maxSubDomains = std::max(maxSubDomains, theSegment->left);
+    maxSubDomains = std::max(maxSubDomains, theSegment->right);
     sides[theSegment->id] = thePatch;
     PRINTDEBUG (dom, 1, ("sides id %d type %d left %d right %d\n",
                          PATCH_ID (thePatch), PATCH_TYPE (thePatch),
@@ -978,8 +978,8 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
       for (i = 0; i < DIM; i++)
         LINEAR_PATCH_POS (thePatch, j)[i] = theLinSegment->x[j][i];
     }
-    maxSubDomains = MAX (maxSubDomains, theLinSegment->left);
-    maxSubDomains = MAX (maxSubDomains, theLinSegment->right);
+    maxSubDomains = std::max(maxSubDomains, theLinSegment->left);
+    maxSubDomains = std::max(maxSubDomains, theLinSegment->right);
     sides[theLinSegment->id] = thePatch;
     PRINTDEBUG (dom, 1, ("sides id %d type %d left %d right %d\n",
                          PATCH_ID (thePatch), PATCH_TYPE (thePatch),

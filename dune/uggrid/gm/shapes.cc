@@ -31,6 +31,8 @@
 #include <cassert>
 #include <cstddef>
 
+#include <algorithm>
+
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugtypes.h>
@@ -256,9 +258,9 @@ INT NS_DIM_PREFIX TetMaxSideAngle (ELEMENT *theElement, const DOUBLE **theCorner
   for (i=0; i<EDGES_OF_ELEM(theElement); i++)
   {
     V3_SCALAR_PRODUCT(theNormal[SIDE_WITH_EDGE(theElement,i,0)],theNormal[SIDE_WITH_EDGE(theElement,i,1)],help)
-    max = MAX(help,max);
+    max = std::max(help,max);
   }
-  max = MIN(max,1.0);
+  max = std::min(max,1.0);
   *MaxAngle = 180.0/PI*acos(-max);
 
   return (0);
@@ -308,8 +310,7 @@ INT NS_DIM_PREFIX TetAngleAndLength (ELEMENT *theElement, const DOUBLE **theCorn
   for (j=0; j<EDGES_OF_ELEM(theElement); j++)
   {
     V3_SCALAR_PRODUCT(theNormals[SIDE_WITH_EDGE(theElement,j,0)],theNormals[SIDE_WITH_EDGE(theElement,j,1)],Angle[j])
-    Angle[j] = MAX(Angle[j],-1.0);
-    Angle[j] = MIN(Angle[j], 1.0);
+    Angle[j] = std::clamp(Angle[j], -1.0, 1.0);
     Angle[j] = (DOUBLE)acos((double)Angle[j]);
   }
 
