@@ -326,13 +326,6 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
     return(nerrors++);
   }
 
-  if (NVECTOR(theNode)!=NULL && VOBJECT(NVECTOR(theNode)) == NULL)
-  {
-    UserWriteF(" node=" ID_FMTX " has vector" ID_FMTX "  with VOBJ=NULL\n",
-               ID_PRTX(theNode),ID_PRTX(NVECTOR(theNode)));
-    return(nerrors++);
-  }
-
   switch (NTYPE(theNode))
   {
   case (LEVEL_0_NODE) :

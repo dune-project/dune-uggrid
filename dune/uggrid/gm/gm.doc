@@ -616,10 +616,6 @@ struct node {                   // level dependent part of a vertex
     struct node *father;        // node on coarser level (NULL if none) 
     struct node *son;           // node on finer level (NULL if none)   
     union vertex *myvertex;     // corresponding vertex structure       
-    
-    // associated vector if 
-    VECTOR *vector;             // only allocated if there is data at nodes!                   
-
 } ;
 
 typedef struct node NODE;
@@ -686,12 +682,6 @@ VERTEX *MYVERTEX (NODE *p);
 \endverbatim
 
 Returns a pointer to the VERTEX of a node.
-
-\verbatim
-VECTOR *NVECTOR (NODE *p);
-\endverbatim
-
-Returns a pointer to the VECTOR associated with a node.
 
 CONTROL WORDS:
 

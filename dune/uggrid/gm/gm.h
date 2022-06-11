@@ -585,11 +585,6 @@ struct node {
   /** \brief Corresponding vertex structure               */
   union vertex *myvertex;
 
-  /** \brief Associated vector
-   *
-   * WARNING: the allocation of the vector pointer depends on the format */
-  VECTOR *vector;
-
   /** \brief Associated data pointer
    *
    * WARNING: The allocation of the data pointer depends on the format */
@@ -2224,7 +2219,6 @@ enum GM_OBJECTS {
 #define SONNODE(p)                      ((p)->son)
 #define MYVERTEX(p)             ((p)->myvertex)
 #define NDATA(p)                        ((p)->data)
-#define NVECTOR(p)                      ((p)->vector)
 
 #define NODE_ELEMENT_LIST(p)    ((ELEMENTLIST *)(p)->data)
 #define ELEMENT_PTR(p)                  ((p)->el)

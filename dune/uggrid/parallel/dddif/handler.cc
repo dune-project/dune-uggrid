@@ -544,11 +544,6 @@ static void NodeObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
     }
   }
         #endif
-
-  /* set pointer of vector to its node */
-  if (ddd_ctrl(context).nodeData && NVECTOR(theNode))
-    VOBJECT(NVECTOR(theNode)) = (GEOM_OBJECT*)theNode;
-
 }
 
 
@@ -672,21 +667,6 @@ static void NodeXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, 
   }
 
   DDD_XferCopyObj(context, PARHDRV(MYVERTEX(theNode)), proc, prio);
-
-  /* copy vector if defined */
-  if (ddd_ctrl(context).nodeData)
-  {
-    vec = NVECTOR(theNode);
-    if (vec != NULL) {
-      INT Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
-
-      PRINTDEBUG(dddif,2,(PFMT " NodeXferCopy(): n=" ID_FMTX
-                          " Xfer NODEVEC=" VINDEX_FMTX " size=%d\n",
-                          me,ID_PRTX(theNode),VINDEX_PRTX(vec),Size))
-
-      DDD_XferCopyObjX(context, PARHDR(vec), proc, prio, Size);
-    }
-  }
 }
 
 

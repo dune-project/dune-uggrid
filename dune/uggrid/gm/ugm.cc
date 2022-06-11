@@ -5846,10 +5846,6 @@ void NS_DIM_PREFIX ListNode (const MULTIGRID *theMG, const NODE *theNode, INT da
 
     UserWriteF(" key=%d\n", KeyForObject((KEY_OBJECT *)theNode) );
 
-    if (NVECTOR(theNode) != NULL)
-      UserWriteF(" vec=" VINDEX_FMTX "\n",
-                 VINDEX_PRTX(NVECTOR(theNode)));
-
     UserWriteF(" classes: NCLASS = %d  NNCLASS = %d\n",NCLASS(theNode),NNCLASS(theNode));
   }
 

@@ -1265,8 +1265,6 @@ static int Scatter_IdentSonNode (DDD::DDDContext& context, DDD_OBJ obj, void *da
         }
 
         DDD_IdentifyObject(context, PARHDR(SonNode),proc,PARHDR(theNode));
-        if (ddd_ctrl(context).nodeData && NVECTOR(SonNode)!=NULL)
-          DDD_IdentifyObject(context, PARHDR(NVECTOR(SonNode)),proc,PARHDR(theNode));
       }
     }
     else
@@ -1579,8 +1577,6 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
         {
           DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(theEdge));
           DDD_IdentifyObject(context, PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(theEdge));
-          if (ddd_ctrl(context).nodeData && NVECTOR(MidNode)!=NULL)
-            DDD_IdentifyObject(context, PARHDR(NVECTOR(MidNode)),proc,PARHDR(theEdge));
         }
         else
         {
@@ -1590,11 +1586,6 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
           DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(Node1));
           DDD_IdentifyObject(context, PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(Node0));
           DDD_IdentifyObject(context, PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(Node1));
-          if (ddd_ctrl(context).nodeData && NVECTOR(MidNode)!=NULL)
-          {
-            DDD_IdentifyObject(context, PARHDR(NVECTOR(MidNode)),proc,PARHDR(Node0));
-            DDD_IdentifyObject(context, PARHDR(NVECTOR(MidNode)),proc,PARHDR(Node1));
-          }
         }
       }
 

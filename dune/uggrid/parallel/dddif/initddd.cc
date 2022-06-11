@@ -519,20 +519,8 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_OBJPTR, ELDEF(NODE,myvertex), dddctrl.TypeIVertex,
                  EL_CONTINUE);
 
-  if (ddd_ctrl(context).nodeData)
-    DDD_TypeDefine(context, dddctrl.TypeNode,
-                   EL_OBJPTR, ELDEF(NODE,vector), dddctrl.TypeVector,
-                   EL_CONTINUE);
-
-  /* The size of a NODE object may be less than sizeof(NODE).
-   * Indeed, if the format does not contain node data, then the corresponding VECTOR*
-   * data member that stores this data is removed from the NODE object.  Hence the
-   * size of the NODE decreases by the size of one VECTOR*.
-   * Compare the corresponding computation in the method CreateNode (in ugm.c)
-   */
-  size = sizeof(NODE) - (dddctrl.nodeData ? 0 : sizeof(VECTOR*));
   DDD_TypeDefine(context, dddctrl.TypeNode,
-                 EL_END, size);
+                 EL_END, sizeof(NODE));
 
   /* set mergemode to maximum */
   DDD_PrioMergeDefault(context, dddctrl.TypeNode, PRIOMERGE_MAXIMUM);
