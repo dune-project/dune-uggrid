@@ -766,9 +766,9 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
         if (OBJT(theElement) == BEOBJ)
           if (SIDE_ON_BND(theElement,i))
           {
-            INT err,id,nbid,id_nb,nbid_nb,part;
+            INT err,id,nbid,id_nb,nbid_nb;
 
-            err = BNDS_BndSDesc(ELEM_BNDS(theElement,i),&id,&nbid,&part);
+            err = BNDS_BndSDesc(ELEM_BNDS(theElement,i),&id,&nbid);
             if (err)
             {
               bserror |= (1<<i);
@@ -801,7 +801,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
               }
               else
               {
-                if (BNDS_BndSDesc(ELEM_BNDS(NbElement,j),&id_nb,&nbid_nb,&part))
+                if (BNDS_BndSDesc(ELEM_BNDS(NbElement,j),&id_nb,&nbid_nb))
                 {
                   UserWriteF("nb=" EID_FMTX " ERROR BNDS_BndSDesc(%d) returned id=%d nbid=%d\n",
                              EID_PRTX(NbElement),j,id,nbid);

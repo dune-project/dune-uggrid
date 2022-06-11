@@ -88,10 +88,7 @@ typedef INT (*UserProcPtr)(DOUBLE *, DOUBLE *);
 #define BVPD_RADIUS(d)       ((d)->radius)
 #define BVPD_CONVEX(d)       ((d)->convex)
 #define BVPD_NSUBDOM(d)      ((d)->nSubDomains)
-#define BVPD_NPARTS(d)       ((d)->nDomainParts)
 #define BVPD_CONFIG(d)       ((d)->ConfigProc)
-#define BVPD_S2P_PTR(d)      ((d)->s2p)
-#define BVPD_S2P(d,s)        ((d)->s2p[s])
 #define BVPD_NCOEFFF(d)      ((d)->numOfCoeffFct)
 #define BVPD_NUSERF(d)       ((d)->numOfUserFct)
 /*@}*/
@@ -119,12 +116,6 @@ struct BVP_Descriptor
   /*@{*/
   /** \brief Number of subdomains, exterior not counted                */
   INT nSubDomains;
-
-  /** \brief Number of parts in the domain               */
-  INT nDomainParts;
-
-  /** \brief Pointer to table subbdom --> part   */
-  INT *s2p;
   /*@}*/
 
   /** @name Problem part */
@@ -444,7 +435,6 @@ INT         BNDP_Move                         (BNDP *aBndP, const DOUBLE global[
  *
  * @param theBndP - BNDP structure
  * @param move  - movable flag (0: no, 1:yes)
- * @param part  - domain part
 
    This function sets the descriptor for a BNDP.
 
@@ -453,14 +443,13 @@ INT         BNDP_Move                         (BNDP *aBndP, const DOUBLE global[
  *   <li> 1 if error. </li>
  * </ul> */
 /****************************************************************************/
-INT         BNDP_BndPDesc         (BNDP *theBndP, INT *move, INT *part);
+INT         BNDP_BndPDesc         (BNDP *theBndP, INT *move);
 
 /****************************************************************************/
 /** \brief Sets descriptor for BNDE (boundary edge)
  *
  * @param theBndP0 - first BNDP
  * @param theBndP1 - second BNDP
- * @param part   - domain part ID
 
    This function sets the descriptor for a BNDE.
 
@@ -469,7 +458,7 @@ INT         BNDP_BndPDesc         (BNDP *theBndP, INT *move, INT *part);
  *   <li> 1 if error.
  * </ul> */
 /****************************************************************************/
-INT         BNDP_BndEDesc         (BNDP *theBndP0, BNDP *theBndP1, INT *part);
+INT         BNDP_BndEDesc         (BNDP *theBndP0, BNDP *theBndP1);
 
 /****************************************************************************/
 /** \brief Creates a BNDS from a nb of BNDPs
@@ -574,7 +563,6 @@ INT         BNDS_Global           (BNDS *theBndS, DOUBLE *local, DOUBLE *global)
  * @param theBndS - BNDS structure
  * @param id  - subdomain ID of the element with aBndS
  * @param nbid  - subdomain ID of the neighbour element (across the boundary)
- * @param part  - domain part
 
    This function sets the descriptor for a BNDS.
 
@@ -584,7 +572,7 @@ INT         BNDS_Global           (BNDS *theBndS, DOUBLE *local, DOUBLE *global)
  * </ul>
  */
 /****************************************************************************/
-INT         BNDS_BndSDesc         (BNDS *theBndS, INT *id, INT *nbid, INT *part);
+INT         BNDS_BndSDesc         (BNDS *theBndS, INT *id, INT *nbid);
 
 /****************************************************************************/
 /** \brief Create BNDP on BNDS

@@ -151,7 +151,6 @@ INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *
 /** \brief  Return pointer to a new vector structure
  *
  * @param  theGrid - grid where vector should be inserted
- * @param  DomPart - part of the domain where vector is created
  * @param  ObjType - one of the types defined in gm
  * @param  object  - associate vector with this object
  * @param  vHandle - handle of new vector, i.e. a pointer to a pointer where
@@ -169,7 +168,7 @@ INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *
  */
 /****************************************************************************/
 
-static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjType,
+static INT CreateVectorInPart (GRID *theGrid, VectorType VectorObjType,
                                GEOM_OBJECT *object, VECTOR **vHandle)
 {
   MULTIGRID *theMG;
@@ -196,10 +195,6 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjT
   /* initialize data */
   SETOBJT(pv,VEOBJ);
   SETVTYPE(pv,vtype);
-  SETVPART(pv,DomPart);
-  ds = VPART(pv);
-  if (ds!=DomPart)
-    return (1);
   SETVDATATYPE(pv,BITWISE_TYPE(vtype));
   SETVOTYPE(pv,VectorObjType);
   SETVCLASS(pv,3);
@@ -233,7 +228,7 @@ INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object
 {
   *vHandle = NULL;
 
-  if (CreateVectorInPart(theGrid,0 /*part*/,SIDEVEC,object,vHandle))
+  if (CreateVectorInPart(theGrid,SIDEVEC,object,vHandle))
     REP_ERR_RETURN(1);
 
   SETVECTORSIDE(*vHandle,side);
@@ -299,66 +294,6 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
     RETURN(1);
 
   return(0);
-}
-
-/****************************************************************************/
-/* \brief Change vector allocated with wrong part
-
- * @param  g - grid level where the element is in.
- * @param  elem - element of side vector
- * @param  side - element side
- * @param  vHandle - handle to side vector (inialized with old, may be changed)
-
-   This changes a side vector which was allocated with the wrong part (maybe unknown for side vectors
-   when creating an element).
-
- * @return <ul>
- *   <li>   GM_OK if ok
- *   <li>   GM_ERROR if error occured.
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ReinspectSonSideVector (GRID *g, ELEMENT *elem, INT side, VECTOR **vHandle)
-{
-  MULTIGRID *mg;
-  VECTOR *vold,*vnew;
-  INT partnew,partold,vtnew;
-
-  mg  = MYMG(g);
-
-  vold = *vHandle;
-
-  /* check whether part has actually changed */
-  partold = (vold!=NULL) ? VPART(vold) : BVPD_S2P(MG_BVPD(mg),SUBDOMAIN(elem));
-  partnew = 0;
-  if (partnew==partold)
-    return (GM_OK);
-
-  /* check whether size has actually changed */
-    if (vold!=NULL)
-    {
-      /* just change part and type */
-      SETVTYPE(vold,vtnew);
-      SETVPART(vold,partnew);
-
-      SETVBUILDCON(vold,1);
-    }
-    PRINTDEBUG(gm,1,("SIDEVEC (%d,%d): part and type\n",ID(elem),side));
-    return (GM_OK);
-
-  PRINTDEBUG(gm,1,("SIDEVEC (%d,%d): part, type and size\n",ID(elem),side));
-
-  /* create new vector */
-  if (CreateVectorInPart(g,partnew,SIDEVEC,(GEOM_OBJECT*)elem,&vnew))
-    REP_ERR_RETURN(GM_ERROR);
-
-  /* now we can dispose the old vector */
-  if (DisposeVector(g,vold))
-    REP_ERR_RETURN(GM_ERROR);
-
-  *vHandle = vnew;
-
-  return (GM_OK);
 }
 
 /****************************************************************************/
@@ -1292,7 +1227,6 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
 /** \brief Checks validity of geom_object	and its vector
 
  * @param fmt - FORMAT of associated multigrid
- * @param s2p - subdomain to part table
  * @param theObject - the object which points to theVector
  * @param ObjectString - for error message
  * @param theVector - the vector of theObject
@@ -1309,11 +1243,11 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
  */
 /****************************************************************************/
 
-static INT CheckVector (const INT s2p[], GEOM_OBJECT *theObject, const char *ObjectString,
+static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
                         VECTOR *theVector, INT VectorObjType, INT side)
 {
   GEOM_OBJECT *VecObject;
-  INT errors = 0,DomPart;
+  INT errors = 0;
 
   if (theVector == NULL)
   {
@@ -1464,7 +1398,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   ELEMENT *theElement;
   VECTOR *theVector;
   INT errors;
-  INT *s2p;
 
   errors = 0;
 
@@ -1477,8 +1410,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
     }
     return(errors);
   }
-
-  s2p = BVPD_S2P_PTR(MG_BVPD(MYMG(theGrid)));
 
   /* reset USED flag */
   for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;
@@ -1498,7 +1429,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
       for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         theVector = SVECTOR(theElement,i);
-        errors += CheckVector(s2p,(GEOM_OBJECT *) theElement, "ELEMSIDE",
+        errors += CheckVector((GEOM_OBJECT *) theElement, "ELEMSIDE",
                               theVector, SIDEVEC,i);
       }
     }

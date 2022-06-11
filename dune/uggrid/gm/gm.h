@@ -186,9 +186,6 @@ enum {MAX_SONS = 30};
         #error *** MAXVECTORS must not be smaller than MAXVOBJECTS ***
 #endif
 
-/** \brief max number of geometric domain parts                 */
-#define MAXDOMPARTS                                             1
-
 /** \brief transforms type into bitpattern                              */
 #define BITWISE_TYPE(t) (1<<(t))
 
@@ -1717,7 +1714,7 @@ enum LV_ID_TYPES {
 /* VACTIVE   |24        |*| | 1 if vector is active inside a smoother                   */
 /* VCCUT         |26    |*| |                                                                                                   */
 /* VTYPE         |27-28 |*| | abstract vector type                                                              */
-/* VPART         |29-30 |*| | domain part                                                                               */
+/* VPART         |29-30 |*| | unused (used to be domain part)                                                                               */
 /* VCCOARSE  |31    |*| | indicate algebraic part of VECTOR-MATRIX graph        */
 /*                                                                                                                                                      */
 /* matrices:                                                                                                                            */
@@ -1851,11 +1848,6 @@ enum LV_ID_TYPES {
 
 #define VPART_SHIFT                             22
 #define VPART_LEN                                       2
-#define VPART(p)                                        CW_READ_STATIC(p,VPART_,VECTOR_)
-#define SETVPART(p,n)                           CW_WRITE_STATIC(p,VPART_,VECTOR_,n)
-#if (MAXDOMPARTS > POW2(VPART_LEN))
-        #error  *** VPART_LEN too small ***
-#endif
 
 #define VACTIVE_SHIFT                       24
 #define VACTIVE_LEN                                 1

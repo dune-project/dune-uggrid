@@ -520,7 +520,7 @@ NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *t
   DOUBLE *local,*x[MAX_CORNERS_OF_ELEM];
   DOUBLE_VECTOR bnd_global,global;
   DOUBLE diff;
-  INT n,move,part;
+  INT n,move;
 
   const INT co0 = CORNER_OF_EDGE(theElement,edge,0);
   const INT co1 = CORNER_OF_EDGE(theElement,edge,1);
@@ -553,7 +553,7 @@ NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *t
           return(NULL);
         if (BNDP_Global(bndp,bnd_global))
           return(NULL);
-        if (BNDP_BndPDesc(bndp,&move,&part))
+        if (BNDP_BndPDesc(bndp,&move))
           return(NULL);
         SETMOVE(theVertex,move);
         V_BNDP(theVertex) = bndp;
@@ -704,7 +704,7 @@ NODE *NS_DIM_PREFIX CreateSideNode (GRID *theGrid, ELEMENT *theElement, VERTEX *
   BNDP *bndp;
   BNDS *bnds;
   DOUBLE fac, diff;
-  INT n,j,k,move,part,vertex_null;
+  INT n,j,k,move,vertex_null;
 
   n = CORNERS_OF_SIDE(theElement,side);
   fac = 1.0 / n;
@@ -737,7 +737,7 @@ NODE *NS_DIM_PREFIX CreateSideNode (GRID *theGrid, ELEMENT *theElement, VERTEX *
           theVertex = CreateBoundaryVertex(theGrid);
           if (theVertex == NULL)
             return(NULL);
-          if (BNDP_BndPDesc(bndp,&move,&part))
+          if (BNDP_BndPDesc(bndp,&move))
             return(NULL);
           SETMOVE(theVertex,move);
           if (BNDP_Global(bndp,bnd_global))
@@ -2528,12 +2528,6 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
     RETURN(GM_ERROR);
   SET_BNDS(theSon,son_side,bnds);
 
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-  {
-    vec = SVECTOR(theSon,son_side);
-    ReinspectSonSideVector(theGrid,theSon,son_side,&vec);
-    SET_SVECTOR(theSon,son_side,vec);
-  }
     #ifdef UG_DIM_2
   theEdge = GetEdge(CORNER(theSon,CORNER_OF_EDGE(theSon,son_side,0)),
                     CORNER(theSon,CORNER_OF_EDGE(theSon,son_side,1)));
@@ -3917,7 +3911,7 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
 {
   NODE *theNode;
   VERTEX *theVertex;
-  INT move,part;
+  INT move;
 
   /* create objects */
   theVertex = CreateBoundaryVertex(theGrid);
@@ -3933,7 +3927,7 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
     return(NULL);
   }
 
-  if (BNDP_BndPDesc(bndp,&move,&part))
+  if (BNDP_BndPDesc(bndp,&move))
   {
     DisposeVertex(theGrid,theVertex);
     return(NULL);
@@ -4606,7 +4600,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
   ELEMENT *theElement;
   NODE **NList,*Nodes[MAX_CORNERS_OF_ELEM],*ListNode;
   VERTEX **VList;
-  INT i,k,n,nv,j,maxlevel,l,move,part;
+  INT i,k,n,nv,j,maxlevel,l,move;
   INT ElemSideOnBnd[MAX_SIDES_OF_ELEM];
   INT MarkKey = MG_MARK_KEY(theMG);
 
@@ -4642,7 +4636,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
       VList[i] = CreateBoundaryVertex(theGrid);
       assert(VList[i]!=NULL);
       if (BNDP_Global(theMesh->theBndPs[i],CVECT(VList[i]))) assert(0);
-      if (BNDP_BndPDesc(theMesh->theBndPs[i],&move,&part))
+      if (BNDP_BndPDesc(theMesh->theBndPs[i],&move))
         return(GM_OK);
       SETMOVE(VList[i],move);
       V_BNDP(VList[i]) = theMesh->theBndPs[i];
@@ -4664,7 +4658,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
       VList[i] = CreateBoundaryVertex(theGrid);
       assert(VList[i]!=NULL);
       if (BNDP_Global(theMesh->theBndPs[i],CVECT(VList[i]))) assert(0);
-      if (BNDP_BndPDesc(theMesh->theBndPs[i],&move,&part))
+      if (BNDP_BndPDesc(theMesh->theBndPs[i],&move))
         return(GM_OK);
       SETMOVE(VList[i],move);
       V_BNDP(VList[i]) = theMesh->theBndPs[i];
@@ -4969,12 +4963,12 @@ ELEMENT * NS_DIM_PREFIX FindElementOnSurface (MULTIGRID *theMG, DOUBLE *global)
 
 INT NS_DIM_PREFIX InnerBoundary (ELEMENT *t, INT side)
 {
-  INT left,right,part;
+  INT left,right;
 
   ASSERT(OBJT(t) == BEOBJ);
   ASSERT(SIDE_ON_BND(t,side));
 
-  BNDS_BndSDesc(ELEM_BNDS(t,side),&left,&right,&part);
+  BNDS_BndSDesc(ELEM_BNDS(t,side),&left,&right);
 
   return((left != 0) && (right != 0));
 }
@@ -5795,7 +5789,7 @@ void NS_DIM_PREFIX ListNode (const MULTIGRID *theMG, const NODE *theNode, INT da
 {
   VERTEX *theVertex;
   LINK *theLink;
-  INT i,part;
+  INT i;
 
   theVertex = MYVERTEX(theNode);
 
@@ -5866,7 +5860,7 @@ void NS_DIM_PREFIX ListNode (const MULTIGRID *theMG, const NODE *theNode, INT da
   {
     if (OBJT(theVertex) == BVOBJ)
     {
-      if (BNDP_BndPDesc(V_BNDP(theVertex),&i,&part))
+      if (BNDP_BndPDesc(V_BNDP(theVertex),&i))
         UserWrite("Error in boundary point\n");
       else
         UserWriteF("boundary point: move %d moved %d\n",i,
@@ -6703,7 +6697,7 @@ static INT FinishGrid (MULTIGRID *mg)
   HEAP *heap=MGHEAP(mg);
   FIFO unused,shell;
   INT MarkKey = MG_MARK_KEY(mg);
-  INT i,side,id,nbid,part,nsd,found,s_id;
+  INT i,side,id,nbid,nsd,found,s_id;
   INT *sd_table;
   void *buffer;
 
@@ -6771,7 +6765,7 @@ static INT FinishGrid (MULTIGRID *mg)
           for (side=0; side<SIDES_OF_ELEM(elem); side++)
             if (SIDE_ON_BND(elem,side))
             {
-              if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&id,&nbid,&part))
+              if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&id,&nbid))
                 REP_ERR_RETURN (GM_ERROR);
 
               if ((nb=NBELEM(elem,side))==NULL)
@@ -6876,7 +6870,7 @@ static INT FinishGrid (MULTIGRID *mg)
                 /* push unused neighbour across boundary to unused fifo */
                 fifo_in(&unused,nb);
 
-              if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&id,&nbid,&part))
+              if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&id,&nbid))
                 REP_ERR_RETURN (GM_ERROR);
 
               if (id!=s_id || nbid==0)
@@ -6972,7 +6966,7 @@ INT NS_DIM_PREFIX SetSubdomainIDfromBndInfo (MULTIGRID *theMG)
   ELEMENT *theElement, *theNeighbor;
   NODE *theNode;
   void *buffer;
-  INT i,n,id,nbid,part,j;
+  INT i,n,id,nbid,j;
   FIFO myfifo;
   INT MarkKey = MG_MARK_KEY(theMG);
 
@@ -7000,7 +6994,7 @@ INT NS_DIM_PREFIX SetSubdomainIDfromBndInfo (MULTIGRID *theMG)
       assert(i<SIDES_OF_ELEM(theElement));
 
       /* set id from BNDS */
-      if (BNDS_BndSDesc(ELEM_BNDS(theElement,i),&id,&nbid,&part))
+      if (BNDS_BndSDesc(ELEM_BNDS(theElement,i),&id,&nbid))
         REP_ERR_RETURN (GM_ERROR);
       assert(id>0);
       SETSUBDOMAIN(theElement,id);

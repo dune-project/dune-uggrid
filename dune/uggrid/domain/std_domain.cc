@@ -186,60 +186,6 @@ GetFirstBoundaryCondition (PROBLEM * theProblem)
 }
 
 /****************************************************************************/
-/** \brief Create a new DOMAIN data structure with part description
- *
- * @param  name - name of the domain
- * @param  MidPoint - coordinates of some inner point
- * @param  radius - radius of a circle, containing the domain
- * @param  segments - number of the boundary segments
- * @param  corners - number of corners
- * @param  Convex - 0, if convex, 1 - else
- * @param  nParts - number of parts in the domain
- * @param  dpi - description of the parts for lines, segments, points
- *
- * This function allocates and initializes a new DOMAIN data structure in the
- * /domains directory in the environment.
- * Additinally domain parts will defined.
- *
- * @return <ul>
- *   <li>     pointer to a DOMAIN </li>
- *   <li>     NULL if out of memory. </li>
- * </ul>
- */
-/****************************************************************************/
-
-void * NS_DIM_PREFIX
-CreateDomainWithParts (const char *name,
-                       INT segments, INT corners, INT nParts,
-                       const DOMAIN_PART_INFO * dpi)
-{
-  DOMAIN *newDomain;
-
-  /* change to /domains directory */
-  if (ChangeEnvDir ("/Domains") == NULL)
-    return (NULL);
-
-  /* allocate new domain structure */
-  newDomain = (DOMAIN *) MakeEnvItem (name, theDomainDirID, sizeof (DOMAIN));
-  if (newDomain == NULL)
-    return (NULL);
-
-  /* fill in data */
-  DOMAIN_NSEGMENT (newDomain) = segments;
-  DOMAIN_NCORNER (newDomain) = corners;
-  DOMAIN_NPARTS (newDomain) = nParts;
-  DOMAIN_PARTINFO (newDomain) = dpi;
-
-  if (ChangeEnvDir (name) == NULL)
-    return (NULL);
-  UserWrite ("domain ");
-  UserWrite (name);
-  UserWrite (" installed\n");
-
-  return (newDomain);
-}
-
-/****************************************************************************/
 /** \brief Create a new DOMAIN data structure
  *
  * @param  name - name of the domain
@@ -263,8 +209,28 @@ void *NS_DIM_PREFIX
 CreateDomain (const char *name, INT segments,
               INT corners)
 {
-  return (CreateDomainWithParts
-            (name, segments, corners, 1, NULL));
+  DOMAIN *newDomain;
+
+  /* change to /domains directory */
+  if (ChangeEnvDir ("/Domains") == NULL)
+    return (NULL);
+
+  /* allocate new domain structure */
+  newDomain = (DOMAIN *) MakeEnvItem (name, theDomainDirID, sizeof (DOMAIN));
+  if (newDomain == NULL)
+    return (NULL);
+
+  /* fill in data */
+  DOMAIN_NSEGMENT (newDomain) = segments;
+  DOMAIN_NCORNER (newDomain) = corners;
+
+  if (ChangeEnvDir (name) == NULL)
+    return (NULL);
+  UserWrite ("domain ");
+  UserWrite (name);
+  UserWrite (" installed\n");
+
+  return (newDomain);
 }
 
 /****************************************************************************/
@@ -583,8 +549,6 @@ CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
     theBVP->CU_ProcPtr[i] = (void *) (coeffs[i]);
   for (i = 0; i < numOfUserFct; i++)
     theBVP->CU_ProcPtr[i + numOfCoeffFct] = (void *) (userfct[i]);
-
-  STD_BVP_S2P_PTR (theBVP) = NULL;
 
   theBVP->Domain = NULL;
   theBVP->Problem = NULL;
@@ -1255,40 +1219,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
                            BND_PATCH_ID ((BND_PS *) (Mesh->theBndPs[i]))));
   }
 
-  /* allocate s2p table */
-  STD_BVP_NDOMPART (theBVP) = DOMAIN_NPARTS (theDomain);
-  STD_BVP_S2P_PTR (theBVP) =
-    (INT *) GetFreelistMemory (Heap,
-                               (1 + STD_BVP_NSUBDOM (theBVP)) * sizeof (INT));
-  if (STD_BVP_S2P_PTR (theBVP) == NULL)
-    return (NULL);
-
-  /* fill number of parts */
-  if (DOMAIN_NPARTS (theDomain) > 1)
-  {
-    const DOMAIN_PART_INFO *dpi;
-
-    if (DOMAIN_NPARTS (theDomain) > (1 << VPART_LEN))
-    {
-      UserWriteF("Too many parts for control entry in vector\n");
-      UserWriteF("Domain requests %d parts, but only %d are possible!\n",
-                 DOMAIN_NPARTS (theDomain), (1 << VPART_LEN));
-      ASSERT (false);
-      return (NULL);
-    }
-
-    /* transfer from part info (NB: STD_BVP_NSUBDOM only counts inner subdomains) */
-    dpi = DOMAIN_PARTINFO (theDomain);
-    for (i = 0; i <= STD_BVP_NSUBDOM (theBVP); i++)
-      STD_BVP_S2P (theBVP, i) = DPI_SD2P (dpi, i);
-  }
-  else
-  {
-    /* 0 for each subdomnain by default */
-    for (i = 0; i < STD_BVP_NSUBDOM (theBVP); i++)
-      STD_BVP_S2P (theBVP, i) = 0;
-  }
-
   return ((BVP *) theBVP);
 }
 
@@ -1308,8 +1238,6 @@ BVP_Dispose (BVP * theBVP)
     free ( stdBVP->patches[i] );
 
   free ( stdBVP->patches );
-
-  free ( STD_BVP_S2P_PTR (stdBVP) );
 
   /* Unlock the item so it can be deleted from the environment tree */
   ((ENVITEM*)theBVP)->d.locked = 0;
@@ -1351,8 +1279,6 @@ BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
 
   /* the domain part */
   BVPD_NSUBDOM (theBVPDesc) = theBVP->numOfSubdomains;
-  BVPD_NPARTS (theBVPDesc) = theBVP->nDomainParts;
-  BVPD_S2P_PTR (theBVPDesc) = STD_BVP_S2P_PTR (theBVP);
   BVPD_NCOEFFF (theBVPDesc) = theBVP->numOfCoeffFct;
   BVPD_NUSERF (theBVPDesc) = theBVP->numOfUserFct;
   BVPD_CONFIG (theBVPDesc) = theBVP->ConfigProc;
@@ -2180,7 +2106,7 @@ SideIsCooriented (BND_PS * ps)
 
 /* domain interface function: for description see domain.h */
 INT NS_DIM_PREFIX
-BNDS_BndSDesc (BNDS * theBndS, INT * id, INT * nbid, INT * part)
+BNDS_BndSDesc (BNDS * theBndS, INT * id, INT * nbid)
 {
   BND_PS *ps;
   PATCH *p;
@@ -2188,17 +2114,6 @@ BNDS_BndSDesc (BNDS * theBndS, INT * id, INT * nbid, INT * part)
 
   ps = (BND_PS *) theBndS;
   p = currBVP->patches[ps->patch_id];
-
-  /* fill part from segment */
-  if (STD_BVP_NDOMPART (currBVP) > 1)
-  {
-    *part = DPI_SG2P (DOMAIN_PARTINFO (STD_BVP_DOMAIN (currBVP)),
-                      PATCH_ID (p) - STD_BVP_SIDEOFFSET (currBVP));
-    /* this expression yields the segment id */
-  }
-  else
-    /* default is 0 */
-    *part = 0;
 
   if (PATCH_TYPE (p) == PARAMETRIC_PATCH_TYPE)
   {
@@ -2383,7 +2298,7 @@ BNDP_Global (BNDP * aBndP, DOUBLE * global)
 
 /* domain interface function: for description see domain.h */
 INT NS_DIM_PREFIX
-BNDP_BndPDesc (BNDP * theBndP, INT * move, INT * part)
+BNDP_BndPDesc (BNDP * theBndP, INT * move)
 {
   BND_PS *ps;
   PATCH *p;
@@ -2391,29 +2306,19 @@ BNDP_BndPDesc (BNDP * theBndP, INT * move, INT * part)
   ps = (BND_PS *) theBndP;
   p = STD_BVP_PATCH (currBVP, ps->patch_id);
 
-  /* default part is 0 */
-  *part = 0;
-
   switch (PATCH_TYPE (p))
   {
   case PARAMETRIC_PATCH_TYPE :
   case LINEAR_PATCH_TYPE :
-    if (STD_BVP_NDOMPART (currBVP) > 1)
-      *part = DPI_SG2P (DOMAIN_PARTINFO (STD_BVP_DOMAIN (currBVP)), PATCH_ID (p) - STD_BVP_SIDEOFFSET (currBVP));       /* <-- this expression yields the segment id */
     *move = PATCH_IS_FREE (p) ? DIM : DIM_OF_BND;
     return (0);
 
   case POINT_PATCH_TYPE :
-    if (STD_BVP_NDOMPART (currBVP) > 1)
-      *part = DPI_PT2P (DOMAIN_PARTINFO (STD_BVP_DOMAIN (currBVP)), PATCH_ID (p));      /* <-- this expression yields the corner id */
     *move = PATCH_IS_FREE (p) ? DIM : 0;
     return (0);
 
 #               ifdef UG_DIM_3
   case LINE_PATCH_TYPE :
-    if (STD_BVP_NDOMPART (currBVP) > 1)
-      *part = DPI_LN2P (DOMAIN_PARTINFO (STD_BVP_DOMAIN (currBVP)),
-                        LINE_PATCH_C0 (p), LINE_PATCH_C1 (p));
     *move = PATCH_IS_FREE (p) ? DIM : 1;
     return (0);
 #               endif
@@ -2424,54 +2329,15 @@ BNDP_BndPDesc (BNDP * theBndP, INT * move, INT * part)
 
 /* domain interface function: for description see domain.h */
 INT NS_DIM_PREFIX
-BNDP_BndEDesc (BNDP * aBndP0, BNDP * aBndP1, INT * part)
+BNDP_BndEDesc (BNDP * aBndP0, BNDP * aBndP1)
 {
   BND_PS *bp0, *bp1;
-  PATCH *p, *p0, *p1;
-  INT pid, cnt;
 
   bp0 = (BND_PS *) aBndP0;
-  p0 = currBVP->patches[bp0->patch_id];
   bp1 = (BND_PS *) aBndP1;
-  p1 = currBVP->patches[bp1->patch_id];
 
   if ((bp0 == NULL) || (bp1 == NULL))
     REP_ERR_RETURN (1);
-
-  /* default part is 0 */
-  *part = 0;
-
-  if (STD_BVP_NDOMPART (currBVP) == 1)
-    return (0);
-
-  /* find common patch(es) of boundary points */
-  cnt = GetNumberOfCommonPatches (p0, p1, &pid);
-  if (cnt == 0)
-    return (1);
-
-#ifdef UG_DIM_3
-  if (cnt > 1)
-  {
-    pid = GetCommonLinePatchId (p0, p1);
-    ASSERT ((pid < currBVP->ncorners) || (pid >= currBVP->sideoffset));
-    p = STD_BVP_PATCH (currBVP, pid);
-
-    *part = DPI_LN2P (DOMAIN_PARTINFO (STD_BVP_DOMAIN (currBVP)),
-                      LINE_PATCH_C0 (p), LINE_PATCH_C1 (p));
-    return (0);
-  }
-#endif
-
-  p = STD_BVP_PATCH (currBVP, pid);
-  switch (PATCH_TYPE (p))
-  {
-  case PARAMETRIC_PATCH_TYPE :
-  case LINEAR_PATCH_TYPE :
-    *part = DPI_SG2P (DOMAIN_PARTINFO (STD_BVP_DOMAIN (currBVP)), PATCH_ID (p) - STD_BVP_SIDEOFFSET (currBVP));         /* <-- this expression yields the segment id */
-    break;
-  default :
-    REP_ERR_RETURN (1);
-  }
 
   return (0);
 }

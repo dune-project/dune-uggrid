@@ -94,7 +94,6 @@ enum ALGEBRA_CE {
 /** @name basic create and dispose functions */
 /*@{*/
 INT         CreateSideVector                (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle);
-INT         ReinspectSonSideVector  (GRID *g, ELEMENT *elem, INT side, VECTOR **vHandle);
 INT         CreateElementList        (GRID *theGrid, NODE *theNode, ELEMENT *theElement);
 INT         DisposeVector            (GRID *theGrid, VECTOR *theVector);
 /*@}*/
