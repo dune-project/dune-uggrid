@@ -2782,9 +2782,9 @@ grid::dddContext()
 /****************************************************************************/
 
 #ifdef UG_DIM_3
-#define FMT_S_VEC_TP(f,t)                               (sizeof(double))
+#define FMT_S_VEC_TP                               (sizeof(double))
 #else
-#define FMT_S_VEC_TP(f,t)                               (0)
+#define FMT_S_VEC_TP                               (0)
 #endif
 
 /** \brief Constants for USED flags of objects */

@@ -678,8 +678,7 @@ static void NodeXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, 
   {
     vec = NVECTOR(theNode);
     if (vec != NULL) {
-      INT Size = sizeof(VECTOR)-sizeof(DOUBLE)
-             +FMT_S_VEC_TP(MGFORMAT(ddd_ctrl(context).currMG),VTYPE(vec));
+      INT Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
 
       PRINTDEBUG(dddif,2,(PFMT " NodeXferCopy(): n=" ID_FMTX
                           " Xfer NODEVEC=" VINDEX_FMTX " size=%d\n",
@@ -950,8 +949,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
       VECTOR *vec = EDVECTOR(edge);
 
       if (vec != NULL) {
-        int Size = sizeof(VECTOR)-sizeof(DOUBLE)
-               +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
+        int Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
         PRINTDEBUG(dddif,3,(PFMT " ElementXferCopy():  e=" EID_FMTX
                             " EDGEVEC=" VINDEX_FMTX " size=%d\n",
                             me,EID_PRTX(pe),VINDEX_PRTX(vec),Size))
@@ -968,8 +966,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
     vec = EVECTOR(pe);
 
     if (vec != NULL) {
-      Size = sizeof(VECTOR)-sizeof(DOUBLE)
-             +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
+      Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
 
       PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                           " ELEMVEC=" VINDEX_FMTX " size=%d\n",
@@ -987,8 +984,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
       vec = SVECTOR(pe,i);
 
       if (vec != NULL) {
-        Size = sizeof(VECTOR)-sizeof(DOUBLE)
-               +FMT_S_VEC_TP(MGFORMAT(dddctrl.currMG),VTYPE(vec));
+        Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
 
         PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                             " SIDEVEC=" VINDEX_FMTX " size=%d\n",

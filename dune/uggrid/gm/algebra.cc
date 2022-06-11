@@ -173,7 +173,7 @@ static INT CreateVectorInPart (GRID *theGrid, VectorType VectorObjType,
 {
   MULTIGRID *theMG;
   VECTOR *pv;
-  INT ds, Size, vtype;
+  INT Size, vtype;
 
   *vHandle = NULL;
 
@@ -183,7 +183,7 @@ static INT CreateVectorInPart (GRID *theGrid, VectorType VectorObjType,
 #else
   vtype = NOVTYPE;
 #endif
-  ds = FMT_S_VEC_TP(MGFORMAT(theMG),vtype);
+  INT ds = FMT_S_VEC_TP;
   if (ds == 0)
     return (0);                         /* HRR: this is ok now, no XXXXVEC in part of the domain */
 
@@ -288,8 +288,7 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
 
 
   /* delete the vector itself */
-  Size = sizeof(VECTOR)-sizeof(DOUBLE)
-         + FMT_S_VEC_TP(MGFORMAT(MYMG(theGrid)),VTYPE(theVector));
+  Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
   if (PutFreeObject(theGrid->mg,theVector,Size,VEOBJ))
     RETURN(1);
 
@@ -1252,12 +1251,7 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
   if (theVector == NULL)
   {
     /* check if size is really 0 */
-#ifdef UG_DIM_3
-    VectorType vtype = SIDEVEC;
-#else
-    VectorType vtype = NOVTYPE;
-#endif
-    INT ds = FMT_S_VEC_TP(nullptr,vtype);
+    INT ds = FMT_S_VEC_TP;
     if (ds>0)
     {
       errors++;
@@ -1268,7 +1262,7 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
   }
   else
   {
-    INT ds = FMT_S_VEC_TP(fmt,VTYPE(theVector));
+    INT ds = FMT_S_VEC_TP;
     if (ds==0)
     {
       errors++;
