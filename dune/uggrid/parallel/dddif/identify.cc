@@ -443,7 +443,7 @@ static void IdentifySideVector (DDD::DDDContext& context, ELEMENT* theElement, E
 
    SYNOPSIS:
    static void IdentifyNode (ELEMENT *theNeighbor, NODE *theNode,
-                                NODE *Nodes[MAX_SIDE_NODES], INT node, INT ncorners, INT Vec);
+                                NODE *Nodes[MAX_SIDE_NODES], INT node, INT ncorners);
 
    PARAMETERS:
    .  theNeighbor
@@ -451,7 +451,6 @@ static void IdentifySideVector (DDD::DDDContext& context, ELEMENT* theElement, E
    .  Nodes[MAX_SIDE_NODES]
    .  node
    .  ncorners
-   .  Vec
 
    DESCRIPTION:
 
@@ -461,7 +460,7 @@ static void IdentifySideVector (DDD::DDDContext& context, ELEMENT* theElement, E
 /****************************************************************************/
 
 static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
-                          NODE *Nodes[MAX_SIDE_NODES], INT node, INT ncorners, INT Vec)
+                          NODE *Nodes[MAX_SIDE_NODES], INT node, INT ncorners)
 {
   auto& context = theGrid->dddContext();
 
@@ -488,10 +487,6 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
   /* only new created nodes are identified */
   if (!NEW_NIDENT(theNode)) return;
 
-//   if (Vec)
-//     if (GetVectorSize(theGrid,NODEVEC,(GEOM_OBJECT *)theNode) == 0)
-      Vec = 0;
-
   switch (NTYPE(theNode))
   {
     int *proclist;
@@ -502,13 +497,10 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
     /* in Identify_SonNodes()     */
     return;
 
-    PRINTDEBUG(dddif,1,("%d: Identify CORNERNODE gid=%08x node=%d "
-                        "vec=%d\n",
-                        me, DDD_InfoGlobalId(PARHDR(theNode)), node, Vec));
+    PRINTDEBUG(dddif,1,("%d: Identify CORNERNODE gid=%08x node=%d\n",
+                        me, DDD_InfoGlobalId(PARHDR(theNode)), node));
 
     IdentObjectHdr[nobject++] = PARHDR(theNode);
-    if (Vec)
-      IdentObjectHdr[nobject++] = PARHDR(NVECTOR(theNode));
 
     /* identify to proclist of node */
     proclist = DDD_InfoProcList(context, PARHDR((NODE *)NFATHER(theNode)));
@@ -545,14 +537,12 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
     ASSERT(EdgeNodes[1]!=NULL);
     ASSERT(EdgeNodes[2]!=NULL);
 
-    PRINTDEBUG(dddif,1,("%d: Identify MIDNODE gid=%08x node=%d Vec=%d\n",
-                        me, DDD_InfoGlobalId(PARHDR(theNode)), node, Vec));
+    PRINTDEBUG(dddif,1,("%d: Identify MIDNODE gid=%08x node=%d\n",
+                        me, DDD_InfoGlobalId(PARHDR(theNode)), node));
 
     /* identify midnode, vertex, vector */
     IdentObjectHdr[nobject++] = PARHDR(theNode);
     IdentObjectHdr[nobject++] = PARHDRV(MYVERTEX(theNode));
-    if (Vec)
-      IdentObjectHdr[nobject++] = PARHDR(NVECTOR(theNode));
 
                         #ifdef UG_DIM_2
     if (!NEW_NIDENT(theNode)) break;
@@ -585,14 +575,12 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
   {
     INT i;
 
-    PRINTDEBUG(dddif,1,("%d: Identify SIDENODE gid=%08x node=%d "
-                        "Vec=%d\n",me,DDD_InfoGlobalId(PARHDR(theNode)),node,Vec));
+    PRINTDEBUG(dddif,1,("%d: Identify SIDENODE gid=%08x node=%d\n",
+                        me,DDD_InfoGlobalId(PARHDR(theNode)),node));
 
-    /* identify sidenode, vertex and vector */
+    /* identify sidenode and vertex */
     IdentObjectHdr[nobject++] = PARHDR(theNode);
     IdentObjectHdr[nobject++] = PARHDRV(MYVERTEX(theNode));
-    if (Vec)
-      IdentObjectHdr[nobject++] = PARHDR(NVECTOR(theNode));
 
     /* identify to proclist of neighbor element */
     proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
@@ -980,10 +968,8 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
     theNode = SideNodes[j];
     if (theNode == NULL) continue;
 
-//     /* identify new node including its vector and vertex        */
-//     IdentifyNode(theGrid,theNeighbor, theNode, SideNodes, j, ncorners,
-//                  VEC_DEF_IN_OBJ_OF_GRID(theGrid,NODEVEC));
-     IdentifyNode(theGrid,theNeighbor, theNode, SideNodes, j, ncorners, 0);
+     // identify new node including its vertex
+     IdentifyNode(theGrid,theNeighbor, theNode, SideNodes, j, ncorners);
     n++;
   }
   ASSERT(n == nodes);
