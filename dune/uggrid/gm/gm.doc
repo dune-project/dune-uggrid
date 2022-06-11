@@ -1551,27 +1551,6 @@ CONNECTION *MMYCON (MATRIX *m);
 
 Returns a pointer to the CONNECTION where m is part of.
 
-\verbatim
-DOUBLE MVALUE (MATRIX *m,INT n);
-\endverbatim
-
-Returns the nth value of the MATRIX m. The number of entries is
-defined in the FORMAT structure. MVALUE is a macro and can also
-be used for assignment, i.e. MVALUE(m,n)=0.0 is a valid
-statement.
-
-\verbatim
-DOUBLE *MVALUEPTR (MATRIX *m,INT n);
-\endverbatim
-
-Returns a pointer to the nth entry of the MATRIX m.
-
-\verbatim
-MDESTINDEX (MATRIX *m);
-\endverbatim
-
-Returns the index component of the destination VECTOR.
-
 
 CONTROL WORDS:
 
@@ -1616,7 +1595,6 @@ MTYPE (MATRIX *p);                    6   6   Number identifying source and
 SETMTYPE (MATRIX *p,INT n);                   dest position in a compact form
 
 MUSED (MATRIX *p);                    12  1   currently not used
-SETMUSED (MATRIX *p,INT n);
 
 MSIZE (MATRIX *p);                    13  15  Size of the MATRIX in bytes
 SETMSIZE (MATRIX *p,INT n);
@@ -1636,47 +1614,9 @@ SETMUP (MATRIX *p,INT n);
 -----------------------------------------------------------------------------
 \endverbatim
 
-\sa VECTOR, CONNECTION.
+\sa VECTOR
 
 */
-
-/*D
-CONNECTION - Data type combing one or two MATRIX structures
-
-STRUCTURES:
-
-\verbatim
-typedef struct matrix CONNECTION;
-\endverbatim
-
-DESCRIPTION:
-
-The CONNECTION data type consists of two MATRIX objects stored consecutively
-in memory. If it is a diagonal entry of the stiffness matrix it consists of only
-`one` MATRIX. Since the MATRIX objects size is determined at run-time the
-CONNECTION is defined as a MATRIX.
-
-MACROS:
-
-\verbatim
-MATRIX *CMATRIX0 (CONNECTION *c);
-MATRIX *CMATRIX1 (CONNECTION *c);
-\endverbatim
-
-Pointer to first and second matrix of a CONNECTION.
-
-\verbatim
-void SETCUSED (CONNECTION *c, INT n);
-\endverbatim
-
-Executes MUSED macro for both MATRIX objects of a CONNECTION. 
-
-\sa
-
-MATRIX, VECTOR.
-
-D*/
-
 
 /*! \struct grid
 

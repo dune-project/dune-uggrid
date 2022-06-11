@@ -1975,7 +1975,6 @@ enum LV_ID_TYPES {
 #define MTYPE(p)                                        (MDIAG(p) ? (MAXMATRICES+MROOTTYPE(p)) : (MROOTTYPE(p)*MAXVECTORS+MDESTTYPE(p)))
 
 #define MUSED(p)                                        USED(p)
-#define SETMUSED(p,n)               SETUSED(p,n)
 
 #ifdef ModelP
 #define XFERMATX_SHIFT                          25
@@ -1988,20 +1987,6 @@ enum LV_ID_TYPES {
 #define MDEST(m)                                        ((m)->vect)
 #define MADJ(m)                                         ((MDIAG(m)) ? (m) : ((MOFFSET(m)) ? (MDEC(m)) : (MINC(m))))
 #define MROOT(m)                                        MDEST(MADJ(m))
-#define MVALUE(m,n)                             ((m)->value[n])
-#define MVALUEPTR(m,n)                          (&((m)->value[n]))
-#define MDESTINDEX(m)                           ((m)->vect->index)
-#define MSTRONG(p)                                      (MDOWN(p) && MUP(p))
-
-/****************************************************************************/
-/*                                                                                                                                                      */
-/* macros for CONNECTIONs                                                                                                       */
-/*                                                                                                                                                      */
-/****************************************************************************/
-
-#define CMATRIX0(m)                             (m)
-#define CMATRIX1(m)                             ((MDIAG(m)) ? (NULL) : (MINC(m)))
-#define SETCUSED(c,n)                           {SETMUSED(CMATRIX0(c),n); SETMUSED(MADJ(CMATRIX0(c)),n);}
 
 /****************************************************************************/
 /*                                                                                                                                                      */
