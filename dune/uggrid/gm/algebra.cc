@@ -237,26 +237,6 @@ INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object
   return (0);
 }
 
-INT NS_DIM_PREFIX CreateElementList (GRID *theGrid, NODE *theNode, ELEMENT *theElement)
-{
-  ELEMENTLIST *pel;
-
-  for (pel=NODE_ELEMENT_LIST(theNode); pel!=NULL; pel=NEXT(pel))
-    if(pel->el==theElement)
-      return(0);
-
-  pel = (ELEMENTLIST *)GetMemoryForObject(theGrid->mg,
-                                          sizeof(ELEMENTLIST),MAOBJ);
-  if (pel == NULL)
-    return(1);
-
-  pel->next = NODE_ELEMENT_LIST(theNode);
-  pel->el = theElement;
-  NDATA(theNode) = (void *) pel;
-
-  return(0);
-}
-
 /****************************************************************************/
 /** \brief Remove vector from the data structure
  *
@@ -357,46 +337,6 @@ INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT S
 }
 #endif
 
-
-INT NS_DIM_PREFIX DisposeElementFromElementList (GRID *theGrid, NODE *theNode,
-                                                 ELEMENT *theElement)
-{
-  ELEMENTLIST *pel,*next;
-
-  pel = NODE_ELEMENT_LIST(theNode);
-  if (pel == NULL) return(0);
-  if (pel->el == theElement) {
-    NDATA(theNode) = (void *) pel->next;
-    return(PutFreeObject(theGrid->mg,pel,sizeof(ELEMENTLIST),MAOBJ));
-  }
-  next = pel->next;
-  while (next != NULL) {
-    if (next->el == theElement) {
-      pel->next = next->next;
-      return(PutFreeObject(theGrid->mg,next,sizeof(ELEMENTLIST),MAOBJ));
-    }
-    pel = next;
-    next = pel->next;
-  }
-
-  return(0);
-}
-
-INT NS_DIM_PREFIX DisposeElementList (GRID *theGrid, NODE *theNode)
-{
-  ELEMENTLIST *pel,*next;
-
-  pel = NODE_ELEMENT_LIST(theNode);
-  while (pel != NULL) {
-    next = pel->next;
-    if (PutFreeObject(theGrid->mg,pel,sizeof(ELEMENTLIST),MAOBJ))
-      return(1);
-    pel = next;
-  }
-  NDATA(theNode) = NULL;
-
-  return(0);
-}
 
 /****************************************************************************/
 /** \brief Get a pointer list to all side data

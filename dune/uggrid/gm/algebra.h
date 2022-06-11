@@ -94,7 +94,6 @@ enum ALGEBRA_CE {
 /** @name basic create and dispose functions */
 /*@{*/
 INT         CreateSideVector                (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle);
-INT         CreateElementList        (GRID *theGrid, NODE *theNode, ELEMENT *theElement);
 INT         DisposeVector            (GRID *theGrid, VECTOR *theVector);
 /*@}*/
 
@@ -103,8 +102,6 @@ INT         DisposeVector            (GRID *theGrid, VECTOR *theVector);
 #ifdef UG_DIM_3
 INT             DisposeDoubledSideVector                (GRID *theGrid, ELEMENT *Elem0, INT Side0, ELEMENT *Elem1, INT Side1);
 #endif
-INT             DisposeElementList(GRID *theGrid, NODE *theNode);
-INT             DisposeElementFromElementList (GRID *theGrid, NODE *theNode, ELEMENT *theElement);
 /*@}*/
 
 /** @name Query functions */

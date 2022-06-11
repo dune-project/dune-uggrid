@@ -531,12 +531,6 @@ union vertex {
   struct bvertex bv;
 };
 
-/** \brief A simply linked list of elements */
-struct elementlist {
-  union element *el;
-  struct elementlist *next;
-};
-
 /** \brief Level-dependent part of a vertex */
 struct node {
 
@@ -1494,7 +1488,6 @@ struct multigrid {
 
 /* geometrical part */
 typedef union  vertex VERTEX;
-typedef struct elementlist ELEMENTLIST;
 typedef struct node NODE;
 typedef union  element ELEMENT;
 typedef struct link LINK;
@@ -2218,9 +2211,7 @@ enum GM_OBJECTS {
 
 #define SONNODE(p)                      ((p)->son)
 #define MYVERTEX(p)             ((p)->myvertex)
-#define NDATA(p)                        ((p)->data)
 
-#define NODE_ELEMENT_LIST(p)    ((ELEMENTLIST *)(p)->data)
 #define ELEMENT_PTR(p)                  ((p)->el)
 
 /****************************************************************************/
