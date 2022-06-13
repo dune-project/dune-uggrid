@@ -2888,7 +2888,6 @@ INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theN
 #endif
 
 /* algebraic connections */
-INT             DisposeExtraConnections (GRID *theGrid);
 INT             DisposeConnectionsInGrid (GRID *theGrid);
 INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
                                      VECTOR **vec);
