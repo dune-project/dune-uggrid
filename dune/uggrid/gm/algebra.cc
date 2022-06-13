@@ -93,61 +93,6 @@ USING_UGDIM_NAMESPACE
 
 
 /****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*    compile time constants defining static data size (i.e. arrays)        */
-/*    other constants                                                       */
-/*    macros                                                                */
-/*                                                                          */
-/****************************************************************************/
-
-/** \brief For GetDomainPart indicating an element is meant rather than an element side */
-#define NOSIDE          -1
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures used in this source file (exported data structures are   */
-/* in the corresponding include file!)                                      */
-/*                                                                          */
-/****************************************************************************/
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-#ifdef UG_DIM_2
-static MULTIGRID *GBNV_mg;                      /* multigrid							*/
-static INT GBNV_MarkKey;                        /* key for Mark/Release					*/
-#endif
-static INT GBNV_n;                                      /* list items							*/
-static INT GBNV_curr;                           /* curr pos								*/
-static VECTOR **GBNV_list=NULL;         /* list pointer							*/
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-/* for LexOrderVectorsInGrid */
-static DOUBLE InvMeshSize;
-
-
-#ifdef ModelP
-INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *object)
-{
-#ifdef UG_DIM_3
-  return sizeof(double);
-#else
-  return 0;
-#endif
-}
-#endif
-
-/****************************************************************************/
 /** \brief  Return pointer to a new vector structure
  *
  * @param  theGrid - grid where vector should be inserted
@@ -453,21 +398,6 @@ INT NS_DIM_PREFIX GetVectorsOfDataTypesInObjects (const ELEMENT *theElement, INT
   DataTypeFilterVList(dt,VecList,cnt);
 
   return (GM_OK);
-}
-
-
-
-static void PrintVectorTriple (int i)
-{
-  VECTOR *vec0 = GBNV_list[i];
-  VECTOR *vec1 = GBNV_list[i+1];
-  VECTOR *vec2 = GBNV_list[i+2];
-  [[maybe_unused]] VERTEX *vtx0 = MYVERTEX((NODE*)VOBJECT(vec0));
-  [[maybe_unused]] VERTEX *vtx1 = MYVERTEX((NODE*)VOBJECT(vec1));
-  [[maybe_unused]] VERTEX *vtx2 = MYVERTEX((NODE*)VOBJECT(vec2));
-  PrintDebug("0: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec0),XC(vtx0),YC(vtx0));
-  PrintDebug("1: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec1),XC(vtx1),YC(vtx1));
-  PrintDebug("2: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec2),XC(vtx2),YC(vtx2));
 }
 
 /****************************************************************************/
@@ -952,7 +882,7 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
  * @param ObjectString - for error message
  * @param theVector - the vector of theObject
  * @param VectorObjType - NODEVEC,...
- * @param side - element side for SIDEVEC, NOSIDE else
+ * @param side - element side for SIDEVEC
 
    This function checks the consistency between an geom_object and
    its vector.
@@ -964,6 +894,7 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
  */
 /****************************************************************************/
 
+#ifdef UG_DIM_3
 static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
                         VECTOR *theVector, INT VectorObjType, INT side)
 {
@@ -1092,6 +1023,7 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
 
   return(errors);
 }
+#endif
 
 /****************************************************************************/
 /** \brief Check the algebraic part of the data structure
@@ -1192,9 +1124,9 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 
 INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
 {
+#ifdef UG_DIM_3
   VECTOR *vList[20];
 
-        #ifdef UG_DIM_3
   if (VOTYPE(theVector) == SIDEVEC)
   {
     INT cnt;

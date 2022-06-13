@@ -111,9 +111,6 @@ INT                     GetVectorsOfOType                               (const E
 INT                     DataTypeFilterVList                             (INT dt, VECTOR **vec, INT *cnt);
 INT                     GetVectorsOfDataTypesInObjects  (const ELEMENT *theElement, INT dt, INT obj, INT *cnt, VECTOR *VecList[]);
 INT             GetElementInfoFromSideVector    (const VECTOR *theVector, ELEMENT **Elements, INT *Sides);
-#ifdef ModelP
-INT         GetVectorSize                   (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *object);
-#endif
 /*@}*/
 
 /** @name Gridwise functions */
