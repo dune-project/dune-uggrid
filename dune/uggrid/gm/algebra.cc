@@ -151,13 +151,12 @@ INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *
 /** \brief  Return pointer to a new vector structure
  *
  * @param  theGrid - grid where vector should be inserted
- * @param  ObjType - one of the types defined in gm
+ * @param  side - one of the types defined in gm
  * @param  object  - associate vector with this object
  * @param  vHandle - handle of new vector, i.e. a pointer to a pointer where
                                 a pointer to the new vector is placed.
 
-   This function returns a pointer to a new vector structure.
-   The vector type is determined by DomPart and ObjType
+   This function returns a pointer to a new side vector structure.
    First the free list is checked for a free entry, if none
    is available, a new structure is allocated from the heap.
 
@@ -168,35 +167,26 @@ INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *
  */
 /****************************************************************************/
 
-static INT CreateVectorInPart (GRID *theGrid, VectorType VectorObjType,
-                               GEOM_OBJECT *object, VECTOR **vHandle)
+
+INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle)
 {
-  MULTIGRID *theMG;
-  VECTOR *pv;
-  INT Size, vtype;
+  *vHandle = nullptr;
 
-  *vHandle = NULL;
-
-  theMG = MYMG(theGrid);
-#ifdef UG_DIM_3
-  vtype = SIDEVEC;
-#else
-  vtype = NOVTYPE;
+#ifdef UG_DIM_2
+  return 0;
 #endif
-  INT ds = FMT_S_VEC_TP;
-  if (ds == 0)
-    return (0);                         /* HRR: this is ok now, no XXXXVEC in part of the domain */
 
-  Size = sizeof(VECTOR)-sizeof(DOUBLE)+ds;
-  pv = (VECTOR *)GetMemoryForObject(theMG,Size,VEOBJ);
+  MULTIGRID *theMG = MYMG(theGrid);
+
+  VECTOR *pv = (VECTOR *)GetMemoryForObject(theMG,sizeof(VECTOR),VEOBJ);
   if (pv==NULL)
     REP_ERR_RETURN(1);
 
   /* initialize data */
   SETOBJT(pv,VEOBJ);
-  SETVTYPE(pv,vtype);
-  SETVDATATYPE(pv,BITWISE_TYPE(vtype));
-  SETVOTYPE(pv,VectorObjType);
+  SETVTYPE(pv,SIDEVEC);
+  SETVDATATYPE(pv,BITWISE_TYPE(SIDEVEC));
+  SETVOTYPE(pv,SIDEVEC);
   SETVCLASS(pv,3);
   SETVNCLASS(pv,0);
   SETVBUILDCON(pv,1);
@@ -208,9 +198,9 @@ static INT CreateVectorInPart (GRID *theGrid, VectorType VectorObjType,
   pv->id = (theGrid->mg->vectorIdCounter)++;
 #endif
 
-        #ifdef ModelP
+#ifdef ModelP
   DDD_AttrSet(PARHDR(pv),GRID_ATTR(theGrid));
-        #endif
+#endif
 
   VOBJECT(pv) = object;
   VINDEX(pv) = (long)NVEC(theGrid);
@@ -220,16 +210,6 @@ static INT CreateVectorInPart (GRID *theGrid, VectorType VectorObjType,
   GRID_LINK_VECTOR(theGrid,pv,PrioMaster);
 
   *vHandle = pv;
-
-  return (0);
-}
-
-INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle)
-{
-  *vHandle = NULL;
-
-  if (CreateVectorInPart(theGrid,SIDEVEC,object,vHandle))
-    REP_ERR_RETURN(1);
 
   SETVECTORSIDE(*vHandle,side);
   SETVCOUNT(*vHandle,1);
