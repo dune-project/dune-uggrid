@@ -30,24 +30,10 @@ enum PatchType {POINT_PATCH_TYPE,
                 LINEAR_PATCH_TYPE,
                 PARAMETRIC_PATCH_TYPE};
 
-/** @name  Macros for DOMAIN_PART_INFO */
-/*@{*/
-#define DPI_SD2P_PTR(p)                                 ((p)->sd2part)
-#define DPI_SD2P(p,sd)                                  ((p)->sd2part[sd])
-#define DPI_SG2P_PTR(p)                                 ((p)->sg2part)
-#define DPI_SG2P(p,sg)                                  ((p)->sg2part[sg])
-#define DPI_LN2P_PTR(p)                                 ((p)->ln2part)
-#define DPI_LN2P(p,c0,c1)                               ((p)->ln2part[c0][c1])
-#define DPI_PT2P_PTR(p)                                 ((p)->pt2part)
-#define DPI_PT2P(p,pt)                                  ((p)->pt2part[pt])
-/*@}*/
-
 /** @name Macros for DOMAIN */
 /*@{*/
 #define DOMAIN_NSEGMENT(p)                              ((p)->numOfSegments)
 #define DOMAIN_NCORNER(p)                               ((p)->numOfCorners)
-#define DOMAIN_NPARTS(p)                                ((p)->nParts)
-#define DOMAIN_PARTINFO(p)                              ((p)->dpi)
 /*@}*/
 
 /** @name Macros for STD_BVP */
@@ -59,9 +45,6 @@ enum PatchType {POINT_PATCH_TYPE,
 #define STD_BVP_PATCH(p,i)                              ((p)->patches[i])
 
 #define STD_BVP_NSUBDOM(p)                              ((p)->numOfSubdomains)
-#define STD_BVP_NDOMPART(p)                             ((p)->nDomainParts)
-#define STD_BVP_S2P_PTR(p)                              ((p)->s2p)
-#define STD_BVP_S2P(p,s)                                ((p)->s2p[s])
 
 #define GetSTD_BVP(p)                           ((STD_BVP *)(p))
 /*@}*/
@@ -143,16 +126,6 @@ struct domain {
 
   /** \brief Number of corner points */
   INT numOfCorners;
-
-  /** @name Description of domain parts */
-  /*@{*/
-
-  /** \brief Number of parts in the domain */
-  INT nParts;
-
-  /** \brief Domain part info */
-  const DOMAIN_PART_INFO *dpi;
-  /*@}*/
 };
 
 /** \brief Data structure defining part of the boundary of a domain */
@@ -326,12 +299,6 @@ struct std_BoundaryValueProblem
   /*@{*/
   /** \brief Number of subdomains, exterior not counted                */
   INT numOfSubdomains;
-
-  /** \brief Number of parts in the domain               */
-  INT nDomainParts;
-
-  /** \brief Pointer to table subbdom --> part   */
-  INT *s2p;
   /*@}*/
 
   /** @name Boundary decription */

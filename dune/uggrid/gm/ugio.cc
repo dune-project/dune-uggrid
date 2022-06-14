@@ -250,7 +250,7 @@ static INT SaveSurfaceGrid  (MULTIGRID *theMG, FILE *stream)
   VERTEX *theVertex;
   DOUBLE *global;
   char buffer[BUFFERSIZE];
-  INT i,id,move,l,tl,part;
+  INT i,id,move,l,tl;
 
   tl = CURRENTLEVEL(theMG);
   for (l=0; l<= tl; l++)
@@ -268,7 +268,7 @@ static INT SaveSurfaceGrid  (MULTIGRID *theMG, FILE *stream)
     theVertex = MYVERTEX(theNode);
     if (OBJT(theVertex) == IVOBJ)
       continue;
-    if (BNDP_BndPDesc(V_BNDP(theVertex),&move,&part))
+    if (BNDP_BndPDesc(V_BNDP(theVertex),&move))
       RETURN(1);
     if (move == 0)
       ID(theVertex) = id++;
@@ -282,7 +282,7 @@ static INT SaveSurfaceGrid  (MULTIGRID *theMG, FILE *stream)
           if (OBJT(theVertex) == IVOBJ)
             continue;
           /* skip corner points */
-          if (BNDP_BndPDesc(V_BNDP(theVertex),&move,&part))
+          if (BNDP_BndPDesc(V_BNDP(theVertex),&move))
             RETURN(1);
           if (move == 0)
             continue;
@@ -345,7 +345,7 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
   const char *fmt;
   char buffer[BUFFERSIZE];
   BVP_DESC theBVPDesc;
-  INT i,id,move,part;
+  INT i,id,move;
 
   if (gridpaths_set)
     /* this way grids are stored to path[0] */
@@ -383,7 +383,7 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
     theVertex = MYVERTEX(theNode);
     if (OBJT(theVertex) == IVOBJ)
       continue;
-    if (BNDP_BndPDesc(V_BNDP(theVertex),&move,&part))
+    if (BNDP_BndPDesc(V_BNDP(theVertex),&move))
       RETURN(1);
     if (move == 0)
       ID(theNode) = id++;
@@ -394,7 +394,7 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
     if (OBJT(theVertex) == IVOBJ)
       continue;
     /* skip corner points */
-    if (BNDP_BndPDesc(V_BNDP(theVertex),&move,&part))
+    if (BNDP_BndPDesc(V_BNDP(theVertex),&move))
       RETURN(1);
     if (move == 0)
       continue;

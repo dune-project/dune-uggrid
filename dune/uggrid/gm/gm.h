@@ -186,9 +186,6 @@ enum {MAX_SONS = 30};
         #error *** MAXVECTORS must not be smaller than MAXVOBJECTS ***
 #endif
 
-/** \brief max number of geometric domain parts                 */
-#define MAXDOMPARTS                                             1
-
 /** \brief transforms type into bitpattern                              */
 #define BITWISE_TYPE(t) (1<<(t))
 
@@ -534,12 +531,6 @@ union vertex {
   struct bvertex bv;
 };
 
-/** \brief A simply linked list of elements */
-struct elementlist {
-  union element *el;
-  struct elementlist *next;
-};
-
 /** \brief Level-dependent part of a vertex */
 struct node {
 
@@ -587,11 +578,6 @@ struct node {
 
   /** \brief Corresponding vertex structure               */
   union vertex *myvertex;
-
-  /** \brief Associated vector
-   *
-   * WARNING: the allocation of the vector pointer depends on the format */
-  VECTOR *vector;
 
   /** \brief Associated data pointer
    *
@@ -1502,7 +1488,6 @@ struct multigrid {
 
 /* geometrical part */
 typedef union  vertex VERTEX;
-typedef struct elementlist ELEMENTLIST;
 typedef struct node NODE;
 typedef union  element ELEMENT;
 typedef struct link LINK;
@@ -1717,7 +1702,7 @@ enum LV_ID_TYPES {
 /* VACTIVE   |24        |*| | 1 if vector is active inside a smoother                   */
 /* VCCUT         |26    |*| |                                                                                                   */
 /* VTYPE         |27-28 |*| | abstract vector type                                                              */
-/* VPART         |29-30 |*| | domain part                                                                               */
+/* VPART         |29-30 |*| | unused (used to be domain part)                                                                               */
 /* VCCOARSE  |31    |*| | indicate algebraic part of VECTOR-MATRIX graph        */
 /*                                                                                                                                                      */
 /* matrices:                                                                                                                            */
@@ -1851,11 +1836,6 @@ enum LV_ID_TYPES {
 
 #define VPART_SHIFT                             22
 #define VPART_LEN                                       2
-#define VPART(p)                                        CW_READ_STATIC(p,VPART_,VECTOR_)
-#define SETVPART(p,n)                           CW_WRITE_STATIC(p,VPART_,VECTOR_,n)
-#if (MAXDOMPARTS > POW2(VPART_LEN))
-        #error  *** VPART_LEN too small ***
-#endif
 
 #define VACTIVE_SHIFT                       24
 #define VACTIVE_LEN                                 1
@@ -1975,7 +1955,6 @@ enum LV_ID_TYPES {
 #define MTYPE(p)                                        (MDIAG(p) ? (MAXMATRICES+MROOTTYPE(p)) : (MROOTTYPE(p)*MAXVECTORS+MDESTTYPE(p)))
 
 #define MUSED(p)                                        USED(p)
-#define SETMUSED(p,n)               SETUSED(p,n)
 
 #ifdef ModelP
 #define XFERMATX_SHIFT                          25
@@ -1988,20 +1967,6 @@ enum LV_ID_TYPES {
 #define MDEST(m)                                        ((m)->vect)
 #define MADJ(m)                                         ((MDIAG(m)) ? (m) : ((MOFFSET(m)) ? (MDEC(m)) : (MINC(m))))
 #define MROOT(m)                                        MDEST(MADJ(m))
-#define MVALUE(m,n)                             ((m)->value[n])
-#define MVALUEPTR(m,n)                          (&((m)->value[n]))
-#define MDESTINDEX(m)                           ((m)->vect->index)
-#define MSTRONG(p)                                      (MDOWN(p) && MUP(p))
-
-/****************************************************************************/
-/*                                                                                                                                                      */
-/* macros for CONNECTIONs                                                                                                       */
-/*                                                                                                                                                      */
-/****************************************************************************/
-
-#define CMATRIX0(m)                             (m)
-#define CMATRIX1(m)                             ((MDIAG(m)) ? (NULL) : (MINC(m)))
-#define SETCUSED(c,n)                           {SETMUSED(CMATRIX0(c),n); SETMUSED(MADJ(CMATRIX0(c)),n);}
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -2246,10 +2211,7 @@ enum GM_OBJECTS {
 
 #define SONNODE(p)                      ((p)->son)
 #define MYVERTEX(p)             ((p)->myvertex)
-#define NDATA(p)                        ((p)->data)
-#define NVECTOR(p)                      ((p)->vector)
 
-#define NODE_ELEMENT_LIST(p)    ((ELEMENTLIST *)(p)->data)
 #define ELEMENT_PTR(p)                  ((p)->el)
 
 /****************************************************************************/
@@ -2805,9 +2767,9 @@ grid::dddContext()
 /****************************************************************************/
 
 #ifdef UG_DIM_3
-#define FMT_S_VEC_TP(f,t)                               (sizeof(double))
+#define FMT_S_VEC_TP                               (sizeof(double))
 #else
-#define FMT_S_VEC_TP(f,t)                               (0)
+#define FMT_S_VEC_TP                               (0)
 #endif
 
 /** \brief Constants for USED flags of objects */
@@ -2926,7 +2888,6 @@ INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theN
 #endif
 
 /* algebraic connections */
-INT             DisposeExtraConnections (GRID *theGrid);
 INT             DisposeConnectionsInGrid (GRID *theGrid);
 INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
                                      VECTOR **vec);

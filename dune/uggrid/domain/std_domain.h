@@ -52,25 +52,6 @@ START_UGDIM_NAMESPACE
 #define CORNERS_OF_BND_SEG               2*DIM_OF_BND
 
 
-/** \todo Please doc me! */
-typedef struct {
-
-  /** \brief Table subdomain to part */
-  const INT *sd2part;
-
-  /** \brief Table segment to part */
-  const INT *sg2part;
-
-# ifdef UG_DIM_3
-  /** \brief Table line to part */
-  const INT **ln2part;
-# endif
-
-  /** \brief Table point to part */
-  const INT *pt2part;
-
-} DOMAIN_PART_INFO;
-
 /*----------- typedef for functions ----------------------------------------*/
 /** \brief ???
  *
@@ -91,8 +72,7 @@ typedef INT (*BndCondProcPtr)(void *, void *, DOUBLE *, DOUBLE *, INT *);
 /* domain definition */
 void                     *CreateDomainWithParts       (const char *name,
                                                        INT segments,
-                                                       INT corners,
-                                                       INT nParts, const DOMAIN_PART_INFO *dpi);
+                                                       INT corners);
 
 void                     *CreateDomain                        (const char *name,
                                                                INT segments,

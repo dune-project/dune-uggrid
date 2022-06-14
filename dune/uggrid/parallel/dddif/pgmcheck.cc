@@ -250,14 +250,6 @@ static INT CheckNodePrio (DDD::DDDContext& context, ELEMENT *theElement, NODE *t
     nerrors++;
   }
 
-  if (ddd_ctrl(context).nodeData)
-  {
-    if (NVECTOR(theNode) != NULL)
-    {
-      nerrors += CheckVectorPrio(context, theElement,NVECTOR(theNode));
-    }
-  }
-
   return(nerrors);
 }
 
@@ -713,9 +705,6 @@ INT NS_DIM_PREFIX CheckInterfaces (GRID *theGrid)
       {
         theNode = CORNER(theElement,i);
         SETUSED(theNode,j);
-        if (dddctrl.nodeData)
-          if (NVECTOR(theNode) != NULL)
-            SETUSED(NVECTOR(theNode),j);
         SETUSED(MYVERTEX(theNode),j);
       }
 

@@ -94,8 +94,6 @@ enum ALGEBRA_CE {
 /** @name basic create and dispose functions */
 /*@{*/
 INT         CreateSideVector                (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle);
-INT         ReinspectSonSideVector  (GRID *g, ELEMENT *elem, INT side, VECTOR **vHandle);
-INT         CreateElementList        (GRID *theGrid, NODE *theNode, ELEMENT *theElement);
 INT         DisposeVector            (GRID *theGrid, VECTOR *theVector);
 /*@}*/
 
@@ -104,8 +102,6 @@ INT         DisposeVector            (GRID *theGrid, VECTOR *theVector);
 #ifdef UG_DIM_3
 INT             DisposeDoubledSideVector                (GRID *theGrid, ELEMENT *Elem0, INT Side0, ELEMENT *Elem1, INT Side1);
 #endif
-INT             DisposeElementList(GRID *theGrid, NODE *theNode);
-INT             DisposeElementFromElementList (GRID *theGrid, NODE *theNode, ELEMENT *theElement);
 /*@}*/
 
 /** @name Query functions */
@@ -114,14 +110,7 @@ INT             GetVectorsOfSides                               (const ELEMENT *
 INT                     GetVectorsOfOType                               (const ELEMENT *theElement, INT type, INT *cnt, VECTOR **vList);
 INT                     DataTypeFilterVList                             (INT dt, VECTOR **vec, INT *cnt);
 INT                     GetVectorsOfDataTypesInObjects  (const ELEMENT *theElement, INT dt, INT obj, INT *cnt, VECTOR *VecList[]);
-INT                     PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxListLen);
-INT                     ResetGetBoundaryNeighbourVectors (void);
-INT                     GetBoundaryNeighbourVectors             (INT dt, INT obj, INT *cnt, VECTOR *VecList[]);
-INT                     FinishBoundaryNeighbourVectors  (void);
 INT             GetElementInfoFromSideVector    (const VECTOR *theVector, ELEMENT **Elements, INT *Sides);
-#ifdef ModelP
-INT         GetVectorSize                   (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *object);
-#endif
 /*@}*/
 
 /** @name Gridwise functions */

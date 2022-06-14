@@ -177,7 +177,7 @@ static int TransferGridToMaster (MULTIGRID *theMG, INT fl, INT tl)
    CollectElementsNearSegment -
 
    SYNOPSIS:
-   static int CollectElementsNearSegment(MULTIGRID *theMG, int level, int part, int dest);
+   static int CollectElementsNearSegment(MULTIGRID *theMG, int level, int dest);
 
    PARAMETERS:
    .  theMG
@@ -193,10 +193,10 @@ static int TransferGridToMaster (MULTIGRID *theMG, INT fl, INT tl)
 /****************************************************************************/
 
 static int CollectElementsNearSegment(MULTIGRID *theMG,
-                                      int fl, int tl, int part, int dest)
+                                      int fl, int tl, int dest)
 {
   ELEMENT *theElement;
-  INT dompart,side,sid,nbsid,level;
+  INT side,sid,nbsid,level;
 
   for (level=fl; level<=tl; level ++)
     for (theElement=FIRSTELEMENT(GRID_ON_LEVEL(theMG,level));
@@ -206,9 +206,8 @@ static int CollectElementsNearSegment(MULTIGRID *theMG,
           if (INNER_SIDE(theElement,side))
             continue;
           BNDS_BndSDesc(ELEM_BNDS(theElement,side),
-                        &sid,&nbsid,&dompart);
-          if (part == dompart)
-            PARTITION(theElement) = dest;
+                        &sid,&nbsid);
+          PARTITION(theElement) = dest;
         }
 
   return(0);
@@ -316,7 +315,7 @@ static int SimpleSubdomainDistribution (MULTIGRID *theMG,  INT Procs, INT from, 
 
 void lbs (const char *argv, MULTIGRID *theMG)
 {
-  int n,mode,param,fromlevel,tolevel,part,hor_boxes,vert_boxes,dest;
+  int n,mode,param,fromlevel,tolevel,hor_boxes,vert_boxes,dest;
 
   const auto& me = theMG->dddContext().me();
   const auto procs = theMG->dddContext().procs();
@@ -396,14 +395,14 @@ void lbs (const char *argv, MULTIGRID *theMG)
     break;
 
   case (5) :
-    n = sscanf(argv,"%d %d %d %d %d",
-               &param,&part,&dest,&fromlevel,&tolevel);
-    if (n < 5) tolevel = TOPLEVEL(theMG);
-    if (n < 4) fromlevel = CURRENTLEVEL(theMG);
-    if (n < 3) break;
-    CollectElementsNearSegment(theMG,fromlevel,tolevel,part,dest);
-    UserWriteF(PFMT "lbs() collect from part %d to proc %d\n",
-               me,part,dest);
+    n = sscanf(argv,"%d %d %d %d",
+               &param,&dest,&fromlevel,&tolevel);
+    if (n < 4) tolevel = TOPLEVEL(theMG);
+    if (n < 3) fromlevel = CURRENTLEVEL(theMG);
+    if (n < 2) break;
+    CollectElementsNearSegment(theMG,fromlevel,tolevel,dest);
+    UserWriteF(PFMT "lbs() collect to proc %d\n",
+               me,dest);
     break;
 
   /* dies erzeugt eine regelmaessige Domain Decomposition */

@@ -93,72 +93,15 @@ USING_UGDIM_NAMESPACE
 
 
 /****************************************************************************/
-/*                                                                          */
-/* defines in the following order                                           */
-/*                                                                          */
-/*    compile time constants defining static data size (i.e. arrays)        */
-/*    other constants                                                       */
-/*    macros                                                                */
-/*                                                                          */
-/****************************************************************************/
-
-/** \brief For GetDomainPart indicating an element is meant rather than an element side */
-#define NOSIDE          -1
-
-/****************************************************************************/
-/*                                                                          */
-/* data structures used in this source file (exported data structures are   */
-/* in the corresponding include file!)                                      */
-/*                                                                          */
-/****************************************************************************/
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-#ifdef UG_DIM_2
-static MULTIGRID *GBNV_mg;                      /* multigrid							*/
-static INT GBNV_MarkKey;                        /* key for Mark/Release					*/
-#endif
-static INT GBNV_n;                                      /* list items							*/
-static INT GBNV_curr;                           /* curr pos								*/
-static VECTOR **GBNV_list=NULL;         /* list pointer							*/
-
-/****************************************************************************/
-/*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-/* for LexOrderVectorsInGrid */
-static DOUBLE InvMeshSize;
-
-
-#ifdef ModelP
-INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *object)
-{
-#ifdef UG_DIM_3
-  return sizeof(double);
-#else
-  return 0;
-#endif
-}
-#endif
-
-/****************************************************************************/
 /** \brief  Return pointer to a new vector structure
  *
  * @param  theGrid - grid where vector should be inserted
- * @param  DomPart - part of the domain where vector is created
- * @param  ObjType - one of the types defined in gm
+ * @param  side - one of the types defined in gm
  * @param  object  - associate vector with this object
  * @param  vHandle - handle of new vector, i.e. a pointer to a pointer where
                                 a pointer to the new vector is placed.
 
-   This function returns a pointer to a new vector structure.
-   The vector type is determined by DomPart and ObjType
+   This function returns a pointer to a new side vector structure.
    First the free list is checked for a free entry, if none
    is available, a new structure is allocated from the heap.
 
@@ -169,39 +112,26 @@ INT NS_DIM_PREFIX GetVectorSize (GRID *theGrid, INT VectorObjType, GEOM_OBJECT *
  */
 /****************************************************************************/
 
-static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjType,
-                               GEOM_OBJECT *object, VECTOR **vHandle)
+
+INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle)
 {
-  MULTIGRID *theMG;
-  VECTOR *pv;
-  INT ds, Size, vtype;
+  *vHandle = nullptr;
 
-  *vHandle = NULL;
-
-  theMG = MYMG(theGrid);
-#ifdef UG_DIM_3
-  vtype = SIDEVEC;
-#else
-  vtype = NOVTYPE;
+#ifdef UG_DIM_2
+  return 0;
 #endif
-  ds = FMT_S_VEC_TP(MGFORMAT(theMG),vtype);
-  if (ds == 0)
-    return (0);                         /* HRR: this is ok now, no XXXXVEC in part of the domain */
 
-  Size = sizeof(VECTOR)-sizeof(DOUBLE)+ds;
-  pv = (VECTOR *)GetMemoryForObject(theMG,Size,VEOBJ);
+  MULTIGRID *theMG = MYMG(theGrid);
+
+  VECTOR *pv = (VECTOR *)GetMemoryForObject(theMG,sizeof(VECTOR),VEOBJ);
   if (pv==NULL)
     REP_ERR_RETURN(1);
 
   /* initialize data */
   SETOBJT(pv,VEOBJ);
-  SETVTYPE(pv,vtype);
-  SETVPART(pv,DomPart);
-  ds = VPART(pv);
-  if (ds!=DomPart)
-    return (1);
-  SETVDATATYPE(pv,BITWISE_TYPE(vtype));
-  SETVOTYPE(pv,VectorObjType);
+  SETVTYPE(pv,SIDEVEC);
+  SETVDATATYPE(pv,BITWISE_TYPE(SIDEVEC));
+  SETVOTYPE(pv,SIDEVEC);
   SETVCLASS(pv,3);
   SETVNCLASS(pv,0);
   SETVBUILDCON(pv,1);
@@ -213,9 +143,9 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjT
   pv->id = (theGrid->mg->vectorIdCounter)++;
 #endif
 
-        #ifdef ModelP
+#ifdef ModelP
   DDD_AttrSet(PARHDR(pv),GRID_ATTR(theGrid));
-        #endif
+#endif
 
   VOBJECT(pv) = object;
   VINDEX(pv) = (long)NVEC(theGrid);
@@ -226,40 +156,10 @@ static INT CreateVectorInPart (GRID *theGrid, INT DomPart, VectorType VectorObjT
 
   *vHandle = pv;
 
-  return (0);
-}
-
-INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object, VECTOR **vHandle)
-{
-  *vHandle = NULL;
-
-  if (CreateVectorInPart(theGrid,0 /*part*/,SIDEVEC,object,vHandle))
-    REP_ERR_RETURN(1);
-
   SETVECTORSIDE(*vHandle,side);
   SETVCOUNT(*vHandle,1);
 
   return (0);
-}
-
-INT NS_DIM_PREFIX CreateElementList (GRID *theGrid, NODE *theNode, ELEMENT *theElement)
-{
-  ELEMENTLIST *pel;
-
-  for (pel=NODE_ELEMENT_LIST(theNode); pel!=NULL; pel=NEXT(pel))
-    if(pel->el==theElement)
-      return(0);
-
-  pel = (ELEMENTLIST *)GetMemoryForObject(theGrid->mg,
-                                          sizeof(ELEMENTLIST),MAOBJ);
-  if (pel == NULL)
-    return(1);
-
-  pel->next = NODE_ELEMENT_LIST(theNode);
-  pel->el = theElement;
-  NDATA(theNode) = (void *) pel;
-
-  return(0);
 }
 
 /****************************************************************************/
@@ -293,72 +193,11 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
 
 
   /* delete the vector itself */
-  Size = sizeof(VECTOR)-sizeof(DOUBLE)
-         + FMT_S_VEC_TP(MGFORMAT(MYMG(theGrid)),VTYPE(theVector));
+  Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
   if (PutFreeObject(theGrid->mg,theVector,Size,VEOBJ))
     RETURN(1);
 
   return(0);
-}
-
-/****************************************************************************/
-/* \brief Change vector allocated with wrong part
-
- * @param  g - grid level where the element is in.
- * @param  elem - element of side vector
- * @param  side - element side
- * @param  vHandle - handle to side vector (inialized with old, may be changed)
-
-   This changes a side vector which was allocated with the wrong part (maybe unknown for side vectors
-   when creating an element).
-
- * @return <ul>
- *   <li>   GM_OK if ok
- *   <li>   GM_ERROR if error occured.
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ReinspectSonSideVector (GRID *g, ELEMENT *elem, INT side, VECTOR **vHandle)
-{
-  MULTIGRID *mg;
-  VECTOR *vold,*vnew;
-  INT partnew,partold,vtnew;
-
-  mg  = MYMG(g);
-
-  vold = *vHandle;
-
-  /* check whether part has actually changed */
-  partold = (vold!=NULL) ? VPART(vold) : BVPD_S2P(MG_BVPD(mg),SUBDOMAIN(elem));
-  partnew = 0;
-  if (partnew==partold)
-    return (GM_OK);
-
-  /* check whether size has actually changed */
-    if (vold!=NULL)
-    {
-      /* just change part and type */
-      SETVTYPE(vold,vtnew);
-      SETVPART(vold,partnew);
-
-      SETVBUILDCON(vold,1);
-    }
-    PRINTDEBUG(gm,1,("SIDEVEC (%d,%d): part and type\n",ID(elem),side));
-    return (GM_OK);
-
-  PRINTDEBUG(gm,1,("SIDEVEC (%d,%d): part, type and size\n",ID(elem),side));
-
-  /* create new vector */
-  if (CreateVectorInPart(g,partnew,SIDEVEC,(GEOM_OBJECT*)elem,&vnew))
-    REP_ERR_RETURN(GM_ERROR);
-
-  /* now we can dispose the old vector */
-  if (DisposeVector(g,vold))
-    REP_ERR_RETURN(GM_ERROR);
-
-  *vHandle = vnew;
-
-  return (GM_OK);
 }
 
 /****************************************************************************/
@@ -423,46 +262,6 @@ INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT S
 }
 #endif
 
-
-INT NS_DIM_PREFIX DisposeElementFromElementList (GRID *theGrid, NODE *theNode,
-                                                 ELEMENT *theElement)
-{
-  ELEMENTLIST *pel,*next;
-
-  pel = NODE_ELEMENT_LIST(theNode);
-  if (pel == NULL) return(0);
-  if (pel->el == theElement) {
-    NDATA(theNode) = (void *) pel->next;
-    return(PutFreeObject(theGrid->mg,pel,sizeof(ELEMENTLIST),MAOBJ));
-  }
-  next = pel->next;
-  while (next != NULL) {
-    if (next->el == theElement) {
-      pel->next = next->next;
-      return(PutFreeObject(theGrid->mg,next,sizeof(ELEMENTLIST),MAOBJ));
-    }
-    pel = next;
-    next = pel->next;
-  }
-
-  return(0);
-}
-
-INT NS_DIM_PREFIX DisposeElementList (GRID *theGrid, NODE *theNode)
-{
-  ELEMENTLIST *pel,*next;
-
-  pel = NODE_ELEMENT_LIST(theNode);
-  while (pel != NULL) {
-    next = pel->next;
-    if (PutFreeObject(theGrid->mg,pel,sizeof(ELEMENTLIST),MAOBJ))
-      return(1);
-    pel = next;
-  }
-  NDATA(theNode) = NULL;
-
-  return(0);
-}
 
 /****************************************************************************/
 /** \brief Get a pointer list to all side data
@@ -599,219 +398,6 @@ INT NS_DIM_PREFIX GetVectorsOfDataTypesInObjects (const ELEMENT *theElement, INT
   DataTypeFilterVList(dt,VecList,cnt);
 
   return (GM_OK);
-}
-
-
-
-static void PrintVectorTriple (int i)
-{
-  VECTOR *vec0 = GBNV_list[i];
-  VECTOR *vec1 = GBNV_list[i+1];
-  VECTOR *vec2 = GBNV_list[i+2];
-  [[maybe_unused]] VERTEX *vtx0 = MYVERTEX((NODE*)VOBJECT(vec0));
-  [[maybe_unused]] VERTEX *vtx1 = MYVERTEX((NODE*)VOBJECT(vec1));
-  [[maybe_unused]] VERTEX *vtx2 = MYVERTEX((NODE*)VOBJECT(vec2));
-  PrintDebug("0: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec0),XC(vtx0),YC(vtx0));
-  PrintDebug("1: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec1),XC(vtx1),YC(vtx1));
-  PrintDebug("2: VTYPE=%d XC=%.5g YC=%.5g\n",VTYPE(vec2),XC(vtx2),YC(vtx2));
-}
-
-/****************************************************************************/
-/** \brief Prepare GetBoundaryNeighbourVectors
-
- * @param theGrid - grid level
- * @param MaxListLen - max size of neighbourhood and therefore max list lenght of the
-   VecList array of GetBoundaryNeighbourVectors
-
-   This function stores lists of boundary vector neighbourhoods in temp storage
-   of the multigrid. The neighborhoods of the boundary vectors can be received
-   via a call of GetBoundaryNeighbourVectors one by one.
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   >0 else </li>
-   </ul>
-
- * \sa
-   GetBoundaryNeighbourVectors, ResetGetBoundaryNeighbourVectors, FinishBoundaryNeighbourVectors
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX PrepareGetBoundaryNeighbourVectors (GRID *theGrid, INT *MaxListLen)
-{
-#ifdef UG_DIM_2
-  ELEMENT *elem;
-  VECTOR *v0,*v1;
-  INT i;
-
-  if (GBNV_list!=NULL)
-    /* last process not finished properly by call of GetBoundaryNeighbourVectors */
-    REP_ERR_RETURN(1);
-
-  /* count boundary node vectors */
-  GBNV_n = 0;
-
-  /* allocate list storage: 3 pointers each */
-  GBNV_mg = MYMG(theGrid);
-  MarkTmpMem(MGHEAP(GBNV_mg),&GBNV_MarkKey);
-  GBNV_list = (VECTOR **) GetTmpMem(MGHEAP(GBNV_mg),3*GBNV_n*sizeof(VECTOR *),GBNV_MarkKey);
-  if (GBNV_list==NULL)
-    REP_ERR_RETURN(1);
-
-  /* store offset in vector index field */
-  i = 0;
-
-  /* loop elements and fill neighbours */
-  /* TODO: parallel also orphan(?) elements to be complete */
-  for (elem=FIRSTELEMENT(theGrid); elem!=NULL; elem=SUCCE(elem))
-    if (OBJT(elem)==BEOBJ)
-      for (i=0; i<SIDES_OF_ELEM(elem); i++)
-        if (ELEM_BNDS(elem,i)!=NULL)
-        {
-          /* 2D: two corners */
-          v0 = NVECTOR(CORNER(elem,CORNER_OF_SIDE(elem,i,0)));
-          v1 = NVECTOR(CORNER(elem,CORNER_OF_SIDE(elem,i,1)));
-
-          ASSERT(GBNV_list[VINDEX(v0)]==v0);
-          ASSERT(GBNV_list[VINDEX(v1)]==v1);
-          GBNV_list[VINDEX(v0)+2] = v1;
-          GBNV_list[VINDEX(v1)+1] = v0;
-        }
-  GBNV_curr = 0;
-
-  /* this is simple in 2D: center, pred and succ in positive sense */
-  *MaxListLen = 3;
-
-  IFDEBUG(gm,2)
-  PrintDebug("PrepareGetBoundaryNeighbourVectors:\n");
-  for (i=0; i<GBNV_n; i++)
-    PrintVectorTriple(3*i);
-  ENDDEBUG
-
-  return (0);
-
-#endif /* UG_DIM_2 */
-
-#ifdef UG_DIM_3
-  /* 3D requires somewhat more work! */
-
-  /* but it should be possible to create an oriented list
-     of neighbours for each boundary vector */
-
-  REP_ERR_RETURN (1);
-#endif /* UG_DIM_3 */
-}
-
-/****************************************************************************/
-/** \brief Reset current neighbourhood to begin of list
-
-   This function resets the pointer to the current neighbourhood to the beginning of
-   the list. GetBoundaryNeighbourVectors will start again with the first one.
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   >0 else </li>
-   </ul>
-
- * \sa
-   GetBoundaryNeighbourVectors, PrepareGetBoundaryNeighbourVectors, FinishBoundaryNeighbourVectors
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ResetGetBoundaryNeighbourVectors (void)
-{
-  if (GBNV_list==NULL)
-    REP_ERR_RETURN(1);
-
-  GBNV_curr = 0;
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Get a neighbourhood of boundary vectors
-
- * @param dt - datatypes of center vectors (bitwise)
- * @param obj - object types of center vectors (bitwise)
- * @param cnt - vector list length
- * @param VecList - vector list
- * @param end - if YES the currently returned list was the last one
-
-   This function returns a neighbourhood of boundary vectors, center first and the
-   remainder oriented in positiv sense. The boundary vector heighbourhood lists
-   are created by a call of PrepareGetBoundaryNeighbourVectors. Use
-   ResetGetBoundaryNeighbourVectors to begin again with the first
-   neighbourhood and finish processing the boundary vectors with a call of
-   FinishBoundaryNeighbourVectors which releases the temporary storage
-   occupied by PrepareGetBoundaryNeighbourVectors..
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   >0 else </li>
-   </ul>
- * \sa
-   PrepareGetBoundaryNeighbourVectors, ResetGetBoundaryNeighbourVectors, FinishBoundaryNeighbourVectors
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetBoundaryNeighbourVectors (INT dt, INT obj, INT *cnt, VECTOR *VecList[])
-{
-  VECTOR *vec;
-
-  *cnt = 0;
-
-  if (GBNV_list==NULL)
-    REP_ERR_RETURN(1);
-
-  /* find next center vec matching data type */
-  for (vec=GBNV_list[GBNV_curr]; GBNV_curr<3*GBNV_n; GBNV_curr+=3, vec=GBNV_list[GBNV_curr])
-    if (BITWISE_TYPE(VTYPE(vec)) & dt)
-      break;
-  if (GBNV_curr>=3*GBNV_n)
-    /* no (more) vector found */
-    return (0);
-
-  IFDEBUG(gm,2)
-  PrintDebug("GetBoundaryNeighbourVectors:\n");
-  PrintVectorTriple(GBNV_curr);
-  ENDDEBUG
-
-  /* vector, pre and succ in positive sense */
-    VecList[(*cnt)++] = GBNV_list[GBNV_curr];
-  VecList[(*cnt)++] = GBNV_list[GBNV_curr+1];
-  VecList[(*cnt)++] = GBNV_list[GBNV_curr+2];
-
-  /* move on to next position */
-  GBNV_curr += 3;
-
-  return (0);
-}
-
-/****************************************************************************/
-/** \brief Finish processing of boundary vectors
-
-   This function releases the temporary memory allocated by PrepareGetBoundaryNeighbourVectors
-   from the multigrid heap.
-
- * @return <ul>
- *   <li>   0 if ok </li>
- *   <li>   >0 else </li>
-   </ul>
-
- * \sa
-   PrepareGetBoundaryNeighbourVectors, ResetGetBoundaryNeighbourVectors, GetBoundaryNeighbourVectors
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX FinishBoundaryNeighbourVectors ()
-{
-        #ifdef __TWODIM
-  if (ReleaseTmpMem(MGHEAP(GBNV_mg)),GBNV_MarkKey)
-    REP_ERR_RETURN(1);
-        #endif
-
-  GBNV_list = NULL;
-
-  return (0);
 }
 
 /****************************************************************************/
@@ -1292,12 +878,11 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
 /** \brief Checks validity of geom_object	and its vector
 
  * @param fmt - FORMAT of associated multigrid
- * @param s2p - subdomain to part table
  * @param theObject - the object which points to theVector
  * @param ObjectString - for error message
  * @param theVector - the vector of theObject
  * @param VectorObjType - NODEVEC,...
- * @param side - element side for SIDEVEC, NOSIDE else
+ * @param side - element side for SIDEVEC
 
    This function checks the consistency between an geom_object and
    its vector.
@@ -1309,21 +894,17 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
  */
 /****************************************************************************/
 
-static INT CheckVector (const INT s2p[], GEOM_OBJECT *theObject, const char *ObjectString,
+#ifdef UG_DIM_3
+static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
                         VECTOR *theVector, INT VectorObjType, INT side)
 {
   GEOM_OBJECT *VecObject;
-  INT errors = 0,DomPart;
+  INT errors = 0;
 
   if (theVector == NULL)
   {
     /* check if size is really 0 */
-#ifdef UG_DIM_3
-    VectorType vtype = SIDEVEC;
-#else
-    VectorType vtype = NOVTYPE;
-#endif
-    INT ds = FMT_S_VEC_TP(nullptr,vtype);
+    INT ds = FMT_S_VEC_TP;
     if (ds>0)
     {
       errors++;
@@ -1334,7 +915,7 @@ static INT CheckVector (const INT s2p[], GEOM_OBJECT *theObject, const char *Obj
   }
   else
   {
-    INT ds = FMT_S_VEC_TP(fmt,VTYPE(theVector));
+    INT ds = FMT_S_VEC_TP;
     if (ds==0)
     {
       errors++;
@@ -1442,6 +1023,7 @@ static INT CheckVector (const INT s2p[], GEOM_OBJECT *theObject, const char *Obj
 
   return(errors);
 }
+#endif
 
 /****************************************************************************/
 /** \brief Check the algebraic part of the data structure
@@ -1464,7 +1046,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   ELEMENT *theElement;
   VECTOR *theVector;
   INT errors;
-  INT *s2p;
 
   errors = 0;
 
@@ -1477,8 +1058,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
     }
     return(errors);
   }
-
-  s2p = BVPD_S2P_PTR(MG_BVPD(MYMG(theGrid)));
 
   /* reset USED flag */
   for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;
@@ -1498,7 +1077,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
       for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         theVector = SVECTOR(theElement,i);
-        errors += CheckVector(s2p,(GEOM_OBJECT *) theElement, "ELEMSIDE",
+        errors += CheckVector((GEOM_OBJECT *) theElement, "ELEMSIDE",
                               theVector, SIDEVEC,i);
       }
     }
@@ -1545,9 +1124,9 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 
 INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
 {
+#ifdef UG_DIM_3
   VECTOR *vList[20];
 
-        #ifdef UG_DIM_3
   if (VOTYPE(theVector) == SIDEVEC)
   {
     INT cnt;
