@@ -2903,7 +2903,6 @@ INT             GetSons                                 (const ELEMENT *theEleme
 INT             GetAllSons                              (const ELEMENT *theElement, ELEMENT *SonList[MAX_SONS]);
 #endif
 INT             VectorPosition                  (const VECTOR *theVector, DOUBLE *position);
-INT             VectorInElement                 (ELEMENT *theElement, VECTOR *theVector);
 
 /* check */
 #ifndef ModelP

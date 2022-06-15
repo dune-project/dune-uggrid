@@ -332,75 +332,6 @@ INT NS_DIM_PREFIX GetVectorsOfOType (const ELEMENT *theElement, INT type, INT *c
 }
 
 /****************************************************************************/
-/** \brief Remove vectors with non-matching type from list
-
- * @param dt - data type including all vtypes needed
- * @param vec - vector list
- * @param cnt  - number of vectors return in the list
-
-   This function removes vectors with non-matching types from the list.
-
- * @return
- *   Number of remaining vectors in the list
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX DataTypeFilterVList (INT dt, VECTOR **vec, INT *cnt)
-{
-  INT i,n;
-
-  n = *cnt;
-  *cnt = 0;
-  for (i=0; i<n; i++)
-    if (VDATATYPE(vec[i]) & dt)
-      vec[(*cnt)++] = vec[i];
-
-  return (*cnt);
-}
-
-/****************************************************************************/
-/** \brief Get vector list including all vectors of specified vtypes
-
- * @param theElement - pointer to an element
- * @param dt  - data type including all vtypes needed
- * @param obj - flags for objects types needed
- * @param cnt - number of vectors return in the list
- * @param vec - vector list
-
-   This function gets a list of vectors of the specified vtypes corresponding to an element.
-
- * @return <ul>
- *   <li>   GM_OK if ok </li>
- *   <li>   GM_ERROR if error occured </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfDataTypesInObjects (const ELEMENT *theElement, INT dt, INT obj, INT *cnt, VECTOR *VecList[])
-{
-  INT n;
-
-  *cnt = n = 0;
-
-    #ifdef UG_DIM_3
-  if (obj & BITWISE_TYPE(SIDEVEC))
-  {
-    INT i;
-    if (GetVectorsOfSides(theElement,&i,VecList+n) != GM_OK)
-      return(GM_ERROR);
-    n += i;
-  }
-    #endif
-
-  *cnt = n;
-
-  /* remove vectors of types not needed */
-  DataTypeFilterVList(dt,VecList,cnt);
-
-  return (GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Get vector list
 
  * @param theGrid - pointer to a grid
@@ -482,43 +413,6 @@ INT NS_DIM_PREFIX GetElementInfoFromSideVector (const VECTOR *theVector, ELEMENT
   RETURN (1);
 }
 #endif
-
-/****************************************************************************/
-/** \brief Reset all USED flags in neighborhood of an element
-
- * @param theElement - given element
- * @param ActDepth - recursion depth
- * @param MaxDepth - end of recursion
-
-   This function calls itself recursively and resets all USED flags in the
-   neighborhood of depth MaxDepth of theElement. For the first call
-   ActDepth should be zero.
-
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 if error occured.
-   </ul>
- */
-/****************************************************************************/
-
-static INT ResetUsedFlagInNeighborhood (ELEMENT *theElement, INT ActDepth, INT MaxDepth)
-{
-  int i;
-
-  /* is anything to do ? */
-  if (theElement==NULL) return (0);
-
-  /* action */
-  if (ActDepth>=0) SETUSED(theElement,0);
-
-  /* call all neighbors recursively */
-  if (ActDepth<MaxDepth)
-    for (i=0; i<SIDES_OF_ELEM(theElement); i++)
-      if (ResetUsedFlagInNeighborhood(NBELEM(theElement,i),ActDepth+1,MaxDepth)) RETURN (1);
-
-  return (0);
-}
-
 
 #ifdef ModelP
 static int Gather_VectorVNew (DDD::DDDContext&, DDD_OBJ obj, void *data)
@@ -1104,39 +998,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   }
 
   return(errors);
-}
-
-/****************************************************************************/
-/** \brief Decide whether a vector corresponds to an element or not
-
- * @param theElement - pointer to element
- * @param theVector - pointer to a vector
-
-   This function decides whether a given vector belongs to the given element, or
-   one of its sides, edges or nodes.
-
- * @return <ul>
- *   <li>   0 if does not correspond </li>
- *   <li>   1 if does correspond.	 </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX VectorInElement (ELEMENT *theElement, VECTOR *theVector)
-{
-#ifdef UG_DIM_3
-  VECTOR *vList[20];
-
-  if (VOTYPE(theVector) == SIDEVEC)
-  {
-    INT cnt;
-    GetVectorsOfSides(theElement,&cnt,vList);
-    for (INT i=0; i<cnt; i++)
-      if (vList[i]==theVector) RETURN(1);
-  }
-    #endif
-
-  return (0);
 }
 
 /****************************************************************************/
