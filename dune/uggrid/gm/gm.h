@@ -73,18 +73,6 @@
 
 /****************************************************************************/
 /*                                                                          */
-/* consistency of commandline defines                                       */
-/*                                                                          */
-/****************************************************************************/
-
-#ifdef UG_DIM_2
-#ifdef Sideon
-#error ****   two dimensional case cannot have side data        ****
-#endif
-#endif
-
-/****************************************************************************/
-/*                                                                          */
 /* derive additional switches from commandline specified basic switches     */
 /*                                                                          */
 /****************************************************************************/
