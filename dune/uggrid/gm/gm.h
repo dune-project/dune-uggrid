@@ -148,11 +148,7 @@ enum {MAX_SONS = 30};
 #define MAX_SIDE_NODES                  9
 /** \brief max number of son edges of edge  */
 #define MAX_SON_EDGES                   2
-/** \brief max #fine sides touching a coarse*/
-#define MAX_SIDES_TOUCHING              10
 
-/** \todo Please doc me! */
-#define MAX_ELEM_VECTORS                (MAX_CORNERS_OF_ELEM+MAX_EDGES_OF_ELEM+1+MAX_SIDES_OF_ELEM)
 /** \brief max number of doubles in a vector or matrix mod 32 */
 #define MAX_NDOF_MOD_32        256
 /** \brief max number of doubles in a vector or matrix */
