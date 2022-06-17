@@ -179,9 +179,6 @@ provided with UG.
 
 . MAX_SONS - Maximum number of sons per element.
 
-. MAX_SIDES_TOUCHING - Maximum number of sides on the next finer mesh that make up
-a side on the coarser mesh.
-
 . MAXMATRICES - Maximum number of MATRIX types with different size.
 
 . MAXCONNECTIONS - Maximum number of different CONNECTION types.

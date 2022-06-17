@@ -108,8 +108,6 @@ INT             DisposeDoubledSideVector                (GRID *theGrid, ELEMENT 
 /*@{*/
 INT             GetVectorsOfSides                               (const ELEMENT *theElement, INT *cnt, VECTOR **vList);
 INT                     GetVectorsOfOType                               (const ELEMENT *theElement, INT type, INT *cnt, VECTOR **vList);
-INT                     DataTypeFilterVList                             (INT dt, VECTOR **vec, INT *cnt);
-INT                     GetVectorsOfDataTypesInObjects  (const ELEMENT *theElement, INT dt, INT obj, INT *cnt, VECTOR *VecList[]);
 INT             GetElementInfoFromSideVector    (const VECTOR *theVector, ELEMENT **Elements, INT *Sides);
 /*@}*/
 

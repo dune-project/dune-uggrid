@@ -73,18 +73,6 @@
 
 /****************************************************************************/
 /*                                                                          */
-/* consistency of commandline defines                                       */
-/*                                                                          */
-/****************************************************************************/
-
-#ifdef UG_DIM_2
-#ifdef Sideon
-#error ****   two dimensional case cannot have side data        ****
-#endif
-#endif
-
-/****************************************************************************/
-/*                                                                          */
 /* derive additional switches from commandline specified basic switches     */
 /*                                                                          */
 /****************************************************************************/
@@ -160,11 +148,7 @@ enum {MAX_SONS = 30};
 #define MAX_SIDE_NODES                  9
 /** \brief max number of son edges of edge  */
 #define MAX_SON_EDGES                   2
-/** \brief max #fine sides touching a coarse*/
-#define MAX_SIDES_TOUCHING              10
 
-/** \todo Please doc me! */
-#define MAX_ELEM_VECTORS                (MAX_CORNERS_OF_ELEM+MAX_EDGES_OF_ELEM+1+MAX_SIDES_OF_ELEM)
 /** \brief max number of doubles in a vector or matrix mod 32 */
 #define MAX_NDOF_MOD_32        256
 /** \brief max number of doubles in a vector or matrix */
@@ -2919,7 +2903,6 @@ INT             GetSons                                 (const ELEMENT *theEleme
 INT             GetAllSons                              (const ELEMENT *theElement, ELEMENT *SonList[MAX_SONS]);
 #endif
 INT             VectorPosition                  (const VECTOR *theVector, DOUBLE *position);
-INT             VectorInElement                 (ELEMENT *theElement, VECTOR *theVector);
 
 /* check */
 #ifndef ModelP

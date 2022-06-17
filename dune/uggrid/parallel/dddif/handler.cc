@@ -218,7 +218,7 @@ static void VectorUpdate (DDD::DDDContext& context, DDD_OBJ obj)
   VECTOR  *pv                     = (VECTOR *)obj;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(pv)));
   GRID    *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
-  INT prio            = PRIO(pv);
+  const DDD_PRIO prio = PRIO(pv);
 
   PRINTDEBUG(dddif,1,(PFMT " VectorUpdate(): v=" VINDEX_FMTX
                       " VEOBJ=%d\n",me,VINDEX_PRTX(pv),OBJT(pv)))
@@ -231,12 +231,8 @@ static void VectorUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 
 static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT nmat    = 0;
   VECTOR  *pv             = (VECTOR *)obj;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(pv)));
-  /* TODO: define this static global                    */
-  /* TODO: take size as maximum of possible connections */
-  size_t sizeArray[256];
   INT flag;
 
   PRINTDEBUG(dddif,1,(PFMT " VectorXferCopy(): v=" VINDEX_FMTX " proc=%d "
@@ -272,7 +268,7 @@ static void VectorPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRI
   VECTOR  *pv                     = (VECTOR *)obj;
   INT level           = ATTR_TO_GLEVEL(DDD_InfoAttr(PARHDR(pv)));
   GRID    *theGrid        = GRID_ON_LEVEL(ddd_ctrl(context).currMG,level);
-  INT old                     = PRIO(pv);
+  DDD_PRIO old                     = PRIO(pv);
 
   PRINTDEBUG(dddif,2,(PFMT " VectorPriorityUpdate(): v=" VINDEX_FMTX
                       " old=%d new=%d level=%d attr=%d\n",
@@ -441,7 +437,7 @@ static void VertexPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRI
   VERTEX      *theVertex                      = (VERTEX *)obj;
   INT level           = LEVEL(theVertex);
   GRID        *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
-  INT old                     = VXPRIO(theVertex);
+  DDD_PRIO old = VXPRIO(theVertex);
 
   PRINTDEBUG(dddif,2,(PFMT " VertexPriorityUpdate(): v=" VID_FMTX
                       " old=%d new=%d level=%d\n",me,VID_PRTX(theVertex),old,new_,level))
@@ -626,7 +622,6 @@ static void NodeUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 static void NodeXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc, DDD_PRIO prio)
 {
   NODE    *theNode        = (NODE *)obj;
-  VECTOR  *vec            = NULL;
 
   PRINTDEBUG(dddif,1,(PFMT " NodeXferCopy(): n=" ID_FMTX
                       " proc=%d prio=%d\n",
@@ -675,7 +670,7 @@ static void NodePriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO 
   NODE    *pn                     = (NODE *)obj;
   INT level           = LEVEL(pn);
   GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
-  INT old                     = PRIO(pn);
+  const DDD_PRIO old = PRIO(pn);
 
   PRINTDEBUG(dddif,2,(PFMT " NodePriorityUpdate(): n=" ID_FMTX " old=%d new=%d "
                       "level=%d\n",me,ID_PRTX(pn),old,new_,level))
@@ -1436,7 +1431,7 @@ static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PR
   ELEMENT *succe          = SUCCE(pe);
   INT level           = LEVEL(pe);
   GRID    *theGrid        = GetGridOnDemand(ddd_ctrl(context).currMG,level);
-  INT old                     = EPRIO(pe);
+  const DDD_PRIO old = EPRIO(pe);
   INT lostson         = 1;
 
   PRINTDEBUG(dddif,1,(PFMT "  ElementPriorityUpdate(): e=" EID_FMTX
