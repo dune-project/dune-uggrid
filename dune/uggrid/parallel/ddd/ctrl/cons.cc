@@ -63,7 +63,7 @@ using namespace PPIF;
 /****************************************************************************/
 
 /*
-   PAIRS:     check existance of object for each coupling
+   PAIRS:     check existence of object for each coupling
    ALLTOALL:  check if all coupling lists are equal
  */
 #define CHECK_CPL_PAIRS

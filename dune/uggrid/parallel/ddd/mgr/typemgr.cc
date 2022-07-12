@@ -365,7 +365,7 @@ static int NormalizeDesc (TYPE_DESC *desc)
            (EDESC_REFTYPE(elems+i)==DDD_TYPE_BY_HANDLER)) )
         continue;
 
-      /* 5) EL_GBITS cant be compressed */
+      /* 5) EL_GBITS can't be compressed */
       if (elems[i].type == EL_GBITS)
         continue;
 

@@ -182,7 +182,7 @@ enum {VERTEX_LISTPARTS = 1};
         ID_FFMT (fixed format) is a version of ID_FMT with fixed width.
         ID_FFMTE (extended) is a version of ID_FFMT with additional information.
 
-        in ModelP, additionaly the DDD_GlobalID is printed for each object.
+        in ModelP, additionally the DDD_GlobalID is printed for each object.
 
         NOTE: for vertices and elements, one must use the VID_ and EID_ macros,
               respectively. this is due to differences in data structures

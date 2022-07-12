@@ -102,7 +102,7 @@ USING_UG_NAMESPACES
  *
  * @return <ul>
  *   <li> 0 if ok </li>
- *   <li> 1 if error occured. </li>
+ *   <li> 1 if error occurred. </li>
  * </ul>
  */
 /****************************************************************************/
@@ -208,7 +208,7 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
  *
  * @return <ul>
  *   <li> 0 if ok </li>
- *   <li> 1 if error occured. </li>
+ *   <li> 1 if error occurred. </li>
  * </ul>
  */
 /****************************************************************************/

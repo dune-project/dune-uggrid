@@ -292,7 +292,7 @@ void DDD_HdrConstructor (DDD::DDDContext& context,
 if (context.nObjs() == objTable.size())
 {
   /* TODO update docu */
-  /* this is a fatal case. we cant register more objects here */
+  /* this is a fatal case. we can't register more objects here */
   /* TODO one could try to expand the global tables here. */
   DUNE_THROW(Dune::Exception, "no more objects in DDD_HdrConstructor");
 }
@@ -574,7 +574,7 @@ void DDD_HdrConstructorCopy (DDD::DDDContext& context, DDD_HDR newhdr, DDD_PRIO 
   if (context.nObjs() == context.objTable().size())
   {
     /* TODO update docu */
-    /* this is a fatal case. we cant register more objects here */
+    /* this is a fatal case. we can't register more objects here */
     DDD_PrintError('F', 2220, "no more objects in DDD_HdrConstructorCopy");
     /* TODO one could try to expand the global tables here. */
   }

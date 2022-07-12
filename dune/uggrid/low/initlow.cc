@@ -76,7 +76,7 @@ USING_UG_NAMESPACE
  *
  * @return <ul>
  *   <li> 0 if ok </li>
- *   <li> 1 if error occured </li>
+ *   <li> 1 if error occurred </li>
  * </ul>
  */
 /****************************************************************************/
@@ -117,7 +117,7 @@ INT NS_PREFIX InitLow ()
  *
  * @return <ul>
  *   <li> 0 if ok </li>
- *   <li> 1 if error occured </li>
+ *   <li> 1 if error occurred </li>
  * </ul>
  */
 /****************************************************************************/

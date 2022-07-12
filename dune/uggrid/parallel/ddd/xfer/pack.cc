@@ -534,7 +534,7 @@ static void XferPackSingleMsg (DDD::DDDContext& context, XFERMSG *msg)
 /*                                                                          */
 /* Input:     theMsgs: list of message-send-infos                           */
 /*                                                                          */
-/* Output:    RET_ON_ERROR if error occured, RET_ON_OK otherwise            */
+/* Output:    RET_ON_ERROR if error occurred, RET_ON_OK otherwise            */
 /*                                                                          */
 /****************************************************************************/
 

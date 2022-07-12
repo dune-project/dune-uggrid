@@ -450,7 +450,7 @@ static RETCODE IFCreateFromScratch(DDD::DDDContext& context, COUPLING **tmpcpl, 
   STAT_TIMER1(T_CREATE_COMM);
 
   /* TODO das handling der VCs muss noch erheblich verbessert werden */
-  /* TODO durch das is_elem suchen ist alles noch VERY inefficient */
+  /* TODO Still very inefficient because we have to search for is_elem */
 
   STAT_SET_MODULE(STAT_MOD);
 
@@ -782,7 +782,7 @@ static void IFRebuildAll(DDD::DDDContext& context)
               average interfaces. */
       std::vector<COUPLING*> tmpcpl(nCplItems);
 
-      /* TODO: ausnutzen, dass STD_IF obermenge von allen interfaces ist */
+      /* TODO: Exploit that STD_IF is a superset of all interfaces */
       for(i=1; i<nIFs; i++)
       {
         if (! IS_OK(IFCreateFromScratch(context, tmpcpl.data(), i)))

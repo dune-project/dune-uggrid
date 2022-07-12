@@ -116,7 +116,7 @@ extern int Debuggm;
 extern int Debuglow;
 extern int Debugdom;
 
-/* for reporting of erros (using the REP_ERR_RETURN-macro) */
+/* for reporting of errors (using the REP_ERR_RETURN-macro) */
 extern int rep_err_count;
 extern int rep_err_line[REP_ERR_MAX];
 extern const char  *rep_err_file[REP_ERR_MAX];

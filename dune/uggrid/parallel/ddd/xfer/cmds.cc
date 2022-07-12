@@ -519,7 +519,7 @@ DDD_RET DDD_XferEnd(DDD::DDDContext& context)
     /* some processor raised an exception */
     if (nRecvMsgs==EXCEPTION_LOWCOMM_CONNECT)
     {
-      /* the dangerous exception: it occured only locally,
+      /* the dangerous exception: it occurred only locally,
          the other procs doesn't know about it */
       Dune::dwarn << "local exception during LC_Connect() in DDD_XferEnd(), giving up.\n";
 
@@ -811,7 +811,7 @@ exit:
         Consistent change of a local object's priority during DDD Transfer.
         Local objects which are part of a distributed object must notify
         other copies about local priority changes. This is accomplished
-        by issueing \funk{XferPrioChange}-commands during the transfer phase;
+        by issuing \funk{XferPrioChange}-commands during the transfer phase;
         DDD will send appropriate messages to the owner processors of
         the other copies.
 

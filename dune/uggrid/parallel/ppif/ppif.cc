@@ -283,7 +283,7 @@ void PPIF::ExitPPIF(PPIF::PPIFContext& context)
   DeleteVChan(context.uptree_);
   context.uptree_ = nullptr;
   /* I currently think that only the first two entries of downtree can contain
-   * valied entries, but I am not entirely sure. */
+   * valid entries, but I am not entirely sure. */
   DeleteVChan(context.downtree_[0]);
   DeleteVChan(context.downtree_[1]);
   context.downtree_[0] = context.downtree_[1] = nullptr;

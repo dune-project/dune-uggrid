@@ -463,7 +463,7 @@ static int sort_tupelOrder (const void *e1, const void *e2)
      sort according to DDD_TYPE of local object.
      hence, we can identify two pairs of local objects with
      the same tupel.
-     this has to be ommitted if objects with different
+     this has to be omitted if objects with different
      types should be identifiable. KB 960814
    */
   el1hdr = el1->infos[0]->hdr;
@@ -1381,7 +1381,7 @@ printf("%4d: IdentifyString %08x %02d with %4d str %s\n", context.me(),
         object ID, which is build using the minimum of both local object IDs.
 
         The identification object {\em ident} must be either a distributed
-        object known to both processors issueing the \funk{IdentifyObject}-command
+        object known to both processors issuing the \funk{IdentifyObject}-command
         or a local object which is not known to these two processors, but which
         will also be identified during the current {\bf Identify}-process.
 

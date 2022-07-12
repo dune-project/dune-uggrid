@@ -657,7 +657,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
 
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
   {
-    /* reconstuct node relations using element relations */
+    /* reconstruct node relations using element relations */
     if (GetAllSons(theElement,SonList) != GM_OK) REP_ERR_RETURN(1);
     for (i=0; SonList[i]!=NULL; i++)
     {

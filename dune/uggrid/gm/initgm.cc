@@ -62,7 +62,7 @@ USING_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*
-   InitGm - Call the inits for the grid manger module
+   InitGm - Call the inits for the grid manager module
 
    SYNOPSIS:
    INT InitGm ();
@@ -71,12 +71,12 @@ USING_UGDIM_NAMESPACE
    .  void
 
    DESCRIPTION:
-   This function calls the inits for the grid manger module.
+   This function calls the inits for the grid manager module.
 
    RETURN VALUE:
    INT
    .n     0 if ok
-   .n     1 if some error occured.
+   .n     1 if some error occurred.
  */
 /****************************************************************************/
 

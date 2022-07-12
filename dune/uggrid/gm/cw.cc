@@ -461,7 +461,7 @@ void NS_DIM_PREFIX ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf)
 
  * @return <ul>
  * <li> GM_OK if ok </li>
- * <li> GM_ERROR if error occured </li>
+ * <li> GM_ERROR if error occurred </li>
  * </ul>
  */
 /****************************************************************************/
@@ -512,7 +512,7 @@ static INT InitPredefinedControlWords (void)
 
  * @return <ul>
  * <li> GM_OK if ok </li>
- * <li> GM_ERROR if error occured </li>
+ * <li> GM_ERROR if error occurred </li>
  * </ul>
  */
 /****************************************************************************/
@@ -820,7 +820,7 @@ void NS_DIM_PREFIX WriteCW (void *obj, INT ceID, INT n)
    @return
    </ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR if error occured. </li>
+   <li>   GM_ERROR if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -886,7 +886,7 @@ INT NS_DIM_PREFIX AllocateControlEntry (INT cw_id, INT length, INT *ce_id)
 
    @return <ul>
    <li>    GM_OK if ok </li>
-   <li>    GM_ERROR if error occured. </li>
+   <li>    GM_ERROR if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -922,7 +922,7 @@ INT NS_DIM_PREFIX FreeControlEntry (INT ce_id)
 
    @return <ul>
    <li>  GM_OK if ok </li>
-   <li>  > 0 line in which error occured. </li>
+   <li>  > 0 line in which error occurred. </li>
    </ul>
  */
 /****************************************************************************/

@@ -107,7 +107,7 @@ USING_UGDIM_NAMESPACE
 
  * @return <ul>
  *   <li>     0 if ok  </li>
- *   <li>     1 if error occured.	 </li>
+ *   <li>     1 if error occurred.	 </li>
    </ul>
  */
 /****************************************************************************/
@@ -173,7 +173,7 @@ INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object
 
  * @return <ul>
  *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
+ *   <li>   1 if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -216,7 +216,7 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
 
  * @return <ul>
  *   <li>   0 if ok </li>
- *   <li>   1 if error occured.	 </li>
+ *   <li>   1 if error occurred.	 </li>
    </ul>
  */
 /****************************************************************************/
@@ -274,7 +274,7 @@ INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT S
 
  * @return <ul>
  *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
+ *   <li>    GM_ERROR	if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -314,7 +314,7 @@ INT NS_DIM_PREFIX GetVectorsOfSides (const ELEMENT *theElement, INT *cnt, VECTOR
 
  * @return <ul>
  *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
+ *   <li>    GM_ERROR	if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -342,7 +342,7 @@ INT NS_DIM_PREFIX GetVectorsOfOType (const ELEMENT *theElement, INT type, INT *c
 
  * @return <ul>
  *   <li>   number of components </li>
- *   <li>   -1 if error occured </li>
+ *   <li>   -1 if error occurred </li>
    </ul>
  */
 /****************************************************************************/
@@ -379,7 +379,7 @@ INT NS_DIM_PREFIX GetAllVectorsOfElement (GRID *theGrid, ELEMENT *theElement, VE
 
  * @return <ul>
  *   <li>    0 if ok
- *   <li>    1 if error occured.
+ *   <li>    1 if error occurred.
    </ul>
  */
 /****************************************************************************/
@@ -681,7 +681,7 @@ INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
 
  * @return <ul>
  *   <li>    0 if ok
- *   <li>    != 0 if errors occured.
+ *   <li>    != 0 if errors occurred.
    </ul>
  */
 /****************************************************************************/
@@ -783,7 +783,7 @@ static INT CheckNeighborhood (GRID *theGrid, ELEMENT *theElement, ELEMENT *cente
 
  * @return <ul>
  *   <li>    GM_OK if ok
- *   <li>    GM_ERROR	if error occured.
+ *   <li>    GM_ERROR	if error occurred.
    </ul>
  */
 /****************************************************************************/
@@ -930,7 +930,7 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
 
  * @return <ul>
  *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occured. </li>
+ *   <li>    GM_ERROR	if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -1011,7 +1011,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 
  * @return <ul>
  *   <li>    0 if ok                     </li>
- *   <li>    1 if error occured.	 </li>
+ *   <li>    1 if error occurred.	 </li>
    </ul>
  */
 /****************************************************************************/
@@ -1068,7 +1068,7 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
 
  * @return <ul>
  *   <li>   0 if ok </li>
- *   <li>   1 if error occured. </li>
+ *   <li>   1 if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -1098,7 +1098,7 @@ INT NS_DIM_PREFIX SeedVectorClasses (GRID *theGrid, ELEMENT *theElement)
 
  * @return <ul>
  *   <li>    0 if ok </li>
- *   <li>    1 if error occured. </li>
+ *   <li>    1 if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -1164,7 +1164,7 @@ static int Scatter_GhostVectorVClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
  * @return <ul>
  *   <li>     0 if ok </li>
- *   <li>     1 if error occured	 </li>
+ *   <li>     1 if error occurred	 </li>
    </ul>
  */
 /****************************************************************************/
@@ -1219,7 +1219,7 @@ INT NS_DIM_PREFIX PropagateVectorClasses (GRID *theGrid)
 
  * @return <ul>
  *   <li>    0 if ok </li>
- *   <li>    1 if error occured.			 </li>
+ *   <li>    1 if error occurred.			 </li>
    </ul>
  */
 /****************************************************************************/
@@ -1247,7 +1247,7 @@ INT NS_DIM_PREFIX ClearNextVectorClasses (GRID *theGrid)
 
  * @return <ul>
  *   <li>    0 if ok  </li>
- *   <li>    1 if error occured.	 </li>
+ *   <li>    1 if error occurred.	 </li>
    </ul>
  */
 /****************************************************************************/
@@ -1318,7 +1318,7 @@ static int Scatter_GhostVectorVNClass (DDD::DDDContext&, DDD_OBJ obj, void *data
 
  * @return <ul>
  *   <li>   0 if ok              </li>
- *   <li>   1 if error occured </li>
+ *   <li>   1 if error occurred </li>
    </ul>
  */
 /****************************************************************************/

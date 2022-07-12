@@ -410,7 +410,7 @@ void     DDD_ObjUnGet (DDD::DDDContext& context, DDD_HDR, size_t);
 
 
 /*
-        Maintainance & Debugging
+        Maintenance & Debugging
  */
 
 int      DDD_ConsCheck(DDD::DDDContext& context); /* returns total #errors since V1.6.6 */

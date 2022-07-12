@@ -175,8 +175,8 @@ static char nexttoken[NAMESIZE];        /* must be global for lastnameHnd ! */
    \param name - name to be found (from current structure directory)
    \param lastnameHnd - if not NULL it is set to a pointer to the last name
 
-   This function searchs (starting from the current structure directory)
-   for the structure directory given by name and returns its adress.
+   This function searches (starting from the current structure directory)
+   for the structure directory given by name and returns its address.
    It does not change the current structure directory! If 'lastnameHnd!=NULL'
    it also sets '*lastNameHnd' to be a pointer to the last name of the directory.
 
@@ -382,7 +382,7 @@ char * NS_PREFIX GetStringVar (const char *name)
 
    \return <ul>
    <li> 0 if ok </li>
-   <li> 1 if error occured </li>
+   <li> 1 if error occurred </li>
    </ul>
  */
 /****************************************************************************/
@@ -403,7 +403,7 @@ INT NS_PREFIX GetStringValue (const char *name, double *value)
 
    \return <ul>
    <li> 0 if ok </li>
-   <li> 1 if error occured </li>
+   <li> 1 if error occurred </li>
    </ul>
  */
 /****************************************************************************/
@@ -433,7 +433,7 @@ INT NS_PREFIX GetStringValueDouble (const char *name, double *value)
 
    \return <ul>
    <li> 0 if ok </li>
-   <li> 1 if error occured </li>
+   <li> 1 if error occurred </li>
    </ul>
  */
 /****************************************************************************/
@@ -478,7 +478,7 @@ ENVDIR * NS_PREFIX GetCurrentStructDir ()
 
    \return
    <li>  0 if ok </li>
-   <li>  1 if error occured. </li>
+   <li>  1 if error occurred. </li>
  */
 /****************************************************************************/
 
@@ -598,7 +598,7 @@ ENVITEM * NS_PREFIX MakeStructItem (ENVDIR *where, const char *name, INT type, I
 
    \return <ul>
    <li>  0 if ok </li>
-   <li>  1 if error occured </li>
+   <li>  1 if error occurred </li>
    </ul>
  */
 /****************************************************************************/
@@ -659,7 +659,7 @@ INT NS_PREFIX DeleteStruct (const char *name)
 }
 
 /****************************************************************************/
-/** \brief Remove a string variable fro the environment tree
+/** \brief Remove a string variable from the environment tree
 
    \param homeDir - theVar is located in this directory
    \param theVar - string var to remove
@@ -982,7 +982,7 @@ INT NS_PREFIX CheckIfInStructPath (const ENVDIR *theDir)
 
    \return <ul>
    <li>  0 if ok </li>
-   <li>  1 if error occured </li>
+   <li>  1 if error occurred </li>
    </ul>
  */
 /****************************************************************************/

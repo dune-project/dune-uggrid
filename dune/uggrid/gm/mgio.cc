@@ -106,7 +106,7 @@ USING_UG_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-int NS_DIM_PREFIX mgpathes_set;                         /* pathes used in ug			*/
+int NS_DIM_PREFIX mgpathes_set;                         /* paths used in ug			*/
 
 
 /****************************************************************************/
@@ -149,7 +149,7 @@ static MGIO_GE_ELEMENT lge[MGIO_TAGS];
    RETURN VALUE:
    int
    .n    0 if ok
-   .n    1 when error occured.
+   .n    1 when error occurred.
 
    SEE ALSO:
    D*/
@@ -175,7 +175,7 @@ int NS_DIM_PREFIX MGIO_dircreate (char *filename, int rename)
    .  filename - name of file
 
    DESCRIPTION:
-   Test for type of multigrid file with name filename in searching pathes if exist.
+   Test for type of multigrid file with name filename in searching paths if exist.
    The considered path entry is "mgpaths".
 
    RETURN VALUE:
@@ -215,7 +215,7 @@ int NS_DIM_PREFIX MGIO_filetype (char *filename)
    RETURN VALUE:
    int
    .n    0 if ok
-   .n    1 when error occured.
+   .n    1 when error occurred.
 
    SEE ALSO:
    D*/
@@ -254,7 +254,7 @@ int NS_DIM_PREFIX Read_OpenMGFile (char *filename)
    RETURN VALUE:
    int
    .n    0 if ok
-   .n    1 when error occured.
+   .n    1 when error occurred.
 
    SEE ALSO:
    D*/

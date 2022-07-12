@@ -286,7 +286,7 @@ static void ddd_DeclareTypes(DDD::DDDContext& context)
             TODO remove this clumsy exception! how?
 
           - variables TypeXXXX containing the proper DDD_TYPEs may be
-            superfluous. it would be possible to replace all occurences
+            superfluous. It would be possible to replace all occurrences
             by macros like DDDType(VEOBJ), which would be implemented as
      #define DDDType(ugtype)  (ddd_ctrl(context).types[ugtype])
             TODO check this!
@@ -403,8 +403,8 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_GDATA,  ELDEF(VECTOR,leafIndex),
                  EL_LDATA,  ELDEF(VECTOR,start),
 
-                 /* TODO: value wird noch ausgelassen. feld variabler laenge? */
-                 /* bei entscheidung 'value': kein weiteres feld
+                 /* TODO: value wird noch ausgelassen. Feld variabler Laenge? */
+                 /* bei Entscheidung 'value': kein weiteres Feld
                          bei ent. 'userdata *': EL_GDATA-feld        */
                  EL_GDATA,  ELDEF(VECTOR,value),
                  EL_END,    sizeof(VECTOR)
@@ -435,9 +435,9 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_LDATA,  ELDEF(ivertex,succ),
                  EL_LDATA,  ELDEF(ivertex,data),
 
-                 /* TODO muss father LDATA oder OBJPTR sein?     */
-                 /* LDATA, father ist nur lokal gueltig und      */
-                 /* ist abhaengig von vertikaler Lastverteilung  */
+                 /* TODO Does father have to be LDATA or OBJPTR?     */
+                 /* LDATA, father is valid only locally,             */
+                 /* and depends on vertical load balancing.          */
                 #ifdef UG_DIM_2
                  /* TODO: ref-typ muss eigentlich {TypeTrElem,TypeTrBElem} sein! */
                  EL_OBJPTR, ELDEF(ivertex,father), dddctrl.TypeTrElem,
@@ -473,9 +473,9 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_LDATA,  ELDEF(bvertex,succ),
                  EL_LDATA,  ELDEF(bvertex,data),
 
-                 /* TODO muss father LDATA oder OBJPTR sein?     */
-                 /* LDATA, father ist nur lokal gueltig und      */
-                 /* ist abhaengig von vertikaler Lastverteilung  */
+                 /* TODO Does father have to be LDATA or OBJPTR?     */
+                 /* LDATA, father is valid only locally,             */
+                 /* and depends on vertical load balancing.          */
                 #ifdef UG_DIM_2
                  /* TODO: ref-typ muss eigentlich {TypeTrElem,TypeTrBElem} sein! */
                  EL_OBJPTR, ELDEF(bvertex,father), dddctrl.TypeTrElem,
@@ -507,7 +507,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_LDATA,  ELDEF(NODE,pred),
                  EL_LDATA,  ELDEF(NODE,succ),
 
-                 /* TODO was ist start? */
+                 /* TODO What is start? */
                  EL_LDATA,  ELDEF(NODE,start),
 
                  /* father may be one of node or edge */
@@ -1049,7 +1049,7 @@ int NS_DIM_PREFIX InitDDD(DDD::DDDContext& context)
    DESCRIPTION:
    This function exits the parallel application on ddd level
 
-   RETUR
+   RETURN
    N VALUE:
    void
  */

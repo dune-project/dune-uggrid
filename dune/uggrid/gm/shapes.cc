@@ -143,7 +143,7 @@ DOUBLE * NS_DIM_PREFIX LMP (INT n)
 
    \return <ul>
    <li>   0 if ok </li>
-   <li>   1 if error occured. </li>
+   <li>   1 if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -197,7 +197,7 @@ INT NS_DIM_PREFIX UG_GlobalToLocal (INT n, const DOUBLE **Corners,
 
    \return <ul>
    <li>   0 if ok </li>
-   <li>   1 if error occured. </li>
+   <li>   1 if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -241,7 +241,7 @@ INT NS_DIM_PREFIX TetraSideNormals (ELEMENT *theElement, DOUBLE **theCorners, DO
 
    \return <ul>
    <li>   0 if ok </li>
-   <li>   1 if error occured. </li>
+   <li>   1 if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -279,7 +279,7 @@ INT NS_DIM_PREFIX TetMaxSideAngle (ELEMENT *theElement, const DOUBLE **theCorner
 
    \return <ul>
    <li>   0 if ok </li>
-   <li>   1 if error occured. </li>
+   <li>   1 if error occurred. </li>
    </ul>
  */
 /****************************************************************************/

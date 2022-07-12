@@ -16,7 +16,7 @@ ugman ugdemo
 .ve
 
 and get familiar with the examples and the scripts.
-Use the man pages to learn about the availible num procs and
+Use the man pages to learn about the available num procs and
 the configuration.
 
 EXERCISE 2:
@@ -72,7 +72,7 @@ Copy the BCGS num proc in ug/np/procs/ls.c and change
 it to GMRES. Therefore, take an orthogonalization
 similar to 'Orthogonalize' in 'ew.c' and use the tools in
 block.c for the solution of the small system.
-Include the necessary parallel comunication tools
+Include the necessary parallel communication tools
 and check for all vectors, if they are consistent or inconsistent.
 
 For testing, change to an application directory and type

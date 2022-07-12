@@ -255,7 +255,7 @@ static struct {
     SYNOPSIS:
     static DOUBLE Corner2DCorners (INT n, SHORT corners[])
 
-    PAAMETERS:
+    PARAMETERS:
    .   n - number of corners
    .   corners - array of corner IDs
 
@@ -265,7 +265,7 @@ static struct {
 
     RETURN VALUE:
     DOUBLE
-   .n   coded coners
+   .n   coded corners
    doctext_disabled*/
 /****************************************************************************/
 
@@ -364,7 +364,7 @@ static void FillOrderedSons (const ERULE *er, DOUBLE oco[])
     static INT Hash_Init (int MarkKey)
 
     PAAMETERS:
-   .   MarkKey - mark key for memory alocation
+   .   MarkKey - mark key for memory allocation
 
     DESCRIPTION:
         Allocate and initialize hash table
@@ -1468,8 +1468,8 @@ static INT IsOnFatherSide (int tag, int nsco, SHORT sco[], SHORT *nb)
 
     RETURN VALUE:
     INT
-   .n   YES: son sides are mathing
-   .n   NO:  son sides are not mathing
+   .n   YES: son sides are matching
+   .n   NO:  son sides are not matching
    doctext_disabled*/
 /****************************************************************************/
 

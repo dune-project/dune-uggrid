@@ -4,7 +4,7 @@
                 and event handling
     
     PURPOSE:
-    The devices module defines an interface for graphics ouput on windows and for
+    The devices module defines an interface for graphics output on windows and for
     the event handling. Interfaces with window and event handling are defined for
     XWindows ('xif') and Macintosh ('mif') computers up to now but should be easily extendable to
     other platforms like Microsoft Windows or others.

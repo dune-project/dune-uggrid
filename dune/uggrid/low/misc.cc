@@ -375,7 +375,7 @@ const char * NS_PREFIX strntok (const char *str, const char *sep, int n, char *t
 {
   int i;
 
-  /* scan while current char is a seperator */
+  /* scan while current char is a separator */
   while ((*str!='\0') && (strchr(sep,*str)!=NULL)) str++;
 
   /* copy into token */

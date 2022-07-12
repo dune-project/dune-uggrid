@@ -1,7 +1,7 @@
 				HOWTO go parallel using UG
 				==========================
 
-CAUTION: these steps are only a descrition for 
+CAUTION: these steps are only a description for 
 		 ugcore internal use, and fit to a setup 
 		 inside the ICA3 domain (129.69.113). 
 			S.L., 970128
@@ -13,7 +13,7 @@ your application with a parallel UG version.
 
 STEPS:
 
-The following steps are nescessary.
+The following steps are necessary.
 
 1. Configure UG
 2. Compile UG
@@ -53,7 +53,7 @@ the following lines in ug.conf to set the model dependent include and
 library information correctly:
 
 for PVM:
-	in the shell ressource file (~/.tcshrc):
+	in the shell resource file (~/.tcshrc):
 		setenv PVM_ROOT /rlocal/pvm3
 		setenv PVM_ARCH HPPA
 		setenv PVM_DEBUGGER /usr/softbench/bin/softdebug
@@ -75,7 +75,7 @@ for PVM:
 		pvmd3		(e.g. from /rlocal/pvm3/lib/HPPA)
 		
 for MPI (not recommended on HP):
-	in the shell ressource file (~/.tcshrc):
+	in the shell resource file (~/.tcshrc):
 		setenv MPIHOME /home/birken/birken/sw/mpi/mpich
 		set path=($path $MPIHOME/bin)
 
@@ -90,7 +90,7 @@ Set other configuration options, you want using 'ugconf'.
 
 Now compile UG in the usual way, all parallel stuff like
 ddd, ppif, dddif should be compiled transparently.
-After successfull compilation the $UGROOT/lib directory
+After successful compilation the $UGROOT/lib directory
 contains beside your parallel UG library 'libug2/3.a' 
 the additional parallel libs 'libddd.a', 'libppif.a'.
 
@@ -124,7 +124,7 @@ must have a <tab> at the beginning.
 
 4. Start parallel application
 
-If you succeded in the last steps, you should now have your
+If you succeeded in the last steps, you should now have your
 application as an executable file.
 
 For PVM check that you have a ~/hosts file containing the line:
