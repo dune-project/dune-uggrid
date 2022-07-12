@@ -1303,9 +1303,6 @@ struct grid {
   /** \brief Object identification, various flags */
   UINT control;
 
-  /** \brief level + 32; needed for control word check not detecting HEAPFAULT */
-  INT attribut;
-
   /** \brief A word storing status information. This can be used also by the
       problem class, e.g. to store whether the grid level is assembled or not. */
   INT status;
@@ -2561,7 +2558,6 @@ START_UGDIM_NAMESPACE
 #define GRID_STATUS_OFFSET                              1
 
 #define GLEVEL(p)                                       ((p)->level)
-#define GATTR(p)                                        ((p)->attribut)
 #define GFORMAT(p)                                      MGFORMAT(MYMG(p))
 #define SETGLOBALGSTATUS(p)             ((p)->status=~0)
 #define GSTATUS(p,n)                            ((p)->status&(n))

@@ -2578,7 +2578,6 @@ GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG)
   CTRL(theGrid) = 0;
   SETOBJT(theGrid,GROBJ);
   GLEVEL(theGrid) = l;
-  GATTR(theGrid) = GRID_ATTR(theGrid);
   NE(theGrid) = 0;
   /* other counters are init in INIT fcts below */
 
@@ -3578,7 +3577,6 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
   theGrid->finer = NULL;
   theGrid->coarser = NULL;
   theGrid->level = 0;
-  GATTR(theGrid) = GRID_ATTR(theGrid);
   GRID_ON_LEVEL(theMG,tl) = NULL;
   GRID_ON_LEVEL(theMG,0) = theGrid;
   theMG->topLevel = 0;
