@@ -93,7 +93,7 @@ namespace Ident {
 #define ID_STRING   3
 
 
-#define TUPEL_LEN(t)    ((int)((t)&0x3f))
+#define TUPLE_LEN(t)    ((int)((t)&0x3f))
 
 
 /* overall mode of identification */
@@ -167,7 +167,7 @@ struct MSGITEM {
   DDD_PRIO prio;
 
 #       if DebugIdent<=DebugIdentCons
-  unsigned long tupel;         /* send tuple ID for checking consistency */
+  unsigned long tuple;         /* send tuple ID for checking consistency */
 #       endif
 
 };
@@ -178,7 +178,7 @@ struct MSGITEM {
 /* IDENTINFO:                                                               */
 /****************************************************************************/
 
-struct ID_TUPEL;
+struct ID_TUPLE;
 
 struct IDENTINFO {
   int typeId;
@@ -190,13 +190,13 @@ struct IDENTINFO {
 
   DDD_HDR hdr;
 
-  ID_TUPEL  *tupel;
+  ID_TUPLE  *tuple;
 };
 
 
 
 /****************************************************************************/
-/* ID_TUPEL:                                                                */
+/* ID_TUPLE:                                                                */
 /****************************************************************************/
 
 struct ID_REFDBY
@@ -206,7 +206,7 @@ struct ID_REFDBY
 };
 
 
-struct ID_TUPEL {
+struct ID_TUPLE {
   unsigned long tId;
   IDENTINFO     **infos;
 
@@ -249,7 +249,7 @@ struct ID_PLIST {
   IdEntrySegmList  *entries;
 
   IDENTINFO   **local_ids;
-  ID_TUPEL    *indexmap;                  /* index-mapping of local_ids array */
+  ID_TUPLE    *indexmap;                  /* index-mapping of local_ids array */
 
   MSGITEM     *msgin, *msgout;
   msgid idin, idout;
@@ -395,10 +395,10 @@ static int compareId (const IDENTINFO *el1, const IDENTINFO *el2)
 /*
         two functions for sorting IdentifyXXX-requests into tuples:
 
-        sort_intoTupelsLists keeps order of IdentifyXXX-issueing by
+        sort_intoTuplesLists keeps order of IdentifyXXX-issueing by
            application program, i.e., the ordering is relevant
 
-        sort_intoTupelsSets reorders the IdentifyXXX-items inside each
+        sort_intoTuplesSets reorders the IdentifyXXX-items inside each
            tuple itself;
            at this level the ordering is done only by typeId, where
            ID_OBJECT comes first. lateron the IdentifyObject-items will
@@ -407,14 +407,14 @@ static int compareId (const IDENTINFO *el1, const IDENTINFO *el2)
  */
 
 
-static bool sort_intoTupelsLists(const IDENTINFO* a, const IDENTINFO* b)
+static bool sort_intoTuplesLists(const IDENTINFO* a, const IDENTINFO* b)
 {
   /* sort according to (old) global ids */
   /* if equal, keep ordering of input  */
   return std::tie(a->msg.gid, a->entry) < std::tie(b->msg.gid, b->entry);
 }
 
-static bool sort_intoTupelsSets(const IDENTINFO* a, const IDENTINFO* b)
+static bool sort_intoTuplesSets(const IDENTINFO* a, const IDENTINFO* b)
 {
   /* sort according to (old) global ids */
   /* if equal, sort according to identificator itself */
@@ -432,14 +432,14 @@ static bool sort_intoTupelsSets(const IDENTINFO* a, const IDENTINFO* b)
 /****************************************************************************/
 
 
-static int sort_tupelOrder (const void *e1, const void *e2)
+static int sort_tupleOrder (const void *e1, const void *e2)
 {
-  ID_TUPEL *el1, *el2;
+  ID_TUPLE *el1, *el2;
   int cmp, i, nIds;
   DDD_HDR el1hdr, el2hdr;
 
-  el1 = (ID_TUPEL *) e1;
-  el2 = (ID_TUPEL *) e2;
+  el1 = (ID_TUPLE *) e1;
+  el2 = (ID_TUPLE *) e2;
 
 
   /* sort according to tuple id */
@@ -449,7 +449,7 @@ static int sort_tupelOrder (const void *e1, const void *e2)
   /* ids are equal, sort according tuple value */
 
   /* recode tuple length from lowest 6 bits */
-  nIds = TUPEL_LEN(el1->tId);
+  nIds = TUPLE_LEN(el1->tId);
 
 
   /* compare until one tuple entry differs */
@@ -496,23 +496,23 @@ static int sort_tupelOrder (const void *e1, const void *e2)
 static void SetLOI (IDENTINFO *ii, int loi)
 {
   ID_REFDBY *rby;
-  ID_TUPEL  *tupel = ii->tupel;
+  ID_TUPLE  *tuple = ii->tuple;
 
   /*
      printf("%4d: %08x SetLOI(%d, %d)\n", me, ii->msg.gid, loi, ii->loi);
    */
 
   /* set loi to maximum of current and new value */
-  tupel->loi = MAX(loi, tupel->loi);
+  tuple->loi = MAX(loi, tuple->loi);
 
   /* primitive cycle detection */
-  if (tupel->loi > 64)
+  if (tuple->loi > 64)
     DUNE_THROW(Dune::Exception,
                "IdentifyObject-cycle, objects "
                << ii->msg.gid << " and " << ii->id.object);
 
 
-  for(rby=tupel->refd; rby!=NULL; rby=rby->next)
+  for(rby=tuple->refd; rby!=NULL; rby=rby->next)
   {
     SetLOI(rby->by, loi+1);
 
@@ -523,7 +523,7 @@ static void SetLOI (IDENTINFO *ii, int loi)
 
 
 static void ResolveDependencies (
-  ID_TUPEL  *tupels, int nTupels,
+  ID_TUPLE  *tuples, int nTuples,
   IDENTINFO **id, int nIds, int nIdentObjs)
 {
   int i, j;
@@ -556,53 +556,53 @@ static void ResolveDependencies (
    */
 
 
-  for(i=0, j=0; i<nTupels; i++)
+  for(i=0, j=0; i<nTuples; i++)
   {
     while (j<nIdentObjs &&
-           refd[j]->id.object < tupels[i].infos[0]->msg.gid)
+           refd[j]->id.object < tuples[i].infos[0]->msg.gid)
       j++;
 
     while (j<nIdentObjs &&
-           refd[j]->id.object == tupels[i].infos[0]->msg.gid)
+           refd[j]->id.object == tuples[i].infos[0]->msg.gid)
     {
       ID_REFDBY *rby = new ID_REFDBY;
 
       /* remember that idp[i] is referenced by refd[j] */
       rby->by        = refd[j];
-      rby->next      = tupels[i].refd;
-      tupels[i].refd = rby;
+      rby->next      = tuples[i].refd;
+      tuples[i].refd = rby;
 
       j++;
     }
   }
 
 
-  for(i=0; i<nTupels; i++)
+  for(i=0; i<nTuples; i++)
   {
     ID_REFDBY *rby;
 
-    for(rby=tupels[i].refd; rby!=NULL; rby=rby->next)
+    for(rby=tuples[i].refd; rby!=NULL; rby=rby->next)
     {
       /* if loi>0, this subtree has been loi-ed before */
-      if (tupels[i].loi==0)
-        SetLOI(rby->by, tupels[i].loi+1);
+      if (tuples[i].loi==0)
+        SetLOI(rby->by, tuples[i].loi+1);
     }
   }
 
 
 #       if DebugIdent<=2
   /* display */
-  for(i=0; i<nTupels; i++)
+  for(i=0; i<nTuples; i++)
   {
     ID_REFDBY *rby;
 
     printf("%08x has loi %d\n",
-           tupels[i].infos[0]->msg.gid, tupels[i].loi);
+           tuples[i].infos[0]->msg.gid, tuples[i].loi);
 
-    for(rby=tupels[i].refd; rby!=NULL; rby=rby->next)
+    for(rby=tuples[i].refd; rby!=NULL; rby=rby->next)
     {
       printf("%08x referenced by %08x\n",
-             tupels[i].infos[0]->msg.gid, rby->by->msg.gid);
+             tuples[i].infos[0]->msg.gid, rby->by->msg.gid);
     }
   }
 #       endif
@@ -610,15 +610,15 @@ static void ResolveDependencies (
 
 
 
-static void CleanupLOI (ID_TUPEL *tupels, int nTupels)
+static void CleanupLOI (ID_TUPLE *tuples, int nTuples)
 {
   int i;
 
-  for(i=0; i<nTupels; i++)
+  for(i=0; i<nTuples; i++)
   {
     ID_REFDBY *rby, *next=0;
 
-    for(rby=tupels[i].refd; rby!=NULL; rby=next)
+    for(rby=tuples[i].refd; rby!=NULL; rby=next)
     {
       next = rby->next;
 
@@ -633,18 +633,18 @@ static void CleanupLOI (ID_TUPEL *tupels, int nTupels)
 
 
 /*
-        tupel-id doesn't contain information about the data in
+        tuple-id doesn't contain information about the data in
         the tuple, it does only contain information about the
         structure of a tuple!
  */
-static void TupelInit (ID_TUPEL *tupel, IDENTINFO **id, int nIds)
+static void TupleInit (ID_TUPLE *tuple, IDENTINFO **id, int nIds)
 {
   int i, nObjIds;
   unsigned long tId;
 
   /* init tuple auxiliary data */
-  tupel->loi  = 0;
-  tupel->refd = NULL;
+  tuple->loi  = 0;
+  tuple->refd = NULL;
 
 
   /* compute tuple id */
@@ -668,15 +668,15 @@ static void TupelInit (ID_TUPEL *tupel, IDENTINFO **id, int nIds)
 
   /* insert tuple id, number of ID_OBJECT-entries, and link to
      array of pointers to the tuple's IDENTINFO structs */
-  tupel->tId     = tId;
-  tupel->nObjIds = nObjIds;
-  tupel->infos   = id;
+  tuple->tId     = tId;
+  tuple->nObjIds = nObjIds;
+  tuple->infos   = id;
 
 
   /* set link from IDENTINFOs to tuple */
   for(i=0; i<nIds; i++)
   {
-    id[i]->tupel = tupel;
+    id[i]->tuple = tuple;
   }
 }
 
@@ -684,12 +684,12 @@ static void TupelInit (ID_TUPEL *tupel, IDENTINFO **id, int nIds)
 
 static int IdentifySort (const DDD::DDDContext& context,
                          IDENTINFO **id, int nIds,
-                         int nIdentObjs, MSGITEM *items_out, ID_TUPEL **indexmap_out,
+                         int nIdentObjs, MSGITEM *items_out, ID_TUPLE **indexmap_out,
                          DDD_PROC dest
                          )
 {
-  int i, j, last, nTupels;
-  int keep_order_inside_tupel;
+  int i, j, last, nTuples;
+  int keep_order_inside_tuple;
 
 
   /* sort to recognize identification tuples */
@@ -700,47 +700,47 @@ static int IdentifySort (const DDD::DDDContext& context,
   switch (DDD_GetOption(context, OPT_IDENTIFY_MODE))
   {
   case IDMODE_LISTS :
-    std::sort(id, id + nIds, sort_intoTupelsLists);
-    keep_order_inside_tupel = true;
+    std::sort(id, id + nIds, sort_intoTuplesLists);
+    keep_order_inside_tuple = true;
     break;
 
   case IDMODE_SETS :
-    std::sort(id, id + nIds, sort_intoTupelsSets);
-    keep_order_inside_tupel = false;
+    std::sort(id, id + nIds, sort_intoTuplesSets);
+    keep_order_inside_tuple = false;
     break;
 
   default :
     DUNE_THROW(Dune::Exception, "unknown OPT_IDENTIFY_MODE");
   }
-  STAT_INCTIMER3(T_QSORT_TUPEL);
+  STAT_INCTIMER3(T_QSORT_TUPLE);
 
 
   /* compute number of tuples and allocate tuple array */
-  for(i=0, last=0, nTupels=1; i<nIds; i++)
+  for(i=0, last=0, nTuples=1; i<nIds; i++)
   {
     if (id[i]->msg.gid > id[last]->msg.gid)
     {
-      nTupels++;
+      nTuples++;
       last=i;
     }
   }
-  ID_TUPEL* tupels = new ID_TUPEL[nTupels];
+  ID_TUPLE* tuples = new ID_TUPLE[nTuples];
 
   /* init tuples (e.g., compute tuple ids) */
   for(i=0, last=0, j=0; i<nIds; i++)
   {
     if (id[i]->msg.gid > id[last]->msg.gid)
     {
-      TupelInit(&(tupels[j]), &(id[last]), i-last);
+      TupleInit(&(tuples[j]), &(id[last]), i-last);
       j++;
       last=i;
     }
   }
-  TupelInit(&(tupels[j]), &(id[last]), nIds-last);
+  TupleInit(&(tuples[j]), &(id[last]), nIds-last);
 
 
   /*
-          now, 'tupels' is an array of identification tuples,
+          now, 'tuples' is an array of identification tuples,
           sorted according the gid of the object the tuple has
           been specified for.
 
@@ -751,7 +751,7 @@ static int IdentifySort (const DDD::DDDContext& context,
   /* resolve dependencies caused by IdentifyObject,
      and set level-of-indirection accordingly */
   STAT_RESET3;
-  ResolveDependencies(tupels, nTupels, id, nIds, nIdentObjs);
+  ResolveDependencies(tuples, nTuples, id, nIds, nIdentObjs);
   STAT_INCTIMER3(T_RESOLVE_DEP);
 
 
@@ -763,8 +763,8 @@ static int IdentifySort (const DDD::DDDContext& context,
   /* sort array for loi */
   STAT_RESET3;
   std::sort(
-    tupels, tupels + nTupels,
-    [](const ID_TUPEL& a, const ID_TUPEL& b) { return a.loi < b.loi; }
+    tuples, tuples + nTuples,
+    [](const ID_TUPLE& a, const ID_TUPLE& b) { return a.loi < b.loi; }
     );
   STAT_INCTIMER3(T_QSORT_LOI);
 
@@ -772,29 +772,29 @@ static int IdentifySort (const DDD::DDDContext& context,
   STAT_RESET3;
   i=0; j=0;
   do {
-    while (j<nTupels && tupels[i].loi==tupels[j].loi)
+    while (j<nTuples && tuples[i].loi==tuples[j].loi)
     {
       /* reorder because of changes in id.object */
-      if (! keep_order_inside_tupel)
+      if (! keep_order_inside_tuple)
       {
         std::sort(
-          tupels[j].infos, tupels[j].infos + tupels[j].nObjIds,
-          sort_intoTupelsSets
+          tuples[j].infos, tuples[j].infos + tuples[j].nObjIds,
+          sort_intoTuplesSets
           );
       }
       j++;
     }
 
-    /* sort sub-array for tupelId, tupelValue */
+    /* sort sub-array for tupleId, tupleValue */
     if (j-i > 1)
-      qsort(tupels+i, j-i, sizeof(ID_TUPEL), sort_tupelOrder);
+      qsort(tuples+i, j-i, sizeof(ID_TUPLE), sort_tupleOrder);
 
     /* inherit index to tuples referencing this one */
     while (i<j)
     {
       ID_REFDBY *rby;
 
-      for(rby=tupels[i].refd; rby!=NULL; rby=rby->next)
+      for(rby=tuples[i].refd; rby!=NULL; rby=rby->next)
       {
         /* dont use gid of referenced object (because it
            will be known only after identification), but its
@@ -802,7 +802,7 @@ static int IdentifySort (const DDD::DDDContext& context,
 
         /*
            printf("%4d: insertRef dest=%d loi=%d i=%d, %08x <- %08x\n",
-           me, dest, tupels[i].loi, i, OBJ_GID(tupels[i].infos[0]->hdr),
+           me, dest, tuples[i].loi, i, OBJ_GID(tuples[i].infos[0]->hdr),
            OBJ_GID(rby->by->hdr));
          */
 
@@ -818,49 +818,49 @@ static int IdentifySort (const DDD::DDDContext& context,
     }
     /* now i==j */
 
-  } while (i<nTupels);
+  } while (i<nTuples);
   STAT_INCTIMER3(T_BUILD_GRAPH);
 
 
   /* construct array which will be sent actually */
   STAT_RESET3;
-  for(j=0; j<nTupels; j++)
+  for(j=0; j<nTuples; j++)
   {
     /*
        int k;
      */
 #               if DebugIdent<=1
     printf("Ident dest=%d msg_idx[ %08x ] = %5d, loi=%d\n",
-           dest, tupels[j].infos[0]->msg.gid, j, tupels[j].loi);
+           dest, tuples[j].infos[0]->msg.gid, j, tuples[j].loi);
 #               endif
 
     /*
-       for(k=0;k<tupels[j].nObjIds;k++)
+       for(k=0;k<tuples[j].nObjIds;k++)
        {
             printf("%4d:               msg_idx %d %08x\n", me,
-                    k, tupels[j].infos[k]->id.object);
+                    k, tuples[j].infos[k]->id.object);
        }
      */
 
 
 
-    items_out[j] = tupels[j].infos[0]->msg;
+    items_out[j] = tuples[j].infos[0]->msg;
 
 #               if DebugIdent<=DebugIdentCons
     /* send additional data for cons-checking */
-    items_out[j].tupel = tupels[j].tId;
+    items_out[j].tuple = tuples[j].tId;
 #               endif
   }
   STAT_INCTIMER3(T_CONSTRUCT_ARRAY);
 
 
-  CleanupLOI(tupels, nTupels);
+  CleanupLOI(tuples, nTuples);
 
   /* return indexmap table, in order to keep ordering of tuples */
   /* note: this array has to be freed in the calling function! */
-  *indexmap_out = tupels;
+  *indexmap_out = tuples;
 
-  return(nTupels);
+  return(nTuples);
 }
 
 
@@ -1103,7 +1103,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
       {
         /* process single plist */
         MSGITEM   *msgin  = plist->msgin;
-        ID_TUPEL  *msgout = plist->indexmap;
+        ID_TUPLE  *msgout = plist->indexmap;
 
         /* check control data */
         long *len_adr = (long *) (((char *)msgin) - sizeof(long));
@@ -1123,7 +1123,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 #                                       endif
 
 #                                       if DebugIdent<=DebugIdentCons
-          if (msgout->tId != msgin->tupel)
+          if (msgout->tId != msgin->tuple)
           {
             DUNE_THROW(Dune::Exception,
                        "inconsistent tuples, gid "
@@ -1140,7 +1140,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
           AddCoupling(context, msgout->infos[0]->hdr, plist->proc, msgin->prio);
         }
 
-        /* free indexmap (=tupel) array */
+        /* free indexmap (=tuple) array */
         delete[] plist->indexmap;
 
         /* mark plist as finished */
