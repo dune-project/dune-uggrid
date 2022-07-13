@@ -91,8 +91,6 @@ USING_UG_NAMESPACE
 #define MAXPATHLENGTH           256
 #define MAXPATHS                        16
 
-#define SEPERATOR                       " \t"
-
 #define MAX_PATH_LEN            1024
 #define BASE_PATH_SIZE          512
 
