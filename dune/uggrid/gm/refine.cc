@@ -711,7 +711,7 @@ INT NS_DIM_PREFIX Refinement_Changes (ELEMENT *theElement)
    INT
    .n   >0 if elements will be refined
    .n   0 if no elements will be refined
-   .n   -1 if an error occured
+   .n   -1 if an error occurred
  */
 /****************************************************************************/
 
@@ -2096,7 +2096,7 @@ static INT CheckElementInfo (GRID *theGrid)
 /*																			*/
 /* return:	  INT >0: elements will be refined								*/
 /*			  INT 0: no elements will be refined							*/
-/*			  INT -1: an error occured                                                              */
+/*			  INT -1: an error occurred                                                              */
 /*																			*/
 /****************************************************************************/
 /****************************************************************************/
@@ -2113,7 +2113,7 @@ static INT CheckElementInfo (GRID *theGrid)
    \return <ul>
    .n   >0 elements will be refined
    .n   =0 no elements will be refined
-   .n   =-1 an error accured
+   .n   =-1 an error occurred
  */
 /****************************************************************************/
 
@@ -3442,7 +3442,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
     /* determine nodes of sons on side of element */
     GetSonSideNodes(theElement,side,&nodes,SideNodes,ioflag);
 
-    /* sort side nodes in descending adress order */
+    /* sort side nodes in descending address order */
     std::sort(SideNodes, SideNodes + MAX_SIDE_NODES, compare_node);
 
     IFDEBUG(gm,3)
@@ -4069,7 +4069,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
     }
   }
   else
-    /* all entires need to match exactly */
+    /* all entries need to match exactly */
     for (i=0; i<Sons_of_Side; i++)
     {
       SET_NBELEM(ElemSortTable[i]->elem,ElemSortTable[i]->side,
@@ -5711,7 +5711,7 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
       DDD_IdentifyEnd(theGrid->dddContext());
     }
 
-    /* if no grid adaption has occured adapt next level */
+    /* if no grid adaption has occurred adapt next level */
     *nadapted = UG_GlobalSumINT(theGrid->ppifContext(), *nadapted);
     if (*nadapted == 0)
     {
@@ -6172,7 +6172,7 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
 
     SUM_TIMER(gridadapt_timer)
 
-    /* if no grid adaption has occured adapt next level */
+    /* if no grid adaption has occurred adapt next level */
     if (nadapted == 0) continue;
 
     total_adapted += nadapted;

@@ -62,3 +62,13 @@ debian:10 gcc-8-17 debug:
   variables:
     DUNECI_TOOLCHAIN: gcc-8-17
     DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_DEBUGGING:BOOL=1"
+
+# Check for spelling mistakes in text
+code-spelling-check:
+  stage: .pre
+  # Avoid the global 'before_script'
+  before_script: ""
+  image: registry.dune-project.org/docker/ci/debian:11
+  script:
+  - codespell
+    --ignore-words-list alph,ba,broser,createdd,enew,feld,fo,nd,nin,pres,te,theif

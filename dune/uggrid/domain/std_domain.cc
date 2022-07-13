@@ -810,7 +810,7 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH *thePatch, PATCH **corners, PATCH **l
                PARAM_PATCH_RIGHT (sides[s1]))))
       {
         PRINTDEBUG (dom, 0, ("patch %d and patch %d:"
-                             "orientation not maches\n", s0, s1));
+                             "orientations do not match\n", s0, s1));
         (*err)++;
       }
     }
@@ -822,7 +822,7 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH *thePatch, PATCH **corners, PATCH **l
                PARAM_PATCH_LEFT (sides[s1]))))
       {
         PRINTDEBUG (dom, 0, ("patch %d and patch %d:"
-                             "orientation not maches\n", s0, s1));
+                             "orientations do not match\n", s0, s1));
         (*err)++;
       }
     }
@@ -1984,7 +1984,7 @@ FreeBNDS_Global (BND_PS * ps, DOUBLE * local, DOUBLE * global)
     pos[i] = (DOUBLE *) BND_DATA (*(ppt++));
   }
 
-  /* claculate global coordinates */
+  /* calculate global coordinates */
 #ifdef UG_DIM_2
   for (i = 0; i < DIM; i++)
     global[i] = (1.0 - local[0]) * pos[0][i] + local[0] * pos[1][i];
@@ -2856,7 +2856,7 @@ BNDP_LoadBndP_Ext (void)
  *
  * @return <ul>
  *   <li>   0 if ok
- *   <li>   1 when error occured.
+ *   <li>   1 when error occurred.
  * </ul>
  */
 /****************************************************************************/

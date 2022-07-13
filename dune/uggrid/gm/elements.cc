@@ -249,7 +249,7 @@ static GENERAL_ELEMENT def_hexahedron = {
    Only the following components of the GENERAL_ELEMENT structure must be provided.
    All other components are derived from the given information.
 
-   . tag - New tag for the elememt which will be delivered by the 'TAG' macro.
+   . tag - New tag for the element which will be delivered by the 'TAG' macro.
    . max_sons_of_elem - Max number of sons allowed for that element type.
    . sides_of_elem - Number of sides for that element type.
    . corners_of_elem - Number of corners for that element type.
@@ -272,7 +272,7 @@ static GENERAL_ELEMENT def_hexahedron = {
 
    \return <ul>
    <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occured </li>
+   <li> GM_ERROR if error occurred </li>
    <ul>
  */
 /****************************************************************************/
@@ -790,7 +790,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
    \return <ul>
    <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occured. </li>
+   <li> GM_ERROR if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -871,7 +871,7 @@ static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
 
    \return <ul>
    <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occured. </li>
+   <li> GM_ERROR if error occurred. </li>
    </ul>
  */
 /****************************************************************************/
@@ -910,7 +910,7 @@ INT NS_DIM_PREFIX PreInitElementTypes (void)
 
    \return <ul>
    <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occured </li>
+   <li> GM_ERROR if error occurred </li>
    </ul>
  */
 /****************************************************************************/

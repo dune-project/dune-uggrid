@@ -46,7 +46,7 @@ new DDD module 'Prio'.
 	- the new Prio-environment provides two functions
 	  DDD_PrioBegin()/DDD_PrioEnd() for starting and ending a
 	  Prio-environment and a third function DDD_PrioChange()
-	  for issueing PrioChange-commands.
+	  for issuing PrioChange-commands.
 	- this environment is able to communicate the changed priorities
 	  directly via communication using the standard interface.
 980720 kb
@@ -417,7 +417,7 @@ CHANGES 1.8.2 -> 1.8.3
 increased MAX_TRIES timeout value to 50M.
 970305 kb
 added CtrlTimeouts(Detailed) switch in if/if.h.
-	- this may be used for checking the interface timout values.
+	- this may be used for checking the interface timeout values.
 	- CtrlTimeouts displays the timeout value after each IF communication
 	  (on each proc one line for send/receive)
 	- CtrlTimeoutsDetailed displays the timeout values for each 
@@ -460,7 +460,7 @@ started to C++-ize PPIF and extended functionality.
 970212 kb
 added powerful memory-management debugging tool.
 	- some switches (CheckPMEM, CheckAMEM, CheckTMEM) can be
-	  set at compiletime in dddi.h in order to control the
+	  set at compile time in dddi.h in order to control the
 	  memory usage of the DDD-library. each allocated chunk
 	  will be sizeof(size_t) bigger, in the additional section
 	  the size of the allocated memory is stored. this is used
@@ -712,9 +712,9 @@ changed value of DDD_USER_DATA to positive value.
 	- also usage of DDD_USER_DATA in Xfer-module has been adapted.
 still more functionality for Identify-module.
 	- now OPT_IDENTIFY_MODE may be set to two different values:
-		- in IDMODE_LISTS, the order of Identify-command issueing is
+		- in IDMODE_LISTS, the order of Identify-command issuing is
 		  relevant, i.e., tupel1=(5,3) and tupel2(3,5) are different.
-		- in IDMODE_SETS, the order of Identify-commands in each tupel
+		- in IDMODE_SETS, the order of Identify-commands in each tuple
 		  is ignored; the IdentifyModule itself reorders each tupel's
 		  entries. then, tupel1 and tupel2 from the above example are
 		  the same.
@@ -723,7 +723,7 @@ additional functionality for Identify-module.
 	- in calls to DDD_IdentifyObject, now objects can be used as
 	  identifiers which are also identified in the current
 	  IdentifyBegin/IdentifyEnd step. I.e., identification can use
-	  hierarchical IdentifyObject-calls, objects can be used as identifers
+	  hierarchical IdentifyObject-calls, objects can be used as identifiers
 	  which itself haven't been identified before!
 	- communication has been tuned, now REALLY only gid and prio is
 	  sent for each object which must be identified.

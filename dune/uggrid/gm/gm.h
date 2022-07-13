@@ -99,7 +99,7 @@ START_UGDIM_NAMESPACE
 
 #ifdef ModelP
 /* This ensures that for each master node-vector all matrix-neighbors in link depth 2 are
-   at leat as a copy on the same processor and all connections are copied (even for ghosts) */
+   at least as a copy on the same processor and all connections are copied (even for ghosts) */
 /*#define __OVERLAP2__*/
 #endif
 
@@ -505,7 +505,7 @@ struct bvertex {
   struct node *topnode;
 #endif
 
-  /** \brief Pointer to boundary point decriptor */
+  /** \brief Pointer to boundary point descriptor */
   BNDP *bndp;
 };
 
@@ -1303,9 +1303,6 @@ struct grid {
   /** \brief Object identification, various flags */
   UINT control;
 
-  /** \brief level + 32; needed for control word check not detecting HEAPFAULT */
-  INT attribut;
-
   /** \brief A word storing status information. This can be used also by the
       problem class, e.g. to store whether the grid level is assembled or not. */
   INT status;
@@ -1974,7 +1971,7 @@ enum LV_ID_TYPES {
 /* MOVE          |1-2   |*| | | | | |vertex can be moved on a 0(1,2,3) dim subsp*/
 /* ONEDGE        |3 - 6 |*| | | | | |no. of edge in father element                              */
 /* ONSIDE        |3 - 5 |*| | | | | |no. of side in father element                              */
-/* ONNBSIDE      |6 - 8 |*| | | | | |no. of side in the neigbor of the father   */
+/* ONNBSIDE      |6 - 8 |*| | | | | |no. of side in the neighbor of the father   */
 /* NOOFNODE      |9 -13 |*| | | | | |???                                                                            */
 /*                                                                                                                                                      */
 /* nodes:                                                                                                                                       */
@@ -2561,7 +2558,6 @@ START_UGDIM_NAMESPACE
 #define GRID_STATUS_OFFSET                              1
 
 #define GLEVEL(p)                                       ((p)->level)
-#define GATTR(p)                                        ((p)->attribut)
 #define GFORMAT(p)                                      MGFORMAT(MYMG(p))
 #define SETGLOBALGSTATUS(p)             ((p)->status=~0)
 #define GSTATUS(p,n)                            ((p)->status&(n))

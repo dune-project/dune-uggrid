@@ -611,7 +611,7 @@ static void NodeUpdate (DDD::DDDContext& context, DDD_OBJ obj)
 /*																			*/
 /* Purpose:   initiate dependent copy of data related to a node.	                */
 /*																			*/
-/* Input:	  DDD_OBJ	obj:	the object which is transfered to proc		*/
+/* Input:	  DDD_OBJ	obj:	the object which is transferred to proc		*/
 /*			  int		proc:	destination processor for that object		*/
 /*			  int		prio:	priority of object new local object			*/
 /*																			*/
@@ -843,7 +843,7 @@ static void ElementDelete (DDD::DDDContext& context, DDD_OBJ obj)
 /* Purpose:   initiate dependent copy of data related to an element.            */
 /*			  this handler is implemented for an arbitrary element type.	*/
 /*																			*/
-/* Input:	  DDD_OBJ	obj:	the object which is transfered to proc		*/
+/* Input:	  DDD_OBJ	obj:	the object which is transferred to proc		*/
 /*			  int		proc:	destination processor for that object		*/
 /*			  int		prio:	priority of object new local object			*/
 /*																			*/
@@ -1442,7 +1442,7 @@ static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PR
   /*  if called with prio old=ghost and new=ghost,
           then you have to unlink and link again to avoid
           decoupling of son and father.
-          Sample cenario:
+          Sample scenario:
                   father=a  son=x are on proc p.
                   father is deleted and removes his reference in son,
                   but father and son are sent again to p. Son x gets

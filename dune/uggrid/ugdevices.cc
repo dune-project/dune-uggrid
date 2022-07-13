@@ -120,7 +120,7 @@ INT NS_PREFIX OpenLogFile (const char *name, int rename)
    RETURN VALUE:
    INT
    .n    0 if operation ok
-   .n    1 if an error occured.
+   .n    1 if an error occurred.
    D*/
 /****************************************************************************/
 
@@ -149,7 +149,7 @@ INT NS_PREFIX CloseLogFile (void)
    RETURN VALUE:
    INT
    .n    0 if operation ok
-   .n    1 if an error occured.
+   .n    1 if an error occurred.
    D*/
 /****************************************************************************/
 
@@ -175,7 +175,7 @@ INT NS_PREFIX SetLogFile (FILE *file)
    RETURN VALUE:
    INT
    .n    0 if operation ok
-   .n    1 if error occured.
+   .n    1 if error occurred.
    D*/
 /****************************************************************************/
 
@@ -238,7 +238,7 @@ void NS_PREFIX UserWrite (const char *s)
 
 /****************************************************************************/
 /*D
-   UserWriteF - write a formated string to shell window
+   UserWriteF - write a formatted string to shell window
 
    SYNOPSIS:
    int UserWriteF (const char *format, ...);
@@ -248,13 +248,13 @@ void NS_PREFIX UserWrite (const char *s)
    .  ... - list of arguments for format string
 
    DESCRIPTION:
-   This function writes a formated string to shell
+   This function writes a formatted string to shell
    window with log file  mechanism.
 
    RETURN VALUE:
    int
    .n    0 if ok
-   .n    1 if error occured.
+   .n    1 if error occurred.
    D*/
 /****************************************************************************/
 
@@ -300,7 +300,7 @@ int NS_PREFIX UserWriteF (const char *format, ...)
 /** \brief Formatted error output (also to log file)
  *
  * @param   type - 'W','E','F'
- * @param   procName - name  of procedure where error occured
+ * @param   procName - name  of procedure where error occurred
  * @param   text -  additional explanation
  *
  * This function formats error output (also to log file).
@@ -348,7 +348,7 @@ void NS_PREFIX PrintErrorMessage (char type, const char *procName, const char *t
 
    PARAMETERS:
  * @param   type - 'W','E','F'
- * @param   procName - name  of procedure where error occured
+ * @param   procName - name  of procedure where error occurred
  * @param   format -  additional formatted explanation (like printf)
 
    DESCRIPTION:
@@ -392,7 +392,7 @@ void NS_PREFIX PrintErrorMessageF (char type, const char *procName, const char *
    RETURN VALUE:
    INT
    .n    0 if ok
-   .n    1 if some error occured.
+   .n    1 if some error occurred.
    D*/
 /****************************************************************************/
 

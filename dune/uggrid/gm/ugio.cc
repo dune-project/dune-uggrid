@@ -538,7 +538,7 @@ static INT OrphanCons(MULTIGRID *theMG)
       }
 
       /* there exists a second case in which an artificial orphanisation is necessary:
-         if we have 2 neigboring elements, whose fathers are different and are neighbors
+         if we have 2 neighboring elements, whose fathers are different and are neighbors
          but have no neighbor-pointers to each other (for examples if both fathers are
          ghosts since 2 ghosts do not have to have neighbor-pointers to each other).
          In this situation the 2 children will not get their neighbor-pointers to
@@ -566,7 +566,7 @@ static INT OrphanCons(MULTIGRID *theMG)
          the current children (they have no neighboriung pointers to each other) and
          thus we rely us for clearing an uncertain case on the already cleared same
          case for the fathers. This would be perhaps correct if we reconstruct the
-         grid level-wise and ensure the consistancy for this level before proceeding
+         grid level-wise and ensure the consistency for this level before proceeding
          to the next one; but this is not done in ug.
        */
       if( !orphan && EMASTER(theElement) )                   /* only a master element must know its neighbors */
@@ -733,7 +733,7 @@ INT NS_DIM_PREFIX RenumberMultiGrid (MULTIGRID *theMG, INT *nboe, INT *nioe, INT
       assert((*vid_n)[i] != NULL);
     ENDDEBUG
   }
-  for (i=0; i<=TOPLEVEL(theMG); i++)                                            /* not neccessary for i/o */
+  for (i=0; i<=TOPLEVEL(theMG); i++)                                            /* not necessary for i/o */
     for (theNode=PFIRSTNODE(GRID_ON_LEVEL(theMG,i)); theNode!=NULL; theNode=SUCCN(theNode))
       if (THEFLAG(MYVERTEX(theNode))==0 && !USED(MYVERTEX(theNode)))
       {
@@ -1628,7 +1628,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
       if (!EORPHAN(theElement)) continue;
       assert(id==ID(theElement));
       if (REFINE(theElement)!=NO_REFINEMENT)
-        /* write refinement only if it is neccessary */
+        /* write refinement only if it is necessary */
         if(SetHierRefinement(theGrid,theElement,refinement,rr_rule_offsets))
           REP_ERR_RETURN(1);
       id++;
@@ -1670,7 +1670,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
 
    \return <ul>
    <li> 0 if ok </li>
-   <li> >0 if error occured </li>
+   <li> >0 if error occurred </li>
    </ul>
  */
 /****************************************************************************/
@@ -1931,8 +1931,8 @@ static INT IO_GridCons(MULTIGRID *theMG)
 
 #if (MGIO_DEBUG>0)
 static void CheckNeighborElement( ELEMENT *theElement, INT nb_nr, INT expected_nb_key, const char *messagePrefix )
-/* Checks wheather the relation between an element and a given neighbor is ok.
-   If an error is detected, the program stopps with 'assert'.
+/* Checks whether the relation between an element and a given neighbor is ok.
+   If an error is detected, the program stops with 'assert'.
  */
 {
   INT k, key;
@@ -2635,7 +2635,7 @@ static INT CheckCGKeys (INT ne, ELEMENT** eid_e, MGIO_CG_ELEMENT *cg_elem)
    This function can read grid files produced with the 'SaveMultiGrid' function.
 
    \return
-   NULL if an error occured else a pointer to new 'MULTIGRID'
+   NULL if an error occurred else a pointer to new 'MULTIGRID'
  */
 /****************************************************************************/
 
@@ -2654,7 +2654,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
    Functions introducing a global communication (all processors without any exception)
    are:
         UG_GlobalMin* and DDD_XferBegin/End
-   the corresponding topics in the following lists are preceeded by "#"
+   the corresponding topics in the following lists are preceded by "#"
    The sequence of main topics is:
                 read coarse grid data
                 CreateMultiGrid
@@ -3187,7 +3187,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
 
   /* are we ready ? */
   if (mg_general.nLevel==1)
-  {             /* if we are here now, all other processors (wich haven't returned yet) are here TOO
+  {             /* if we are here now, all other processors (which haven't returned yet) are here TOO
                    because mg_general.nLevel is a global quantity. */
 
     /* close identification context */

@@ -658,7 +658,7 @@ NODE *PREDN (NODE *p);
 NODE *SUCCN (NODE *p);
 \endverbatim
 
-Provides acces to the double linked list of nodes per level.
+Provides access to the double linked list of nodes per level.
 
 \verbatim
 INT INDEX (NODE *p);

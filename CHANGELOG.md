@@ -126,7 +126,7 @@ It also contains many important cleanup patches (kudos to Ansgar Burchardt).
 
 * Properly set `SideVector` `VCOUNT` fields after load balancing
   (Dune FlySpray 810: https://dune-project.org/flyspray/index.php?do=details&task_id=810 )
-* Bugfix: Alway identify MIDNODEs to the proclist of the father edge
+* Bugfix: Always identify MIDNODEs to the proclist of the father edge
 * Bugfix: Initialize EDIDENT for edges for 3d _and 2d_ before refinement
 * Bugfix: Call the `RestrictPartitioning` method more often before adaptive refinement
 * Remove the Fortran interface to the DDD library

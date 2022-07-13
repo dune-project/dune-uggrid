@@ -1797,7 +1797,7 @@ INT NS_DIM_PREFIX CheckLists (GRID *theGrid)
 
    PARAMETERS:
    .  theGrid - grid to check
-   .  checkgeom - check geomtry
+   .  checkgeom - check geometry
    .  checkalgebra - check algebra
    .  checklists - checklists
    .  checkif - check the processor interfaces
@@ -1808,7 +1808,7 @@ INT NS_DIM_PREFIX CheckLists (GRID *theGrid)
    RETURN VALUE:
    INT
    .n   GM_OK if ok
-   .n   GM_ERROR if an error occured.
+   .n   GM_ERROR if an error occurred.
    D*/
 /****************************************************************************/
 

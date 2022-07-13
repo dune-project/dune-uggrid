@@ -91,8 +91,6 @@ USING_UG_NAMESPACE
 #define MAXPATHLENGTH           256
 #define MAXPATHS                        16
 
-#define SEPERATOR                       " \t"
-
 #define MAX_PATH_LEN            1024
 #define BASE_PATH_SIZE          512
 
@@ -142,7 +140,7 @@ static char BasePath[BASE_PATH_SIZE] = "./";
 /* Input:	  name of the Paths to find                                                                     */
 /*																			*/
 /* Output:	  PATHS *: pointer to the multigrid struct						*/
-/*			  NULL: if an error occured                                                                     */
+/*			  NULL: if an error occurred                                                                     */
 /*																			*/
 /****************************************************************************/
 
@@ -368,8 +366,8 @@ static int rename_if_necessary( const char *fname, int do_rename)
 
         RETURN VALUE:
         int
-   .n   0 sucessfull completion
-   .n      != 0 error occured
+   .n   0 successful completion
+   .n      != 0 error occurred
 
         SEE ALSO:
         mkdir(2), fopen_r
@@ -437,8 +435,8 @@ int NS_PREFIX mkdir_r (const char *fname, mode_t mode, int do_rename)
 
         RETURN VALUE:
         int
-   .n   0 sucessfull completion
-   .n      != 0 error occured
+   .n   0 successful completion
+   .n      != 0 error occurred
 
         SEE ALSO:
         fopen(2), mkdir_r
@@ -464,7 +462,7 @@ FILE * NS_PREFIX fopen_r (const char *fname, const char *mode, int do_rename)
    .   fname - filename with path convention in UNIX-style; it may not be passed through BasedConvertedFilename()
 
         DESCRIPTION:
-    This functon returns the type of the given file
+    This function returns the type of the given file
     or FT_UNKNOWN if an error occurs.
         fname may not be passed through BasedConvertedFilename().
 
@@ -526,7 +524,7 @@ int NS_PREFIX filetype (const char *fname)
         is read containing one or more paths sperated by blanks (tab or space).
         The paths are stored in an environment item with that same name in the
         environment directory '/Paths'. The function --> 'FileOpenUsingSearchPaths'
-        is looking up the paths to be tryed there.
+        is looking up the paths to be tried there.
 
         RETURN VALUE:
         INT
@@ -559,7 +557,7 @@ INT NS_PREFIX ReadSearchingPaths (const char *filename, const char *paths)
                         set by --> 'ReadSearchingPaths'
 
         DESCRIPTION:
-        The functions trys to create a directory with 'filename' using one by one the
+        The functions tries to create a directory with 'filename' using one by one the
         paths specified in the environment item '/Paths/<paths>' which was
         set by --> 'ReadSearchingPaths'. It is used in several places in ug (all paths
         are read from the standard --> 'defaults' file)":"
@@ -570,8 +568,8 @@ INT NS_PREFIX ReadSearchingPaths (const char *filename, const char *paths)
 
         RETURN VALUE:
         int
-   .n   0 sucessfull completion
-   .n      != 0 error occured
+   .n   0 successful completion
+   .n      != 0 error occurred
 
         SEE ALSO:
         DirCreateUsingSearchPaths_r, mkdir(2)
@@ -598,7 +596,7 @@ int NS_PREFIX DirCreateUsingSearchPaths (const char *fname, const char *paths)
    .   rename - if true an already existing subdirectory will be renamed
 
         DESCRIPTION:
-        The functions trys to create a subdirectory with 'filename' using one by one the
+        The functions tries to create a subdirectory with 'filename' using one by one the
         paths specified in the environment item '/Paths/<paths>' which was
         set by --> 'ReadSearchingPaths'. It is used in several places in ug (all paths
         are read from the standard --> 'defaults' file)":"
@@ -609,8 +607,8 @@ int NS_PREFIX DirCreateUsingSearchPaths (const char *fname, const char *paths)
 
         RETURN VALUE:
         int
-   .n   0 sucessfull completion
-   .n      != 0 error occured
+   .n   0 successful completion
+   .n      != 0 error occurred
 
         SEE ALSO:
         DirCreateUsingSearchPaths, mkdir(2)
@@ -660,7 +658,7 @@ int NS_PREFIX DirCreateUsingSearchPaths_r (const char *fname, const char *paths,
 
     if ((error=mkdir_r(fullname,mode,rename))!=0)
       return (1);
-    return (0);                 /* subdirectory created sucessfully */
+    return (0);                 /* subdirectory created successfully */
   }
   return (1);
 }
@@ -680,7 +678,7 @@ int NS_PREFIX DirCreateUsingSearchPaths_r (const char *fname, const char *paths,
                         set by --> 'ReadSearchingPaths'
 
         DESCRIPTION:
-        The functions trys to open the file with 'filename' using one by one the
+        The functions tries to open the file with 'filename' using one by one the
         paths specified in the environment item '/Paths/<paths>' which was
         set by --> 'ReadSearchingPaths'. It is used in several places in ug (all paths
         are read from the standard --> 'defaults' file)":"
@@ -719,7 +717,7 @@ FILE * NS_PREFIX FileOpenUsingSearchPaths (const char *fname, const char *mode, 
    .   rename - if true an already existing file will be renamed (wise only for writing)
 
         DESCRIPTION:
-        The functions trys to open the file with 'filename' using one by one the
+        The functions tries to open the file with 'filename' using one by one the
         paths specified in the environment item '/Paths/<paths>' which was
         set by --> 'ReadSearchingPaths'. It is used in several places in ug (all paths
         are read from the standard --> 'defaults' file)":"
@@ -849,7 +847,7 @@ FILE * NS_PREFIX FileOpenUsingSearchPath_r (const char *fname, const char *mode,
                         set by --> 'ReadSearchingPaths'
 
         DESCRIPTION:
-        The functions trys to determine the file type of the file named
+        The functions tries to determine the file type of the file named
         'filename' using one by one the paths specified in the environment
         item '/Paths/<paths>' which was set by --> 'ReadSearchingPaths'.
         It is used in several places in ug (all paths are read from the

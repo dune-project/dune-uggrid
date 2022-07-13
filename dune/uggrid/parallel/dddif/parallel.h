@@ -352,24 +352,24 @@ INT             RestrictPartitioning            (MULTIGRID *theMG);
 INT             CheckInterfaces                         (GRID *theGrid);
 
 /*
- * COMPATABILITY FUNCTIONS FOR OLDER dune-grid RELEASES
+ * COMPATIBILITY FUNCTIONS FOR OLDER dune-grid RELEASES
  */
 
 /**
  * get global DDD context.
- * This only exists for compatability with old versions of dune-grid.
+ * This only exists for compatibility with old versions of dune-grid.
  */
 DDD::DDDContext& globalDDDContext();
 
 /**
  * set global DDD context.
- * This only exists for compatability with old versions of dune-grid.
+ * This only exists for compatibility with old versions of dune-grid.
  */
 void globalDDDContext(const std::shared_ptr<DDD::DDDContext>& context);
 
 /**
  * invalidate global DDD context.
- * This only exists for compatability with old versions of dune-grid.
+ * This only exists for compatibility with old versions of dune-grid.
  */
 void globalDDDContext(std::nullptr_t);
 

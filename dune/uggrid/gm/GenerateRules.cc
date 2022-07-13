@@ -662,7 +662,7 @@ static int MakeRule0 (SHORT pattern)
                   {{0,0,0,0},{0,0,0,0},0},
                   {{0,0,0,0},{0,0,0,0},0}}};
 
-  assert(pattern==0);           /* just to supress 'not used' warning */
+  assert(pattern==0);           /* just to suppress 'not used' warning */
 
   printf("   rule 0: no ref and copy: 2 Rules\n");
   nRulesTh += 2;
@@ -730,7 +730,7 @@ static int MakeRule3 (SHORT pattern)
   SHORT *Rot;
   SHORT theRule3,i,j;
 
-  /* see wether Rule3 is to apply */
+  /* see whether Rule3 is to apply */
   theRule3 = 0;
   switch (pattern)
   {
@@ -1074,12 +1074,12 @@ static int MakeRule5 (SHORT pattern)
 
   switch (~pattern&PATTERNFILTER)
   {
-  case (1<<0) : Rot0 = IDENTITY; Rot1 = IDENTITY; break;                /* all but egde 0 (111110) */
-  case (1<<1) : Rot0 = Ax3Left;  Rot1 = IDENTITY; break;                /* all but egde 1 (111101) */
-  case (1<<2) : Rot0 = Ax3Right; Rot1 = IDENTITY; break;                /* all but egde 2 (111011) */
-  case (1<<3) : Rot0 = Ax2Left;  Rot1 = IDENTITY; break;                /* all but egde 3 (110111) */
-  case (1<<4) : Rot0 = Ax2Right; Rot1 = IDENTITY; break;                /* all but egde 4 (101111) */
-  case (1<<5) : Rot0 = Ax2Left;  Rot1 = Ax1Right; break;                /* all but egde 5 (011111) */
+  case (1<<0) : Rot0 = IDENTITY; Rot1 = IDENTITY; break;                /* all but edge 0 (111110) */
+  case (1<<1) : Rot0 = Ax3Left;  Rot1 = IDENTITY; break;                /* all but edge 1 (111101) */
+  case (1<<2) : Rot0 = Ax3Right; Rot1 = IDENTITY; break;                /* all but edge 2 (111011) */
+  case (1<<3) : Rot0 = Ax2Left;  Rot1 = IDENTITY; break;                /* all but edge 3 (110111) */
+  case (1<<4) : Rot0 = Ax2Right; Rot1 = IDENTITY; break;                /* all but edge 4 (101111) */
+  case (1<<5) : Rot0 = Ax2Left;  Rot1 = Ax1Right; break;                /* all but edge 5 (011111) */
 
   default : assert (0);                                                                                 /* should not happen	   */
   }

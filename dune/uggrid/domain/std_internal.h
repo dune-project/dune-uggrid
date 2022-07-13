@@ -301,7 +301,7 @@ struct std_BoundaryValueProblem
   INT numOfSubdomains;
   /*@}*/
 
-  /** @name Boundary decription */
+  /** @name Boundary description */
   /*@{*/
   INT ncorners;
   INT nsides;

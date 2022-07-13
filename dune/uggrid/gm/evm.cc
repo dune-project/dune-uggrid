@@ -375,7 +375,7 @@ INT NS_DIM_PREFIX V3_Normalize (DOUBLE *a)
    RETURN VALUE:
    INT
    .n    0 if o.k.
-   .n    1 if error occured.
+   .n    1 if error occurred.
    D*/
 /****************************************************************************/
 

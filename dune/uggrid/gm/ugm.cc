@@ -180,7 +180,7 @@ GM_OBJECTS NS_DIM_PREFIX GetFreeOBJT ()
  *
  * @return <ul>
  * <li>   GM_OK if ok </li>
- * <li>   GM_ERROR when error occured. </li>
+ * <li>   GM_ERROR when error occurred. </li>
  * </ul>
  */
 /****************************************************************************/
@@ -262,7 +262,7 @@ void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
 
    @return <ul>
    <li>   0 if ok </li>
-   <li>   1 when error occured. </li>
+   <li>   1 when error occurred. </li>
  * </ul> */
 /****************************************************************************/
 
@@ -1772,7 +1772,7 @@ INT NS_DIM_PREFIX GetSonEdges (const EDGE *theEdge, EDGE *SonEdges[MAX_SON_EDGES
   MidNode = MIDNODE(theEdge);
 
   /* parallel note:                                                */
-  /* since existance of MidNode decides whether for one SonEdge or */
+  /* since existence of MidNode decides whether for one SonEdge or */
   /* two half SonEdges is searched, the data structure must be     */
   /* consistent in a way that if the MidNode exists also the       */
   /* MIDNODE pointer is set to MidNode. (s.l. 980227)              */
@@ -2461,7 +2461,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR when error occured. </li>
+   <li>   GM_ERROR when error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -2578,7 +2578,6 @@ GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG)
   CTRL(theGrid) = 0;
   SETOBJT(theGrid,GROBJ);
   GLEVEL(theGrid) = l;
-  GATTR(theGrid) = GRID_ATTR(theGrid);
   NE(theGrid) = 0;
   /* other counters are init in INIT fcts below */
 
@@ -2622,7 +2621,7 @@ GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG)
 
    @return <ul>
    <li>   pointer to new MULTIGRID </li>
-   <li>   NULL if error occured </li>
+   <li>   NULL if error occurred </li>
    </ul> */
 /****************************************************************************/
 
@@ -2821,7 +2820,7 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
 
    @return <ul>
    <li>   pointer to new object </li>
-   <li>   NULL if an error occured. </li>
+   <li>   NULL if an error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -2951,7 +2950,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
 
    @return <ul>
    <li>   0 if ok </li>
-   <li>   1 if an error occured. </li>
+   <li>   1 if an error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -3031,7 +3030,7 @@ static INT DisposeEdge (GRID *theGrid, EDGE *theEdge)
 
    @return <ul>
    <li>   0 if ok </li>
-   <li>   1 when error occured. </li>
+   <li>   1 when error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -3578,7 +3577,6 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
   theGrid->finer = NULL;
   theGrid->coarser = NULL;
   theGrid->level = 0;
-  GATTR(theGrid) = GRID_ATTR(theGrid);
   GRID_ON_LEVEL(theMG,tl) = NULL;
   GRID_ON_LEVEL(theMG,0) = theGrid;
   theMG->topLevel = 0;
@@ -3757,7 +3755,7 @@ INT NS_DIM_PREFIX DisposeGrid (GRID *theGrid)
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR when error occured. </li>
+   <li>   GM_ERROR when error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -3823,7 +3821,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
 
    @return <ul>
    <li>   0 if ok </li>
-   <li>   1 when error occured. </li>
+   <li>   1 when error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -3860,7 +3858,7 @@ INT NS_DIM_PREFIX FindNeighborElement (const ELEMENT *theElement, INT Side, ELEM
  *
  * @return <ul>
  *    <li> pointer to new node if ok </li>
- *    <li> NULL when error occured </li>
+ *    <li> NULL when error occurred </li>
  * </ul>
  */
 /****************************************************************************/
@@ -3903,7 +3901,7 @@ NODE * NS_DIM_PREFIX InsertInnerNode (GRID *theGrid, const DOUBLE *pos)
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR when error occured. </li>
+   <li>   GM_ERROR when error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -3968,7 +3966,7 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR when error occured. </li>
+   <li>   GM_ERROR when error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -4537,7 +4535,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR when error occured. </li>
+   <li>   GM_ERROR when error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -4590,7 +4588,7 @@ INT NS_DIM_PREFIX DeleteElement (MULTIGRID *theMG, ELEMENT *theElement) /* 3D VE
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR when error occured. </li>
+   <li>   GM_ERROR when error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -6065,7 +6063,7 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
 
    @return <ul>
    <li>    0 if ok </li>
-   <li>    1 if error occured.		 </li>
+   <li>    1 if error occurred.		 </li>
    </ul> */
 /****************************************************************************/
 
@@ -6093,7 +6091,7 @@ static INT MaxNodeClass (const ELEMENT *theElement)
 
    @return <ul>
    <li>    0 if ok </li>
-   <li>    1 if error occured.  </li>
+   <li>    1 if error occurred.  </li>
    </ul> */
 /****************************************************************************/
 
@@ -6121,7 +6119,7 @@ INT NS_DIM_PREFIX MaxNextNodeClass (const ELEMENT *theElement)
 
    @return <ul>
    <li>    0 if ok </li>
-   <li>    1 if error occured.  </li>
+   <li>    1 if error occurred.  </li>
    </ul> */
 /****************************************************************************/
 
@@ -6149,7 +6147,7 @@ INT NS_DIM_PREFIX MinNodeClass (const ELEMENT *theElement)
 
    @return <ul>
    <li>    0 if ok </li>
-   <li>    1 if error occured.  </li>
+   <li>    1 if error occurred.  </li>
    </ul> */
 /****************************************************************************/
 
@@ -6177,7 +6175,7 @@ INT NS_DIM_PREFIX MinNextNodeClass (const ELEMENT *theElement)
 
    @return <ul>
    <li>    0 if ok </li>
-   <li>    1 if error occured. </li>
+   <li>    1 if error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -6200,7 +6198,7 @@ INT NS_DIM_PREFIX SeedNodeClasses (ELEMENT *theElement)
 
    @return <ul>
    <li>     0 if ok </li>
-   <li>     1 if error occured. </li>
+   <li>     1 if error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -6254,7 +6252,7 @@ static int Scatter_GhostNodeClass (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
    @return <ul>
    <li>      0 if ok </li>
-   <li>      1 if error occured </li>
+   <li>      1 if error occurred </li>
    </ul> */
 /****************************************************************************/
 static INT PropagateNodeClass (GRID *theGrid, INT nclass)
@@ -6336,7 +6334,7 @@ INT NS_DIM_PREFIX PropagateNodeClasses (GRID *theGrid)
 
    @return <ul>
    <li>     0 if ok </li>
-   <li>     1 if error occured. </li>
+   <li>     1 if error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -6362,7 +6360,7 @@ INT NS_DIM_PREFIX ClearNextNodeClasses (GRID *theGrid)
 
    @return <ul>
    <li>     0 if ok  </li>
-   <li>     1 if error occured. </li>
+   <li>     1 if error occurred. </li>
    </ul> */
 /****************************************************************************/
 
@@ -6386,7 +6384,7 @@ INT NS_DIM_PREFIX SeedNextNodeClasses (ELEMENT *theElement)
 
    @return <ul>
    <li>    0 if ok  </li>
-   <li>    1 if error occured </li>
+   <li>    1 if error occurred </li>
    </ul> */
 /****************************************************************************/
 
@@ -6491,7 +6489,7 @@ INT NS_DIM_PREFIX PropagateNextNodeClasses (GRID *theGrid)
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR if error occured </li>
+   <li>   GM_ERROR if error occurred </li>
    </ul> */
 /****************************************************************************/
 
@@ -6574,7 +6572,7 @@ static INT SetEdgeAndNodeSubdomainFromElements (GRID *theGrid)
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR if error occured </li>
+   <li>   GM_ERROR if error occurred </li>
    </ul> */
 /****************************************************************************/
 
@@ -6620,7 +6618,7 @@ static INT RemoveSpuriousBoundarySides (HEAP *heap, ELEMENT *elem, INT side)
  *
  * @return <ul>
  *   <li>   GM_OK if ok </li>
- *   <li>   GM_ERROR if error occured </li>
+ *   <li>   GM_ERROR if error occurred </li>
  **</ul>
  */
 /****************************************************************************/
@@ -6682,7 +6680,7 @@ static INT BElem2IElem (GRID *grid, ELEMENT **elemH)
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR if error occured </li>
+   <li>   GM_ERROR if error occurred </li>
    </ul> */
 /****************************************************************************/
 
@@ -6836,7 +6834,7 @@ static INT FinishGrid (MULTIGRID *mg)
         }
       }
 
-      /* count occurences of subdom ids (max 2 different) */
+      /* count occurrences of subdom ids (max 2 different) */
       for (found=0, i=0; i<=nsd; i++)
         if (sd_table[i])
           found++;
@@ -6951,7 +6949,7 @@ static INT FinishGrid (MULTIGRID *mg)
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR if error occured </li>
+   <li>   GM_ERROR if error occurred </li>
    </ul> */
 /****************************************************************************/
 
@@ -7059,7 +7057,7 @@ INT NS_DIM_PREFIX SetSubdomainIDfromBndInfo (MULTIGRID *theMG)
 
    @return <ul>
    <li>   GM_OK if ok </li>
-   <li>   GM_ERROR if error occured </li>
+   <li>   GM_ERROR if error occurred </li>
  * </ul>
  */
 /****************************************************************************/
@@ -7094,7 +7092,7 @@ INT NS_DIM_PREFIX FixCoarseGrid (MULTIGRID *theMG)
  *
  *  @return <ul>
  *     <li> GM_OK if ok </li>
- *     <li> > 0 line in which error occured </li>
+ *     <li> > 0 line in which error occurred </li>
  *  </ul>
  */
 /****************************************************************************/

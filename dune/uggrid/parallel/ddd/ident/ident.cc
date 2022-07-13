@@ -29,9 +29,9 @@
 
 
 /*
-        in debuglevel DebugIdentCons, addititional data is sent with
+        in debuglevel DebugIdentCons, additional data is sent with
         the identify-messages, in order to check the consistency of
-        the identification tupels.
+        the identification tuples.
 
         this is for configuring the debug actions only.
  */
@@ -93,7 +93,7 @@ namespace Ident {
 #define ID_STRING   3
 
 
-#define TUPEL_LEN(t)    ((int)((t)&0x3f))
+#define TUPLE_LEN(t)    ((int)((t)&0x3f))
 
 
 /* overall mode of identification */
@@ -167,7 +167,7 @@ struct MSGITEM {
   DDD_PRIO prio;
 
 #       if DebugIdent<=DebugIdentCons
-  unsigned long tupel;         /* send tupel ID for checking consistency */
+  unsigned long tuple;         /* send tuple ID for checking consistency */
 #       endif
 
 };
@@ -178,7 +178,7 @@ struct MSGITEM {
 /* IDENTINFO:                                                               */
 /****************************************************************************/
 
-struct ID_TUPEL;
+struct ID_TUPLE;
 
 struct IDENTINFO {
   int typeId;
@@ -190,13 +190,13 @@ struct IDENTINFO {
 
   DDD_HDR hdr;
 
-  ID_TUPEL  *tupel;
+  ID_TUPLE  *tuple;
 };
 
 
 
 /****************************************************************************/
-/* ID_TUPEL:                                                                */
+/* ID_TUPLE:                                                                */
 /****************************************************************************/
 
 struct ID_REFDBY
@@ -206,7 +206,7 @@ struct ID_REFDBY
 };
 
 
-struct ID_TUPEL {
+struct ID_TUPLE {
   unsigned long tId;
   IDENTINFO     **infos;
 
@@ -249,7 +249,7 @@ struct ID_PLIST {
   IdEntrySegmList  *entries;
 
   IDENTINFO   **local_ids;
-  ID_TUPEL    *indexmap;                  /* index-mapping of local_ids array */
+  ID_TUPLE    *indexmap;                  /* index-mapping of local_ids array */
 
   MSGITEM     *msgin, *msgout;
   msgid idin, idout;
@@ -393,13 +393,13 @@ static int compareId (const IDENTINFO *el1, const IDENTINFO *el2)
 /****************************************************************************/
 
 /*
-        two functions for sorting IdentifyXXX-requests into tupels:
+        two functions for sorting IdentifyXXX-requests into tuples:
 
-        sort_intoTupelsLists keeps order of IdentifyXXX-issueing by
+        sort_intoTuplesLists keeps order of IdentifyXXX-issueing by
            application program, i.e., the ordering is relevant
 
-        sort_intoTupelsSets reorders the IdentifyXXX-items inside each
-           tupel itself;
+        sort_intoTuplesSets reorders the IdentifyXXX-items inside each
+           tuple itself;
            at this level the ordering is done only by typeId, where
            ID_OBJECT comes first. lateron the IdentifyObject-items will
            be sorted according to their gid (for objects with loi==0)
@@ -407,14 +407,14 @@ static int compareId (const IDENTINFO *el1, const IDENTINFO *el2)
  */
 
 
-static bool sort_intoTupelsLists(const IDENTINFO* a, const IDENTINFO* b)
+static bool sort_intoTuplesLists(const IDENTINFO* a, const IDENTINFO* b)
 {
   /* sort according to (old) global ids */
   /* if equal, keep ordering of input  */
   return std::tie(a->msg.gid, a->entry) < std::tie(b->msg.gid, b->entry);
 }
 
-static bool sort_intoTupelsSets(const IDENTINFO* a, const IDENTINFO* b)
+static bool sort_intoTuplesSets(const IDENTINFO* a, const IDENTINFO* b)
 {
   /* sort according to (old) global ids */
   /* if equal, sort according to identificator itself */
@@ -432,38 +432,38 @@ static bool sort_intoTupelsSets(const IDENTINFO* a, const IDENTINFO* b)
 /****************************************************************************/
 
 
-static int sort_tupelOrder (const void *e1, const void *e2)
+static int sort_tupleOrder (const void *e1, const void *e2)
 {
-  ID_TUPEL *el1, *el2;
+  ID_TUPLE *el1, *el2;
   int cmp, i, nIds;
   DDD_HDR el1hdr, el2hdr;
 
-  el1 = (ID_TUPEL *) e1;
-  el2 = (ID_TUPEL *) e2;
+  el1 = (ID_TUPLE *) e1;
+  el2 = (ID_TUPLE *) e2;
 
 
-  /* sort according to tupel id */
+  /* sort according to tuple id */
   if (el1->tId < el2->tId) return(-1);
   if (el1->tId > el2->tId) return(1);
 
-  /* ids are equal, sort according tupel value */
+  /* ids are equal, sort according tuple value */
 
-  /* recode tupel length from lowest 6 bits */
-  nIds = TUPEL_LEN(el1->tId);
+  /* recode tuple length from lowest 6 bits */
+  nIds = TUPLE_LEN(el1->tId);
 
 
-  /* compare until one tupel entry differs */
+  /* compare until one tuple entry differs */
   for(i=0; i<nIds; i++) {
     if ((cmp=compareId(el1->infos[i], el2->infos[i])) != 0)
       return(cmp);
   }
 
 
-  /* if tupels are equal by all means up to now, we
+  /* if tuples are equal by all means up to now, we
      sort according to DDD_TYPE of local object.
      hence, we can identify two pairs of local objects with
-     the same tupel.
-     this has to be ommitted if objects with different
+     the same tuple.
+     this has to be omitted if objects with different
      types should be identifiable. KB 960814
    */
   el1hdr = el1->infos[0]->hdr;
@@ -475,7 +475,7 @@ static int sort_tupelOrder (const void *e1, const void *e2)
   if (el1hdr!=el2hdr) {
     /*
        for(i=0; i<nIds; i++) {
-            printf("%4d: tupel[%d]  %08x/%d  %08x/%d   (id/loi)\n",
+            printf("%4d: tuple[%d]  %08x/%d  %08x/%d   (id/loi)\n",
                     me, i,
                     el1->infos[i]->id.object, el1->loi,
                     el2->infos[i]->id.object, el2->loi);
@@ -483,7 +483,7 @@ static int sort_tupelOrder (const void *e1, const void *e2)
      */
 
     DUNE_THROW(Dune::Exception,
-               "same identification tupel for objects "
+               "same identification tuple for objects "
                << OBJ_GID(el1hdr) << " and " << OBJ_GID(el2hdr));
   }
 
@@ -496,23 +496,23 @@ static int sort_tupelOrder (const void *e1, const void *e2)
 static void SetLOI (IDENTINFO *ii, int loi)
 {
   ID_REFDBY *rby;
-  ID_TUPEL  *tupel = ii->tupel;
+  ID_TUPLE  *tuple = ii->tuple;
 
   /*
      printf("%4d: %08x SetLOI(%d, %d)\n", me, ii->msg.gid, loi, ii->loi);
    */
 
   /* set loi to maximum of current and new value */
-  tupel->loi = MAX(loi, tupel->loi);
+  tuple->loi = MAX(loi, tuple->loi);
 
   /* primitive cycle detection */
-  if (tupel->loi > 64)
+  if (tuple->loi > 64)
     DUNE_THROW(Dune::Exception,
                "IdentifyObject-cycle, objects "
                << ii->msg.gid << " and " << ii->id.object);
 
 
-  for(rby=tupel->refd; rby!=NULL; rby=rby->next)
+  for(rby=tuple->refd; rby!=NULL; rby=rby->next)
   {
     SetLOI(rby->by, loi+1);
 
@@ -523,7 +523,7 @@ static void SetLOI (IDENTINFO *ii, int loi)
 
 
 static void ResolveDependencies (
-  ID_TUPEL  *tupels, int nTupels,
+  ID_TUPLE  *tuples, int nTuples,
   IDENTINFO **id, int nIds, int nIdentObjs)
 {
   int i, j;
@@ -556,53 +556,53 @@ static void ResolveDependencies (
    */
 
 
-  for(i=0, j=0; i<nTupels; i++)
+  for(i=0, j=0; i<nTuples; i++)
   {
     while (j<nIdentObjs &&
-           refd[j]->id.object < tupels[i].infos[0]->msg.gid)
+           refd[j]->id.object < tuples[i].infos[0]->msg.gid)
       j++;
 
     while (j<nIdentObjs &&
-           refd[j]->id.object == tupels[i].infos[0]->msg.gid)
+           refd[j]->id.object == tuples[i].infos[0]->msg.gid)
     {
       ID_REFDBY *rby = new ID_REFDBY;
 
       /* remember that idp[i] is referenced by refd[j] */
       rby->by        = refd[j];
-      rby->next      = tupels[i].refd;
-      tupels[i].refd = rby;
+      rby->next      = tuples[i].refd;
+      tuples[i].refd = rby;
 
       j++;
     }
   }
 
 
-  for(i=0; i<nTupels; i++)
+  for(i=0; i<nTuples; i++)
   {
     ID_REFDBY *rby;
 
-    for(rby=tupels[i].refd; rby!=NULL; rby=rby->next)
+    for(rby=tuples[i].refd; rby!=NULL; rby=rby->next)
     {
       /* if loi>0, this subtree has been loi-ed before */
-      if (tupels[i].loi==0)
-        SetLOI(rby->by, tupels[i].loi+1);
+      if (tuples[i].loi==0)
+        SetLOI(rby->by, tuples[i].loi+1);
     }
   }
 
 
 #       if DebugIdent<=2
   /* display */
-  for(i=0; i<nTupels; i++)
+  for(i=0; i<nTuples; i++)
   {
     ID_REFDBY *rby;
 
     printf("%08x has loi %d\n",
-           tupels[i].infos[0]->msg.gid, tupels[i].loi);
+           tuples[i].infos[0]->msg.gid, tuples[i].loi);
 
-    for(rby=tupels[i].refd; rby!=NULL; rby=rby->next)
+    for(rby=tuples[i].refd; rby!=NULL; rby=rby->next)
     {
       printf("%08x referenced by %08x\n",
-             tupels[i].infos[0]->msg.gid, rby->by->msg.gid);
+             tuples[i].infos[0]->msg.gid, rby->by->msg.gid);
     }
   }
 #       endif
@@ -610,15 +610,15 @@ static void ResolveDependencies (
 
 
 
-static void CleanupLOI (ID_TUPEL *tupels, int nTupels)
+static void CleanupLOI (ID_TUPLE *tuples, int nTuples)
 {
   int i;
 
-  for(i=0; i<nTupels; i++)
+  for(i=0; i<nTuples; i++)
   {
     ID_REFDBY *rby, *next=0;
 
-    for(rby=tupels[i].refd; rby!=NULL; rby=next)
+    for(rby=tuples[i].refd; rby!=NULL; rby=next)
     {
       next = rby->next;
 
@@ -633,21 +633,21 @@ static void CleanupLOI (ID_TUPEL *tupels, int nTupels)
 
 
 /*
-        tupel-id doesn't contain information about the data in
-        the tupel, it does only contain information about the
-        structure of a tupel!
+        tuple-id doesn't contain information about the data in
+        the tuple, it does only contain information about the
+        structure of a tuple!
  */
-static void TupelInit (ID_TUPEL *tupel, IDENTINFO **id, int nIds)
+static void TupleInit (ID_TUPLE *tuple, IDENTINFO **id, int nIds)
 {
   int i, nObjIds;
   unsigned long tId;
 
-  /* init tupel auxiliary data */
-  tupel->loi  = 0;
-  tupel->refd = NULL;
+  /* init tuple auxiliary data */
+  tuple->loi  = 0;
+  tuple->refd = NULL;
 
 
-  /* compute tupel id */
+  /* compute tuple id */
   tId = 0;
   nObjIds = 0;
   for(i=0; i<nIds; i++)
@@ -660,23 +660,23 @@ static void TupelInit (ID_TUPEL *tupel, IDENTINFO **id, int nIds)
   }
 
 
-  /* code length of tupel into lowest 6 bits */
+  /* code length of tuple into lowest 6 bits */
   tId = (tId<<6) | nIds;
 
-  /* printf("%4d: compute tupel id = %08x\n", me, tId); */
+  /* printf("%4d: compute tuple id = %08x\n", me, tId); */
 
 
-  /* insert tupel id, number of ID_OBJECT-entries, and link to
-     array of pointers to the tupel's IDENTINFO structs */
-  tupel->tId     = tId;
-  tupel->nObjIds = nObjIds;
-  tupel->infos   = id;
+  /* insert tuple id, number of ID_OBJECT-entries, and link to
+     array of pointers to the tuple's IDENTINFO structs */
+  tuple->tId     = tId;
+  tuple->nObjIds = nObjIds;
+  tuple->infos   = id;
 
 
-  /* set link from IDENTINFOs to tupel */
+  /* set link from IDENTINFOs to tuple */
   for(i=0; i<nIds; i++)
   {
-    id[i]->tupel = tupel;
+    id[i]->tuple = tuple;
   }
 }
 
@@ -684,74 +684,74 @@ static void TupelInit (ID_TUPEL *tupel, IDENTINFO **id, int nIds)
 
 static int IdentifySort (const DDD::DDDContext& context,
                          IDENTINFO **id, int nIds,
-                         int nIdentObjs, MSGITEM *items_out, ID_TUPEL **indexmap_out,
+                         int nIdentObjs, MSGITEM *items_out, ID_TUPLE **indexmap_out,
                          DDD_PROC dest
                          )
 {
-  int i, j, last, nTupels;
-  int keep_order_inside_tupel;
+  int i, j, last, nTuples;
+  int keep_order_inside_tuple;
 
 
-  /* sort to recognize identification tupels */
+  /* sort to recognize identification tuples */
   /* in case of IDMODE_LISTS, the original ordering
-     inside each tupel is kept. for IDMODE_SETS, each tupel
+     inside each tuple is kept. for IDMODE_SETS, each tuple
      is sorted according to the identificators themselves. */
   STAT_RESET3;
   switch (DDD_GetOption(context, OPT_IDENTIFY_MODE))
   {
   case IDMODE_LISTS :
-    std::sort(id, id + nIds, sort_intoTupelsLists);
-    keep_order_inside_tupel = true;
+    std::sort(id, id + nIds, sort_intoTuplesLists);
+    keep_order_inside_tuple = true;
     break;
 
   case IDMODE_SETS :
-    std::sort(id, id + nIds, sort_intoTupelsSets);
-    keep_order_inside_tupel = false;
+    std::sort(id, id + nIds, sort_intoTuplesSets);
+    keep_order_inside_tuple = false;
     break;
 
   default :
     DUNE_THROW(Dune::Exception, "unknown OPT_IDENTIFY_MODE");
   }
-  STAT_INCTIMER3(T_QSORT_TUPEL);
+  STAT_INCTIMER3(T_QSORT_TUPLE);
 
 
-  /* compute number of tupels and allocate tupel array */
-  for(i=0, last=0, nTupels=1; i<nIds; i++)
+  /* compute number of tuples and allocate tuple array */
+  for(i=0, last=0, nTuples=1; i<nIds; i++)
   {
     if (id[i]->msg.gid > id[last]->msg.gid)
     {
-      nTupels++;
+      nTuples++;
       last=i;
     }
   }
-  ID_TUPEL* tupels = new ID_TUPEL[nTupels];
+  ID_TUPLE* tuples = new ID_TUPLE[nTuples];
 
-  /* init tupels (e.g., compute tupel ids) */
+  /* init tuples (e.g., compute tuple ids) */
   for(i=0, last=0, j=0; i<nIds; i++)
   {
     if (id[i]->msg.gid > id[last]->msg.gid)
     {
-      TupelInit(&(tupels[j]), &(id[last]), i-last);
+      TupleInit(&(tuples[j]), &(id[last]), i-last);
       j++;
       last=i;
     }
   }
-  TupelInit(&(tupels[j]), &(id[last]), nIds-last);
+  TupleInit(&(tuples[j]), &(id[last]), nIds-last);
 
 
   /*
-          now, 'tupels' is an array of identification tupels,
-          sorted according the gid of the object the tupel has
+          now, 'tuples' is an array of identification tuples,
+          sorted according the gid of the object the tuple has
           been specified for.
 
-          i.e., in a more abstract way tupels is a list of object
+          i.e., in a more abstract way tuples is a list of object
           gids which will be identified.
    */
 
   /* resolve dependencies caused by IdentifyObject,
      and set level-of-indirection accordingly */
   STAT_RESET3;
-  ResolveDependencies(tupels, nTupels, id, nIds, nIdentObjs);
+  ResolveDependencies(tuples, nTuples, id, nIds, nIdentObjs);
   STAT_INCTIMER3(T_RESOLVE_DEP);
 
 
@@ -763,8 +763,8 @@ static int IdentifySort (const DDD::DDDContext& context,
   /* sort array for loi */
   STAT_RESET3;
   std::sort(
-    tupels, tupels + nTupels,
-    [](const ID_TUPEL& a, const ID_TUPEL& b) { return a.loi < b.loi; }
+    tuples, tuples + nTuples,
+    [](const ID_TUPLE& a, const ID_TUPLE& b) { return a.loi < b.loi; }
     );
   STAT_INCTIMER3(T_QSORT_LOI);
 
@@ -772,29 +772,29 @@ static int IdentifySort (const DDD::DDDContext& context,
   STAT_RESET3;
   i=0; j=0;
   do {
-    while (j<nTupels && tupels[i].loi==tupels[j].loi)
+    while (j<nTuples && tuples[i].loi==tuples[j].loi)
     {
       /* reorder because of changes in id.object */
-      if (! keep_order_inside_tupel)
+      if (! keep_order_inside_tuple)
       {
         std::sort(
-          tupels[j].infos, tupels[j].infos + tupels[j].nObjIds,
-          sort_intoTupelsSets
+          tuples[j].infos, tuples[j].infos + tuples[j].nObjIds,
+          sort_intoTuplesSets
           );
       }
       j++;
     }
 
-    /* sort sub-array for tupelId, tupelValue */
+    /* sort sub-array for tupleId, tupleValue */
     if (j-i > 1)
-      qsort(tupels+i, j-i, sizeof(ID_TUPEL), sort_tupelOrder);
+      qsort(tuples+i, j-i, sizeof(ID_TUPLE), sort_tupleOrder);
 
-    /* inherit index to tupels referencing this one */
+    /* inherit index to tuples referencing this one */
     while (i<j)
     {
       ID_REFDBY *rby;
 
-      for(rby=tupels[i].refd; rby!=NULL; rby=rby->next)
+      for(rby=tuples[i].refd; rby!=NULL; rby=rby->next)
       {
         /* dont use gid of referenced object (because it
            will be known only after identification), but its
@@ -802,7 +802,7 @@ static int IdentifySort (const DDD::DDDContext& context,
 
         /*
            printf("%4d: insertRef dest=%d loi=%d i=%d, %08x <- %08x\n",
-           me, dest, tupels[i].loi, i, OBJ_GID(tupels[i].infos[0]->hdr),
+           me, dest, tuples[i].loi, i, OBJ_GID(tuples[i].infos[0]->hdr),
            OBJ_GID(rby->by->hdr));
          */
 
@@ -810,7 +810,7 @@ static int IdentifySort (const DDD::DDDContext& context,
         rby->by->id.object = i;
 
         /* if the ordering is not significant, we must reorder
-           the tupel after this operation. (i.e., for IDMODE_SETS).
+           the tuple after this operation. (i.e., for IDMODE_SETS).
          */
       }
 
@@ -818,49 +818,49 @@ static int IdentifySort (const DDD::DDDContext& context,
     }
     /* now i==j */
 
-  } while (i<nTupels);
+  } while (i<nTuples);
   STAT_INCTIMER3(T_BUILD_GRAPH);
 
 
   /* construct array which will be sent actually */
   STAT_RESET3;
-  for(j=0; j<nTupels; j++)
+  for(j=0; j<nTuples; j++)
   {
     /*
        int k;
      */
 #               if DebugIdent<=1
     printf("Ident dest=%d msg_idx[ %08x ] = %5d, loi=%d\n",
-           dest, tupels[j].infos[0]->msg.gid, j, tupels[j].loi);
+           dest, tuples[j].infos[0]->msg.gid, j, tuples[j].loi);
 #               endif
 
     /*
-       for(k=0;k<tupels[j].nObjIds;k++)
+       for(k=0;k<tuples[j].nObjIds;k++)
        {
             printf("%4d:               msg_idx %d %08x\n", me,
-                    k, tupels[j].infos[k]->id.object);
+                    k, tuples[j].infos[k]->id.object);
        }
      */
 
 
 
-    items_out[j] = tupels[j].infos[0]->msg;
+    items_out[j] = tuples[j].infos[0]->msg;
 
 #               if DebugIdent<=DebugIdentCons
     /* send additional data for cons-checking */
-    items_out[j].tupel = tupels[j].tId;
+    items_out[j].tuple = tuples[j].tId;
 #               endif
   }
   STAT_INCTIMER3(T_CONSTRUCT_ARRAY);
 
 
-  CleanupLOI(tupels, nTupels);
+  CleanupLOI(tuples, nTuples);
 
-  /* return indexmap table, in order to keep ordering of tupels */
+  /* return indexmap table, in order to keep ordering of tuples */
   /* note: this array has to be freed in the calling function! */
-  *indexmap_out = tupels;
+  *indexmap_out = tuples;
 
-  return(nTupels);
+  return(nTuples);
 }
 
 
@@ -1103,7 +1103,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
       {
         /* process single plist */
         MSGITEM   *msgin  = plist->msgin;
-        ID_TUPEL  *msgout = plist->indexmap;
+        ID_TUPLE  *msgout = plist->indexmap;
 
         /* check control data */
         long *len_adr = (long *) (((char *)msgin) - sizeof(long));
@@ -1123,10 +1123,10 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
 #                                       endif
 
 #                                       if DebugIdent<=DebugIdentCons
-          if (msgout->tId != msgin->tupel)
+          if (msgout->tId != msgin->tuple)
           {
             DUNE_THROW(Dune::Exception,
-                       "inconsistent tupels, gid "
+                       "inconsistent tuples, gid "
                        << OBJ_GID(msgout->infos[0]->hdr) << " on " << context.me()
                        << ", gid " << msgin->gid << " on " << plist->proc);
           }
@@ -1140,7 +1140,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
           AddCoupling(context, msgout->infos[0]->hdr, plist->proc, msgin->prio);
         }
 
-        /* free indexmap (=tupel) array */
+        /* free indexmap (=tuple) array */
         delete[] plist->indexmap;
 
         /* mark plist as finished */
@@ -1291,7 +1291,7 @@ static IdEntry *IdentifyIdEntry(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC 
 
         The identification specified here may be detailed even further by
         additional calls to {\bf Identify}-operations with the same
-        local object. This will construct an identification tupel from
+        local object. This will construct an identification tuple from
         all {\bf Identify}-commands for this local object.
 
    @param hdr   DDD local object which has to be identified with another object
@@ -1336,7 +1336,7 @@ printf("%4d: IdentifyNumber %08x %02d with %4d num %d\n", context.me(),
 
         The identification specified here may be detailed even further by
         additional calls to {\bf Identify}-operations with the same
-        local object. This will construct an identification tupel from
+        local object. This will construct an identification tuple from
         all {\bf Identify}-commands for this local object.
 
    @param hdr   DDD local object which has to be identified with another object
@@ -1381,13 +1381,13 @@ printf("%4d: IdentifyString %08x %02d with %4d str %s\n", context.me(),
         object ID, which is build using the minimum of both local object IDs.
 
         The identification object {\em ident} must be either a distributed
-        object known to both processors issueing the \funk{IdentifyObject}-command
+        object known to both processors issuing the \funk{IdentifyObject}-command
         or a local object which is not known to these two processors, but which
         will also be identified during the current {\bf Identify}-process.
 
         The identification specified here may be detailed even further by
         additional calls to {\bf Identify}-operations with the same
-        local object. This will construct an identification tupel from
+        local object. This will construct an identification tuple from
         all {\bf Identify}-commands for this local object.
 
    @param hdr   DDD local object which has to be identified with another object
@@ -1433,11 +1433,11 @@ printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", context.me(),
         call on each processor.
 
         All identification commands given for one local object will be collected
-        into an {\em identification tupel}. Thus, object identificators can be
+        into an {\em identification tuple}. Thus, object identificators can be
         constructed from several simple identification calls. DDD option
    #IDENTIFY_MODE# may be set before the \funk{IdentifyEnd} call
         in order to specify how the order of simple identificators is
-        handled for each complex identification tupel:
+        handled for each complex identification tuple:
 
         \begin{description}
         \item[#IDMODE_LISTS#:]%
@@ -1449,7 +1449,7 @@ printf("%4d: IdentifyObject %08x %02d with %4d gid %08x\n", context.me(),
         The order of all identification commands for one local object is
         not relevant. The DDD identification module sorts the commands
         inside each complex identificator. Both processors with corresponding
-        identification tupels may issue the identification commands in any
+        identification tuples may issue the identification commands in any
         order.
         \end{description}
  */

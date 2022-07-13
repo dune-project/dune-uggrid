@@ -703,7 +703,7 @@ void ExecLocalXIDelCmd (DDD::DDDContext& context, XIDelCmd  **itemsD, int nD)
   OrigOrderXIDelCmd(context, origD, nD);
 
 
-  /* loop in original order (order of Del-cmd issueing) */
+  /* loop in original order (order of Del-cmd issuing) */
   for(iD=0; iD<nD; iD++)
   {
     DDD_HDR hdr = origD[iD]->hdr;

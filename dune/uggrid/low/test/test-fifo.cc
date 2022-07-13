@@ -23,7 +23,7 @@ TestSuite test_fifo()
   auto buffer = std::make_unique<void*[]>(size);
   {
     const auto result = fifo_init(&fifo, buffer.get(), size * sizeof(void*));
-    test.require(result, "require that fifo_init() suceeds");
+    test.require(result, "require that fifo_init() succeeds");
   }
 
   test.check(fifo_empty(&fifo), "New FIFO must be empty");
@@ -48,7 +48,7 @@ TestSuite test_fifo()
 
   for (auto& item : items) {
     bool result = fifo_in(&fifo, &item);
-    test.check(!result, "Inserting elemens must succeed");
+    test.check(!result, "Inserting elements must succeed");
   }
 
   test.check(!fifo_empty(&fifo), "FIFO must not be empty after filling it");
