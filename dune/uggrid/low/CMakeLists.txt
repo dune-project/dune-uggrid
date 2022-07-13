@@ -8,7 +8,6 @@ target_sources(duneuggrid PRIVATE
   heaps.cc
   initlow.cc
   misc.cc
-  scan.cc
   ugenv.cc
   ugstruct.cc
   ugtimer.cc)
@@ -20,7 +19,6 @@ install(FILES
   heaps.h
   misc.h
   namespace.h
-  scan.h
   ugenv.h
   ugstruct.h
   ugtimer.h

@@ -366,23 +366,6 @@ INT         BVP_SetUserFct        (BVP *theBVP, INT n, UserProcPtr *UserFct);
 INT             BVP_Check                         (BVP *aBVP);
 
 /****************************************************************************/
-/** \brief Sets a BNDP from command input
- *
- * @param theBVP - BVP structure
- * @param argc, argv - command parameters
-
-   This function sets a BNDP from command input parameters.
-   Options are implementation specific.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-BNDP* BVP_InsertBndP (NS_PREFIX HEAP *Heap, BVP *theBVP, INT argc, char **argv);
-
-/****************************************************************************/
 /** \brief Write command to insert this BNDP
  *
  * @param theBndP - BNDP structure
