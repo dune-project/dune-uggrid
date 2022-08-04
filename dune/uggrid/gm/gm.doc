@@ -1353,10 +1353,6 @@ all degrees of freedom stored in the vector.
 
 . index - Reflects position of the VECTOR in the double linked list.
 
-. start - Points to first element of the MATRIX list of a VECTOR. This
-list represents the rows of the matrix belonging to degrees of freedom in
-the given VECTOR.
-
 . value - Array of double values. This array is allocated dynamically with the
 size specified in the FORMAT structure.
 
@@ -1381,15 +1377,6 @@ INT VINDEX (VECTOR *v);
 
 Position of the VECTOR in the doubl linked list. This is useful for
 the implementation of some iterative schemes.
-
-
-\verbatim
-MATRIX *VSTART (VECTOR *v);
-\endverbatim
-
-Returns a pointer to the first element of the MATRIX list. The first
-MATRIX in the list is the diagonal matrix block coupling degrees
-of freedom in v with itself.
 
 \verbatim
 DOUBLE VVALUE (VECTOR *v,INT n);
@@ -1479,132 +1466,7 @@ SETVCNEW (VECTOR *v, INT n);                  connection in refinement
 -----------------------------------------------------------------------------
 \endverbatim
 
-\sa MATRIX, NODE, EDGE, ELEMENT.
-
-*/
-
-/*! \struct matrix
- \brief Data type realizing sparse matrix structure
-
-The MATRIX data type is part of UGs sparse matrix vector data structure.
-A MATRIX stores all the matrix entries coupling two VECTORs (which can be identical - this
-is the case for diagonal entries).
-The number of entries in a MATRIX depends on the geometrical position
-of the source and destination VECTOR, i.e. a MATRIX coupling
-a VECTOR in NODE with a VECTOR in another NODE can have a different
-size than a MATRIX coupling a VECTOR in a NODE with a
-VECTOR in an EDGE.
-The MATRIX structure forms a single linked list that contains all
-couplings of the VECTOR where the list starts (see the VSTART macro
-there). The list `always` starts with the diagonal element.
-Except for diagonal MATRIX entries two MATRIX objects are combined to
-build a CONNECTION object.
-
-MACROS:
-
-\verbatim
-MATRIX *MINC (MATRIX *m);
-\endverbatim
-
-Adds sizeof(MATRIX) to m (of course the dynamic size of m).
-
-\verbatim
-MATRIX *MDEC (MATRIX *m);
-\endverbatim
-
-Subtracts sizeof(MATRIX) to m (of course the dynamic size of m).
-
-\verbatim
-MATRIX *MNEXT (MATRIX *m);
-\endverbatim
-
-Returns pointer to next MATRIX in the list.
-
-\verbatim
-VECTOR *MDEST (MATRIX *m);
-\endverbatim
-
-Returns pointer to destination VECTOR, i.e. the column VECTOR. If m is an element
-of the MATRIX list of some VECTOR `a` and MDEST(m)=`b`, then m contains
-all the matrix entries of rows belonging `a` and columns belonging to `b`.
- 
-\verbatim
-MATRIX *MADJ (MATRIX *m);
-\endverbatim
-
-Returns a pointer to the transposed MATRIX, i.e. if m couples VECTOR
-`a` with VECTOR `b`, then MADJ(m) couples `b` with `a`.
-
-\verbatim
-CONNECTION *MMYCON (MATRIX *m);
-\endverbatim
-
-Returns a pointer to the CONNECTION where m is part of.
-
-
-CONTROL WORDS:
-
-`General macros in control word`
-
-\verbatim
-Macro name                            Pos Len Purpose
------------------------------------------------------------------------------
-INT OBJT (MATRIX *p);                 27  5   Object type MAOBJ 
-void SETOBJT (MATRIX *p, INT n);              
-
-INT USED (MATRIX *p);                 23  1   used only temporarily
-void SETUSED (MATRIX *p, INT n);
-
-INT TAG (MATRIX *p);                  24  3   not used
-void SETTAG (MATRIX *p, INT n);            
-
-INT THEFLAG (MATRIX *p);              16  1   used only temporarily
-void SETTHEFLAG (MATRIX *p, INT n);        
------------------------------------------------------------------------------
-\endverbatim
-
-`Macros for the MATRIX structure in control`
-
-\verbatim
-Macro name                            Pos Len Purpose
------------------------------------------------------------------------------
-MOFFSET (MATRIX *p);                  0   1   Position of MATRIX in
-SETMOFFSET (MATRIX *p,INT n);                 CONNECTION (0 or 1)
-
-MROOTTYPE (MATRIX *p);                1   2   Position of source
-SETMROOTTYPE (MATRIX *p,INT n);               VECTOR
-
-MDESTTYPE (MATRIX *p);                3   2   Position of destination
-SETMDESTTYPE (MATRIX *p,INT n);               VECTOR
-
-MDIAG (MATRIX *p);                    5   1   True if MATRIX is the diagonal
-SETMDIAG (MATRIX *p,INT n);                   entry. This is the first in
-                                              the MATRIX list of a VECTOR.
-
-MTYPE (MATRIX *p);                    6   6   Number identifying source and
-SETMTYPE (MATRIX *p,INT n);                   dest position in a compact form
-
-MUSED (MATRIX *p);                    12  1   currently not used
-
-MSIZE (MATRIX *p);                    13  15  Size of the MATRIX in bytes
-SETMSIZE (MATRIX *p,INT n);
-
-MNEW (MATRIX *p);                     28  1   True if MATRIX has been 
-SETMNEW (MATRIX *p,INT n);                    allocated in last refinement
-
-CEXTRA (MATRIX *p);                   29  1   Returns value of EXTRA flag
-SETCEXTRA (MATRIX *p,INT n);                  only valid for first matrix
-                                              of a connection.
-
-MDOWN (MATRIX *p);                    30  1   Input for ordering algorithm
-SETMDOWN (MATRIX *p,INT n);
-
-MUP (MATRIX *p);                      31  1   Input for ordering algorithm
-SETMUP (MATRIX *p,INT n);
------------------------------------------------------------------------------
-\endverbatim
-
-\sa VECTOR
+\sa NODE, EDGE, ELEMENT.
 
 */
 
@@ -1729,7 +1591,7 @@ CONTROL WORDS:
 
 No entries of the control word are currently used.
 
-\sa MULTIGRID, ELEMENT, NODE, VERTEX, VECTOR, MATRIX.
+\sa MULTIGRID, ELEMENT, NODE, VERTEX, VECTOR.
 
 */
 

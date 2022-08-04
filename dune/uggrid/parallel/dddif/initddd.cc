@@ -401,7 +401,6 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  EL_LDATA,  ELDEF(VECTOR,succ),
                  EL_GDATA,  ELDEF(VECTOR,index),
                  EL_GDATA,  ELDEF(VECTOR,leafIndex),
-                 EL_LDATA,  ELDEF(VECTOR,start),
 
                  /* TODO: value wird noch ausgelassen. Feld variabler Laenge? */
                  /* bei Entscheidung 'value': kein weiteres Feld

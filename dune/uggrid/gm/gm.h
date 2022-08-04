@@ -372,35 +372,11 @@ struct vector {
   INT id;
 #endif
 
-  /** \brief implements matrix                                    */
-  struct matrix *start;
-
   /** \brief User data */
   DOUBLE value[1];
 };
 typedef struct vector VECTOR;
 
-
-/* Struct documentation in gm.doc */
-struct matrix {
-
-  /** \brief object identification, various flags */
-  UINT control;
-
-#ifdef __XXL_MSIZE__
-  /** \brief for people needing large matrices    */
-  UINT xxl_msize;
-#endif
-
-  /** \brief row list */
-  struct matrix *next;
-
-  /** \brief destination vector */
-  struct vector *vect;
-
-  /** \brief User data */
-  DOUBLE value[1];
-};
 
 /****************************************************************************/
 /*                                                                          */
@@ -1840,7 +1816,6 @@ enum LV_ID_TYPES {
 #define SUCCVC(v)                                       ((v)->succ)
 #define VINDEX(v)                                       ((v)->index)
 #define V_IN_DATATYPE(v,dt)                     (VDATATYPE(v) & (dt))
-#define VSTART(v)                                       ((v)->start)
 #define VVALUE(v,n)                             ((v)->value[n])
 #define VVALUEPTR(v,n)                          (&((v)->value[n]))
 #define VMYNODE(v)                                      ((NODE*)((v)->object))
