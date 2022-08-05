@@ -314,27 +314,6 @@ typedef INT (*TaggedConversionProcPtr)(INT,            /**< Tag for data identif
 
 /*----------- definition of structs ----------------------------------------*/
 
-typedef struct {
-
-  /** \brief This connection goes from position 'from'      */
-  int from;
-
-  /** \brief to position 'to' */
-  int to;
-
-  /** \brief 1 if diagonal, 0 if not */
-  int diag;
-
-  /** \brief Number of bytes per connection */
-  int size;
-
-  /** \brief Size of interpolation matrices */
-  int isize;
-
-  /** \brief Connect with depth in dual graph */
-  int depth;
-} MatrixDescriptor ;
-
 /****************************************************************************/
 /*                                                                          */
 /* matrix/vector/blockvector data structure                                 */
