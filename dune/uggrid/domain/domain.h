@@ -64,9 +64,6 @@
 
 START_UGDIM_NAMESPACE
 
-/** \brief Boundary types */
-enum BoundaryType {FIXED, FREE, PERIODIC, NON_PERIODIC};
-
 /** \brief Status for mesh */
 enum MeshStatus {MESHSTAT_NOTINIT,
                  MESHSTAT_EMPTY,

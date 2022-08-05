@@ -81,7 +81,7 @@ void                     *CreateDomain                        (const char *name,
 void RemoveDomain(const char* name);
 
 void   *CreateBoundarySegment       (const char *name, INT left, INT right,
-                                     INT id, enum BoundaryType type,
+                                     INT id,
                                      const INT *point,
                                      const DOUBLE *alpha, const DOUBLE *beta,
                                      BndSegFuncPtr BndSegFunc,

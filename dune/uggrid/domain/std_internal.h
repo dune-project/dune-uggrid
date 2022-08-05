@@ -142,11 +142,6 @@ struct boundary_segment {
   /** \brief Unique id of that segment */
   INT id;
 
-  /** \brief Segment type, see above
-   *
-   * \todo See where???*/
-  INT segType;
-
   /** \brief Numbers of the vertices (ID) */
   INT points[CORNERS_OF_BND_SEG];
 

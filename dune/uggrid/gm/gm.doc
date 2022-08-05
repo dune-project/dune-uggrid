@@ -209,9 +209,6 @@ points to the right subdomain.
 
 . id - Number of the boundary segment beginning with zero.
 
-. segType - Type of boundary segment. Currently only NON_PERIODIC is
-allowed. Later periodic boundary segments will be implemented.
-
 . points - Mapping of local numbers of corners to global numbers. Remember, all
 global numbers of corners must be different. The local numbering scheme can
 be seen from the figures above.
