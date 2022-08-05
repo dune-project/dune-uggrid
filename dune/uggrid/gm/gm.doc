@@ -348,70 +348,9 @@ EXAMPLES:
 For a detailed example see the diff2d and cd3d description.
 
 \sa
-BOUNDARY_CONDITION, CreateProblem.
+CreateProblem.
 
 */
-
-/*D
-BOUNDARY_CONDITION - Data type defining a boundary condition.
-
-STRUCTURES:
-
-\verbatim
-typedef INT (*BndCondProcPtr) (void *, void *, DOUBLE *, DOUBLE *, INT *);
-
-struct bndcond {
-
-    // fields for environment variable
-    ENVVAR v;
-
-    // fields for boundary condition
-    INT id;                // corresponds to boundary segment id ! 
-    BndCondProcPtr BndCond;// function defining boundary condition 
-    void *data;            // additional data for bnd cond 
-} ;
-
-typedef struct bndcond BOUNDARY_CONDITION ;
-\endverbatim
-
-DESCRIPTION:
-
-The data type BOUNDARY_CONDITION is used to specify boundary
-conditions. This is done in the same way as a domain is defined.
-For each boundary segment there must be a corresponding boundary
-condition function that specifies the boundary conditions along that
-segment. The same parametrization is used for the boundary segment function
-and the boundary condition function. The BOUNDARY_CONDITION data structure
-stores a pointer to that function and some additional information.
-
-. v - A BOUNDARY_CONDITION is an environment variable which is stored
-in the directory given by the corresponding PROBLEM object. v stores
-also the name of the boundary condition.
-
-. id - Number of the corresponding boundary segment. Boundary segments
-and boundary conditions with the same id are accessible via a BNDSEGDESC
-structure.
-
-. BndCond - Pointer to a function of type BndCondProcPtr defining the
-boundary condition for a segment.
-
-. data - user definable pointer that is passed as first argument to BndCond
-when it is called.
-
-MACROS:
-
-The components of the BOUNDARY_CONDITION structure are only accessible
-through the BNDSEGDESC structure during computations. See the MACROS
-section there.
-
-EXAMPLES:
-
-For detailed examples see the appl2d and appl3d description.
-
-\sa
-PROBLEM.
-
-D*/
 
 /*D
 VERTEX - Data type storing level-independent node information

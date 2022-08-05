@@ -81,8 +81,6 @@ enum {PATCH_FIXED,
 #define PARAM_PATCH_RANGE(p)    (p)->pa.range
 #define PARAM_PATCH_BS(p)       (p)->pa.BndSegFunc
 #define PARAM_PATCH_BSD(p)      (p)->pa.bs_data
-#define PARAM_PATCH_BC(p)       (p)->pa.BndCond
-#define PARAM_PATCH_BCD(p)      (p)->pa.bc_data
 #define LINEAR_PATCH_LEFT(p)    (p)->lp.left
 #define LINEAR_PATCH_RIGHT(p)   (p)->lp.right
 #define LINEAR_PATCH_N(p)       (p)->lp.corners
@@ -242,26 +240,6 @@ struct problem {
    * is not important. Note that this array is allocated dynamically to the desired length.
    */
   void *CU_ProcPtr[1];
-};
-
-/** \brief ???
- *
- * \todo Please doc me!
- */
-struct bndcond {
-
-  /** \brief Field for environment variable */
-  NS_PREFIX ENVVAR v;
-
-  /* fields for boundary condition */
-  /** \brief Corresponds to boundary segment id ! */
-  INT id;
-
-  /** \brief Function defining boundary condition */
-  BndCondProcPtr BndCond;
-
-  /** \brief Additional data for bnd cond */
-  void *data;
 };
 
 /****************************************************************************/
@@ -477,13 +455,6 @@ struct parameter_patch {
   /** \brief Can be used by applic to find data */
   void *bs_data;
 
-  /** @name Fields for boundary condition */
-  /*@{*/
-  /** \brief Function defining boundary condition */
-  BndCondProcPtr BndCond;
-
-  /** \brief Additional data for bnd cond */
-  void *bc_data;
   /*@}*/
 };
 
@@ -528,7 +499,6 @@ typedef struct domain DOMAIN;
 typedef struct linear_segment LINEAR_SEGMENT;
 typedef struct boundary_segment BOUNDARY_SEGMENT;
 typedef struct problem PROBLEM;
-typedef struct bndcond BOUNDARY_CONDITION;
 
 typedef struct std_BoundaryValueProblem STD_BVP;
 typedef union patch PATCH;
