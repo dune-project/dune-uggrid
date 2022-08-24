@@ -182,68 +182,6 @@ struct linear_segment {
 
 /****************************************************************************/
 /*                                                                          */
-/* problem data structure                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-/*----------- definition of structs ----------------------------------------*/
-
-/** \brief Data type describing a problem. */
-struct problem {
-
-  /** \brief Field for environment directory
-   *
-   * The problem is an environment directory. This directory is a subdirectory
-   * of the domain where this problem corresponds to. d also contains the
-   * name of the problem.
-   */
-  NS_PREFIX ENVDIR d;
-
-  /* fields for problem */
-  /** \brief Used to identify problem type
-   *
-   * Problem class identification number. This number is used to determine
-   * that the problem description coincides with the pde solved by the
-   * problem class library.
-   */
-  INT problemID;
-
-  /** \brief Procedure to reinitialize problem
-   *
-   * Pointer to a user definable function that is executed when the reinit
-   * command is given in the UG shell.
-   */
-  ConfigProcPtr ConfigProblem;
-
-  /** \brief Number of coefficient functions
-   *
-   *  User definable coefficient functions come in two flavours.
-   * They are either of type CoeffProcPtr or of type UserProcPtr.
-   * numOfCoeffFct and numOfUserFct give the number of functions of each type that
-   * make up the problem description.
-   */
-  INT numOfCoeffFct;
-
-  /** \brief Number of User functions
-   *
-   * User definable coefficient functions come in two flavours.
-   * They are either of type CoeffProcPtr or of type UserProcPtr.
-   * numOfCoeffFct and numOfUserFct give the number of functions of each type that
-   * make up the problem description.
-   */
-  INT numOfUserFct;
-
-  /** \brief Coefficient functions
-   *
-   *  Array that stores the pointers to coefficient and user functions.
-   * Since access to this array is provided through macros (see below) the layout
-   * is not important. Note that this array is allocated dynamically to the desired length.
-   */
-  void *CU_ProcPtr[1];
-};
-
-/****************************************************************************/
-/*                                                                          */
 /* BoundaryValueProblem data structure                                      */
 /*                                                                          */
 /****************************************************************************/
@@ -258,9 +196,6 @@ struct std_BoundaryValueProblem
 
   /** \brief Domain pointer                      */
   struct domain *Domain;
-
-  /** \brief Problem pointer                     */
-  struct problem *Problem;
 
   /** \brief File name for boundary infos        */
   char bnd_file[NS_PREFIX NAMESIZE];
@@ -498,7 +433,6 @@ struct bnd_ps {
 typedef struct domain DOMAIN;
 typedef struct linear_segment LINEAR_SEGMENT;
 typedef struct boundary_segment BOUNDARY_SEGMENT;
-typedef struct problem PROBLEM;
 
 typedef struct std_BoundaryValueProblem STD_BVP;
 typedef union patch PATCH;

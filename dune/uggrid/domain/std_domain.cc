@@ -495,7 +495,6 @@ CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
     theBVP->CU_ProcPtr[i + numOfCoeffFct] = (void *) (userfct[i]);
 
   theBVP->Domain = NULL;
-  theBVP->Problem = NULL;
   theBVP->ConfigProc = STD_BVP_Configure;
   theBVP->GeneralBndCond = theBndCond;
 
@@ -791,7 +790,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 {
   STD_BVP *theBVP;
   DOMAIN *theDomain;
-  PROBLEM *theProblem;
   BOUNDARY_SEGMENT *theSegment;
   LINEAR_SEGMENT *theLinSegment;
   PATCH **corners, **sides, *thePatch;
@@ -811,7 +809,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   theDomain = theBVP->Domain;
   if (theDomain == NULL)
     return (NULL);
-  theProblem = theBVP->Problem;
 
   /* fill in data of domain */
   ncorners = theDomain->numOfCorners;
@@ -886,12 +883,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
                          PATCH_ID (thePatch), PATCH_TYPE (thePatch),
                          LINEAR_PATCH_LEFT (thePatch),
                          LINEAR_PATCH_RIGHT (thePatch)));
-    /** \todo why this here??? (CVS-merge mess-up?) */
-    if (theProblem != NULL)
-    {
-      UserWrite ("Use CreateBoundaryValueProblem!");
-      return (NULL);
-    }
   }
   theBVP->numOfSubdomains = maxSubDomains;
   PRINTDEBUG (dom, 1, (" bvp nsubcf %x\n", theBVP->numOfSubdomains));
