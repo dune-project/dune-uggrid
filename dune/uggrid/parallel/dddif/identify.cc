@@ -1432,7 +1432,6 @@ static int Scatter_TestEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_
 static int Gather_IdentSonEdge (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
-  EDGE *SonEdge = GetSonEdge(theEdge);
 
   /* identification is only done between master objects */
   ASSERT(identlevel-1 == LEVEL(theEdge));
@@ -1440,7 +1439,8 @@ static int Gather_IdentSonEdge (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_P
   ((int *)data)[0] = 0;
   ((int *)data)[1] = 0;
 
-  if (SonEdge != NULL)
+  EDGE *SonEdge = GetSonEdge(theEdge);
+  if (SonEdge)
   {
     ((int *)data)[0] = 1;
     ((int *)data)[1] = NEW_EDIDENT(SonEdge);
@@ -1452,14 +1452,14 @@ static int Gather_IdentSonEdge (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_P
 static int Scatter_IdentSonEdge (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge        = (EDGE *)obj;
-  EDGE    *SonEdge;
   int sonedge         = ((int *)data)[0];
   int newsonedge      = ((int *)data)[1];
 
   /* identification is only done between master objects */
   ASSERT(identlevel-1 == LEVEL(theEdge));
 
-  if (SonEdge!=NULL)
+  EDGE *SonEdge = GetSonEdge(theEdge);
+  if (SonEdge)
   {
     /*
             if (1 || NEW_EDIDENT(SonEdge))
@@ -1769,14 +1769,13 @@ static int Scatter_SonNodeInfo (DDD::DDDContext& context, DDD_OBJ obj, void *dat
 static int Gather_SonEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE *theEdge = (EDGE *)obj;
-  EDGE *SonEdge;
 
   /* identification has to be done between all copies of an objects */
   /* otherwise this can result in unsymmetric interfaces            */
   ASSERT(identlevel-1 == LEVEL(theEdge));
 
-  SonEdge = GetSonEdge(theEdge);
-  if (SonEdge != NULL)
+  EDGE *SonEdge = GetSonEdge(theEdge);
+  if (SonEdge)
     *((int *)data) = 1;
   else
     *((int *)data) = 0;
@@ -1808,15 +1807,14 @@ static int Gather_SonEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PR
 static int Scatter_SonEdgeInfo (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
   EDGE    *theEdge        = (EDGE *)obj;
-  EDGE    *SonEdge;
   INT has_sonedge     = *((int *)data);
 
   /* identification has to be done between all copies of an objects */
   /* otherwise this can result in unsymmetric interfaces            */
   ASSERT(identlevel-1 == LEVEL(theEdge));
 
-  SonEdge = GetSonEdge(theEdge);
-  if (SonEdge != NULL)
+  EDGE *SonEdge = GetSonEdge(theEdge);
+  if (SonEdge)
   {
     if (has_sonedge)
     {
