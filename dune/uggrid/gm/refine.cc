@@ -5843,25 +5843,6 @@ static void CheckConsistency (MULTIGRID *theMG, INT level ,INT debugstart, INT g
 #endif
 
 
-static INT CheckMultiGrid (MULTIGRID *theMG)
-{
-  INT level;
-
-  UserWriteF("CheckMultiGrid() begin\n");
-
-  for (level=0; level<=TOPLEVEL(theMG); level++)
-                #ifdef ModelP
-    CheckGrid(GRID_ON_LEVEL(theMG,level),1,1,1,1);
-                #else
-    CheckGrid(GRID_ON_LEVEL(theMG,level),1,1,1);
-                #endif
-
-  UserWriteF("CheckMultiGrid() end\n");
-
-  return(0);
-}
-
-
 #ifdef STAT_OUT
 void NS_DIM_PREFIX Manage_Adapt_Timer (int alloc)
 {
