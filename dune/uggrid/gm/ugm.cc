@@ -2471,7 +2471,6 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
   INT n,i;
   BNDS *bnds;
   BNDP *bndp[MAX_CORNERS_OF_ELEM];
-  VECTOR *vec;
   [[maybe_unused]] EDGE *theEdge;
 
   ASSERT (OBJT(theElement) == BEOBJ);
