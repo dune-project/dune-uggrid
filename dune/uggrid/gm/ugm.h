@@ -110,9 +110,6 @@ INT              DisposeNode                    (GRID *theGrid, NODE *theNode);
 
 /* miscellaneous */
 INT              FindNeighborElement    (const ELEMENT *theElement, INT Side, ELEMENT **theNeighbor, INT *NeighborSide);
-bool             PointInElement                 (const DOUBLE*, const ELEMENT *theElement);
-INT          PointOnSide            (const DOUBLE *global, const ELEMENT *theElement, INT side);
-DOUBLE       DistanceFromSide       (const DOUBLE *global, const ELEMENT *theElement, INT side);
 INT             CheckOrientation                (INT n, VERTEX **vertices);
 INT             CheckOrientationInGrid  (GRID *theGrid);
 

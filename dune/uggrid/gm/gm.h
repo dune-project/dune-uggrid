@@ -3426,7 +3426,6 @@ INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
                                      VECTOR **vec);
 
 /* searching */
-ELEMENT     *FindElementOnSurface   (MULTIGRID *theMG, DOUBLE *global);
 INT          InnerBoundary          (ELEMENT *t, INT side);
 
 /* list */
