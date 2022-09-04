@@ -7,8 +7,7 @@
     The basic types (normally 'short', 'int', 'float' and 'double') are
     replaced by 'SHORT', 'INT', 'FLOAT' and 'DOUBLE'. The type 'DOUBLE'
     is used for all Cartesian coordinates of the (x,y[,z])-directions of
-    the grids and 'SCREEN_DOUBLE' is used for all transformed coordinates
-    of the graphical interface.
+    the grids.
  */
 
 #ifndef UGTYPES_H
@@ -29,8 +28,6 @@ typedef unsigned int UINT;
 
 typedef float FLOAT;
 typedef double DOUBLE;
-typedef float COORD;
-typedef float SCREEN_COORD;
 
 END_UG_NAMESPACE
 

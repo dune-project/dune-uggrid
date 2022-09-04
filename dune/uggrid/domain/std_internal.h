@@ -81,8 +81,6 @@ enum {PATCH_FIXED,
 #define PARAM_PATCH_RANGE(p)    (p)->pa.range
 #define PARAM_PATCH_BS(p)       (p)->pa.BndSegFunc
 #define PARAM_PATCH_BSD(p)      (p)->pa.bs_data
-#define PARAM_PATCH_BC(p)       (p)->pa.BndCond
-#define PARAM_PATCH_BCD(p)      (p)->pa.bc_data
 #define LINEAR_PATCH_LEFT(p)    (p)->lp.left
 #define LINEAR_PATCH_RIGHT(p)   (p)->lp.right
 #define LINEAR_PATCH_N(p)       (p)->lp.corners
@@ -115,10 +113,21 @@ enum {PATCH_FIXED,
 /*----------- definition of structs ----------------------------------------*/
 
 
-/** \brief Data type describing a domain. */
+/** \brief Data type describing a domain
+
+The \ref domain structure describes a two- or three-dimensional domain (boundary). This geometry
+information is used by UG when it refines a grid, i.e., complex geometries are approximated
+better when the grid is refined.
+
+A domain is made up of one or several `boundary segments` which are defined by the
+\ref boundary_segment structure. The points where boundary segments join are
+called corners of the domain. For each corner a \ref node is automatically created.
+
+Domains are created with the function \ref CreateDomain.
+*/
 struct domain {
 
-  /** \brief Fields for environment directory */
+  /** \brief Fields for environment directory. Also stores the name of the domain */
   NS_PREFIX ENVDIR d;
 
   /** \brief Number of boundary segments */
@@ -128,35 +137,116 @@ struct domain {
   INT numOfCorners;
 };
 
-/** \brief Data structure defining part of the boundary of a domain */
+/** \brief Data structure defining part of the boundary of a domain
+
+A domain for UG is described as a set of boundary segments defined
+by the \ref boundary_segment structure. Each boundary segment is a mapping
+from `d`-1 dimensional parameter space to `d` dimensional Euclidean space.
+The parameter space is an interval [a,b] in two dimensions or a rectangle
+[a,b]x[c,d] in three-dimensional applications.
+
+`2D boundary segments`
+\verbatim
+      0        1
+      +--------+     maps [a,b] to R x R
+      a        b
+\endverbatim
+
+`3D boundary segments`
+\verbatim
+    d +--------+     maps [a,b]x[c,d] to R x R x R
+      |3      2|
+      |        |
+      |        |
+      |0      1|
+    c +--------+
+      a        b
+\endverbatim
+
+
+For all boundary segments the points in `d` dimensional space corresponding to the parameters
+a and b in two dimensions ((a,c),(a,d),(b,c),(b,d) in three dimensions)
+are called `corners` of the domain. Locally for each boundary segment the
+corners are numbered like shown in the figures above.
+The corners are numbered `globally` in a consecutive way beginning with 0.
+\warning boundary segments must be defined in such a way that no two
+corners are identical!
+
+In two dimensions internal boundary
+segments can be defined in order to divide the domain into `subdomains`
+having different materials for example. The subdomains are numbered consecutively
+beginning with 1. By default the exterior of the domain has number 0.
+
+Boundary segments are created with the function \ref CreateBoundarySegment.
+
+\sa DOMAIN, CreateDomain, CreateBoundarySegment.
+
+
+.p bndseg2d.eps
+.cb
+Boundary segments in 2D.
+.ce
+
+.p bndseg3d.eps
+.cb
+Boundary segments in 3D.
+.ce
+D*/
 struct boundary_segment {
 
-  /** \brief Field for environment directory */
+  /** \brief Field for environment directory
+   *
+   * The \ref boundary_segment structure is an environment variable (see ENVIRONMENT),
+   * therefore it has the ENVVAR v as its first component. v stores also the
+   * name of the boundary segment.
+   */
   NS_PREFIX ENVVAR v;
 
   /** @name Fields for boundary segment */
   /*@{*/
-  /** \brief Number of left and right subdomain */
+  /** \brief Number of left and right subdomain
+   *
+   * Numbers of left and right subdomain. The right subdomain is where the
+   * normal vector of the curve points to in a right handed coordinate system. The TeX
+   * version of this page contains two figures for clarification.
+   * In 2D it is simple: Walk along the curve in direction of increasing parameter
+   * values and look to the right. There is the right subdomain. In 3D the rule
+   * is as follows. Let the thumb point in direction of increasing values
+   * of the first parameter, let the index finger point in direction of
+   * increasing values of the second parameter, then the middle finger
+   * points to the right subdomain.
+   */
   INT left,right;
 
-  /** \brief Unique id of that segment */
+  /** \brief Number of the boundary segment beginning with zero */
   INT id;
 
-  /** \brief Segment type, see above
+  /** \brief Numbers of the vertices (ID)
    *
-   * \todo See where???*/
-  INT segType;
-
-  /** \brief Numbers of the vertices (ID) */
+   * Mapping of local numbers of corners to global numbers. Remember, all
+   * global numbers of corners must be different. The local numbering scheme can
+   * be seen from the figures above.
+   */
   INT points[CORNERS_OF_BND_SEG];
 
-  /** \brief Parameter interval used*/
+  /** \brief Defines the parameter space.
+   *
+   * In 2D this is the interval [alpha[0],beta[0]], in 3D this is the rectangle
+   * [alpha[0],beta[0]] x [alpha[1],beta[1]] (or a=alpha[0], b=beta[0], c=alpha[1], d=beta[1]
+   * in the figure above.
+   */
   DOUBLE alpha[DIM_OF_BND],beta[DIM_OF_BND];
 
-  /** \brief Pointer to definition function */
+  /** \brief Pointer to a function describing the mapping from parameter space to world space
+   */
   BndSegFuncPtr BndSegFunc;
 
-  /** \brief Can be used by application to find data */
+  /** \brief User defined pointer
+   *
+   * This pointer is passed as the first argument to the BndSegFunc of the segment.
+   * This pointer can be used to construct an interface to geometry data files,
+   * e.g. from a CAD system.
+   */
   void *data;
   /*@}*/
 };
@@ -189,88 +279,6 @@ struct linear_segment {
 
 /****************************************************************************/
 /*                                                                          */
-/* problem data structure                                                   */
-/*                                                                          */
-/****************************************************************************/
-
-/*----------- definition of structs ----------------------------------------*/
-
-/** \brief Data type describing a problem. */
-struct problem {
-
-  /** \brief Field for environment directory
-   *
-   * The problem is an environment directory. This directory is a subdirectory
-   * of the domain where this problem corresponds to. d also contains the
-   * name of the problem.
-   */
-  NS_PREFIX ENVDIR d;
-
-  /* fields for problem */
-  /** \brief Used to identify problem type
-   *
-   * Problem class identification number. This number is used to determine
-   * that the problem description coincides with the pde solved by the
-   * problem class library.
-   */
-  INT problemID;
-
-  /** \brief Procedure to reinitialize problem
-   *
-   * Pointer to a user definable function that is executed when the reinit
-   * command is given in the UG shell.
-   */
-  ConfigProcPtr ConfigProblem;
-
-  /** \brief Number of coefficient functions
-   *
-   *  User definable coefficient functions come in two flavours.
-   * They are either of type CoeffProcPtr or of type UserProcPtr.
-   * numOfCoeffFct and numOfUserFct give the number of functions of each type that
-   * make up the problem description.
-   */
-  INT numOfCoeffFct;
-
-  /** \brief Number of User functions
-   *
-   * User definable coefficient functions come in two flavours.
-   * They are either of type CoeffProcPtr or of type UserProcPtr.
-   * numOfCoeffFct and numOfUserFct give the number of functions of each type that
-   * make up the problem description.
-   */
-  INT numOfUserFct;
-
-  /** \brief Coefficient functions
-   *
-   *  Array that stores the pointers to coefficient and user functions.
-   * Since access to this array is provided through macros (see below) the layout
-   * is not important. Note that this array is allocated dynamically to the desired length.
-   */
-  void *CU_ProcPtr[1];
-};
-
-/** \brief ???
- *
- * \todo Please doc me!
- */
-struct bndcond {
-
-  /** \brief Field for environment variable */
-  NS_PREFIX ENVVAR v;
-
-  /* fields for boundary condition */
-  /** \brief Corresponds to boundary segment id ! */
-  INT id;
-
-  /** \brief Function defining boundary condition */
-  BndCondProcPtr BndCond;
-
-  /** \brief Additional data for bnd cond */
-  void *data;
-};
-
-/****************************************************************************/
-/*                                                                          */
 /* BoundaryValueProblem data structure                                      */
 /*                                                                          */
 /****************************************************************************/
@@ -285,9 +293,6 @@ struct std_BoundaryValueProblem
 
   /** \brief Domain pointer                      */
   struct domain *Domain;
-
-  /** \brief Problem pointer                     */
-  struct problem *Problem;
 
   /** \brief File name for boundary infos        */
   char bnd_file[NS_PREFIX NAMESIZE];
@@ -482,13 +487,6 @@ struct parameter_patch {
   /** \brief Can be used by applic to find data */
   void *bs_data;
 
-  /** @name Fields for boundary condition */
-  /*@{*/
-  /** \brief Function defining boundary condition */
-  BndCondProcPtr BndCond;
-
-  /** \brief Additional data for bnd cond */
-  void *bc_data;
   /*@}*/
 };
 
@@ -532,8 +530,6 @@ struct bnd_ps {
 typedef struct domain DOMAIN;
 typedef struct linear_segment LINEAR_SEGMENT;
 typedef struct boundary_segment BOUNDARY_SEGMENT;
-typedef struct problem PROBLEM;
-typedef struct bndcond BOUNDARY_CONDITION;
 
 typedef struct std_BoundaryValueProblem STD_BVP;
 typedef union patch PATCH;

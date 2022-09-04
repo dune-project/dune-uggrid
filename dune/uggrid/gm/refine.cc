@@ -2545,7 +2545,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
 static INT RestrictMarks (GRID *theGrid)
 {
   ELEMENT *theElement,*SonList[MAX_SONS];
-  int i,flag;
+  INT flag;
 
   for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
@@ -2576,7 +2576,7 @@ static INT RestrictMarks (GRID *theGrid)
       /* go to no refinement or red refinement        */
       if (REFINECLASS(theElement)==GREEN_CLASS)
       {
-        for (i=0; i<NSONS(theElement); i++)
+        for (UINT i=0; i<NSONS(theElement); i++)
         {
                                         #ifdef ModelP
           if (SonList[i] == NULL) break;
@@ -2615,7 +2615,7 @@ static INT RestrictMarks (GRID *theGrid)
                 #endif
 
     flag = 0;
-    for (i=0; SonList[i]!=NULL; i++)
+    for (UINT i=0; SonList[i]!=NULL; i++)
     {
       /* if not all sons are marked no unrefinement is possible */
       if (!COARSEN(SonList[i]) || REFINECLASS(SonList[i])==RED_CLASS)
@@ -5841,25 +5841,6 @@ static void CheckConsistency (MULTIGRID *theMG, INT level ,INT debugstart, INT g
   ENDDEBUG
 }
 #endif
-
-
-static INT CheckMultiGrid (MULTIGRID *theMG)
-{
-  INT level;
-
-  UserWriteF("CheckMultiGrid() begin\n");
-
-  for (level=0; level<=TOPLEVEL(theMG); level++)
-                #ifdef ModelP
-    CheckGrid(GRID_ON_LEVEL(theMG,level),1,1,1,1);
-                #else
-    CheckGrid(GRID_ON_LEVEL(theMG,level),1,1,1);
-                #endif
-
-  UserWriteF("CheckMultiGrid() end\n");
-
-  return(0);
-}
 
 
 #ifdef STAT_OUT

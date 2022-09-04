@@ -2471,8 +2471,6 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
   INT n,i;
   BNDS *bnds;
   BNDP *bndp[MAX_CORNERS_OF_ELEM];
-  VECTOR *vec;
-  [[maybe_unused]] EDGE *theEdge;
 
   ASSERT (OBJT(theElement) == BEOBJ);
 
@@ -2482,7 +2480,7 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
   n = CORNERS_OF_SIDE(theElement,side);
   for (i=0; i<n; i++)
   {
-    theEdge = GetEdge(CORNER(theElement,CORNER_OF_SIDE(theElement,side,i)),CORNER(theElement,CORNER_OF_SIDE(theElement,side,(i+1)%n)));
+    const EDGE* theEdge = GetEdge(CORNER(theElement,CORNER_OF_SIDE(theElement,side,i)),CORNER(theElement,CORNER_OF_SIDE(theElement,side,(i+1)%n)));
     assert(EDSUBDOM(theEdge)==0);
   }
 
@@ -2529,7 +2527,7 @@ INT NS_DIM_PREFIX CreateSonElementSide (GRID *theGrid, ELEMENT *theElement, INT 
   SET_BNDS(theSon,son_side,bnds);
 
     #ifdef UG_DIM_2
-  theEdge = GetEdge(CORNER(theSon,CORNER_OF_EDGE(theSon,son_side,0)),
+  const EDGE* theEdge = GetEdge(CORNER(theSon,CORNER_OF_EDGE(theSon,son_side,0)),
                     CORNER(theSon,CORNER_OF_EDGE(theSon,son_side,1)));
   ASSERT(theEdge != NULL);
   SETEDSUBDOM(theEdge,0);
@@ -2670,7 +2668,7 @@ MULTIGRID * NS_DIM_PREFIX MakeMGItem (const char *name, std::shared_ptr<PPIF::PP
 
 INT NS_DIM_PREFIX ClearMultiGridUsedFlags (MULTIGRID *theMG, INT FromLevel, INT ToLevel, INT mask)
 {
-  int i,level,elem,node,edge,vertex,vector,matrix;
+  int i,level,elem,node,edge,vertex,vector;
   GRID *theGrid;
   ELEMENT *theElement;
   NODE *theNode;
@@ -4710,235 +4708,6 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
     }
 
   return(GM_OK);
-}
-
-/****************************************************************************/
-/** \brief Determine whether point is contained in element
-
- * @param   x - coordinates of given point
- * @param   theElement - element to scan
-
-   This function determines whether a given point specified by coordinates `x`
-   is contained in an element.
-
-   @return <ul>
-   <li>   false: point is not in the element</li>
-   <li>   true: point is in the element</li>
-   </ul> */
-/****************************************************************************/
-
-#ifdef UG_DIM_2
-bool NS_DIM_PREFIX PointInElement (const DOUBLE *x, const ELEMENT *theElement)  /* 2D version */
-{
-  COORD_POINT point[MAX_CORNERS_OF_ELEM],thePoint;
-  int n,i;
-
-  /* check element */
-  if (theElement==NULL)
-    return false;
-
-  /* load geometrical data of the corners */
-  n = CORNERS_OF_ELEM(theElement);
-  for (i=0; i<n; i++)
-  {
-    point[i].x = XC(MYVERTEX(CORNER(theElement,i)));
-    point[i].y = YC(MYVERTEX(CORNER(theElement,i)));
-  }
-  thePoint.x = (DOUBLE)x[0];
-  thePoint.y = (DOUBLE)x[1];
-
-  return PointInPolygon(point,n,thePoint);
-}
-#endif
-
-#ifdef UG_DIM_3
-bool NS_DIM_PREFIX PointInElement (const DOUBLE *global, const ELEMENT *theElement)
-{
-  DOUBLE *x[MAX_CORNERS_OF_ELEM];
-  DOUBLE_VECTOR a,b,rot;
-  DOUBLE det;
-  INT n,i;
-
-  /* check element */
-  if (theElement==NULL)
-    return false;
-
-  CORNER_COORDINATES(theElement,n,x);
-
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
-  {
-    V3_SUBTRACT(x[CORNER_OF_SIDE(theElement,i,1)],
-                x[CORNER_OF_SIDE(theElement,i,0)],a);
-    V3_SUBTRACT(x[CORNER_OF_SIDE(theElement,i,2)],
-                x[CORNER_OF_SIDE(theElement,i,0)],b);
-    V3_VECTOR_PRODUCT(a,b,rot);
-    V3_SUBTRACT(global,x[CORNER_OF_SIDE(theElement,i,0)],b);
-    V3_SCALAR_PRODUCT(rot,b,det);
-    if (det > SMALL_C)
-      return false;
-  }
-
-  return true;
-}
-
-#endif
-
-
-/****************************************************************************/
-/** \brief Determine whether point is on an element side
-
- * @param   x - coordinates of given point
- * @param   theElement - element to scan
- * @param   side - the element side
-
-   This function determines whether a given point specified by coordinates `x`
-   is contained in an element side.
-
-   Beware:  The function only tests if the Point is in the plane spawned by the element side.
-   The point could be outside the element side area.
-
-   @return <ul>
-   <li>   0 not on side </li>
-   <li>   1 x is on side </li>
-   </ul> */
-/****************************************************************************/
-
-#ifdef UG_DIM_2
-INT NS_DIM_PREFIX PointOnSide(const DOUBLE *global, const ELEMENT *theElement, INT side)
-{
-  INT n;
-  DOUBLE *x[MAX_CORNERS_OF_ELEM];
-  DOUBLE M[DIM+DIM];
-  DOUBLE *a, *b;
-  DOUBLE det;
-
-  a = &M[0];
-  b = &M[DIM];
-
-  CORNER_COORDINATES(theElement,n,x);
-
-  V2_SUBTRACT(x[CORNER_OF_SIDE(theElement,side,1)], x[CORNER_OF_SIDE(theElement,side,0)], a);
-  V2_SUBTRACT(global, x[CORNER_OF_SIDE(theElement,side,0)], b);
-  det = M2_DET(M);
-  if (fabs(det) < SMALL_C)
-    return 1;
-
-  return 0;
-}
-#else
-INT NS_DIM_PREFIX PointOnSide(const DOUBLE *global, const ELEMENT *theElement, INT side)
-{
-  INT n;
-  DOUBLE *x[MAX_CORNERS_OF_ELEM];
-  DOUBLE M[DIM*DIM];
-  DOUBLE *a, *b, *c;
-  DOUBLE det;
-
-  a = &M[0];
-  b = &M[DIM];
-  c = &M[2*DIM];
-
-  CORNER_COORDINATES(theElement,n,x);
-
-  V3_SUBTRACT(x[CORNER_OF_SIDE(theElement,side,1)], x[CORNER_OF_SIDE(theElement,side,0)], a);
-  V3_SUBTRACT(x[CORNER_OF_SIDE(theElement,side,2)], x[CORNER_OF_SIDE(theElement,side,0)], b);
-  V3_SUBTRACT(global, x[CORNER_OF_SIDE(theElement,side,0)], c);
-  det = M3_DET(M);
-  if (fabs(det) < SMALL_C)
-    return 1;
-
-  return 0;
-}
-#endif
-
-/****************************************************************************/
-/** \brief Determine distance of a point to an element side
-
- * @param   x - coordinates of given point
- * @param   theElement - element to scan
- * @param   side - the element side
-
-   This function determines the distance of a given point specified by coordinates `x`
-   from an element side.
-
-   Beware:  The function only tests if the Point is in the plane spawned by the element side.
-   The point could be outside the element side area.
-
-   @return <ul>
-   <li>   0 not on side </li>
-   <li>   1 x is on side </li>
-   </ul> */
-/****************************************************************************/
-
-#ifdef UG_DIM_2
-DOUBLE NS_DIM_PREFIX DistanceFromSide(const DOUBLE *global, const ELEMENT *theElement, INT side)
-{
-  INT n;
-  DOUBLE *x[MAX_CORNERS_OF_ELEM];
-  DOUBLE M[DIM+DIM];
-  DOUBLE *a, *b;
-  DOUBLE det;
-
-  a = &M[0];
-  b = &M[DIM];
-
-  CORNER_COORDINATES(theElement,n,x);
-
-  V2_SUBTRACT(x[CORNER_OF_SIDE(theElement,side,1)], x[CORNER_OF_SIDE(theElement,side,0)], a);
-  V2_SUBTRACT(global, x[CORNER_OF_SIDE(theElement,side,0)], b);
-  det = M2_DET(M);
-
-  return det;
-}
-#else
-DOUBLE NS_DIM_PREFIX DistanceFromSide(const DOUBLE *global, const ELEMENT *theElement, INT side)
-{
-  INT n;
-  DOUBLE *x[MAX_CORNERS_OF_ELEM];
-  DOUBLE M[DIM*DIM];
-  DOUBLE *a, *b, *c;
-  DOUBLE det;
-
-  a = &M[0];
-  b = &M[DIM];
-  c = &M[2*DIM];
-
-  CORNER_COORDINATES(theElement,n,x);
-
-  V3_SUBTRACT(x[CORNER_OF_SIDE(theElement,side,1)], x[CORNER_OF_SIDE(theElement,side,0)], a);
-  V3_SUBTRACT(x[CORNER_OF_SIDE(theElement,side,2)], x[CORNER_OF_SIDE(theElement,side,0)], b);
-  V3_SUBTRACT(global, x[CORNER_OF_SIDE(theElement,side,0)], c);
-  det = M3_DET(M);
-
-  return det;
-}
-#endif
-
-/****************************************************************************/
-/** \brief Find element containing position
-
- * @param   theGrid - grid level to search
- * @param   pos - given position
-
-   This function finds the first element containing the position `pos`.
-
-   @return <ul>
-   <li>   pointer to ELEMENT </li>
-   <li>   NULL if not found. </li>
-   </ul> */
-/****************************************************************************/
-
-ELEMENT * NS_DIM_PREFIX FindElementOnSurface (MULTIGRID *theMG, DOUBLE *global)
-{
-  ELEMENT *t;
-  INT k;
-
-  for (k=0; k<=TOPLEVEL(theMG); k++)
-    for (t=FIRSTELEMENT(GRID_ON_LEVEL(theMG,k)); t!=NULL; t=SUCCE(t))
-      if (EstimateHere(t))
-        if (PointInElement(global,t)) return(t);
-
-  return(NULL);
 }
 
 /****************************************************************************/

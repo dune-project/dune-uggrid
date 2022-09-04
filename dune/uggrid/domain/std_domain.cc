@@ -132,59 +132,6 @@ static INT BndPointGlobal (const BNDP * aBndP, DOUBLE * global);
 static INT PatchGlobal (const PATCH * p, DOUBLE * lambda, DOUBLE * global);
 
 /****************************************************************************/
-/** \brief Allocate a new BNDCOND structure
- *
- * @param  theBCond - the boundary condition
- *
- * This function gets next BNDCOND structure
- *
- * @return <ul>
- *   <li>      pointer to BOUNDARY_CONDITION </li>
- *   <li>      NULL if not found or error. </li>
- * </ul>
- */
-/****************************************************************************/
-static BOUNDARY_CONDITION *
-GetNextBoundaryCondition (BOUNDARY_CONDITION * theBCond)
-{
-  ENVITEM *theItem;
-
-  theItem = (ENVITEM *) theBCond;
-
-  do
-    theItem = NEXT_ENVITEM (theItem);
-  while ((theItem != NULL) && (ENVITEM_TYPE (theItem) != theBdryCondVarID));
-
-  return ((BOUNDARY_CONDITION *) theItem);
-}
-
-/****************************************************************************/
-/** \brief Get first BNDCOND structure of `theProblem`
- *
- * @param  theProblem - pointer to PROBLEM
- *
- * This function gets the first BNDCOND structure of a problem
- *
- * @return <ul>
- *   <li>      pointer to BOUNDARY_CONDITION </li>
- *   <li>      NULL if not found or error. </li>
- * </ul>
- */
-/****************************************************************************/
-static BOUNDARY_CONDITION *
-GetFirstBoundaryCondition (PROBLEM * theProblem)
-{
-  ENVITEM *theItem;
-
-  theItem = ENVITEM_DOWN (theProblem);
-
-  if (ENVITEM_TYPE (theItem) == theBdryCondVarID)
-    return ((BOUNDARY_CONDITION *) theItem);
-  else
-    return (GetNextBoundaryCondition ((BOUNDARY_CONDITION *) theItem));
-}
-
-/****************************************************************************/
 /** \brief Create a new DOMAIN data structure
  *
  * @param  name - name of the domain
@@ -282,7 +229,6 @@ RemoveDomain (const char *name)
  * @param  left - id of left subdomain
  * @param  right - id of right subdomain
  * @param  id - id of this boundary segment
- * @param  type - type of the boundary segment
  * @param  point - the endpoints of the boundary segment
  * @param  alpha - list where the parameter interval begins
  * @param  beta - list where the parameter interval ends
@@ -301,7 +247,7 @@ RemoveDomain (const char *name)
 
 void *NS_DIM_PREFIX
 CreateBoundarySegment (const char *name,
-                       INT left, INT right, INT id, enum BoundaryType type,
+                       INT left, INT right, INT id,
                        const INT * point, const DOUBLE * alpha, const DOUBLE * beta,
                        BndSegFuncPtr BndSegFunc, void *data)
 {
@@ -319,7 +265,6 @@ CreateBoundarySegment (const char *name,
   newSegment->left = left;
   newSegment->right = right;
   newSegment->id = id;
-  newSegment->segType = type;
   for (i = 0; i < CORNERS_OF_BND_SEG; i++)
     newSegment->points[i] = point[i];
   for (i = 0; i < DIM_OF_BND; i++)
@@ -550,7 +495,6 @@ CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
     theBVP->CU_ProcPtr[i + numOfCoeffFct] = (void *) (userfct[i]);
 
   theBVP->Domain = NULL;
-  theBVP->Problem = NULL;
   theBVP->ConfigProc = STD_BVP_Configure;
   theBVP->GeneralBndCond = theBndCond;
 
@@ -846,10 +790,8 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 {
   STD_BVP *theBVP;
   DOMAIN *theDomain;
-  PROBLEM *theProblem;
   BOUNDARY_SEGMENT *theSegment;
   LINEAR_SEGMENT *theLinSegment;
-  BOUNDARY_CONDITION *theBndCond;
   PATCH **corners, **sides, *thePatch;
   unsigned short* segmentsPerPoint, *freeSegmentsPerPoint, *cornerCounters;
   INT i, j, n, m, maxSubDomains, ncorners, nlines, nsides;
@@ -867,7 +809,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   theDomain = theBVP->Domain;
   if (theDomain == NULL)
     return (NULL);
-  theProblem = theBVP->Problem;
 
   /* fill in data of domain */
   ncorners = theDomain->numOfCorners;
@@ -892,14 +833,8 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
       return (NULL);
     PATCH_TYPE (thePatch) = PARAMETRIC_PATCH_TYPE;
     PATCH_ID (thePatch) = theSegment->id;
-    if (theSegment->segType == FREE)
-      PATCH_STATE (thePatch) = PATCH_FREE;
-    else
-      PATCH_STATE (thePatch) = PATCH_FIXED;
     PARAM_PATCH_LEFT (thePatch) = theSegment->left;
     PARAM_PATCH_RIGHT (thePatch) = theSegment->right;
-    PARAM_PATCH_BC (thePatch) = NULL;
-    PARAM_PATCH_BCD (thePatch) = NULL;
     for (i = 0; i < 2 * DIM_OF_BND; i++)
       PARAM_PATCH_POINTS (thePatch, i) = theSegment->points[i];
     for (i = 0; i < DIM_OF_BND; i++)
@@ -948,31 +883,12 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
                          PATCH_ID (thePatch), PATCH_TYPE (thePatch),
                          LINEAR_PATCH_LEFT (thePatch),
                          LINEAR_PATCH_RIGHT (thePatch)));
-    /** \todo why this here??? (CVS-merge mess-up?) */
-    if (theProblem != NULL)
-    {
-      UserWrite ("Use CreateBoundaryValueProblem!");
-      return (NULL);
-    }
   }
   theBVP->numOfSubdomains = maxSubDomains;
   PRINTDEBUG (dom, 1, (" bvp nsubcf %x\n", theBVP->numOfSubdomains));
   for (i = 0; i < nsides; i++)
     if (sides[i] == NULL)
       return (NULL);
-
-  if (theProblem != NULL)
-    for (theBndCond = GetFirstBoundaryCondition (theProblem);
-         theBndCond != NULL;
-         theBndCond = GetNextBoundaryCondition (theBndCond))
-    {
-      i = theBndCond->id;
-      if ((i < 0) || (i >= nsides))
-        return (NULL);
-      thePatch = sides[i];
-      PARAM_PATCH_BC (thePatch) = theBndCond->BndCond;
-      PARAM_PATCH_BCD (thePatch) = theBndCond->data;
-    }
 
   /* create point patches */
   corners = (PATCH **) GetTmpMem (Heap, ncorners * sizeof (PATCH *), MarkKey);

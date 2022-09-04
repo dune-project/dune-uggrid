@@ -150,7 +150,6 @@ INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object
   VOBJECT(pv) = object;
   VINDEX(pv) = (long)NVEC(theGrid);
   SUCCVC(pv) = FIRSTVECTOR(theGrid);
-  VSTART(pv) = NULL;
 
   GRID_LINK_VECTOR(theGrid,pv,PrioMaster);
 
@@ -239,21 +238,12 @@ INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT S
          to the side vector */
       return (0);
     assert(VCOUNT(Vector0)==1 && VCOUNT(Vector1)==1);
-    assert(VSTART(Vector0)==NULL || VSTART(Vector1)==NULL);
-    if (VSTART(Vector0)==NULL)
-    {
-      SET_SVECTOR(Elem0,Side0,Vector1);
-      SETVCOUNT(Vector1,2);
-      if (DisposeVector (theGrid,Vector0))
-        RETURN (1);
-    }
-    else
-    {
-      SET_SVECTOR(Elem1,Side1,Vector0);
-      SETVCOUNT(Vector0,2);
-      if (DisposeVector (theGrid,Vector1))
-        RETURN (1);
-    }
+
+    SET_SVECTOR(Elem1,Side1,Vector0);
+    SETVCOUNT(Vector0,2);
+    if (DisposeVector (theGrid,Vector1))
+      RETURN (1);
+
     return (0);
 
   }

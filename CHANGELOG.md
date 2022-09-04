@@ -1,7 +1,9 @@
 # dune-uggrid 2.9 (unreleased)
 
-- The `dune-uggrid` module does not set the preprocessor flag `HAVE_UG` anymore.
+* The `dune-uggrid` module does not set the preprocessor flag `HAVE_UG` anymore.
   Use `HAVE_DUNE_UGGRID` instead.
+* Several unused data members have been removed from the `UGGrid` data structure.
+  The grids will behave as before, but the memory footprint should be a bit smaller.
 
 # dune-uggrid 2.8 (2021-09-06)
 

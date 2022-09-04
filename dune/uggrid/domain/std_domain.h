@@ -53,9 +53,14 @@ START_UGDIM_NAMESPACE
 
 
 /*----------- typedef for functions ----------------------------------------*/
-/** \brief ???
+/** \brief Data type of the functions mapping parameter space to world space
  *
- * \todo Please doc me!
+ * The first argument of type void * is the user data pointer from
+ * the corresponding BOUNDARY_SEGMENT. The second parameter of type DOUBLE *
+ * provides an array containing the parameters where the boundary segment
+ * function should be evaluated (one number in 2D, two numbers in 3D). The
+ * third parameter of type DOUBLE * provides an array where the result can be placed
+ * (x,y values in 2D, x,y,z values in 3D).
  */
 typedef INT (*BndSegFuncPtr)(void *,DOUBLE *,DOUBLE *);
 
@@ -81,7 +86,7 @@ void                     *CreateDomain                        (const char *name,
 void RemoveDomain(const char* name);
 
 void   *CreateBoundarySegment       (const char *name, INT left, INT right,
-                                     INT id, enum BoundaryType type,
+                                     INT id,
                                      const INT *point,
                                      const DOUBLE *alpha, const DOUBLE *beta,
                                      BndSegFuncPtr BndSegFunc,
