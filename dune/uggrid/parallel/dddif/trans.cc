@@ -748,9 +748,8 @@ static void InheritPartitionBottomTop (ELEMENT *e)
 
 int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 {
-  INT g;
-  INT migrated = 0;       /* number of elements moved */
 #ifdef STAT_OUT
+  INT migrated = 0;       /* number of elements moved */
   DOUBLE trans_begin, trans_end, cons_end;
 #endif
 
@@ -760,7 +759,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
   Set_Current_BVP(theMG->theBVP);
 
   ASSERT(AllocateControlEntry(NODE_CW,NO_DELETE_OVERLAP2_LEN,&ce_NO_DELETE_OVERLAP2) == GM_OK);
-  for (g=0; g<=TOPLEVEL(theMG); g++)
+  for (INT g=0; g<=TOPLEVEL(theMG); g++)
   {
     GRID *theGrid = GRID_ON_LEVEL(theMG,g);
     for( node=PFIRSTNODE(theGrid); node!= NULL; node=SUCCN(node) )
@@ -786,11 +785,17 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
     ComputeGhostCmds(theMG);
 
     /* send all grids */
-    /*		for (g=TOPLEVEL(theMG); g>=0; g--) */
-    for (g=0; g<=TOPLEVEL(theMG); g++)
+    for (INT g=0; g<=TOPLEVEL(theMG); g++)
     {
       GRID *theGrid = GRID_ON_LEVEL(theMG,g);
-      if (NT(theGrid)>0) migrated += XferGridWithOverlap(theGrid);
+      if (NT(theGrid)>0)
+      {
+#ifdef STAT_OUT
+        migrated += XferGridWithOverlap(theGrid);
+#else
+        XferGridWithOverlap(theGrid);
+#endif
+      }
     }
   }
 
@@ -801,7 +806,7 @@ int NS_DIM_PREFIX TransferGridFromLevel (MULTIGRID *theMG, INT level)
 #endif
 
 #ifdef __OVERLAP2__
-  for (g=0; g<=TOPLEVEL(theMG); g++)
+  for (INT g=0; g<=TOPLEVEL(theMG); g++)
   {
     GRID *theGrid = GRID_ON_LEVEL(theMG,g);
     for( node=PFIRSTNODE(theGrid); node!= NULL; node=SUCCN(node) )

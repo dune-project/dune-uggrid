@@ -1161,7 +1161,9 @@ static INT ExtractRules (MULTIGRID *mg)
 
   if (maxrules>0)
   {
+#ifdef Debug
     int n = 0;
+#endif
     int max_list_len = 0;
 
     /* make tables of subsequent IDs */
@@ -1185,7 +1187,9 @@ static INT ExtractRules (MULTIGRID *mg)
       {
         global.hrule[HR_TAG(hr)][HR_ID(hr)] = hr;
         list_len++;
+#ifdef Debug
         n++;
+#endif
       }
       max_list_len = std::max(max_list_len,list_len);
     }
@@ -2151,15 +2155,19 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
 INT NS_DIM_PREFIX ResetRefineTagsBeyondRuleManager (MULTIGRID *mg)
 {
   ELEMENT *elem;
-  int l,n=0;
+#ifdef Debug
+  int n = 0;
+#endif
 
   /** \todo (HRR 971211): don't include TOPLEVEL (no elem refined there) */
-  for (l=0; l<=TOPLEVEL(mg); l++)
+  for (int l=0; l<=TOPLEVEL(mg); l++)
     for (elem=PFIRSTELEMENT(GRID_ON_LEVEL(mg,l)); elem!=NULL; elem=SUCCE(elem))
       if (BEYOND_UG_RULES(elem))
       {
         SETREFINE(elem,COPY);
+#ifdef Debug
         n++;
+#endif
       }
   PRINTDEBUG(gm,ER_DBG_GENERAL,("ResetRefineTags: done (for %d elements)\n",n));
 

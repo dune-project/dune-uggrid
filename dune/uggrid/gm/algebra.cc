@@ -515,7 +515,7 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 #ifdef UG_DIM_3
   VECTOR *nbvec;
   ELEMENT *nbelem;
-  INT j,n;
+  INT j;
 #endif
   ELEMENT *elem;
   INT i;
@@ -559,7 +559,9 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
               nbelem = NBELEM(elem,side);
               ASSERT(nbelem!=NULL);
               VECTOR *vec=SVECTOR(elem,side);
-              n=0;
+#ifdef Debug
+              INT n=0;
+#endif
               for(j=0; j<SIDES_OF_ELEM(nbelem); j++)
               {
                 nbvec=SVECTOR(nbelem,j);
@@ -576,7 +578,9 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
                   }
                 }
               }
+#ifdef Debug
               n++;
+#endif
               ASSERT(n==1);
             }
           }else
@@ -584,7 +588,9 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
             nbelem = NBELEM(elem,side);
             ASSERT(nbelem!=NULL);
             VECTOR* vec=SVECTOR(elem,side);
-            n=0;
+#ifdef Debug
+            INT n=0;
+#endif
             for(j=0; j<SIDES_OF_ELEM(nbelem); j++)
             {
               nbvec=SVECTOR(nbelem,j);
@@ -602,7 +608,9 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
                 }
               }
             }
+#ifdef Debug
             n++;
+#endif
             ASSERT(n==1);
           }
         }
