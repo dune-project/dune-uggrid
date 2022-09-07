@@ -950,14 +950,16 @@ static INT IdentifyEdge (GRID *theGrid,
 static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                                         INT i, ELEMENT *theNeighbor)
 {
-  INT nodes,j,n;
+  INT nodes, j;
+#ifdef Debug
+  INT n = 0;
+#endif
   NODE *SideNodes[MAX_SIDE_NODES];
   INT ncorners;
   NODE *theNode;
 
   GetSonSideNodes(theElement,i,&nodes,SideNodes,0);
   ncorners = CORNERS_OF_SIDE(theElement,i);
-  n = 0;
 
   PRINTDEBUG(dddif,1,("%d: IdentifyObjectsOfElementSide():identify NODES "
                       "ncorners=%d nodes=%d\n",me,ncorners,nodes));
@@ -970,7 +972,9 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
 
      // identify new node including its vertex
      IdentifyNode(theGrid,theNeighbor, theNode, SideNodes, j, ncorners);
-    n++;
+#ifdef Debug
+     n++;
+#endif
   }
   ASSERT(n == nodes);
 

@@ -1885,7 +1885,6 @@ static INT IO_GridCons(MULTIGRID *theMG)
   int     *proclist;
   GRID    *theGrid;
   ELEMENT *theElement;
-  VECTOR  *theVector;
 #ifdef ModelP
   auto& dddContext = theMG->dddContext();
 #endif
@@ -2689,7 +2688,6 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   ELEMENT *theElement,*ENext;
   NODE *theNode;
   EDGE *theEdge;
-  VECTOR *theVector;
   HEAP *theHeap;
   MGIO_MG_GENERAL mg_general;
   MGIO_GE_GENERAL ge_general;
@@ -3197,7 +3195,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     if (MGIO_PARFILE)
       if (IO_GridCons(theMG))                                 {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
 
-    for (theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,0));
+    for (VECTOR *theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,0));
          theVector!=NULL; theVector=SUCCVC(theVector)) {
       SETVCLASS(theVector,3);
       SETVNCLASS(theVector,0);
