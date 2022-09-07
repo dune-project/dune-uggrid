@@ -77,10 +77,6 @@ typedef INT (*BndCondProcPtr)(void *, void *, DOUBLE *, DOUBLE *, INT *);
 
 
 /* domain definition */
-void                     *CreateDomainWithParts       (const char *name,
-                                                       INT segments,
-                                                       INT corners);
-
 void                     *CreateDomain                        (const char *name,
                                                                INT segments,
                                                                INT corners);
