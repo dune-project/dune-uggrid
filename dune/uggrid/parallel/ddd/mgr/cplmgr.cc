@@ -502,6 +502,24 @@ void DisposeCouplingList (DDD::DDDContext& context, COUPLING *cpl)
 }
 
 
+/*
+ * DDD_InfoProcListRange
+ */
+
+DDD_InfoProcListRange::DDD_InfoProcListRange(DDDContext& context, const DDD_HDR hdr, bool includeDummy) noexcept
+  : includeDummy_(includeDummy)
+{
+  dummy_._proc = context.me();
+  dummy_.prio = OBJ_PRIO(hdr);
+
+  const auto objIndex = OBJ_INDEX(hdr);
+  if (objIndex < context.couplingContext().nCpls) {
+    dummy_._next = IdxCplList(context, objIndex);
+  }
+  else {
+    dummy_._next = nullptr;
+  }
+}
 
 /****************************************************************************/
 /*                                                                          */
