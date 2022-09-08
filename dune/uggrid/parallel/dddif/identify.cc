@@ -112,7 +112,7 @@ INT NS_DIM_PREFIX ident_mode = IDENT_OFF;
 
 /* this function is called for low level identification */
 static INT (*Ident_FctPtr)(DDD::DDDContext& context, DDD_HDR *IdentObjectHdr, INT nobject,
-                           const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident) = NULL;
+                           const DDD_InfoProcListRange& proclist, DDD_PRIO skiptag, DDD_HDR *IdentHdr, INT nident) = NULL;
 
 static int check_nodetype = 0;
 
@@ -175,7 +175,7 @@ static void ResetIdentFlags (GRID *Grid)
 
    SYNOPSIS:
    static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
-                                const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
+                                const DDD_InfoProcListRange& proclist, DDD_PRIO skiptag, DDD_HDR *IdentHdr, INT nident);
 
    PARAMETERS:
    .  IdentObjectHdr
@@ -193,7 +193,7 @@ static void ResetIdentFlags (GRID *Grid)
 /****************************************************************************/
 
 static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
-                                      const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
+                                      const DDD_InfoProcListRange& proclist, DDD_PRIO skiptag, DDD_HDR *IdentHdr, INT nident)
 {
   INT i;
 
@@ -251,7 +251,7 @@ static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
    Print_Identified_ObjectList -
 
    SYNOPSIS:
-   static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject, const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
+   static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject, const DDD_InfoProcListRange& proclist, DDD_PRIO skiptag, DDD_HDR *IdentHdr, INT nident);
 
    PARAMETERS:
    .  IdentObjectHdr
@@ -268,7 +268,7 @@ static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 /****************************************************************************/
 
 static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
-                                        const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
+                                        const DDD_InfoProcListRange& proclist, DDD_PRIO skiptag, DDD_HDR *IdentHdr, INT nident)
 {
   INT i;
 
@@ -322,7 +322,7 @@ static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 
    SYNOPSIS:
    static INT Identify_by_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
-                                const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
+                                const DDD_InfoProcListRange& proclist, DDD_PRIO skiptag, DDD_HDR *IdentHdr, INT nident);
 
    PARAMETERS:
    .  IdentObjectHdr
@@ -340,7 +340,7 @@ static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 /****************************************************************************/
 
 static INT Identify_by_ObjectList (DDD::DDDContext& context, DDD_HDR *IdentObjectHdr, INT nobject,
-                                   const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
+                                   const DDD_InfoProcListRange& proclist, DDD_PRIO skiptag, DDD_HDR *IdentHdr, INT nident)
 {
   INT i,j,n;
 
