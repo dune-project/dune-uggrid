@@ -112,7 +112,7 @@ INT NS_DIM_PREFIX ident_mode = IDENT_OFF;
 
 /* this function is called for low level identification */
 static INT (*Ident_FctPtr)(DDD::DDDContext& context, DDD_HDR *IdentObjectHdr, INT nobject,
-                           const int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident) = NULL;
+                           const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident) = NULL;
 
 static int check_nodetype = 0;
 
@@ -175,7 +175,7 @@ static void ResetIdentFlags (GRID *Grid)
 
    SYNOPSIS:
    static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
-                                const int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
+                                const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
 
    PARAMETERS:
    .  IdentObjectHdr
@@ -193,13 +193,13 @@ static void ResetIdentFlags (GRID *Grid)
 /****************************************************************************/
 
 static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
-                                      const int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
+                                      const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
 {
   INT i;
 
   ASSERT(nobject>0);
   ASSERT(nident>0);
-  ASSERT(*proclist!=-1);
+  ASSERT(!proclist.empty());
 
   /* print the interesting call parameters */
   PrintDebug ("%d:    Print_Identify_ObjectList(): nobject=%d nident=%d"
@@ -220,16 +220,12 @@ static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 
   /* print the proclist to identify to */
   PrintDebug ("    ProcList: %d",me);
-  while (*proclist != -1)
+  for (auto&& [proc, prio] : proclist)
   {
-    if (*(proclist+1) == skiptag)
-    {
-      proclist += 2;
+    if (prio == skiptag)
       continue;
-    }
 
-    PrintDebug (" %d",*proclist);
-    proclist += 2;
+    PrintDebug (" %d", proc);
   }
 
   /* print my processor number */
@@ -255,7 +251,7 @@ static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
    Print_Identified_ObjectList -
 
    SYNOPSIS:
-   static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject, int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
+   static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject, const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
 
    PARAMETERS:
    .  IdentObjectHdr
@@ -272,13 +268,13 @@ static INT Print_Identify_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 /****************************************************************************/
 
 static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
-                                        int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
+                                        const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
 {
   INT i;
 
   ASSERT(nobject>0);
   ASSERT(nident>0);
-  ASSERT(*proclist!=-1);
+  ASSERT(!proclist.empty());
 
   /* print the interesting call parameters */
   PrintDebug ("%d:    Print_Identified_ObjectList(): nobject=%d nident=%d"
@@ -296,16 +292,12 @@ static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 
   /* print the proclist to identify to */
   PrintDebug ("    ProcList: %d",me);
-  while (*proclist != -1)
+  for (auto&& [proc, prio] : proclist)
   {
-    if (*(proclist+1) == skiptag)
-    {
-      proclist += 2;
+    if (prio == skiptag)
       continue;
-    }
 
-    PrintDebug (" %d",*proclist);
-    proclist += 2;
+    PrintDebug (" %d", proc);
   }
 
   /* print my processor number */
@@ -330,7 +322,7 @@ static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 
    SYNOPSIS:
    static INT Identify_by_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
-                                int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
+                                const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident);
 
    PARAMETERS:
    .  IdentObjectHdr
@@ -348,13 +340,13 @@ static INT Print_Identified_ObjectList (DDD_HDR *IdentObjectHdr, INT nobject,
 /****************************************************************************/
 
 static INT Identify_by_ObjectList (DDD::DDDContext& context, DDD_HDR *IdentObjectHdr, INT nobject,
-                                   const int *proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
+                                   const DDD_InfoProcListRange& proclist, int skiptag, DDD_HDR *IdentHdr, INT nident)
 {
   INT i,j,n;
 
   ASSERT(nobject>0);
   ASSERT(nident>0);
-  ASSERT(*proclist!=-1);
+  ASSERT(!proclist.empty());
 
 #ifdef Debug
   IFDEBUG(dddif,1)
@@ -364,15 +356,12 @@ static INT Identify_by_ObjectList (DDD::DDDContext& context, DDD_HDR *IdentObjec
 #endif
 
   n = 0;
-  while (*proclist != -1)
+  for (auto&& [proc, prio] : proclist)
   {
     ASSERT(n < context.procs());
 
-    if (*(proclist+1) == skiptag)
-    {
-      proclist += 2;
+    if (prio == skiptag)
       continue;
-    }
 
     /* identify the object */
     for (j=0; j<nobject; j++)
@@ -380,19 +369,18 @@ static INT Identify_by_ObjectList (DDD::DDDContext& context, DDD_HDR *IdentObjec
       for (i=0; i<nident; i++)
       {
         PRINTDEBUG(dddif,5,("%d: Identify_by_ObjectList(): Type=%d"
-                            " IdentObjectHdr=%08x proclist=%d IdentHdr=%08x me=%d\n",
+                            " IdentObjectHdr=%08x proc=%d IdentHdr=%08x me=%d\n",
                             me,DDD_InfoType(IdentObjectHdr[j]),
                             DDD_InfoGlobalId(IdentObjectHdr[j]),
-                            *proclist,DDD_InfoGlobalId(IdentHdr[i]),me));
+                            proc,DDD_InfoGlobalId(IdentHdr[i]),me));
 
         /* hand identification hdr to ddd */
-        DDD_IdentifyObject(context, IdentObjectHdr[j], *proclist, IdentHdr[i]);
+        DDD_IdentifyObject(context, IdentObjectHdr[j], proc, IdentHdr[i]);
       }
     }
 
     n++;
     assert(n < context.procs());
-    proclist += 2;
   }
 
   /* identification should occur to at least one other proc */
@@ -410,14 +398,11 @@ static void IdentifySideVector (DDD::DDDContext& context, ELEMENT* theElement, E
   INT k,nident;
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
-  int *proclist;
   NODE *theNode;
 
   nident = 0;
 
   IdentObjectHdr[0] = PARHDR(SVECTOR(Son,SonSide));
-
-  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
 
   /* identify using corner nodes */
   for (k=0; k<CORNERS_OF_SIDE(Son,SonSide); k++)
@@ -429,9 +414,9 @@ static void IdentifySideVector (DDD::DDDContext& context, ELEMENT* theElement, E
       IdentHdr[nident++] = PARHDR(theNode);
   }
 
-  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false);
 
-  Ident_FctPtr(context, IdentObjectHdr,1,proclist+2,PrioHGhost,IdentHdr,nident);
+  Ident_FctPtr(context, IdentObjectHdr,1,proclist,PrioHGhost,IdentHdr,nident);
 
 }
 #endif
@@ -489,9 +474,9 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
 
   switch (NTYPE(theNode))
   {
-    int *proclist;
 
   case (CORNER_NODE) :
+  {
 
     /* identification of cornernodes is done */
     /* in Identify_SonNodes()     */
@@ -503,15 +488,16 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
     IdentObjectHdr[nobject++] = PARHDR(theNode);
 
     /* identify to proclist of node */
-    proclist = DDD_InfoProcList(context, PARHDR((NODE *)NFATHER(theNode)));
+    const auto& proclist = DDD_InfoProcListRange(context, PARHDR((NODE *)NFATHER(theNode)), false);
 
     /* identify using father node */
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(theNode));
 
     Ident_FctPtr(context, IdentObjectHdr, nobject,
-                 proclist+2, PrioHGhost, IdentHdr, nident);
+                 proclist, PrioHGhost, IdentHdr, nident);
 
     break;
+  }
 
   case (MID_NODE) :
   {
@@ -553,7 +539,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
                       (NODE *)NFATHER(EdgeNodes[1]));
     ASSERT(theEdge!=NULL);
 
-    proclist = DDD_InfoProcList(context, PARHDR(theEdge));
+    const auto& proclist = DDD_InfoProcListRange(context, PARHDR(theEdge), false);
 
     /* identify using edge nodes */
     IdentHdr[nident++] = PARHDR((NODE *)NFATHER(EdgeNodes[0]));
@@ -565,7 +551,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
      */
 
     Ident_FctPtr(context, IdentObjectHdr, nobject,
-                 proclist+2, PrioHGhost, IdentHdr, nident);
+                 proclist, PrioHGhost, IdentHdr, nident);
 
     break;
   }
@@ -583,7 +569,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
     IdentObjectHdr[nobject++] = PARHDRV(MYVERTEX(theNode));
 
     /* identify to proclist of neighbor element */
-    proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
+    const auto& proclist = DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false);
 
     /* identify using corner nodes of side */
     for (i=0; i<ncorners; i++)
@@ -591,7 +577,7 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
 
     /* identify side node */
     Ident_FctPtr(context, IdentObjectHdr, nobject,
-                 proclist+2, PrioHGhost, IdentHdr, nident);
+                 proclist, PrioHGhost, IdentHdr, nident);
 
     break;
   }
@@ -638,7 +624,6 @@ static void IdentifyNode (GRID *theGrid, ELEMENT *theNeighbor, NODE *theNode,
 static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, ELEMENT *theNeighbor, INT Vec)
 {
   INT nobject,nident;
-  int *proclist;
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
   NODE   *theNode0,*theNode1;
@@ -679,7 +664,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
         #endif
 
   /* identify to proclist of neighbor */
-  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false);
 
   /* now choose identificator objects */
   theNode0 = NBNODE(LINK0(theEdge));
@@ -735,7 +720,7 @@ static INT IdentifySideEdge (GRID *theGrid, EDGE *theEdge, ELEMENT *theElement, 
 
   if (nobject > 0)
     Ident_FctPtr(context, IdentObjectHdr, nobject,
-                 proclist+2, PrioHGhost, IdentHdr, nident);
+                 proclist, PrioHGhost, IdentHdr, nident);
 
   /* debugging unlocks the edge */
         #ifdef Debug
@@ -786,7 +771,6 @@ static INT IdentifyEdge (GRID *theGrid,
         #ifdef UG_DIM_3
   INT edge,corner0,corner1;
         #endif
-  int *proclist;
   DDD_HDR IdentObjectHdr[MAX_OBJECT];
   DDD_HDR IdentHdr[MAX_TOKEN];
   auto& context = theGrid->dddContext();
@@ -866,11 +850,12 @@ static INT IdentifyEdge (GRID *theGrid,
 
         #ifdef UG_DIM_2
   /* identify to proclist of neighbor */
-  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false);
         #endif
 
   /* identify to proclist of father edge or neighbor*/
         #ifdef UG_DIM_3
+  DDD_HDR hdr;
   if (0)
   {
     EDGE *fatherEdge = NULL;
@@ -879,11 +864,12 @@ static INT IdentifyEdge (GRID *theGrid,
     fatherEdge = FatherEdge(SideNodes,ncorners,Nodes,theEdge);
 
     if (fatherEdge != NULL)
-      proclist = DDD_InfoProcList(context, PARHDR(fatherEdge));
+      hdr = PARHDR(fatherEdge);
     else
-      proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
+      hdr = PARHDRE(theNeighbor);
   }
-  proclist = DDD_InfoProcList(context, PARHDRE(theNeighbor));
+  hdr = PARHDRE(theNeighbor);
+  const auto& proclist = DDD_InfoProcListRange(context, hdr, false);
         #endif
 
   if (CORNERTYPE(Nodes[0]))
@@ -910,7 +896,7 @@ static INT IdentifyEdge (GRID *theGrid,
 
   if (nobject > 0)
     Ident_FctPtr(context, IdentObjectHdr, nobject,
-                 proclist+2, PrioHGhost, IdentHdr, nident);
+                 proclist, PrioHGhost, IdentHdr, nident);
 
   /* debugging unlocks the edge */
         #ifdef Debug

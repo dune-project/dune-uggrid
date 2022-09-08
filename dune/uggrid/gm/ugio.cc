@@ -1135,7 +1135,6 @@ static INT WriteElementParInfo (GRID *theGrid,
                                 ELEMENT *theElement, MGIO_PARINFO *pinfo)
 {
   INT i,j,k,s,n_max;
-  int *pl;
   NODE *theNode;
   VERTEX *theVertex;
 #ifdef ModelP
@@ -1156,9 +1155,10 @@ static INT WriteElementParInfo (GRID *theGrid,
   }
   if (pinfo->ncopies_elem>0)
   {
-    pl = EPROCLIST(dddContext, theElement);
-    for (i=0,j=2; i<pinfo->ncopies_elem; i++,j+=2)
-      ActProcListPos[s++] = pl[j];
+    const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDRE(theElement), false);
+    auto proclistIt = proclist.begin();
+    for (i=0; i<pinfo->ncopies_elem; ++i, ++proclistIt)
+      ActProcListPos[s++] = (*proclistIt).proc;
   }
   pinfo->e_ident = EGID(theElement);
   for (k=0; k<CORNERS_OF_ELEM(theElement); k++)
@@ -1173,9 +1173,10 @@ static INT WriteElementParInfo (GRID *theGrid,
     }
     if (pinfo->ncopies_node[k]>0)
     {
-      pl = PROCLIST(dddContext, theNode);
-      for (i=0,j=2; i<pinfo->ncopies_node[k]; i++,j+=2)
-        ActProcListPos[s++] = pl[j];
+      const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDR(theNode), false);
+      auto proclistIt = proclist.begin();
+      for (i=0; i<pinfo->ncopies_node[k]; ++i, ++proclistIt)
+        ActProcListPos[s++] = (*proclistIt).proc;
     }
     pinfo->n_ident[k] = GID(theNode);
   }
@@ -1191,9 +1192,10 @@ static INT WriteElementParInfo (GRID *theGrid,
     }
     if (pinfo->ncopies_vertex[k]>0)
     {
-      pl = VXPROCLIST(dddContext, theVertex);
-      for (i=0,j=2; i<pinfo->ncopies_vertex[k]; i++,j+=2)
-        ActProcListPos[s++] = pl[j];
+      const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDRV(theVertex), false);
+      auto proclistIt = proclist.begin();
+      for (i=0; i<pinfo->ncopies_vertex[k]; ++i, ++proclistIt)
+        ActProcListPos[s++] = (*proclistIt).proc;
     }
     pinfo->v_ident[k] = VXGID(theVertex);
   }
@@ -1211,9 +1213,10 @@ static INT WriteElementParInfo (GRID *theGrid,
       REP_ERR_RETURN(1);
     }
     if (pinfo->ncopies_edge[k]>0) {
-      pl = PROCLIST(dddContext, theEdge);
-      for (i=0,j=2; i<pinfo->ncopies_edge[k]; i++,j+=2)
-        ActProcListPos[s++] = pl[j];
+      const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDR(theEdge), false);
+      auto proclistIt = proclist.begin();
+      for (i=0; i<pinfo->ncopies_edge[k]; ++i, ++proclistIt)
+        ActProcListPos[s++] = (*proclistIt).proc;
     }
     pinfo->ed_ident[k] = GID(theEdge);
   }
@@ -1882,7 +1885,6 @@ static INT SpreadGridNodeTypes(GRID *theGrid)
 static INT IO_GridCons(MULTIGRID *theMG)
 {
   INT i;
-  int     *proclist;
   GRID    *theGrid;
   ELEMENT *theElement;
 #ifdef ModelP
@@ -1895,12 +1897,14 @@ static INT IO_GridCons(MULTIGRID *theMG)
     theGrid = GRID_ON_LEVEL(theMG,i);
     for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
     {
-      proclist = EPROCLIST(dddContext, theElement);
-      while (proclist[0] != -1)
+#ifdef ModelP
+      const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDRE(theElement));
+      for (auto&& [proc, prio] : proclist)
       {
-        if (EMASTERPRIO(proclist[1])) PARTITION(theElement) = proclist[0];
-        proclist += 2;
+        if (EMASTERPRIO(prio))
+          PARTITION(theElement) = proc;
       }
+#endif
       ASSERT((PARTITION(theElement)==me && EMASTER(theElement))
              || (PARTITION(theElement)!=me && !EMASTER(theElement)));
     }

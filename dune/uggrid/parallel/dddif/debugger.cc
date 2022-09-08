@@ -199,13 +199,10 @@ void NS_DIM_PREFIX ddd_pstat(DDD::DDDContext& context, char *arg)
 
 static void buggy_ShowCopies (DDD::DDDContext& context, DDD_HDR hdr)
 {
-  int   *p, i;
-
-  p = DDD_InfoProcList(context, hdr);
-  for(i=0; p[i]!=-1; i+=2)
+  for (auto&& [proc, prio] : DDD_InfoProcListRange(context, hdr))
   {
     printf("%4d:    copy on %3d with prio %d\n",
-           context.me(), p[i], p[i+1]);
+           context.me(), proc, prio);
   }
 }
 

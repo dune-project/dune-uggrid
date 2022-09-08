@@ -112,7 +112,7 @@ static INT check_distributed_objects_errors = 0;
    CheckProcListCons -
 
    SYNOPSIS:
-   INT CheckProcListCons (int *proclist, int uniqueTag);
+   INT CheckProcListCons (const DDD_InfoProcListRange& proclist, DDD_PRIO uniqueTag);
 
    PARAMETERS:
    .  proclist
@@ -125,21 +125,21 @@ static INT check_distributed_objects_errors = 0;
  */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX CheckProcListCons (int *proclist, int uniqueTag)
+INT NS_DIM_PREFIX CheckProcListCons (const DDD_InfoProcListRange& proclist, DDD_PRIO uniqueTag)
 {
   int nunique = 0;
 
   /* check uniqueness */
-  while (*proclist != -1)
+  for (auto&& [proc, prio] : proclist)
   {
-    if (*(proclist+1) == uniqueTag) nunique++;
-    proclist += 2;
+    if (prio == uniqueTag)
+      ++nunique;
   }
 
   /* nunique must be 1 for master elements   */
   /* nunique can  be 0/1 for (inner) nodes   */
   /*   with PrioBorder/PrioMaster            */
-  return (nunique);
+  return nunique;
 }
 
 
@@ -149,7 +149,7 @@ INT NS_DIM_PREFIX CheckProcListCons (int *proclist, int uniqueTag)
    ListProcList -
 
    SYNOPSIS:
-   INT ListProcList (int *proclist, int uniqueTag);
+   INT ListProcList (const DDD_InfoProcListRange& proclist, DDD_PRIO uniqueTag);
 
    PARAMETERS:
    .  proclist
@@ -162,15 +162,14 @@ INT NS_DIM_PREFIX CheckProcListCons (int *proclist, int uniqueTag)
  */
 /****************************************************************************/
 
-static INT ListProcList (int *proclist, int uniqueTag)
+static INT ListProcList (const DDD_InfoProcListRange& proclist, DDD_PRIO uniqueTag)
 {
-  while (*proclist != -1)
+  for (auto&& [proc, prio] : proclist)
   {
-    if (*(proclist+1) == uniqueTag)
-      UserWriteF(" proc=%d",*proclist);
-    proclist += 2;
+    if (prio == uniqueTag)
+      UserWriteF(" proc=%d", proc);
   }
-  return(0);
+  return 0;
 }
 
 
@@ -201,11 +200,12 @@ static INT CheckVectorPrio (DDD::DDDContext& context, ELEMENT *theElement, VECTO
   CHECK_OBJECT_PRIO(theVector,PRIO,MASTER,GHOST,VINDEX,"Vector",nerrors)
 
   /* master copy has to be unique */
-  if ((nmaster = CheckProcListCons(PROCLIST(context, theVector),PrioMaster)) > 1)
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDR(theVector));
+  if ((nmaster = CheckProcListCons(proclist, PrioMaster)) > 1)
   {
     UserWriteF("VECTOR=" ID_FMTX " ERROR: master copy not unique, nmaster=%d:",
                ID_PRTX(theVector),nmaster);
-    ListProcList(PROCLIST(context, theVector),PrioMaster);
+    ListProcList(proclist, PrioMaster);
     UserWriteF("\n");
     nerrors++;
   }
@@ -241,11 +241,12 @@ static INT CheckNodePrio (DDD::DDDContext& context, ELEMENT *theElement, NODE *t
   CHECK_OBJECT_PRIO(theNode,PRIO,MASTER,GHOST,ID,"NODE",nerrors)
 
   /* master copy has to be unique */
-    if ((nmaster = CheckProcListCons(PROCLIST(context, theNode),PrioMaster)) > 1)
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDR(theNode));
+  if ((nmaster = CheckProcListCons(proclist, PrioMaster)) > 1)
   {
     UserWriteF("NODE=" ID_FMTX " ERROR: master copy not unique, nmaster=%d:",
                ID_PRTX(theNode),nmaster);
-    ListProcList(PROCLIST(context, theNode),PrioMaster);
+    ListProcList(proclist, PrioMaster);
     UserWriteF("\n");
     nerrors++;
   }
@@ -283,11 +284,12 @@ static INT CheckEdgePrio (DDD::DDDContext& context, ELEMENT *theElement, EDGE *t
   CHECK_OBJECT_PRIO(theEdge,PRIO,MASTER,GHOST,ID,"EDGE",nerrors)
 
   /* master copy has to be unique */
-  if ((nmaster = CheckProcListCons(PROCLIST(context, theEdge),PrioMaster)) > 1)
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDR(theEdge));
+  if ((nmaster = CheckProcListCons(proclist, PrioMaster)) > 1)
   {
     UserWriteF("EDGE=" EDID_FMTX " ERROR: master copy not unique, nmaster=%d:",
                EDID_PRTX(theEdge),nmaster);
-    ListProcList(PROCLIST(context, theEdge),PrioMaster);
+    ListProcList(proclist, PrioMaster);
     UserWriteF("\n");
     nerrors++;
   }
@@ -362,7 +364,8 @@ static INT CheckElementPrio (DDD::DDDContext& context, ELEMENT *theElement)
   CHECK_OBJECT_PRIO(theElement,EPRIO,EMASTER,EGHOST,EID,"ELEM",nerrors)
 
   /* master copy has to be unique */
-  if ((nmaster = CheckProcListCons(EPROCLIST(context, theElement),PrioMaster)) != 1)
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDRE(theElement));
+  if ((nmaster = CheckProcListCons(proclist, PrioMaster)) != 1)
   {
     UserWriteF("ELEM=" EID_FMTX " ERROR: master copy not unique, ",
                EID_PRTX(theElement),nmaster);
@@ -371,7 +374,7 @@ static INT CheckElementPrio (DDD::DDDContext& context, ELEMENT *theElement)
     else
       UserWrite("Father=NULL");
     UserWriteF(" nmaster=%d:",nmaster);
-    ListProcList(EPROCLIST(context, theElement),PrioMaster);
+    ListProcList(proclist, PrioMaster);
     UserWriteF("\n");
     nerrors++;
   }
@@ -548,15 +551,15 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
   DDD_GID remotegid;
   EDGE *theEdge = (EDGE *)obj;
   NODE *theNode0, *theNode1, *MidNode;
-  int *proclist = PROCLIST(context, theEdge);
 
   /* this check allows no edges copies of type VGHOST */
   /* since then midnode might be NULL due to local    */
   /* load balancing situation                         */
-  while (*proclist != -1)
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDR(theEdge));
+  for (auto&& [proc, prio] : proclist)
   {
-    if (VGHOSTPRIO(*(proclist+1))) return(0);
-    proclist += 2;
+    if (VGHOSTPRIO(prio))
+      return 0;
   }
 
   i = 0;

@@ -192,17 +192,14 @@ static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
       /* send son to all elements where theNeighbor is master, vghost or vhghost */
       if (0)
       {
-        int *proclist = EPROCLIST(context, theNeighbor);
-        proclist += 2;
-        while (*proclist != -1)
+        for (auto&& [proc, prio] : DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false))
         {
-          if (!EHGHOSTPRIO(*(proclist+1)))
+          if (!EHGHOSTPRIO(prio))
           {
-            XFERECOPYX(context, theSon,*proclist,PrioHGhost,
+            XFERECOPYX(context, theSon,proc,PrioHGhost,
                        (OBJT(theSon)==BEOBJ) ? BND_SIZE_TAG(TAG(theSon)) :
                        INNER_SIZE_TAG(TAG(theSon)));
           }
-          proclist += 2;
         }
       }
     }

@@ -316,7 +316,7 @@ void    ConstructConsistentGrid                 (GRID *theGrid);
 void    ConstructConsistentMultiGrid    (MULTIGRID *theMG);
 
 /* from pgmcheck.c */
-INT                     CheckProcListCons (int *proclist, int uniqueTag);
+INT             CheckProcListCons(const DDD_InfoProcListRange& proclist, DDD_PRIO uniqueTag);
 INT             CheckInterfaces                         (GRID *theGrid);
 
 /* from priority.c */
