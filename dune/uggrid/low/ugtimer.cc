@@ -102,5 +102,4 @@ void NS_PREFIX new_timer (int *n)
     fflush(stdout);
     assert(0);
   }
-  return;
 }

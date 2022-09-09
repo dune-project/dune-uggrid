@@ -62,6 +62,7 @@ using namespace PPIF;
 /****************************************************************************/
 
 #define CHECK_OBJECT_PRIO(o,prio,master,ghost,id,s,_nerr_)                   \
+  do { \
   if (USED(o)==1 && ! master (o))                                          \
   {                                                                        \
     UserWriteF("MASTER %s=" id ## _FMTX " has WRONG prio=%d\n",      \
@@ -73,7 +74,8 @@ using namespace PPIF;
     UserWriteF("GHOST %s=" id ## _FMTX " has WRONG prio=%d\n",       \
                s, id ## _PRTX( o ),prio(o));                                \
     _nerr_++;                                                        \
-  }
+  } \
+  } while (0)
 
 /****************************************************************************/
 /*																			*/
@@ -197,7 +199,7 @@ static INT CheckVectorPrio (DDD::DDDContext& context, ELEMENT *theElement, VECTO
   INT nerrors = 0;
 
   /* check vector prio */
-  CHECK_OBJECT_PRIO(theVector,PRIO,MASTER,GHOST,VINDEX,"Vector",nerrors)
+  CHECK_OBJECT_PRIO(theVector,PRIO,MASTER,GHOST,VINDEX,"Vector",nerrors);
 
   /* master copy has to be unique */
   const auto& proclist = DDD_InfoProcListRange(context, PARHDR(theVector));
@@ -210,7 +212,7 @@ static INT CheckVectorPrio (DDD::DDDContext& context, ELEMENT *theElement, VECTO
     nerrors++;
   }
 
-  return(nerrors);
+  return nerrors;
 }
 
 
@@ -238,7 +240,7 @@ static INT CheckNodePrio (DDD::DDDContext& context, ELEMENT *theElement, NODE *t
   INT nerrors = 0;
 
   /* check node prio */
-  CHECK_OBJECT_PRIO(theNode,PRIO,MASTER,GHOST,ID,"NODE",nerrors)
+  CHECK_OBJECT_PRIO(theNode,PRIO,MASTER,GHOST,ID,"NODE",nerrors);
 
   /* master copy has to be unique */
   const auto& proclist = DDD_InfoProcListRange(context, PARHDR(theNode));
@@ -281,7 +283,7 @@ static INT CheckEdgePrio (DDD::DDDContext& context, ELEMENT *theElement, EDGE *t
   INT nmaster;
 
   /* check edge prio */
-  CHECK_OBJECT_PRIO(theEdge,PRIO,MASTER,GHOST,ID,"EDGE",nerrors)
+  CHECK_OBJECT_PRIO(theEdge,PRIO,MASTER,GHOST,ID,"EDGE",nerrors);
 
   /* master copy has to be unique */
   const auto& proclist = DDD_InfoProcListRange(context, PARHDR(theEdge));
@@ -361,7 +363,7 @@ static INT CheckElementPrio (DDD::DDDContext& context, ELEMENT *theElement)
   }
 
   /* check element prio */
-  CHECK_OBJECT_PRIO(theElement,EPRIO,EMASTER,EGHOST,EID,"ELEM",nerrors)
+  CHECK_OBJECT_PRIO(theElement,EPRIO,EMASTER,EGHOST,EID,"ELEM",nerrors);
 
   /* master copy has to be unique */
   const auto& proclist = DDD_InfoProcListRange(context, PARHDRE(theElement));
@@ -524,15 +526,13 @@ static int Scatter_ElemObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DD
 #ifdef UG_DIM_3
 static int Gather_EdgeObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT i;
   EDGE *theEdge = (EDGE *)obj;
-  NODE *theNode0, *theNode1, *MidNode;
 
-  i = 0;
+  INT i = 0;
 
-  theNode0 = NBNODE(LINK0(theEdge));
-  theNode1 = NBNODE(LINK1(theEdge));
-  MidNode  = MIDNODE(theEdge);
+  NODE* theNode0 = NBNODE(LINK0(theEdge));
+  NODE* theNode1 = NBNODE(LINK1(theEdge));
+  NODE* MidNode  = MIDNODE(theEdge);
 
   /* copy node gids into buffer */
   ((DDD_GID *)data)[i++] = GID(theNode0);
@@ -547,10 +547,8 @@ static int Gather_EdgeObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD
 
 static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT i;
   DDD_GID remotegid;
   EDGE *theEdge = (EDGE *)obj;
-  NODE *theNode0, *theNode1, *MidNode;
 
   /* this check allows no edges copies of type VGHOST */
   /* since then midnode might be NULL due to local    */
@@ -562,11 +560,11 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
       return 0;
   }
 
-  i = 0;
+  INT i = 0;
 
-  theNode0 = NBNODE(LINK0(theEdge));
-  theNode1 = NBNODE(LINK1(theEdge));
-  MidNode  = MIDNODE(theEdge);
+  NODE* theNode0 = NBNODE(LINK0(theEdge));
+  NODE* theNode1 = NBNODE(LINK1(theEdge));
+  NODE* MidNode  = MIDNODE(theEdge);
 
   /* compare node0 gids with buffer gids */
   if (((DDD_GID *)data)[i] != GID(theNode0))

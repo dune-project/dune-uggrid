@@ -1135,8 +1135,6 @@ static INT WriteElementParInfo (GRID *theGrid,
                                 ELEMENT *theElement, MGIO_PARINFO *pinfo)
 {
   INT i,j,k,s,n_max;
-  NODE *theNode;
-  VERTEX *theVertex;
 #ifdef ModelP
   auto& dddContext = theGrid->dddContext();
 #endif
@@ -1163,7 +1161,7 @@ static INT WriteElementParInfo (GRID *theGrid,
   pinfo->e_ident = EGID(theElement);
   for (k=0; k<CORNERS_OF_ELEM(theElement); k++)
   {
-    theNode = CORNER(theElement,k);
+    NODE* theNode = CORNER(theElement,k);
     pinfo->prio_node[k] = PRIO(theNode);
     pinfo->ncopies_node[k] = NCOPIES(dddContext, theNode);
     if (n_max<pinfo->ncopies_node[k]+s)
@@ -1182,7 +1180,7 @@ static INT WriteElementParInfo (GRID *theGrid,
   }
   for (k=0; k<CORNERS_OF_ELEM(theElement); k++)
   {
-    theVertex = MYVERTEX(CORNER(theElement,k));
+    VERTEX* theVertex = MYVERTEX(CORNER(theElement,k));
     pinfo->prio_vertex[k] = VXPRIO(theVertex);
     pinfo->ncopies_vertex[k] = VXNCOPIES(dddContext, theVertex);
     if (n_max<pinfo->ncopies_vertex[k]+s)
@@ -1884,18 +1882,15 @@ static INT SpreadGridNodeTypes(GRID *theGrid)
 
 static INT IO_GridCons(MULTIGRID *theMG)
 {
-  INT i;
-  GRID    *theGrid;
-  ELEMENT *theElement;
 #ifdef ModelP
   auto& dddContext = theMG->dddContext();
 #endif
   [[maybe_unused]] const auto& me = theMG->ppifContext().me();
 
-  for (i=TOPLEVEL(theMG); i>=0; i--)         /* propagate information top-down */
+  for (INT i=TOPLEVEL(theMG); i>=0; i--)         /* propagate information top-down */
   {
-    theGrid = GRID_ON_LEVEL(theMG,i);
-    for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
+    GRID* theGrid = GRID_ON_LEVEL(theMG,i);
+    for (ELEMENT* theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
     {
 #ifdef ModelP
       const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDRE(theElement));
@@ -2569,7 +2564,6 @@ void CommunicateEClasses (MULTIGRID *theMG)
   DDD_IFOneway(context,
                dddctrl.ElementVHIF,IF_FORWARD,sizeof(int),
                Gather_EClasses, Scatter_EClasses);
-  return;
 }
 #endif
 

@@ -316,7 +316,6 @@ static void DCorners2Corners (INT n, DOUBLE dco, SHORT corners[])
     corners[i] = (SHORT)(dco-x*MAX_REFINED_CORNERS_DIM);
     dco = x;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1255,8 +1254,6 @@ static void FindPathForNeighbours (MGIO_RR_RULE *rule, SHORT myID, SHORT Status[
       Status[nbID] = NB_DONE;
       FindPathForNeighbours(rule,nbID,Status);
     }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1294,8 +1291,6 @@ static void FillSonPaths (MGIO_RR_RULE *rule)
 
   /* start recursion with son 0 */
   FindPathForNeighbours(rule,0,Status);
-
-  return;
 }
 #endif
 /****************************************************************************/
@@ -1622,8 +1617,6 @@ static void HRule2Mrule (const HRULE *hr, MGIO_RR_RULE *mr)
   /* son path */
   FillSonPaths(mr);
         #endif
-
-  return;
 }
 
 /****************************************************************************/
@@ -1670,7 +1663,6 @@ static void URule2Mrule (const URULE *ur, MGIO_RR_RULE *mr)
       sonData->nb[k] = ur->sons[j].nb[k];
     sonData->path = ur->sons[j].path;
   }
-  return;
 }
 
 static void WriteDebugInfo (void)
@@ -1701,8 +1693,6 @@ static void WriteDebugInfo (void)
              global.nelem_not_inspected[tag]);
 
   PrintDebug("------------------------------------------------------\n");
-
-  return;
 }
 
 INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NODE **NodeContext, ELEMENT **SonList, INT *nmax)

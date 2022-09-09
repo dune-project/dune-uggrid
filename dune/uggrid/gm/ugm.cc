@@ -231,7 +231,6 @@ static void ConstructDDDObject (DDD::DDDContext& context, void *obj, INT size, I
       DDD_HdrConstructor(context, dddhdr, dddtype, PrioMaster, 0);
     }
   }
-  return;
 }
 #endif
 
@@ -279,7 +278,6 @@ static void DestructDDDObject(DDD::DDDContext& context, void *object, INT type)
       DDD_HdrDestructor(context, dddhdr);
     }
   }
-  return;
 }
 #endif
 
@@ -4894,8 +4892,6 @@ void NS_DIM_PREFIX ListMultiGrid (const MULTIGRID *theMG, const INT isCurrent, c
                BVPD_NAME(theBVPDesc));
   else
     UserWriteF(" %c %-20.20s\n",c,ENVITEM_NAME(theMG));
-
-  return;
 }
 
 /****************************************************************************/
@@ -5653,7 +5649,6 @@ void NS_DIM_PREFIX ListNode (const MULTIGRID *theMG, const NODE *theNode, INT da
       UserWrite("\n");
     }
   }
-  return;
 }
 
 
@@ -5760,8 +5755,6 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
     }
     UserWrite("\n");
   }
-
-  return;
 }
 
 
