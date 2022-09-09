@@ -374,7 +374,9 @@ void globalDDDContext(const std::shared_ptr<DDD::DDDContext>& context);
 void globalDDDContext(std::nullptr_t);
 
 using ComProcPtr = int (*)(DDD_OBJ, void *);
+[[deprecated("Use `DDD_IFOneway(context, ...)` instead")]]
 void DDD_IFOneway(DDD_IF, DDD_IF_DIR, size_t, ComProcPtr, ComProcPtr);
+[[deprecated("Use `DDD_InfoProcListRange` instead")]]
 int* DDD_InfoProcList(DDD_HDR);
 
 #endif /* ModelP */
