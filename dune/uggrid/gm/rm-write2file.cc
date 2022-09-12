@@ -156,9 +156,6 @@ void WriteRule2File(std::FILE* const stream, NS_DIM_PREFIX REFRULE const& theRul
   }
 
   fprintf( stream,"}}");
-
-
-  return;
 }
 
 void Write2File(std::FILE* stream, std::vector<NS_DIM_PREFIX REFRULE> const& rules, std::vector<NS_PREFIX SHORT> const& patterns)

@@ -315,8 +315,95 @@ void     DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE);
 /*
         Object Properties
  */
+
+#ifndef DUNE_UGGRID_DDD_InfoProcListRange
+/** \brief feature test macro for `DDD_InfoProcListRange` */
+#  define DUNE_UGGRID_DDD_InfoProcListRange 202209L
+#endif
+
+/**
+ * \brief entry in the list returned by `DDD_InfoProcListRange`
+ */
+struct DDD_InfoProcListEntry
+{
+  /** \brief processor */
+  DDD_PROC proc;
+  /** \brief priority */
+  DDD_PRIO prio;
+};
+
+/**
+ * \brief iterator for (process, priority) tuples for couplings
+ *
+ * See `DDD_InfoProcListRange` for more details.
+ */
+class DDD_InfoProcListIterator
+{
+  const COUPLING* cpl_;
+public:
+  using value_type = DDD_InfoProcListEntry;
+
+  DDD_InfoProcListIterator(const COUPLING* cpl) noexcept
+    : cpl_(cpl)
+    { /* Nothing */ }
+
+  value_type operator*() const noexcept
+    { return { cpl_->_proc, cpl_->prio }; }
+
+  void operator++() noexcept
+    { cpl_ = cpl_->_next; }
+
+  explicit operator bool() const noexcept
+    { return static_cast<bool>(cpl_); }
+
+#if __cplusplus >= 202002L
+  bool operator==(const DDD_InfoProcListIterator&) const noexcept = default;
+#else
+  bool operator==(const DDD_InfoProcListIterator& other) const noexcept
+    { return cpl_ == other.cpl_; }
+  bool operator!=(const DDD_InfoProcListIterator& other) const noexcept
+    { return cpl_ != other.cpl_; }
+#endif
+};
+
+/**
+ * \brief range with (process, priority) tuples for couplings of the given `hdr`
+ *
+ * This range provides access to the `process` and `priority` of all couplings
+ * for the object identified by `hdr`. In addition it provides an optional dummy
+ * coupling for the local process; this can be controlled with the `skipDummy`
+ * parameter.
+ */
+class DDD_InfoProcListRange
+{
+  COUPLING dummy_;
+  bool includeDummy_;
+public:
+  /**
+   * \brief construct range with (process, priority) tuples for couplings of the given `hdr`
+   *
+   * \param context      DDD context
+   * \param hdr          parallel object whose couplings will be used
+   * \param includeDummy whether to include a dummy coupling for the local process
+   */
+  DDD_InfoProcListRange(DDDContext& context, const DDD_HDR hdr, bool includeDummy = true) noexcept;
+
+  /** \brief Returns iterator to the begin of the range */
+  DDD_InfoProcListIterator begin() const noexcept
+    { return {includeDummy_ ? &dummy_ : dummy_._next}; }
+
+  /** \brief Returns iterator to the end of the range */
+  DDD_InfoProcListIterator end() const noexcept
+    { return {nullptr}; }
+
+  /** \brief Return whether the range is empty. */
+  bool empty() const noexcept
+    { return begin() == end(); }
+};
+
 void     DDD_PrioritySet(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 void     DDD_AttrSet (DDD_HDR, DDD_ATTR); /* this shouldn't be allowed */
+[[deprecated("Use `DDD_InfoProcListRange` instead")]]
 int  *   DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR);
 DDD_PROC DDD_InfoProcPrio(const DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 bool     DDD_InfoIsLocal(const DDD::DDDContext& context, DDD_HDR);

@@ -309,8 +309,6 @@ static void VectorPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRI
   GRID_UNLINK_VECTOR(theGrid,pv);
 
   GRID_LINK_VECTOR(theGrid,pv,isnew);
-
-  return;
 }
 
 /****************************************************************************/
@@ -462,8 +460,6 @@ static void VertexPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRI
   GRID_UNLINK_VERTEX(theGrid,theVertex);
 
   GRID_LINK_VERTEX(theGrid,theVertex,new_);
-
-  return;
 }
 
 /****************************************************************************/
@@ -697,8 +693,6 @@ static void NodePriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PRIO 
   /* insert in new list part */
   GRID_UNLINK_NODE(theGrid,pn);
   GRID_LINK_NODE(theGrid,pn,new_);
-
-  return;
 }
 
 DDD_TYPE NS_DIM_PREFIX NFatherObjType(DDD::DDDContext& context, DDD_OBJ obj, DDD_OBJ ref)
@@ -1555,8 +1549,6 @@ static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PR
        */
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1682,7 +1674,6 @@ void NS_DIM_PREFIX ObjectPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, 
     break;
   default : std::abort();
   }
-  return;
 }
 
 /****************************************************************************/

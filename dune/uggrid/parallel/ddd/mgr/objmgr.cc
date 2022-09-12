@@ -379,8 +379,8 @@ void DDD_HdrDestructor(DDD::DDDContext& context, DDD_HDR hdr)
 {
   auto& objTable = context.objTable();
   auto& nCpls = context.couplingContext().nCpls;
-COUPLING   *cpl;
-int objIndex, xfer_active = ddd_XferActive(context);
+  COUPLING   *cpl;
+  int objIndex, xfer_active = ddd_XferActive(context);
 
 #       ifdef DebugDeletion
   Dune::dinfo
@@ -390,75 +390,75 @@ int objIndex, xfer_active = ddd_XferActive(context);
 #       endif
 
 
-if (IsHdrInvalid(hdr))
-{
-  /* DDD_HDR is invalid, so destructor is useless */
-  return;
-}
-
-/* formally, the object's GID should be returned here */
-
-
-/* if currently in xfer, register deletion for other processors */
-if (xfer_active)
-  ddd_XferRegisterDelete(context, hdr);
-
-
-objIndex = OBJ_INDEX(hdr);
-
-if (objIndex < nCpls)
-{
-  /* this is an object with couplings */
-  cpl = IdxCplList(context, objIndex);
-
-  /* if not during xfer, deletion may be inconsistent */
-  if (!xfer_active)
+  if (IsHdrInvalid(hdr))
   {
-    /* deletion is dangerous, distributed object might get
-       inconsistent. */
-    if (DDD_GetOption(context, OPT_WARNING_DESTRUCT_HDR)==OPT_ON)
-      Dune::dwarn << "DDD_HdrDestructor: inconsistency by deleting gid="
-                  << OBJ_GID(hdr) << "\n";
+    /* DDD_HDR is invalid, so destructor is useless */
+    return;
   }
 
-  nCpls -= 1;
-  context.nObjs(context.nObjs() - 1);
+  /* formally, the object's GID should be returned here */
 
-  /* fill slot of deleted obj with last cpl-obj */
-  objTable[objIndex] = objTable[nCpls];
-  IdxCplList(context, objIndex) = IdxCplList(context, nCpls);
-  IdxNCpl(context, objIndex) = IdxNCpl(context, nCpls);
-  OBJ_INDEX(objTable[objIndex]) = objIndex;
+
+  /* if currently in xfer, register deletion for other processors */
+  if (xfer_active)
+    ddd_XferRegisterDelete(context, hdr);
+
+
+  objIndex = OBJ_INDEX(hdr);
+
+  if (objIndex < nCpls)
+  {
+    /* this is an object with couplings */
+    cpl = IdxCplList(context, objIndex);
+
+    /* if not during xfer, deletion may be inconsistent */
+    if (!xfer_active)
+    {
+      /* deletion is dangerous, distributed object might get
+         inconsistent. */
+      if (DDD_GetOption(context, OPT_WARNING_DESTRUCT_HDR)==OPT_ON)
+        Dune::dwarn << "DDD_HdrDestructor: inconsistency by deleting gid="
+                    << OBJ_GID(hdr) << "\n";
+    }
+
+    nCpls -= 1;
+    context.nObjs(context.nObjs() - 1);
+
+    /* fill slot of deleted obj with last cpl-obj */
+    objTable[objIndex] = objTable[nCpls];
+    IdxCplList(context, objIndex) = IdxCplList(context, nCpls);
+    IdxNCpl(context, objIndex) = IdxNCpl(context, nCpls);
+    OBJ_INDEX(objTable[objIndex]) = objIndex;
 
                 #ifdef WithFullObjectTable
-  /* fill slot of last cpl-obj with last obj */
-  if (nCpls < context.nObjs())
-  {
-    objTable[nCpls] = objTable[context.nObjs()];
-    OBJ_INDEX(objTable[nCpls]) = nCpls;
-  }
+    /* fill slot of last cpl-obj with last obj */
+    if (nCpls < context.nObjs())
+    {
+      objTable[nCpls] = objTable[context.nObjs()];
+      OBJ_INDEX(objTable[nCpls]) = nCpls;
+    }
                 #else
-  assert(nCpls == context.nObjs());
+    assert(nCpls == context.nObjs());
                 #endif
 
-  /* dispose all couplings */
-  DisposeCouplingList(context, cpl);
-}
-else
-{
+    /* dispose all couplings */
+    DisposeCouplingList(context, cpl);
+  }
+  else
+  {
                 #ifdef WithFullObjectTable
-  /* this is an object without couplings */
-  /* deletion is not dangerous (no consistency problem) */
-  context.nObjs(context.nObjs() - 1);
+    /* this is an object without couplings */
+    /* deletion is not dangerous (no consistency problem) */
+    context.nObjs(context.nObjs() - 1);
 
-  /* fill slot of deleted obj with last obj */
-  objTable[objIndex] = objTable[context.nObjs()];
-  OBJ_INDEX(objTable[objIndex]) = objIndex;
+    /* fill slot of deleted obj with last obj */
+    objTable[objIndex] = objTable[context.nObjs()];
+    OBJ_INDEX(objTable[objIndex]) = objIndex;
                 #endif
-}
+  }
 
-/* invalidate this DDD_HDR */
-MarkHdrInvalid(hdr);
+  /* invalidate this DDD_HDR */
+  MarkHdrInvalid(hdr);
 }
 
 

@@ -5524,19 +5524,17 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
                         #ifdef ModelP
       {
         /* check for valid load balancing */
-        int *proclist = EPROCLIST(dddContext, theElement);
-        proclist += 2;
-        while (*proclist != -1)
+        const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDRE(theElement), false);
+        for (auto&& [proc, prio] : proclist)
         {
-          if (*(proclist+1)!=PrioMaster && (*(proclist+1)!=PrioHGhost))
+          if (prio != PrioMaster && prio != PrioHGhost)
           {
             UserWriteF(PFMT "ERROR invalid load balancing: element="
-                       EID_FMTX " has copies of type=%d\n",
-                       me,EID_PRTX(theElement),*(proclist+1));
+                       EID_FMTX " has copies of type=%d on proc=%d\n",
+                       me, EID_PRTX(theElement), prio, proc);
             REFINE_ELEMENT_LIST(0,theElement,"ERROR element: ");
             assert(0);
           }
-          proclist += 2;
         }
       }
                         #endif

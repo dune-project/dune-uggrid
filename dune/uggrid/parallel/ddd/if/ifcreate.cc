@@ -713,15 +713,15 @@ static void IFDisplay (const DDD::DDDContext& context, DDD_IF i)
 
 void DDD_IFDisplay(const DDD::DDDContext& context, DDD_IF aIF)
 {
-if (aIF >= context.ifCreateContext().nIfs)
-{
-  Dune::dwarn << "DDD_IFDisplay: invalid IF " << std::setw(2) << aIF << "\n";
-  return;
-}
+  if (aIF >= context.ifCreateContext().nIfs)
+  {
+    Dune::dwarn << "DDD_IFDisplay: invalid IF " << std::setw(2) << aIF << "\n";
+    return;
+  }
 
   std::cout << "|\n| DDD_IF-Info for proc=" << context.me() << "\n";
 
-IFDisplay(context, aIF);
+  IFDisplay(context, aIF);
 
   std::cout << "|\n";
 }

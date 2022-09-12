@@ -635,15 +635,13 @@ static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
 #ifdef ModelP
 int EdgeHasTMasterCopy (DDD::DDDContext& context, ELEMENT *e, int i)
 {
-  int nmaster,nborder,nall;
-  EDGE *edge;
-
-  edge = GetEdge(CORNER_OF_EDGE_PTR(e,i,0),CORNER_OF_EDGE_PTR(e,i,1));
+  EDGE* edge = GetEdge(CORNER_OF_EDGE_PTR(e,i,0),CORNER_OF_EDGE_PTR(e,i,1));
   assert(edge != NULL);
 
-  nmaster = CheckProcListCons(PROCLIST(context, edge),PrioMaster);
-  nborder = CheckProcListCons(PROCLIST(context, edge),PrioBorder);
-  nall = nmaster + nborder;
+  const auto& proclist = DDD_InfoProcListRange(context, PARHDR(edge));
+  const int nmaster = CheckProcListCons(proclist, PrioMaster);
+  const int nborder = CheckProcListCons(proclist, PrioBorder);
+  const int nall = nmaster + nborder;
   if (0)
     assert(nall==1 || nall==2);
 
