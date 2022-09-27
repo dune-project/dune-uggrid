@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE.md in module root
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /* begin dune-uggrid */
 /* Define to the version of dune-common */
 #define DUNE_UGGRID_VERSION "${DUNE_UGGRID_VERSION}"
