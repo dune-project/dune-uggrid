@@ -76,3 +76,12 @@ code-spelling-check:
   script:
   - codespell
     --ignore-words-list alph,ba,broser,createdd,enew,feld,fo,nd,nin,pres,te,theif
+
+reuse:
+  image:
+    name: docker.io/fsfe/reuse:latest
+    entrypoint: [""]
+  tags: [duneci]
+  before_script: ""
+  script:
+    - reuse lint
