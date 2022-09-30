@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightInfo: Copyright © DUNE Project contributors, see file LICENSE.md in module root
+// SPDX-License-Identifier: LGPL-2.1-or-later
 #ifndef RM_WRITE2FILE_H
 #define RM_WRITE2FILE_H
 
