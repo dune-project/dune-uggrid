@@ -78,6 +78,7 @@ code-spelling-check:
     --ignore-words-list alph,ba,broser,createdd,enew,feld,fo,nd,nin,pres,te,theif
 
 reuse:
+  stage: .pre
   image:
     name: docker.io/fsfe/reuse:latest
     entrypoint: [""]
