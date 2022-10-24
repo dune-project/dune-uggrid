@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 Module: dune-uggrid
-Version: 2.9-git
-Depends: dune-common (>= 2.9)
+Version: 2.10-git
+Depends: dune-common (>= 2.10)
 Maintainer: dune-devel@lists.dune-project.org
 Whitespace-Hook: Yes
