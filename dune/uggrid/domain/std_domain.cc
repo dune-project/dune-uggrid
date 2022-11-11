@@ -506,7 +506,7 @@ CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
 }
 
 static INT
-GetNumberOfPatches (PATCH * p)
+GetNumberOfPatches (const PATCH * p)
 {
   switch (PATCH_TYPE (p))
   {
@@ -525,7 +525,7 @@ GetNumberOfPatches (PATCH * p)
 }
 
 static INT
-GetPatchId (PATCH * p, INT i)
+GetPatchId (const PATCH * p, INT i)
 {
   switch (PATCH_TYPE (p))
   {
@@ -1260,7 +1260,7 @@ BVP_Check (BVP * aBVP)
 }
 
 static INT
-GetNumberOfCommonPatches (PATCH * p0, PATCH * p1, INT * Pid)
+GetNumberOfCommonPatches (const PATCH * p0, const PATCH * p1, INT * Pid)
 {
   INT i, j, cnt, np0, np1, pid;
 
