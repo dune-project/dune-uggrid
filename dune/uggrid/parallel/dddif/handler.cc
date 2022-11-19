@@ -496,7 +496,9 @@ static void NodeObjInit(DDD::DDDContext&, DDD_OBJ obj)
 
 static void NodeObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
 {
+#if defined(Debug) || defined(TOPNODE) || defined(UG_DIM_2)
   NODE *theNode   = (NODE *) obj;
+#endif
 
   PRINTDEBUG(dddif,2,(PFMT " NodeObjMkCons(): n=" ID_FMTX " NDOBJ=%d\n",
                       me,ID_PRTX(theNode),OBJT(theNode)))
