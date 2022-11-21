@@ -1136,16 +1136,13 @@ static INT WriteCG_Vertices (MULTIGRID *theMG, INT MarkKey)
 static INT WriteElementParInfo (GRID *theGrid,
                                 ELEMENT *theElement, MGIO_PARINFO *pinfo)
 {
-  INT i,j,k,s,n_max;
+  INT s = 0;
+  const INT n_max = PROCLISTSIZE-(ActProcListPos-ProcList);
 #ifdef ModelP
   auto& dddContext = theGrid->dddContext();
 #endif
 
   memset(pinfo,0,sizeof(MGIO_PARINFO));
-
-  n_max = PROCLISTSIZE-(ActProcListPos-ProcList);
-
-  s=0;
   pinfo->prio_elem = EPRIO(theElement);
   pinfo->ncopies_elem = ENCOPIES(dddContext, theElement);
   if (n_max<pinfo->ncopies_elem)
@@ -1157,11 +1154,11 @@ static INT WriteElementParInfo (GRID *theGrid,
   {
     const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDRE(theElement), false);
     auto proclistIt = proclist.begin();
-    for (i=0; i<pinfo->ncopies_elem; ++i, ++proclistIt)
+    for (INT i=0; i<pinfo->ncopies_elem; ++i, ++proclistIt)
       ActProcListPos[s++] = (*proclistIt).proc;
   }
   pinfo->e_ident = EGID(theElement);
-  for (k=0; k<CORNERS_OF_ELEM(theElement); k++)
+  for (INT k=0; k<CORNERS_OF_ELEM(theElement); k++)
   {
     NODE* theNode = CORNER(theElement,k);
     pinfo->prio_node[k] = PRIO(theNode);
@@ -1175,12 +1172,12 @@ static INT WriteElementParInfo (GRID *theGrid,
     {
       const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDR(theNode), false);
       auto proclistIt = proclist.begin();
-      for (i=0; i<pinfo->ncopies_node[k]; ++i, ++proclistIt)
+      for (INT i=0; i<pinfo->ncopies_node[k]; ++i, ++proclistIt)
         ActProcListPos[s++] = (*proclistIt).proc;
     }
     pinfo->n_ident[k] = GID(theNode);
   }
-  for (k=0; k<CORNERS_OF_ELEM(theElement); k++)
+  for (INT k=0; k<CORNERS_OF_ELEM(theElement); k++)
   {
     VERTEX* theVertex = MYVERTEX(CORNER(theElement,k));
     pinfo->prio_vertex[k] = VXPRIO(theVertex);
@@ -1194,14 +1191,14 @@ static INT WriteElementParInfo (GRID *theGrid,
     {
       const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDRV(theVertex), false);
       auto proclistIt = proclist.begin();
-      for (i=0; i<pinfo->ncopies_vertex[k]; ++i, ++proclistIt)
+      for (INT i=0; i<pinfo->ncopies_vertex[k]; ++i, ++proclistIt)
         ActProcListPos[s++] = (*proclistIt).proc;
     }
     pinfo->v_ident[k] = VXGID(theVertex);
   }
 
 #ifdef UG_DIM_3
-  for (k=0; k<EDGES_OF_ELEM(theElement); k++)
+  for (INT k=0; k<EDGES_OF_ELEM(theElement); k++)
   {
     EDGE* theEdge = GetEdge(CORNER(theElement,CORNER_OF_EDGE(theElement,k,0)),
                       CORNER(theElement,CORNER_OF_EDGE(theElement,k,1)));
@@ -1215,7 +1212,7 @@ static INT WriteElementParInfo (GRID *theGrid,
     if (pinfo->ncopies_edge[k]>0) {
       const auto& proclist = DDD_InfoProcListRange(dddContext, PARHDR(theEdge), false);
       auto proclistIt = proclist.begin();
-      for (i=0; i<pinfo->ncopies_edge[k]; ++i, ++proclistIt)
+      for (INT i=0; i<pinfo->ncopies_edge[k]; ++i, ++proclistIt)
         ActProcListPos[s++] = (*proclistIt).proc;
     }
     pinfo->ed_ident[k] = GID(theEdge);
