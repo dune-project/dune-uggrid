@@ -1,11 +1,16 @@
-# dune-uggrid 2.9 (unreleased)
+<!--
+SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE.md in module root
+SPDX-License-Identifier: LGPL-2.1-or-later
+-->
+
+# dune-uggrid 2.9.0 (2022-11-25)
 
 * The `dune-uggrid` module does not set the preprocessor flag `HAVE_UG` anymore.
   Use `HAVE_DUNE_UGGRID` instead.
 * Several unused data members have been removed from the `UGGrid` data structure.
   The grids will behave as before, but the memory footprint should be a bit smaller.
 
-# dune-uggrid 2.8 (2021-09-06)
+# dune-uggrid 2.8.0 (2021-09-06)
 
 * Added support for All_All communication on facets.
 * Removes support for `_2` and `_3` macros.

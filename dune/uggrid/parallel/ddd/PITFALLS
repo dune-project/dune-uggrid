@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightInfo: Copyright © DUNE Project contributors, see file LICENSE.md in module root
+SPDX-License-Identifier: LGPL-2.1-or-later
+-->
+
 
 this file collects common errors by ddd users, which
 are caused by typical ddd pitfalls.

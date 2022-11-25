@@ -1,5 +1,8 @@
+# SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE.md in module root
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
 Module: dune-uggrid
-Version: 2.9-git
+Version: 2.9.0
 Depends: dune-common (>= 2.9)
 Maintainer: dune-devel@lists.dune-project.org
 Whitespace-Hook: Yes
