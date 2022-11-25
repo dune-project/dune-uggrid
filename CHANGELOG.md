@@ -3,7 +3,9 @@ SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE
 SPDX-License-Identifier: LGPL-2.1-or-later
 -->
 
-# dune-uggrid 2.9 (unreleased)
+# dune-uggrid 2.10 (unreleased)
+
+# dune-uggrid 2.9 (2022-11-25)
 
 * The `dune-uggrid` module does not set the preprocessor flag `HAVE_UG` anymore.
   Use `HAVE_DUNE_UGGRID` instead.
