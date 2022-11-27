@@ -393,7 +393,7 @@ INT         BNDP_SaveInsertedBndP (BNDP *theBndP, char *data, INT max_data_size)
  *   <li> 1 if error. </li>
  * </ul> */
 /****************************************************************************/
-INT         BNDP_Global           (BNDP *theBndP, DOUBLE *global);
+INT         BNDP_Global           (const BNDP *theBndP, DOUBLE *global);
 
 /****************************************************************************/
 /** \brief Sets descriptor for BNDP

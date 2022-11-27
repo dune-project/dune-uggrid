@@ -130,7 +130,6 @@ static STD_BVP *currBVP;
 /*                                                                          */
 /****************************************************************************/
 
-static INT BndPointGlobal (const BNDP * aBndP, DOUBLE * global);
 static INT PatchGlobal (const PATCH * p, DOUBLE * lambda, DOUBLE * global);
 
 /****************************************************************************/
@@ -645,16 +644,6 @@ CreateBndPOnPoint (HEAP * Heap, PATCH * p)
       }
     }
   }
-  if (!PATCH_IS_FIXED (p))
-  {
-    /* store global coordinates */
-    BND_DATA (ps) = GetFreelistMemory (Heap, DIM * sizeof (DOUBLE));
-    if (BND_DATA (ps) == NULL)
-      REP_ERR_RETURN (NULL);
-
-    if (BndPointGlobal ((BNDP *) ps, (DOUBLE *) BND_DATA (ps)))
-      REP_ERR_RETURN (NULL);
-  }
   return ((BNDP *) ps);
 }
 
@@ -687,7 +676,6 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH *thePatch, PATCH **corners, PATCH **l
            INT *nlines, INT *err)
 {
   INT k, n, m;
-  INT freePatches;
 
   k = 0;
   for (n = 0; n < POINT_PATCH_N (corners[i]); n++)
@@ -710,7 +698,6 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH *thePatch, PATCH **corners, PATCH **l
   LINE_PATCH_C0 (thePatch) = i;
   LINE_PATCH_C1 (thePatch) = j;
   k = 0;
-  freePatches = 0;
   for (n = 0; n < POINT_PATCH_N (corners[i]); n++)
     for (m = 0; m < POINT_PATCH_N (corners[j]); m++)
       if (POINT_PATCH_PID (corners[i], n) ==
@@ -722,8 +709,6 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH *thePatch, PATCH **corners, PATCH **l
           POINT_PATCH_CID (corners[i], n);
         LINE_PATCH_CID1 (thePatch, k) =
           POINT_PATCH_CID (corners[j], m);
-        if (PATCH_IS_FREE (sides[LINE_PATCH_PID (thePatch, k)]))
-          freePatches++;
         k++;
       }
   LINE_PATCH_N (thePatch) = k;
@@ -772,12 +757,7 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH *thePatch, PATCH **corners, PATCH **l
       }
     }
   }
-  ENDDEBUG if (freePatches == k)
-    PATCH_STATE (thePatch) = PATCH_FREE;
-  else if (freePatches == 0)
-    PATCH_STATE (thePatch) = PATCH_FIXED;
-  else
-    PATCH_STATE (thePatch) = PATCH_BND_OF_FREE;
+  ENDDEBUG
   lines[(*nlines)++] = thePatch;
   PRINTDEBUG (dom, 1, ("lines id %d type %d n %d\n",
                        PATCH_ID (thePatch), PATCH_TYPE (thePatch),
@@ -908,20 +888,10 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
       for (n = 0; n < LINEAR_PATCH_N (sides[j]); n++)
         segmentsPerPoint[LINEAR_PATCH_POINTS (sides[j], n)]++;
 
-      if (PATCH_IS_FREE(sides[j]))
-        for (n = 0; n < LINEAR_PATCH_N (sides[j]); n++)
-          freeSegmentsPerPoint[LINEAR_PATCH_POINTS (sides[j], n)]++;
-
     } else if (PATCH_TYPE (sides[j]) == PARAMETRIC_PATCH_TYPE) {
       for (n = 0; n < 2 * DIM_OF_BND; n++)
         if (PARAM_PATCH_POINTS (sides[j], n) >= 0)       /* Entry may be -1 for triangular faces */
           segmentsPerPoint[PARAM_PATCH_POINTS (sides[j], n)]++;
-
-      if (PATCH_IS_FREE(sides[j]))
-        for (n = 0; n < 2 * DIM_OF_BND; n++)
-          if (PARAM_PATCH_POINTS (sides[j], n) >= 0)     /* Entry may be -1 for triangular faces */
-            freeSegmentsPerPoint[PARAM_PATCH_POINTS (sides[j], n)]++;
-
     }
 
   }
@@ -969,24 +939,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
         }
       }
     }
-  }
-
-  for (i = 0; i < ncorners; i++) {
-    /* Shouldn't the 'thePatch' be replaced 'corners[i]' in this loop?  OS */
-    if (freeSegmentsPerPoint[i] == cornerCounters[i])
-      PATCH_STATE (thePatch) = PATCH_FREE;
-    else if (freeSegmentsPerPoint[i] == 0)
-      PATCH_STATE (thePatch) = PATCH_FIXED;
-    else
-      PATCH_STATE (thePatch) = PATCH_BND_OF_FREE;
-
-    PRINTDEBUG (dom, 1, ("corners id %d type %d n %d\n",
-                         PATCH_ID (thePatch), PATCH_TYPE (thePatch),
-                         POINT_PATCH_N (thePatch)));
-    for (j = 0; j < POINT_PATCH_N (thePatch); j++)
-      PRINTDEBUG (dom, 1, (" pid %d cid %d\n",
-                           POINT_PATCH_PID (thePatch, j),
-                           POINT_PATCH_CID (thePatch, j)));
   }
 
   /* Return memory that will not be used anymore */
@@ -1381,53 +1333,6 @@ PatchGlobal (const PATCH * p, DOUBLE * lambda, DOUBLE * global)
 }
 
 static INT
-FreeBNDS_Global (BND_PS * ps, DOUBLE * local, DOUBLE * global)
-{
-  BND_PS **ppt;
-  PATCH *p;
-  DOUBLE *pos[4];
-  INT i;
-
-  p = currBVP->patches[ps->patch_id];
-  if (p == NULL)
-    return (1);
-
-  /* get corner coordinates */
-  ppt = (BND_PS **) BND_DATA (ps);
-  ASSERT (BND_N (ps) <= 4);
-  for (i = 0; i < BND_N (ps); i++)
-  {
-    ASSERT (ppt != NULL);
-    pos[i] = (DOUBLE *) BND_DATA (*(ppt++));
-  }
-
-  /* calculate global coordinates */
-#ifdef UG_DIM_2
-  for (i = 0; i < DIM; i++)
-    global[i] = (1.0 - local[0]) * pos[0][i] + local[0] * pos[1][i];
-#endif
-#ifdef UG_DIM_3
-  switch (ps->n)
-  {
-  case 3 :
-    for (i = 0; i < DIM; i++)
-      global[i] = (1.0 - local[0] - local[1]) * pos[0][i]
-                  + local[0] * pos[1][i] + local[1] * pos[2][i];
-    break;
-  case 4 :
-    for (i = 0; i < DIM; i++)
-      global[i] = (1.0 - local[0]) * (1.0 - local[1]) * pos[0][i]
-                  + local[0] * (1.0 - local[1]) * pos[1][i]
-                  + local[0] * local[1] * pos[2][i]
-                  + (1.0 - local[0]) * local[1] * pos[3][i];
-    break;
-  }
-#endif
-
-  return (0);
-}
-
-static INT
 local2lambda (BND_PS * ps, DOUBLE local[], DOUBLE lambda[])
 {
   PATCH *p;
@@ -1542,13 +1447,11 @@ BNDP *NS_DIM_PREFIX
 BNDS_CreateBndP (HEAP * Heap, BNDS * aBndS, DOUBLE * local)
 {
   BND_PS *ps, *pp;
-  PATCH *p;
 
   if (aBndS == NULL)
     return (NULL);
 
   ps = (BND_PS *) aBndS;
-  p = currBVP->patches[ps->patch_id];
 
   pp = (BND_PS *) GetFreelistMemory (Heap, sizeof (BND_PS));
   if (pp == NULL)
@@ -1559,17 +1462,6 @@ BNDS_CreateBndP (HEAP * Heap, BNDS * aBndS, DOUBLE * local)
 
   if (local2lambda (ps, local, pp->local[0]))
     return (NULL);
-
-  if (!PATCH_IS_FIXED (p))
-  {
-    /* store global coordinates */
-    BND_DATA (pp) = GetFreelistMemory (Heap, DIM * sizeof (DOUBLE));
-    if (BND_DATA (pp) == NULL)
-      return (NULL);
-
-    if (FreeBNDS_Global (ps, pp->local[0], (DOUBLE *) BND_DATA (pp)))
-      return (NULL);
-  }
 
   PRINTDEBUG (dom, 1, (" BNDP s %d\n", pp->patch_id));
 
@@ -1584,8 +1476,9 @@ BNDS_CreateBndP (HEAP * Heap, BNDS * aBndS, DOUBLE * local)
 /****************************************************************************/
 /****************************************************************************/
 
-static INT
-BndPointGlobal (const BNDP * aBndP, DOUBLE * global)
+/* domain interface function: for description see domain.h */
+INT NS_DIM_PREFIX
+BNDP_Global (const BNDP * aBndP, DOUBLE * global)
 {
   using std::abs;
   BND_PS *ps;
@@ -1670,26 +1563,6 @@ BndPointGlobal (const BNDP * aBndP, DOUBLE * global)
 
 /* domain interface function: for description see domain.h */
 INT NS_DIM_PREFIX
-BNDP_Global (BNDP * aBndP, DOUBLE * global)
-{
-  BND_PS *ps = (BND_PS *) aBndP;
-  DOUBLE *pos;
-  INT i;
-
-  if (!PATCH_IS_FIXED (currBVP->patches[ps->patch_id]))
-  {
-    /* copy globals */
-    pos = (DOUBLE *) BND_DATA (ps);
-    for (i = 0; i < DIM; i++)
-      global[i] = pos[i];
-    return (0);
-  }
-
-  return (BndPointGlobal (aBndP, global));
-}
-
-/* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
 BNDP_BndPDesc (BNDP * theBndP, INT * move)
 {
   BND_PS *ps;
@@ -1702,16 +1575,16 @@ BNDP_BndPDesc (BNDP * theBndP, INT * move)
   {
   case PARAMETRIC_PATCH_TYPE :
   case LINEAR_PATCH_TYPE :
-    *move = PATCH_IS_FREE (p) ? DIM : DIM_OF_BND;
+    *move = DIM_OF_BND;
     return (0);
 
   case POINT_PATCH_TYPE :
-    *move = PATCH_IS_FREE (p) ? DIM : 0;
+    *move = 0;
     return (0);
 
 #               ifdef UG_DIM_3
   case LINE_PATCH_TYPE :
-    *move = PATCH_IS_FREE (p) ? DIM : 1;
+    *move = 1;
     return (0);
 #               endif
   }
@@ -1738,7 +1611,7 @@ BNDP_BndEDesc (BNDP * aBndP0, BNDP * aBndP1)
 BNDS *NS_DIM_PREFIX
 BNDP_CreateBndS (HEAP * Heap, BNDP ** aBndP, INT n)
 {
-  BND_PS *bp[4], *bs, **pps;
+  BND_PS *bp[4], *bs;
   PATCH *p[4];
   DOUBLE *lambda[4];
   INT i, j, l, pid;
@@ -1834,18 +1707,6 @@ BNDP_CreateBndS (HEAP * Heap, BNDP ** aBndP, INT n)
 
   PRINTDEBUG (dom, 1, (" Create BNDS %x %d\n", bs, pid));
 
-  if (!PATCH_IS_FIXED (currBVP->patches[pid]))
-  {
-    /* store corner patch pointers */
-    BND_DATA (bs) = GetFreelistMemory (Heap, n * sizeof (BND_PS *));
-    if (BND_DATA (bs) == NULL)
-      return (NULL);
-
-    pps = (BND_PS **) BND_DATA (bs);
-    for (i = 0; i < n; i++)
-      *(pps++) = bp[i];
-  }
-
   return ((BNDS *) bs);
 }
 
@@ -1921,16 +1782,6 @@ BNDP_CreateBndP (HEAP * Heap, BNDP * aBndP0, BNDP * aBndP1, DOUBLE lcoord)
                            LINE_PATCH_PID (p, l), l,
                            bp->local[l][0], bp->local[l][1]));
 
-    if (!PATCH_IS_FIXED (p))
-    {
-      /* store global coordinates */
-      BND_DATA (bp) = GetFreelistMemory (Heap, DIM * sizeof (DOUBLE));
-      if (BND_DATA (bp) == NULL)
-        return (NULL);
-
-      if (BNDP_Global ((BNDP *) bp, (DOUBLE *) BND_DATA (bp)))
-        return (NULL);
-    }
     return ((BNDP *) bp);
   }
 #endif
@@ -1948,24 +1799,6 @@ BNDP_CreateBndP (HEAP * Heap, BNDP * aBndP0, BNDP * aBndP1, DOUBLE lcoord)
 
         break;
       }
-
-  if (!PATCH_IS_FIXED (currBVP->patches[bp->patch_id]))
-  {
-    DOUBLE *x, *a, *b;
-
-    /* store global coordinates */
-    BND_DATA (bp) = GetFreelistMemory (Heap, DIM * sizeof (DOUBLE));
-    if (BND_DATA (bp) == NULL)
-      return (NULL);
-
-    x = (DOUBLE *) BND_DATA (bp);
-    a = (DOUBLE *) BND_DATA (bp0);
-    b = (DOUBLE *) BND_DATA (bp1);
-    ASSERT (a != NULL);
-    ASSERT (b != NULL);
-    for (i = 0; i < DIM; i++)
-      x[i] = a[i] * (1.0 - lcoord) + b[i] * lcoord;
-  }
 
   return ((BNDP *) bp);
 }
@@ -2046,8 +1879,6 @@ BNDP_Dispose (HEAP * Heap, BNDP * theBndP)
     return (0);
 
   ps = (BND_PS *) theBndP;
-  if (!PATCH_IS_FIXED (currBVP->patches[ps->patch_id]))
-    DisposeMem(Heap, BND_DATA (ps));
   DisposeMem(Heap, ps);
   return 0;
 }
@@ -2062,8 +1893,6 @@ BNDS_Dispose (HEAP * Heap, BNDS * theBndS)
     return (0);
 
   ps = (BND_PS *) theBndS;
-  if (!PATCH_IS_FIXED (currBVP->patches[ps->patch_id]))
-    DisposeMem(Heap, BND_DATA (ps));
   DisposeMem(Heap, ps);
   return 0;
 }
@@ -2088,16 +1917,6 @@ BNDP_SaveBndP (BNDP * BndP)
     for (j = 0; j < DIM - 1; j++)
       dList[j] = bp->local[i][j];
     if (Bio_Write_mdouble (DIM - 1, dList))
-      return (1);
-  }
-  if (!PATCH_IS_FIXED (currBVP->patches[BND_PATCH_ID (BndP)]))
-  {
-    DOUBLE *pos = (DOUBLE *) BND_DATA (bp);
-
-    /* save free boundary point coordinates */
-    for (j = 0; j < DIM; j++)
-      dList[j] = pos[j];
-    if (Bio_Write_mdouble (DIM, dList))
       return (1);
   }
 
@@ -2125,16 +1944,6 @@ BNDP_SaveBndP_Ext (BNDP * BndP)
     for (j = 0; j < DIM - 1; j++)
       dList[j] = bp->local[i][j];
     if (Bio_Write_mdouble (DIM - 1, dList))
-      return (1);
-  }
-  if (!PATCH_IS_FIXED (currBVP->patches[BND_PATCH_ID (BndP)]))
-  {
-    DOUBLE *pos = (DOUBLE *) BND_DATA (bp);
-
-    /* save free boundary point coordinates */
-    for (j = 0; j < DIM; j++)
-      dList[j] = pos[j];
-    if (Bio_Write_mdouble (DIM, dList))
       return (1);
   }
 
@@ -2166,22 +1975,6 @@ BNDP_LoadBndP (BVP * theBVP, HEAP * Heap)
       return (NULL);
     for (j = 0; j < DIM - 1; j++)
       bp->local[i][j] = dList[j];
-  }
-  /* load free boundary points properly */
-  if (!PATCH_IS_FIXED (currBVP->patches[pid]))
-  {
-    DOUBLE *pos;
-
-    /* read global coordinates */
-    BND_DATA (bp) = GetFreelistMemory (Heap, DIM * sizeof (DOUBLE));
-    if (BND_DATA (bp) == NULL)
-      return (NULL);
-
-    if (Bio_Read_mdouble (DIM, dList))
-      return (NULL);
-    pos = (DOUBLE *) BND_DATA (bp);
-    for (j = 0; j < DIM; j++)
-      pos[j] = dList[j];
   }
 
   return ((BNDP *) bp);

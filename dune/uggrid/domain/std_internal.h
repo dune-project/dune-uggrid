@@ -59,14 +59,7 @@ enum PatchType {POINT_PATCH_TYPE,
 
 /** @name Macros for patches */
 /*@{*/
-enum {PATCH_FIXED,
-      PATCH_BND_OF_FREE,
-      PATCH_FREE};
-
 #define PATCH_TYPE(p)           (p)->ge.type
-#define PATCH_STATE(p)          (p)->ge.state
-#define PATCH_IS_FREE(p)                ((p)->ge.state==PATCH_FREE)
-#define PATCH_IS_FIXED(p)               ((p)->ge.state==PATCH_FIXED)
 #define PATCH_ID(p)             (p)->ge.id
 #define POINT_PATCH_N(p)        (p)->po.npatches
 #define POINT_PATCH_PID(p,i)    (p)->po.pop[i].patch_id
@@ -352,9 +345,6 @@ struct generic_patch {
   /** \brief Patch type */
   enum PatchType type;
 
-  /** \brief Fixed/bnd of free/free */
-  INT state;
-
   /** \brief Unique id used for load/store */
   INT id;
 };
@@ -376,9 +366,6 @@ struct point_patch {
 
   /** \brief Patch type */
   enum PatchType type;
-
-  /** \brief Fixed/bnd of free/free */
-  INT state;
 
   /** \brief Unique id used for load/store */
   INT id;
@@ -409,9 +396,6 @@ struct line_patch {
   /** \brief Patch type */
   enum PatchType type;
 
-  /** \brief Fixed/bnd of free/free */
-  INT state;
-
   /** \brief Unique id used for load/store */
   INT id;
 
@@ -437,9 +421,6 @@ struct linear_patch {
   /** \brief Patch type */
   enum PatchType type;
 
-  /** \brief Fixed/bnd of free/free */
-  INT state;
-
   /** \brief Unique id used for load/store */
   INT id;
 
@@ -463,9 +444,6 @@ struct parameter_patch {
 
   /** \brief Patch type */
   enum PatchType type;
-
-  /** \brief Fixed/bnd of free/free */
-  INT state;
 
   /** \brief Unique id used for load/store */
   INT id;
