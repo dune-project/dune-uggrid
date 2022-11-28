@@ -393,24 +393,7 @@ INT         BNDP_SaveInsertedBndP (BNDP *theBndP, char *data, INT max_data_size)
  *   <li> 1 if error. </li>
  * </ul> */
 /****************************************************************************/
-INT         BNDP_Global           (BNDP *theBndP, DOUBLE *global);
-
-/****************************************************************************/
-/** \brief Change global coordinates of free boundary point
- *
- * @param aBndP - BNDP structure
- * @param global - new global coordinates
-
-   This function sets global coordinates of a free BNDP. The local coordinates
-   will be kept fixed which implies that the topology of the boundary triangulation
-   must not be changed!
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul> */
-/****************************************************************************/
-INT         BNDP_Move                         (BNDP *aBndP, const DOUBLE global[]);
+INT         BNDP_Global           (const BNDP *theBndP, DOUBLE *global);
 
 /****************************************************************************/
 /** \brief Sets descriptor for BNDP
@@ -522,22 +505,6 @@ INT         BNDP_SaveBndP_Ext     (BNDP *theBndP);
 /****************************************************************************/
 BNDP       *BNDP_LoadBndP         (BVP *theBVP, NS_PREFIX HEAP *Heap);
 BNDP       *BNDP_LoadBndP_Ext     (void);
-
-/****************************************************************************/
-/** \brief Gets global coordinates of local position on BNDS
- *
- * @param theBndS  - BNDS structure
- * @param local  - local coordinate on BNDS
- * @param global - global coordinate
-
-   This function gets global coordinates of local position on BNDS
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul> */
-/****************************************************************************/
-INT         BNDS_Global           (BNDS *theBndS, DOUBLE *local, DOUBLE *global);
 
 /****************************************************************************/
 /** \brief Sets descriptor for BNDS
