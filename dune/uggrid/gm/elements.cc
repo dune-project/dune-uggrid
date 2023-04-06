@@ -734,7 +734,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 /****************************************************************************/
 /** \brief Compute offsets and size for a given element type
 
-   \param theMG multigrid for format dependent pointer offsets in elements
    \param el    pointer to an element description
 
    STRUCTURES:
@@ -797,7 +796,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
  */
 /****************************************************************************/
 
-static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
+static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 {
   INT p_count, tag;
 
@@ -838,11 +837,8 @@ static INT ProcessElementDescription (MULTIGRID *theMG, GENERAL_ELEMENT *el)
   /* side vector */
   svector_offset[tag] = 0;
         #ifdef UG_DIM_3
-  if (VEC_DEF_IN_OBJ_OF_MG(theMG,SIDEVEC))
-  {
     svector_offset[tag] = p_count;
     p_count += el->sides_of_elem;
-  }
         #endif
 
   /* so far for an inner element */
@@ -925,20 +921,20 @@ INT NS_DIM_PREFIX InitElementTypes (MULTIGRID *theMG)
     return(GM_ERROR);
 
 #ifdef UG_DIM_2
-  err = ProcessElementDescription(theMG,&def_triangle);
+  err = ProcessElementDescription(&def_triangle);
   if (err!=GM_OK) return(err);
-  err = ProcessElementDescription(theMG,&def_quadrilateral);
+  err = ProcessElementDescription(&def_quadrilateral);
   if (err!=GM_OK) return(err);
 #endif
 
 #ifdef UG_DIM_3
-  err = ProcessElementDescription(theMG,&def_tetrahedron);
+  err = ProcessElementDescription(&def_tetrahedron);
   if (err!=GM_OK) return(err);
-  err = ProcessElementDescription(theMG,&def_pyramid);
+  err = ProcessElementDescription(&def_pyramid);
   if (err!=GM_OK) return(err);
-  err = ProcessElementDescription(theMG,&def_prism);
+  err = ProcessElementDescription(&def_prism);
   if (err!=GM_OK) return(err);
-  err = ProcessElementDescription(theMG,&def_hexahedron);
+  err = ProcessElementDescription(&def_hexahedron);
   if (err!=GM_OK) return(err);
 #endif
 
