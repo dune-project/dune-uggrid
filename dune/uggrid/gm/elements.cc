@@ -280,13 +280,9 @@ static GENERAL_ELEMENT def_hexahedron = {
 
 static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 {
-  INT tag;
-  INT i,j,k,l,n,from,to;
-        #ifdef UG_DIM_3
-  INT m,n1,n2;
-        #endif
+  INT i,j,k;
 
-  tag = el->tag;
+  INT tag = el->tag;
 
   /* derive additional index fields */
 
@@ -304,11 +300,11 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     for (j=0; j<MAX_SIDES_OF_EDGE; j++) el->side_with_edge[i][j] = -1;
   for (k=0; k<el->edges_of_elem; k++)
   {
-    from = el->corner_of_edge[k][0];
-    to   = el->corner_of_edge[k][1];
+    const INT from = el->corner_of_edge[k][0];
+    const INT to   = el->corner_of_edge[k][1];
 
     for (i=0; i<el->sides_of_elem; i++) {
-      n = el->corners_of_side[i];
+      INT n = el->corners_of_side[i];
       for (j=0; j<n; j++)
       {
         if ((el->corner_of_side[i][j]==from)&&(el->corner_of_side[i][(j+1)%n]==to))
@@ -327,7 +323,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
   for (i=0; i<el->sides_of_elem; i++)
     for (j=0; j<el->corners_of_side[i]; j++)
     {
-      n = el->corner_of_side[i][j];
+      const INT n = el->corner_of_side[i][j];
       el->corner_of_side_inv[i][n] = j;
     }
 
@@ -338,7 +334,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
   for (i=0; i<el->edges_of_elem; i++)
     for (j=0; j<el->corners_of_edge; j++)
     {
-      n = el->corner_of_edge[i][j];
+      const INT n = el->corner_of_edge[i][j];
       for (k=0; k<MAX_EDGES_OF_ELEM; k++)
         if (el->edges_of_corner[n][k]<0)
         {
@@ -401,7 +397,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
-      n = 0;
+      INT n = 0;
       for (j=0; j<el->corners_of_edge; j++) {
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[el->corner_of_edge[i][j]][k] >= 0)
@@ -435,7 +431,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* corner_opp_to_side(i) */
     for (i=0; i<el->sides_of_elem; i++) {
-      n = 0;
+      INT n = 0;
       for (j=0; j<el->corners_of_side[i]; j++) {
         n |= (0x1<<(el->corner_of_side[i][j]));
       }
@@ -449,7 +445,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
-      n = 0;
+      INT n = 0;
       for (j=0; j<el->corners_of_edge; j++) {
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[el->corner_of_edge[i][j]][k] >= 0)
@@ -467,7 +463,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* side_opp_to_corner(i)  */
     for (i=0; i<el->corners_of_elem; i++) {
       for (j=0; j<el->sides_of_elem; j++) {
-        n = 0;
+        INT n = 0;
         for (k=0; k<el->corners_of_side[j]; k++)
           n |= (0x1<<(el->corner_of_side[j][k]));
         if (((n>>i) & 0x1) == 0) {
@@ -485,7 +481,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* corner_opp_to_side(i) */
     for (i=0; i<el->sides_of_elem; i++) {
       if (el->corners_of_side[i] == 4) {
-        n = 0;
+        INT n = 0;
         for (j=0; j<el->corners_of_side[i]; j++) {
           n |= (0x1<<(el->corner_of_side[i][j]));
         }
@@ -504,7 +500,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* side_opp_to_corner(i)  */
     for (i=0; i<el->corners_of_elem; i++) {
       for (j=0; j<el->sides_of_elem; j++) {
-        n = 0;
+        INT n = 0;
         for (k=0; k<el->corners_of_side[j]; k++)
           n |= (0x1<<(el->corner_of_side[j][k]));
         if (((n>>i) & 0x1) == 0) {
@@ -537,16 +533,16 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
-      n = 0;
+      INT n = 0;
       for (j=0; j<el->corners_of_edge; j++) {
-        n1 = el->corner_of_edge[i][j];
+        const INT n1 = el->corner_of_edge[i][j];
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[n1][k] >= 0) {
             n |= (0x1<<(el->edges_of_corner[n1][k]));
-            for (l=0; l<el->corners_of_edge; l++) {
-              n2 = el->corner_of_edge[el->edges_of_corner[n1][k]][l];
+            for (INT l=0; l<el->corners_of_edge; l++) {
+              const INT n2 = el->corner_of_edge[el->edges_of_corner[n1][k]][l];
               if (n2 != n1) {
-                for (m=0; m<el->edges_of_elem; m++) {
+                for (INT m=0; m<el->edges_of_elem; m++) {
                   if (el->edges_of_corner[n2][m] >= 0)
                     n |= (0x1<<(el->edges_of_corner[n2][m]));
                 }
@@ -572,7 +568,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
   for (i=0; i<el->sides_of_elem; i++)
     for (j=0; j<el->sides_of_elem; j++)
       for (k=0; k<el->edges_of_side[i]; k++)
-        for (l=0; l<el->edges_of_side[j]; l++)
+        for (INT l=0; l<el->edges_of_side[j]; l++)
           if (el->edge_of_side[i][k] == el->edge_of_side[j][l])
           {
             assert( (i==j) || (el->edge_of_two_sides[i][j]==-1) ||
