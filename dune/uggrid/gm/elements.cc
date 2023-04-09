@@ -367,6 +367,19 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     for (j=0; j<MAX_EDGES_OF_ELEM; j++)
       el->edge_of_corner[i][j] = -1;
 
+  /* edge_of_corner(i,j)	  */
+  for (i=0; i<el->edges_of_elem; i++) {
+    for (j=0; j<el->corners_of_edge; j++) {
+      if (el->corner_of_edge[i][j] >=0) {
+        for (k=0; k<el->edges_of_elem; k++)
+          if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
+            break;
+        assert(k<el->edges_of_elem);
+        el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
+      }
+    }
+  }
+
 #ifdef UG_DIM_2
   switch (tag)
   {
@@ -379,19 +392,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* side_opp_to_corner(i)  */
     /* is not defined!		  */
-
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
 
     break;
 
@@ -418,19 +418,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* side_opp_to_corner(i)  */
     /* is not defined!		  */
-
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
 
     break;
   }
@@ -491,19 +478,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
       assert(j<el->sides_of_elem);
     }
 
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
-
     break;
 
   case PYRAMID :
@@ -541,19 +515,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
       assert(j<el->sides_of_elem);
     }
 
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
-
     break;
 
   case PRISM :
@@ -566,19 +527,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* side_opp_to_corner(i)  */
     /* is not defined!		  */
-
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
 
     break;
 
@@ -617,19 +565,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* side_opp_to_corner(i)  */
     /* is not defined!		  */
-
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
 
     break;
   }
