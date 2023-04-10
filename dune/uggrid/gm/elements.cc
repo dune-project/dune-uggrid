@@ -66,7 +66,6 @@ INT NS_DIM_PREFIX n_offset[TAGS];
 INT NS_DIM_PREFIX father_offset[TAGS];
 INT NS_DIM_PREFIX sons_offset[TAGS];
 INT NS_DIM_PREFIX nb_offset[TAGS];
-INT NS_DIM_PREFIX evector_offset[TAGS];
 INT NS_DIM_PREFIX svector_offset[TAGS];
 INT NS_DIM_PREFIX side_offset[TAGS];
 
@@ -683,9 +682,6 @@ static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 
   /* the neighbors */
   nb_offset[tag] = p_count; p_count += el->sides_of_elem;
-
-  /* element vector */
-  evector_offset[tag] = 0;
 
   /* side vector */
   svector_offset[tag] = 0;

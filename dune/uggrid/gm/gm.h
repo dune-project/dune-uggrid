@@ -2990,7 +2990,7 @@ START_UGDIM_NAMESPACE
    #endif
  */
 #define ELEM_BNDS(p,i)  ((BNDS *) (p)->ge.refs[side_offset[TAG(p)]+(i)])
-#define EVECTOR(p)              ((VECTOR *) (p)->ge.refs[evector_offset[TAG(p)]])
+#define EVECTOR(p)              ((VECTOR *) (p)->ge.refs[0])
 
 /** \brief Returns a pointer to the VECTOR associated with the side i of element p.
  *

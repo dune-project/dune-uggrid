@@ -198,7 +198,7 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
 
   if (ddd_ctrl(context).elemData)
     DDD_TypeDefine(context, dddType,
-                   EL_OBJPTR, r+evector_offset[tag]*sizeof(void*), ps*1,     dddctrl.TypeVector,
+                   EL_OBJPTR, r+ 0 *sizeof(void*), ps*1,     dddctrl.TypeVector,
                    EL_CONTINUE);
 
         #ifdef UG_DIM_3
