@@ -265,19 +265,10 @@ static GENERAL_ELEMENT def_hexahedron = {
    's' with respect to the numbering in the element.
    . corner_of_edge[e][c] - Tells you the number of corner 'c' in edge 'e' with respect
    to the numbering in the element.
-
-   SEE ALSO:
-
-   'ELEMENT', 'ProcessElementDescription'.
-
-   \return <ul>
-   <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occurred </li>
-   <ul>
  */
 /****************************************************************************/
 
-static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
+static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 {
   INT i,j,k;
 
@@ -580,8 +571,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
   element_descriptors[tag] = el;
   reference_descriptors[el->corners_of_elem] = el;
   reference2tag[el->corners_of_elem] = tag;
-
-  return(GM_OK);
 }
 
 /****************************************************************************/
@@ -725,24 +714,16 @@ static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 
 INT NS_DIM_PREFIX PreInitElementTypes (void)
 {
-  INT err;
-
 #ifdef UG_DIM_2
-  err = PreProcessElementDescription(&def_triangle);
-  if (err!=GM_OK) return(err);
-  err = PreProcessElementDescription(&def_quadrilateral);
-  if (err!=GM_OK) return(err);
+  PreProcessElementDescription(&def_triangle);
+  PreProcessElementDescription(&def_quadrilateral);
 #endif
 
 #ifdef UG_DIM_3
-  err = PreProcessElementDescription(&def_tetrahedron);
-  if (err!=GM_OK) return(err);
-  err = PreProcessElementDescription(&def_pyramid);
-  if (err!=GM_OK) return(err);
-  err = PreProcessElementDescription(&def_prism);
-  if (err!=GM_OK) return(err);
-  err = PreProcessElementDescription(&def_hexahedron);
-  if (err!=GM_OK) return(err);
+  PreProcessElementDescription(&def_tetrahedron);
+  PreProcessElementDescription(&def_pyramid);
+  PreProcessElementDescription(&def_prism);
+  PreProcessElementDescription(&def_hexahedron);
 #endif
 
   return (0);
