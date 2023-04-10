@@ -66,7 +66,6 @@
 #include "dlmgr.h"
 #include "algebra.h"
 #include "ugm.h"
-#include "elements.h"
 #include "shapes.h"
 #include "refine.h"
 #include <dune/uggrid/domain/domain.h>
@@ -2764,11 +2763,11 @@ MULTIGRID * NS_DIM_PREFIX GetFirstMultigrid ()
   theMG = (MULTIGRID *) ENVDIR_DOWN(theMGRootDir);
 
   if (theMG != NULL)
-    if (InitElementTypes(theMG) != GM_OK) {
-      PrintErrorMessage('E',"GetFirstMultigrid",
-                        "error in InitElementTypes");
-      return(NULL);
-    }
+  {
+#ifdef ModelP
+    InitCurrMG(theMG);
+#endif
+  }
 
   return (theMG);
 }
@@ -2794,11 +2793,11 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
   MG = (MULTIGRID *) NEXT_ENVITEM(theMG);
 
   if (MG != NULL)
-    if (InitElementTypes(MG)!=GM_OK) {
-      PrintErrorMessage('E',"GetNextMultigrid",
-                        "error in InitElementTypes");
-      return(NULL);
-    }
+  {
+#ifdef ModelP
+    InitCurrMG(MG);
+#endif
+  }
 
   return (MG);
 }
@@ -2840,11 +2839,10 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   /* allocate multigrid envitem */
   theMG = MakeMGItem(MultigridName, ppifContext);
   if (theMG==NULL) return(NULL);
-  if (InitElementTypes(theMG)!=GM_OK)
-  {
-    PrintErrorMessage('E',"CreateMultiGrid","error in InitElementTypes");
-    return(NULL);
-  }
+
+#ifdef ModelP
+  InitCurrMG(theMG);
+#endif
 
   /* allocate the heap */
   /* When using the system heap: allocate just enough memory for the actual bookkeeping data structure */

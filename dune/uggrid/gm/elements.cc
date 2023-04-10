@@ -701,35 +701,6 @@ static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 }
 
 /****************************************************************************/
-/** \brief Pre-initialize general element data up to multigrid dependent stuff
-
-   This function pre-initializes the general element data up to multigrid dependent stuff.
-
-   \return <ul>
-   <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occurred. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX PreInitElementTypes (void)
-{
-#ifdef UG_DIM_2
-  PreProcessElementDescription(&def_triangle);
-  PreProcessElementDescription(&def_quadrilateral);
-#endif
-
-#ifdef UG_DIM_3
-  PreProcessElementDescription(&def_tetrahedron);
-  PreProcessElementDescription(&def_pyramid);
-  PreProcessElementDescription(&def_prism);
-  PreProcessElementDescription(&def_hexahedron);
-#endif
-
-  return (0);
-}
-
-/****************************************************************************/
 /** \brief Initialize topological information for element types
 
    This function initializes topological information for element types and
@@ -743,34 +714,41 @@ INT NS_DIM_PREFIX PreInitElementTypes (void)
  */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX InitElementTypes (MULTIGRID *theMG)
+INT NS_DIM_PREFIX InitElementTypes()
 {
   INT err;
 
-  if (theMG==NULL)
-    return(GM_ERROR);
-
+  // The splitting between PreProcessElementDescription and ProcessElementDescription
+  // is historical and can be removed.
 #ifdef UG_DIM_2
+  PreProcessElementDescription(&def_triangle);
   err = ProcessElementDescription(&def_triangle);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
+  PreProcessElementDescription(&def_quadrilateral);
   err = ProcessElementDescription(&def_quadrilateral);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
 #endif
 
 #ifdef UG_DIM_3
+  PreProcessElementDescription(&def_tetrahedron);
   err = ProcessElementDescription(&def_tetrahedron);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
+  PreProcessElementDescription(&def_pyramid);
   err = ProcessElementDescription(&def_pyramid);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
+  PreProcessElementDescription(&def_prism);
   err = ProcessElementDescription(&def_prism);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
+  PreProcessElementDescription(&def_hexahedron);
   err = ProcessElementDescription(&def_hexahedron);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
 #endif
 
-#ifdef ModelP
-  InitCurrMG(theMG);
-#endif
-
-  return(GM_OK);
+  return (0);
 }

@@ -94,7 +94,7 @@ INT NS_DIM_PREFIX InitGm ()
   }
 
   /* elements.c */
-  if ((err=PreInitElementTypes())!=0)
+  if ((err=InitElementTypes())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);

@@ -63,8 +63,7 @@ extern INT reference2tag[MAX_CORNERS_OF_ELEM+1];
 /*                                                                          */
 /****************************************************************************/
 
-INT PreInitElementTypes         (void);
-INT InitElementTypes            (MULTIGRID *theMG);
+INT InitElementTypes();
 
 
 END_UGDIM_NAMESPACE
