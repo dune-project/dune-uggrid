@@ -62,10 +62,6 @@ USING_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-INT NS_DIM_PREFIX n_offset[TAGS];
-INT NS_DIM_PREFIX father_offset[TAGS];
-INT NS_DIM_PREFIX sons_offset[TAGS];
-INT NS_DIM_PREFIX nb_offset[TAGS];
 INT NS_DIM_PREFIX svector_offset[TAGS];
 INT NS_DIM_PREFIX side_offset[TAGS];
 
@@ -645,32 +641,22 @@ static INT ProcessElementDescription (GENERAL_ELEMENT *el)
   p_count = 0;
 
   /* the corners */
-  n_offset[tag] = p_count; p_count += el->corners_of_elem;
+  p_count += el->corners_of_elem;
 
   /* the father */
-  father_offset[tag] = p_count; p_count++;
+  p_count++;
 
-  /* the sons */
-  sons_offset[tag] = 0;
-  /*
-     #ifdef UG_DIM_2
-                  sons_offset[tag] = p_count; p_count += el->max_sons_of_elem;
-     #endif
-     #ifdef UG_DIM_3
-                  sons_offset[tag] = p_count; p_count++;
-     #endif
-   */
   /* for 2D/3D one son pointer is stored in serial case     */
   /* for 2D/3D two son pointer are stored in parallel case: */
   /*    one to master elements, other to (h/v) ghosts       */
         #ifdef ModelP
-  sons_offset[tag] = p_count; p_count+=2;
+  p_count+=2;
         #else
-  sons_offset[tag] = p_count; p_count++;
+  p_count++;
         #endif
 
   /* the neighbors */
-  nb_offset[tag] = p_count; p_count += el->sides_of_elem;
+  p_count += el->sides_of_elem;
 
   /* side vector */
   svector_offset[tag] = 0;

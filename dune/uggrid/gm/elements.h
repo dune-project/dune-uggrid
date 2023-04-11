@@ -44,10 +44,52 @@ START_UGDIM_NAMESPACE
 /** \brief Number of different element types    */
 #define TAGS 8
 
-extern INT n_offset[TAGS];
-extern INT father_offset[TAGS];
-extern INT sons_offset[TAGS];
-extern INT nb_offset[TAGS];
+#ifdef UG_DIM_2
+// The indexing of these arrays must match the definitions of the enum values
+// TRIANGLE, QUADRILATERAL, etc in gm.h
+constexpr INT n_offset[TAGS] = {-1,-1, -1,
+                                (offsetof(triangle,n)      - offsetof(generic_element,refs))/sizeof(void*),
+                                (offsetof(quadrilateral,n) - offsetof(generic_element,refs))/sizeof(void*)};
+
+constexpr INT father_offset[TAGS] = {-1, -1, -1,
+                                     (offsetof(triangle,father)      - offsetof(generic_element,refs))/sizeof(void*),
+                                     (offsetof(quadrilateral,father) - offsetof(generic_element,refs))/sizeof(void*)};
+
+constexpr INT sons_offset[TAGS] = {-1, -1, -1,
+                                   (offsetof(triangle,sons)      - offsetof(generic_element,refs))/sizeof(void*),
+                                   (offsetof(quadrilateral,sons) - offsetof(generic_element,refs))/sizeof(void*)};
+
+constexpr INT nb_offset[TAGS] = {-1, -1, -1,
+                                 (offsetof(triangle,nb)      - offsetof(generic_element,refs))/sizeof(void*),
+                                 (offsetof(quadrilateral,nb) - offsetof(generic_element,refs))/sizeof(void*)};
+#endif
+#ifdef UG_DIM_3
+// The indexing of these arrays must match the definitions of the enum values
+// TETRAHEDRON, PYRAMID, etc in gm.h
+constexpr INT n_offset[TAGS] = {-1, -1, -1, -1,
+                                (offsetof(tetrahedron,n) - offsetof(generic_element,refs))/sizeof(void*),
+                                (offsetof(pyramid,n)     - offsetof(generic_element,refs))/sizeof(void*),
+                                (offsetof(prism,n)       - offsetof(generic_element,refs))/sizeof(void*),
+                                (offsetof(hexahedron,n)  - offsetof(generic_element,refs))/sizeof(void*)};
+
+constexpr INT father_offset[TAGS] = {-1, -1, -1, -1,
+                                     (offsetof(tetrahedron,father) - offsetof(generic_element,refs))/sizeof(void*),
+                                     (offsetof(pyramid,father)     - offsetof(generic_element,refs))/sizeof(void*),
+                                     (offsetof(prism,father)       - offsetof(generic_element,refs))/sizeof(void*),
+                                     (offsetof(hexahedron,father)  - offsetof(generic_element,refs))/sizeof(void*)};
+
+constexpr INT sons_offset[TAGS] = {-1, -1, -1, -1,
+                                   (offsetof(tetrahedron,sons) - offsetof(generic_element,refs))/sizeof(void*),
+                                   (offsetof(pyramid,sons)     - offsetof(generic_element,refs))/sizeof(void*),
+                                   (offsetof(prism,sons)       - offsetof(generic_element,refs))/sizeof(void*),
+                                   (offsetof(hexahedron,sons)  - offsetof(generic_element,refs))/sizeof(void*)};
+
+constexpr INT nb_offset[TAGS] = {-1, -1, -1, -1,
+                                 (offsetof(tetrahedron,nb) - offsetof(generic_element,refs))/sizeof(void*),
+                                 (offsetof(pyramid,nb)     - offsetof(generic_element,refs))/sizeof(void*),
+                                 (offsetof(prism,nb)       - offsetof(generic_element,refs))/sizeof(void*),
+                                 (offsetof(hexahedron,nb)  - offsetof(generic_element,refs))/sizeof(void*)};
+#endif
 extern INT svector_offset[TAGS];
 extern INT side_offset[TAGS];
 
