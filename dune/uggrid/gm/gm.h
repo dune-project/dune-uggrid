@@ -3078,28 +3078,6 @@ START_UGDIM_NAMESPACE
 #define EDGE_OF_CORNER_TAG(t,c,e)               (element_descriptors[t]->edge_of_corner[(c)][(e)])
 /*@}*/
 
-/** @name  Macros to access reference descriptors by number of element corners  */
-/*@{*/
-#define SIDES_OF_REF(n)                   (reference_descriptors[n]->sides_of_elem)
-#define EDGES_OF_REF(n)                   (reference_descriptors[n]->edges_of_elem)
-#define CORNERS_OF_REF(n)                 (reference_descriptors[n]->corners_of_elem)
-#define LOCAL_COORD_OF_REF(n,c)           (reference_descriptors[n]->local_corner[(c)])
-#define EDGES_OF_SIDE_REF(n,i)            (reference_descriptors[n]->edges_of_side[(i)])
-#define CORNERS_OF_SIDE_REF(n,i)          (reference_descriptors[n]->corners_of_side[(i)])
-#define EDGE_OF_SIDE_REF(n,s,e)           (reference_descriptors[n]->edge_of_side[(s)][(e)])
-#define EDGE_OF_TWO_SIDES_REF(n,s,t)  (reference_descriptors[n]->edge_of_two_sides[(s)][(t)])
-#define CORNER_OF_SIDE_REF(n,s,c)         (reference_descriptors[n]->corner_of_side[(s)][(c)])
-#define CORNER_OF_EDGE_REF(n,e,c)         (reference_descriptors[n]->corner_of_edge[(e)][(c)])
-#define EDGE_WITH_CORNERS_REF(n,c0,c1) (reference_descriptors[n]->edge_with_corners[(c0)][(c1)])
-#define SIDE_WITH_EDGE_REF(n,e,k)         (reference_descriptors[n]->side_with_edge[(e)][(k)])
-#define CORNER_OF_SIDE_INV_REF(n,s,c) (reference_descriptors[n]->corner_of_side_inv[(s)][(c)])
-#define EDGES_OF_CORNER_REF(n,c,k)        (reference_descriptors[n]->edges_of_corner[(c)][(k)])
-#define CORNER_OPP_TO_SIDE_REF(n,s)       (reference_descriptors[n]->corner_opp_to_side[(s)])
-#define OPPOSITE_EDGE_REF(n,e)            (reference_descriptors[n]->opposite_edge[(e)])
-#define SIDE_OPP_TO_CORNER_REF(n,c)       (reference_descriptors[n]->side_opp_to_corner[(c)])
-#define EDGE_OF_CORNER_REF(n,c,e)         (reference_descriptors[n]->edge_of_corner[(c)][(e)])
-/*@}*/
-
 /****************************************************************************/
 /*                                                                          */
 /* macros for grids                                                         */

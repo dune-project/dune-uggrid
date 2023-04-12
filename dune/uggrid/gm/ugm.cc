@@ -4132,7 +4132,7 @@ INT NS_DIM_PREFIX CheckOrientationInGrid (GRID *theGrid)
 /****************************************************************************/
 /** \todo Please doc me!
 
- * @param[in]   n Number of element corners
+ * @param[in]   tag Element type
  * @param[in]   Node
  * @param[in]   theMG
  * @param[out]   NbrS
@@ -4142,7 +4142,7 @@ INT NS_DIM_PREFIX CheckOrientationInGrid (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, MULTIGRID  *theMG, INT *NbrS, ELEMENT **Nbr)
+static INT NeighborSearch_O_n(INT tag, ELEMENT *theElement, NODE **Node, MULTIGRID  *theMG, INT *NbrS, ELEMENT **Nbr)
 {
 
 #if 0
@@ -4203,14 +4203,14 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, MULTIGRID
   /*O(n*n)InsertElement ...*/
   /* for all sides of the element to be created */
   MULTIGRID::FaceNodes faceNodes;
-  for (int i=0; i<SIDES_OF_REF(n); i++)
+  for (int i=0; i<SIDES_OF_TAG(tag); i++)
   {
     int j = 0;
-    for(j=0; j<CORNERS_OF_SIDE_REF(n,i); j++)
-      faceNodes[j] = Node[CORNER_OF_SIDE_REF(n,i,j)];
+    for(j=0; j<CORNERS_OF_SIDE_TAG(tag,i); j++)
+      faceNodes[j] = Node[CORNER_OF_SIDE_TAG(tag,i,j)];
     for(; j<MAX_CORNERS_OF_SIDE; j++)
       faceNodes[j] = 0;
-    std::sort(faceNodes.begin(), faceNodes.begin()+CORNERS_OF_SIDE_REF(n,i));
+    std::sort(faceNodes.begin(), faceNodes.begin()+CORNERS_OF_SIDE_TAG(tag,i));
 
     // try to write myself...
     auto result = theMG->facemap.emplace(faceNodes,std::make_pair(theElement,i));
@@ -4244,7 +4244,7 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, MULTIGRID
    static INT Neighbor_Direct_Insert(INT n, ELEMENT **ElemList, INT *NbgSdList, INT* NbrS, ELEMENT **Nbr);
 
 
- * @param   n
+ * @param   tag Element type
  * @param   ElemList
  * @param   NbgSdList
  * @param   NbrS
@@ -4257,14 +4257,14 @@ static INT NeighborSearch_O_n(INT n, ELEMENT *theElement, NODE **Node, MULTIGRID
  */
 /****************************************************************************/
 
-static INT Neighbor_Direct_Insert(INT n, ELEMENT **ElemList, INT *NbgSdList, INT* NbrS, ELEMENT **Nbr)
+static INT Neighbor_Direct_Insert(INT tag, ELEMENT **ElemList, INT *NbgSdList, INT* NbrS, ELEMENT **Nbr)
 {
   INT i;
 
-  for (i=0; i<SIDES_OF_REF(n); i++)
+  for (i=0; i<SIDES_OF_TAG(tag); i++)
     Nbr[i] = ElemList[i];
   if (NbgSdList != NULL)
-    for (i=0; i<SIDES_OF_REF(n); i++)
+    for (i=0; i<SIDES_OF_TAG(tag); i++)
       NbrS[i] = NbgSdList[i];
 
   return(0);
@@ -4416,7 +4416,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
         #endif
 
   /* init pointers */
-  for (i=0; i<SIDES_OF_REF(n); i++)
+  for (i=0; i<SIDES_OF_TAG(tag); i++)
   {
     Neighbor[i] = NULL;
     bnds[i] = NULL;
@@ -4424,12 +4424,12 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
 
   /* compute side information (theSeg[i]==NULL) means inner side */
   ElementType = IEOBJ;
-  for (i=0; i<SIDES_OF_REF(n); i++)
+  for (i=0; i<SIDES_OF_TAG(tag); i++)
   {
-    m = CORNERS_OF_SIDE_REF(n,i);
+    m = CORNERS_OF_SIDE_TAG(tag,i);
     for(j=0; j<m; j++ )
     {
-      k = CORNER_OF_SIDE_REF(n,i,j);
+      k = CORNER_OF_SIDE_TAG(tag,i,j);
       sideNode[j] = Node[k];
       sideVertex[j] = Vertex[k];
     }
@@ -4475,12 +4475,12 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   if (ElemList == NULL)
   {
     /* using the fast O(n) algorithm */
-    NeighborSearch_O_n(n, theElement, Node, theMG, NeighborSide, Neighbor);
+    NeighborSearch_O_n(tag, theElement, Node, theMG, NeighborSide, Neighbor);
   }
   else
   {
     /* use given neighboring elements */
-    if ( (rv = Neighbor_Direct_Insert(n, ElemList, NbgSdList, NeighborSide, Neighbor)) == 1)
+    if ( (rv = Neighbor_Direct_Insert(tag, ElemList, NbgSdList, NeighborSide, Neighbor)) == 1)
     {
       PrintErrorMessage('E',"InsertElement"," ERROR by calling Neighbor_Direct_Insert()");
       return(NULL);
@@ -4699,7 +4699,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
         theElement = InsertElement (theGrid,n,Nodes,NULL,NULL,NULL);
       else
       {
-        for (l=0; l<SIDES_OF_REF(n); l++) ElemSideOnBnd[l] = (theMesh->ElemSideOnBnd[j][k]&(1<<l));
+        for (l=0; l<SIDES_OF_TAG(REF2TAG(n)); l++) ElemSideOnBnd[l] = (theMesh->ElemSideOnBnd[j][k]&(1<<l));
         theElement = InsertElement (theGrid,n,Nodes,NULL,NULL,ElemSideOnBnd);
       }
       SETSUBDOMAIN(theElement,j);

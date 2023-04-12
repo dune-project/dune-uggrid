@@ -66,7 +66,6 @@ INT NS_DIM_PREFIX svector_offset[TAGS];
 INT NS_DIM_PREFIX side_offset[TAGS];
 
 GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
-GENERAL_ELEMENT * NS_DIM_PREFIX reference_descriptors[MAX_CORNERS_OF_ELEM+1];
 INT NS_DIM_PREFIX reference2tag[MAX_CORNERS_OF_ELEM+1];
 
 /****************************************************************************/
@@ -565,7 +564,6 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
   /* make description globally available */
   element_descriptors[tag] = el;
-  reference_descriptors[el->corners_of_elem] = el;
   reference2tag[el->corners_of_elem] = tag;
 }
 
