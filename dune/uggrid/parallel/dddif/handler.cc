@@ -950,6 +950,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
   }
 
   /* copy sidevectors */
+#ifdef UG_DIM_3
   if (dddctrl.sideData)
   {
     for (i=0; i<SIDES_OF_ELEM(pe); i++)
@@ -966,6 +967,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
       }
     }
   }
+#endif
 }
 
 
@@ -1279,11 +1281,13 @@ static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness
   /* reconstruct pointer from vectors */
   if (ddd_ctrl(context).elemData) VOBJECT(EVECTOR(pe)) = (GEOM_OBJECT*)pe;
 
+#ifdef UG_DIM_3
   if (ddd_ctrl(context).sideData)
     for (i=0; i<SIDES_OF_ELEM(pe); i++) {
       VOBJECT(SVECTOR(pe,i)) = (GEOM_OBJECT*)pe;
       SETVECTORSIDE(SVECTOR(pe,i), i);
     }
+#endif
 
   /*  if called with prio old=ghost and new=ghost,
           then you have eventually to unlink and link

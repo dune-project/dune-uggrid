@@ -2403,8 +2403,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
 
 
   /* create side vectors if */
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-  {
+#ifdef UG_DIM_3
     for (i=0; i<SIDES_OF_ELEM(pe); i++)
       if (with_vector)
       {
@@ -2417,7 +2416,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
       }
       else
         SET_SVECTOR(pe,i,NULL);
-  }
+#endif
 
   /* insert in element list */
   GRID_LINK_ELEMENT(theGrid,pe,PrioMaster);

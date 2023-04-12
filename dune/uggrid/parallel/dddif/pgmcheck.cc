@@ -418,12 +418,14 @@ static INT CheckElementPrio (DDD::DDDContext& context, ELEMENT *theElement)
     if (EVECTOR(theElement) != NULL)
       nerrors += CheckVectorPrio(context, theElement,EVECTOR(theElement));
 
+#ifdef UG_DIM_3
   if (ddd_ctrl(context).sideData)
   {
     for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       if (SVECTOR(theElement,i) != NULL)
         nerrors += CheckVectorPrio(context, theElement,SVECTOR(theElement,i));
   }
+#endif
 
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
@@ -697,12 +699,14 @@ INT NS_DIM_PREFIX CheckInterfaces (GRID *theGrid)
       if (dddctrl.elemData)
         if (EVECTOR(theElement) != NULL)
           SETUSED(EVECTOR(theElement),j);
+#ifdef UG_DIM_3
       if (dddctrl.sideData)
       {
         for (i=0; i<SIDES_OF_ELEM(theElement); i++)
           if (SVECTOR(theElement,i) != NULL)
             SETUSED(SVECTOR(theElement,i),j);
       }
+#endif
 
       for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
       {

@@ -279,6 +279,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
       ASSERT(theEdge != NULL);
       SETUSED(theEdge,0); SETTHEFLAG(theEdge,0);
     }
+#ifdef UG_DIM_3
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
@@ -288,6 +289,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
           SETTHEFLAG(theVector,0);
         }
       }
+#endif
   }
   /* to reset also nodes which are at corners of the boundary */
   /* reset of nodes need to be done through the node list     */
@@ -349,7 +351,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
       if (vghost) SETTHEFLAG(theEdge,1);
       if (hghost) SETUSED(theEdge,1);
     }
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+#ifdef UG_DIM_3
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         theVector = SVECTOR(theElement,i);
@@ -358,6 +360,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
           if (hghost) SETUSED(theVector,1);
         }
       }
+#endif
   }
 
   /* set USED flag for objects of master elements */
@@ -382,7 +385,8 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
       ASSERT(theEdge != NULL);
       SETUSED(theEdge,0); SETTHEFLAG(theEdge,0);
     }
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+
+#ifdef UG_DIM_3
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         theVector = SVECTOR(theElement,i);
@@ -391,6 +395,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
           SETTHEFLAG(theVector,0);
         }
       }
+#endif
   }
 
   /* set object priorities for ghostelements */
