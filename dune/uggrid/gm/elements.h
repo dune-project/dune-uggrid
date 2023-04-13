@@ -62,6 +62,11 @@ constexpr INT sons_offset[TAGS] = {-1, -1, -1,
 constexpr INT nb_offset[TAGS] = {-1, -1, -1,
                                  (offsetof(triangle,nb)      - offsetof(generic_element,refs))/sizeof(void*),
                                  (offsetof(quadrilateral,nb) - offsetof(generic_element,refs))/sizeof(void*)};
+
+// TODO: The -1 shouldn't be here, and it is the sign of a bug somewhere else
+constexpr INT side_offset[TAGS] = {-1, -1, -1,
+                                   (offsetof(triangle,bnds)      - offsetof(generic_element,refs))/sizeof(void*)-1,
+                                   (offsetof(quadrilateral,bnds) - offsetof(generic_element,refs))/sizeof(void*)-1};
 #endif
 #ifdef UG_DIM_3
 // The indexing of these arrays must match the definitions of the enum values
@@ -105,8 +110,14 @@ constexpr INT svector_offset[TAGS] = {-1, -1, -1, -1,
                                       (offsetof(pyramid,vector)     - offsetof(generic_element,refs))/sizeof(void*),
                                       (offsetof(prism,vector)       - offsetof(generic_element,refs))/sizeof(void*),
                                       (offsetof(hexahedron,vector)  - offsetof(generic_element,refs))/sizeof(void*)};
+
+// TODO: Same here: The -1 shouldn't be here, and it is the sign of a bug somewhere else
+constexpr INT side_offset[TAGS] = {-1, -1, -1, -1,
+                                      (offsetof(tetrahedron,bnds) - offsetof(generic_element,refs))/sizeof(void*)-1,
+                                      (offsetof(pyramid,bnds)     - offsetof(generic_element,refs))/sizeof(void*)-1,
+                                      (offsetof(prism,bnds)       - offsetof(generic_element,refs))/sizeof(void*)-1,
+                                      (offsetof(hexahedron,bnds)  - offsetof(generic_element,refs))/sizeof(void*)-1};
 #endif
-extern INT side_offset[TAGS];
 
 /* the element descriptions are also globally available, these are pointers ! */
 extern GENERAL_ELEMENT *element_descriptors[TAGS];

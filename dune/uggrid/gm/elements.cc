@@ -62,8 +62,6 @@ USING_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-INT NS_DIM_PREFIX side_offset[TAGS];
-
 GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
 INT NS_DIM_PREFIX reference2tag[MAX_CORNERS_OF_ELEM+1];
 
@@ -632,9 +630,8 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
 static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 {
-  INT p_count, tag;
+  INT p_count;
 
-  tag = el->tag;
   p_count = 0;
 
   /* the corners */
@@ -664,7 +661,7 @@ static INT ProcessElementDescription (GENERAL_ELEMENT *el)
   el->inner_size = sizeof(struct generic_element) + (p_count-1)*sizeof(void *);
 
   /* the element sides */
-  side_offset[tag] = p_count; p_count += el->sides_of_elem;
+  p_count += el->sides_of_elem;
 
   /* now the size of an element on the boundary */
   el->bnd_size = sizeof(struct generic_element) + (p_count-1)*sizeof(void *);
