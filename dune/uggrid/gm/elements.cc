@@ -62,7 +62,6 @@ USING_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-INT NS_DIM_PREFIX svector_offset[TAGS];
 INT NS_DIM_PREFIX side_offset[TAGS];
 
 GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
@@ -657,9 +656,7 @@ static INT ProcessElementDescription (GENERAL_ELEMENT *el)
   p_count += el->sides_of_elem;
 
   /* side vector */
-  svector_offset[tag] = 0;
         #ifdef UG_DIM_3
-    svector_offset[tag] = p_count;
     p_count += el->sides_of_elem;
         #endif
 

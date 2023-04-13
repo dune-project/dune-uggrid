@@ -89,8 +89,23 @@ constexpr INT nb_offset[TAGS] = {-1, -1, -1, -1,
                                  (offsetof(pyramid,nb)     - offsetof(generic_element,refs))/sizeof(void*),
                                  (offsetof(prism,nb)       - offsetof(generic_element,refs))/sizeof(void*),
                                  (offsetof(hexahedron,nb)  - offsetof(generic_element,refs))/sizeof(void*)};
+
+// TODO: There is a bug here somewhere: The svector_offset array is expected to store
+// the offset to the 'sidevector' data member of the element classes.  The corresponding
+// code here would be
+//
+//       (offsetof(tetrahedron,sidevector) - offsetof(generic_element,refs))/sizeof(void*)
+//
+// However, actually doing that here makes some consistency check fail at startup.
+// It currently only works if the offset to the 'vector' member is used instead
+// (which is the data member right before 'sidevector').
+// This needs to be investigated eventually.
+constexpr INT svector_offset[TAGS] = {-1, -1, -1, -1,
+                                      (offsetof(tetrahedron,vector) - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(pyramid,vector)     - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(prism,vector)       - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(hexahedron,vector)  - offsetof(generic_element,refs))/sizeof(void*)};
 #endif
-extern INT svector_offset[TAGS];
 extern INT side_offset[TAGS];
 
 /* the element descriptions are also globally available, these are pointers ! */
