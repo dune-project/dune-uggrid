@@ -63,7 +63,6 @@ USING_UGDIM_NAMESPACE
 /****************************************************************************/
 
 GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
-INT NS_DIM_PREFIX reference2tag[MAX_CORNERS_OF_ELEM+1];
 
 /****************************************************************************/
 /*																			*/
@@ -561,7 +560,6 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
   /* make description globally available */
   element_descriptors[tag] = el;
-  reference2tag[el->corners_of_elem] = tag;
 }
 
 /****************************************************************************/

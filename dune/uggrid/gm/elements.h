@@ -121,7 +121,15 @@ constexpr INT side_offset[TAGS] = {-1, -1, -1, -1,
 
 /* the element descriptions are also globally available, these are pointers ! */
 extern GENERAL_ELEMENT *element_descriptors[TAGS];
-extern INT reference2tag[MAX_CORNERS_OF_ELEM+1];
+
+// The element tags, indexed by the number of element vertices
+#ifdef UG_DIM_2
+constexpr INT reference2tag[MAX_CORNERS_OF_ELEM+1] = {-1, -1, -1,
+                                                      TRIANGLE, QUADRILATERAL};
+#else
+constexpr INT reference2tag[MAX_CORNERS_OF_ELEM+1] = {-1, -1, -1, -1,
+                                                      TETRAHEDRON, PYRAMID, PRISM, HEXAHEDRON};
+#endif
 
 
 /****************************************************************************/
