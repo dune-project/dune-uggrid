@@ -62,17 +62,7 @@ USING_UGDIM_NAMESPACE
 /*																			*/
 /****************************************************************************/
 
-INT NS_DIM_PREFIX n_offset[TAGS];
-INT NS_DIM_PREFIX father_offset[TAGS];
-INT NS_DIM_PREFIX sons_offset[TAGS];
-INT NS_DIM_PREFIX nb_offset[TAGS];
-INT NS_DIM_PREFIX evector_offset[TAGS];
-INT NS_DIM_PREFIX svector_offset[TAGS];
-INT NS_DIM_PREFIX side_offset[TAGS];
-
 GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
-GENERAL_ELEMENT * NS_DIM_PREFIX reference_descriptors[MAX_CORNERS_OF_ELEM+1];
-INT NS_DIM_PREFIX reference2tag[MAX_CORNERS_OF_ELEM+1];
 
 /****************************************************************************/
 /*																			*/
@@ -228,7 +218,6 @@ static GENERAL_ELEMENT def_hexahedron = {
     INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
     INT corner_of_side_inv[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_ELEM];
     INT edges_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-    INT corner_of_oppedge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
     INT corner_opp_to_side[MAX_SIDES_OF_ELEM];
     INT opposite_edge[MAX_EDGES_OF_ELEM];
     INT side_opp_to_corner[MAX_CORNERS_OF_ELEM];
@@ -267,27 +256,14 @@ static GENERAL_ELEMENT def_hexahedron = {
    's' with respect to the numbering in the element.
    . corner_of_edge[e][c] - Tells you the number of corner 'c' in edge 'e' with respect
    to the numbering in the element.
-
-   SEE ALSO:
-
-   'ELEMENT', 'ProcessElementDescription'.
-
-   \return <ul>
-   <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occurred </li>
-   <ul>
  */
 /****************************************************************************/
 
-static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
+static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 {
-  INT tag;
-  INT i,j,k,l,n,from,to;
-        #ifdef UG_DIM_3
-  INT m,n1,n2;
-        #endif
+  INT i,j,k;
 
-  tag = el->tag;
+  INT tag = el->tag;
 
   /* derive additional index fields */
 
@@ -305,11 +281,11 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     for (j=0; j<MAX_SIDES_OF_EDGE; j++) el->side_with_edge[i][j] = -1;
   for (k=0; k<el->edges_of_elem; k++)
   {
-    from = el->corner_of_edge[k][0];
-    to   = el->corner_of_edge[k][1];
+    const INT from = el->corner_of_edge[k][0];
+    const INT to   = el->corner_of_edge[k][1];
 
     for (i=0; i<el->sides_of_elem; i++) {
-      n = el->corners_of_side[i];
+      INT n = el->corners_of_side[i];
       for (j=0; j<n; j++)
       {
         if ((el->corner_of_side[i][j]==from)&&(el->corner_of_side[i][(j+1)%n]==to))
@@ -328,7 +304,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
   for (i=0; i<el->sides_of_elem; i++)
     for (j=0; j<el->corners_of_side[i]; j++)
     {
-      n = el->corner_of_side[i][j];
+      const INT n = el->corner_of_side[i][j];
       el->corner_of_side_inv[i][n] = j;
     }
 
@@ -339,7 +315,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
   for (i=0; i<el->edges_of_elem; i++)
     for (j=0; j<el->corners_of_edge; j++)
     {
-      n = el->corner_of_edge[i][j];
+      const INT n = el->corner_of_edge[i][j];
       for (k=0; k<MAX_EDGES_OF_ELEM; k++)
         if (el->edges_of_corner[n][k]<0)
         {
@@ -350,11 +326,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
 
   /* fields not valid for all elements */
-
-  /* corner_of_oppedge(i,j) */
-  for (i=0; i<MAX_EDGES_OF_ELEM; i++)
-    for (j=0; j<MAX_CORNERS_OF_EDGE; j++)
-      el->corner_of_oppedge[i][j] = -1;
 
   /* corner_opp_to_side(i) */
   for (i=0; i<MAX_SIDES_OF_ELEM; i++)
@@ -373,13 +344,23 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     for (j=0; j<MAX_EDGES_OF_ELEM; j++)
       el->edge_of_corner[i][j] = -1;
 
+  /* edge_of_corner(i,j)	  */
+  for (i=0; i<el->edges_of_elem; i++) {
+    for (j=0; j<el->corners_of_edge; j++) {
+      if (el->corner_of_edge[i][j] >=0) {
+        for (k=0; k<el->edges_of_elem; k++)
+          if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
+            break;
+        assert(k<el->edges_of_elem);
+        el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
+      }
+    }
+  }
+
 #ifdef UG_DIM_2
   switch (tag)
   {
   case TRIANGLE :
-    /* corner_of_oppedge(i,j) */
-    /* is not defined!		  */
-
     /* corner_opp_to_side(i)  */
     /* is not defined!		  */
 
@@ -389,45 +370,15 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* side_opp_to_corner(i)  */
     /* is not defined!		  */
 
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
-
     break;
 
   case QUADRILATERAL :
-    /* corner_of_oppedge(i,j) */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->edges_of_elem; j++) {
-        n=1;
-        for (k=0; k<el->corners_of_edge; k++)
-          for (l=0; l<el->corners_of_edge; l++)
-            if (el->corner_of_edge[i][k]==el->corner_of_edge[j][l])
-              n=0;
-        if (n) {
-          el->corner_of_oppedge[i][0] = el->corner_of_edge[j][0];
-          el->corner_of_oppedge[i][1] = el->corner_of_edge[j][1];
-          break;
-        }
-      }
-      assert(j<el->edges_of_elem);
-    }
-
     /* corner_opp_to_side(i)  */
     /* is not defined!		  */
 
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
-      n = 0;
+      INT n = 0;
       for (j=0; j<el->corners_of_edge; j++) {
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[el->corner_of_edge[i][j]][k] >= 0)
@@ -445,19 +396,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* side_opp_to_corner(i)  */
     /* is not defined!		  */
 
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
-
     break;
   }
 #endif
@@ -472,26 +410,9 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
   {
   case TETRAHEDRON :
 
-    /* corner_of_oppedge(i,j) */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->edges_of_elem; j++) {
-        n=1;
-        for (k=0; k<el->corners_of_edge; k++)
-          for (l=0; l<el->corners_of_edge; l++)
-            if (el->corner_of_edge[i][k]==el->corner_of_edge[j][l])
-              n=0;
-        if (n) {
-          el->corner_of_oppedge[i][0] = el->corner_of_edge[j][0];
-          el->corner_of_oppedge[i][1] = el->corner_of_edge[j][1];
-          break;
-        }
-      }
-      assert(j<el->edges_of_elem);
-    }
-
     /* corner_opp_to_side(i) */
     for (i=0; i<el->sides_of_elem; i++) {
-      n = 0;
+      INT n = 0;
       for (j=0; j<el->corners_of_side[i]; j++) {
         n |= (0x1<<(el->corner_of_side[i][j]));
       }
@@ -505,7 +426,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
-      n = 0;
+      INT n = 0;
       for (j=0; j<el->corners_of_edge; j++) {
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[el->corner_of_edge[i][j]][k] >= 0)
@@ -523,7 +444,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* side_opp_to_corner(i)  */
     for (i=0; i<el->corners_of_elem; i++) {
       for (j=0; j<el->sides_of_elem; j++) {
-        n = 0;
+        INT n = 0;
         for (k=0; k<el->corners_of_side[j]; k++)
           n |= (0x1<<(el->corner_of_side[j][k]));
         if (((n>>i) & 0x1) == 0) {
@@ -534,30 +455,14 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
       assert(j<el->sides_of_elem);
     }
 
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
-
     break;
 
   case PYRAMID :
 
-    /* corner_of_oppedge(i,j) */
-    /* is not defined!		  */
-
     /* corner_opp_to_side(i) */
     for (i=0; i<el->sides_of_elem; i++) {
       if (el->corners_of_side[i] == 4) {
-        n = 0;
+        INT n = 0;
         for (j=0; j<el->corners_of_side[i]; j++) {
           n |= (0x1<<(el->corner_of_side[i][j]));
         }
@@ -576,7 +481,7 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* side_opp_to_corner(i)  */
     for (i=0; i<el->corners_of_elem; i++) {
       for (j=0; j<el->sides_of_elem; j++) {
-        n = 0;
+        INT n = 0;
         for (k=0; k<el->corners_of_side[j]; k++)
           n |= (0x1<<(el->corner_of_side[j][k]));
         if (((n>>i) & 0x1) == 0) {
@@ -587,25 +492,9 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
       assert(j<el->sides_of_elem);
     }
 
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
-
     break;
 
   case PRISM :
-
-    /* corner_of_oppedge(i,j) */
-    /* is not defined!		  */
 
     /* corner_opp_to_side(i)  */
     /* is not defined!		  */
@@ -616,66 +505,25 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* side_opp_to_corner(i)  */
     /* is not defined!		  */
 
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
-
     break;
 
   case HEXAHEDRON :
-
-    /* corner_of_oppedge(i,j) */
-    for (i=0; i<el->edges_of_elem; i++) {
-      n = 0;
-      for (j=0; j<el->corners_of_edge; j++) {
-        n1 = el->corner_of_edge[i][j];
-        for (k=0; k<el->edges_of_elem; k++) {
-          if (el->edges_of_corner[n1][k] >= 0) {
-            n |= (0x1<<(el->edges_of_corner[n1][k]));
-            for (l=0; l<el->corners_of_edge; l++) {
-              n2 = el->corner_of_edge[el->edges_of_corner[n1][k]][l];
-              if (n2 != n1) {
-                for (m=0; m<el->edges_of_elem; m++)
-                  if (el->edges_of_corner[n2][m] >= 0)
-                    n |= (0x1<<(el->edges_of_corner[n2][m]));
-              }
-            }
-          }
-        }
-      }
-      for (k=0; k<el->edges_of_elem; k++)
-        if (((n>>k) & 0x1) == 0)
-          break;
-      assert(k<el->edges_of_elem);
-
-      el->corner_of_oppedge[i][0] = el->corner_of_edge[k][0];
-      el->corner_of_oppedge[i][1] = el->corner_of_edge[k][1];
-    }
 
     /* corner_opp_to_side(i)  */
     /* is not defined!		  */
 
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
-      n = 0;
+      INT n = 0;
       for (j=0; j<el->corners_of_edge; j++) {
-        n1 = el->corner_of_edge[i][j];
+        const INT n1 = el->corner_of_edge[i][j];
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[n1][k] >= 0) {
             n |= (0x1<<(el->edges_of_corner[n1][k]));
-            for (l=0; l<el->corners_of_edge; l++) {
-              n2 = el->corner_of_edge[el->edges_of_corner[n1][k]][l];
+            for (INT l=0; l<el->corners_of_edge; l++) {
+              const INT n2 = el->corner_of_edge[el->edges_of_corner[n1][k]][l];
               if (n2 != n1) {
-                for (m=0; m<el->edges_of_elem; m++) {
+                for (INT m=0; m<el->edges_of_elem; m++) {
                   if (el->edges_of_corner[n2][m] >= 0)
                     n |= (0x1<<(el->edges_of_corner[n2][m]));
                 }
@@ -695,26 +543,13 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* side_opp_to_corner(i)  */
     /* is not defined!		  */
 
-    /* edge_of_corner(i,j)	  */
-    for (i=0; i<el->edges_of_elem; i++) {
-      for (j=0; j<el->corners_of_edge; j++) {
-        if (el->corner_of_edge[i][j] >=0) {
-          for (k=0; k<el->edges_of_elem; k++)
-            if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
-              break;
-          assert(k<el->edges_of_elem);
-          el->edge_of_corner[el->corner_of_edge[i][j]][k] = i;
-        }
-      }
-    }
-
     break;
   }
 
   for (i=0; i<el->sides_of_elem; i++)
     for (j=0; j<el->sides_of_elem; j++)
       for (k=0; k<el->edges_of_side[i]; k++)
-        for (l=0; l<el->edges_of_side[j]; l++)
+        for (INT l=0; l<el->edges_of_side[j]; l++)
           if (el->edge_of_side[i][k] == el->edge_of_side[j][l])
           {
             assert( (i==j) || (el->edge_of_two_sides[i][j]==-1) ||
@@ -725,10 +560,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
   /* make description globally available */
   element_descriptors[tag] = el;
-  reference_descriptors[el->corners_of_elem] = el;
-  reference2tag[el->corners_of_elem] = tag;
-
-  return(GM_OK);
 }
 
 /****************************************************************************/
@@ -769,7 +600,6 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
     INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
     INT corner_of_side_inv[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_ELEM];
     INT edges_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-        INT corner_of_oppedge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
         INT corner_opp_to_side[MAX_SIDES_OF_ELEM];
         INT opposite_edge[MAX_EDGES_OF_ELEM];
         INT side_opp_to_corner[MAX_CORNERS_OF_ELEM];
@@ -798,57 +628,40 @@ static INT PreProcessElementDescription (GENERAL_ELEMENT *el)
 
 static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 {
-  INT p_count, tag;
-
-  tag = el->tag;
-  p_count = 0;
-
-  /* the corners */
-  n_offset[tag] = p_count; p_count += el->corners_of_elem;
-
-  /* the father */
-  father_offset[tag] = p_count; p_count++;
-
-  /* the sons */
-  sons_offset[tag] = 0;
-  /*
-     #ifdef UG_DIM_2
-                  sons_offset[tag] = p_count; p_count += el->max_sons_of_elem;
-     #endif
-     #ifdef UG_DIM_3
-                  sons_offset[tag] = p_count; p_count++;
-     #endif
-   */
-  /* for 2D/3D one son pointer is stored in serial case     */
-  /* for 2D/3D two son pointer are stored in parallel case: */
-  /*    one to master elements, other to (h/v) ghosts       */
-        #ifdef ModelP
-  sons_offset[tag] = p_count; p_count+=2;
-        #else
-  sons_offset[tag] = p_count; p_count++;
-        #endif
-
-  /* the neighbors */
-  nb_offset[tag] = p_count; p_count += el->sides_of_elem;
-
-  /* element vector */
-  evector_offset[tag] = 0;
-
-  /* side vector */
-  svector_offset[tag] = 0;
-        #ifdef UG_DIM_3
-    svector_offset[tag] = p_count;
-    p_count += el->sides_of_elem;
-        #endif
-
-  /* so far for an inner element */
-  el->inner_size = sizeof(struct generic_element) + (p_count-1)*sizeof(void *);
-
-  /* the element sides */
-  side_offset[tag] = p_count; p_count += el->sides_of_elem;
-
-  /* now the size of an element on the boundary */
-  el->bnd_size = sizeof(struct generic_element) + (p_count-1)*sizeof(void *);
+#ifdef UG_DIM_2
+  switch (el->tag)
+  {
+  case TRIANGLE :
+    el->inner_size = offsetof(triangle,bnds);
+    el->bnd_size = sizeof(triangle);
+    break;
+  case QUADRILATERAL :
+    el->inner_size = offsetof(quadrilateral,bnds);
+    el->bnd_size = sizeof(quadrilateral);
+    break;
+  }
+#endif
+#ifdef UG_DIM_3
+  switch (el->tag)
+  {
+  case TETRAHEDRON :
+    el->inner_size = offsetof(tetrahedron,bnds);
+    el->bnd_size = sizeof(tetrahedron);
+    break;
+  case PYRAMID :
+    el->inner_size = offsetof(pyramid,bnds);
+    el->bnd_size = sizeof(pyramid);
+    break;
+  case PRISM :
+    el->inner_size = offsetof(prism,bnds);
+    el->bnd_size = sizeof(prism);
+    break;
+  case HEXAHEDRON :
+    el->inner_size = offsetof(hexahedron,bnds);
+    el->bnd_size = sizeof(hexahedron);
+    break;
+  }
+#endif
 
   /* get a free object id for free list */
   if (el->mapped_inner_objt < 0)
@@ -860,43 +673,6 @@ static INT ProcessElementDescription (GENERAL_ELEMENT *el)
   if (el->mapped_bnd_objt < 0) return(GM_ERROR);
 
   return(GM_OK);
-}
-
-/****************************************************************************/
-/** \brief Pre-initialize general element data up to multigrid dependent stuff
-
-   This function pre-initializes the general element data up to multigrid dependent stuff.
-
-   \return <ul>
-   <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occurred. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX PreInitElementTypes (void)
-{
-  INT err;
-
-#ifdef UG_DIM_2
-  err = PreProcessElementDescription(&def_triangle);
-  if (err!=GM_OK) return(err);
-  err = PreProcessElementDescription(&def_quadrilateral);
-  if (err!=GM_OK) return(err);
-#endif
-
-#ifdef UG_DIM_3
-  err = PreProcessElementDescription(&def_tetrahedron);
-  if (err!=GM_OK) return(err);
-  err = PreProcessElementDescription(&def_pyramid);
-  if (err!=GM_OK) return(err);
-  err = PreProcessElementDescription(&def_prism);
-  if (err!=GM_OK) return(err);
-  err = PreProcessElementDescription(&def_hexahedron);
-  if (err!=GM_OK) return(err);
-#endif
-
-  return (0);
 }
 
 /****************************************************************************/
@@ -913,34 +689,41 @@ INT NS_DIM_PREFIX PreInitElementTypes (void)
  */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX InitElementTypes (MULTIGRID *theMG)
+INT NS_DIM_PREFIX InitElementTypes()
 {
   INT err;
 
-  if (theMG==NULL)
-    return(GM_ERROR);
-
+  // The splitting between PreProcessElementDescription and ProcessElementDescription
+  // is historical and can be removed.
 #ifdef UG_DIM_2
+  PreProcessElementDescription(&def_triangle);
   err = ProcessElementDescription(&def_triangle);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
+  PreProcessElementDescription(&def_quadrilateral);
   err = ProcessElementDescription(&def_quadrilateral);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
 #endif
 
 #ifdef UG_DIM_3
+  PreProcessElementDescription(&def_tetrahedron);
   err = ProcessElementDescription(&def_tetrahedron);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
+  PreProcessElementDescription(&def_pyramid);
   err = ProcessElementDescription(&def_pyramid);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
+  PreProcessElementDescription(&def_prism);
   err = ProcessElementDescription(&def_prism);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
+  PreProcessElementDescription(&def_hexahedron);
   err = ProcessElementDescription(&def_hexahedron);
-  if (err!=GM_OK) return(err);
+  if (err!=GM_OK)
+    return err;
 #endif
 
-#ifdef ModelP
-  InitCurrMG(theMG);
-#endif
-
-  return(GM_OK);
+  return (0);
 }

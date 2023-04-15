@@ -33,38 +33,38 @@ static bool CheckVolumes(REFRULE const *Rule)
 
   /* compute coordinates of corners */
   int j = 0;
-  for (int i=0; i<CORNERS_OF_REF(tag); i++,j++)
-    V3_COPY(LOCAL_COORD_OF_REF(tag,i),coords[j])
+  for (int i=0; i<CORNERS_OF_TAG(tag); i++,j++)
+    V3_COPY(LOCAL_COORD_OF_TAG(tag,i),coords[j])
 
   /* compute coordinates of midnodes */
-  for (int i=0; i<EDGES_OF_REF(tag); i++,j++)
+  for (int i=0; i<EDGES_OF_TAG(tag); i++,j++)
   {
     V3_CLEAR(coord)
     for (int k=0; k<CORNERS_OF_EDGE; k++)
     {
-      V3_ADD(LOCAL_COORD_OF_REF(tag,CORNER_OF_EDGE_REF(tag,i,k)),coord,coord)
+      V3_ADD(LOCAL_COORD_OF_TAG(tag,CORNER_OF_EDGE_TAG(tag,i,k)),coord,coord)
     }
     V3_SCALE(1.0/CORNERS_OF_EDGE,coord)
     V3_COPY(coord,coords[j]);
   }
 
   /* compute coordinates of sidenodes */
-  for (int i=0; i<SIDES_OF_REF(tag); i++,j++)
+  for (int i=0; i<SIDES_OF_TAG(tag); i++,j++)
   {
     V3_CLEAR(coord)
-    for (int k=0; k<CORNERS_OF_SIDE_REF(tag,i); k++)
-      V3_ADD(LOCAL_COORD_OF_REF(tag,CORNER_OF_SIDE_REF(tag,i,k)),coord,coord)
-      V3_SCALE(1.0/CORNERS_OF_SIDE_REF(tag,i),coord)
+    for (int k=0; k<CORNERS_OF_SIDE_TAG(tag,i); k++)
+      V3_ADD(LOCAL_COORD_OF_TAG(tag,CORNER_OF_SIDE_TAG(tag,i,k)),coord,coord)
+      V3_SCALE(1.0/CORNERS_OF_SIDE_TAG(tag,i),coord)
       V3_COPY(coord,coords[j]);
   }
 
   /* compute coordinates of center node */
   V3_CLEAR(coord)
-  for (int i=0; i<CORNERS_OF_REF(tag); i++)
+  for (int i=0; i<CORNERS_OF_TAG(tag); i++)
   {
-    V3_ADD(LOCAL_COORD_OF_REF(tag,i),coord,coord)
+    V3_ADD(LOCAL_COORD_OF_TAG(tag,i),coord,coord)
   }
-  V3_SCALE(1.0/CORNERS_OF_REF(tag),coord)
+  V3_SCALE(1.0/CORNERS_OF_TAG(tag),coord)
   V3_COPY(coord,coords[j]);
 
   for (int i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)

@@ -1113,21 +1113,8 @@ struct triangle {
   /** \brief The neighboring elements */
   union element *nb[3];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[4] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1],ptr[2]
-     Use the macros to find the correct address!                              */
-  VECTOR *vector;
-
   /** \brief Only on the boundary, NULL if interior side */
   BNDS *bnds[3];
-
-  /* \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 };
 
 /** \brief A quadrilateral element in a 2d grid
@@ -1199,22 +1186,8 @@ struct quadrilateral {
   /** \brief The neighbor elements */
   union element *nb[4];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[5] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ..
-     Use the macros to find the correct address!
-   */
-  VECTOR *vector;
-
   /** \brief only on bnd, NULL if interior side   */
   BNDS *bnds[4];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 };
 
 /** \brief A tetrahedral element in a 3d grid
@@ -1289,24 +1262,11 @@ struct tetrahedron {
   /** \brief The neighboring elements */
   union element *nb[4];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[9] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ..
-     Use the macros to find the correct address! */
-  VECTOR *vector;
-
   /** \brief Associated vector for sides */
   VECTOR *sidevector[4];
 
   /** \brief The boundary segments, NULL if interior side */
   BNDS *bnds[4];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format */
-  void *data;
 };
 
 /** \brief A pyramid element in a 3d grid
@@ -1379,24 +1339,11 @@ struct pyramid {
   /** \brief The neighbor elements */
   union element *nb[5];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[11] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ..
-     Use the macros to find the correct address! */
-  VECTOR *vector;
-
   /** \brief Associated vector for sides */
   VECTOR *sidevector[5];
 
   /** \brief The boundary segments, NULL if interior side */
   BNDS *bnds[5];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 };
 
 /** \brief A prism element in a 3d grid
@@ -1469,25 +1416,11 @@ struct prism {
   /** \brief Neighbor elements */
   union element *nb[5];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[11] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ...
-     Use the macros to find the correct address!
-   */
-  VECTOR *vector;
-
   /** \brief Associated vectors for sides */
   VECTOR *sidevector[5];
 
   /** \brief Boundary segments, NULL if interior side */
   BNDS *bnds[5];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 };
 
 /** \brief A hexahedral element in a 3d grid
@@ -1559,25 +1492,11 @@ struct hexahedron {
   /** \brief The neighboring elements */
   union element *nb[6];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[13] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ...
-      Use the macros to find the correct address!
-   */
-  VECTOR *vector;
-
   /** \brief Associated vectors for sides */
   VECTOR *sidevector[6];
 
   /** \brief Boundary segments, NULL if interior side */
   BNDS *bnds[6];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 } ;
 
 /** \brief Objects that can hold an element */
@@ -2852,7 +2771,6 @@ struct GENERAL_ELEMENT {
   INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
   INT corner_of_side_inv[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_ELEM];
   INT edges_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-  INT corner_of_oppedge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
   INT corner_opp_to_side[MAX_SIDES_OF_ELEM];
   INT opposite_edge[MAX_EDGES_OF_ELEM];
   INT side_opp_to_corner[MAX_CORNERS_OF_ELEM];
@@ -2946,7 +2864,6 @@ START_UGDIM_NAMESPACE
  * larger values of k (less than EDGES_OF_ELEM(p)) will lead also to -1).
  */
 #define EDGES_OF_CORNER(p,c,k)          (element_descriptors[TAG(p)]->edges_of_corner[(c)][(k)])
-#define CORNER_OF_OPPEDGE(p,e,c)        (element_descriptors[TAG(p)]->corner_of_oppedge[(e)][(c)])
 #define CORNER_OPP_TO_SIDE(p,s)         (element_descriptors[TAG(p)]->corner_opp_to_side[(s)])
 #define OPPOSITE_EDGE(p,e)                  (element_descriptors[TAG(p)]->opposite_edge[(e)])
 #define SIDE_OPP_TO_CORNER(p,c)         (element_descriptors[TAG(p)]->side_opp_to_corner[(c)])
@@ -2992,7 +2909,7 @@ START_UGDIM_NAMESPACE
    #endif
  */
 #define ELEM_BNDS(p,i)  ((BNDS *) (p)->ge.refs[side_offset[TAG(p)]+(i)])
-#define EVECTOR(p)              ((VECTOR *) (p)->ge.refs[evector_offset[TAG(p)]])
+#define EVECTOR(p)              ((VECTOR *) (p)->ge.refs[0])
 
 /** \brief Returns a pointer to the VECTOR associated with the side i of element p.
  *
@@ -3040,7 +2957,9 @@ START_UGDIM_NAMESPACE
 #endif
 #define SET_BNDS(p,i,q)         ((p)->ge.refs[side_offset[TAG(p)]+(i)] = q)
 #define SET_EVECTOR(p,q)        ((p)->ge.refs[evector_offset[TAG(p)]] = q)
+#if defined(UG_DIM_3)
 #define SET_SVECTOR(p,i,q)      ((p)->ge.refs[svector_offset[TAG(p)]+(i)] = q)
+#endif
 
 /** @name Macros to access corner pointers directly */
 /*@{*/
@@ -3074,34 +2993,10 @@ START_UGDIM_NAMESPACE
 #define SIDE_WITH_EDGE_TAG(t,e,k)               (element_descriptors[t]->side_with_edge[(e)][(k)])
 #define CORNER_OF_SIDE_INV_TAG(t,s,c)   (element_descriptors[t]->corner_of_side_inv[(s)][(c)])
 #define EDGES_OF_CORNER_TAG(t,c,k)              (element_descriptors[t]->edges_of_corner[(c)][(k)])
-#define CORNER_OF_OPPEDGE_TAG(t,e,c)    (element_descriptors[t]->corner_of_oppedge[(e)][(c)])
 #define CORNER_OPP_TO_SIDE_TAG(t,s)             (element_descriptors[t]->corner_opp_to_side[(s)])
 #define OPPOSITE_EDGE_TAG(t,e)              (element_descriptors[t]->opposite_edge[(e)])
 #define SIDE_OPP_TO_CORNER_TAG(t,c)             (element_descriptors[t]->side_opp_to_corner[(c)])
 #define EDGE_OF_CORNER_TAG(t,c,e)               (element_descriptors[t]->edge_of_corner[(c)][(e)])
-/*@}*/
-
-/** @name  Macros to access reference descriptors by number of element corners  */
-/*@{*/
-#define SIDES_OF_REF(n)                   (reference_descriptors[n]->sides_of_elem)
-#define EDGES_OF_REF(n)                   (reference_descriptors[n]->edges_of_elem)
-#define CORNERS_OF_REF(n)                 (reference_descriptors[n]->corners_of_elem)
-#define LOCAL_COORD_OF_REF(n,c)           (reference_descriptors[n]->local_corner[(c)])
-#define EDGES_OF_SIDE_REF(n,i)            (reference_descriptors[n]->edges_of_side[(i)])
-#define CORNERS_OF_SIDE_REF(n,i)          (reference_descriptors[n]->corners_of_side[(i)])
-#define EDGE_OF_SIDE_REF(n,s,e)           (reference_descriptors[n]->edge_of_side[(s)][(e)])
-#define EDGE_OF_TWO_SIDES_REF(n,s,t)  (reference_descriptors[n]->edge_of_two_sides[(s)][(t)])
-#define CORNER_OF_SIDE_REF(n,s,c)         (reference_descriptors[n]->corner_of_side[(s)][(c)])
-#define CORNER_OF_EDGE_REF(n,e,c)         (reference_descriptors[n]->corner_of_edge[(e)][(c)])
-#define EDGE_WITH_CORNERS_REF(n,c0,c1) (reference_descriptors[n]->edge_with_corners[(c0)][(c1)])
-#define SIDE_WITH_EDGE_REF(n,e,k)         (reference_descriptors[n]->side_with_edge[(e)][(k)])
-#define CORNER_OF_SIDE_INV_REF(n,s,c) (reference_descriptors[n]->corner_of_side_inv[(s)][(c)])
-#define EDGES_OF_CORNER_REF(n,c,k)        (reference_descriptors[n]->edges_of_corner[(c)][(k)])
-#define CORNER_OF_OPPEDGE_REF(n,e,c)  (reference_descriptors[n]->corner_of_oppedge[(e)][(c)])
-#define CORNER_OPP_TO_SIDE_REF(n,s)       (reference_descriptors[n]->corner_opp_to_side[(s)])
-#define OPPOSITE_EDGE_REF(n,e)            (reference_descriptors[n]->opposite_edge[(e)])
-#define SIDE_OPP_TO_CORNER_REF(n,c)       (reference_descriptors[n]->side_opp_to_corner[(c)])
-#define EDGE_OF_CORNER_REF(n,c,e)         (reference_descriptors[n]->edge_of_corner[(c)][(e)])
 /*@}*/
 
 /****************************************************************************/
