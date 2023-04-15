@@ -631,36 +631,34 @@ static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 #ifdef UG_DIM_2
   switch (el->tag)
   {
-    // TODO: Document why sizeof(void*) has to be subtracted
   case TRIANGLE :
-    el->inner_size = offsetof(triangle,bnds)-sizeof(void*);
-    el->bnd_size = sizeof(triangle)-sizeof(void*);
+    el->inner_size = offsetof(triangle,bnds);
+    el->bnd_size = sizeof(triangle);
     break;
   case QUADRILATERAL :
-    el->inner_size = offsetof(quadrilateral,bnds)-sizeof(void*);
-    el->bnd_size = sizeof(quadrilateral)-sizeof(void*);
+    el->inner_size = offsetof(quadrilateral,bnds);
+    el->bnd_size = sizeof(quadrilateral);
     break;
   }
 #endif
 #ifdef UG_DIM_3
   switch (el->tag)
   {
-    // TODO: Document why sizeof(void*) has to be subtracted
   case TETRAHEDRON :
-    el->inner_size = offsetof(tetrahedron,bnds)-sizeof(void*);
-    el->bnd_size = sizeof(tetrahedron)-sizeof(void*);
+    el->inner_size = offsetof(tetrahedron,bnds);
+    el->bnd_size = sizeof(tetrahedron);
     break;
   case PYRAMID :
-    el->inner_size = offsetof(pyramid,bnds)-sizeof(void*);
-    el->bnd_size = sizeof(pyramid)-sizeof(void*);
+    el->inner_size = offsetof(pyramid,bnds);
+    el->bnd_size = sizeof(pyramid);
     break;
   case PRISM :
-    el->inner_size = offsetof(prism,bnds)-sizeof(void*);
-    el->bnd_size = sizeof(prism)-sizeof(void*);
+    el->inner_size = offsetof(prism,bnds);
+    el->bnd_size = sizeof(prism);
     break;
   case HEXAHEDRON :
-    el->inner_size = offsetof(hexahedron,bnds)-sizeof(void*);
-    el->bnd_size = sizeof(hexahedron)-sizeof(void*);
+    el->inner_size = offsetof(hexahedron,bnds);
+    el->bnd_size = sizeof(hexahedron);
     break;
   }
 #endif

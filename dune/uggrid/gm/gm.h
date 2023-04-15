@@ -1113,14 +1113,6 @@ struct triangle {
   /** \brief The neighboring elements */
   union element *nb[3];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[4] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1],ptr[2]
-     Use the macros to find the correct address!                              */
-  VECTOR *vector;
-
   /** \brief Only on the boundary, NULL if interior side */
   BNDS *bnds[3];
 };
@@ -1193,15 +1185,6 @@ struct quadrilateral {
 
   /** \brief The neighbor elements */
   union element *nb[4];
-
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[5] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ..
-     Use the macros to find the correct address!
-   */
-  VECTOR *vector;
 
   /** \brief only on bnd, NULL if interior side   */
   BNDS *bnds[4];
@@ -1278,14 +1261,6 @@ struct tetrahedron {
 
   /** \brief The neighboring elements */
   union element *nb[4];
-
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[9] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ..
-     Use the macros to find the correct address! */
-  VECTOR *vector;
 
   /** \brief Associated vector for sides */
   VECTOR *sidevector[4];
@@ -1364,14 +1339,6 @@ struct pyramid {
   /** \brief The neighbor elements */
   union element *nb[5];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[11] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ..
-     Use the macros to find the correct address! */
-  VECTOR *vector;
-
   /** \brief Associated vector for sides */
   VECTOR *sidevector[5];
 
@@ -1449,15 +1416,6 @@ struct prism {
   /** \brief Neighbor elements */
   union element *nb[5];
 
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[11] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ...
-     Use the macros to find the correct address!
-   */
-  VECTOR *vector;
-
   /** \brief Associated vectors for sides */
   VECTOR *sidevector[5];
 
@@ -1533,15 +1491,6 @@ struct hexahedron {
 
   /** \brief The neighboring elements */
   union element *nb[6];
-
-  /** \brief Associated vector
-
-     WARNING: the allocation of the vector pointer depends on the format
-     void *ptr[13] would be possible too:
-     if there are no element vectors, the sides will be ptr[0],ptr[1], ...
-      Use the macros to find the correct address!
-   */
-  VECTOR *vector;
 
   /** \brief Associated vectors for sides */
   VECTOR *sidevector[6];

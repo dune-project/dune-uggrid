@@ -63,10 +63,9 @@ constexpr INT nb_offset[TAGS] = {-1, -1, -1,
                                  (offsetof(triangle,nb)      - offsetof(generic_element,refs))/sizeof(void*),
                                  (offsetof(quadrilateral,nb) - offsetof(generic_element,refs))/sizeof(void*)};
 
-// TODO: The -1 shouldn't be here, and it is the sign of a bug somewhere else
 constexpr INT side_offset[TAGS] = {-1, -1, -1,
-                                   (offsetof(triangle,bnds)      - offsetof(generic_element,refs))/sizeof(void*)-1,
-                                   (offsetof(quadrilateral,bnds) - offsetof(generic_element,refs))/sizeof(void*)-1};
+                                   (offsetof(triangle,bnds)      - offsetof(generic_element,refs))/sizeof(void*),
+                                   (offsetof(quadrilateral,bnds) - offsetof(generic_element,refs))/sizeof(void*)};
 #endif
 #ifdef UG_DIM_3
 // The indexing of these arrays must match the definitions of the enum values
@@ -95,28 +94,17 @@ constexpr INT nb_offset[TAGS] = {-1, -1, -1, -1,
                                  (offsetof(prism,nb)       - offsetof(generic_element,refs))/sizeof(void*),
                                  (offsetof(hexahedron,nb)  - offsetof(generic_element,refs))/sizeof(void*)};
 
-// TODO: There is a bug here somewhere: The svector_offset array is expected to store
-// the offset to the 'sidevector' data member of the element classes.  The corresponding
-// code here would be
-//
-//       (offsetof(tetrahedron,sidevector) - offsetof(generic_element,refs))/sizeof(void*)
-//
-// However, actually doing that here makes some consistency check fail at startup.
-// It currently only works if the offset to the 'vector' member is used instead
-// (which is the data member right before 'sidevector').
-// This needs to be investigated eventually.
 constexpr INT svector_offset[TAGS] = {-1, -1, -1, -1,
-                                      (offsetof(tetrahedron,vector) - offsetof(generic_element,refs))/sizeof(void*),
-                                      (offsetof(pyramid,vector)     - offsetof(generic_element,refs))/sizeof(void*),
-                                      (offsetof(prism,vector)       - offsetof(generic_element,refs))/sizeof(void*),
-                                      (offsetof(hexahedron,vector)  - offsetof(generic_element,refs))/sizeof(void*)};
+                                      (offsetof(tetrahedron,sidevector) - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(pyramid,sidevector)     - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(prism,sidevector)       - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(hexahedron,sidevector)  - offsetof(generic_element,refs))/sizeof(void*)};
 
-// TODO: Same here: The -1 shouldn't be here, and it is the sign of a bug somewhere else
 constexpr INT side_offset[TAGS] = {-1, -1, -1, -1,
-                                      (offsetof(tetrahedron,bnds) - offsetof(generic_element,refs))/sizeof(void*)-1,
-                                      (offsetof(pyramid,bnds)     - offsetof(generic_element,refs))/sizeof(void*)-1,
-                                      (offsetof(prism,bnds)       - offsetof(generic_element,refs))/sizeof(void*)-1,
-                                      (offsetof(hexahedron,bnds)  - offsetof(generic_element,refs))/sizeof(void*)-1};
+                                      (offsetof(tetrahedron,bnds) - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(pyramid,bnds)     - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(prism,bnds)       - offsetof(generic_element,refs))/sizeof(void*),
+                                      (offsetof(hexahedron,bnds)  - offsetof(generic_element,refs))/sizeof(void*)};
 #endif
 
 /* the element descriptions are also globally available, these are pointers ! */
