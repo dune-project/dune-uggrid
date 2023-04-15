@@ -628,41 +628,42 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
 static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 {
-  INT p_count;
-
-  p_count = 0;
-
-  /* the corners */
-  p_count += el->corners_of_elem;
-
-  /* the father */
-  p_count++;
-
-  /* for 2D/3D one son pointer is stored in serial case     */
-  /* for 2D/3D two son pointer are stored in parallel case: */
-  /*    one to master elements, other to (h/v) ghosts       */
-        #ifdef ModelP
-  p_count+=2;
-        #else
-  p_count++;
-        #endif
-
-  /* the neighbors */
-  p_count += el->sides_of_elem;
-
-  /* side vector */
-        #ifdef UG_DIM_3
-    p_count += el->sides_of_elem;
-        #endif
-
-  /* so far for an inner element */
-  el->inner_size = sizeof(struct generic_element) + (p_count-1)*sizeof(void *);
-
-  /* the element sides */
-  p_count += el->sides_of_elem;
-
-  /* now the size of an element on the boundary */
-  el->bnd_size = sizeof(struct generic_element) + (p_count-1)*sizeof(void *);
+#ifdef UG_DIM_2
+  switch (el->tag)
+  {
+    // TODO: Document why these multiples of sizeof(void*) have to be subtracted
+  case TRIANGLE :
+    el->inner_size = offsetof(triangle,bnds)-sizeof(void*);
+    el->bnd_size = sizeof(triangle)-2*sizeof(void*);
+    break;
+  case QUADRILATERAL :
+    el->inner_size = offsetof(quadrilateral,bnds)-sizeof(void*);
+    el->bnd_size = sizeof(quadrilateral)-2*sizeof(void*);
+    break;
+  }
+#endif
+#ifdef UG_DIM_3
+  switch (el->tag)
+  {
+    // TODO: Document why these multiples of sizeof(void*) have to be subtracted
+  case TETRAHEDRON :
+    el->inner_size = offsetof(tetrahedron,bnds)-sizeof(void*);
+    el->bnd_size = sizeof(tetrahedron)-2*sizeof(void*);
+    break;
+  case PYRAMID :
+    el->inner_size = offsetof(pyramid,bnds)-sizeof(void*);
+    el->bnd_size = sizeof(pyramid)-2*sizeof(void*);
+    break;
+  case PRISM :
+    el->inner_size = offsetof(prism,bnds)-sizeof(void*);
+    el->bnd_size = sizeof(prism)-2*sizeof(void*);
+    break;
+  case HEXAHEDRON :
+    el->inner_size = offsetof(hexahedron,bnds)-sizeof(void*);
+    el->bnd_size = sizeof(hexahedron)-2*sizeof(void*);
+    break;
+  }
+#endif
 
   /* get a free object id for free list */
   if (el->mapped_inner_objt < 0)
