@@ -1123,11 +1123,6 @@ struct triangle {
 
   /** \brief Only on the boundary, NULL if interior side */
   BNDS *bnds[3];
-
-  /* \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 };
 
 /** \brief A quadrilateral element in a 2d grid
@@ -1210,11 +1205,6 @@ struct quadrilateral {
 
   /** \brief only on bnd, NULL if interior side   */
   BNDS *bnds[4];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 };
 
 /** \brief A tetrahedral element in a 3d grid
@@ -1302,11 +1292,6 @@ struct tetrahedron {
 
   /** \brief The boundary segments, NULL if interior side */
   BNDS *bnds[4];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format */
-  void *data;
 };
 
 /** \brief A pyramid element in a 3d grid
@@ -1392,11 +1377,6 @@ struct pyramid {
 
   /** \brief The boundary segments, NULL if interior side */
   BNDS *bnds[5];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 };
 
 /** \brief A prism element in a 3d grid
@@ -1483,11 +1463,6 @@ struct prism {
 
   /** \brief Boundary segments, NULL if interior side */
   BNDS *bnds[5];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 };
 
 /** \brief A hexahedral element in a 3d grid
@@ -1573,11 +1548,6 @@ struct hexahedron {
 
   /** \brief Boundary segments, NULL if interior side */
   BNDS *bnds[6];
-
-  /** \brief Associated data pointer
-
-     WARNING: the allocation of the data pointer depends on the format        */
-  void *data;
 } ;
 
 /** \brief Objects that can hold an element */
