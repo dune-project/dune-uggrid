@@ -27,6 +27,5 @@
 /* data alignment of 8 should suffice on all architecture */
 /* !!! set after testing? */
 #define ALIGNMENT 8                     /* power of 2 and >= sizeof(int) ! */
-#define ALIGNMASK 0xFFFFFFF8            /* compatible to alignment */
 
 #endif
