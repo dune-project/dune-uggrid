@@ -832,13 +832,6 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
     }
     else
     {
-      if (VOTYPE(theVector) != VectorObjType)
-      {
-        errors++;
-        UserWriteF("%s vector=" VINDEX_FMTX " has incompatible type=%d\n",
-                   ObjectString, VINDEX_PRTX(theVector), VTYPE(theVector));
-      }
-
       if (VecObject != theObject)
       {
         if (OBJT(VecObject) != OBJT(theObject))
