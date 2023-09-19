@@ -272,7 +272,6 @@ bool            PointInPolygon                                          (const C
 
 /* 2D routines */
 DOUBLE          vp                                                                      (const DOUBLE x1, const DOUBLE y1, const DOUBLE x2, const DOUBLE y2);
-INT             V2_Normalize                                            (DOUBLE *a);
 DOUBLE          c_tarea                                                         (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2);
 DOUBLE          c_qarea                                                         (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2, const DOUBLE *x3);
 DOUBLE          V_te                                                            (const DOUBLE *x0, const DOUBLE *x1,
