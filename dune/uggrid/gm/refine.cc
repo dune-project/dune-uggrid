@@ -4698,7 +4698,9 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             if (theSideNodes[2*k+1]!=NULL && _ID_(theSideNodes[2*k+1])>maxid)
               maxid = _ID_(theSideNodes[2*k+1]);
           }
+#if !defined ModelP  // For an unknown reason the maxid variable is unsigned when ModelP is set, and signed otherwise.
           assert(maxid != -1);
+#endif
           assert(node0 != -1);
 
           /* if (node0 == maxedge && ((SIDEPATTERN(theElement)&(1<<i)) == 0)) */
