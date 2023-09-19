@@ -68,7 +68,6 @@ START_UGDIM_NAMESPACE
 /* misc macros */
 #define SQRT(a)                                 sqrt((double)(a))
 #define POW(a,b)                                pow((double)(a),(double)(b))
-#define ISNaN(x)                                (!((x)-(x)==0) || ((x)-(x)!=0))
 
 /* macros for coord points */
 #define COPY_SC_TO_SH(p1,p2)                    (p2).x=(short)((p1).x);(p2).y=(short)((p1).y)
