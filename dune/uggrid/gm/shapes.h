@@ -478,7 +478,6 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-DOUBLE  *LMP                  (INT n);
 INT      UG_GlobalToLocal     (INT n, const DOUBLE **Corners, const DOUBLE *EvalPoint, DOUBLE *LocalCoord);
 
 #ifdef UG_DIM_3
