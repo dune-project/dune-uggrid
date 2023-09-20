@@ -1107,8 +1107,9 @@ static void ElemScatterEdge (DDD::DDDContext& context, ELEMENT *pe, int cnt, cha
           INT n;
 
           CORNER_COORDINATES(pe,n,x);
+          // TODO: Remove the following cast
           UG_GlobalToLocal(n,(const DOUBLE **)x,
-                           CVECT(theVertex),LCVECT(theVertex));
+                           *((Dune::FieldVector<DOUBLE,DIM>*)CVECT(theVertex)),LCVECT(theVertex));
         }
         else
           V_DIM_LINCOMB(0.5, LOCAL_COORD_OF_ELEM(pe,co0),

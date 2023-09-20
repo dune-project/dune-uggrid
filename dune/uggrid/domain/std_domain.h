@@ -64,7 +64,7 @@ START_UGDIM_NAMESPACE
  * third parameter of type DOUBLE * provides an array where the result can be placed
  * (x,y values in 2D, x,y,z values in 3D).
  */
-typedef INT (*BndSegFuncPtr)(void *,DOUBLE *,DOUBLE *);
+typedef INT (*BndSegFuncPtr)(void *,DOUBLE *, FieldVector<DOUBLE,DIM>&);
 
 /** \brief ???
  *

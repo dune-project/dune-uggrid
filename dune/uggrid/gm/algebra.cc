@@ -1009,7 +1009,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
  */
 /****************************************************************************/
 
-INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, DOUBLE *position)
+INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, FieldVector<DOUBLE,DIM>& position)
 {
         #ifdef UG_DIM_3
   ELEMENT *theElement;

@@ -320,8 +320,9 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
             DOUBLE *x[MAX_CORNERS_OF_ELEM];
 
             CORNER_COORDINATES(theFather,n,x);
+            // TODO: Remove the following cast
             UG_GlobalToLocal(n,(const DOUBLE **)x,
-                             CVECT(theVertex),LCVECT(theVertex));
+                             *((Dune::FieldVector<DOUBLE,DIM>*)CVECT(theVertex)),LCVECT(theVertex));
           }
       }
     }

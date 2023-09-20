@@ -478,7 +478,7 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-INT      UG_GlobalToLocal     (INT n, const DOUBLE **Corners, const DOUBLE *EvalPoint, DOUBLE *LocalCoord);
+INT      UG_GlobalToLocal     (INT n, const DOUBLE **Corners, const FieldVector<DOUBLE,DIM>& EvalPoint, DOUBLE *LocalCoord);
 
 #ifdef UG_DIM_3
 DOUBLE  N                   (const INT i, const DOUBLE *LocalCoord);

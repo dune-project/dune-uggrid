@@ -57,6 +57,8 @@
 #include <array>
 #include <numeric>
 
+#include <dune/common/fvector.hh>
+
 #include <dune/uggrid/domain/domain.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/dimension.h>
@@ -290,8 +292,7 @@ enum NodeType {CORNER_NODE,
 
 /** @name General typedefs */
 /*@{*/
-typedef DOUBLE DOUBLE_VECTOR[DIM];
-typedef DOUBLE DOUBLE_VECTOR_3D[3];
+using DOUBLE_VECTOR = FieldVector<DOUBLE,DIM>;
 /*@}*/
 
 /*----------- typedef for functions ----------------------------------------*/
@@ -3346,7 +3347,7 @@ INT             GetSons                                 (const ELEMENT *theEleme
 #ifdef ModelP
 INT             GetAllSons                              (const ELEMENT *theElement, ELEMENT *SonList[MAX_SONS]);
 #endif
-INT             VectorPosition                  (const VECTOR *theVector, DOUBLE *position);
+INT             VectorPosition                  (const VECTOR *theVector, FieldVector<DOUBLE,DIM>& position);
 
 /* check */
 #ifndef ModelP

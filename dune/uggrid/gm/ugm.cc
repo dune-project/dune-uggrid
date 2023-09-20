@@ -697,7 +697,8 @@ static INT SideOfNbElement(const ELEMENT *theElement, INT side)
 
 NODE *NS_DIM_PREFIX CreateSideNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex, INT side)
 {
-  DOUBLE_VECTOR bnd_global,global,local,bnd_local;
+  DOUBLE_VECTOR bnd_global,global;
+  DOUBLE local[DIM];
   DOUBLE *x[MAX_CORNERS_OF_ELEM];
   NODE *theNode;
   BNDP *bndp;
@@ -727,6 +728,7 @@ NODE *NS_DIM_PREFIX CreateSideNode (GRID *theGrid, ELEMENT *theElement, VERTEX *
     if (OBJT(theElement) == BEOBJ) {
       bnds = ELEM_BNDS(theElement,side);
       if (bnds != NULL) {
+        FieldVector<DOUBLE,DIM_OF_BND> bnd_local;
         if (n == 3)
           bnd_local[0] = bnd_local[1] = 0.33333333333333;
         else if (n == 4)
@@ -1464,7 +1466,7 @@ NODE * NS_DIM_PREFIX GetCenterNode (const ELEMENT *theElement)
 /* #define MOVE_MIDNODE */
 NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex)
 {
-  DOUBLE *global,*local;
+  DOUBLE *local;
   DOUBLE_VECTOR diff;
   INT n,j,moved,vertex_null;
   VERTEX *VertexOnEdge[MAX_EDGES_OF_ELEM];
@@ -1518,7 +1520,7 @@ NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTE
                                 CORNER_OF_EDGE(theElement,OPPOSITE_EDGE(theElement,j),1)))),
           len_opp);
         V_DIM_SCALE(len_opp/len_bnd,diff);
-        global = CVECT(theVertex);
+        DOUBLE* global = CVECT(theVertex);
         PRINTDEBUG(gm,1,("CreateCenterNode: global_orig = %f %f %f\n",global[0],global[1],global[2]));
         PRINTDEBUG(gm,1,("CreateCenterNode: diff = %f %f %f\n",diff[0],diff[1],diff[2]));
         V_DIM_LINCOMB(1.0,global,0.5,diff,global);
@@ -1557,7 +1559,8 @@ NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTE
 
   if (!vertex_null) return(theNode);
 
-  global = CVECT(theVertex);
+  // TODO: Remove the following cast
+  FieldVector<DOUBLE,DIM>& global = *((FieldVector<DOUBLE,DIM>*)CVECT(theVertex));
   local = LCVECT(theVertex);
   V_DIM_CLEAR(local);
   fac = 1.0 / n;
@@ -3914,7 +3917,8 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
     PrintErrorMessage('E',"InsertBoundaryNode","cannot create vertex");
     REP_ERR_RETURN(NULL);
   }
-  if (BNDP_Global(bndp,CVECT(theVertex)))
+  // TODO: Remove the cast
+  if (BNDP_Global(bndp,*((FieldVector<DOUBLE,DIM>*)CVECT(theVertex))))
   {
     DisposeVertex(theGrid,theVertex);
     return(NULL);
@@ -4628,7 +4632,8 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
       theGrid = GRID_ON_LEVEL(theMG,theMesh->VertexLevel[i]);
       VList[i] = CreateBoundaryVertex(theGrid);
       assert(VList[i]!=NULL);
-      if (BNDP_Global(theMesh->theBndPs[i],CVECT(VList[i]))) assert(0);
+      // TODO: Remove the cast
+      if (BNDP_Global(theMesh->theBndPs[i],*((FieldVector<DOUBLE,DIM>*)CVECT(VList[i])))) assert(0);
       if (BNDP_BndPDesc(theMesh->theBndPs[i],&move))
         return(GM_OK);
       SETMOVE(VList[i],move);
@@ -4650,7 +4655,8 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
     {
       VList[i] = CreateBoundaryVertex(theGrid);
       assert(VList[i]!=NULL);
-      if (BNDP_Global(theMesh->theBndPs[i],CVECT(VList[i]))) assert(0);
+      // TODO: Remove the cast
+      if (BNDP_Global(theMesh->theBndPs[i],*((FieldVector<DOUBLE,DIM>*)CVECT(VList[i])))) assert(0);
       if (BNDP_BndPDesc(theMesh->theBndPs[i],&move))
         return(GM_OK);
       SETMOVE(VList[i],move);

@@ -98,7 +98,7 @@ USING_UG_NAMESPACE
 /****************************************************************************/
 
 INT NS_DIM_PREFIX UG_GlobalToLocal (INT n, const DOUBLE **Corners,
-                                    const DOUBLE *EvalPoint, DOUBLE *LocalCoord)
+                                    const FieldVector<DOUBLE,DIM>& EvalPoint, DOUBLE *LocalCoord)
 {
   DOUBLE_VECTOR tmp,diff,M[DIM],IM[DIM];
   DOUBLE s,IMdet;
