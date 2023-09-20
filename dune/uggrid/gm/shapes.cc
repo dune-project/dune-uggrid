@@ -154,16 +154,13 @@ INT NS_DIM_PREFIX UG_GlobalToLocal (INT n, const DOUBLE **Corners,
 #ifdef UG_DIM_3
 INT NS_DIM_PREFIX TetraSideNormals (ELEMENT *theElement, DOUBLE **theCorners, DOUBLE_VECTOR theNormals[MAX_SIDES_OF_ELEM])
 {
-  ELEMENT e;
   DOUBLE_VECTOR a, b;
   DOUBLE h;
-  INT j,k;
+  INT j;
 
-  /* TODO: changed MAX_CORNERS_OF_ELEM to 4 and subsequently*/
-  SETTAG(&e,4);
   for (j=0; j<4; j++)
   {
-    k = SIDE_OPP_TO_CORNER(&e,j);
+    INT k = element_descriptors[TETRAHEDRON]->side_opp_to_corner[j];
     V3_SUBTRACT(theCorners[(j+1)%4],theCorners[(j+2)%4],a)
     V3_SUBTRACT(theCorners[(j+1)%4],theCorners[(j+3)%4],b)
     V3_VECTOR_PRODUCT(a,b,theNormals[k])
