@@ -125,14 +125,6 @@ static INT theBVPDirID;         /*!<  env type for BVP dir                      
 static STD_BVP *currBVP;
 
 /****************************************************************************/
-/*                                                                          */
-/* forward declarations of functions used before they are defined	    */
-/*                                                                          */
-/****************************************************************************/
-
-static INT PatchGlobal (const PATCH * p, DOUBLE * lambda, DOUBLE * global);
-
-/****************************************************************************/
 /** \brief Create a new DOMAIN data structure
  *
  * @param  name - name of the domain
