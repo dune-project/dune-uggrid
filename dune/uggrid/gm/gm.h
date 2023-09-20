@@ -291,7 +291,6 @@ enum NodeType {CORNER_NODE,
 /** @name General typedefs */
 /*@{*/
 typedef DOUBLE DOUBLE_VECTOR[DIM];
-typedef DOUBLE DOUBLE_VECTOR_2D[2];
 typedef DOUBLE DOUBLE_VECTOR_3D[3];
 /*@}*/
 
