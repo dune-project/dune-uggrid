@@ -4045,7 +4045,6 @@ INT NS_DIM_PREFIX CheckOrientation (INT n, VERTEX **vertices)
   return(1);
 }
 
-#define SWAP_IJ(a,i,j,t)                        {t = a[i]; a[i] = a[j]; a[j] = t;}
 #endif
 
 #ifdef UG_DIM_3
@@ -4301,10 +4300,6 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   ELEMENT          *theElement,*Neighbor[MAX_SIDES_OF_ELEM];
   BNDS         *bnds[MAX_SIDES_OF_ELEM];
   BNDP         *bndp[MAX_CORNERS_OF_ELEM];
-        #ifdef UG_DIM_2
-  VERTEX           *theVertex;
-  NODE             *theNode;
-        #endif
 
   theMG = MYMG(theGrid);
 
@@ -4366,33 +4361,33 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   if (!CheckOrientation(n,Vertex))
   {
     /* flip order */
-    SWAP_IJ(Node,   0,n/2,theNode);
-    SWAP_IJ(Vertex,0,n/2,theVertex);
+    std::swap(Node[0], Node[n/2]);
+    std::swap(Vertex[0], Vertex[n/2]);
 
     if (!CheckOrientation(n,Vertex))
     {
       /* this was the only possibility for a triangle: so is a nonconvex quadrilateral */
       /* interchange first two nodes and try again */
-      SWAP_IJ(Node,   0,1,theNode);
-      SWAP_IJ(Vertex,0,1,theVertex);
+      std::swap(Node[0], Node[1]);
+      std::swap(Vertex[0], Vertex[1]);
       if (!CheckOrientation(n,Vertex))
       {
         /* flip order */
-        SWAP_IJ(Node,   0,n/2,theNode);
-        SWAP_IJ(Vertex,0,n/2,theVertex);
+        std::swap(Node[0], Node[n/2]);
+        std::swap(Vertex[0], Vertex[n/2]);
         if (!CheckOrientation(n,Vertex))
         {
           /* flip order back */
-          SWAP_IJ(Node,   0,n/2,theNode);
-          SWAP_IJ(Vertex,0,n/2,theVertex);
+          std::swap(Node[0], Node[n/2]);
+          std::swap(Vertex[0], Vertex[n/2]);
           /* interchange second two nodes and try again */
-          SWAP_IJ(Node,   1,2,theNode);
-          SWAP_IJ(Vertex,1,2,theVertex);
+          std::swap(Node[1], Node[2]);
+          std::swap(Vertex[1], Vertex[2]);
           if (!CheckOrientation(n,Vertex))
           {
             /* flip order */
-            SWAP_IJ(Node,   0,n/2,theNode);
-            SWAP_IJ(Vertex,0,n/2,theVertex);
+            std::swap(Node[0], Node[n/2]);
+            std::swap(Vertex[0], Vertex[n/2]);
             if (!CheckOrientation(n,Vertex))
             {
               PrintErrorMessage('E',"InsertElement",
