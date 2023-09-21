@@ -2341,7 +2341,6 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
 {
   ELEMENT *pe;
   INT i,s_id;
-  VECTOR *pv;
 
   if (objtype == IEOBJ)
     pe = (ELEMENT*)GetMemoryForObject(MYMG(theGrid),INNER_SIZE_TAG(tag),
@@ -2410,6 +2409,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
     for (i=0; i<SIDES_OF_ELEM(pe); i++)
       if (with_vector)
       {
+        VECTOR *pv;
         if (CreateSideVector (theGrid,i,(GEOM_OBJECT *)pe,&pv))
         {
           DisposeElement(theGrid,pe);
