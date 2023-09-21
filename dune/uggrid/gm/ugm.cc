@@ -3946,10 +3946,10 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
   PRINTDEBUG(dom,1,("  ipn %ld nd %x bndp %x \n",
                     ID(theNode),theNode,V_BNDP(theVertex)));
 
-  SetStringValue(":bndp0",XC(theVertex));
-  SetStringValue(":bndp1",YC(theVertex));
+  SetStringValue(":bndp0",CVECT(theVertex)[0]);
+  SetStringValue(":bndp1",CVECT(theVertex)[1]);
         #ifdef UG_DIM_3
-  SetStringValue(":bndp2",ZC(theVertex));
+  SetStringValue(":bndp2",CVECT(theVertex)[2]);
         #endif
 
   return(theNode);
@@ -4033,10 +4033,10 @@ INT NS_DIM_PREFIX CheckOrientation (INT n, VERTEX **vertices)
 
   for (i=0; i<n; i++)
   {
-    x1 = XC(vertices[(i+1)%n])-XC(vertices[i]);
-    x2 = XC(vertices[(i+n-1)%n])-XC(vertices[i]);
-    y1 = YC(vertices[(i+1)%n])-YC(vertices[i]);
-    y2 = YC(vertices[(i+n-1)%n])-YC(vertices[i]);
+    x1 = CVECT(vertices[(i+1)%n])[0]   - CVECT(vertices[i])[0];
+    x2 = CVECT(vertices[(i+n-1)%n])[0] - CVECT(vertices[i])[0];
+    y1 = CVECT(vertices[(i+1)%n])[1]   - CVECT(vertices[i])[1];
+    y2 = CVECT(vertices[(i+n-1)%n])[1] - CVECT(vertices[i])[1];
     if (vp(x1,y1,x2,y2)<SMALL_C)
     {
       return(0);

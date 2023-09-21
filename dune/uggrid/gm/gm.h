@@ -2511,13 +2511,7 @@ enum GM_OBJECTS {
 #define PREDV(p)                ((p)->iv.pred)
 #define SUCCV(p)                ((p)->iv.succ)
 #define CVECT(p)                ((p)->iv.x)
-#define XC(p)                   ((p)->iv.x[0])
-#define YC(p)                   ((p)->iv.x[1])
-#define ZC(p)                   ((p)->iv.x[2])
 #define LCVECT(p)               ((p)->iv.xi)
-#define XI(p)                   ((p)->iv.xi[0])
-#define ETA(p)                  ((p)->iv.xi[1])
-#define NU(p)                   ((p)->iv.xi[2])
 #define VDATA(p)                ((p)->iv.data)
 #define VFATHER(p)              ((p)->iv.father)
 
@@ -3253,21 +3247,8 @@ enum {GM_REFINE_PARALLEL, GM_REFINE_SEQUENTIAL};
 
 enum {GM_REFINE_NOHEAPTEST, GM_REFINE_HEAPTEST};
 
-enum {GM_FCFCLL = 1,
-      GM_FFCCLL = 2,
-      GM_FFLLCC = 3,
-      GM_FFLCLC = 4,
-      GM_CCFFLL = 5};
-
-enum {GM_LOV_BEGIN = 1,
-      GM_LOV_END = 2};
-
-enum {GM_GEN_FIRST, GM_GEN_LAST, GM_GEN_CUT};
-
 enum {GM_ALL_LEVELS = 1,
       GM_CURRENT_LEVEL = 2};
-
-enum {GM_ORDER_IN_COLS, GM_ORDER_IN_ROWS};
 
 /*@}*/
 
