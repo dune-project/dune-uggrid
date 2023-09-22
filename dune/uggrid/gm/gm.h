@@ -514,7 +514,7 @@ struct ivertex {
   INT id;
 
   /** \brief Vertex position                                              */
-  DOUBLE x[DIM];
+  FieldVector<DOUBLE,DIM> x;
 
   /** \brief Local coordinates in father element
    *
@@ -525,7 +525,7 @@ struct ivertex {
    * is currently not able to produce such grids. The solvers however would work
    * also on much more general multigrid hierarchies.
    */
-  DOUBLE xi[DIM];
+  FieldVector<DOUBLE,DIM> xi;
 
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per node */
@@ -634,7 +634,7 @@ struct bvertex {
   INT id;
 
   /** \brief Vertex position */
-  DOUBLE x[DIM];
+  FieldVector<DOUBLE,DIM> x;
 
   /** \brief Local coordinates in father element
    *
@@ -645,7 +645,7 @@ struct bvertex {
    * is currently not able to produce such grids. The solvers however would work
    * also on much more general multigrid hierarchies.
    */
-  DOUBLE xi[DIM];
+  FieldVector<DOUBLE,DIM> xi;
 
   /* When UG is used as part of the DUNE numerics system we need
      a few more indices per node */

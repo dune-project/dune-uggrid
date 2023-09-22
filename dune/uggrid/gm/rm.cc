@@ -1552,7 +1552,7 @@ static INT ShortestInteriorEdge (ELEMENT *theElement)
 
   /* get physical position of the corners */
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
-    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
+    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i))).data();
 
   /* get physical position of the midpoints of the edges */
   for (i=0; i<EDGES_OF_ELEM(theElement); i++)
@@ -1855,7 +1855,7 @@ static INT MaxPerpendicular (ELEMENT *theElement)
 
   /* get physical position of the corners */
   for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
-    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
+    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i))).data();
 
   /* get physical position of the midpoints of the edges */
   for (INT i=0; i<EDGES_OF_ELEM(theElement); i++)
@@ -1933,7 +1933,7 @@ static INT MaxRightAngle (ELEMENT *theElement)
 
   /* get physical position of the corners */
   for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
-    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
+    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i))).data();
 
   /* try possibilities */
   DOUBLE Min = MAX_C;
@@ -2005,7 +2005,7 @@ static INT MaxArea (ELEMENT *theElement)
 
   /* get physical position of the corners */
   for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
-    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i)));
+    Corners[i] = CVECT(MYVERTEX(CORNER(theElement,i))).data();
 
   /* try possebilities */
   DOUBLE Max = -MAX_C;

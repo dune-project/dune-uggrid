@@ -512,7 +512,7 @@ DOUBLE NS_DIM_PREFIX ElementVolume (const ELEMENT *elem)
   INT i;
 
   for (i=0; i<CORNERS_OF_ELEM(elem); i++)
-    x_co[i] = CVECT(MYVERTEX(CORNER(elem,i)));
+    x_co[i] = CVECT(MYVERTEX(CORNER(elem,i))).data();
 
   return (GeneralElementVolume(TAG(elem),x_co));
 }

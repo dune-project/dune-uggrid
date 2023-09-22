@@ -165,11 +165,7 @@ static Dune::FieldVector<DOUBLE, DIM> CenterOfMass (ELEMENT *e)
 
   const auto corners = CORNERS_OF_ELEM(e);
   for(int i=0; i<corners; i++)
-  {
-    auto* corner = CVECT(MYVERTEX(CORNER(e,i)));
-    for(int dimIdx=0; dimIdx < DIM; ++dimIdx)
-        center[dimIdx] += corner[dimIdx];
-  }
+    center +=  CVECT(MYVERTEX(CORNER(e,i)));
 
   center /= corners;
   return center;

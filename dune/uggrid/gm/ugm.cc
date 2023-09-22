@@ -516,7 +516,7 @@ NODE *NS_DIM_PREFIX CreateSonNode (GRID *theGrid, NODE *FatherNode)
 NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex, INT edge)
 {
   BNDP *bndp;
-  DOUBLE *local,*x[MAX_CORNERS_OF_ELEM];
+  DOUBLE *x[MAX_CORNERS_OF_ELEM];
   DOUBLE_VECTOR bnd_global,global;
   DOUBLE diff;
   INT n,move;
@@ -557,7 +557,7 @@ NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *t
         SETMOVE(theVertex,move);
         V_BNDP(theVertex) = bndp;
         V_DIM_COPY(bnd_global,CVECT(theVertex));
-        local = LCVECT(theVertex);
+        FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
         V_DIM_EUKLIDNORM_OF_DIFF(bnd_global,global,diff);
         if (diff > MAX_PAR_DIST)
         {
@@ -698,7 +698,7 @@ static INT SideOfNbElement(const ELEMENT *theElement, INT side)
 NODE *NS_DIM_PREFIX CreateSideNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex, INT side)
 {
   DOUBLE_VECTOR bnd_global,global;
-  DOUBLE local[DIM];
+  FieldVector<DOUBLE,DIM> local;
   DOUBLE *x[MAX_CORNERS_OF_ELEM];
   NODE *theNode;
   BNDP *bndp;
@@ -791,7 +791,7 @@ static NODE *GetSideNodeX (const ELEMENT *theElement, INT side, INT n,
   NODE *theNode;
   VERTEX *theVertex;
   LINK *theLink0,*theLink1,*theLink2,*theLink3;
-  DOUBLE fac,*local;
+  DOUBLE fac;
   INT i;
 
   if (n == 4) {
@@ -835,7 +835,7 @@ static NODE *GetSideNodeX (const ELEMENT *theElement, INT side, INT n,
               SETONNBSIDE(theVertex,
                           SideOfNbElement(theElement,side));
               fac = 1.0 / n;
-              local = LCVECT(theVertex);
+              Dune::FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
               V_DIM_CLEAR(local);
               for (i=0; i<n; i++) {
                 V_DIM_LINCOMB(1.0,local,fac,
@@ -905,7 +905,7 @@ static NODE *GetSideNodeX (const ELEMENT *theElement, INT side, INT n,
             SETONNBSIDE(theVertex,
                         SideOfNbElement(theElement,side));
             fac = 1.0 / n;
-            local = LCVECT(theVertex);
+            Dune::FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
             V_DIM_CLEAR(local);
             for (i=0; i<n; i++) {
               V_DIM_LINCOMB(1.0,local,fac,
@@ -1466,7 +1466,6 @@ NODE * NS_DIM_PREFIX GetCenterNode (const ELEMENT *theElement)
 /* #define MOVE_MIDNODE */
 NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex)
 {
-  DOUBLE *local;
   DOUBLE_VECTOR diff;
   INT n,j,moved,vertex_null;
   VERTEX *VertexOnEdge[MAX_EDGES_OF_ELEM];
@@ -1559,9 +1558,8 @@ NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTE
 
   if (!vertex_null) return(theNode);
 
-  // TODO: Remove the following cast
-  FieldVector<DOUBLE,DIM>& global = *((FieldVector<DOUBLE,DIM>*)CVECT(theVertex));
-  local = LCVECT(theVertex);
+  FieldVector<DOUBLE,DIM>& global = CVECT(theVertex);
+  FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
   V_DIM_CLEAR(local);
   fac = 1.0 / n;
   for (j=0; j<n; j++)
@@ -3194,7 +3192,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
   ELEMENT *succe = SUCCE(theElement);
         #ifdef UG_DIM_3
   VECTOR  *theVector;
-  DOUBLE *local,fac;
+  DOUBLE fac;
   INT k,m,o,l;
         #endif
 
@@ -3312,7 +3310,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
         k = ONNBSIDE(theVertex);
         SETONSIDE(theVertex,k);
         m = CORNERS_OF_SIDE(theNb,k);
-        local = LCVECT(theVertex);
+        FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
         fac = 1.0 / m;
         V_DIM_CLEAR(local);
         for (o=0; o<m; o++) {
@@ -3917,8 +3915,7 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
     PrintErrorMessage('E',"InsertBoundaryNode","cannot create vertex");
     REP_ERR_RETURN(NULL);
   }
-  // TODO: Remove the cast
-  if (BNDP_Global(bndp,*((FieldVector<DOUBLE,DIM>*)CVECT(theVertex))))
+  if (BNDP_Global(bndp,CVECT(theVertex)))
   {
     DisposeVertex(theGrid,theVertex);
     return(NULL);
@@ -4627,8 +4624,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
       theGrid = GRID_ON_LEVEL(theMG,theMesh->VertexLevel[i]);
       VList[i] = CreateBoundaryVertex(theGrid);
       assert(VList[i]!=NULL);
-      // TODO: Remove the cast
-      if (BNDP_Global(theMesh->theBndPs[i],*((FieldVector<DOUBLE,DIM>*)CVECT(VList[i])))) assert(0);
+      if (BNDP_Global(theMesh->theBndPs[i],CVECT(VList[i]))) assert(0);
       if (BNDP_BndPDesc(theMesh->theBndPs[i],&move))
         return(GM_OK);
       SETMOVE(VList[i],move);
@@ -4650,8 +4646,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
     {
       VList[i] = CreateBoundaryVertex(theGrid);
       assert(VList[i]!=NULL);
-      // TODO: Remove the cast
-      if (BNDP_Global(theMesh->theBndPs[i],*((FieldVector<DOUBLE,DIM>*)CVECT(VList[i])))) assert(0);
+      if (BNDP_Global(theMesh->theBndPs[i],CVECT(VList[i]))) assert(0);
       if (BNDP_BndPDesc(theMesh->theBndPs[i],&move))
         return(GM_OK);
       SETMOVE(VList[i],move);
@@ -4754,7 +4749,6 @@ INT NS_DIM_PREFIX InnerBoundary (ELEMENT *t, INT side)
 
 void NS_DIM_PREFIX CalculateCenterOfMass(ELEMENT *theElement, DOUBLE_VECTOR center_of_mass)
 {
-  DOUBLE *corner;
   INT i, nr_corners;
 
   nr_corners = CORNERS_OF_ELEM(theElement);
@@ -4762,7 +4756,7 @@ void NS_DIM_PREFIX CalculateCenterOfMass(ELEMENT *theElement, DOUBLE_VECTOR cent
 
   for (i=0; i<nr_corners; i++)
   {
-    corner = CVECT(MYVERTEX(CORNER(theElement,i)));
+    const FieldVector<DOUBLE,DIM>& corner = CVECT(MYVERTEX(CORNER(theElement,i)));
     V_DIM_ADD(center_of_mass,corner,center_of_mass);
   }
 

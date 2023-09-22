@@ -276,7 +276,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
           SETONSIDE(theVertex,k);
 
           INT m = CORNERS_OF_SIDE(theFather,k);
-          DOUBLE* local = LCVECT(theVertex);
+          Dune::FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
           DOUBLE fac = 1.0 / m;
           V_DIM_CLEAR(local);
           for (INT o=0; o<m; o++)
@@ -320,9 +320,8 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
             DOUBLE *x[MAX_CORNERS_OF_ELEM];
 
             CORNER_COORDINATES(theFather,n,x);
-            // TODO: Remove the following cast
             UG_GlobalToLocal(n,(const DOUBLE **)x,
-                             *((Dune::FieldVector<DOUBLE,DIM>*)CVECT(theVertex)),LCVECT(theVertex));
+                             CVECT(theVertex),LCVECT(theVertex));
           }
       }
     }
