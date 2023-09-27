@@ -29,19 +29,19 @@ before_script:
       junit: junit/*.xml
 
 # specific job for testing sequential library version
-debian:10 gcc-8-17 sequential:
+debian:11 gcc-10-20 sequential:
   <<: *common
-  image: registry.dune-project.org/docker/ci/debian:10
+  image: registry.dune-project.org/docker/ci/debian:11
   variables:
-    DUNECI_TOOLCHAIN: gcc-8-17
+    DUNECI_TOOLCHAIN: gcc-10-20
     DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_PARALLEL=0"
 
 # specific job for testing the debug version
-debian:10 gcc-8-17 debug:
+debian:10 gcc-10-20 debug:
   <<: *common
-  image: registry.dune-project.org/docker/ci/debian:10
+  image: registry.dune-project.org/docker/ci/debian:11
   variables:
-    DUNECI_TOOLCHAIN: gcc-8-17
+    DUNECI_TOOLCHAIN: gcc-10-20
     DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_DEBUGGING:BOOL=1"
 
 # Check for spelling mistakes in text
