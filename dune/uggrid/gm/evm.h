@@ -68,7 +68,6 @@ START_UGDIM_NAMESPACE
 /* misc macros */
 #define SQRT(a)                                 sqrt((double)(a))
 #define POW(a,b)                                pow((double)(a),(double)(b))
-#define ISNaN(x)                                (!((x)-(x)==0) || ((x)-(x)!=0))
 
 /* macros for coord points */
 #define COPY_SC_TO_SH(p1,p2)                    (p2).x=(short)((p1).x);(p2).y=(short)((p1).y)
@@ -272,7 +271,6 @@ bool            PointInPolygon                                          (const C
 
 /* 2D routines */
 DOUBLE          vp                                                                      (const DOUBLE x1, const DOUBLE y1, const DOUBLE x2, const DOUBLE y2);
-INT             V2_Normalize                                            (DOUBLE *a);
 DOUBLE          c_tarea                                                         (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2);
 DOUBLE          c_qarea                                                         (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2, const DOUBLE *x3);
 DOUBLE          V_te                                                            (const DOUBLE *x0, const DOUBLE *x1,
@@ -287,7 +285,7 @@ DOUBLE          V_he                                                            
 
 /* 3D routines */
 INT             M3_Invert                                                       (DOUBLE *Inverse, const DOUBLE *Matrix);
-INT             V3_Normalize                                            (DOUBLE *a);
+INT             V3_Normalize                                                    (FieldVector<DOUBLE,3>& a);
 INT             V3_Project                                                      (const DOUBLE *a, const DOUBLE *b, DOUBLE *r);
 
 

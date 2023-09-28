@@ -57,16 +57,16 @@ START_UGDIM_NAMESPACE
 
 #define CORNER_COORDINATES_TRIANGLE(e,n,x)                                \
                                    {(n)=3;                                \
-                                                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0))); \
-                                                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1))); \
-                                                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2)));}
+                                    (x)[0]=CVECT(MYVERTEX(CORNER((e),0))).data(); \
+                                    (x)[1]=CVECT(MYVERTEX(CORNER((e),1))).data(); \
+                                    (x)[2]=CVECT(MYVERTEX(CORNER((e),2))).data();}
 
 #define CORNER_COORDINATES_QUADRILATERAL(e,n,x)                           \
                                    {(n)=4;                                \
-                                                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0))); \
-                                                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1))); \
-                                                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2))); \
-                                                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));}
+                                    (x)[0]=CVECT(MYVERTEX(CORNER((e),0))).data(); \
+                                    (x)[1]=CVECT(MYVERTEX(CORNER((e),1))).data(); \
+                                    (x)[2]=CVECT(MYVERTEX(CORNER((e),2))).data(); \
+                                    (x)[3]=CVECT(MYVERTEX(CORNER((e),3))).data();}
 
 #define CORNER_COORDINATES(e,n,x)                               \
  {if (TAG((e))==TRIANGLE)                                       \
@@ -136,38 +136,38 @@ START_UGDIM_NAMESPACE
 #ifdef UG_DIM_3
 #define CORNER_COORDINATES_TETRAHEDRON(e,n,x)                              \
                                   {(n) = 4;                                \
-                                                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0)));  \
-                                                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1)));  \
-                                                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2)));  \
-                                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));}
+                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0))).data();  \
+                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1))).data();  \
+                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2))).data();  \
+                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3))).data();}
 
 #define CORNER_COORDINATES_PYRAMID(e,n,x)                                  \
                                   {(n) = 5;                                \
-                                                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0)));  \
-                                                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1)));  \
-                                                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2)));  \
-                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));  \
-                                   (x)[4]=CVECT(MYVERTEX(CORNER((e),4)));}
+                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0))).data();  \
+                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1))).data();  \
+                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2))).data();  \
+                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3))).data();  \
+                                   (x)[4]=CVECT(MYVERTEX(CORNER((e),4))).data();}
 
 #define CORNER_COORDINATES_PRISM(e,n,x)                                    \
                                   {(n) = 6;                                \
-                                                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0)));  \
-                                                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1)));  \
-                                                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2)));  \
-                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));  \
-                                   (x)[4]=CVECT(MYVERTEX(CORNER((e),4)));  \
-                                   (x)[5]=CVECT(MYVERTEX(CORNER((e),5)));}
+                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0))).data();  \
+                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1))).data();  \
+                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2))).data();  \
+                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3))).data();  \
+                                   (x)[4]=CVECT(MYVERTEX(CORNER((e),4))).data();  \
+                                   (x)[5]=CVECT(MYVERTEX(CORNER((e),5))).data();}
 
 #define CORNER_COORDINATES_HEXAHEDRON(e,n,x)                               \
                                   {(n) = 8;                                \
-                                                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0)));  \
-                                                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1)));  \
-                                                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2)));  \
-                                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3)));  \
-                                                                   (x)[4]=CVECT(MYVERTEX(CORNER((e),4)));  \
-                                                                   (x)[5]=CVECT(MYVERTEX(CORNER((e),5)));  \
-                                                                   (x)[6]=CVECT(MYVERTEX(CORNER((e),6)));  \
-                                                                   (x)[7]=CVECT(MYVERTEX(CORNER((e),7)));}
+                                   (x)[0]=CVECT(MYVERTEX(CORNER((e),0))).data();  \
+                                   (x)[1]=CVECT(MYVERTEX(CORNER((e),1))).data();  \
+                                   (x)[2]=CVECT(MYVERTEX(CORNER((e),2))).data();  \
+                                   (x)[3]=CVECT(MYVERTEX(CORNER((e),3))).data();  \
+                                   (x)[4]=CVECT(MYVERTEX(CORNER((e),4))).data();  \
+                                   (x)[5]=CVECT(MYVERTEX(CORNER((e),5))).data();  \
+                                   (x)[6]=CVECT(MYVERTEX(CORNER((e),6))).data();  \
+                                   (x)[7]=CVECT(MYVERTEX(CORNER((e),7))).data();}
 
 #define CORNER_COORDINATES(e,n,x)                                            \
   {if (TAG((e))==TETRAHEDRON)     CORNER_COORDINATES_TETRAHEDRON((e),(n),(x))\
@@ -478,8 +478,7 @@ START_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-DOUBLE  *LMP                  (INT n);
-INT      UG_GlobalToLocal     (INT n, const DOUBLE **Corners, const DOUBLE *EvalPoint, DOUBLE *LocalCoord);
+INT      UG_GlobalToLocal     (INT n, const DOUBLE **Corners, const FieldVector<DOUBLE,DIM>& EvalPoint, FieldVector<DOUBLE,DIM>& LocalCoord);
 
 #ifdef UG_DIM_3
 DOUBLE  N                   (const INT i, const DOUBLE *LocalCoord);

@@ -40,6 +40,8 @@
 #include <climits>
 #include <ctime>
 
+#include <dune/common/fvector.hh>
+
 #include <dune/uggrid/parallel/ppif/ppifcontext.hh>
 
 #include <dune/uggrid/low/architecture.h>
@@ -250,7 +252,6 @@ static INT SaveSurfaceGrid  (MULTIGRID *theMG, FILE *stream)
   NODE *theNode;
   ELEMENT *theElement;
   VERTEX *theVertex;
-  DOUBLE *global;
   char buffer[BUFFERSIZE];
   INT i,id,move,l,tl;
 
@@ -309,7 +310,7 @@ static INT SaveSurfaceGrid  (MULTIGRID *theMG, FILE *stream)
             continue;
           if (ID(theVertex) > 0)
             continue;
-          global = CVECT(theVertex);
+          const Dune::FieldVector<DOUBLE,DIM>& global = CVECT(theVertex);
           fprintf(stream,IN_FMT);
           for (i=0; i<DIM; i++)
             fprintf(stream," %f",global[i]);
@@ -342,7 +343,6 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
   NODE *theNode;
   ELEMENT *theElement;
   VERTEX *theVertex;
-  DOUBLE *global;
   time_t Time;
   const char *fmt;
   char buffer[BUFFERSIZE];
@@ -413,7 +413,7 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
     theVertex = MYVERTEX(theNode);
     if (OBJT(theVertex) == BVOBJ)
       continue;
-    global = CVECT(theVertex);
+    const Dune::FieldVector<DOUBLE,DIM>& global = CVECT(theVertex);
     fprintf(stream,IN_FMT);
     for (i=0; i<DIM; i++)
       fprintf(stream," %f",global[i]);

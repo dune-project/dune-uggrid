@@ -59,6 +59,9 @@
 #  include <dune/uggrid/parallel/ddd/dddtypes.hh>
 #endif
 
+#include <dune/common/fvector.hh>
+
+#include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugenv.h>
@@ -393,7 +396,7 @@ INT         BNDP_SaveInsertedBndP (BNDP *theBndP, char *data, INT max_data_size)
  *   <li> 1 if error. </li>
  * </ul> */
 /****************************************************************************/
-INT         BNDP_Global           (const BNDP *theBndP, DOUBLE *global);
+INT         BNDP_Global           (const BNDP *theBndP, Dune::FieldVector<DOUBLE,DIM>& global);
 
 /****************************************************************************/
 /** \brief Sets descriptor for BNDP
@@ -537,7 +540,7 @@ INT         BNDS_BndSDesc         (BNDS *theBndS, INT *id, INT *nbid);
  *   <li> 1 if error. </li>
  * </ul> */
 /****************************************************************************/
-BNDP*       BNDS_CreateBndP       (NS_PREFIX HEAP *Heap, BNDS *theBndS, DOUBLE *local);
+BNDP*       BNDS_CreateBndP       (NS_PREFIX HEAP *Heap, BNDS *theBndS, const FieldVector<DOUBLE,DIM_OF_BND>& local);
 
 /****************************************************************************/
 /** \brief Dispose BNDS

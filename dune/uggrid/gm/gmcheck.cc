@@ -105,7 +105,7 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
   ELEMENT *theFather = VFATHER(theVertex);
   EDGE    *theEdge;
   INT i,nerrors,n;
-  DOUBLE  *global,*local,diff;
+  DOUBLE diff;
   DOUBLE_VECTOR global1;
   DOUBLE *x[MAX_CORNERS_OF_ELEM];
 
@@ -167,8 +167,8 @@ static INT CheckVertex (ELEMENT *theElement, NODE* theNode, VERTEX *theVertex)
 
   if (theFather != NULL) {
     CORNER_COORDINATES(theFather,n,x);
-    global = CVECT(theVertex);
-    local = LCVECT(theVertex);
+    const Dune::FieldVector<DOUBLE,DIM>& global = CVECT(theVertex);
+    const Dune::FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
     LOCAL_TO_GLOBAL(n,x,local,global1);
     V_DIM_EUKLIDNORM_OF_DIFF(global1,global,diff);
     if (diff > MAX_PAR_DIST) {

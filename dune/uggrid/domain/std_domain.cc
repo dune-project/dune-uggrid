@@ -54,6 +54,8 @@
 /* set needed in BVP_Init */
 #include <set>
 
+#include <dune/common/fvector.hh>
+
 /* low modules */
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/bio.h>
@@ -123,14 +125,6 @@ static INT theLinSegVarID;      /*!<  env type for linear segment vars          
 static INT theBVPDirID;         /*!<  env type for BVP dir                                      */
 
 static STD_BVP *currBVP;
-
-/****************************************************************************/
-/*                                                                          */
-/* forward declarations of functions used before they are defined	    */
-/*                                                                          */
-/****************************************************************************/
-
-static INT PatchGlobal (const PATCH * p, DOUBLE * lambda, DOUBLE * global);
 
 /****************************************************************************/
 /** \brief Create a new DOMAIN data structure
@@ -1294,7 +1288,7 @@ GetCommonLinePatchId (PATCH * p0, PATCH * p1)
 /****************************************************************************/
 
 static INT
-PatchGlobal (const PATCH * p, DOUBLE * lambda, DOUBLE * global)
+PatchGlobal (const PATCH * p, DOUBLE * lambda, Dune::FieldVector<DOUBLE,DIM>& global)
 {
   if (PATCH_TYPE (p) == PARAMETRIC_PATCH_TYPE)
     return ((*PARAM_PATCH_BS (p))(PARAM_PATCH_BSD (p), lambda, global));
@@ -1333,7 +1327,7 @@ PatchGlobal (const PATCH * p, DOUBLE * lambda, DOUBLE * global)
 }
 
 static INT
-local2lambda (BND_PS * ps, DOUBLE local[], DOUBLE lambda[])
+local2lambda (BND_PS * ps, const Dune::FieldVector<DOUBLE,DIM_OF_BND>& local, DOUBLE lambda[])
 {
   PATCH *p;
 
@@ -1444,7 +1438,7 @@ BNDS_BndSDesc (BNDS * theBndS, INT * id, INT * nbid)
 
 /* domain interface function: for description see domain.h */
 BNDP *NS_DIM_PREFIX
-BNDS_CreateBndP (HEAP * Heap, BNDS * aBndS, DOUBLE * local)
+BNDS_CreateBndP (HEAP * Heap, BNDS * aBndS, const FieldVector<DOUBLE,DIM_OF_BND>& local)
 {
   BND_PS *ps, *pp;
 
@@ -1478,13 +1472,13 @@ BNDS_CreateBndP (HEAP * Heap, BNDS * aBndS, DOUBLE * local)
 
 /* domain interface function: for description see domain.h */
 INT NS_DIM_PREFIX
-BNDP_Global (const BNDP * aBndP, DOUBLE * global)
+BNDP_Global (const BNDP * aBndP, FieldVector<DOUBLE,DIM>& global)
 {
   using std::abs;
   BND_PS *ps;
   PATCH *p, *s;
   INT j, k;
-  DOUBLE pglobal[DIM];
+  FieldVector<DOUBLE,DIM> pglobal;
 
   ps = (BND_PS *) aBndP;
   p = currBVP->patches[ps->patch_id];

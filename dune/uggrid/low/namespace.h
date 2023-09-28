@@ -6,8 +6,8 @@
 /** \file
 
    Defines macros to put symbols into namespaces if C++ compiler is
-   used. Everything is put into the namespace UG, dimension-dependent
-   functions into UG::D2 or UG::D3
+   used. Everything is put into the namespace Dune::UG, dimension-dependent
+   functions into Dune::UG::D2 or Dune::UG::D3
 
    in a header-files use:
 
@@ -53,22 +53,22 @@
 #ifndef UG_NAMESPACE_H
 #define UG_NAMESPACE_H
 
-#define START_UG_NAMESPACE namespace UG {
+#define START_UG_NAMESPACE namespace Dune::UG {
 #define END_UG_NAMESPACE }
 #define END_UGDIM_NAMESPACE }}
-#define NS_PREFIX UG::
-#define USING_UG_NAMESPACE using namespace UG;
+#define NS_PREFIX Dune::UG::
+#define USING_UG_NAMESPACE using namespace Dune::UG;
 
 #ifdef UG_DIM_3
-#define START_UGDIM_NAMESPACE namespace UG { namespace D3 {
-#define USING_UGDIM_NAMESPACE using namespace UG::D3;
-#define USING_UG_NAMESPACES namespace UG {namespace D3 {} } using namespace UG; using namespace UG::D3;
-#define NS_DIM_PREFIX UG::D3::
+#define START_UGDIM_NAMESPACE namespace Dune::UG { namespace D3 {
+#define USING_UGDIM_NAMESPACE using namespace Dune::UG::D3;
+#define USING_UG_NAMESPACES namespace Dune::UG {namespace D3 {} } using namespace Dune::UG; using namespace Dune::UG::D3;
+#define NS_DIM_PREFIX Dune::UG::D3::
 #else
-#define START_UGDIM_NAMESPACE namespace UG { namespace D2 {
-#define USING_UGDIM_NAMESPACE using namespace UG::D2;
-#define USING_UG_NAMESPACES namespace UG {namespace D2 {} } using namespace UG; using namespace UG::D2;
-#define NS_DIM_PREFIX UG::D2::
+#define START_UGDIM_NAMESPACE namespace Dune::UG { namespace D2 {
+#define USING_UGDIM_NAMESPACE using namespace Dune::UG::D2;
+#define USING_UG_NAMESPACES namespace Dune::UG {namespace D2 {} } using namespace Dune::UG; using namespace Dune::UG::D2;
+#define NS_DIM_PREFIX Dune::UG::D2::
 #endif
 
 /* check if the required symbols exist */

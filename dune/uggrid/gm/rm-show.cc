@@ -17,8 +17,8 @@
 
 int main(int argc, char** argv)
 {
-  UG::InitLow();
-  UG::InitDevices();
+  NS_PREFIX InitLow();
+  NS_PREFIX InitDevices();
   NS_DIM_PREFIX InitGm();
 
   std::vector<NS_DIM_PREFIX REFRULE> rules;

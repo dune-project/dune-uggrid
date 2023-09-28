@@ -220,7 +220,7 @@ static int PartitionElementsForDD(GRID *theGrid, int hor_boxes, int vert_boxes )
 {
   ELEMENT *theElement;
   INT i, nrcorners;
-  DOUBLE *coord, xmax, ymax;
+  DOUBLE xmax, ymax;
 
   for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
@@ -232,7 +232,7 @@ static int PartitionElementsForDD(GRID *theGrid, int hor_boxes, int vert_boxes )
     xmax = ymax = 0.0;
     for( i=0; i<nrcorners; i++ )
     {
-      coord = CVECT(MYVERTEX(CORNER(theElement,i)));
+      const FieldVector<DOUBLE,DIM>& coord = CVECT(MYVERTEX(CORNER(theElement,i)));
       xmax = std::max(xmax,coord[0]);
       ymax = std::max(ymax,coord[1]);
     }

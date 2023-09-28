@@ -152,7 +152,7 @@ void NS_PREFIX SetPrintDebugProc (PrintfProcPtr print)
   printdebug = print;
 }
 
-int UG::PrintDebugToFile (const char *format, ...)
+int NS_PREFIX PrintDebugToFile (const char *format, ...)
 {
   va_list args;
 
@@ -168,7 +168,7 @@ int UG::PrintDebugToFile (const char *format, ...)
   return (0);
 }
 
-int UG::SetPrintDebugToFile (const char *fname)
+int NS_PREFIX SetPrintDebugToFile (const char *fname)
 {
   if (debugfile!=NULL)
     return (1);

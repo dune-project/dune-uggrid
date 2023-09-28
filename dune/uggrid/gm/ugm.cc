@@ -516,7 +516,7 @@ NODE *NS_DIM_PREFIX CreateSonNode (GRID *theGrid, NODE *FatherNode)
 NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex, INT edge)
 {
   BNDP *bndp;
-  DOUBLE *local,*x[MAX_CORNERS_OF_ELEM];
+  DOUBLE *x[MAX_CORNERS_OF_ELEM];
   DOUBLE_VECTOR bnd_global,global;
   DOUBLE diff;
   INT n,move;
@@ -557,7 +557,7 @@ NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *t
         SETMOVE(theVertex,move);
         V_BNDP(theVertex) = bndp;
         V_DIM_COPY(bnd_global,CVECT(theVertex));
-        local = LCVECT(theVertex);
+        FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
         V_DIM_EUKLIDNORM_OF_DIFF(bnd_global,global,diff);
         if (diff > MAX_PAR_DIST)
         {
@@ -697,7 +697,8 @@ static INT SideOfNbElement(const ELEMENT *theElement, INT side)
 
 NODE *NS_DIM_PREFIX CreateSideNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex, INT side)
 {
-  DOUBLE_VECTOR bnd_global,global,local,bnd_local;
+  DOUBLE_VECTOR bnd_global,global;
+  FieldVector<DOUBLE,DIM> local;
   DOUBLE *x[MAX_CORNERS_OF_ELEM];
   NODE *theNode;
   BNDP *bndp;
@@ -727,6 +728,7 @@ NODE *NS_DIM_PREFIX CreateSideNode (GRID *theGrid, ELEMENT *theElement, VERTEX *
     if (OBJT(theElement) == BEOBJ) {
       bnds = ELEM_BNDS(theElement,side);
       if (bnds != NULL) {
+        FieldVector<DOUBLE,DIM_OF_BND> bnd_local;
         if (n == 3)
           bnd_local[0] = bnd_local[1] = 0.33333333333333;
         else if (n == 4)
@@ -789,7 +791,7 @@ static NODE *GetSideNodeX (const ELEMENT *theElement, INT side, INT n,
   NODE *theNode;
   VERTEX *theVertex;
   LINK *theLink0,*theLink1,*theLink2,*theLink3;
-  DOUBLE fac,*local;
+  DOUBLE fac;
   INT i;
 
   if (n == 4) {
@@ -833,7 +835,7 @@ static NODE *GetSideNodeX (const ELEMENT *theElement, INT side, INT n,
               SETONNBSIDE(theVertex,
                           SideOfNbElement(theElement,side));
               fac = 1.0 / n;
-              local = LCVECT(theVertex);
+              Dune::FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
               V_DIM_CLEAR(local);
               for (i=0; i<n; i++) {
                 V_DIM_LINCOMB(1.0,local,fac,
@@ -903,7 +905,7 @@ static NODE *GetSideNodeX (const ELEMENT *theElement, INT side, INT n,
             SETONNBSIDE(theVertex,
                         SideOfNbElement(theElement,side));
             fac = 1.0 / n;
-            local = LCVECT(theVertex);
+            Dune::FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
             V_DIM_CLEAR(local);
             for (i=0; i<n; i++) {
               V_DIM_LINCOMB(1.0,local,fac,
@@ -1464,7 +1466,6 @@ NODE * NS_DIM_PREFIX GetCenterNode (const ELEMENT *theElement)
 /* #define MOVE_MIDNODE */
 NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTEX *theVertex)
 {
-  DOUBLE *global,*local;
   DOUBLE_VECTOR diff;
   INT n,j,moved,vertex_null;
   VERTEX *VertexOnEdge[MAX_EDGES_OF_ELEM];
@@ -1518,7 +1519,7 @@ NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTE
                                 CORNER_OF_EDGE(theElement,OPPOSITE_EDGE(theElement,j),1)))),
           len_opp);
         V_DIM_SCALE(len_opp/len_bnd,diff);
-        global = CVECT(theVertex);
+        DOUBLE* global = CVECT(theVertex);
         PRINTDEBUG(gm,1,("CreateCenterNode: global_orig = %f %f %f\n",global[0],global[1],global[2]));
         PRINTDEBUG(gm,1,("CreateCenterNode: diff = %f %f %f\n",diff[0],diff[1],diff[2]));
         V_DIM_LINCOMB(1.0,global,0.5,diff,global);
@@ -1557,8 +1558,8 @@ NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTE
 
   if (!vertex_null) return(theNode);
 
-  global = CVECT(theVertex);
-  local = LCVECT(theVertex);
+  FieldVector<DOUBLE,DIM>& global = CVECT(theVertex);
+  FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
   V_DIM_CLEAR(local);
   fac = 1.0 / n;
   for (j=0; j<n; j++)
@@ -2338,7 +2339,6 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
 {
   ELEMENT *pe;
   INT i,s_id;
-  VECTOR *pv;
 
   if (objtype == IEOBJ)
     pe = (ELEMENT*)GetMemoryForObject(MYMG(theGrid),INNER_SIZE_TAG(tag),
@@ -2407,6 +2407,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
     for (i=0; i<SIDES_OF_ELEM(pe); i++)
       if (with_vector)
       {
+        VECTOR *pv;
         if (CreateSideVector (theGrid,i,(GEOM_OBJECT *)pe,&pv))
         {
           DisposeElement(theGrid,pe);
@@ -3191,7 +3192,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
   ELEMENT *succe = SUCCE(theElement);
         #ifdef UG_DIM_3
   VECTOR  *theVector;
-  DOUBLE *local,fac;
+  DOUBLE fac;
   INT k,m,o,l;
         #endif
 
@@ -3309,7 +3310,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
         k = ONNBSIDE(theVertex);
         SETONSIDE(theVertex,k);
         m = CORNERS_OF_SIDE(theNb,k);
-        local = LCVECT(theVertex);
+        FieldVector<DOUBLE,DIM>& local = LCVECT(theVertex);
         fac = 1.0 / m;
         V_DIM_CLEAR(local);
         for (o=0; o<m; o++) {
@@ -3942,10 +3943,10 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
   PRINTDEBUG(dom,1,("  ipn %ld nd %x bndp %x \n",
                     ID(theNode),theNode,V_BNDP(theVertex)));
 
-  SetStringValue(":bndp0",XC(theVertex));
-  SetStringValue(":bndp1",YC(theVertex));
+  SetStringValue(":bndp0",CVECT(theVertex)[0]);
+  SetStringValue(":bndp1",CVECT(theVertex)[1]);
         #ifdef UG_DIM_3
-  SetStringValue(":bndp2",ZC(theVertex));
+  SetStringValue(":bndp2",CVECT(theVertex)[2]);
         #endif
 
   return(theNode);
@@ -4029,10 +4030,10 @@ INT NS_DIM_PREFIX CheckOrientation (INT n, VERTEX **vertices)
 
   for (i=0; i<n; i++)
   {
-    x1 = XC(vertices[(i+1)%n])-XC(vertices[i]);
-    x2 = XC(vertices[(i+n-1)%n])-XC(vertices[i]);
-    y1 = YC(vertices[(i+1)%n])-YC(vertices[i]);
-    y2 = YC(vertices[(i+n-1)%n])-YC(vertices[i]);
+    x1 = CVECT(vertices[(i+1)%n])[0]   - CVECT(vertices[i])[0];
+    x2 = CVECT(vertices[(i+n-1)%n])[0] - CVECT(vertices[i])[0];
+    y1 = CVECT(vertices[(i+1)%n])[1]   - CVECT(vertices[i])[1];
+    y2 = CVECT(vertices[(i+n-1)%n])[1] - CVECT(vertices[i])[1];
     if (vp(x1,y1,x2,y2)<SMALL_C)
     {
       return(0);
@@ -4041,7 +4042,6 @@ INT NS_DIM_PREFIX CheckOrientation (INT n, VERTEX **vertices)
   return(1);
 }
 
-#define SWAP_IJ(a,i,j,t)                        {t = a[i]; a[i] = a[j]; a[j] = t;}
 #endif
 
 #ifdef UG_DIM_3
@@ -4297,10 +4297,6 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   ELEMENT          *theElement,*Neighbor[MAX_SIDES_OF_ELEM];
   BNDS         *bnds[MAX_SIDES_OF_ELEM];
   BNDP         *bndp[MAX_CORNERS_OF_ELEM];
-        #ifdef UG_DIM_2
-  VERTEX           *theVertex;
-  NODE             *theNode;
-        #endif
 
   theMG = MYMG(theGrid);
 
@@ -4362,33 +4358,33 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
   if (!CheckOrientation(n,Vertex))
   {
     /* flip order */
-    SWAP_IJ(Node,   0,n/2,theNode);
-    SWAP_IJ(Vertex,0,n/2,theVertex);
+    std::swap(Node[0], Node[n/2]);
+    std::swap(Vertex[0], Vertex[n/2]);
 
     if (!CheckOrientation(n,Vertex))
     {
       /* this was the only possibility for a triangle: so is a nonconvex quadrilateral */
       /* interchange first two nodes and try again */
-      SWAP_IJ(Node,   0,1,theNode);
-      SWAP_IJ(Vertex,0,1,theVertex);
+      std::swap(Node[0], Node[1]);
+      std::swap(Vertex[0], Vertex[1]);
       if (!CheckOrientation(n,Vertex))
       {
         /* flip order */
-        SWAP_IJ(Node,   0,n/2,theNode);
-        SWAP_IJ(Vertex,0,n/2,theVertex);
+        std::swap(Node[0], Node[n/2]);
+        std::swap(Vertex[0], Vertex[n/2]);
         if (!CheckOrientation(n,Vertex))
         {
           /* flip order back */
-          SWAP_IJ(Node,   0,n/2,theNode);
-          SWAP_IJ(Vertex,0,n/2,theVertex);
+          std::swap(Node[0], Node[n/2]);
+          std::swap(Vertex[0], Vertex[n/2]);
           /* interchange second two nodes and try again */
-          SWAP_IJ(Node,   1,2,theNode);
-          SWAP_IJ(Vertex,1,2,theVertex);
+          std::swap(Node[1], Node[2]);
+          std::swap(Vertex[1], Vertex[2]);
           if (!CheckOrientation(n,Vertex))
           {
             /* flip order */
-            SWAP_IJ(Node,   0,n/2,theNode);
-            SWAP_IJ(Vertex,0,n/2,theVertex);
+            std::swap(Node[0], Node[n/2]);
+            std::swap(Vertex[0], Vertex[n/2]);
             if (!CheckOrientation(n,Vertex))
             {
               PrintErrorMessage('E',"InsertElement",
@@ -4753,7 +4749,6 @@ INT NS_DIM_PREFIX InnerBoundary (ELEMENT *t, INT side)
 
 void NS_DIM_PREFIX CalculateCenterOfMass(ELEMENT *theElement, DOUBLE_VECTOR center_of_mass)
 {
-  DOUBLE *corner;
   INT i, nr_corners;
 
   nr_corners = CORNERS_OF_ELEM(theElement);
@@ -4761,7 +4756,7 @@ void NS_DIM_PREFIX CalculateCenterOfMass(ELEMENT *theElement, DOUBLE_VECTOR cent
 
   for (i=0; i<nr_corners; i++)
   {
-    corner = CVECT(MYVERTEX(CORNER(theElement,i)));
+    const FieldVector<DOUBLE,DIM>& corner = CVECT(MYVERTEX(CORNER(theElement,i)));
     V_DIM_ADD(center_of_mass,corner,center_of_mass);
   }
 

@@ -651,7 +651,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
   NODE    *theNode,*SonNode,*FatherNode,*EdgeNode0,*EdgeNode1;
   EDGE    *theEdge,*FatherEdge;
   VERTEX  *theVertex;
-  DOUBLE  *songlobal,diff;
+  DOUBLE diff;
   DOUBLE_VECTOR global;
 
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
@@ -711,7 +711,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
 
             theEdge = GetEdge(EdgeNode0,EdgeNode1);
             assert(theEdge != NULL);
-            songlobal = CVECT(MYVERTEX(SonNode));
+            const FieldVector<DOUBLE,DIM>& songlobal = CVECT(MYVERTEX(SonNode));
             V_DIM_LINCOMB(0.5, CVECT(MYVERTEX(EdgeNode0)),
                           0.5, CVECT(MYVERTEX(EdgeNode1)),global);
             V_DIM_EUKLIDNORM_OF_DIFF(songlobal,global,diff);

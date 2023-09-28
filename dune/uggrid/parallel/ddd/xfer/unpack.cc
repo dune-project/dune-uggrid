@@ -136,7 +136,6 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
     {
       TYPE_DESC *refdesc;
       int rt_on_the_fly = (EDESC_REFTYPE(theElem)==DDD_TYPE_BY_HANDLER);
-      int l;
 
       const char      *msgrefarray = msgmem+theElem->offset;
       char      *objrefarray = objmem+theElem->offset;
@@ -152,7 +151,7 @@ static void LocalizeObject (DDD::DDDContext& context, bool merge_mode, TYPE_DESC
 
 
       /* loop over single pointer array */
-      for(l=0; l<theElem->size; l+=sizeof(void*))
+      for(std::size_t l=0; l<theElem->size; l+=sizeof(void*))
       {
         INT stIdx;
 

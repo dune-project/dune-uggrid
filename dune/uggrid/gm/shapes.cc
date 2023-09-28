@@ -74,63 +74,10 @@ USING_UG_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of variables global to this source file only (static!)        */
-/*                                                                          */
-/****************************************************************************/
-
-/* local midpoints */
-#ifdef UG_DIM_2
-static DOUBLE_VECTOR_2D LMP_Triangle            = {0.333333333333333333, 0.333333333333333333};
-static DOUBLE_VECTOR_2D LMP_Quadrilateral       = {0.5, 0.5};
-#endif
-#ifdef UG_DIM_3
-static DOUBLE_VECTOR_3D LMP_Tetrahedron         = {0.25, 0.25, 0.25};
-static DOUBLE_VECTOR_3D LMP_Pyramid             = {0.5, 0.5, 0.33333333333333333};
-static DOUBLE_VECTOR_3D LMP_Prism               = {0.333333333333333333,
-                                                   0.333333333333333333,0.5};
-static DOUBLE_VECTOR_3D LMP_Hexahedron          = {0.5, 0.5, 0.5};
-#endif
-
-/****************************************************************************/
-/*                                                                          */
 /* forward declarations of functions used before they are defined           */
 /*                                                                          */
 /****************************************************************************/
 
-
-/****************************************************************************/
-/** \brief Local midpoint
-
-   \param n - number of corners of the element
-
-   This function gives the local coordinates of the midpoint of an element
-
-   \return
-   Pointer to the coordinate array
- */
-/****************************************************************************/
-
-DOUBLE * NS_DIM_PREFIX LMP (INT n)
-{
-#ifdef UG_DIM_2
-  switch (n)
-  {
-  case 3 : return (LMP_Triangle);
-  case 4 : return (LMP_Quadrilateral);
-  }
-#endif
-
-#ifdef UG_DIM_3
-  switch (n)
-  {
-  case 4 : return (LMP_Tetrahedron);
-  case 5 : return (LMP_Pyramid);
-  case 6 : return (LMP_Prism);
-  case 8 : return (LMP_Hexahedron);
-  }
-#endif
-  return (NULL);
-}
 
 /****************************************************************************/
 /** \brief Transform global coordinates to local
@@ -151,7 +98,7 @@ DOUBLE * NS_DIM_PREFIX LMP (INT n)
 /****************************************************************************/
 
 INT NS_DIM_PREFIX UG_GlobalToLocal (INT n, const DOUBLE **Corners,
-                                    const DOUBLE *EvalPoint, DOUBLE *LocalCoord)
+                                    const FieldVector<DOUBLE,DIM>& EvalPoint, FieldVector<DOUBLE,DIM>& LocalCoord)
 {
   DOUBLE_VECTOR tmp,diff,M[DIM],IM[DIM];
   DOUBLE s,IMdet;
@@ -207,16 +154,13 @@ INT NS_DIM_PREFIX UG_GlobalToLocal (INT n, const DOUBLE **Corners,
 #ifdef UG_DIM_3
 INT NS_DIM_PREFIX TetraSideNormals (ELEMENT *theElement, DOUBLE **theCorners, DOUBLE_VECTOR theNormals[MAX_SIDES_OF_ELEM])
 {
-  ELEMENT e;
   DOUBLE_VECTOR a, b;
   DOUBLE h;
-  INT j,k;
+  INT j;
 
-  /* TODO: changed MAX_CORNERS_OF_ELEM to 4 and subsequently*/
-  SETTAG(&e,4);
   for (j=0; j<4; j++)
   {
-    k = SIDE_OPP_TO_CORNER(&e,j);
+    INT k = element_descriptors[TETRAHEDRON]->side_opp_to_corner[j];
     V3_SUBTRACT(theCorners[(j+1)%4],theCorners[(j+2)%4],a)
     V3_SUBTRACT(theCorners[(j+1)%4],theCorners[(j+3)%4],b)
     V3_VECTOR_PRODUCT(a,b,theNormals[k])
