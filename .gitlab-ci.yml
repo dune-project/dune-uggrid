@@ -6,6 +6,9 @@ include:
   - project: 'core/ci-config'
     ref: master
     file: 'config/common/master.yml'
+  - project: 'core/ci-config'
+    ref: master
+    file: 'jobs/common/master.yml'
 
 before_script:
   - . /duneci/bin/duneci-init-job
@@ -25,45 +28,20 @@ before_script:
     reports:
       junit: junit/*.xml
 
-debian:11 gcc-9-20:
+# specific job for testing sequential library version
+debian:11 gcc-10-20 sequential:
   <<: *common
   image: registry.dune-project.org/docker/ci/debian:11
-  allow_failure: true
   variables:
-    DUNECI_TOOLCHAIN: gcc-9-20
-
-debian:10 gcc-8-noassert-17:
-  <<: *common
-  image: registry.dune-project.org/docker/ci/debian:10
-  variables:
-    DUNECI_TOOLCHAIN: gcc-8-noassert-17
-
-debian:10 clang-7-libcpp-17:
-  <<: *common
-  image: registry.dune-project.org/docker/ci/debian:10
-  variables:
-    DUNECI_TOOLCHAIN: clang-7-libcpp-17
-
-ubuntu:18.04 clang-6-17:
-  <<: *common
-  image: registry.dune-project.org/docker/ci/ubuntu:18.04
-  variables:
-    DUNECI_TOOLCHAIN: clang-6-17
-
-# specific job for testing sequential library version
-debian:10 gcc-8-17 sequential:
-  <<: *common
-  image: registry.dune-project.org/docker/ci/debian:10
-  variables:
-    DUNECI_TOOLCHAIN: gcc-8-17
+    DUNECI_TOOLCHAIN: gcc-10-20
     DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_PARALLEL=0"
 
 # specific job for testing the debug version
-debian:10 gcc-8-17 debug:
+debian:10 gcc-10-20 debug:
   <<: *common
-  image: registry.dune-project.org/docker/ci/debian:10
+  image: registry.dune-project.org/docker/ci/debian:11
   variables:
-    DUNECI_TOOLCHAIN: gcc-8-17
+    DUNECI_TOOLCHAIN: gcc-10-20
     DUNECI_CMAKE_FLAGS: "-DUG_ENABLE_DEBUGGING:BOOL=1"
 
 # Check for spelling mistakes in text
