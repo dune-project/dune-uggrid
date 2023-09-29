@@ -63,9 +63,9 @@ if(UG_ENABLE_PARALLEL)
 endif()
 
 # define target for duneuggrid
-dune_add_library(duneuggrid)
+dune_add_library(duneuggrid EXPORT_NAME UGGrid)
 target_compile_definitions(duneuggrid PUBLIC ${UG_COMPILE_DEFINITIONS})
-target_link_libraries(duneuggrid PUBLIC ${DUNE_LIBS})
+target_link_libraries(duneuggrid PUBLIC Dune::Common)
 add_dune_mpi_flags(duneuggrid)
 
 check_include_file(sys/time.h HAVE_SYS_TIME_H)
