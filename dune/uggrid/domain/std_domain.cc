@@ -798,6 +798,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
   for (i = 0; i < nsides; i++)
     sides[i] = NULL;
+  thePatch = NULL;
   theBVP->nsides = nsides;
   for (theSegment = GetFirstBoundarySegment (theDomain); theSegment != NULL;
        theSegment = GetNextBoundarySegment (theSegment))
