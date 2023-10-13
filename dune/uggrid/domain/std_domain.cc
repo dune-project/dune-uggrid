@@ -666,7 +666,7 @@ CreateCornerPoints (HEAP * Heap, STD_BVP * theBVP, BNDP ** bndp)
    \param corners Array with pointers to all vertices
  */
 static void
-CreateLine(INT i, INT j, HEAP *Heap, PATCH *thePatch, PATCH **corners, PATCH **lines, PATCH **sides,
+CreateLine(INT i, INT j, HEAP *Heap, PATCH **corners, PATCH **lines, PATCH **sides,
            INT *nlines, INT *err)
 {
   INT k, n, m;
@@ -681,7 +681,7 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH *thePatch, PATCH **corners, PATCH **l
   if (k < 2)
     return;
 
-  thePatch =
+  PATCH* thePatch =
     (PATCH *) GetFreelistMemory (Heap, sizeof (LINE_PATCH)
                                  + (k -
                                     1) * sizeof (struct line_on_patch));
@@ -768,7 +768,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   DOMAIN *theDomain;
   BOUNDARY_SEGMENT *theSegment;
   LINEAR_SEGMENT *theLinSegment;
-  PATCH **corners, **sides, *thePatch;
+  PATCH **corners, **sides;
   unsigned short* segmentsPerPoint, *freeSegmentsPerPoint, *cornerCounters;
   INT i, j, n, m, maxSubDomains, ncorners, nlines, nsides;
 #       ifdef UG_DIM_3
@@ -804,7 +804,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   {
     if ((theSegment->id < 0) || (theSegment->id >= nsides))
       return (NULL);
-    thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (PARAMETER_PATCH));
+    PATCH* thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (PARAMETER_PATCH));
     if (thePatch == NULL)
       return (NULL);
     PATCH_TYPE (thePatch) = PARAMETRIC_PATCH_TYPE;
@@ -838,7 +838,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   {
     if ((theLinSegment->id < 0) || (theLinSegment->id >= nsides))
       return (NULL);
-    thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (LINEAR_PATCH));
+    PATCH* thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (LINEAR_PATCH));
     if (thePatch == NULL)
       return (NULL);
     PATCH_TYPE (thePatch) = LINEAR_PATCH_TYPE;
@@ -895,7 +895,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
     m = segmentsPerPoint[i];
 
-    thePatch =
+    PATCH* thePatch =
       (PATCH *) GetFreelistMemory (Heap, sizeof (POINT_PATCH)
                                    + (m-1) * sizeof (struct point_on_patch));
     if (thePatch == NULL)
@@ -980,7 +980,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
         if ( bnd_edges.insert(z).second )       /* true if bnd_edges didn't contain z yet */
         {
           /* Insert the line into the boundary data structure */
-          CreateLine(min, max, Heap, thePatch, corners, lines, sides, &nlines, &err);
+          CreateLine(min, max, Heap, corners, lines, sides, &nlines, &err);
         }
         else
           bnd_edges.erase(z);
@@ -1010,7 +1010,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
         if ( bnd_edges.insert(z).second )            /* true if bnd_edges didn't contain z yet */
         {
           /* Insert the line into the boundary data structure */
-          CreateLine(min, max, Heap, thePatch, corners, lines, sides, &nlines, &err);
+          CreateLine(min, max, Heap, corners, lines, sides, &nlines, &err);
         }
         else
           bnd_edges.erase(z);
@@ -1031,7 +1031,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   n = 0;
   for (i = 0; i < ncorners; i++)
   {
-    thePatch = corners[i];
+    PATCH* thePatch = corners[i];
     for (j = 0; j < POINT_PATCH_N (thePatch); j++)
       POINT_PATCH_PID (thePatch, j) += m;
     theBVP->patches[n++] = thePatch;
@@ -1039,7 +1039,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 #ifdef UG_DIM_3
   for (i = 0; i < nlines; i++)
   {
-    thePatch = lines[i];
+    PATCH* thePatch = lines[i];
     PATCH_ID (thePatch) = n;
     for (j = 0; j < LINE_PATCH_N (thePatch); j++)
       LINE_PATCH_PID (thePatch, j) += m;
@@ -1048,7 +1048,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 #endif
   for (i = 0; i < nsides; i++)
   {
-    thePatch = sides[i];
+    PATCH* thePatch = sides[i];
     PATCH_ID (thePatch) = n;
     theBVP->patches[n++] = thePatch;
   }
