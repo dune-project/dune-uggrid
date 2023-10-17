@@ -762,7 +762,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   LINEAR_SEGMENT *theLinSegment;
   PATCH **corners, **sides;
   unsigned short* segmentsPerPoint, *freeSegmentsPerPoint, *cornerCounters;
-  INT i, j, n, m, maxSubDomains, ncorners, nlines, nsides;
+  INT i, j, n, m, ncorners, nlines, nsides;
 #       ifdef UG_DIM_3
   PATCH **lines;
   INT err;
@@ -783,7 +783,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   nsides = theDomain->numOfSegments;
 
   /* create parameter patches */
-  maxSubDomains = 0;
   sides = (PATCH **) GetTmpMem (Heap, nsides * sizeof (PATCH *), MarkKey);
   if (sides == NULL)
     return (NULL);
@@ -844,8 +843,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
                          LINEAR_PATCH_LEFT (thePatch),
                          LINEAR_PATCH_RIGHT (thePatch)));
   }
-  theBVP->numOfSubdomains = maxSubDomains;
-  PRINTDEBUG (dom, 1, (" bvp nsubcf %x\n", theBVP->numOfSubdomains));
   for (i = 0; i < nsides; i++)
     if (sides[i] == NULL)
       return (NULL);
@@ -1125,7 +1122,6 @@ BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
   strcpy (BVPD_NAME (theBVPDesc), ENVITEM_NAME (theBVP));
 
   /* the domain part */
-  BVPD_NSUBDOM (theBVPDesc) = theBVP->numOfSubdomains;
   BVPD_NCOEFFF (theBVPDesc) = theBVP->numOfCoeffFct;
   BVPD_NUSERF (theBVPDesc) = theBVP->numOfUserFct;
   BVPD_CONFIG (theBVPDesc) = theBVP->ConfigProc;

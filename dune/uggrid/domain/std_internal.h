@@ -46,8 +46,6 @@ enum PatchType {POINT_PATCH_TYPE,
 #define STD_BVP_SIDEOFFSET(p)                   ((p)->sideoffset)
 #define STD_BVP_PATCH(p,i)                              ((p)->patches[i])
 
-#define STD_BVP_NSUBDOM(p)                              ((p)->numOfSubdomains)
-
 #define GetSTD_BVP(p)                           ((STD_BVP *)(p))
 /*@}*/
 
@@ -167,11 +165,6 @@ The corners are numbered `globally` in a consecutive way beginning with 0.
 \warning boundary segments must be defined in such a way that no two
 corners are identical!
 
-In two dimensions internal boundary
-segments can be defined in order to divide the domain into `subdomains`
-having different materials for example. The subdomains are numbered consecutively
-beginning with 1. By default the exterior of the domain has number 0.
-
 Boundary segments are created with the function \ref CreateBoundarySegment.
 
 \sa DOMAIN, CreateDomain, CreateBoundarySegment.
@@ -278,12 +271,6 @@ struct std_BoundaryValueProblem
 
   /** \brief File name for meshinfos             */
   char mesh_file[NS_PREFIX NAMESIZE];
-
-  /** @name Domain part */
-  /*@{*/
-  /** \brief Number of subdomains, exterior not counted                */
-  INT numOfSubdomains;
-  /*@}*/
 
   /** @name Boundary description */
   /*@{*/

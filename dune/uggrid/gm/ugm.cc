@@ -2801,7 +2801,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   MULTIGRID *theMG;
   INT i;
   BVP *theBVP;
-  BVP_DESC *theBVPDesc;
   MESH mesh;
   INT MarkKey;
 
@@ -2846,7 +2845,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
     PrintErrorMessage('E',"CreateMultiGrid","BVP not evaluated");
     return(NULL);
   }
-  theBVPDesc = MG_BVPD(theMG);
 
   /* 1: general user data space */
   // As we are using this version only with DUNE, we will never have UG user data
@@ -2865,7 +2863,6 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
 #endif
   theMG->topLevel = -1;
   MG_BVP(theMG) = theBVP;
-  MG_NPROPERTY(theMG) = BVPD_NSUBDOM(theBVPDesc);
   RESETMGSTATUS(theMG);
 
   theMG->theHeap = theHeap;
@@ -4632,7 +4629,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
   }
   if (theMesh->nElements == NULL)
     return(GM_OK);
-  for (j=1; j<=theMesh->nSubDomains; j++)
+  for (j=1; j<=1; j++)
     for (k=0; k<theMesh->nElements[j]; k++)
     {
       if (theMesh->ElementLevel!=NULL) i = theMesh->ElementLevel[j][k];
@@ -6419,7 +6416,7 @@ static INT FinishGrid (MULTIGRID *mg)
   HEAP *heap=MGHEAP(mg);
   FIFO unused,shell;
   INT MarkKey = MG_MARK_KEY(mg);
-  INT i,side,id,nbid,nsd,found,s_id;
+  INT i,side,id,nbid,found,s_id;
   INT *sd_table;
   void *buffer;
 
@@ -6437,7 +6434,7 @@ static INT FinishGrid (MULTIGRID *mg)
   }
 
   /* table for subdomain ids */
-  nsd = 1 + BVPD_NSUBDOM(MG_BVPD(mg));
+  const INT nsd = 2;
   sd_table = (INT*)GetTmpMem(heap,nsd*sizeof(INT),MarkKey);
   if (sd_table==NULL)
     REP_ERR_RETURN (GM_ERROR);

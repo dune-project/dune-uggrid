@@ -3015,12 +3015,11 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   }
   else
     theMesh.VertexLevel = NULL;
-  theMesh.nSubDomains = theBVPDesc.nSubDomains;
-  theMesh.nElements = (INT*)GetTmpMem(theHeap,(theMesh.nSubDomains+1)*sizeof(INT),MarkKey);
-  if (theMesh.nElements==NULL) {UserWriteF("ERROR: cannot allocate %d bytes for theMesh.nElements\n",(int)(theMesh.nSubDomains+1)*sizeof(INT)); CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-  theMesh.ElementLevel = (char**)GetTmpMem(theHeap,(theMesh.nSubDomains+1)*sizeof(char*),MarkKey);
-  if (theMesh.ElementLevel==NULL) {UserWriteF("ERROR: cannot allocate %d bytes for theMesh.ElementLevel\n",(int)(theMesh.nSubDomains+1)*sizeof(char*)); CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-  for (i=0; i<=theMesh.nSubDomains; i++)
+  theMesh.nElements = (INT*)GetTmpMem(theHeap,2*sizeof(INT),MarkKey);
+  if (theMesh.nElements==NULL) {UserWriteF("ERROR: cannot allocate %d bytes for theMesh.nElements\n",(int)2*sizeof(INT)); CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
+  theMesh.ElementLevel = (char**)GetTmpMem(theHeap,2*sizeof(char*),MarkKey);
+  if (theMesh.ElementLevel==NULL) {UserWriteF("ERROR: cannot allocate %d bytes for theMesh.ElementLevel\n",(int)2*sizeof(char*)); CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
+  for (i=0; i<=1; i++)
   {
     theMesh.nElements[i] = 0;
     theMesh.ElementLevel[i] = NULL;
