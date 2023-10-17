@@ -199,19 +199,6 @@ struct boundary_segment {
 
   /** @name Fields for boundary segment */
   /*@{*/
-  /** \brief Number of left and right subdomain
-   *
-   * Numbers of left and right subdomain. The right subdomain is where the
-   * normal vector of the curve points to in a right handed coordinate system. The TeX
-   * version of this page contains two figures for clarification.
-   * In 2D it is simple: Walk along the curve in direction of increasing parameter
-   * values and look to the right. There is the right subdomain. In 3D the rule
-   * is as follows. Let the thumb point in direction of increasing values
-   * of the first parameter, let the index finger point in direction of
-   * increasing values of the second parameter, then the middle finger
-   * points to the right subdomain.
-   */
-  INT left,right;
 
   /** \brief Number of the boundary segment beginning with zero */
   INT id;
@@ -256,9 +243,6 @@ struct linear_segment {
   NS_PREFIX ENVVAR v;
 
   /* fields for boundary segment */
-  /** \brief  Number of left and right subdomain */
-  INT left,right;
-
   /** \brief  Unique id of that segment                  */
   INT id;
 

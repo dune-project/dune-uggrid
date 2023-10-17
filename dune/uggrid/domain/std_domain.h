@@ -83,7 +83,7 @@ void                     *CreateDomain                        (const char *name,
 
 void RemoveDomain(const char* name);
 
-void   *CreateBoundarySegment       (const char *name, INT left, INT right,
+void   *CreateBoundarySegment       (const char *name,
                                      INT id,
                                      const INT *point,
                                      const DOUBLE *alpha, const DOUBLE *beta,
@@ -91,7 +91,7 @@ void   *CreateBoundarySegment       (const char *name, INT left, INT right,
                                      void *data);
 
 void *CreateLinearSegment (const char *name,
-                           INT left, INT right,INT id,
+                           INT id,
                            INT n, const INT *point,
                            DOUBLE x[CORNERS_OF_BND_SEG][DIM]);
 

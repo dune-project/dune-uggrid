@@ -221,8 +221,6 @@ RemoveDomain (const char *name)
 /** \brief Create a new BOUNDARY_SEGMENT
  *
  * @param  name - name of the boundary segment
- * @param  left - id of left subdomain
- * @param  right - id of right subdomain
  * @param  id - id of this boundary segment
  * @param  point - the endpoints of the boundary segment
  * @param  alpha - list where the parameter interval begins
@@ -242,7 +240,7 @@ RemoveDomain (const char *name)
 
 void *NS_DIM_PREFIX
 CreateBoundarySegment (const char *name,
-                       INT left, INT right, INT id,
+                       INT id,
                        const INT * point, const DOUBLE * alpha, const DOUBLE * beta,
                        BndSegFuncPtr BndSegFunc, void *data)
 {
@@ -257,8 +255,6 @@ CreateBoundarySegment (const char *name,
     return (NULL);
 
   /* fill in data */
-  newSegment->left = left;
-  newSegment->right = right;
   newSegment->id = id;
   for (i = 0; i < CORNERS_OF_BND_SEG; i++)
     newSegment->points[i] = point[i];
@@ -332,8 +328,6 @@ GetFirstBoundarySegment (DOMAIN * theDomain)
 /** \brief  Create a new LINEAR_SEGMENT
  *
  * @param  name - name of the boundary segment
- * @param  left - id of left subdomain
- * @param  right - id of right subdomain
  * @param  id - id of this boundary segment
  * @param  n - number of corners
  * @param  point - the endpoints of the boundary segment
@@ -351,7 +345,7 @@ GetFirstBoundarySegment (DOMAIN * theDomain)
 
 void *NS_DIM_PREFIX
 CreateLinearSegment (const char *name,
-                     INT left, INT right, INT id,
+                     INT id,
                      INT n, const INT * point,
                      DOUBLE x[CORNERS_OF_BND_SEG][DIM])
 {
@@ -369,8 +363,6 @@ CreateLinearSegment (const char *name,
     return (NULL);
 
   /* fill in data */
-  newSegment->left = left;
-  newSegment->right = right;
   newSegment->id = id;
   newSegment->n = n;
   for (i = 0; i < n; i++)
@@ -809,8 +801,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
       return (NULL);
     PATCH_TYPE (thePatch) = PARAMETRIC_PATCH_TYPE;
     PATCH_ID (thePatch) = theSegment->id;
-    PARAM_PATCH_LEFT (thePatch) = theSegment->left;
-    PARAM_PATCH_RIGHT (thePatch) = theSegment->right;
     for (i = 0; i < 2 * DIM_OF_BND; i++)
       PARAM_PATCH_POINTS (thePatch, i) = theSegment->points[i];
     for (i = 0; i < DIM_OF_BND; i++)
@@ -820,8 +810,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     }
     PARAM_PATCH_BS (thePatch) = theSegment->BndSegFunc;
     PARAM_PATCH_BSD (thePatch) = theSegment->data;
-    maxSubDomains = std::max(maxSubDomains, theSegment->left);
-    maxSubDomains = std::max(maxSubDomains, theSegment->right);
     sides[theSegment->id] = thePatch;
     PRINTDEBUG (dom, 1, ("sides id %d type %d left %d right %d\n",
                          PATCH_ID (thePatch), PATCH_TYPE (thePatch),
@@ -843,8 +831,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
       return (NULL);
     PATCH_TYPE (thePatch) = LINEAR_PATCH_TYPE;
     PATCH_ID (thePatch) = theLinSegment->id;
-    LINEAR_PATCH_LEFT (thePatch) = theLinSegment->left;
-    LINEAR_PATCH_RIGHT (thePatch) = theLinSegment->right;
     LINEAR_PATCH_N (thePatch) = theLinSegment->n;
     for (j = 0; j < theLinSegment->n; j++)
     {
@@ -852,8 +838,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
       for (i = 0; i < DIM; i++)
         LINEAR_PATCH_POS (thePatch, j)[i] = theLinSegment->x[j][i];
     }
-    maxSubDomains = std::max(maxSubDomains, theLinSegment->left);
-    maxSubDomains = std::max(maxSubDomains, theLinSegment->right);
     sides[theLinSegment->id] = thePatch;
     PRINTDEBUG (dom, 1, ("sides id %d type %d left %d right %d\n",
                          PATCH_ID (thePatch), PATCH_TYPE (thePatch),
