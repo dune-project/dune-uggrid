@@ -173,34 +173,6 @@ GM_OBJECTS NS_DIM_PREFIX GetFreeOBJT ()
 }
 
 /****************************************************************************/
-/** \brief Release an object type id not needed anymore
- *
- * @param  type - object type
- *
- * This function releases an object type id not needed anymore.
- *
- * @return <ul>
- * <li>   GM_OK if ok </li>
- * <li>   GM_ERROR when error occurred. </li>
- * </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX ReleaseOBJT (GM_OBJECTS type)
-{
-  if (type>=MAXOBJECTS)
-    RETURN (GM_ERROR);
-
-  /* we cannot release predefined object types! */
-  if (type<NPREDEFOBJ)
-    RETURN (GM_ERROR);
-
-  CLEAR_FLAG(UsedOBJT,1<<type);
-
-  return (GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Get an object from free list if possible
    \fn GetMemoryForObject
 

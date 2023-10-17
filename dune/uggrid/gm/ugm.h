@@ -83,7 +83,6 @@ INT              ExitUGManager ();
 
 /* object handling */
 GM_OBJECTS              GetFreeOBJT                    (void);
-INT              ReleaseOBJT                    (GM_OBJECTS);
 
 /* create basic objects */
 /** \todo Commented out because no definitions exist for these declarations
