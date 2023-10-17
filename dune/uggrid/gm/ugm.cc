@@ -5779,10 +5779,10 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
     if (VectorPosition(theVector,pos))
       return;
                 #ifdef UG_DIM_2
-    UserWriteF("POS=(%10.2e,%10.2e)",pos[_X_],pos[_Y_]);
+    UserWriteF("POS=(%10.2e,%10.2e)",pos[0],pos[1]);
                 #endif
                 #ifdef UG_DIM_3
-    UserWriteF("POS=(%10.2e,%10.2e,%10.2e)",pos[_X_],pos[_Y_],pos[_Z_]);
+    UserWriteF("POS=(%10.2e,%10.2e,%10.2e)",pos[0],pos[1],pos[2]);
                 #endif
   }
 

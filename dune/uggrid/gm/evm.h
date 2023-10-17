@@ -60,11 +60,6 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-/* space dimension indices */
-#define _X_             0
-#define _Y_             1
-#define _Z_             2
-
 /* misc macros */
 #define SQRT(a)                                 sqrt((double)(a))
 #define POW(a,b)                                pow((double)(a),(double)(b))

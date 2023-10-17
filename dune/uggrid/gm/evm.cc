@@ -291,7 +291,7 @@ DOUBLE NS_DIM_PREFIX vp (const DOUBLE x1, const DOUBLE y1, const DOUBLE x2, cons
 /****************************************************************************/
 DOUBLE NS_DIM_PREFIX  c_tarea (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2)
 {
-  return(0.5*fabs((x1[_Y_]-x0[_Y_])*(x2[_X_]-x0[_X_])-(x1[_X_]-x0[_X_])*(x2[_Y_]-x0[_Y_])));
+  return(0.5*fabs((x1[1]-x0[1])*(x2[0]-x0[0])-(x1[0]-x0[0])*(x2[1]-x0[1])));
 }
 /****************************************************************************/
 /*D
@@ -315,7 +315,7 @@ DOUBLE NS_DIM_PREFIX  c_tarea (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE 
 /****************************************************************************/
 DOUBLE NS_DIM_PREFIX c_qarea (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2, const DOUBLE *x3)
 {
-  return( 0.5*fabs( (x3[_Y_]-x1[_Y_])*(x2[_X_]-x0[_X_])-(x3[_X_]-x1[_X_])*(x2[_Y_]-x0[_Y_]) ) );
+  return( 0.5*fabs( (x3[1]-x1[1])*(x2[0]-x0[0])-(x3[0]-x1[0])*(x2[1]-x0[1]) ) );
 }
 
 /****************************************************************************/
