@@ -43,6 +43,8 @@
 #ifndef __STD_DOMAIN__
 #define __STD_DOMAIN__
 
+#include <array>
+
 #include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/namespace.h>
 
@@ -52,6 +54,62 @@ START_UGDIM_NAMESPACE
 
 #undef  CORNERS_OF_BND_SEG
 #define CORNERS_OF_BND_SEG               2*DIM_OF_BND
+
+/** \brief Boundary segment with a (multi-)linear geometry
+ */
+struct linear_segment
+{
+  /** \brief  Constructor
+   *
+   * @param  idA id of this boundary segment
+   * @param  nA Number of corners
+   * @param  point The ids of the vertices that make up the boundary segment
+   * @param  xA Coordinates of the vertices
+   */
+  linear_segment(INT idA,
+                 INT nA,
+                 const INT * point,
+                 const std::array<FieldVector<DOUBLE,DIM>, CORNERS_OF_BND_SEG>& xA);
+
+  /** \brief  Unique id of that segment */
+  INT id;
+
+  /** \brief  Number of corners */
+  INT n;
+
+  /** \brief  Numbers of the vertices (ID) */
+  INT points[CORNERS_OF_BND_SEG];
+
+  /** \brief  Coordinates */
+  std::array<FieldVector<DOUBLE,DIM>, CORNERS_OF_BND_SEG> x;
+};
+
+/** \brief Data type describing a domain
+
+The \ref domain structure describes a two- or three-dimensional domain (boundary). This geometry
+information is used by UG when it refines a grid, i.e., complex geometries are approximated
+better when the grid is refined.
+
+A domain is made up of one or several `boundary segments` which are defined by the
+\ref boundary_segment structure. The points where boundary segments join are
+called corners of the domain. For each corner a \ref node is automatically created.
+
+Domains are created with the function \ref CreateDomain.
+*/
+struct domain
+{
+  /** \brief Fields for environment directory. Also stores the name of the domain */
+  NS_PREFIX ENVDIR d;
+
+  /** \brief Number of boundary segments */
+  INT numOfSegments;
+
+  /** \brief The boundary segments without a parametrization */
+  std::vector<linear_segment> linearSegments;
+
+  /** \brief Number of corner points */
+  INT numOfCorners;
+};
 
 
 /*----------- typedef for functions ----------------------------------------*/
@@ -77,7 +135,7 @@ typedef INT (*BndCondProcPtr)(void *, void *, DOUBLE *, DOUBLE *, INT *);
 
 
 /* domain definition */
-void                     *CreateDomain                        (const char *name,
+domain                   *CreateDomain                        (const char *name,
                                                                INT segments,
                                                                INT corners);
 
@@ -89,11 +147,6 @@ void   *CreateBoundarySegment       (const char *name,
                                      const DOUBLE *alpha, const DOUBLE *beta,
                                      BndSegFuncPtr BndSegFunc,
                                      void *data);
-
-void *CreateLinearSegment (const char *name,
-                           INT id,
-                           INT n, const INT *point,
-                           DOUBLE x[CORNERS_OF_BND_SEG][DIM]);
 
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);

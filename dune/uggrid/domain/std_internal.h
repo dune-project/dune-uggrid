@@ -106,30 +106,6 @@ enum PatchType {POINT_PATCH_TYPE,
 /*----------- definition of structs ----------------------------------------*/
 
 
-/** \brief Data type describing a domain
-
-The \ref domain structure describes a two- or three-dimensional domain (boundary). This geometry
-information is used by UG when it refines a grid, i.e., complex geometries are approximated
-better when the grid is refined.
-
-A domain is made up of one or several `boundary segments` which are defined by the
-\ref boundary_segment structure. The points where boundary segments join are
-called corners of the domain. For each corner a \ref node is automatically created.
-
-Domains are created with the function \ref CreateDomain.
-*/
-struct domain {
-
-  /** \brief Fields for environment directory. Also stores the name of the domain */
-  NS_PREFIX ENVDIR d;
-
-  /** \brief Number of boundary segments */
-  INT numOfSegments;
-
-  /** \brief Number of corner points */
-  INT numOfCorners;
-};
-
 /** \brief Data structure defining part of the boundary of a domain
 
 A domain for UG is described as a set of boundary segments defined
@@ -224,29 +200,6 @@ struct boundary_segment {
    */
   void *data;
   /*@}*/
-};
-
-/** \brief ???
- *
- * \todo Please doc me!
- */
-struct linear_segment {
-
-  /** \brief Field for environment directory */
-  NS_PREFIX ENVVAR v;
-
-  /* fields for boundary segment */
-  /** \brief  Unique id of that segment                  */
-  INT id;
-
-  /** \brief  Number of corners                  */
-  INT n;
-
-  /** \brief  Numbers of the vertices (ID)*/
-  INT points[CORNERS_OF_BND_SEG];
-
-  /** \brief  Coordinates  */
-  DOUBLE x[CORNERS_OF_BND_SEG][DIM];
 };
 
 /****************************************************************************/
