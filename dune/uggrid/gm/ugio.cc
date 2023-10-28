@@ -51,7 +51,6 @@
 #include <dune/uggrid/low/fileopen.h>
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/misc.h>
-#include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 #include <dune/uggrid/ugdevices.h>
@@ -1251,7 +1250,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   MGIO_PARINFO cg_pinfo;
   INT i,j,k,niv,nbv,nie,nbe,n,nref,hr_max,mode,level,id,foid,non,tl,saved;
   int *vidlist;
-  char *p,*f,*s,*l;
+  char *f,*s,*l;
   BNDP **BndPList;
   char filename[NAMESIZE];
   char buf[64],itype[10];
@@ -1378,9 +1377,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
     mg_general.nElement             += NT(theGrid);
   }
   strcpy(mg_general.version,MGIO_VERSION);
-  p = GetStringVar (":IDENTIFICATION");
-  if (p!=NULL) strcpy(mg_general.ident,p);
-  else strcpy(mg_general.ident,"---");
+  strcpy(mg_general.ident,"---");
   strcpy(mg_general.DomainName,BVPD_NAME(&theBVPDesc));
   strcpy(mg_general.MultiGridName,MGNAME(theMG));
   std::string formatName = "DuneFormat" + std::to_string( DIM ) + "d";

@@ -54,7 +54,6 @@
 #include <dune/uggrid/low/fifo.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugenv.h>
-#include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 #include <dune/uggrid/ugdevices.h>
@@ -3911,12 +3910,6 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
 
   PRINTDEBUG(dom,1,("  ipn %ld nd %x bndp %x \n",
                     ID(theNode),theNode,V_BNDP(theVertex)));
-
-  SetStringValue(":bndp0",CVECT(theVertex)[0]);
-  SetStringValue(":bndp1",CVECT(theVertex)[1]);
-        #ifdef UG_DIM_3
-  SetStringValue(":bndp2",CVECT(theVertex)[2]);
-        #endif
 
   return(theNode);
 }

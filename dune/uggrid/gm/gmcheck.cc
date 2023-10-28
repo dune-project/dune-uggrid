@@ -47,7 +47,6 @@
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugenv.h>
-#include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 #include <dune/uggrid/ugdevices.h>
@@ -1822,9 +1821,6 @@ INT NS_DIM_PREFIX CheckGrid (GRID *theGrid, INT checkgeom, INT checkalgebra, INT
   INT error               = 0;
   INT errors              = 0;
   INT totalerrors = 0;
-
-  if (GetStringValue(":conf:hghost_overlap",&hghost_overlap) !=0)
-    UserWriteF("CheckGrid: warning %s not set\n",":conf:hghost_overlap");
 
   /* check geometrical data structures */
   if (checkgeom)

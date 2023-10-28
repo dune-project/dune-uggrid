@@ -49,7 +49,6 @@
 #include "heaps.h"
 #include "ugenv.h"
 #include "fileopen.h"
-#include "ugstruct.h"
 
 /* own header */
 #include "initlow.h"
@@ -95,13 +94,6 @@ INT NS_PREFIX InitLow ()
 
   /* init fileopen */
   if ((err=InitFileOpen())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* init structs */
-  if ((err=InitUgStruct())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);
