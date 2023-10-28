@@ -89,7 +89,6 @@ typedef INT (*UserProcPtr)(DOUBLE *, DOUBLE *);
 #define BVPD_MIDPOINT(d)     ((d)->midpoint)
 #define BVPD_RADIUS(d)       ((d)->radius)
 #define BVPD_CONVEX(d)       ((d)->convex)
-#define BVPD_NSUBDOM(d)      ((d)->nSubDomains)
 #define BVPD_CONFIG(d)       ((d)->ConfigProc)
 #define BVPD_NCOEFFF(d)      ((d)->numOfCoeffFct)
 #define BVPD_NUSERF(d)       ((d)->numOfUserFct)
@@ -112,12 +111,6 @@ struct BVP_Descriptor
   /*@{*/
   /** \brief Name of the BVP */
   char name[NS_PREFIX NAMELEN];
-  /*@}*/
-
-  /** @name Domain part */
-  /*@{*/
-  /** \brief Number of subdomains, exterior not counted                */
-  INT nSubDomains;
   /*@}*/
 
   /** @name Problem part */
@@ -153,9 +146,6 @@ struct mesh
 
   /** \brief Positions of inner nodes            */
   DOUBLE **Position;
-
-  /** \brief Number of subdomains                   */
-  INT nSubDomains;
 
   /** \brief Number of boundary sides per subdomain */
   INT *nSides;

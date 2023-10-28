@@ -36,7 +36,6 @@
 
 /* low module */
 #include <dune/uggrid/low/misc.h>
-#include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 /* gm module */
@@ -120,10 +119,6 @@ INT NS_DIM_PREFIX InitGm ()
     SetHiWrd(err,__LINE__);
     return (err);
   }
-
-  /* set config variables for the script */
-  if (SetStringValue("conf:dim",(DOUBLE)DIM))
-    return(__LINE__);
 
   return (0);
 }

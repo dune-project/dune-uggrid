@@ -91,86 +91,6 @@ const DOUBLE NS_DIM_PREFIX unit_vec[DIM][DIM]={{1,0,0},{0,1,0},{0,0,1}};
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-/****                                                                    ****/
-/****    general routines                                                ****/
-/****                                                                    ****/
-/****************************************************************************/
-/****************************************************************************/
-/****************************************************************************/
-
-/****************************************************************************/
-/*D
-   PointInPolygon - Decide if Point lies in the polygon of Points
-
-   SYNOPSIS:
-   INT PointInPolygon (const COORD_POINT *Points, INT n,
-   const COORD_POINT Point);
-
-   PARAMETERS:
-   .  Points - polygon given by array of 'COORD_POINT' structures
-   .  n - number of corners
-   .  Point - Point in question
-
-   STRUCTURES:
-
-   .vb
-   struct coord_point
-   {
-    DOUBLE x;
-    DOUBLE y;
-   };
-   .ve
-
-   DESCRIPTION:
-   This function decides if 'Point' lies in the polygon of 'Points'.
-
-   The number of corners of the polygon must be less than or equal
-   than 4 in the current implementation!
-
-   RETURN VALUE:
-   bool
-   .n     false when lies not in the polygon
-   .n     true  when lies in the polygon.
-   D*/
-/****************************************************************************/
-
-#define POLYMAX         8
-
-bool NS_DIM_PREFIX PointInPolygon (const COORD_POINT *Points, INT n, COORD_POINT Point)
-{
-  [[maybe_unused]] DOUBLE D[POLYMAX] ,tau[POLYMAX],xa,ya,xe,ye;
-  int i, left, right;
-
-  assert (n<=POLYMAX);
-  if (n<=2) return false;
-
-  xa = Points[0].x;
-  ya = Points[0].y;
-  for (i=1; i<=n; i++)
-  {
-    xe = Points[i%n].x;
-    ye = Points[i%n].y;
-    D[i-1] = (xe-xa)*(xe-xa)+(ye-ya)*(ye-ya);
-    tau[i-1] = (-(ye-ya)*(Point.x-xa)+(xe-xa)*(Point.y-ya));
-    xa = xe;
-    ya = ye;
-  }
-  left = right = 0;
-  for (i=0; i<n; i++)
-  {
-    if (tau[i]>=0.0) left++;
-    if (tau[i]<=0.0) right++;
-    /*	if (tau[i]>=D[i]*SMALL_C) left++;
-            if (tau[i]<=-D[i]*SMALL_C) right++;		*/
-  }
-  if (left==n || right==n)
-    return true;
-  return false;
-}
-
-/****************************************************************************/
-/****************************************************************************/
-/****************************************************************************/
 /****																	 ****/
 /****		2D routines                                                                                              ****/
 /****																	 ****/
@@ -291,7 +211,7 @@ DOUBLE NS_DIM_PREFIX vp (const DOUBLE x1, const DOUBLE y1, const DOUBLE x2, cons
 /****************************************************************************/
 DOUBLE NS_DIM_PREFIX  c_tarea (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2)
 {
-  return(0.5*fabs((x1[_Y_]-x0[_Y_])*(x2[_X_]-x0[_X_])-(x1[_X_]-x0[_X_])*(x2[_Y_]-x0[_Y_])));
+  return(0.5*fabs((x1[1]-x0[1])*(x2[0]-x0[0])-(x1[0]-x0[0])*(x2[1]-x0[1])));
 }
 /****************************************************************************/
 /*D
@@ -315,7 +235,7 @@ DOUBLE NS_DIM_PREFIX  c_tarea (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE 
 /****************************************************************************/
 DOUBLE NS_DIM_PREFIX c_qarea (const DOUBLE *x0, const DOUBLE *x1, const DOUBLE *x2, const DOUBLE *x3)
 {
-  return( 0.5*fabs( (x3[_Y_]-x1[_Y_])*(x2[_X_]-x0[_X_])-(x3[_X_]-x1[_X_])*(x2[_Y_]-x0[_Y_]) ) );
+  return( 0.5*fabs( (x3[1]-x1[1])*(x2[0]-x0[0])-(x3[0]-x1[0])*(x2[1]-x0[1]) ) );
 }
 
 /****************************************************************************/

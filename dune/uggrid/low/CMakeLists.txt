@@ -12,7 +12,6 @@ target_sources(duneuggrid PRIVATE
   initlow.cc
   misc.cc
   ugenv.cc
-  ugstruct.cc
   ugtimer.cc)
 
 install(FILES
@@ -23,7 +22,6 @@ install(FILES
   misc.h
   namespace.h
   ugenv.h
-  ugstruct.h
   ugtimer.h
   ugtypes.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/uggrid/low)

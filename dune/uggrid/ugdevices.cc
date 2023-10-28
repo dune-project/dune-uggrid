@@ -42,7 +42,6 @@
 #include <dune/uggrid/low/namespace.h>
 #include <dune/uggrid/low/ugenv.h>
 #include <dune/uggrid/low/debug.h>
-#include <dune/uggrid/low/ugstruct.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 /* dev module */

@@ -119,12 +119,44 @@ static INT theProblemDirID;     /*!< env type for Problem dir                   
 static INT theBdryCondVarID;    /*!<  env type for Problem vars                 */
 
 static INT theDomainDirID;      /*!<  env type for Domain dir                           */
-static INT theBdrySegVarID;     /*!<  env type for bdry segment vars            */
-static INT theLinSegVarID;      /*!<  env type for linear segment vars              */
 
 static INT theBVPDirID;         /*!<  env type for BVP dir                                      */
 
 static STD_BVP *currBVP;
+
+
+/****************************************************************************/
+/* Methods for the class 'boundary_segment'                                 */
+/****************************************************************************/
+
+boundary_segment::boundary_segment(INT idA,
+                                   const INT* pointsA,
+                                   BndSegFuncPtr bndSegFuncA,
+                                   void *dataA)
+: id(idA), BndSegFunc(bndSegFuncA), data(dataA)
+{
+  for (INT i = 0; i < CORNERS_OF_BND_SEG; i++)
+    points[i] = pointsA[i];
+}
+
+
+/****************************************************************************/
+/* Methods for the class 'linear_segment'                                   */
+/****************************************************************************/
+
+linear_segment::linear_segment(INT idA,
+                               INT nA,
+                               const INT * point,
+                               const std::array<FieldVector<DOUBLE,DIM>, CORNERS_OF_BND_SEG>& xA)
+: id(idA), n(nA), x(xA)
+{
+  if (n > CORNERS_OF_BND_SEG)
+    std::terminate();
+
+  for (int i = 0; i < n; i++)
+    points[i] = point[i];
+}
+
 
 /****************************************************************************/
 /** \brief Create a new DOMAIN data structure
@@ -146,7 +178,7 @@ static STD_BVP *currBVP;
  */
 /****************************************************************************/
 
-void *NS_DIM_PREFIX
+domain *NS_DIM_PREFIX
 CreateDomain (const char *name, INT segments,
               INT corners)
 {
@@ -217,172 +249,6 @@ RemoveDomain (const char *name)
   }
 }
 
-/****************************************************************************/
-/** \brief Create a new BOUNDARY_SEGMENT
- *
- * @param  name - name of the boundary segment
- * @param  left - id of left subdomain
- * @param  right - id of right subdomain
- * @param  id - id of this boundary segment
- * @param  point - the endpoints of the boundary segment
- * @param  alpha - list where the parameter interval begins
- * @param  beta - list where the parameter interval ends
- * @param  BndSegFunc - function mapping parameters
- * @param  data - user defined space
- *
- * This function allocates and initializes a new BOUNDARY_SEGMENT for the previously
- * allocated DOMAIN structure.
- *
- * @return <ul>
- *   <li>     Pointer to a BOUNDARY_SEGMENT </li>
- *   <li>     NULL if out of memory.     </li>
- * </ul>
- */
-/****************************************************************************/
-
-void *NS_DIM_PREFIX
-CreateBoundarySegment (const char *name,
-                       INT left, INT right, INT id,
-                       const INT * point, const DOUBLE * alpha, const DOUBLE * beta,
-                       BndSegFuncPtr BndSegFunc, void *data)
-{
-  BOUNDARY_SEGMENT *newSegment;
-  INT i;
-
-  /* allocate the boundary segment */
-  newSegment =
-    (BOUNDARY_SEGMENT *) MakeEnvItem (name, theBdrySegVarID,
-                                      sizeof (BOUNDARY_SEGMENT));
-  if (newSegment == NULL)
-    return (NULL);
-
-  /* fill in data */
-  newSegment->left = left;
-  newSegment->right = right;
-  newSegment->id = id;
-  for (i = 0; i < CORNERS_OF_BND_SEG; i++)
-    newSegment->points[i] = point[i];
-  for (i = 0; i < DIM_OF_BND; i++)
-  {
-    newSegment->alpha[i] = alpha[i];
-    newSegment->beta[i] = beta[i];
-  }
-  newSegment->BndSegFunc = BndSegFunc;
-  newSegment->data = data;
-
-  return (newSegment);
-}
-
-/****************************************************************************/
-/** \brief Get next boundary segment of a domain
- *
- * @param  theBSeg - pointer to a boundary segment
- *
- * This function gets the next boundary segment of a domain.
- *
- * @return <ul>
- *   <li>     pointer to next BOUNDARY_SEGMENT </li>
- *   <li>     NULL if no more found.  </li>
- * </ul>
- */
-/****************************************************************************/
-
-static BOUNDARY_SEGMENT *
-GetNextBoundarySegment (BOUNDARY_SEGMENT * theBSeg)
-{
-  ENVITEM *theItem;
-
-  theItem = (ENVITEM *) theBSeg;
-
-  do
-    theItem = NEXT_ENVITEM (theItem);
-  while ((theItem != NULL) && (ENVITEM_TYPE (theItem) != theBdrySegVarID));
-
-  return ((BOUNDARY_SEGMENT *) theItem);
-}
-
-/****************************************************************************/
-/** \brief Get first boundary segment of a domain
- *
- * @param  theDomain - pointer to the domain structure
- *
- * This function returns the first boundary segment of a domain.
- *
- * @return <ul>
- *   <li>     pointer to a BOUNDARY_SEGMENT </li>
- *   <li>     NULL if not found or error.  </li>
- * </ul>
- */
-/****************************************************************************/
-
-static BOUNDARY_SEGMENT *
-GetFirstBoundarySegment (DOMAIN * theDomain)
-{
-  ENVITEM *theItem;
-
-  theItem = ENVITEM_DOWN (theDomain);
-
-  if (ENVITEM_TYPE (theItem) == theBdrySegVarID)
-    return ((BOUNDARY_SEGMENT *) theItem);
-  else
-    return (GetNextBoundarySegment ((BOUNDARY_SEGMENT *) theItem));
-}
-
-/****************************************************************************/
-/** \brief  Create a new LINEAR_SEGMENT
- *
- * @param  name - name of the boundary segment
- * @param  left - id of left subdomain
- * @param  right - id of right subdomain
- * @param  id - id of this boundary segment
- * @param  n - number of corners
- * @param  point - the endpoints of the boundary segment
- * @param  x - coordinates
- *
- * This function allocates and initializes a new LINEAR_SEGMENT
- * for the previously allocated DOMAIN structure.
- *
- * @return <ul>
- *   <li>     Pointer to a LINEAR_SEGMENT </li>
- *   <li>     NULL if out of memory. </li>
- * </ul>
- */
-/****************************************************************************/
-
-void *NS_DIM_PREFIX
-CreateLinearSegment (const char *name,
-                     INT left, INT right, INT id,
-                     INT n, const INT * point,
-                     DOUBLE x[CORNERS_OF_BND_SEG][DIM])
-{
-  LINEAR_SEGMENT *newSegment;
-  INT i, k;
-
-  if (n > CORNERS_OF_BND_SEG)
-    return (NULL);
-
-  /* allocate the boundary segment */
-  newSegment = (LINEAR_SEGMENT *)
-               MakeEnvItem (name, theLinSegVarID, sizeof (LINEAR_SEGMENT));
-
-  if (newSegment == NULL)
-    return (NULL);
-
-  /* fill in data */
-  newSegment->left = left;
-  newSegment->right = right;
-  newSegment->id = id;
-  newSegment->n = n;
-  for (i = 0; i < n; i++)
-  {
-    newSegment->points[i] = point[i];
-    for (k = 0; k < DIM; k++)
-      newSegment->x[i][k] = x[i][k];
-  }
-
-  return (newSegment);
-}
-
 UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
 {
   BND_PS *ps;
@@ -398,34 +264,6 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
   /* The ids in the patch data structure are consecutive but they
      start at currBVP->sideoffset instead of zero. */
   return PATCH_ID(patch) - currBVP->sideoffset;
-}
-
-
-static LINEAR_SEGMENT *
-GetNextLinearSegment (LINEAR_SEGMENT * theBSeg)
-{
-  ENVITEM *theItem;
-
-  theItem = (ENVITEM *) theBSeg;
-
-  do
-    theItem = NEXT_ENVITEM (theItem);
-  while ((theItem != NULL) && (ENVITEM_TYPE (theItem) != theLinSegVarID));
-
-  return ((LINEAR_SEGMENT *) theItem);
-}
-
-static LINEAR_SEGMENT *
-GetFirstLinearSegment (DOMAIN * theDomain)
-{
-  ENVITEM *theItem;
-
-  theItem = ENVITEM_DOWN (theDomain);
-
-  if (ENVITEM_TYPE (theItem) == theLinSegVarID)
-    return ((LINEAR_SEGMENT *) theItem);
-  else
-    return (GetNextLinearSegment ((LINEAR_SEGMENT *) theItem));
 }
 
 /* configuring a domain */
@@ -766,11 +604,9 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 {
   STD_BVP *theBVP;
   DOMAIN *theDomain;
-  BOUNDARY_SEGMENT *theSegment;
-  LINEAR_SEGMENT *theLinSegment;
   PATCH **corners, **sides;
   unsigned short* segmentsPerPoint, *freeSegmentsPerPoint, *cornerCounters;
-  INT i, j, n, m, maxSubDomains, ncorners, nlines, nsides;
+  INT i, j, n, m, ncorners, nlines, nsides;
 #       ifdef UG_DIM_3
   PATCH **lines;
   INT err;
@@ -791,7 +627,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   nsides = theDomain->numOfSegments;
 
   /* create parameter patches */
-  maxSubDomains = 0;
   sides = (PATCH **) GetTmpMem (Heap, nsides * sizeof (PATCH *), MarkKey);
   if (sides == NULL)
     return (NULL);
@@ -799,30 +634,26 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   for (i = 0; i < nsides; i++)
     sides[i] = NULL;
   theBVP->nsides = nsides;
-  for (theSegment = GetFirstBoundarySegment (theDomain); theSegment != NULL;
-       theSegment = GetNextBoundarySegment (theSegment))
+  for (const boundary_segment& theSegment : theDomain->boundarySegments)
   {
-    if ((theSegment->id < 0) || (theSegment->id >= nsides))
+    if ((theSegment.id < 0) || (theSegment.id >= nsides))
       return (NULL);
     PATCH* thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (PARAMETER_PATCH));
     if (thePatch == NULL)
       return (NULL);
     PATCH_TYPE (thePatch) = PARAMETRIC_PATCH_TYPE;
-    PATCH_ID (thePatch) = theSegment->id;
-    PARAM_PATCH_LEFT (thePatch) = theSegment->left;
-    PARAM_PATCH_RIGHT (thePatch) = theSegment->right;
+    PATCH_ID (thePatch) = theSegment.id;
     for (i = 0; i < 2 * DIM_OF_BND; i++)
-      PARAM_PATCH_POINTS (thePatch, i) = theSegment->points[i];
+      PARAM_PATCH_POINTS (thePatch, i) = theSegment.points[i];
+    // TODO: Remove PARAM_PATCH_RANGE, because it is always (0,1)^d
     for (i = 0; i < DIM_OF_BND; i++)
     {
-      PARAM_PATCH_RANGE (thePatch)[0][i] = theSegment->alpha[i];
-      PARAM_PATCH_RANGE (thePatch)[1][i] = theSegment->beta[i];
+      PARAM_PATCH_RANGE (thePatch)[0][i] = 0;
+      PARAM_PATCH_RANGE (thePatch)[1][i] = 1;
     }
-    PARAM_PATCH_BS (thePatch) = theSegment->BndSegFunc;
-    PARAM_PATCH_BSD (thePatch) = theSegment->data;
-    maxSubDomains = std::max(maxSubDomains, theSegment->left);
-    maxSubDomains = std::max(maxSubDomains, theSegment->right);
-    sides[theSegment->id] = thePatch;
+    PARAM_PATCH_BS (thePatch) = theSegment.BndSegFunc;
+    PARAM_PATCH_BSD (thePatch) = theSegment.data;
+    sides[theSegment.id] = thePatch;
     PRINTDEBUG (dom, 1, ("sides id %d type %d left %d right %d\n",
                          PATCH_ID (thePatch), PATCH_TYPE (thePatch),
                          PARAM_PATCH_LEFT (thePatch),
@@ -832,36 +663,28 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
                   ("   corners %d", PARAM_PATCH_POINTS (thePatch, i)));
     PRINTDEBUG (dom, 1, ("\n"));
   }
-  for (theLinSegment = GetFirstLinearSegment (theDomain);
-       theLinSegment != NULL;
-       theLinSegment = GetNextLinearSegment (theLinSegment))
+  for (const linear_segment& theLinSegment : theDomain->linearSegments)
   {
-    if ((theLinSegment->id < 0) || (theLinSegment->id >= nsides))
+    if ((theLinSegment.id < 0) || (theLinSegment.id >= nsides))
       return (NULL);
     PATCH* thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (LINEAR_PATCH));
     if (thePatch == NULL)
       return (NULL);
     PATCH_TYPE (thePatch) = LINEAR_PATCH_TYPE;
-    PATCH_ID (thePatch) = theLinSegment->id;
-    LINEAR_PATCH_LEFT (thePatch) = theLinSegment->left;
-    LINEAR_PATCH_RIGHT (thePatch) = theLinSegment->right;
-    LINEAR_PATCH_N (thePatch) = theLinSegment->n;
-    for (j = 0; j < theLinSegment->n; j++)
+    PATCH_ID (thePatch) = theLinSegment.id;
+    LINEAR_PATCH_N (thePatch) = theLinSegment.n;
+    for (j = 0; j < theLinSegment.n; j++)
     {
-      LINEAR_PATCH_POINTS (thePatch, j) = theLinSegment->points[j];
+      LINEAR_PATCH_POINTS (thePatch, j) = theLinSegment.points[j];
       for (i = 0; i < DIM; i++)
-        LINEAR_PATCH_POS (thePatch, j)[i] = theLinSegment->x[j][i];
+        LINEAR_PATCH_POS (thePatch, j)[i] = theLinSegment.x[j][i];
     }
-    maxSubDomains = std::max(maxSubDomains, theLinSegment->left);
-    maxSubDomains = std::max(maxSubDomains, theLinSegment->right);
-    sides[theLinSegment->id] = thePatch;
+    sides[theLinSegment.id] = thePatch;
     PRINTDEBUG (dom, 1, ("sides id %d type %d left %d right %d\n",
                          PATCH_ID (thePatch), PATCH_TYPE (thePatch),
                          LINEAR_PATCH_LEFT (thePatch),
                          LINEAR_PATCH_RIGHT (thePatch)));
   }
-  theBVP->numOfSubdomains = maxSubDomains;
-  PRINTDEBUG (dom, 1, (" bvp nsubcf %x\n", theBVP->numOfSubdomains));
   for (i = 0; i < nsides; i++)
     if (sides[i] == NULL)
       return (NULL);
@@ -1141,7 +964,6 @@ BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
   strcpy (BVPD_NAME (theBVPDesc), ENVITEM_NAME (theBVP));
 
   /* the domain part */
-  BVPD_NSUBDOM (theBVPDesc) = theBVP->numOfSubdomains;
   BVPD_NCOEFFF (theBVPDesc) = theBVP->numOfCoeffFct;
   BVPD_NUSERF (theBVPDesc) = theBVP->numOfUserFct;
   BVPD_CONFIG (theBVPDesc) = theBVP->ConfigProc;
@@ -2035,8 +1857,6 @@ InitDom (void)
     PrintErrorMessage ('F', "InitDom", "could not install '/Domains' dir");
     return (__LINE__);
   }
-  theBdrySegVarID = GetNewEnvVarID ();
-  theLinSegVarID = GetNewEnvVarID ();
 
   /* install the /BVP directory */
   theBVPDirID = GetNewEnvDirID ();

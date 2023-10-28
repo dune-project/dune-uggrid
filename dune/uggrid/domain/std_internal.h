@@ -46,8 +46,6 @@ enum PatchType {POINT_PATCH_TYPE,
 #define STD_BVP_SIDEOFFSET(p)                   ((p)->sideoffset)
 #define STD_BVP_PATCH(p,i)                              ((p)->patches[i])
 
-#define STD_BVP_NSUBDOM(p)                              ((p)->numOfSubdomains)
-
 #define GetSTD_BVP(p)                           ((STD_BVP *)(p))
 /*@}*/
 
@@ -100,180 +98,6 @@ enum PatchType {POINT_PATCH_TYPE,
 
 /****************************************************************************/
 /*                                                                          */
-/* domain definition data structures                                        */
-/*                                                                          */
-/****************************************************************************/
-
-
-/*----------- definition of structs ----------------------------------------*/
-
-
-/** \brief Data type describing a domain
-
-The \ref domain structure describes a two- or three-dimensional domain (boundary). This geometry
-information is used by UG when it refines a grid, i.e., complex geometries are approximated
-better when the grid is refined.
-
-A domain is made up of one or several `boundary segments` which are defined by the
-\ref boundary_segment structure. The points where boundary segments join are
-called corners of the domain. For each corner a \ref node is automatically created.
-
-Domains are created with the function \ref CreateDomain.
-*/
-struct domain {
-
-  /** \brief Fields for environment directory. Also stores the name of the domain */
-  NS_PREFIX ENVDIR d;
-
-  /** \brief Number of boundary segments */
-  INT numOfSegments;
-
-  /** \brief Number of corner points */
-  INT numOfCorners;
-};
-
-/** \brief Data structure defining part of the boundary of a domain
-
-A domain for UG is described as a set of boundary segments defined
-by the \ref boundary_segment structure. Each boundary segment is a mapping
-from `d`-1 dimensional parameter space to `d` dimensional Euclidean space.
-The parameter space is an interval [a,b] in two dimensions or a rectangle
-[a,b]x[c,d] in three-dimensional applications.
-
-`2D boundary segments`
-\verbatim
-      0        1
-      +--------+     maps [a,b] to R x R
-      a        b
-\endverbatim
-
-`3D boundary segments`
-\verbatim
-    d +--------+     maps [a,b]x[c,d] to R x R x R
-      |3      2|
-      |        |
-      |        |
-      |0      1|
-    c +--------+
-      a        b
-\endverbatim
-
-
-For all boundary segments the points in `d` dimensional space corresponding to the parameters
-a and b in two dimensions ((a,c),(a,d),(b,c),(b,d) in three dimensions)
-are called `corners` of the domain. Locally for each boundary segment the
-corners are numbered like shown in the figures above.
-The corners are numbered `globally` in a consecutive way beginning with 0.
-\warning boundary segments must be defined in such a way that no two
-corners are identical!
-
-In two dimensions internal boundary
-segments can be defined in order to divide the domain into `subdomains`
-having different materials for example. The subdomains are numbered consecutively
-beginning with 1. By default the exterior of the domain has number 0.
-
-Boundary segments are created with the function \ref CreateBoundarySegment.
-
-\sa DOMAIN, CreateDomain, CreateBoundarySegment.
-
-
-.p bndseg2d.eps
-.cb
-Boundary segments in 2D.
-.ce
-
-.p bndseg3d.eps
-.cb
-Boundary segments in 3D.
-.ce
-D*/
-struct boundary_segment {
-
-  /** \brief Field for environment directory
-   *
-   * The \ref boundary_segment structure is an environment variable (see ENVIRONMENT),
-   * therefore it has the ENVVAR v as its first component. v stores also the
-   * name of the boundary segment.
-   */
-  NS_PREFIX ENVVAR v;
-
-  /** @name Fields for boundary segment */
-  /*@{*/
-  /** \brief Number of left and right subdomain
-   *
-   * Numbers of left and right subdomain. The right subdomain is where the
-   * normal vector of the curve points to in a right handed coordinate system. The TeX
-   * version of this page contains two figures for clarification.
-   * In 2D it is simple: Walk along the curve in direction of increasing parameter
-   * values and look to the right. There is the right subdomain. In 3D the rule
-   * is as follows. Let the thumb point in direction of increasing values
-   * of the first parameter, let the index finger point in direction of
-   * increasing values of the second parameter, then the middle finger
-   * points to the right subdomain.
-   */
-  INT left,right;
-
-  /** \brief Number of the boundary segment beginning with zero */
-  INT id;
-
-  /** \brief Numbers of the vertices (ID)
-   *
-   * Mapping of local numbers of corners to global numbers. Remember, all
-   * global numbers of corners must be different. The local numbering scheme can
-   * be seen from the figures above.
-   */
-  INT points[CORNERS_OF_BND_SEG];
-
-  /** \brief Defines the parameter space.
-   *
-   * In 2D this is the interval [alpha[0],beta[0]], in 3D this is the rectangle
-   * [alpha[0],beta[0]] x [alpha[1],beta[1]] (or a=alpha[0], b=beta[0], c=alpha[1], d=beta[1]
-   * in the figure above.
-   */
-  DOUBLE alpha[DIM_OF_BND],beta[DIM_OF_BND];
-
-  /** \brief Pointer to a function describing the mapping from parameter space to world space
-   */
-  BndSegFuncPtr BndSegFunc;
-
-  /** \brief User defined pointer
-   *
-   * This pointer is passed as the first argument to the BndSegFunc of the segment.
-   * This pointer can be used to construct an interface to geometry data files,
-   * e.g. from a CAD system.
-   */
-  void *data;
-  /*@}*/
-};
-
-/** \brief ???
- *
- * \todo Please doc me!
- */
-struct linear_segment {
-
-  /** \brief Field for environment directory */
-  NS_PREFIX ENVVAR v;
-
-  /* fields for boundary segment */
-  /** \brief  Number of left and right subdomain */
-  INT left,right;
-
-  /** \brief  Unique id of that segment                  */
-  INT id;
-
-  /** \brief  Number of corners                  */
-  INT n;
-
-  /** \brief  Numbers of the vertices (ID)*/
-  INT points[CORNERS_OF_BND_SEG];
-
-  /** \brief  Coordinates  */
-  DOUBLE x[CORNERS_OF_BND_SEG][DIM];
-};
-
-/****************************************************************************/
-/*                                                                          */
 /* BoundaryValueProblem data structure                                      */
 /*                                                                          */
 /****************************************************************************/
@@ -294,12 +118,6 @@ struct std_BoundaryValueProblem
 
   /** \brief File name for meshinfos             */
   char mesh_file[NS_PREFIX NAMESIZE];
-
-  /** @name Domain part */
-  /*@{*/
-  /** \brief Number of subdomains, exterior not counted                */
-  INT numOfSubdomains;
-  /*@}*/
 
   /** @name Boundary description */
   /*@{*/

@@ -60,23 +60,9 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-/* space dimension indices */
-#define _X_             0
-#define _Y_             1
-#define _Z_             2
-
 /* misc macros */
 #define SQRT(a)                                 sqrt((double)(a))
 #define POW(a,b)                                pow((double)(a),(double)(b))
-
-/* macros for coord points */
-#define COPY_SC_TO_SH(p1,p2)                    (p2).x=(short)((p1).x);(p2).y=(short)((p1).y)
-#define CP_SUBTRACT(A,B,C)                      {(C).x = (A).x - (B).x;\
-                                                 (C).y = (A).y - (B).y;}
-#define CP_LIMCOMB(a,A,b,B,C)                   {(C).x = (DOUBLE)(a)*(A).x + (DOUBLE)(b)*(B).x;\
-                                                 (C).y = (DOUBLE)(a)*(A).y + (DOUBLE)(b)*(B).y;}
-#define CP_SCALARPRODUCT(A,B,c)                  (c) = (A).x*(B).x + (A).y*(B).y;
-#define CP_EUKLIDNORM(A,b)                       (b) = (DOUBLE)sqrt((double)((A).x*(A).x+(A).y*(A).y));
 
 /* macros for 1D vector operations */
 #define V1_COPY(A,C)                            {(C)[0] = (A)[0];}
@@ -238,19 +224,6 @@ START_UGDIM_NAMESPACE
 
 #endif
 
-/****************************************************************************/
-/*                                                                          */
-/* typedef of 2d points for screen coordinates                              */
-/*                                                                          */
-/****************************************************************************/
-
-struct coord_point
-{
-  DOUBLE x;
-  DOUBLE y;
-};
-
-typedef struct coord_point COORD_POINT;
 
 /****************************************************************************/
 /*                                                                          */
@@ -265,9 +238,6 @@ extern const DOUBLE unit_vec[DIM][DIM];
 /* function declarations                                                    */
 /*                                                                          */
 /****************************************************************************/
-
-/* general routines */
-bool            PointInPolygon                                          (const COORD_POINT *Points, INT n, COORD_POINT Point);
 
 /* 2D routines */
 DOUBLE          vp                                                                      (const DOUBLE x1, const DOUBLE y1, const DOUBLE x2, const DOUBLE y2);

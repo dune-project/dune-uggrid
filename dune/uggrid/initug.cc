@@ -48,7 +48,6 @@
 /* low module */
 #include <dune/uggrid/low/initlow.h>
 #include <dune/uggrid/low/misc.h>
-#include <dune/uggrid/low/ugstruct.h>
 
 /* parallelization module */
 #ifdef ModelP
@@ -134,10 +133,6 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
 
     return (1);
   }
-
-  /* create struct for configuration parameters */
-  if (MakeStruct (":conf"))
-    return (__LINE__);
 
   /* init the devices module */
   if ((err = InitDevices()) != 0)
