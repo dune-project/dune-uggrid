@@ -55,6 +55,73 @@ START_UGDIM_NAMESPACE
 #undef  CORNERS_OF_BND_SEG
 #define CORNERS_OF_BND_SEG               2*DIM_OF_BND
 
+
+/** \brief Data type of the functions mapping parameter space to world space
+ *
+ * The first argument of type void * is the user data pointer from
+ * the corresponding BOUNDARY_SEGMENT. The second parameter of type DOUBLE *
+ * provides an array containing the parameters where the boundary segment
+ * function should be evaluated (one number in 2D, two numbers in 3D). The
+ * third parameter of type DOUBLE * provides an array where the result can be placed
+ * (x,y values in 2D, x,y,z values in 3D).
+ */
+typedef INT (*BndSegFuncPtr)(void *,DOUBLE *, FieldVector<DOUBLE,DIM>&);
+
+
+/** \brief Data structure defining part of the boundary of a domain
+
+A domain for UG is described as a set of boundary segments defined
+by the \ref boundary_segment structure. Each boundary segment is a mapping
+from `d`-1 dimensional parameter space to `d` dimensional Euclidean space.
+The parameter space is an interval [0,1] in two dimensions or a square
+[0,1]x[0,1] in three-dimensional applications.
+
+For all boundary segments the points in `d` dimensional space corresponding to the parameters
+0 and 1 in two dimensions ((0,0),(0,1),(1,0),(1,1) in three dimensions)
+are called `corners` of the domain. Locally for each boundary segment the
+corners are numbered like shown in the figures above.
+The corners are numbered `globally` in a consecutive way beginning with 0.
+\warning boundary segments must be defined in such a way that no two
+corners are identical!
+*/
+struct boundary_segment
+{
+  /** \brief Create a new BOUNDARY_SEGMENT
+   *
+   * @param  id - id of this boundary segment
+   * @param  point - the endpoints of the boundary segment
+   * @param  BndSegFunc - function mapping parameters
+   * @param  data - user defined space
+   */
+  boundary_segment(INT id,
+                   const INT* point,
+                   BndSegFuncPtr BndSegFunc,
+                   void *data);
+
+  /** \brief Number of the boundary segment beginning with zero */
+  INT id;
+
+  /** \brief Numbers of the vertices (ID)
+   *
+   * Mapping of local numbers of corners to global numbers. Remember, all
+   * global numbers of corners must be different.
+   */
+  INT points[CORNERS_OF_BND_SEG];
+
+  /** \brief Pointer to a function describing the mapping from parameter space to world space
+   */
+  BndSegFuncPtr BndSegFunc;
+
+  /** \brief User defined pointer
+   *
+   * This pointer is passed as the first argument to the BndSegFunc of the segment.
+   * This pointer can be used to construct an interface to geometry data files,
+   * e.g. from a CAD system.
+   */
+  void *data;
+};
+
+
 /** \brief Boundary segment with a (multi-)linear geometry
  */
 struct linear_segment
@@ -104,6 +171,9 @@ struct domain
   /** \brief Number of boundary segments */
   INT numOfSegments;
 
+  /** \brief The boundary segments with a parametrization */
+  std::vector<boundary_segment> boundarySegments;
+
   /** \brief The boundary segments without a parametrization */
   std::vector<linear_segment> linearSegments;
 
@@ -111,18 +181,6 @@ struct domain
   INT numOfCorners;
 };
 
-
-/*----------- typedef for functions ----------------------------------------*/
-/** \brief Data type of the functions mapping parameter space to world space
- *
- * The first argument of type void * is the user data pointer from
- * the corresponding BOUNDARY_SEGMENT. The second parameter of type DOUBLE *
- * provides an array containing the parameters where the boundary segment
- * function should be evaluated (one number in 2D, two numbers in 3D). The
- * third parameter of type DOUBLE * provides an array where the result can be placed
- * (x,y values in 2D, x,y,z values in 3D).
- */
-typedef INT (*BndSegFuncPtr)(void *,DOUBLE *, FieldVector<DOUBLE,DIM>&);
 
 /** \brief ???
  *
@@ -140,13 +198,6 @@ domain                   *CreateDomain                        (const char *name,
                                                                INT corners);
 
 void RemoveDomain(const char* name);
-
-void   *CreateBoundarySegment       (const char *name,
-                                     INT id,
-                                     const INT *point,
-                                     const DOUBLE *alpha, const DOUBLE *beta,
-                                     BndSegFuncPtr BndSegFunc,
-                                     void *data);
 
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);
