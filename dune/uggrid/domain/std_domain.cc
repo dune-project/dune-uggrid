@@ -605,7 +605,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   STD_BVP *theBVP;
   DOMAIN *theDomain;
   PATCH **corners, **sides;
-  unsigned short* segmentsPerPoint, *freeSegmentsPerPoint, *cornerCounters;
+  unsigned short* segmentsPerPoint, *cornerCounters;
   INT i, j, n, m, ncorners, nlines, nsides;
 #       ifdef UG_DIM_3
   PATCH **lines;
@@ -697,7 +697,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
   /* precompute the number of segments at each point patch */
   segmentsPerPoint = (unsigned short*)calloc(ncorners,sizeof(unsigned short));
-  freeSegmentsPerPoint = (unsigned short*)calloc(ncorners,sizeof(unsigned short));
 
   for (j = 0; j < nsides; j++) {
 
@@ -760,7 +759,6 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
   /* Return memory that will not be used anymore */
   free(segmentsPerPoint);
-  free(freeSegmentsPerPoint);
   free(cornerCounters);
 
   /* create line patches */
