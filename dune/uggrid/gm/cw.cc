@@ -265,7 +265,7 @@ void NS_DIM_PREFIX ListCWofObject (const void *obj, INT offset)
       break;
 
     n = CW_READ(obj,ce);
-    UserWriteF("  ce %s with offset in cw %3d: %10d\n",control_entries[i].name,min,n);
+    UserWriteF("  ce %s with offset in cw %3d: %10d\n",control_entries[ce].name,min,n);
     sub = min;
     last_ce = ce;
   }
