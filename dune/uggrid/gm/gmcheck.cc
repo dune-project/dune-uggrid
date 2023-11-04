@@ -358,13 +358,12 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
       UserWriteF(" elem=" EID_FMTX, EID_PRTX(theElement));
       if (EFATHER(theElement) != NULL)
       {
-        INT i;
         ELEMENT *theFather = EFATHER(theElement);
 
         UserWriteF(" father=" EID_FMTX "\n",EID_PRTX(theFather));
-        for (i=0; i<CORNERS_OF_ELEM(theFather); i++)
+        for (int j=0; j < CORNERS_OF_ELEM(theFather); j++)
         {
-          UserWriteF("son[%d]=" ID_FMTX "\n",i,ID_PRTX(CORNER(theFather,i)));
+          UserWriteF("son[%d]=" ID_FMTX "\n",j,ID_PRTX(CORNER(theFather,j)));
         }
       }
       else
@@ -1496,17 +1495,16 @@ static INT CheckGeometry (GRID *theGrid)
                      ECLASS(theElement),EID_PRTX(EFATHER(theElement)),
                      ECLASS(EFATHER(theElement)),REFINE(EFATHER(theElement)));
           {
-            INT i;
             ELEMENT *theFather = EFATHER(theElement);
             ELEMENT *theNeighbor;
 
-            for (i=0; i<SIDES_OF_ELEM(theFather); i++)
+            for (int k=0; k < SIDES_OF_ELEM(theFather); k++)
             {
-              theNeighbor = NBELEM(theFather,i);
+              theNeighbor = NBELEM(theFather,k);
               if (theNeighbor != NULL)
               {
                 UserWriteF("NB[%d]=" EID_FMTX " NBREFINE=%d\n",
-                           i,EID_PRTX(theNeighbor),REFINE(theNeighbor));
+                           k,EID_PRTX(theNeighbor),REFINE(theNeighbor));
 
               }
             }
