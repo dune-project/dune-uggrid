@@ -1753,7 +1753,7 @@ INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NO
   return (0);
 }
 
-static int CheckNBrelations (MGIO_RR_RULE *mr, int i, int tag)
+static int CheckNBrelations (MGIO_RR_RULE *mr, int rule, int tag)
 {
   int n = mr->nsons;
   int err=0;
@@ -1779,7 +1779,7 @@ static int CheckNBrelations (MGIO_RR_RULE *mr, int i, int tag)
             break;
         if (j>=nnbs)
         {
-          PrintDebug("ERROR: rule %d of %d, asym in son %d, nb %d\n",i,tag,s,i);
+          PrintDebug("ERROR: rule %d of %d, asym in son %d, nb %d\n",rule,tag,s,i);
           err++;
         }
       }
