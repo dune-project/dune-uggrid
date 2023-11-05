@@ -3168,7 +3168,6 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
 {
   int s;
   ELEMENT *theSon,*SonList[MAX_SONS];
-  [[maybe_unused]] const int me = theGrid->ppifContext().me();
 
   /* something to do ? */
   if ((REFINE(theElement)==NO_REFINEMENT)||(theGrid==NULL)) return(GM_OK);
@@ -3200,6 +3199,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
   ENDDEBUG
         #endif
 
+  [[maybe_unused]] const int me = theGrid->ppifContext().me();
   for (s=0; SonList[s]!=NULL; s++)
   {
     /** \todo delete special debug */
