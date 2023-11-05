@@ -3168,7 +3168,6 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
 {
   int s;
   ELEMENT *theSon,*SonList[MAX_SONS];
-  [[maybe_unused]] const int me = theGrid->ppifContext().me();
 
   /* something to do ? */
   if ((REFINE(theElement)==NO_REFINEMENT)||(theGrid==NULL)) return(GM_OK);
@@ -3200,6 +3199,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
   ENDDEBUG
         #endif
 
+  [[maybe_unused]] const int me = theGrid->ppifContext().me();
   for (s=0; SonList[s]!=NULL; s++)
   {
     /** \todo delete special debug */
@@ -3812,7 +3812,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   ELEMENT *theNeighbor;
   ELEMENT *Sons_of_NbSide_List[MAX_SONS];
   INT nbside,Sons_of_NbSide,NbSonSides[MAX_SONS];
-  INT i,j,k;
+  INT k;
 
   IFDEBUG(gm,2)
   UserWriteF("Connect_Sons_of_ElementSide: ID(elem)=%d side=%d "
@@ -3827,7 +3827,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   {
     /** \todo connect change test */
 
-    for (i=0; i<Sons_of_Side; i++)
+    for (int i = 0; i < Sons_of_Side; i++)
     {
 
       assert(OBJT(Sons_of_Side_List[i])==BEOBJ);
@@ -3885,7 +3885,6 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   if (!(Sons_of_Side == Sons_of_NbSide && Sons_of_NbSide>0
         && Sons_of_NbSide<6))
   {
-    INT i;
     ELEMENT *elem=NULL;
     ELEMENT *SonList[MAX_SONS];
 
@@ -3896,12 +3895,12 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
                EID_PRTX(theNeighbor),Sons_of_Side,Sons_of_NbSide);
     fflush(stdout);
     GetAllSons(theElement,SonList);
-    for (i=0; SonList[i]!=NULL; i++)
+    for (int i = 0; SonList[i] != NULL; i++)
     {
       REFINE_ELEMENT_LIST(0,SonList[i],"son:");
     }
     GetAllSons(theNeighbor,SonList);
-    for (i=0; SonList[i]!=NULL; i++)
+    for (int i = 0; SonList[i] != NULL; i++)
     {
       REFINE_ELEMENT_LIST(0,SonList[i],"nbson:");
     }
@@ -3928,14 +3927,13 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
                   NbSonSides);
 
   IFDEBUG(gm,5)
-  INT i,j;
 
   if (!ioflag)
   {
     UserWriteF("BEFORE qsort\n");
 
     /* test whether all entries are corresponding */
-    for (i=0; i<Sons_of_Side; i++)
+    for (int i = 0; i < Sons_of_Side; i++)
     {
       COMPARE_RECORD *Entry, *NbEntry;
 
@@ -3946,7 +3944,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
         UserWriteF("Connect_Sons_of_ElementSide(): LIST Sorttables[%d]"
                    " eNodes=%d nbNodes=%d\n",
                    i,Entry->nodes,NbEntry->nodes);
-      for (j=0; j<Entry->nodes; j++)
+      for (int j = 0; j < Entry->nodes; j++)
         UserWriteF("Connect_Sons_of_ElementSide(): LIST Sorttables[%d][%d]"
                    " eNodePtr=%d/%8x/%d nbNodePtr=%d/%8x/%d\n",
                    i,j,
@@ -3969,10 +3967,9 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
         #ifdef Debug
   if (!ioflag)
     /* check whether both sort table match exactly */
-    for (i=0; i<Sons_of_Side; i++)
+    for (int i = 0; i < Sons_of_Side; i++)
     {
       COMPARE_RECORD *Entry, *NbEntry;
-      INT j;
 
       Entry = ElemSortTable[i];
       NbEntry = NbSortTable[i];
@@ -3983,7 +3980,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
                " eNodes=%d nbNodes=%d\n",i,Entry->nodes,NbEntry->nodes);
         assert(0);
       }
-      for (j=0; j<Entry->nodes; j++)
+      for (int j = 0; j < Entry->nodes; j++)
         if (Entry->nodeptr[j] != NbEntry->nodeptr[j])
         {
           printf("Connect_Sons_of_ElementSide(): "
@@ -3996,14 +3993,13 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
         #endif
 
   IFDEBUG(gm,4)
-  INT i;
   if (!ioflag)
   {
     UserWriteF("After qsort\n");
 
     /* test whether all entries are corresponding */
     UserWriteF("SORTTABLELIST:\n");
-    for (i=0; i<Sons_of_Side; i++)
+    for (int i = 0; i < Sons_of_Side; i++)
     {
       COMPARE_RECORD *Entry, *NbEntry;
 
@@ -4016,7 +4012,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
                  NbEntry->elem, NbEntry->side,NBELEM(NbEntry->elem,NbEntry->side));
     }
 
-    for (i=0; i<Sons_of_Side; i++)
+    for (int i = 0; i < Sons_of_Side; i++)
     {
       COMPARE_RECORD *Entry, *NbEntry;
 
@@ -4049,7 +4045,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   {
     COMPARE_RECORD *Entry, *NbEntry;
 
-    for (i=0; i<Sons_of_Side; i++)
+    for (int i = 0; i < Sons_of_Side; i++)
     {
       Entry = ElemSortTable[i];
       for (k=0; k<Sons_of_NbSide; k++)
@@ -4057,10 +4053,12 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
         NbEntry = NbSortTable[k];
 
         if (Entry->nodes != NbEntry->nodes) continue;
-        for (j=0; j<Entry->nodes; j++)
-          if (Entry->nodeptr[j] != NbEntry->nodeptr[j])
+
+        int idx;
+        for (idx = 0; idx < Entry->nodes; idx++)
+          if (Entry->nodeptr[idx] != NbEntry->nodeptr[idx])
             break;
-        if (j == Entry->nodes)
+        if (idx == Entry->nodes)
         {
           SET_NBELEM(ElemSortTable[i]->elem,ElemSortTable[i]->side,
                      NbSortTable[k]->elem);
@@ -4072,7 +4070,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   }
   else
     /* all entries need to match exactly */
-    for (i=0; i<Sons_of_Side; i++)
+    for (int i = 0; i < Sons_of_Side; i++)
     {
       SET_NBELEM(ElemSortTable[i]->elem,ElemSortTable[i]->side,
                  NbSortTable[i]->elem);

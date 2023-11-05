@@ -1670,6 +1670,8 @@ static void URule2Mrule (const URULE *ur, MGIO_RR_RULE *mr)
 static void WriteDebugInfo (void)
 {
   long N_rm=0,N_er=0;
+  long Nelem_inspected = 0;
+  long Nelem_not_inspected = 0;
   int tag;
 
   /* number of rules (rm+er) */
@@ -1681,6 +1683,8 @@ static void WriteDebugInfo (void)
     long n_er = global.maxrule[tag]-UGMAXRULE(tag);
     N_rm += n_rm;
     N_er += n_er;
+    Nelem_inspected = global.nelem_inspected[tag];
+    Nelem_not_inspected += global.nelem_not_inspected[tag];
     PrintDebug("tag %d: %3ld rm rules, %4ld extracted rules (elems inspected: %6ld yes %6ld no)\n",
                tag,
                n_rm,
@@ -1691,8 +1695,8 @@ static void WriteDebugInfo (void)
   PrintDebug("total: %3ld rm rules, %4ld extracted rules (elems inspected: %6ld yes %6ld no)\n",
              N_rm,
              N_er,
-             global.nelem_inspected[tag],
-             global.nelem_not_inspected[tag]);
+             Nelem_inspected,
+             Nelem_not_inspected);
 
   PrintDebug("------------------------------------------------------\n");
 }
@@ -1749,7 +1753,7 @@ INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NO
   return (0);
 }
 
-static int CheckNBrelations (MGIO_RR_RULE *mr, int i, int tag)
+static int CheckNBrelations (MGIO_RR_RULE *mr, int rule, int tag)
 {
   int n = mr->nsons;
   int err=0;
@@ -1775,7 +1779,7 @@ static int CheckNBrelations (MGIO_RR_RULE *mr, int i, int tag)
             break;
         if (j>=nnbs)
         {
-          PrintDebug("ERROR: rule %d of %d, asym in son %d, nb %d\n",i,tag,s,i);
+          PrintDebug("ERROR: rule %d of %d, asym in son %d, nb %d\n",rule,tag,s,i);
           err++;
         }
       }
