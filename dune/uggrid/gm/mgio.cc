@@ -487,16 +487,15 @@ int NS_DIM_PREFIX Write_GE_General (MGIO_GE_GENERAL *ge_general)
 
 int NS_DIM_PREFIX Read_GE_Elements (int n, MGIO_GE_ELEMENT *ge_element)
 {
-  int i,j,s;
   MGIO_GE_ELEMENT *pge;
 
   pge = ge_element;
-  for (i=0; i<n; i++)
+  for (int i = 0; i < n; i++)
   {
     if (Bio_Read_mint(4,intList))
       return 1;
 
-    s=0;
+    int s = 0;
 
     pge->tag                = lge[i].tag            = intList[s++];
     pge->nCorner    = lge[i].nCorner        = intList[s++];
@@ -509,12 +508,12 @@ int NS_DIM_PREFIX Read_GE_Elements (int n, MGIO_GE_ELEMENT *ge_element)
 
       s=0;
 
-      for (j=0; j<pge->nEdge; j++)
+      for (int j = 0; j < pge->nEdge; j++)
       {
         pge->CornerOfEdge[j][0] = lge[i].CornerOfEdge[j][0] = intList[s++];
         pge->CornerOfEdge[j][1] = lge[i].CornerOfEdge[j][1] = intList[s++];
       }
-      for (j=0; j<pge->nSide; j++)
+      for (int j = 0; j < pge->nSide; j++)
       {
         pge->CornerOfSide[j][0] = lge[i].CornerOfSide[j][0] = intList[s++];
         pge->CornerOfSide[j][1] = lge[i].CornerOfSide[j][1] = intList[s++];
@@ -679,31 +678,30 @@ int NS_DIM_PREFIX Write_RR_General (MGIO_RR_GENERAL *mgio_rr_general)
 
 int NS_DIM_PREFIX Read_RR_Rules (int n, MGIO_RR_RULE *rr_rules)
 {
-  int i,j,k,m,s;
   MGIO_RR_RULE *prr;
 
   prr = rr_rules;
-  for (i=0; i<n; i++)
+  for (int i = 0; i < n; i++)
   {
     if (Bio_Read_mint(2,intList)) return (1);
     prr->rclass = intList[0];
     prr->nsons = intList[1];
-    m = MGIO_MAX_NEW_CORNERS+2*MGIO_MAX_NEW_CORNERS+prr->nsons*(1+MGIO_MAX_CORNERS_OF_ELEM+MGIO_MAX_SIDES_OF_ELEM+1);
+    int m = MGIO_MAX_NEW_CORNERS+2*MGIO_MAX_NEW_CORNERS+prr->nsons*(1+MGIO_MAX_CORNERS_OF_ELEM+MGIO_MAX_SIDES_OF_ELEM+1);
     if (Bio_Read_mint(m,intList)) return (1);
-    s=0;
-    for (j=0; j<MGIO_MAX_NEW_CORNERS; j++)
+    int s = 0;
+    for (int j = 0; j < MGIO_MAX_NEW_CORNERS; j++)
       prr->pattern[j] = intList[s++];
-    for (j=0; j<MGIO_MAX_NEW_CORNERS; j++)
+    for (int j = 0; j < MGIO_MAX_NEW_CORNERS; j++)
     {
       prr->sonandnode[j][0] = intList[s++];
       prr->sonandnode[j][1] = intList[s++];
     }
-    for (j=0; j<prr->nsons; j++)
+    for (int j = 0; j < prr->nsons; j++)
     {
       prr->sons[j].tag = intList[s++];
-      for (k=0; k<MGIO_MAX_CORNERS_OF_ELEM; k++)
+      for (int k = 0; k < MGIO_MAX_CORNERS_OF_ELEM; k++)
         prr->sons[j].corners[k] = intList[s++];
-      for (k=0; k<MGIO_MAX_SIDES_OF_ELEM; k++)
+      for (int k = 0; k < MGIO_MAX_SIDES_OF_ELEM; k++)
         prr->sons[j].nb[k] = intList[s++];
       prr->sons[j].path = intList[s++];
     }
@@ -738,28 +736,27 @@ int NS_DIM_PREFIX Read_RR_Rules (int n, MGIO_RR_RULE *rr_rules)
 
 int NS_DIM_PREFIX Write_RR_Rules (int n, MGIO_RR_RULE *rr_rules)
 {
-  int i,j,k,s;
   MGIO_RR_RULE *prr;
 
   prr = rr_rules;
-  for (i=0; i<n; i++)
+  for (int i = 0; i < n; i++)
   {
-    s=0;
+    int s = 0;
     intList[s++] = prr->rclass;
     intList[s++] = prr->nsons;
-    for (j=0; j<MGIO_MAX_NEW_CORNERS; j++)
+    for (int j = 0; j < MGIO_MAX_NEW_CORNERS; j++)
       intList[s++] = prr->pattern[j];
-    for (j=0; j<MGIO_MAX_NEW_CORNERS; j++)
+    for (int j = 0; j < MGIO_MAX_NEW_CORNERS; j++)
     {
       intList[s++] = prr->sonandnode[j][0];
       intList[s++] = prr->sonandnode[j][1];
     }
-    for (j=0; j<prr->nsons; j++)
+    for (int j = 0; j < prr->nsons; j++)
     {
       intList[s++] = prr->sons[j].tag;
-      for (k=0; k<MGIO_MAX_CORNERS_OF_ELEM; k++)
+      for (int k = 0; k < MGIO_MAX_CORNERS_OF_ELEM; k++)
         intList[s++] = prr->sons[j].corners[k];
-      for (k=0; k<MGIO_MAX_SIDES_OF_ELEM; k++)
+      for (int k = 0; k < MGIO_MAX_SIDES_OF_ELEM; k++)
         intList[s++] = prr->sons[j].nb[k];
       intList[s++] = prr->sons[j].path;
     }
@@ -866,14 +863,11 @@ int NS_DIM_PREFIX Write_CG_General (MGIO_CG_GENERAL *cg_general)
 
 int NS_DIM_PREFIX Read_CG_Points (int n, MGIO_CG_POINT *cg_point)
 {
-  int i,j;
-  MGIO_CG_POINT *cgp;
-
-  for(i=0; i<n; i++)
+  for (int i = 0; i < n; i++)
   {
     if (Bio_Read_mdouble(MGIO_DIM,doubleList)) return (1);
-    cgp = MGIO_CG_POINT_PS(cg_point,i);
-    for(j=0; j<MGIO_DIM; j++)
+    MGIO_CG_POINT *cgp = MGIO_CG_POINT_PS(cg_point,i);
+    for (int j = 0; j < MGIO_DIM; j++)
       cgp->position[j] = doubleList[j];
     if (MGIO_PARFILE)
     {

@@ -123,8 +123,7 @@ T *New(T) (DDD::DDDContext& context)
 T **SortedArray(T) (DDD::DDDContext& context, int (*compar) (const void *, const void *))
 {
 	auto& ctx = context.xferContext();
-	T **array, *item;
-	int  i;
+	T **array;
 
 	if (ctx.n(T)>0)
 	{
@@ -137,7 +136,10 @@ T **SortedArray(T) (DDD::DDDContext& context, int (*compar) (const void *, const
 		}
 
 		/* fill array with pointer */
-		for(item=reinterpret_cast<T*>(ctx.list(T)), i=0; i<ctx.n(T); item=item->sll_next, i++)
+		int i = 0;
+		for (T* item = reinterpret_cast<T*>(ctx.list(T));
+				 i < ctx.n(T);
+				 item = item->sll_next, i++)
 		{
 			array[i] = item;
 		}

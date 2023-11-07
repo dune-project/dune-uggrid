@@ -150,20 +150,15 @@ static int TransferGridComplete (MULTIGRID *theMG, INT level)
 
 static int TransferGridToMaster (MULTIGRID *theMG, INT fl, INT tl)
 {
-  ELEMENT *e;
-  GRID *theGrid;
-
   /* send all levels to master */
   if (not theMG->dddContext().isMaster())
   {
-    int l;
-
-    for (l=fl; l<=tl; l++) {
-
-      theGrid = GRID_ON_LEVEL(theMG,l);
+    for (int l = fl; l <= tl; l++)
+    {
+      GRID *theGrid = GRID_ON_LEVEL(theMG,l);
 
       /* create element copies */
-      for(e=FIRSTELEMENT(theGrid); e!=NULL; e=SUCCE(e))
+      for (ELEMENT *e = FIRSTELEMENT(theGrid); e != NULL; e = SUCCE(e))
       {
         PARTITION(e) = 0;
       }
@@ -255,7 +250,6 @@ static void CreateDD(MULTIGRID *theMG, INT level, int hor_boxes, int vert_boxes 
 /* the final call to TransferGridFromLevel() must be done by the current caller */
 {
   INT elements;
-  int hor, vert;
   GRID *theGrid;
 
   theGrid = GRID_ON_LEVEL(theMG,level);
@@ -268,8 +262,8 @@ static void CreateDD(MULTIGRID *theMG, INT level, int hor_boxes, int vert_boxes 
     {
       /* we have a case with too heavy load for DDD; thus subdivide */
       /* find a coarser auxiliary partition */
-      hor = hor_boxes;
-      vert = vert_boxes;
+      int hor = hor_boxes;
+      int vert = vert_boxes;
 
       if( hor%2 == 0 )
         hor /= 2;                               /* hor_boxes can be halfened */

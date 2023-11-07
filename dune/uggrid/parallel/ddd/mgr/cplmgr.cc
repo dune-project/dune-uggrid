@@ -365,7 +365,6 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
 
 COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
-  COUPLING        *cp2;
   int objIndex;
 
   assert(proc!=context.me());
@@ -386,7 +385,7 @@ COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   else
   {
     /* look if coupling exists and change it */
-    for(cp2=IdxCplList(context, objIndex); cp2!=NULL; cp2=CPL_NEXT(cp2))
+    for (COUPLING *cp2 = IdxCplList(context, objIndex); cp2 != NULL; cp2 = CPL_NEXT(cp2))
     {
       if (CPL_PROC(cp2)==proc)
       {

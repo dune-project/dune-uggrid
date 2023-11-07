@@ -1503,8 +1503,7 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
   EDGE    *theEdge                = (EDGE *)obj;
   EDGE    *SonEdges[2];
   NODE    *MidNode        = MIDNODE(theEdge);
-  NODE    *SonNode0,*SonNode1,*IdentNode;
-  NODE    *Node0,*Node1;
+  NODE    *SonNode0,*SonNode1;
 
   /* identification is only done between master objects */
   ASSERT(identlevel-1 == LEVEL(theEdge));
@@ -1547,8 +1546,8 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
         }
         else
         {
-          Node0 = NBNODE(LINK0(theEdge));
-          Node1 = NBNODE(LINK1(theEdge));
+          NODE *Node0 = NBNODE(LINK0(theEdge));
+          NODE *Node1 = NBNODE(LINK1(theEdge));
           DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(Node0));
           DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(Node1));
           DDD_IdentifyObject(context, PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(Node0));
@@ -1565,6 +1564,7 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
         /* identify edge0 */
         SonNode0 = NBNODE(LINK0(SonEdges[0]));
         SonNode1 = NBNODE(LINK1(SonEdges[0]));
+        NODE *IdentNode;
         if (CORNERTYPE(SonNode0))
         {
           ASSERT(NFATHER(SonNode0)!=NULL);
@@ -1594,6 +1594,7 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
         /* identify edge1 */
         SonNode0 = NBNODE(LINK0(SonEdges[1]));
         SonNode1 = NBNODE(LINK1(SonEdges[1]));
+        NODE *IdentNode;
         if (CORNERTYPE(SonNode0))
         {
           ASSERT(NFATHER(SonNode0)!=NULL);

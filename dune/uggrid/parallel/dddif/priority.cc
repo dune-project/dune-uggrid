@@ -260,7 +260,6 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
   ELEMENT *theElement,*theNeighbor,*SonList[MAX_SONS];
   NODE    *theNode;
   EDGE    *theEdge;
-  VECTOR  *theVector;
   INT i,prio,hghost,vghost;
 
   auto& context = theGrid->dddContext();
@@ -283,7 +282,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
-        theVector = SVECTOR(theElement,i);
+        VECTOR *theVector = SVECTOR(theElement,i);
         if (theVector != NULL) {
           SETUSED(theVector,0);
           SETTHEFLAG(theVector,0);
@@ -354,7 +353,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
 #ifdef UG_DIM_3
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
-        theVector = SVECTOR(theElement,i);
+        VECTOR *theVector = SVECTOR(theElement,i);
         if (theVector != NULL) {
           if (vghost) SETTHEFLAG(theVector,1);
           if (hghost) SETUSED(theVector,1);
@@ -389,7 +388,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
 #ifdef UG_DIM_3
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
-        theVector = SVECTOR(theElement,i);
+        VECTOR *theVector = SVECTOR(theElement,i);
         if (theVector != NULL) {
           SETUSED(theVector,0);
           SETTHEFLAG(theVector,0);

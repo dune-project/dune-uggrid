@@ -610,7 +610,6 @@ void ExecLocalXISetPrio (
     DDD_HDR hdr = sp->hdr;
     DDD_GID gid      = sp->gid;
     DDD_PRIO newprio  = sp->prio;
-    COUPLING   *cpl;
 
     while ((iD<nD) && (itemsD[iD]->gid<gid))
       iD++;
@@ -643,7 +642,7 @@ void ExecLocalXISetPrio (
       /* generate XIModCpl-items */
 
       /* 1. for all existing couplings */
-      for(cpl=ObjCplList(context, hdr); cpl!=NULL; cpl=CPL_NEXT(cpl))
+      for (COUPLING *cpl = ObjCplList(context, hdr); cpl != NULL; cpl = CPL_NEXT(cpl))
       {
         XIModCpl *xc = NewXIModCpl(context);
         if (xc==NULL)

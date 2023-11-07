@@ -437,7 +437,7 @@ static bool sort_intoTuplesSets(const IDENTINFO* a, const IDENTINFO* b)
 static int sort_tupleOrder (const void *e1, const void *e2)
 {
   ID_TUPLE *el1, *el2;
-  int cmp, i, nIds;
+  int nIds;
   DDD_HDR el1hdr, el2hdr;
 
   el1 = (ID_TUPLE *) e1;
@@ -455,8 +455,9 @@ static int sort_tupleOrder (const void *e1, const void *e2)
 
 
   /* compare until one tuple entry differs */
-  for(i=0; i<nIds; i++) {
-    if ((cmp=compareId(el1->infos[i], el2->infos[i])) != 0)
+  for (int i = 0; i < nIds; i++) {
+    int cmp = compareId(el1->infos[i], el2->infos[i]);
+    if (cmp != 0)
       return(cmp);
   }
 
@@ -1099,7 +1100,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
   {
     if (plist->msgin!=NULL)
     {
-      int ret, i;
+      int ret;
 
       if ((ret=InfoARecv(context.ppifContext(), VCHAN_TO(context, plist->proc), plist->idin))==1)
       {
@@ -1115,7 +1116,7 @@ DDD_RET DDD_IdentifyEnd(DDD::DDDContext& context)
                      << " from proc " << plist->proc << ", expected "
                      << plist->nEntries);
 
-        for(i=0; i<plist->nEntries; i++, msgin++, msgout++)
+        for (int i = 0; i < plist->nEntries; i++, msgin++, msgout++)
         {
 #                                       if DebugIdent<=1
           printf("identifying %08x with %08x/%d to %08x\n",

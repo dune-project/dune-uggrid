@@ -1497,7 +1497,6 @@ static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PR
   /* link element into list according to prio */
   {
     INT where   = PRIO2INDEX(new_);
-    ELEMENT *after;
 
     if (theFather != NULL)
     {
@@ -1515,7 +1514,7 @@ static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PR
       }
 
       /* link elements with father */
-      after = SON(theFather,where);
+      ELEMENT *after = SON(theFather,where);
 
       PRINTDEBUG(dddif,2,(PFMT " ElementPriorityUpdate(): GRID_LINKX_ELEMENT "
                           "pe=" EID_FMTX " prio=%d after=%x\n",me,EID_PRTX(pe),new_,after))

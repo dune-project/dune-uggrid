@@ -1045,8 +1045,7 @@ static INT RemoveOrphanSons (ELEMENT **SonList, INT *nmax)
 
 static INT SetHierRefinement (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMENT *refinement, INT *RefRuleOffset)
 {
-  INT i,nmax;
-  ELEMENT *theSon;
+  INT nmax;
   ELEMENT *SonList[MAX_SONS];
   NODE *NodeContext[MAX_NEW_CORNERS_DIM+MAX_CORNERS_OF_ELEM];
   MGIO_RR_RULE *theRule;
@@ -1063,9 +1062,9 @@ static INT SetHierRefinement (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMEN
   if (Write_Refinement (refinement,rr_rules)) REP_ERR_RETURN(1);
 
   /* recursive call */
-  for (i=0; i<nmax; i++)
+  for (INT i = 0; i < nmax; i++)
   {
-    theSon = SonList[i];
+    ELEMENT *theSon = SonList[i];
     if (theSon==NULL) continue;
     if (REFINE(theSon)!=NO_REFINEMENT)
       if (SetHierRefinement(theGrid,theSon,refinement,RefRuleOffset))
@@ -1077,8 +1076,7 @@ static INT SetHierRefinement (GRID *theGrid, ELEMENT *theElement, MGIO_REFINEMEN
 
 static INT nRefinements (ELEMENT *theElement, INT *n)
 {
-  INT i,nmax;
-  ELEMENT *theSon;
+  INT nmax;
   ELEMENT *SonList[MAX_SONS];
   NODE *NodeContext[MAX_NEW_CORNERS_DIM+MAX_CORNERS_OF_ELEM];
   MGIO_RR_RULE *theRule;
@@ -1089,9 +1087,9 @@ static INT nRefinements (ELEMENT *theElement, INT *n)
   if (GetOrderedSons(theElement,theRule,NodeContext,SonList,&nmax)) REP_ERR_RETURN(1);
   if (RemoveOrphanSons(SonList,&nmax)) REP_ERR_RETURN(1);
   (*n)++;
-  for (i=0; i<nmax; i++)
+  for (INT i = 0; i < nmax; i++)
   {
-    theSon = SonList[i];
+    ELEMENT *theSon = SonList[i];
     if (theSon==NULL) continue;
     if (REFINE(theSon)!=NO_REFINEMENT)
       if (nRefinements(theSon,n)) REP_ERR_RETURN(1);

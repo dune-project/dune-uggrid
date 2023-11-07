@@ -3609,11 +3609,9 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
        #endif
      */
     {
-      SONDATA *sondata;
-
       for (i=0; SonList[i]!=NULL; i++)
       {
-        sondata = SON_OF_RULE(MARK2RULEADR(theElement,
+        SONDATA *sondata = SON_OF_RULE(MARK2RULEADR(theElement,
                                            MARK(theElement)),i);
 
         for (j=0; j<SIDES_OF_ELEM(SonList[i]); j++)
@@ -4043,14 +4041,12 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   /* set neighborship relations */
   if (ioflag)
   {
-    COMPARE_RECORD *Entry, *NbEntry;
-
     for (int i = 0; i < Sons_of_Side; i++)
     {
-      Entry = ElemSortTable[i];
+      COMPARE_RECORD *Entry = ElemSortTable[i];
       for (k=0; k<Sons_of_NbSide; k++)
       {
-        NbEntry = NbSortTable[k];
+        COMPARE_RECORD *NbEntry = NbSortTable[k];
 
         if (Entry->nodes != NbEntry->nodes) continue;
 

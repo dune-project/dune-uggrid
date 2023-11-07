@@ -804,9 +804,6 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
 {
   using std::setw;
 
-  std::ostream& out = std::cout;
-  int i;
-
   /* only master should display DDD_TYPEs */
   if (context.isMaster())
   {
@@ -819,13 +816,14 @@ void DDD_TypeDisplay(const DDD::DDDContext& context, DDD_TYPE id)
       DUNE_THROW(Dune::Exception, "undefined DDD_TYPE " << id);
 
     /* print header */
+    std::ostream& out = std::cout;
     out << "/ Structure of " << (desc->hasHeader ? "DDD" : "data")
         << "--object '" << desc->name <<"', id " << id
         << ", " << desc->size << " byte\n"
         << "|--------------------------------------------------------------\n";
 
     /* print one line for each element */
-    for(i=0; i<desc->nElements; i++)
+    for (int i = 0; i < desc->nElements; i++)
     {
       const ELEM_DESC *e = &desc->element[i];
 

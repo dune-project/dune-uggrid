@@ -1159,7 +1159,6 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
 {
   auto& ctx = context.xferContext();
   XFERADDDATA *xa;
-  int i;
 
 #       if DebugXfer<=2
   Dune::dvverb << "DDD_XferAddData cnt=" << cnt << " typ=" << typ << "\n";
@@ -1185,7 +1184,7 @@ void DDD_XferAddDataX (DDD::DDDContext& context, int cnt, DDD_TYPE typ, size_t *
     const TYPE_DESC& descDepTyp = context.typeDefs()[typ];
 
     xa->addLen = 0;
-    for (i=0; i<cnt; i++)
+    for (int i = 0; i < cnt; i++)
     {
       xa->addLen += CEIL(sizes[i]);
     }

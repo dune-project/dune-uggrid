@@ -262,14 +262,11 @@ INT UpdateGridOverlap (GRID *theGrid)
 
 static INT UpdateMultiGridOverlap (MULTIGRID *theMG, INT FromLevel)
 {
-  INT l;
-  GRID    *theGrid;
-
   ddd_HandlerInit(theMG->dddContext(), HSET_REFINE);
 
-  for (l=FromLevel; l<TOPLEVEL(theMG); l++)
+  for (INT l = FromLevel; l < TOPLEVEL(theMG); l++)
   {
-    theGrid = GRID_ON_LEVEL(theMG,l);
+    GRID *theGrid = GRID_ON_LEVEL(theMG,l);
     UpdateGridOverlap(theGrid);
   }
 
@@ -766,12 +763,9 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
 
 static INT ConnectOverlapVerticalMultiGrid (MULTIGRID *theMG)
 {
-  INT i;
-  GRID    *theGrid;
-
-  for (i=0; i<=TOPLEVEL(theMG); i++)
+  for (INT i = 0; i <= TOPLEVEL(theMG); i++)
   {
-    theGrid = GRID_ON_LEVEL(theMG,i);
+    GRID *theGrid = GRID_ON_LEVEL(theMG,i);
     if (ConnectOverlapVerticalGrid(theGrid)) return(GM_ERROR);
   }
   return(GM_OK);
