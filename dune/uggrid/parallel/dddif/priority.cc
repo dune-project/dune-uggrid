@@ -438,6 +438,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
     if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
+        VECTOR *theVector = SVECTOR(theElement,i);
         if (USED(theVector) || THEFLAG(theVector))
           SETPRIOX(context, theVector,PRIO_CALC(theVector));
       }
