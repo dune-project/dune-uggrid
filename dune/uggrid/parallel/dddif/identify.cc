@@ -915,7 +915,7 @@ static INT IdentifyEdge (GRID *theGrid,
 static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                                         INT i, ELEMENT *theNeighbor)
 {
-  INT nodes, j;
+  INT nodes;
 #ifdef Debug
   INT n = 0;
 #endif
@@ -930,7 +930,7 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                       "ncorners=%d nodes=%d\n",me,ncorners,nodes));
 
   /* identify nodes, vertices and node vectors of son elements */
-  for (j=0; j<MAX_SIDE_NODES; j++)
+  for (INT j = 0; j < MAX_SIDE_NODES; j++)
   {
     theNode = SideNodes[j];
     if (theNode == NULL) continue;
@@ -948,7 +948,6 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
   {
     ELEMENT *SonList[MAX_SONS];
     INT SonsOfSide,SonSides[MAX_SONS];
-    INT j;
 
     PRINTDEBUG(dddif,1,("%d: IdentifyObjectsOfElementSide(): identify "
                         "EDGES and VECTORS\n",me));
@@ -957,8 +956,8 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                                 SonList,SonSides,1,0)!=GM_OK)
       RETURN(GM_FATAL);
 
-    for (j=0; j<SonsOfSide; j++) {
-
+    for (INT j = 0; j < SonsOfSide; j++)
+    {
       if (/*VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC) ||*/ DIM==3)
       {
         INT edgeofside;

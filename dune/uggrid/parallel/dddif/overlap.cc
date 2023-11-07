@@ -194,9 +194,9 @@ static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
       /* send son to all elements where theNeighbor is master, vghost or vhghost */
       if (0)
       {
-        for (auto&& [proc, prio] : DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false))
+        for (auto&& [proc, currentPrio] : DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false))
         {
-          if (!EHGHOSTPRIO(prio))
+          if (!EHGHOSTPRIO(currentPrio))
           {
             XFERECOPYX(context, theSon,proc,PrioHGhost,
                        (OBJT(theSon)==BEOBJ) ? BND_SIZE_TAG(TAG(theSon)) :

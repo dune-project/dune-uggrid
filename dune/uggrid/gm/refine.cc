@@ -4666,7 +4666,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
         case 2 :
         {
-          INT node,k;
+          INT node;
           /*INT maxedge=-1;*/
                                                         #ifdef ModelP
           unsigned int maxid = 0;
@@ -5127,7 +5127,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   /* connect sons over outer sides */
   for (i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
-    INT j,k,Sons_of_Side;
+    INT Sons_of_Side;
     ELEMENT *Sons_of_Side_List[MAX_SONS];
     INT SonSides[MAX_SIDE_NODES];
 
