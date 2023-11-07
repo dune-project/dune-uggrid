@@ -511,7 +511,7 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
 
 INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 {
-  GRID *g;
+  GRID *g = nullptr;
 #ifdef UG_DIM_3
   VECTOR *nbvec;
   ELEMENT *nbelem;
