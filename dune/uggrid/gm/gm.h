@@ -3327,7 +3327,7 @@ INT             CheckSubdomains                 (MULTIGRID *theMG);
 /* multigrid user data space management (using the heaps.c block heap management) */
 INT             AllocateControlEntry    (INT cw_id, INT length, INT *ce_id);
 INT             FreeControlEntry                (INT ce_id);
-void            ListCWofObject                  (const void *obj, INT offset);
+void            ListCWofObject                  (const void *obj, UINT offset);
 void            ListAllCWsOfObject              (const void *obj);
 void            ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf);
 UINT ReadCW                                     (const void *obj, INT ce);
