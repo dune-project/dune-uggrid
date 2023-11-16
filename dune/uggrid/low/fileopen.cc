@@ -74,7 +74,7 @@
 
 #include "fileopen.h"
 
-#if defined __HP__ || __SGI__ || __T3E__ || __PARAGON__ || __DEC__ || __SUN__ || __PC__ || __LINUXPPC__
+#if defined __HP__ || __SGI__ || __PARAGON__ || __DEC__ || __SUN__ || __PC__ || __LINUXPPC__
 #include <dirent.h>
 #endif
 
