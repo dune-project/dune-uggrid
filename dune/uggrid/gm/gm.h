@@ -1887,28 +1887,6 @@ typedef union object_with_key KEY_OBJECT;
 /*                                                                          */
 /****************************************************************************/
 
-/** @name status of control word */
-/*@{*/
-#define CW_FREE                                         0
-#define CW_USED                                         1
-/*@}*/
-
-
-/** @name Status of control entry */
-/*@{*/
-#define CE_FREE                                         0
-#define CE_USED                                         1
-#define CE_LOCKED                                       1
-/*@}*/
-
-/** @name Initializer macros for control entry and word predefines */
-/*@{*/
-#define CW_INIT(used,cw,objs)                           {used, STR(cw), cw ## CW, cw ## OFFSET,objs}
-#define CW_INIT_UNUSED                                          {CW_FREE,0,0,0}
-#define CE_INIT(mode,cw,ce,objs)                        {mode, STR(ce), cw ## CW, ce ## CE, ce ## SHIFT, ce ## LEN, objs}
-#define CE_INIT_UNUSED                                          {CE_FREE, 0, 0, 0, 0, 0, 0}
-/*@}*/
-
 /* general query macros */
 
 /* dynamic control words */
@@ -1926,14 +1904,7 @@ typedef union object_with_key KEY_OBJECT;
 
         #define ControlWord(p,ce)  (((UINT *)(p))[control_entries[ce].offset_in_object])
 
-        #ifndef __T3E__
         #define CW_READ(p,ce)      ((ControlWord(p,ce) & control_entries[ce].mask)>>control_entries[ce].offset_in_word)
-        #endif
-
-/* very special hack */
-        #ifdef __T3E__
-        #define CW_READ(p,ce)      ((int)((ControlWord(p,ce) & control_entries[ce].mask)>>control_entries[ce].offset_in_word) )
-        #endif
 
         #define CW_WRITE(p,ce,n)   ControlWord(p,ce) = (ControlWord(p,ce)&control_entries[ce].xor_mask)|(((n)<<control_entries[ce].offset_in_word)&control_entries[ce].mask)
 
@@ -1941,16 +1912,8 @@ typedef union object_with_key KEY_OBJECT;
         #define StaticControlWord(p,t)            (((UINT *)(p))[t ## OFFSET])
         #define StaticControlWordMask(s)          ((POW2(s ## LEN) - 1) << s ## SHIFT)
 
-        #ifndef __T3E__
         #define CW_READ_STATIC(p,s,t)                                                \
   ((StaticControlWord(p,t) &  StaticControlWordMask(s)) >> s ## SHIFT)
-        #endif
-
-/* very special hack */
-        #ifdef __T3E__
-        #define CW_READ_STATIC(p,s,t)                                                \
-  ((int)     ((StaticControlWord(p,t) &  StaticControlWordMask(s)) >> s ## SHIFT))
-        #endif
 
         #define CW_WRITE_STATIC(p,s,t,n)                                             \
   StaticControlWord(p,t) =                                           \
@@ -3342,7 +3305,7 @@ INT             CheckSubdomains                 (MULTIGRID *theMG);
 /* multigrid user data space management (using the heaps.c block heap management) */
 INT             AllocateControlEntry    (INT cw_id, INT length, INT *ce_id);
 INT             FreeControlEntry                (INT ce_id);
-void            ListCWofObject                  (const void *obj, INT offset);
+void            ListCWofObject                  (const void *obj, UINT offset);
 void            ListAllCWsOfObject              (const void *obj);
 void            ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf);
 UINT ReadCW                                     (const void *obj, INT ce);

@@ -915,7 +915,7 @@ static INT IdentifyEdge (GRID *theGrid,
 static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                                         INT i, ELEMENT *theNeighbor)
 {
-  INT nodes, j;
+  INT nodes;
 #ifdef Debug
   INT n = 0;
 #endif
@@ -930,7 +930,7 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                       "ncorners=%d nodes=%d\n",me,ncorners,nodes));
 
   /* identify nodes, vertices and node vectors of son elements */
-  for (j=0; j<MAX_SIDE_NODES; j++)
+  for (INT j = 0; j < MAX_SIDE_NODES; j++)
   {
     theNode = SideNodes[j];
     if (theNode == NULL) continue;
@@ -948,7 +948,6 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
   {
     ELEMENT *SonList[MAX_SONS];
     INT SonsOfSide,SonSides[MAX_SONS];
-    INT j;
 
     PRINTDEBUG(dddif,1,("%d: IdentifyObjectsOfElementSide(): identify "
                         "EDGES and VECTORS\n",me));
@@ -957,8 +956,8 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
                                 SonList,SonSides,1,0)!=GM_OK)
       RETURN(GM_FATAL);
 
-    for (j=0; j<SonsOfSide; j++) {
-
+    for (INT j = 0; j < SonsOfSide; j++)
+    {
       if (/*VEC_DEF_IN_OBJ_OF_GRID(theGrid,EDGEVEC) ||*/ DIM==3)
       {
         INT edgeofside;
@@ -1503,8 +1502,7 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
   EDGE    *theEdge                = (EDGE *)obj;
   EDGE    *SonEdges[2];
   NODE    *MidNode        = MIDNODE(theEdge);
-  NODE    *SonNode0,*SonNode1,*IdentNode;
-  NODE    *Node0,*Node1;
+  NODE    *SonNode0,*SonNode1;
 
   /* identification is only done between master objects */
   ASSERT(identlevel-1 == LEVEL(theEdge));
@@ -1547,8 +1545,8 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
         }
         else
         {
-          Node0 = NBNODE(LINK0(theEdge));
-          Node1 = NBNODE(LINK1(theEdge));
+          NODE *Node0 = NBNODE(LINK0(theEdge));
+          NODE *Node1 = NBNODE(LINK1(theEdge));
           DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(Node0));
           DDD_IdentifyObject(context, PARHDR(MidNode),proc,PARHDR(Node1));
           DDD_IdentifyObject(context, PARHDRV(MYVERTEX(MidNode)),proc,PARHDR(Node0));
@@ -1565,6 +1563,7 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
         /* identify edge0 */
         SonNode0 = NBNODE(LINK0(SonEdges[0]));
         SonNode1 = NBNODE(LINK1(SonEdges[0]));
+        NODE *IdentNode;
         if (CORNERTYPE(SonNode0))
         {
           ASSERT(NFATHER(SonNode0)!=NULL);
@@ -1594,6 +1593,7 @@ static int Scatter_IdentSonObjects (DDD::DDDContext& context, DDD_OBJ obj, void 
         /* identify edge1 */
         SonNode0 = NBNODE(LINK0(SonEdges[1]));
         SonNode1 = NBNODE(LINK1(SonEdges[1]));
+        NODE *IdentNode;
         if (CORNERTYPE(SonNode0))
         {
           ASSERT(NFATHER(SonNode0)!=NULL);

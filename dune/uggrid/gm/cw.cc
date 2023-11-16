@@ -65,6 +65,30 @@ USING_UGDIM_NAMESPACE
 #define CW_GEOMOBJS             (CW_VXOBJS | CW_ELOBJS | CW_NDOBJ | CW_EDOBJ | CW_GROBJ)
 /* NOTE: CW_GEOMOBJS and GEOM_OBJECTS differ*/
 
+/** @name status of control word */
+/*@{*/
+#define CW_FREE                                         0
+#define CW_USED                                         1
+/*@}*/
+
+
+/** @name Status of control entry */
+/*@{*/
+#define CE_FREE                                         0
+#define CE_USED                                         1
+#define CE_LOCKED                                       1
+/*@}*/
+
+/** @name Initializer macros for control entry and word predefines */
+/*@{*/
+#define CW_INIT(used,cw,objs)                           {used, STR(cw), cw ## CW, cw ## OFFSET,objs}
+#define CW_INIT_UNUSED                                  {CW_FREE,0,0,0}
+#define CE_INIT(mode,cw,ce,objs)                        {mode, STR(ce), cw ## CW, ce ## CE, ce ## SHIFT, ce ## LEN, objs}
+#define CE_INIT_UNUSED                                  {CE_FREE, 0, 0, 0, 0, 0, 0}
+/*@}*/
+
+
+
 /****************************************************************************/
 /*                                                                          */
 /* data structures used in this source file (exported data structures are   */
@@ -233,7 +257,7 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
  */
 /****************************************************************************/
 
-void NS_DIM_PREFIX ListCWofObject (const void *obj, INT offset)
+void NS_DIM_PREFIX ListCWofObject (const void *obj, UINT offset)
 {
   INT i,n,ce,last_ce,sub,min,cw_objt,oiw;
 
@@ -336,7 +360,7 @@ void NS_DIM_PREFIX ListAllCWsOfObject (const void *obj)
  */
 /****************************************************************************/
 
-static void ListCWofObjectType (INT objt, INT offset, PrintfProcPtr myprintf)
+static void ListCWofObjectType (INT objt, UINT offset, PrintfProcPtr myprintf)
 {
   INT i,ce,last_ce,sub,min,cw_objt,oiw;
   char bitpat[33];
@@ -524,7 +548,7 @@ static INT InitPredefinedControlEntries (void)
   CONTROL_ENTRY *ce,*test_ce;
   CONTROL_WORD *cw;
   CONTROL_ENTRY_PREDEF *pce,*test_pce;
-  INT i,j,k,offset,mask,error,nused;
+  INT i,j,k,mask,error,nused;
 
   /* clear everything */
   memset(control_entries,0,MAX_CONTROL_ENTRIES*sizeof(CONTROL_ENTRY));
@@ -562,7 +586,7 @@ static INT InitPredefinedControlEntries (void)
       ASSERT(ce->objt_used & cw->objt_used);                                    /* ce and cw have! common objects */
 
       /* set mask in all cws that use some of the ces objects and have the same offset than cw */
-      offset = ce->offset_in_object;
+      const UINT offset = ce->offset_in_object;
       mask   = ce->mask;
       for (k=0; k<MAX_CONTROL_WORDS; k++)
       {
@@ -716,7 +740,7 @@ UINT NS_DIM_PREFIX ReadCW (const void *obj, INT ceID)
 void NS_DIM_PREFIX WriteCW (void *obj, INT ceID, INT n)
 {
   CONTROL_ENTRY *ce;
-  UINT off_in_obj,mask,i,j,off_in_wrd,cw_objt,xmsk;
+  UINT off_in_obj,mask,i,j,off_in_wrd,xmsk;
   UINT *pcw;
 
   ASSERT(obj!=NULL);
@@ -735,7 +759,7 @@ void NS_DIM_PREFIX WriteCW (void *obj, INT ceID, INT n)
     assert(false);
   }
 
-  cw_objt = BITWISE_TYPE(OBJT(obj));
+  const UINT cw_objt = BITWISE_TYPE(OBJT(obj));
 
   /* special: SETOBJT cannot be checked since at this point the OBJT is unknown of course */
   if (cw_objt==BITWISE_TYPE(0))

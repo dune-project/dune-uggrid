@@ -854,9 +854,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
   auto& dddctrl = ddd_ctrl(context);
 
   INT i,nsides;
-  INT Size;
   ELEMENT *pe     =       (ELEMENT *)obj;
-  VECTOR  *vec;
   NODE    *node;
   BNDS    *bnds[MAX_SIDES_OF_ELEM];
 
@@ -936,10 +934,10 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
   /* copy element vector */
   if (ddd_ctrl(context).elemData)
   {
-    vec = EVECTOR(pe);
+    VECTOR *vec = EVECTOR(pe);
 
     if (vec != NULL) {
-      Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
+      INT Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
 
       PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                           " ELEMVEC=" VINDEX_FMTX " size=%d\n",
@@ -955,10 +953,10 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
   {
     for (i=0; i<SIDES_OF_ELEM(pe); i++)
     {
-      vec = SVECTOR(pe,i);
+      VECTOR *vec = SVECTOR(pe,i);
 
       if (vec != NULL) {
-        Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
+        INT Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
 
         PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                             " SIDEVEC=" VINDEX_FMTX " size=%d\n",
@@ -1244,7 +1242,6 @@ static void ElemScatterB (DDD::DDDContext& context, DDD_OBJ obj, int cnt, DDD_TY
 
 static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness)
 {
-  INT i,j;
   INT lostson         = 0;
   ELEMENT *pe                     = (ELEMENT *)obj;
   ELEMENT *succe          = SUCCE(pe);
@@ -1265,12 +1262,13 @@ static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness
   /* correct nb relationships between ghostelements */
   if (EGHOST(pe))
   {
-    for (i=0; i<SIDES_OF_ELEM(pe); i++)
+    for (INT i = 0; i < SIDES_OF_ELEM(pe); i++)
     {
       NbElement = NBELEM(pe,i);
       if (NbElement!=NULL && EGHOST(NbElement))
       {
-        for (j=0; j<SIDES_OF_ELEM(NbElement); j++)
+        INT j = 0;
+        for (j = 0; j < SIDES_OF_ELEM(NbElement); j++)
           if (NBELEM(NbElement,j) == pe) break;
         /* no backptr reset nb pointer */
         if (j >= SIDES_OF_ELEM(NbElement)) SET_NBELEM(pe,i,NULL);
@@ -1283,7 +1281,7 @@ static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness
 
 #ifdef UG_DIM_3
   if (ddd_ctrl(context).sideData)
-    for (i=0; i<SIDES_OF_ELEM(pe); i++) {
+    for (INT i = 0; i < SIDES_OF_ELEM(pe); i++) {
       VOBJECT(SVECTOR(pe,i)) = (GEOM_OBJECT*)pe;
       SETVECTORSIDE(SVECTOR(pe,i), i);
     }
@@ -1309,11 +1307,10 @@ static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness
     else if (theFather != NULL)
     {
       ELEMENT *SonList[MAX_SONS];
-      int i;
 
       /* check whether NSONS of father must be incremented */
       if (GetAllSons(theFather,SonList)) ASSERT(0);
-      i = 0;
+      int i = 0;
       while (SonList[i] != NULL)
       {
         if (SonList[i] == pe) return;
@@ -1396,7 +1393,7 @@ static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness
   /* update element count of edges for new created elements */
   if (newness == XFER_NEW)
     /* increment elem counter in edges */
-    for (i=0; i<EDGES_OF_ELEM(pe); i++)
+    for (INT i = 0; i < EDGES_OF_ELEM(pe); i++)
     {
       EDGE *theEdge;
       NODE *theNode0 = CORNER(pe,CORNER_OF_EDGE(pe,i,0));
@@ -1497,7 +1494,6 @@ static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PR
   /* link element into list according to prio */
   {
     INT where   = PRIO2INDEX(new_);
-    ELEMENT *after;
 
     if (theFather != NULL)
     {
@@ -1515,7 +1511,7 @@ static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PR
       }
 
       /* link elements with father */
-      after = SON(theFather,where);
+      ELEMENT *after = SON(theFather,where);
 
       PRINTDEBUG(dddif,2,(PFMT " ElementPriorityUpdate(): GRID_LINKX_ELEMENT "
                           "pe=" EID_FMTX " prio=%d after=%x\n",me,EID_PRTX(pe),new_,after))

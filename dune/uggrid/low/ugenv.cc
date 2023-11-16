@@ -379,9 +379,7 @@ INT NS_PREFIX RemoveEnvItem (ENVITEM *theItem)
   return(0);
 }
 
-#ifndef __T3E__
 static
-#endif
 INT RemoveEnvDirContent (ENVITEM *theItem)
 {
   ENVITEM *Item,*Next;

@@ -123,10 +123,9 @@ int IFInitComm(DDD::DDDContext& context, DDD_IF ifId)
  */
 void IFExitComm(DDD::DDDContext& context, DDD_IF ifId)
 {
-  IF_PROC   *ifHead;
-
   if (DDD_GetOption(context, OPT_IF_REUSE_BUFFERS) == OPT_OFF)
   {
+    IF_PROC *ifHead;
     ForIF(context, ifId, ifHead)
     {
       ifHead->bufIn.clear();

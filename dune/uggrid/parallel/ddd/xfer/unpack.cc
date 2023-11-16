@@ -441,7 +441,6 @@ static void AcceptObjFromMsg (
       /* object already here, compare priorities.
          this is the implementation of rule XFER-C3. */
       DDD_PRIO newprio;
-      enum PrioMergeVals ret;
 
       /* if local object should have been XferDelete'd, but the
          delete-cmd had been pruned (see cmdmsg.c), a flag has been
@@ -465,7 +464,7 @@ static void AcceptObjFromMsg (
       }
       else
       {
-        ret = PriorityMerge(desc,
+        enum PrioMergeVals ret = PriorityMerge(desc,
                             OBJ_PRIO(ote->hdr), OBJ_PRIO(localCplObjs[j]), &newprio);
 
         if (ret==PRIO_FIRST || ret==PRIO_UNKNOWN)                          /* incoming is higher or equal */
@@ -1477,7 +1476,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
   TENewCpl     *allNewCpl;
   OBJTAB_ENTRY **unionObjTab;
   int lenObjTab, lenSymTab, nNewCpl;
-  int i, pos1, pos2, len;
+  int i, pos1, pos2;
   XISetPrio** arraySP = theSP.data();
   const int nSP = theSP.size();
 
@@ -1532,7 +1531,7 @@ void XferUnpack (DDD::DDDContext& context, LC_MSGHANDLE *theMsgs, int nRecvMsgs,
     LC_MSGHANDLE xm = theMsgs[i];
     char *theObjects = (char *) LC_GetPtr(xm, ctx.objmem_id);
 
-    len = (int) LC_GetTableLen(xm, ctx.newcpl_id);
+    int len = (int) LC_GetTableLen(xm, ctx.newcpl_id);
     if (len>0)
     {
       memcpy(allNewCpl+pos1, LC_GetPtr(xm,ctx.newcpl_id),

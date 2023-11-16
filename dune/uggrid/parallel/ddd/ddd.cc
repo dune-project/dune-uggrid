@@ -125,8 +125,6 @@ static void LowComm_DefaultFree (void *buffer)
 
 void DDD_Init(DDD::DDDContext& context)
 {
-  int buffsize;
-
   dddUsers += 1;
 
   /* init lineout-interface to stdout */
@@ -136,13 +134,6 @@ void DDD_Init(DDD::DDDContext& context)
   if (context.procs() > MAX_PROCS)
     DUNE_THROW(Dune::Exception,
                "too many processors, cannot construct global IDs");
-
-  /* compute size for general buffer */
-  buffsize = (context.procs()+1)*(sizeof(int)*BUFFER_SIZE_FACTOR);
-  if (buffsize<MIN_BUFFER_SIZE)
-  {
-    buffsize = MIN_BUFFER_SIZE;
-  }
 
   /* reset all global counters */
   context.nObjs(0);

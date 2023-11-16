@@ -3151,7 +3151,7 @@ static INT DisposeVertex (GRID *theGrid, VERTEX *theVertex)
 
 INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
 {
-  INT i,j,tag;
+  INT j,tag;
   NODE    *theNode;
   VERTEX  *theVertex;
   EDGE    *theEdge;
@@ -3224,12 +3224,11 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
   /* they lost their father pointers                          */
   if (NSONS(theElement)>0)
   {
-    INT i,j;
     ELEMENT *SonList[MAX_SONS];
 
     if (GetAllSons(theElement,SonList)) RETURN(GM_FATAL);
 
-    i = 0;
+    INT i = 0;
     while (SonList[i] != NULL)
     {
       PRINTDEBUG(gm,2,(PFMT "DisposeElement(): elem=" EID_FMTX
@@ -3256,7 +3255,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
 
   /* remove element sides if it's a boundary element */
   if (OBJT(theElement)==BEOBJ)
-    for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+    for (INT i = 0; i < SIDES_OF_ELEM(theElement); i++)
     {
       bnds = ELEM_BNDS(theElement,i);
       if (bnds != NULL)
@@ -3382,7 +3381,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
   }
 
   /* reset neighbor pointers referencing element and dispose vectors in sides if */
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+  for (INT i = 0; i < SIDES_OF_ELEM(theElement); i++)
   {
     ELEMENT *theNeighbor = NBELEM(theElement,i);
 
@@ -4495,7 +4494,6 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
 INT NS_DIM_PREFIX DeleteElement (MULTIGRID *theMG, ELEMENT *theElement) /* 3D VERSION */
 {
   GRID *theGrid;
-  ELEMENT *theNeighbor;
   INT i,j,found;
 
   /* check level */
@@ -4510,7 +4508,7 @@ INT NS_DIM_PREFIX DeleteElement (MULTIGRID *theMG, ELEMENT *theElement) /* 3D VE
   /* delete pointers in neighbors */
   for (i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
-    theNeighbor = NBELEM(theElement,i);
+    ELEMENT *theNeighbor = NBELEM(theElement,i);
     if (theNeighbor!=NULL)
     {
       found = 0;
@@ -4549,7 +4547,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
 {
   GRID *theGrid;
   ELEMENT *theElement;
-  NODE **NList,*Nodes[MAX_CORNERS_OF_ELEM],*ListNode;
+  NODE **NList,*Nodes[MAX_CORNERS_OF_ELEM];
   VERTEX **VList;
   INT i,k,n,nv,j,maxlevel,l,move;
   INT ElemSideOnBnd[MAX_SIDES_OF_ELEM];
@@ -4631,25 +4629,25 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
       n = theMesh->Element_corners[j][k];
       for (l=0; l<n; l++)
       {
-        ListNode = NList[theMesh->Element_corner_ids[j][k][l]];
-        if (ListNode==NULL || LEVEL(ListNode)<i)
+        NODE *curListNode = NList[theMesh->Element_corner_ids[j][k][l]];
+        if (curListNode == NULL || LEVEL(curListNode) < i)
         {
           Nodes[l] = CreateNode(theGrid,VList[theMesh->Element_corner_ids[j][k][l]],NULL,LEVEL_0_NODE,0);
           if (Nodes[l]==NULL) assert(0);
           NList[theMesh->Element_corner_ids[j][k][l]] = Nodes[l];
-          if (ListNode==NULL || LEVEL(ListNode)<i-1)
+          if (curListNode == NULL || LEVEL(curListNode) < i-1)
           {
             SETNFATHER(Nodes[l],NULL);
           }
           else
           {
-            SETNFATHER(Nodes[l],(GEOM_OBJECT *)ListNode);
-            SONNODE(ListNode) = Nodes[l];
+            SETNFATHER(Nodes[l],(GEOM_OBJECT *)curListNode);
+            SONNODE(curListNode) = Nodes[l];
           }
         }
         else
         {
-          Nodes[l] = ListNode;
+          Nodes[l] = curListNode;
         }
       }
       if (theMesh->ElemSideOnBnd==NULL)
@@ -6411,7 +6409,7 @@ static INT FinishGrid (MULTIGRID *mg)
   INT MarkKey = MG_MARK_KEY(mg);
   INT i,side,id,nbid,found,s_id;
   INT *sd_table;
-  void *buffer;
+  void *fifoBuffer;
 
   /* prepare */
   if (TOPLEVEL(mg)<0)
@@ -6433,14 +6431,14 @@ static INT FinishGrid (MULTIGRID *mg)
     REP_ERR_RETURN (GM_ERROR);
 
   /* init two fifos */
-  buffer=(void *)GetTmpMem(heap,sizeof(ELEMENT*)*NT(grid),MarkKey);
-  if (buffer==NULL)
+  fifoBuffer = (void *)GetTmpMem(heap, sizeof(ELEMENT*)*NT(grid), MarkKey);
+  if (fifoBuffer == NULL)
     REP_ERR_RETURN (GM_ERROR);
-  fifo_init(&unused,buffer,sizeof(ELEMENT*)*NT(grid));
-  buffer=(void *)GetTmpMem(heap,sizeof(ELEMENT*)*NT(grid),MarkKey);
-  if (buffer==NULL)
+  fifo_init(&unused, fifoBuffer, sizeof(ELEMENT*)*NT(grid));
+  fifoBuffer = (void *)GetTmpMem(heap, sizeof(ELEMENT*)*NT(grid), MarkKey);
+  if (fifoBuffer == NULL)
     REP_ERR_RETURN (GM_ERROR);
-  fifo_init(&shell,buffer,sizeof(ELEMENT*)*NT(grid));
+  fifo_init(&shell, fifoBuffer, sizeof(ELEMENT*)*NT(grid));
 
   /* outermost loop handles nonconnected domains */
   while (true)
@@ -6677,7 +6675,7 @@ INT NS_DIM_PREFIX SetSubdomainIDfromBndInfo (MULTIGRID *theMG)
   GRID *theGrid;
   ELEMENT *theElement, *theNeighbor;
   NODE *theNode;
-  void *buffer;
+  void *fifoBuffer;
   INT i,n,id,nbid,j;
   FIFO myfifo;
   INT MarkKey = MG_MARK_KEY(theMG);
@@ -6689,8 +6687,8 @@ INT NS_DIM_PREFIX SetSubdomainIDfromBndInfo (MULTIGRID *theMG)
 
   /* allocate fifo and init */
   theHeap = MYMG(theGrid)->theHeap;
-  buffer=(void *)GetTmpMem(theHeap,sizeof(ELEMENT*)*n,MarkKey);
-  fifo_init(&myfifo,buffer,sizeof(ELEMENT*)*n);
+  fifoBuffer = (void *)GetTmpMem(theHeap, sizeof(ELEMENT*)*n, MarkKey);
+  fifo_init(&myfifo, fifoBuffer, sizeof(ELEMENT*)*n);
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
     SETUSED(theElement,0);

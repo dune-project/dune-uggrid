@@ -306,17 +306,7 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
     {
       if (CPL_PROC(cp2)==proc)
       {
-        if (cp2->prio!=prio)
-        {
-          /* coupling upgrades/downgrades, are they allowed?
-                                                  printf("%4d: diff in cpl, %05x old %d-%d new %d-%d\n",
-                                                          context.me(),OBJ_GID(hdr),cp2->proc,cp2->prio, proc, prio);
-           */
-          cp2->prio = prio;
-        }
-        /*
-                                        DDD_PrintError('W', 2600, "coupling already known in AddCoupling");
-         */
+        cp2->prio = prio;
         return(cp2);
       }
     }
@@ -365,7 +355,6 @@ COUPLING *AddCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
 
 COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_PRIO prio)
 {
-  COUPLING        *cp2;
   int objIndex;
 
   assert(proc!=context.me());
@@ -386,7 +375,7 @@ COUPLING *ModCoupling(DDD::DDDContext& context, DDD_HDR hdr, DDD_PROC proc, DDD_
   else
   {
     /* look if coupling exists and change it */
-    for(cp2=IdxCplList(context, objIndex); cp2!=NULL; cp2=CPL_NEXT(cp2))
+    for (COUPLING *cp2 = IdxCplList(context, objIndex); cp2 != NULL; cp2 = CPL_NEXT(cp2))
     {
       if (CPL_PROC(cp2)==proc)
       {

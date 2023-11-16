@@ -350,7 +350,6 @@ static int Gather_VHGhostCmd (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PRO
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   // ELEMENT *theFather      = EFATHER(theElement);
-  ELEMENT *theNeighbor;
   INT j;
 
   if (PARTITION(theElement) != proc)
@@ -359,7 +358,7 @@ static int Gather_VHGhostCmd (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PRO
 
     for(j=0; j<SIDES_OF_ELEM(theElement); j++)
     {
-      theNeighbor = NBELEM(theElement,j);
+      ELEMENT *theNeighbor = NBELEM(theElement,j);
 
       if (theNeighbor != NULL)
       {

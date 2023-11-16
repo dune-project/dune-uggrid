@@ -194,9 +194,9 @@ static INT UpdateElementOverlap (DDD::DDDContext& context, ELEMENT *theElement)
       /* send son to all elements where theNeighbor is master, vghost or vhghost */
       if (0)
       {
-        for (auto&& [proc, prio] : DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false))
+        for (auto&& [proc, currentPrio] : DDD_InfoProcListRange(context, PARHDRE(theNeighbor), false))
         {
-          if (!EHGHOSTPRIO(prio))
+          if (!EHGHOSTPRIO(currentPrio))
           {
             XFERECOPYX(context, theSon,proc,PrioHGhost,
                        (OBJT(theSon)==BEOBJ) ? BND_SIZE_TAG(TAG(theSon)) :
@@ -262,14 +262,11 @@ INT UpdateGridOverlap (GRID *theGrid)
 
 static INT UpdateMultiGridOverlap (MULTIGRID *theMG, INT FromLevel)
 {
-  INT l;
-  GRID    *theGrid;
-
   ddd_HandlerInit(theMG->dddContext(), HSET_REFINE);
 
-  for (l=FromLevel; l<TOPLEVEL(theMG); l++)
+  for (INT l = FromLevel; l < TOPLEVEL(theMG); l++)
   {
-    theGrid = GRID_ON_LEVEL(theMG,l);
+    GRID *theGrid = GRID_ON_LEVEL(theMG,l);
     UpdateGridOverlap(theGrid);
   }
 
@@ -766,12 +763,9 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
 
 static INT ConnectOverlapVerticalMultiGrid (MULTIGRID *theMG)
 {
-  INT i;
-  GRID    *theGrid;
-
-  for (i=0; i<=TOPLEVEL(theMG); i++)
+  for (INT i = 0; i <= TOPLEVEL(theMG); i++)
   {
-    theGrid = GRID_ON_LEVEL(theMG,i);
+    GRID *theGrid = GRID_ON_LEVEL(theMG,i);
     if (ConnectOverlapVerticalGrid(theGrid)) return(GM_ERROR);
   }
   return(GM_OK);

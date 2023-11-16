@@ -140,14 +140,13 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
   INT i,_restrict_;
   ELEMENT *theElement;
   ELEMENT *theFather;
-  GRID    *theGrid;
 
   _restrict_ = 0;
 
   /* reset used flags */
   for (i=TOPLEVEL(theMG); i>0; i--)
   {
-    theGrid = GRID_ON_LEVEL(theMG,i);
+    GRID *theGrid = GRID_ON_LEVEL(theMG,i);
     for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
          theElement=SUCCE(theElement))
     {
@@ -245,7 +244,6 @@ static int Gather_ElementRestriction (DDD::DDDContext&, DDD_OBJ obj, void *data)
 static int Scatter_ElementRestriction (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
   ELEMENT *theElement = (ELEMENT *)obj;
-  int used;
 
   PRINTDEBUG(gm,4,(PFMT "Scatter_ElementRestriction(): e=" EID_FMTX "\n",
                    me,EID_PRTX(theElement)))
@@ -253,7 +251,7 @@ static int Scatter_ElementRestriction (DDD::DDDContext&, DDD_OBJ obj, void *data
   {
     PRINTDEBUG(gm,4,(PFMT "Scatter_ElementRestriction(): restricting sons of e=" EID_FMTX "\n",
                      me,EID_PRTX(theElement)))
-    used = std::max((INT)USED(theElement),((int *)data)[0]);
+    int used = std::max((INT)USED(theElement),((int *)data)[0]);
     SETUSED(theElement,used);
   }
 
@@ -320,17 +318,16 @@ static int Scatter_RestrictedPartition (DDD::DDDContext&, DDD_OBJ obj, void *dat
 {
   ELEMENT *theElement = (ELEMENT *)obj;
   ELEMENT *SonList[MAX_SONS];
-  int i,partition;
 
   if (USED(theElement) && EMASTERPRIO(prio))
   {
     PRINTDEBUG(gm,4,(PFMT "Scatter_ElementRestriction(): restricting sons of e=" EID_FMTX "\n",
                      me,EID_PRTX(theElement)))
 
-    partition = ((int *)data)[0];
+    int partition = ((int *)data)[0];
     /* send master sons to master element partition */
     if (GetSons(theElement,SonList)) RETURN(GM_ERROR);
-    for (i=0; SonList[i]!=NULL; i++)
+    for (int i = 0; SonList[i] != NULL; i++)
       PARTITION(SonList[i]) = partition;
   }
 

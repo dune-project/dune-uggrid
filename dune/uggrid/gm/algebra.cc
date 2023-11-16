@@ -225,13 +225,11 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
 #ifdef UG_DIM_3
 INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT Side0, ELEMENT *Elem1, INT Side1)
 {
-  VECTOR *Vector0, *Vector1;
-
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
     assert(NBELEM(Elem0,Side0)==Elem1 && NBELEM(Elem1,Side1)==Elem0);
-    Vector0 = SVECTOR(Elem0,Side0);
-    Vector1 = SVECTOR(Elem1,Side1);
+    VECTOR *Vector0 = SVECTOR(Elem0,Side0);
+    VECTOR *Vector1 = SVECTOR(Elem1,Side1);
     if (Vector0 == Vector1)
       return (0);
     if ((Vector0==NULL) || (Vector1==NULL))
@@ -513,7 +511,7 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
 
 INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 {
-  GRID *g;
+  GRID *g = nullptr;
 #ifdef UG_DIM_3
   VECTOR *nbvec;
   ELEMENT *nbelem;
