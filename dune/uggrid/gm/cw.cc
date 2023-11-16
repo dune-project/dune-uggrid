@@ -65,6 +65,30 @@ USING_UGDIM_NAMESPACE
 #define CW_GEOMOBJS             (CW_VXOBJS | CW_ELOBJS | CW_NDOBJ | CW_EDOBJ | CW_GROBJ)
 /* NOTE: CW_GEOMOBJS and GEOM_OBJECTS differ*/
 
+/** @name status of control word */
+/*@{*/
+#define CW_FREE                                         0
+#define CW_USED                                         1
+/*@}*/
+
+
+/** @name Status of control entry */
+/*@{*/
+#define CE_FREE                                         0
+#define CE_USED                                         1
+#define CE_LOCKED                                       1
+/*@}*/
+
+/** @name Initializer macros for control entry and word predefines */
+/*@{*/
+#define CW_INIT(used,cw,objs)                           {used, STR(cw), cw ## CW, cw ## OFFSET,objs}
+#define CW_INIT_UNUSED                                  {CW_FREE,0,0,0}
+#define CE_INIT(mode,cw,ce,objs)                        {mode, STR(ce), cw ## CW, ce ## CE, ce ## SHIFT, ce ## LEN, objs}
+#define CE_INIT_UNUSED                                  {CE_FREE, 0, 0, 0, 0, 0, 0}
+/*@}*/
+
+
+
 /****************************************************************************/
 /*                                                                          */
 /* data structures used in this source file (exported data structures are   */
