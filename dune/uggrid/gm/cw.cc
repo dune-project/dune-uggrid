@@ -58,7 +58,6 @@ USING_UGDIM_NAMESPACE
 #define CW_MGOBJ                BITWISE_TYPE(MGOBJ)
 #define CW_NDOBJ                BITWISE_TYPE(NDOBJ)
 #define CW_VEOBJ                BITWISE_TYPE(VEOBJ)
-#define CW_MAOBJ                (BITWISE_TYPE(MAOBJ) | BITWISE_TYPE(COOBJ))
 
 #define CW_VXOBJS               (BITWISE_TYPE(IVOBJ) | BITWISE_TYPE(BVOBJ))
 #define CW_ELOBJS               (BITWISE_TYPE(IEOBJ) | BITWISE_TYPE(BEOBJ))
@@ -122,6 +121,7 @@ typedef struct {
 /*                                                                          */
 /****************************************************************************/
 
+constexpr INT MAX_CONTROL_WORDS = 11;
 CONTROL_WORD NS_DIM_PREFIX control_words[MAX_CONTROL_WORDS];
 CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 
@@ -133,7 +133,6 @@ CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 
 static CONTROL_WORD_PREDEF cw_predefines[MAX_CONTROL_WORDS] = {
   CW_INIT(CW_USED,VECTOR_,                        CW_VEOBJ),
-  CW_INIT(CW_USED,MATRIX_,                        CW_MAOBJ),
   CW_INIT(CW_USED,VERTEX_,                        CW_VXOBJS),
   CW_INIT(CW_USED,NODE_,                          CW_NDOBJ),
   CW_INIT(CW_USED,LINK_,                          CW_EDOBJ),
@@ -143,15 +142,7 @@ static CONTROL_WORD_PREDEF cw_predefines[MAX_CONTROL_WORDS] = {
   CW_INIT(CW_USED,PROPERTY_,                      CW_ELOBJS),
   CW_INIT(CW_USED,GRID_,                          CW_GROBJ),
   CW_INIT(CW_USED,GRID_STATUS_,           CW_GROBJ),
-  CW_INIT(CW_USED,MULTIGRID_STATUS_,      CW_MGOBJ),
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
+  CW_INIT(CW_USED,MULTIGRID_STATUS_,      CW_MGOBJ)
 };
 
 static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
@@ -170,21 +161,8 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
   CE_INIT(CE_LOCKED,      VECTOR_,                NEW_DEFECT_,    CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VACTIVE_,       CW_VEOBJ),
 
-  CE_INIT(CE_LOCKED,      MATRIX_,                MOFFSET_,               CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MROOTTYPE_,             CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MDESTTYPE_,             CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MDIAG_,                 CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MSIZE_,                 CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MNEW_,                  CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                CEXTRA_,                CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MDOWN_,                 CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MUP_,                   CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MLOWER_,                CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MUPPER_,                CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MACTIVE_,               CW_MAOBJ),
-
-  CE_INIT(CE_LOCKED,      GENERAL_,               OBJ_,                   (CW_GEOMOBJS | CW_VEOBJ | CW_MAOBJ)),
-  CE_INIT(CE_LOCKED,      GENERAL_,               USED_,                  (CW_GEOMOBJS | CW_VEOBJ | CW_MAOBJ)),
+  CE_INIT(CE_LOCKED,      GENERAL_,               OBJ_,                   (CW_GEOMOBJS | CW_VEOBJ)),
+  CE_INIT(CE_LOCKED,      GENERAL_,               USED_,                  (CW_GEOMOBJS | CW_VEOBJ)),
   CE_INIT(CE_LOCKED,      GENERAL_,               THEFLAG_,               (CW_GEOMOBJS | CW_VEOBJ)),
   CE_INIT(CE_LOCKED,      GENERAL_,               LEVEL_,                 CW_GEOMOBJS),
 
@@ -232,17 +210,7 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
 
         #ifdef ModelP
   CE_INIT(CE_USED,        VECTOR_,                XFERVECTOR_,    CW_VEOBJ),
-  CE_INIT(CE_USED,        MATRIX_,                XFERMATX_,              CW_MAOBJ),
-        #else /* ModelP */
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
         #endif /* ModelP */
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
 };
 
 /****************************************************************************/
@@ -475,7 +443,6 @@ void NS_DIM_PREFIX ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf)
   ListAllCWsOfObjectType(EDOBJ,myprintf);
   ListAllCWsOfObjectType(NDOBJ,myprintf);
   ListAllCWsOfObjectType(VEOBJ,myprintf);
-  ListAllCWsOfObjectType(MAOBJ,myprintf);
   ListAllCWsOfObjectType(GROBJ,myprintf);
   ListAllCWsOfObjectType(MGOBJ,myprintf);
 }

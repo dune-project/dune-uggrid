@@ -1925,7 +1925,6 @@ typedef union object_with_key KEY_OBJECT;
 /** \brief Enumeration list of all control words of gm.h */
 enum GM_CW {
   VECTOR_CW,
-  MATRIX_CW,
   VERTEX_CW,
   NODE_CW,
   LINK_CW,
@@ -1956,18 +1955,6 @@ enum GM_CE {
   NEW_DEFECT_CE,
   VACTIVE_CE,
   FINE_GRID_DOF_CE,
-  MOFFSET_CE,
-  MROOTTYPE_CE,
-  MDESTTYPE_CE,
-  MDIAG_CE,
-  MSIZE_CE,
-  MNEW_CE,
-  CEXTRA_CE,
-  MDOWN_CE,
-  MUP_CE,
-  MLOWER_CE,
-  MUPPER_CE,
-  MACTIVE_CE,
   OBJ_CE,
   USED_CE,
   TAG_CE,
@@ -1998,7 +1985,6 @@ enum GM_CE {
   PROP_CE,
 #ifdef ModelP
   XFERVECTOR_CE,
-  XFERMATX_CE,
 #endif
 
   GM_N_CE
@@ -2207,104 +2193,6 @@ enum LV_ID_TYPES {
 
 /****************************************************************************/
 /*                                                                                                                                                      */
-/* macros for MATRIXs                                                                                                           */
-/*                                                                                                                                                      */
-/****************************************************************************/
-
-/* control word offset */
-#define MATRIX_OFFSET                           0
-
-#define MOFFSET_SHIFT                           0
-#define MOFFSET_LEN                             1
-#define MOFFSET(p)                                      CW_READ_STATIC(p,MOFFSET_,MATRIX_)
-#define SETMOFFSET(p,n)                         CW_WRITE_STATIC(p,MOFFSET_,MATRIX_,n)
-
-#define MROOTTYPE_SHIFT                         1
-#define MROOTTYPE_LEN                           2
-#define MROOTTYPE(p)                            CW_READ_STATIC(p,MROOTTYPE_,MATRIX_)
-#define SETMROOTTYPE(p,n)                       CW_WRITE_STATIC(p,MROOTTYPE_,MATRIX_,n)
-#if (MAXVTYPES > POW2(MROOTTYPE_LEN))
-#error  *** MROOTTYPE_LEN too small ***
-#endif
-
-#define MDESTTYPE_SHIFT                         3
-#define MDESTTYPE_LEN                           2
-#define MDESTTYPE(p)                            CW_READ_STATIC(p,MDESTTYPE_,MATRIX_)
-#define SETMDESTTYPE(p,n)                       CW_WRITE_STATIC(p,MDESTTYPE_,MATRIX_,n)
-#if (MAXVTYPES > POW2(MDESTTYPE_LEN))
-        #error  *** MDESTTYPE_LEN too small ***
-#endif
-
-#define MDIAG_SHIFT                             5
-#define MDIAG_LEN                                       1
-#define MDIAG(p)                                        CW_READ_STATIC(p,MDIAG_,MATRIX_)
-#define SETMDIAG(p,n)                           CW_WRITE_STATIC(p,MDIAG_,MATRIX_,n)
-
-#define MNEW_SHIFT                                      6
-#define MNEW_LEN                                        1
-#define MNEW(p)                                         CW_READ_STATIC(p,MNEW_,MATRIX_)
-#define SETMNEW(p,n)                            CW_WRITE_STATIC(p,MNEW_,MATRIX_,n)
-
-#define CEXTRA_SHIFT                            7
-#define CEXTRA_LEN                                      1
-#define CEXTRA(p)                                       CW_READ_STATIC(p,CEXTRA_,MATRIX_)
-#define SETCEXTRA(p,n)                          CW_WRITE_STATIC(p,CEXTRA_,MATRIX_,n)
-
-#define MDOWN_SHIFT                             8
-#define MDOWN_LEN                                       1
-#define MDOWN(p)                                        CW_READ_STATIC(p,MDOWN_,MATRIX_)
-#define SETMDOWN(p,n)                           CW_WRITE_STATIC(p,MDOWN_,MATRIX_,n)
-
-#define MUP_SHIFT                                       9
-#define MUP_LEN                                         1
-#define MUP(p)                                          CW_READ_STATIC(p,MUP_,MATRIX_)
-#define SETMUP(p,n)                             CW_WRITE_STATIC(p,MUP_,MATRIX_,n)
-
-#define MLOWER_SHIFT                            10
-#define MLOWER_LEN                                      1
-#define MLOWER(p)                                       CW_READ_STATIC(p,MLOWER_,MATRIX_)
-#define SETMLOWER(p,n)                          CW_WRITE_STATIC(p,MLOWER_,MATRIX_,n)
-
-#define MUPPER_SHIFT                            11
-#define MUPPER_LEN                                      1
-#define MUPPER(p)                                       CW_READ_STATIC(p,MUPPER_,MATRIX_)
-#define SETMUPPER(p,n)                          CW_WRITE_STATIC(p,MUPPER_,MATRIX_,n)
-
-#define MACTIVE_SHIFT                           12
-#define MACTIVE_LEN                             1
-#define MACTIVE(p)                                      CW_READ_STATIC(p,MACTIVE_,MATRIX_)
-#define SETMACTIVE(p,n)                         CW_WRITE_STATIC(p,MACTIVE_,MATRIX_,n)
-
-#define MSIZE_SHIFT                             13
-#define MSIZE_LEN                                       12
-#ifndef __XXL_MSIZE__
-#define MSIZEMAX                                        (POW2(MSIZE_LEN)-1)
-#define UG_MSIZE(p)                                        (CW_READ(p,MSIZE_CE)+sizeof(MATRIX)-sizeof(DOUBLE))
-#define SETMSIZE(p,n)                           CW_WRITE(p,MSIZE_CE,(n-sizeof(MATRIX)+sizeof(DOUBLE)))
-#else
-#define MSIZEMAX                                        10000000
-#define UG_MSIZE(p)                                        ((p)->xxl_msize)
-#define SETMSIZE(p,n)                           (p)->xxl_msize = (n)
-#endif
-
-#define MTYPE(p)                                        (MDIAG(p) ? (MAXMATRICES+MROOTTYPE(p)) : (MROOTTYPE(p)*MAXVECTORS+MDESTTYPE(p)))
-
-#define MUSED(p)                                        USED(p)
-
-#ifdef ModelP
-#define XFERMATX_SHIFT                          25
-#define XFERMATX_LEN                            2
-#define XFERMATX(p)                             CW_READ(p,XFERMATX_CE)
-#define SETXFERMATX(p,n)                        CW_WRITE(p,XFERMATX_CE,n)
-#endif
-
-#define MNEXT(m)                                        ((m)->next)
-#define MDEST(m)                                        ((m)->vect)
-#define MADJ(m)                                         ((MDIAG(m)) ? (m) : ((MOFFSET(m)) ? (MDEC(m)) : (MINC(m))))
-#define MROOT(m)                                        MDEST(MADJ(m))
-
-/****************************************************************************/
-/*                                                                                                                                                      */
 /* Macro definitions for geometric objects                                                                      */
 /*                                                                                                                                                      */
 /*                                                                                                                                                      */
@@ -2365,14 +2253,12 @@ enum GM_OBJECTS {
 
   /* object numbers for algebra */
   VEOBJ,                            /*!< Vector object                                        */
-  MAOBJ,                            /*!< Matrix object                                        */
 
   NPREDEFOBJ,                       /*!< Number of predefined objects             */
 
   NOOBJ = -1                        /*!< No object */
 };
 #define LIOBJ           EDOBJ           /* link and edge are identified                 */
-#define COOBJ           MAOBJ           /* connection and matrix are identified         */
 
 /****************************************************************************/
 /*                                                                                                                                                      */

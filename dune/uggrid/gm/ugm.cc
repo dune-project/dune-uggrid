@@ -213,8 +213,7 @@ void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
     memset(obj,0,size);
 
   #ifdef ModelP
-  if (type!=MAOBJ && type!=COOBJ)
-    ConstructDDDObject(theMG->dddContext(), obj,size,type);
+  ConstructDDDObject(theMG->dddContext(), obj,size,type);
   #endif
 
   return obj;
@@ -256,8 +255,7 @@ static void DestructDDDObject(DDD::DDDContext& context, void *object, INT type)
 INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, GM_OBJECTS type)
 {
   #ifdef ModelP
-  if (type!=MAOBJ && type!=COOBJ)
-    DestructDDDObject(theMG->dddContext(), object,type);
+  DestructDDDObject(theMG->dddContext(), object,type);
   #endif
 
   DisposeMem(MGHEAP(theMG), object);

@@ -37,8 +37,6 @@ START_UGDIM_NAMESPACE
 
 /** @name Macros for the control word management */
 /*@{*/
-/** \brief maximum number of control words              */
-#define MAX_CONTROL_WORDS       20
 /** \brief max number of entries                                */
 #define MAX_CONTROL_ENTRIES 100
 /*@}*/
