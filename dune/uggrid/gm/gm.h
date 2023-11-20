@@ -2204,16 +2204,6 @@ enum LV_ID_TYPES {
 #define PREDVC(v)                                       ((v)->pred)
 #define SUCCVC(v)                                       ((v)->succ)
 #define VINDEX(v)                                       ((v)->index)
-#define V_IN_DATATYPE(v,dt)                     (VDATATYPE(v) & (dt))
-#define VVALUE(v,n)                             ((v)->value[n])
-#define VVALUEPTR(v,n)                          (&((v)->value[n]))
-#define VMYNODE(v)                                      ((NODE*)((v)->object))
-#define VMYEDGE(v)                                      ((EDGE*)((v)->object))
-#define VMYELEMENT(v)                           ((ELEMENT*)((v)->object))
-#define VUP(p)                                          LoWrd(VINDEX(p))
-#define SETVUP(p,n)                             SetLoWrd(VINDEX(p),n)
-#define VDOWN(p)                                        HiWrd(VINDEX(p))
-#define SETVDOWN(p,n)                           SetHiWrd(VINDEX(p),n)
 
 /****************************************************************************/
 /*                                                                                                                                                      */
