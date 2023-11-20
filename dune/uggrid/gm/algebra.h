@@ -60,25 +60,6 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* control word definitions                                                 */
-/*                                                                          */
-/****************************************************************************/
-
-enum ALGEBRA_CE {
-
-  EBUILDCON_CE = GM_N_CE,           /* continue after gm.h entries */
-
-  ALGEBRA_N_CE
-};
-
-/* element */
-#define EBUILDCON_SHIFT                         11
-#define EBUILDCON_LEN                           1
-#define EBUILDCON(p)                            CW_READ(p,EBUILDCON_CE)
-#define SETEBUILDCON(p,n)                       CW_WRITE(p,EBUILDCON_CE,n)
-
-/****************************************************************************/
-/*                                                                          */
 /* macros for VECTORs                                                       */
 /*                                                                          */
 /****************************************************************************/

@@ -3289,7 +3289,6 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     {
       SETMARK(theElement,0);
       SETMARKCLASS(theElement,NO_CLASS);
-      SETEBUILDCON(theElement,1);
     }
   for (i=0; i<=TOPLEVEL(theMG); i++)
   {

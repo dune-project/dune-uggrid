@@ -198,7 +198,6 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
 
   CE_INIT(CE_USED,        FLAG_,                  MARK_,                  CW_ELOBJS),
   CE_INIT(CE_USED,        FLAG_,                  COARSEN_,               CW_ELOBJS),
-  CE_INIT(CE_USED,        FLAG_,                  EBUILDCON_,             CW_ELOBJS),
   CE_INIT(CE_USED,        FLAG_,                  DECOUPLED_,             CW_ELOBJS),
   CE_INIT(CE_USED,        FLAG_,                  UPDATE_GREEN_,  CW_ELOBJS),
   CE_INIT(CE_USED,        FLAG_,                  SIDEPATTERN_,   CW_ELOBJS),

@@ -73,7 +73,7 @@ START_UGDIM_NAMESPACE
 
 enum REFINE_CE {
 
-  PATTERN_CE = ALGEBRA_N_CE,            /* continue after algebra.h entries             */
+  PATTERN_CE = GM_N_CE,            /* continue after gm.h entries             */
   ADDPATTERN_CE,
   REFINE_CE,
   MARK_CE,

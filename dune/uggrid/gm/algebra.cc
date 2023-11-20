@@ -530,8 +530,6 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 
       /* loop elements and element sides */
       for (elem=PFIRSTELEMENT(g); elem!=NULL; elem=SUCCE(elem)) {
-        /* to tell GridCreateConnection to build connections */
-        if (EMASTER(elem)) SETEBUILDCON(elem,1);
 
         /* side vectors */
 #ifdef UG_DIM_3
@@ -653,7 +651,6 @@ INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
     for (theElement=PFIRSTELEMENT(GRID_ON_LEVEL(theMG,k)); theElement!=NULL; theElement=SUCCE(theElement))
     {
       SETUSED(theElement,0);
-      SETEBUILDCON(theElement,0);
     }
     for (theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,k)); theVector!= NULL; theVector=SUCCVC(theVector))
       SETVBUILDCON(theVector,0);

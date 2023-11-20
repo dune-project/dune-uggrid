@@ -2330,7 +2330,6 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
   /* SETEPRIO(theGrid->dddContext(), pe,PrioMaster); */
   PARTITION(pe) = theGrid->ppifContext().me();
         #endif
-  SETEBUILDCON(pe,1);
   ID(pe) = (theGrid->mg->elemIdCounter)++;
 
   /* subdomain id */
@@ -2423,9 +2422,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
    Here also the side vector (iff at all) is inspected in 'ReinspectSonSideVector'.
    The latter function eventually reallocates the vector if its size has changed and
    sets the VBUILDCON flag in the vector. The connections of the old vector are
-   thereby disposed. The refine-module which is calling
-   'CreateSonElementSide' will finally call 'GridCreateConnection' to reinstall
-   the connections of the side-vector.
+   thereby disposed.
 
    @return <ul>
    <li>   GM_OK if ok </li>
