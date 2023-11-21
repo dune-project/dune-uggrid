@@ -293,69 +293,6 @@ INT NS_DIM_PREFIX GetVectorsOfSides (const ELEMENT *theElement, INT *cnt, VECTOR
 #endif
 
 /****************************************************************************/
-/** \brief Get a pointer list to all vector data of specified object type
-
- * @param theElement -  that element
- * @param type - fill array with vectors of this type
- * @param cnt - how many vectors
- * @param vList - array to store vector list
-
-   This function returns a pointer array to all VECTORs of the element of the specified type.
-
- * @return <ul>
- *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occurred. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfOType (const ELEMENT *theElement, INT type, INT *cnt, VECTOR **vList)
-{
-  switch (type)
-  {
-        #ifdef UG_DIM_3
-  case SIDEVEC :
-    return (GetVectorsOfSides(theElement,cnt,vList));
-        #endif
-  }
-  RETURN (GM_ERROR);
-}
-
-/****************************************************************************/
-/** \brief Get vector list
-
- * @param theGrid - pointer to a grid
- * @param theElement - pointer to an element
- * @param vec - vector list
-
-   This function gets a list of vectors corresponding to an element.
-
- * @return <ul>
- *   <li>   number of components </li>
- *   <li>   -1 if error occurred </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetAllVectorsOfElement (GRID *theGrid, ELEMENT *theElement, VECTOR **vec)
-{
-  INT cnt;
-
-  cnt = 0;
-    #ifdef UG_DIM_3
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-  {
-    INT i;
-    if (GetVectorsOfSides(theElement,&i,vec+cnt) == GM_ERROR)
-      RETURN(-1);
-    cnt += i;
-  }
-    #endif
-
-  return (cnt);
-}
-
-/****************************************************************************/
 /** \brief Get pointers to elements having a common side
 
  * @param theVector - given vector associated with a side of an element in 3D

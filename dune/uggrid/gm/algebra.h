@@ -90,7 +90,6 @@ INT             DisposeDoubledSideVector                (GRID *theGrid, ELEMENT 
 /** @name Query functions */
 /*@{*/
 INT             GetVectorsOfSides                               (const ELEMENT *theElement, INT *cnt, VECTOR **vList);
-INT                     GetVectorsOfOType                               (const ELEMENT *theElement, INT type, INT *cnt, VECTOR **vList);
 INT             GetElementInfoFromSideVector    (const VECTOR *theVector, ELEMENT **Elements, INT *Sides);
 /*@}*/
 
