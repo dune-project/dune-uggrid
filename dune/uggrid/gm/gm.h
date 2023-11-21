@@ -2702,7 +2702,6 @@ START_UGDIM_NAMESPACE
 #define SIDE_OPP_TO_CORNER(p,c)         (element_descriptors[TAG(p)]->side_opp_to_corner[(c)])
 #define EDGE_OF_CORNER(p,c,e)           (element_descriptors[TAG(p)]->edge_of_corner[(c)][(e)])
 
-#define CTRL2(p)        ((p)->ge.flag)
 #define FLAG(p)                 ((p)->ge.flag)
 #define SUCCE(p)                ((p)->ge.succ)
 #define PREDE(p)                ((p)->ge.pred)

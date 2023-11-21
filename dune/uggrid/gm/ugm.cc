@@ -5645,7 +5645,7 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
   case RED_CLASS :                 strcpy(ekind,"RED    "); break;
   default :                strcpy(ekind,"???    "); break;
   }
-  UserWriteF("ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx CTRL2=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
+  UserWriteF("ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx FLAG=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
              EID_PRTE(theElement),ekind,etype,
              (long)CTRL(theElement),(long)FLAG(theElement),REFINE(theElement),MARK(theElement),LEVEL(theElement));
   if (COARSEN(theElement)) UserWrite(" COARSEN");
@@ -6880,7 +6880,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
   default :                strcpy(ekind,"???    "); break;
   }
   if(full)
-    sprintf(out,"ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx CTRL2=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
+    sprintf(out,"ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx FLAG=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
             EID_PRTE(theElement),ekind,etype,
             (long)CTRL(theElement),(long)FLAG(theElement),REFINE(theElement),MARK(theElement),LEVEL(theElement));
   else
