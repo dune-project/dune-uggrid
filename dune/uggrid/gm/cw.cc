@@ -926,9 +926,5 @@ INT NS_DIM_PREFIX InitCW (void)
   if (InitPredefinedControlEntries())
     return (__LINE__);
 
-        #ifdef _DEBUG_CW_
-  ResetCEstatistics();
-        #endif
-
   return (GM_OK);
 }
