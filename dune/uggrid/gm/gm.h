@@ -2087,7 +2087,7 @@ enum LV_ID_TYPES {
 /****************************************************************************/
 
 /* control word offset */
-#define VECTOR_OFFSET                           0
+#define VECTOR_OFFSET                           offsetof(struct NS_DIM_PREFIX vector, control)/sizeof(UINT)
 
 /* predefined control word entries */
 #define VOTYPE_SHIFT                            0
@@ -2308,7 +2308,7 @@ enum GM_OBJECTS {
 /****************************************************************************/
 
 /* control word offset */
-#define VERTEX_OFFSET                           0
+#define VERTEX_OFFSET                           offsetof(struct ivertex,control)/sizeof(UINT)
 
 #define MOVE_SHIFT                                      1
 #define MOVE_LEN                                        2
@@ -2369,7 +2369,7 @@ enum GM_OBJECTS {
 /****************************************************************************/
 
 /* control word offset */
-#define NODE_OFFSET                                     0
+#define NODE_OFFSET                 offsetof(struct node, control)/sizeof(UINT)
 
 #define NTYPE_SHIFT                                     0
 #define NTYPE_LEN                                       3
@@ -2438,7 +2438,7 @@ enum GM_OBJECTS {
 /* CAUTION: the controlword of LINK0 and its edge are identical (AVOID overlapping of flags) */
 
 /* control word offset */
-#define LINK_OFFSET                             0
+#define LINK_OFFSET                             offsetof(struct link, control)/sizeof(UINT)
 
 #define LOFFSET_SHIFT                           0
 #define LOFFSET_LEN                             1
@@ -2470,8 +2470,9 @@ provides the LINK in the list of node `b` pointing to `a`.
 /*                                                                                                                                                      */
 /****************************************************************************/
 
-/* control word offset */
-#define EDGE_OFFSET                             0
+/* control word offset: Use the control word of the link object contained in the edge object */
+
+#define EDGE_OFFSET                             offsetof(struct edge, links[0].control)/sizeof(UINT)
 
 #define NO_OF_ELEM_SHIFT                        2
 #define NO_OF_ELEM_LEN                          7
@@ -2518,9 +2519,9 @@ enum {TETRAHEDRON = 4,
       HEXAHEDRON = 7};
 
 /* control word offsets */
-#define ELEMENT_OFFSET                                  0
-#define FLAG_OFFSET                                             2
-#define PROPERTY_OFFSET                                 3
+#define ELEMENT_OFFSET                  offsetof(struct generic_element, control)/sizeof(UINT)
+#define FLAG_OFFSET                     offsetof(struct generic_element, flag)/sizeof(UINT)
+#define PROPERTY_OFFSET                 offsetof(struct generic_element, property)/sizeof(UINT)
 
 /* macros for control word */
 #define ECLASS_SHIFT                                    8
@@ -2838,8 +2839,8 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 /* control word offset */
-#define GRID_OFFSET                                             0
-#define GRID_STATUS_OFFSET                              1
+#define GRID_OFFSET                                     offsetof(grid,control)/sizeof(UINT)
+#define GRID_STATUS_OFFSET                              offsetof(grid,status)/sizeof(UINT)
 
 #define GLEVEL(p)                                       ((p)->level)
 #define GFORMAT(p)                                      MGFORMAT(MYMG(p))
@@ -2995,7 +2996,7 @@ grid::dddContext()
 /****************************************************************************/
 
 /* control word offset */
-#define MULTIGRID_STATUS_OFFSET           ((sizeof(ENVDIR))/sizeof(UINT))
+#define MULTIGRID_STATUS_OFFSET         offsetof(struct multigrid, status)/sizeof(UINT)
 
 #define MGSTATUS(p)                     ((p)->status)
 #define RESETMGSTATUS(p)                {(p)->status=0; (p)->magic_cookie = (int)time(NULL); (p)->saved=0;}
