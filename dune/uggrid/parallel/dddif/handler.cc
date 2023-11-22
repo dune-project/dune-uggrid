@@ -920,7 +920,11 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
       VECTOR *vec = EDVECTOR(edge);
 
       if (vec != NULL) {
-        int Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
+#ifdef UG_DIM_2
+        int Size = sizeof(VECTOR)-sizeof(DOUBLE);
+#else
+        int Size = sizeof(VECTOR);
+#endif
         PRINTDEBUG(dddif,3,(PFMT " ElementXferCopy():  e=" EID_FMTX
                             " EDGEVEC=" VINDEX_FMTX " size=%d\n",
                             me,EID_PRTX(pe),VINDEX_PRTX(vec),Size))
@@ -937,7 +941,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
     VECTOR *vec = EVECTOR(pe);
 
     if (vec != NULL) {
-      INT Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
+      INT Size = sizeof(VECTOR)-sizeof(DOUBLE);
 
       PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                           " ELEMVEC=" VINDEX_FMTX " size=%d\n",
@@ -956,7 +960,7 @@ static void ElementXferCopy (DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC pro
       VECTOR *vec = SVECTOR(pe,i);
 
       if (vec != NULL) {
-        INT Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
+        INT Size = sizeof(VECTOR);
 
         PRINTDEBUG(dddif,2,(PFMT " ElementXferCopy(): e=" EID_FMTX
                             " SIDEVEC=" VINDEX_FMTX " size=%d\n",

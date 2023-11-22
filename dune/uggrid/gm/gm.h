@@ -3029,12 +3029,6 @@ grid::dddContext()
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef UG_DIM_3
-#define FMT_S_VEC_TP                               (sizeof(double))
-#else
-#define FMT_S_VEC_TP                               (0)
-#endif
-
 /** \brief Constants for USED flags of objects */
 enum {MG_ELEMUSED =    1,
       MG_NODEUSED =    2,

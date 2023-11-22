@@ -194,7 +194,7 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
 
 
   /* delete the vector itself */
-  Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
+  Size = sizeof(VECTOR);
   if (PutFreeObject(theGrid->mg,theVector,Size,VEOBJ))
     RETURN(1);
 
@@ -629,25 +629,13 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
 
   if (theVector == NULL)
   {
-    /* check if size is really 0 */
-    INT ds = FMT_S_VEC_TP;
-    if (ds>0)
-    {
       errors++;
       UserWriteF("%s ID=%ld  has NO VECTOR", ObjectString,
                  ID(theObject));
       UserWrite("\n");
-    }
   }
   else
   {
-    INT ds = FMT_S_VEC_TP;
-    if (ds==0)
-    {
-      errors++;
-      UserWriteF("%s ID=%ld  exists but should not\n", ObjectString,
-                 ID(theObject));
-    }
     SETVCUSED(theVector,1);
 
     VecObject = VOBJECT(theVector);
