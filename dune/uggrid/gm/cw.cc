@@ -64,26 +64,15 @@ USING_UGDIM_NAMESPACE
 #define CW_GEOMOBJS             (CW_VXOBJS | CW_ELOBJS | CW_NDOBJ | CW_EDOBJ | CW_GROBJ)
 /* NOTE: CW_GEOMOBJS and GEOM_OBJECTS differ*/
 
-/** @name status of control word */
-/*@{*/
-#define CW_FREE                                         0
-#define CW_USED                                         1
-/*@}*/
-
-
 /** @name Status of control entry */
 /*@{*/
-#define CE_FREE                                         0
 #define CE_USED                                         1
 #define CE_LOCKED                                       1
 /*@}*/
 
 /** @name Initializer macros for control entry and word predefines */
 /*@{*/
-#define CW_INIT(used,cw,objs)                           {used, STR(cw), cw ## CW, cw ## OFFSET,objs}
-#define CW_INIT_UNUSED                                  {CW_FREE,0,0,0}
 #define CE_INIT(mode,cw,ce,objs)                        {mode, STR(ce), cw ## CW, ce ## CE, ce ## SHIFT, ce ## LEN, objs}
-#define CE_INIT_UNUSED                                  {CE_FREE, 0, 0, 0, 0, 0, 0}
 /*@}*/
 
 
@@ -98,12 +87,6 @@ USING_UGDIM_NAMESPACE
 /** \brief Description of a control word */
 typedef struct {
 
-  /** \brief this struct is used */
-  INT used;
-
-  /** \brief name string */
-  const char *name;
-
   /** \brief where in object is it ? */
   UINT offset_in_object;
 
@@ -117,8 +100,6 @@ typedef struct {
 
 /** \brief Description of a control word predefines */
 typedef struct {
-  INT used;             /**< Used this entry					*/
-  const char *name;          /**< Name string						*/
   INT control_word_id;          /**< Index in control_words			*/
   UINT offset_in_object ;       /**< Where in object is it ?			*/
   INT objt_used;                                /**< Bitwise object ID */
@@ -141,7 +122,6 @@ typedef struct {
 /*                                                                          */
 /****************************************************************************/
 
-constexpr INT MAX_CONTROL_WORDS = 11;
 CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 
 /****************************************************************************/
@@ -150,20 +130,21 @@ CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 /*                                                                          */
 /****************************************************************************/
 
-static CONTROL_WORD control_words[MAX_CONTROL_WORDS];
+// The order of the entries here has to match the GM_CW enumeration in gm.h
 
-static CONTROL_WORD_PREDEF cw_predefines[MAX_CONTROL_WORDS] = {
-  CW_INIT(CW_USED,VECTOR_,                        CW_VEOBJ),
-  CW_INIT(CW_USED,VERTEX_,                        CW_VXOBJS),
-  CW_INIT(CW_USED,NODE_,                          CW_NDOBJ),
-  CW_INIT(CW_USED,LINK_,                          CW_EDOBJ),
-  CW_INIT(CW_USED,EDGE_,                          CW_EDOBJ),
-  CW_INIT(CW_USED,ELEMENT_,                       CW_ELOBJS),
-  CW_INIT(CW_USED,FLAG_,                          CW_ELOBJS),
-  CW_INIT(CW_USED,PROPERTY_,                      CW_ELOBJS),
-  CW_INIT(CW_USED,GRID_,                          CW_GROBJ),
-  CW_INIT(CW_USED,GRID_STATUS_,           CW_GROBJ),
-  CW_INIT(CW_USED,MULTIGRID_STATUS_,      CW_MGOBJ)
+constexpr INT MAX_CONTROL_WORDS = GM_N_CW;
+static CONTROL_WORD control_words[MAX_CONTROL_WORDS] = {
+  {VECTOR_OFFSET,               CW_VEOBJ,   0b0},
+  {VERTEX_OFFSET,               CW_VXOBJS,  0b0},
+  {NODE_OFFSET,                 CW_NDOBJ,   0b0},
+  {LINK_OFFSET,                 CW_EDOBJ,   0b0},
+  {EDGE_OFFSET,                 CW_EDOBJ,   0b0},
+  {ELEMENT_OFFSET,              CW_ELOBJS,  0b0},
+  {FLAG_OFFSET,                 CW_ELOBJS,  0b0},
+  {PROPERTY_OFFSET,             CW_ELOBJS,  0b0},
+  {GRID_OFFSET,                 CW_GROBJ,   0b0},
+  {GRID_STATUS_OFFSET,          CW_GROBJ,   0b0},
+  {MULTIGRID_STATUS_OFFSET,     CW_MGOBJ,   0b0}
 };
 
 static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
@@ -234,56 +215,6 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
 };
 
 /****************************************************************************/
-/** \brief Initialize control words
-
-   This function initializes the predefined control words.
-
- * @return <ul>
- * <li> GM_OK if ok </li>
- * <li> GM_ERROR if error occurred </li>
- * </ul>
- */
-/****************************************************************************/
-
-static INT InitPredefinedControlWords (void)
-{
-  INT i,nused;
-  CONTROL_WORD *cw;
-  CONTROL_WORD_PREDEF *pcw;
-
-  /* clear everything */
-  memset(control_words,0,MAX_CONTROL_WORDS*sizeof(CONTROL_WORD));
-
-  nused = 0;
-  for (i=0; i<MAX_CONTROL_WORDS; i++)
-    if (cw_predefines[i].used)
-    {
-      pcw = cw_predefines+i;
-      ASSERT(pcw->control_word_id<MAX_CONTROL_WORDS);
-
-      nused++;
-      cw = control_words+pcw->control_word_id;
-      if (cw->used)
-      {
-        printf("redefinition of control word '%s'\n",pcw->name);
-        return(__LINE__);
-      }
-      cw->used = pcw->used;
-      cw->name = pcw->name;
-      cw->offset_in_object = pcw->offset_in_object;
-      cw->objt_used = pcw->objt_used;
-    }
-
-  if (nused!=GM_N_CW)
-  {
-    printf("InitPredefinedControlWords: nused=%d != GM_N_CW=%d\n",nused,GM_N_CW);
-    assert(false);
-  }
-
-  return (GM_OK);
-}
-
-/****************************************************************************/
 /** \brief Initialize control word entries
 
    This function initializes the predefined control word entries. Predefined
@@ -322,7 +253,6 @@ static INT InitPredefinedControlEntries (void)
         return(__LINE__);
       }
       cw = control_words+pce->control_word;
-      ASSERT(cw->used);
       ce->used = pce->used;
       ce->name = pce->name;
       ce->control_word = pce->control_word;
@@ -345,8 +275,6 @@ static INT InitPredefinedControlEntries (void)
       {
         cw = control_words+k;
 
-        if (!cw->used)
-          continue;
         if (!(ce->objt_used & cw->objt_used))
           continue;
         if (cw->offset_in_object!=offset)
@@ -704,8 +632,6 @@ INT NS_DIM_PREFIX FreeControlEntry (INT ce_id)
 
 INT NS_DIM_PREFIX InitCW (void)
 {
-  if (InitPredefinedControlWords())
-    return (__LINE__);
   if (InitPredefinedControlEntries())
     return (__LINE__);
 
