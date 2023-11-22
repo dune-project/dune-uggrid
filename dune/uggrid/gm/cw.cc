@@ -95,6 +95,26 @@ USING_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
+/** \brief Description of a control word */
+typedef struct {
+
+  /** \brief this struct is used */
+  INT used;
+
+  /** \brief name string */
+  const char *name;
+
+  /** \brief where in object is it ? */
+  UINT offset_in_object;
+
+  /** \brief bitwise object ID */
+  INT objt_used;
+
+  /** \brief used bits */
+  UINT used_mask;
+
+} CONTROL_WORD;
+
 /** \brief Description of a control word predefines */
 typedef struct {
   INT used;             /**< Used this entry					*/
@@ -122,7 +142,6 @@ typedef struct {
 /****************************************************************************/
 
 constexpr INT MAX_CONTROL_WORDS = 11;
-CONTROL_WORD NS_DIM_PREFIX control_words[MAX_CONTROL_WORDS];
 CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 
 /****************************************************************************/
@@ -130,6 +149,8 @@ CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 /* definition of variables global to this source file only (static!)        */
 /*                                                                          */
 /****************************************************************************/
+
+static CONTROL_WORD control_words[MAX_CONTROL_WORDS];
 
 static CONTROL_WORD_PREDEF cw_predefines[MAX_CONTROL_WORDS] = {
   CW_INIT(CW_USED,VECTOR_,                        CW_VEOBJ),
