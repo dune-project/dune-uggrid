@@ -101,12 +101,6 @@ START_UGDIM_NAMESPACE
 /** \brief If pointer between element/centernode is stored */
 #undef __CENTERNODE__
 
-#ifdef ModelP
-/* This ensures that for each master node-vector all matrix-neighbors in link depth 2 are
-   at least as a copy on the same processor and all connections are copied (even for ghosts) */
-/*#define __OVERLAP2__*/
-#endif
-
 /****************************************************************************/
 /*                                                                          */
 /* defines in the following order                                           */
@@ -2401,12 +2395,6 @@ enum GM_OBJECTS {
 #define NNCLASS(p)                  CW_READ_STATIC(p,NNCLASS_,NODE_)
 #define SETNNCLASS(p,n)             CW_WRITE_STATIC(p,NNCLASS_,NODE_,n)
 
-#if defined ModelP && defined __OVERLAP2__
-#define NO_DELETE_OVERLAP2_LEN                 1
-#define NO_DELETE_OVERLAP2(p)                  CW_READ(p,ce_NO_DELETE_OVERLAP2)
-#define SETNO_DELETE_OVERLAP2(p,n)             CW_WRITE(p,ce_NO_DELETE_OVERLAP2,n)
-#endif
-
 #define PREDN(p)                        ((p)->pred)
 #define SUCCN(p)                        ((p)->succ)
 #define START(p)                        ((p)->start)
@@ -3037,16 +3025,6 @@ enum {MG_ELEMUSED =    1,
       MG_VECTORUSED =  16,
       MG_MATRIXUSED =  32};
 
-
-/****************************************************************************/
-/*                                                                          */
-/* declaration of exported global variables                                 */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined ModelP && defined __OVERLAP2__
-extern INT ce_NO_DELETE_OVERLAP2;
-#endif
 
 /****************************************************************************/
 /*                                                                          */

@@ -838,15 +838,6 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, FieldVector<DOUBLE,DI
 
   ASSERT(theVector != NULL);
 
-        #if defined __OVERLAP2__
-  if( VOBJECT(theVector) == NULL )
-  {
-    for (i=0; i<DIM; i++)
-      position[i] = -MAX_D;
-    return (0);
-  }
-        #endif
-
   switch (VOTYPE(theVector))
   {
                 #ifdef UG_DIM_3

@@ -108,17 +108,6 @@ USING_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined ModelP && defined __OVERLAP2__
-INT ce_NO_DELETE_OVERLAP2 = -1;
-#endif
-
-
-/****************************************************************************/
-/*                                                                          */
 /* definition of variables global to this source file only (static!)        */
 /*                                                                          */
 /****************************************************************************/
@@ -3335,13 +3324,6 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
   for (j=0; j<CORNERS_OF_ELEM(theElement); j++)
   {
     theNode = CORNER(theElement,j);
-
-#ifdef __OVERLAP2__
-    if( ce_NO_DELETE_OVERLAP2 != -1 && NO_DELETE_OVERLAP2(theNode) )
-    {
-      continue;
-    }
-#endif
 
     if (START(theNode) == NULL)
     {

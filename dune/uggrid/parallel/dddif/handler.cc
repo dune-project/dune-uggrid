@@ -240,14 +240,10 @@ static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc,
   PRINTDEBUG(dddif,1,(PFMT " VectorXferCopy(): v=" VINDEX_FMTX " proc=%d "
                       "prio=%d vtype=%d\n",me,VINDEX_PRTX(pv),proc,prio,VTYPE(pv)))
 
-#if defined __OVERLAP2__
-  flag = 1;             /* for overlap 2 ghost-matrices are required too */
-#else
   flag = (!GHOSTPRIO(prio));
     #ifndef __EXCHANGE_CONNECTIONS__
   flag = (flag && (level < 0));
         #endif
-#endif
 
   /*
           else
