@@ -2041,9 +2041,6 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
   link1 = LINK1(pe);
   SETOBJT(pe,EDOBJ);
   SETLOFFSET(link0,0);
-        #ifdef _DEBUG_CW_
-  SETOBJT(link1,LIOBJ);
-        #endif
   SETLOFFSET(link1,1);
 
   pe->id = (theGrid->mg->edgeIdCounter)++;

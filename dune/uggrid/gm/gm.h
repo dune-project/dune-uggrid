@@ -1881,21 +1881,6 @@ typedef union object_with_key KEY_OBJECT;
 /*                                                                          */
 /****************************************************************************/
 
-/* general query macros */
-
-/* dynamic control words */
-/*#define _DEBUG_CW_*/
-#if (defined _DEBUG_CW_) && \
-  !(defined __COMPILE_CW__)                             /* to avoid infinite recursion during ReadCW */
-
-/* map cw read/write to functions */
-        #define CW_READ(p,ce)                                   ReadCW(p,ce)
-        #define CW_READ_STATIC(p,s,t)                   ReadCW(p,s ## CE)
-        #define CW_WRITE(p,ce,n)                                WriteCW(p,ce,n)
-        #define CW_WRITE_STATIC(p,s,t,n)                WriteCW(p,s ## CE,n)
-
-#else   /* _DEBUG_CW_ */
-
         #define ControlWord(p,ce)  (((UINT *)(p))[control_entries[ce].offset_in_object])
 
         #define CW_READ(p,ce)      ((ControlWord(p,ce) & control_entries[ce].mask)>>control_entries[ce].offset_in_word)
@@ -1913,8 +1898,6 @@ typedef union object_with_key KEY_OBJECT;
   StaticControlWord(p,t) =                                           \
     (StaticControlWord(p,t) &  (~StaticControlWordMask(s))) |          \
     (((n) << s ## SHIFT) & StaticControlWordMask(s))
-
-#endif  /* _DEBUG_CW_ */
 
 /** \brief Enumeration list of all control words of gm.h */
 enum GM_CW {
