@@ -238,7 +238,7 @@ static void VectorXferCopy(DDD::DDDContext& context, DDD_OBJ obj, DDD_PROC proc,
   INT flag;
 
   PRINTDEBUG(dddif,1,(PFMT " VectorXferCopy(): v=" VINDEX_FMTX " proc=%d "
-                      "prio=%d vtype=%d\n",me,VINDEX_PRTX(pv),proc,prio,VTYPE(pv)))
+                      "prio=%d\n",me,VINDEX_PRTX(pv),proc,prio))
 
   flag = (!GHOSTPRIO(prio));
     #ifndef __EXCHANGE_CONNECTIONS__

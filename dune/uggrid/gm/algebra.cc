@@ -131,12 +131,10 @@ INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object
 
   /* initialize data */
   SETOBJT(pv,VEOBJ);
-  SETVTYPE(pv,SIDEVEC);
   SETVDATATYPE(pv,BITWISE_TYPE(SIDEVEC));
   SETVOTYPE(pv,SIDEVEC);
   SETVCLASS(pv,3);
   SETVNCLASS(pv,0);
-  SETVBUILDCON(pv,1);
   SETVNEW(pv,1);
   /* SETPRIO(dddContext, pv,PrioMaster); */
 
@@ -418,7 +416,6 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
   {
     theGrid = GRID_ON_LEVEL(theMG,level);
     for (v=PFIRSTVECTOR(theGrid); v!= NULL; v=SUCCVC(v)) {
-      SETNEW_DEFECT(v,(VCLASS(v)>=2));
       SETFINE_GRID_DOF(v,((VCLASS(v)>=2)&&(VNCLASS(v)<=1)));
       if (FINE_GRID_DOF(v))
         fullrefine = level;
@@ -590,8 +587,6 @@ INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
       SETUSED(theElement,0);
     }
     for (theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,k)); theVector!= NULL; theVector=SUCCVC(theVector))
-      SETVBUILDCON(theVector,0);
-    for (theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,k)); theVector!= NULL; theVector=SUCCVC(theVector))
     {
       SETVNEW(theVector,0);
     }
@@ -636,8 +631,6 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
   }
   else
   {
-    SETVCUSED(theVector,1);
-
     VecObject = VOBJECT(theVector);
     if (VecObject == NULL)
     {
@@ -751,7 +744,6 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
 INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 {
   ELEMENT *theElement;
-  VECTOR *theVector;
   INT errors;
 
   errors = 0;
@@ -766,13 +758,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
     return(errors);
   }
 
-  /* reset USED flag */
-  for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-  {
-    SETVCUSED(theVector,0);
-  }
-
   /* check pointers to element, side, edge vector */
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
@@ -783,31 +768,12 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
     {
       for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
-        theVector = SVECTOR(theElement,i);
+        VECTOR *theVector = SVECTOR(theElement,i);
         errors += CheckVector((GEOM_OBJECT *) theElement, "ELEMSIDE",
                               theVector, SIDEVEC,i);
       }
     }
                 #endif
-  }
-
-  /* check USED flag */
-  for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-  {
-    if (VCUSED(theVector) != 1)
-    {
-      errors++;
-      UserWriteF("vector" VINDEX_FMTX " NOT referenced by an geom_object: "
-                 "vtype=%d, objptr=%x",
-                 VINDEX_PRTX(theVector), VTYPE(theVector), VOBJECT(theVector));
-      if (VOBJECT(theVector) != NULL)
-        UserWriteF(" objtype=%d\n",OBJT(VOBJECT(theVector)));
-      else
-        UserWrite("\n");
-    }
-    else
-      SETVCUSED(theVector,0);
   }
 
   return(errors);

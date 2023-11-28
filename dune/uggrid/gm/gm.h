@@ -362,9 +362,6 @@ SETVTYPE (VECTOR *v, INT n);                  vector belongs to. Values:
                                               NODEVECTOR, EDGEVECTOR, SIDEVECTOR
                                               or ELEMVECTOR.
 
-VCUSED (VECTOR *v);                   4   1   For internal use in ordering
-SETVCUSED (VECTOR *v, INT n);                 routines.
-
 VCOUNT (VECTOR *v);                   5   2   internal use
 SETVCOUNT (VECTOR *v, INT n);
 
@@ -1918,9 +1915,7 @@ enum GM_CW {
 
 /** \brief Enumeration list of all control entry of gm.h */
 enum GM_CE {
-  VTYPE_CE,
   VOTYPE_CE,
-  VPART_CE,
   VCOUNT_CE,
   VECTORSIDE_CE,
   VCLASS_CE,
@@ -1928,9 +1923,6 @@ enum GM_CE {
   VNCLASS_CE,
   VNEW_CE,
   VCCUT_CE,
-  VCCOARSE_CE,
-  NEW_DEFECT_CE,
-  VACTIVE_CE,
   FINE_GRID_DOF_CE,
   OBJ_CE,
   USED_CE,
@@ -1986,7 +1978,6 @@ enum LV_MODIFIERS {
 /*                                                                          */
 /* vectors:                                                                 */
 /* VOTYPE        |0 - 1 |*| | node-,edge-,side- or elemvector               */
-/* VCFLAG        |3     |*| | flag for general use                          */
 /* VCUSED        |4     |*| | flag for general use                          */
 /* VCOUNT        |5-6   |*| | The number of elements that reference         */
 /*                            the vector (if it is a side vector)           */
@@ -2002,26 +1993,7 @@ enum LV_MODIFIERS {
 /*                                                      3: red or green elem                                                    */
 /* VNEW          |19    |*| | 1 if vector is new                                                                */
 /* VCNEW         |20    |*| | 1 if vector has a new connection                                  */
-/* VACTIVE   |24        |*| | 1 if vector is active inside a smoother                   */
 /* VCCUT         |26    |*| |                                                                                                   */
-/* VTYPE         |27-28 |*| | abstract vector type                                                              */
-/* VPART         |29-30 |*| | unused (used to be domain part)                                                                               */
-/* VCCOARSE  |31    |*| | indicate algebraic part of VECTOR-MATRIX graph        */
-/*                                                                                                                                                      */
-/* matrices:                                                                                                                            */
-/* MOFFSET       |0     | |*| 0 if first matrix in connection else 1                    */
-/* MROOTTYPE |1 - 2 | |*| VTYPE of root vector                                                          */
-/* MDESTTYPE |3 - 4 | |*| VTYPE of destination vector                                           */
-/* MDIAG         |5     | |*| 1 if diagonal matrix element                                              */
-/* MNEW          |6     | |*| ???                                                       */
-/* CEXTRA        |7     | |*| 1 if is extra connection                                                  */
-/* MDOWN         |8     | |*| ???                                                       */
-/* MUP           |9     | |*| ???                                                       */
-/* MLOWER        |10    | |*| 1 if matrix belongs to lower triangular part      */
-/* MUPPER        |11    | |*| 1 if matrix belongs to upper triangular part      */
-/* UG_MSIZE      |12-25 | |*| size of the matrix in bytes                                               */
-/* MUSED         |12    | |*| general purpose flag                                                              */
-/* MNEW          |28    | |*| 1 if matrix/connection is new                                     */
 /*                                                                                                                                                      */
 /****************************************************************************/
 
@@ -2069,14 +2041,6 @@ enum LV_MODIFIERS {
         #error  *** VOTYPE_LEN too small ***
 #endif
 
-#define VTYPE_SHIFT                             2
-#define VTYPE_LEN                                       2
-#define VTYPE(p)                                (enum VectorType)CW_READ_STATIC(p,VTYPE_,VECTOR_)
-#define SETVTYPE(p,n)                           CW_WRITE_STATIC(p,VTYPE_,VECTOR_,n)
-#if (MAXVTYPES > POW2(VTYPE_LEN))
-        #error  *** VTYPE_LEN too small ***
-#endif
-
 #define VDATATYPE_SHIFT                         4
 #define VDATATYPE_LEN                           4
 #define VDATATYPE(p)                            CW_READ_STATIC(p,VDATATYPE_,VECTOR_)
@@ -2115,20 +2079,10 @@ enum LV_MODIFIERS {
 #define VECTORSIDE(p)                           CW_READ_STATIC(p,VECTORSIDE_,VECTOR_)
 #define SETVECTORSIDE(p,n)                      CW_WRITE_STATIC(p,VECTORSIDE_,VECTOR_,n)
 
-#define VCCOARSE_SHIFT                          19
-#define VCCOARSE_LEN                            1
-#define VCCOARSE(p)                                     CW_READ_STATIC(p,VCCOARSE_,VECTOR_)
-#define SETVCCOARSE(p,n)                        CW_WRITE_STATIC(p,VCCOARSE_,VECTOR_,n)
-
 #define FINE_GRID_DOF_SHIFT             20
 #define FINE_GRID_DOF_LEN                       1
 #define FINE_GRID_DOF(p)                        CW_READ_STATIC(p,FINE_GRID_DOF_,VECTOR_)
 #define SETFINE_GRID_DOF(p,n)           CW_WRITE_STATIC(p,FINE_GRID_DOF_,VECTOR_,n)
-
-#define NEW_DEFECT_SHIFT                        21
-#define NEW_DEFECT_LEN                          1
-#define NEW_DEFECT(p)                           CW_READ_STATIC(p,NEW_DEFECT_,VECTOR_)
-#define SETNEW_DEFECT(p,n)                      CW_WRITE_STATIC(p,NEW_DEFECT_,VECTOR_,n)
 
 #ifdef ModelP
 #define XFERVECTOR_SHIFT                        20
@@ -2136,20 +2090,6 @@ enum LV_MODIFIERS {
 #define XFERVECTOR(p)                           CW_READ(p,XFERVECTOR_CE)
 #define SETXFERVECTOR(p,n)                      CW_WRITE(p,XFERVECTOR_CE,n)
 #endif /* ModelP */
-
-#define VPART_SHIFT                             22
-#define VPART_LEN                                       2
-
-#define VACTIVE_SHIFT                       24
-#define VACTIVE_LEN                                 1
-#define VACTIVE(p)                                  CW_READ_STATIC(p,VACTIVE_,VECTOR_)
-#define SETVACTIVE(p,n)                     CW_WRITE_STATIC(p,VACTIVE_,VECTOR_,n)
-
-#define VCFLAG(p)                                       THEFLAG(p)
-#define SETVCFLAG(p,n)                          SETTHEFLAG(p,n)
-
-#define VCUSED(p)                                       USED(p)
-#define SETVCUSED(p,n)                          SETUSED(p,n)
 
 #define VOBJECT(v)                                      ((v)->object)
 #ifdef ModelP

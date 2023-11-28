@@ -2406,9 +2406,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
 
    This function creates and initializes an element side of a son element.
    Here also the side vector (iff at all) is inspected in 'ReinspectSonSideVector'.
-   The latter function eventually reallocates the vector if its size has changed and
-   sets the VBUILDCON flag in the vector. The connections of the old vector are
-   thereby disposed.
+   The latter function eventually reallocates the vector if its size has changed.
 
    @return <ul>
    <li>   GM_OK if ok </li>
@@ -5704,9 +5702,8 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   DOUBLE_VECTOR pos;
 
   /* print index and type of vector */
-  UserWriteF("IND=" VINDEX_FFMTE " VTYPE=%d(%c) ",
-             VINDEX_PRTE(theVector),
-             VTYPE(theVector));
+  UserWriteF("IND=" VINDEX_FFMTE " VTYPE=%d(SIDEVECTOR) ",
+             VINDEX_PRTE(theVector));
 
   if (READ_FLAG(modifiers,LV_POS))
   {
