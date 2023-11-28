@@ -1973,12 +1973,6 @@ enum LV_MODIFIERS {
   LV_POS                  = (1<<2)                      /* position vector  */
 };
 
-enum LV_ID_TYPES {
-  LV_ID,
-  LV_GID,
-  LV_KEY
-};
-
 /****************************************************************************/
 /*                                                                          */
 /* Macro definitions for algebra structures                                 */
