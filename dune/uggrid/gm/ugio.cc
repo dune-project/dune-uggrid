@@ -3190,7 +3190,6 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
          theVector!=NULL; theVector=SUCCVC(theVector)) {
       SETVCLASS(theVector,3);
       SETVNCLASS(theVector,0);
-      SETNEW_DEFECT(theVector,1);
       SETFINE_GRID_DOF(theVector,1);
     }
 
@@ -3289,7 +3288,6 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     {
       SETMARK(theElement,0);
       SETMARKCLASS(theElement,NO_CLASS);
-      SETEBUILDCON(theElement,1);
     }
   for (i=0; i<=TOPLEVEL(theMG); i++)
   {

@@ -60,35 +60,6 @@ START_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* control word definitions                                                 */
-/*                                                                          */
-/****************************************************************************/
-
-enum ALGEBRA_CE {
-
-  EBUILDCON_CE = GM_N_CE,           /* continue after gm.h entries */
-
-  ALGEBRA_N_CE
-};
-
-/* element */
-#define EBUILDCON_SHIFT                         11
-#define EBUILDCON_LEN                           1
-#define EBUILDCON(p)                            CW_READ(p,EBUILDCON_CE)
-#define SETEBUILDCON(p,n)                       CW_WRITE(p,EBUILDCON_CE,n)
-
-/****************************************************************************/
-/*                                                                          */
-/* macros for VECTORs                                                       */
-/*                                                                          */
-/****************************************************************************/
-/** @name Macros for VECTORs  */
-/*@{*/
-#define VBUILDCON(p)                            VCFLAG(p)
-#define SETVBUILDCON(p,n)                       SETVCFLAG(p,n)
-/*@}*/
-/****************************************************************************/
-/*                                                                          */
 /* function declarations                                                    */
 /*                                                                          */
 /****************************************************************************/
@@ -109,7 +80,6 @@ INT             DisposeDoubledSideVector                (GRID *theGrid, ELEMENT 
 /** @name Query functions */
 /*@{*/
 INT             GetVectorsOfSides                               (const ELEMENT *theElement, INT *cnt, VECTOR **vList);
-INT                     GetVectorsOfOType                               (const ELEMENT *theElement, INT type, INT *cnt, VECTOR **vList);
 INT             GetElementInfoFromSideVector    (const VECTOR *theVector, ELEMENT **Elements, INT *Sides);
 /*@}*/
 

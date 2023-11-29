@@ -37,31 +37,9 @@ START_UGDIM_NAMESPACE
 
 /** @name Macros for the control word management */
 /*@{*/
-/** \brief maximum number of control words              */
-#define MAX_CONTROL_WORDS       20
 /** \brief max number of entries                                */
 #define MAX_CONTROL_ENTRIES 100
 /*@}*/
-
-/** \brief Description of a control word */
-typedef struct {
-
-  /** \brief this struct is used */
-  INT used;
-
-  /** \brief name string */
-  const char *name;
-
-  /** \brief where in object is it ? */
-  UINT offset_in_object;
-
-  /** \brief bitwise object ID */
-  INT objt_used;
-
-  /** \brief used bits */
-  UINT used_mask;
-
-} CONTROL_WORD;
 
 /** \brief Manage part of a control word */
 typedef struct {
@@ -94,10 +72,6 @@ typedef struct {
   UINT xor_mask;
 
 } CONTROL_ENTRY;
-
-/** \brief Global array with descriptions */
-extern CONTROL_WORD
-  control_words[];
 
 /** \brief Predefined control words */
 extern CONTROL_ENTRY

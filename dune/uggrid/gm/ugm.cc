@@ -108,17 +108,6 @@ USING_UGDIM_NAMESPACE
 
 /****************************************************************************/
 /*                                                                          */
-/* definition of exported global variables                                  */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined ModelP && defined __OVERLAP2__
-INT ce_NO_DELETE_OVERLAP2 = -1;
-#endif
-
-
-/****************************************************************************/
-/*                                                                          */
 /* definition of variables global to this source file only (static!)        */
 /*                                                                          */
 /****************************************************************************/
@@ -213,8 +202,7 @@ void * NS_DIM_PREFIX GetMemoryForObject (MULTIGRID *theMG, INT size, INT type)
     memset(obj,0,size);
 
   #ifdef ModelP
-  if (type!=MAOBJ && type!=COOBJ)
-    ConstructDDDObject(theMG->dddContext(), obj,size,type);
+  ConstructDDDObject(theMG->dddContext(), obj,size,type);
   #endif
 
   return obj;
@@ -256,8 +244,7 @@ static void DestructDDDObject(DDD::DDDContext& context, void *object, INT type)
 INT NS_DIM_PREFIX PutFreeObject (MULTIGRID *theMG, void *object, INT size, GM_OBJECTS type)
 {
   #ifdef ModelP
-  if (type!=MAOBJ && type!=COOBJ)
-    DestructDDDObject(theMG->dddContext(), object,type);
+  DestructDDDObject(theMG->dddContext(), object,type);
   #endif
 
   DisposeMem(MGHEAP(theMG), object);
@@ -2054,9 +2041,6 @@ CreateEdge (GRID *theGrid, ELEMENT *theElement, INT edge, bool with_vector)
   link1 = LINK1(pe);
   SETOBJT(pe,EDOBJ);
   SETLOFFSET(link0,0);
-        #ifdef _DEBUG_CW_
-  SETOBJT(link1,LIOBJ);
-        #endif
   SETLOFFSET(link1,1);
 
   pe->id = (theGrid->mg->edgeIdCounter)++;
@@ -2332,7 +2316,6 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
   /* SETEPRIO(theGrid->dddContext(), pe,PrioMaster); */
   PARTITION(pe) = theGrid->ppifContext().me();
         #endif
-  SETEBUILDCON(pe,1);
   ID(pe) = (theGrid->mg->elemIdCounter)++;
 
   /* subdomain id */
@@ -2423,11 +2406,7 @@ ELEMENT * NS_DIM_PREFIX CreateElement (GRID *theGrid, INT tag, INT objtype, NODE
 
    This function creates and initializes an element side of a son element.
    Here also the side vector (iff at all) is inspected in 'ReinspectSonSideVector'.
-   The latter function eventually reallocates the vector if its size has changed and
-   sets the VBUILDCON flag in the vector. The connections of the old vector are
-   thereby disposed. The refine-module which is calling
-   'CreateSonElementSide' will finally call 'GridCreateConnection' to reinstall
-   the connections of the side-vector.
+   The latter function eventually reallocates the vector if its size has changed.
 
    @return <ul>
    <li>   GM_OK if ok </li>
@@ -3340,13 +3319,6 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
   for (j=0; j<CORNERS_OF_ELEM(theElement); j++)
   {
     theNode = CORNER(theElement,j);
-
-#ifdef __OVERLAP2__
-    if( ce_NO_DELETE_OVERLAP2 != -1 && NO_DELETE_OVERLAP2(theNode) )
-    {
-      continue;
-    }
-#endif
 
     if (START(theNode) == NULL)
     {
@@ -5650,7 +5622,7 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
   case RED_CLASS :                 strcpy(ekind,"RED    "); break;
   default :                strcpy(ekind,"???    "); break;
   }
-  UserWriteF("ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx CTRL2=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
+  UserWriteF("ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx FLAG=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
              EID_PRTE(theElement),ekind,etype,
              (long)CTRL(theElement),(long)FLAG(theElement),REFINE(theElement),MARK(theElement),LEVEL(theElement));
   if (COARSEN(theElement)) UserWrite(" COARSEN");
@@ -5730,9 +5702,8 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   DOUBLE_VECTOR pos;
 
   /* print index and type of vector */
-  UserWriteF("IND=" VINDEX_FFMTE " VTYPE=%d(%c) ",
-             VINDEX_PRTE(theVector),
-             VTYPE(theVector));
+  UserWriteF("IND=" VINDEX_FFMTE " VTYPE=%d(SIDEVECTOR) ",
+             VINDEX_PRTE(theVector));
 
   if (READ_FLAG(modifiers,LV_POS))
   {
@@ -6885,7 +6856,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
   default :                strcpy(ekind,"???    "); break;
   }
   if(full)
-    sprintf(out,"ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx CTRL2=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
+    sprintf(out,"ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx FLAG=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
             EID_PRTE(theElement),ekind,etype,
             (long)CTRL(theElement),(long)FLAG(theElement),REFINE(theElement),MARK(theElement),LEVEL(theElement));
   else

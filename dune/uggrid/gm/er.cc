@@ -426,7 +426,7 @@ static HRID Hash_InsertRule (INT etag, INT key, const ERULE *er, const DOUBLE oc
   // I think that nullptr can replace the call to GetCurrentMultigrid, because that method
   // has been returning nullptr for a long time.
   // In other words: it seems the method we are in is never called.
-  HRULE *hr       = (HRULE*) GetMemoryForObject(nullptr/*GetCurrentMultigrid()*/,size,MAOBJ);
+  HRULE *hr       = (HRULE*) GetMemoryForObject(nullptr/*GetCurrentMultigrid()*/,size,NOOBJ);
   HRID id         = global.maxrule[etag]++;
 
 
@@ -1173,7 +1173,7 @@ static INT ExtractRules (MULTIGRID *mg)
     // In other words: it seems the method we are in is never called.
     global.hrule[0] = (HRULE**)
                       GetMemoryForObject(nullptr/*GetCurrentMultigrid()*/,
-                                         global.maxrules*sizeof(HRULE*),MAOBJ);
+                                         global.maxrules*sizeof(HRULE*),NOOBJ);
     if (global.hrule[0]==NULL)
       REP_ERR_RETURN(1);
     for (tag=1; tag<TAGS; tag++)

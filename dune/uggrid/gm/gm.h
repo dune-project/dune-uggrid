@@ -101,12 +101,6 @@ START_UGDIM_NAMESPACE
 /** \brief If pointer between element/centernode is stored */
 #undef __CENTERNODE__
 
-#ifdef ModelP
-/* This ensures that for each master node-vector all matrix-neighbors in link depth 2 are
-   at least as a copy on the same processor and all connections are copied (even for ghosts) */
-/*#define __OVERLAP2__*/
-#endif
-
 /****************************************************************************/
 /*                                                                          */
 /* defines in the following order                                           */
@@ -367,9 +361,6 @@ VTYPE (VECTOR *v);                    0   2   Type of geometric object the
 SETVTYPE (VECTOR *v, INT n);                  vector belongs to. Values:
                                               NODEVECTOR, EDGEVECTOR, SIDEVECTOR
                                               or ELEMVECTOR.
-
-VCUSED (VECTOR *v);                   4   1   For internal use in ordering
-SETVCUSED (VECTOR *v, INT n);                 routines.
 
 VCOUNT (VECTOR *v);                   5   2   internal use
 SETVCOUNT (VECTOR *v, INT n);
@@ -1887,21 +1878,6 @@ typedef union object_with_key KEY_OBJECT;
 /*                                                                          */
 /****************************************************************************/
 
-/* general query macros */
-
-/* dynamic control words */
-/*#define _DEBUG_CW_*/
-#if (defined _DEBUG_CW_) && \
-  !(defined __COMPILE_CW__)                             /* to avoid infinite recursion during ReadCW */
-
-/* map cw read/write to functions */
-        #define CW_READ(p,ce)                                   ReadCW(p,ce)
-        #define CW_READ_STATIC(p,s,t)                   ReadCW(p,s ## CE)
-        #define CW_WRITE(p,ce,n)                                WriteCW(p,ce,n)
-        #define CW_WRITE_STATIC(p,s,t,n)                WriteCW(p,s ## CE,n)
-
-#else   /* _DEBUG_CW_ */
-
         #define ControlWord(p,ce)  (((UINT *)(p))[control_entries[ce].offset_in_object])
 
         #define CW_READ(p,ce)      ((ControlWord(p,ce) & control_entries[ce].mask)>>control_entries[ce].offset_in_word)
@@ -1920,12 +1896,9 @@ typedef union object_with_key KEY_OBJECT;
     (StaticControlWord(p,t) &  (~StaticControlWordMask(s))) |          \
     (((n) << s ## SHIFT) & StaticControlWordMask(s))
 
-#endif  /* _DEBUG_CW_ */
-
 /** \brief Enumeration list of all control words of gm.h */
 enum GM_CW {
   VECTOR_CW,
-  MATRIX_CW,
   VERTEX_CW,
   NODE_CW,
   LINK_CW,
@@ -1942,9 +1915,7 @@ enum GM_CW {
 
 /** \brief Enumeration list of all control entry of gm.h */
 enum GM_CE {
-  VTYPE_CE,
   VOTYPE_CE,
-  VPART_CE,
   VCOUNT_CE,
   VECTORSIDE_CE,
   VCLASS_CE,
@@ -1952,22 +1923,7 @@ enum GM_CE {
   VNCLASS_CE,
   VNEW_CE,
   VCCUT_CE,
-  VCCOARSE_CE,
-  NEW_DEFECT_CE,
-  VACTIVE_CE,
   FINE_GRID_DOF_CE,
-  MOFFSET_CE,
-  MROOTTYPE_CE,
-  MDESTTYPE_CE,
-  MDIAG_CE,
-  MSIZE_CE,
-  MNEW_CE,
-  CEXTRA_CE,
-  MDOWN_CE,
-  MUP_CE,
-  MLOWER_CE,
-  MUPPER_CE,
-  MACTIVE_CE,
   OBJ_CE,
   USED_CE,
   TAG_CE,
@@ -1998,7 +1954,6 @@ enum GM_CE {
   PROP_CE,
 #ifdef ModelP
   XFERVECTOR_CE,
-  XFERMATX_CE,
 #endif
 
   GM_N_CE
@@ -2008,12 +1963,6 @@ enum LV_MODIFIERS {
 
   LV_VO_INFO              = (1<<1),                     /* vector object related info                   */
   LV_POS                  = (1<<2)                      /* position vector  */
-};
-
-enum LV_ID_TYPES {
-  LV_ID,
-  LV_GID,
-  LV_KEY
 };
 
 /****************************************************************************/
@@ -2029,7 +1978,6 @@ enum LV_ID_TYPES {
 /*                                                                          */
 /* vectors:                                                                 */
 /* VOTYPE        |0 - 1 |*| | node-,edge-,side- or elemvector               */
-/* VCFLAG        |3     |*| | flag for general use                          */
 /* VCUSED        |4     |*| | flag for general use                          */
 /* VCOUNT        |5-6   |*| | The number of elements that reference         */
 /*                            the vector (if it is a side vector)           */
@@ -2045,26 +1993,7 @@ enum LV_ID_TYPES {
 /*                                                      3: red or green elem                                                    */
 /* VNEW          |19    |*| | 1 if vector is new                                                                */
 /* VCNEW         |20    |*| | 1 if vector has a new connection                                  */
-/* VACTIVE   |24        |*| | 1 if vector is active inside a smoother                   */
 /* VCCUT         |26    |*| |                                                                                                   */
-/* VTYPE         |27-28 |*| | abstract vector type                                                              */
-/* VPART         |29-30 |*| | unused (used to be domain part)                                                                               */
-/* VCCOARSE  |31    |*| | indicate algebraic part of VECTOR-MATRIX graph        */
-/*                                                                                                                                                      */
-/* matrices:                                                                                                                            */
-/* MOFFSET       |0     | |*| 0 if first matrix in connection else 1                    */
-/* MROOTTYPE |1 - 2 | |*| VTYPE of root vector                                                          */
-/* MDESTTYPE |3 - 4 | |*| VTYPE of destination vector                                           */
-/* MDIAG         |5     | |*| 1 if diagonal matrix element                                              */
-/* MNEW          |6     | |*| ???                                                       */
-/* CEXTRA        |7     | |*| 1 if is extra connection                                                  */
-/* MDOWN         |8     | |*| ???                                                       */
-/* MUP           |9     | |*| ???                                                       */
-/* MLOWER        |10    | |*| 1 if matrix belongs to lower triangular part      */
-/* MUPPER        |11    | |*| 1 if matrix belongs to upper triangular part      */
-/* UG_MSIZE      |12-25 | |*| size of the matrix in bytes                                               */
-/* MUSED         |12    | |*| general purpose flag                                                              */
-/* MNEW          |28    | |*| 1 if matrix/connection is new                                     */
 /*                                                                                                                                                      */
 /****************************************************************************/
 
@@ -2101,7 +2030,7 @@ enum LV_ID_TYPES {
 /****************************************************************************/
 
 /* control word offset */
-#define VECTOR_OFFSET                           0
+#define VECTOR_OFFSET                           offsetof(struct NS_DIM_PREFIX vector, control)/sizeof(UINT)
 
 /* predefined control word entries */
 #define VOTYPE_SHIFT                            0
@@ -2110,14 +2039,6 @@ enum LV_ID_TYPES {
 #define SETVOTYPE(p,n)                          CW_WRITE_STATIC(p,VOTYPE_,VECTOR_,n)
 #if (MAXVOBJECTS > POW2(VOTYPE_LEN))
         #error  *** VOTYPE_LEN too small ***
-#endif
-
-#define VTYPE_SHIFT                             2
-#define VTYPE_LEN                                       2
-#define VTYPE(p)                                (enum VectorType)CW_READ_STATIC(p,VTYPE_,VECTOR_)
-#define SETVTYPE(p,n)                           CW_WRITE_STATIC(p,VTYPE_,VECTOR_,n)
-#if (MAXVTYPES > POW2(VTYPE_LEN))
-        #error  *** VTYPE_LEN too small ***
 #endif
 
 #define VDATATYPE_SHIFT                         4
@@ -2158,20 +2079,10 @@ enum LV_ID_TYPES {
 #define VECTORSIDE(p)                           CW_READ_STATIC(p,VECTORSIDE_,VECTOR_)
 #define SETVECTORSIDE(p,n)                      CW_WRITE_STATIC(p,VECTORSIDE_,VECTOR_,n)
 
-#define VCCOARSE_SHIFT                          19
-#define VCCOARSE_LEN                            1
-#define VCCOARSE(p)                                     CW_READ_STATIC(p,VCCOARSE_,VECTOR_)
-#define SETVCCOARSE(p,n)                        CW_WRITE_STATIC(p,VCCOARSE_,VECTOR_,n)
-
 #define FINE_GRID_DOF_SHIFT             20
 #define FINE_GRID_DOF_LEN                       1
 #define FINE_GRID_DOF(p)                        CW_READ_STATIC(p,FINE_GRID_DOF_,VECTOR_)
 #define SETFINE_GRID_DOF(p,n)           CW_WRITE_STATIC(p,FINE_GRID_DOF_,VECTOR_,n)
-
-#define NEW_DEFECT_SHIFT                        21
-#define NEW_DEFECT_LEN                          1
-#define NEW_DEFECT(p)                           CW_READ_STATIC(p,NEW_DEFECT_,VECTOR_)
-#define SETNEW_DEFECT(p,n)                      CW_WRITE_STATIC(p,NEW_DEFECT_,VECTOR_,n)
 
 #ifdef ModelP
 #define XFERVECTOR_SHIFT                        20
@@ -2179,20 +2090,6 @@ enum LV_ID_TYPES {
 #define XFERVECTOR(p)                           CW_READ(p,XFERVECTOR_CE)
 #define SETXFERVECTOR(p,n)                      CW_WRITE(p,XFERVECTOR_CE,n)
 #endif /* ModelP */
-
-#define VPART_SHIFT                             22
-#define VPART_LEN                                       2
-
-#define VACTIVE_SHIFT                       24
-#define VACTIVE_LEN                                 1
-#define VACTIVE(p)                                  CW_READ_STATIC(p,VACTIVE_,VECTOR_)
-#define SETVACTIVE(p,n)                     CW_WRITE_STATIC(p,VACTIVE_,VECTOR_,n)
-
-#define VCFLAG(p)                                       THEFLAG(p)
-#define SETVCFLAG(p,n)                          SETTHEFLAG(p,n)
-
-#define VCUSED(p)                                       USED(p)
-#define SETVCUSED(p,n)                          SETUSED(p,n)
 
 #define VOBJECT(v)                                      ((v)->object)
 #ifdef ModelP
@@ -2204,114 +2101,6 @@ enum LV_ID_TYPES {
 #define PREDVC(v)                                       ((v)->pred)
 #define SUCCVC(v)                                       ((v)->succ)
 #define VINDEX(v)                                       ((v)->index)
-#define V_IN_DATATYPE(v,dt)                     (VDATATYPE(v) & (dt))
-#define VVALUE(v,n)                             ((v)->value[n])
-#define VVALUEPTR(v,n)                          (&((v)->value[n]))
-#define VMYNODE(v)                                      ((NODE*)((v)->object))
-#define VMYEDGE(v)                                      ((EDGE*)((v)->object))
-#define VMYELEMENT(v)                           ((ELEMENT*)((v)->object))
-#define VUP(p)                                          LoWrd(VINDEX(p))
-#define SETVUP(p,n)                             SetLoWrd(VINDEX(p),n)
-#define VDOWN(p)                                        HiWrd(VINDEX(p))
-#define SETVDOWN(p,n)                           SetHiWrd(VINDEX(p),n)
-
-/****************************************************************************/
-/*                                                                                                                                                      */
-/* macros for MATRIXs                                                                                                           */
-/*                                                                                                                                                      */
-/****************************************************************************/
-
-/* control word offset */
-#define MATRIX_OFFSET                           0
-
-#define MOFFSET_SHIFT                           0
-#define MOFFSET_LEN                             1
-#define MOFFSET(p)                                      CW_READ_STATIC(p,MOFFSET_,MATRIX_)
-#define SETMOFFSET(p,n)                         CW_WRITE_STATIC(p,MOFFSET_,MATRIX_,n)
-
-#define MROOTTYPE_SHIFT                         1
-#define MROOTTYPE_LEN                           2
-#define MROOTTYPE(p)                            CW_READ_STATIC(p,MROOTTYPE_,MATRIX_)
-#define SETMROOTTYPE(p,n)                       CW_WRITE_STATIC(p,MROOTTYPE_,MATRIX_,n)
-#if (MAXVTYPES > POW2(MROOTTYPE_LEN))
-#error  *** MROOTTYPE_LEN too small ***
-#endif
-
-#define MDESTTYPE_SHIFT                         3
-#define MDESTTYPE_LEN                           2
-#define MDESTTYPE(p)                            CW_READ_STATIC(p,MDESTTYPE_,MATRIX_)
-#define SETMDESTTYPE(p,n)                       CW_WRITE_STATIC(p,MDESTTYPE_,MATRIX_,n)
-#if (MAXVTYPES > POW2(MDESTTYPE_LEN))
-        #error  *** MDESTTYPE_LEN too small ***
-#endif
-
-#define MDIAG_SHIFT                             5
-#define MDIAG_LEN                                       1
-#define MDIAG(p)                                        CW_READ_STATIC(p,MDIAG_,MATRIX_)
-#define SETMDIAG(p,n)                           CW_WRITE_STATIC(p,MDIAG_,MATRIX_,n)
-
-#define MNEW_SHIFT                                      6
-#define MNEW_LEN                                        1
-#define MNEW(p)                                         CW_READ_STATIC(p,MNEW_,MATRIX_)
-#define SETMNEW(p,n)                            CW_WRITE_STATIC(p,MNEW_,MATRIX_,n)
-
-#define CEXTRA_SHIFT                            7
-#define CEXTRA_LEN                                      1
-#define CEXTRA(p)                                       CW_READ_STATIC(p,CEXTRA_,MATRIX_)
-#define SETCEXTRA(p,n)                          CW_WRITE_STATIC(p,CEXTRA_,MATRIX_,n)
-
-#define MDOWN_SHIFT                             8
-#define MDOWN_LEN                                       1
-#define MDOWN(p)                                        CW_READ_STATIC(p,MDOWN_,MATRIX_)
-#define SETMDOWN(p,n)                           CW_WRITE_STATIC(p,MDOWN_,MATRIX_,n)
-
-#define MUP_SHIFT                                       9
-#define MUP_LEN                                         1
-#define MUP(p)                                          CW_READ_STATIC(p,MUP_,MATRIX_)
-#define SETMUP(p,n)                             CW_WRITE_STATIC(p,MUP_,MATRIX_,n)
-
-#define MLOWER_SHIFT                            10
-#define MLOWER_LEN                                      1
-#define MLOWER(p)                                       CW_READ_STATIC(p,MLOWER_,MATRIX_)
-#define SETMLOWER(p,n)                          CW_WRITE_STATIC(p,MLOWER_,MATRIX_,n)
-
-#define MUPPER_SHIFT                            11
-#define MUPPER_LEN                                      1
-#define MUPPER(p)                                       CW_READ_STATIC(p,MUPPER_,MATRIX_)
-#define SETMUPPER(p,n)                          CW_WRITE_STATIC(p,MUPPER_,MATRIX_,n)
-
-#define MACTIVE_SHIFT                           12
-#define MACTIVE_LEN                             1
-#define MACTIVE(p)                                      CW_READ_STATIC(p,MACTIVE_,MATRIX_)
-#define SETMACTIVE(p,n)                         CW_WRITE_STATIC(p,MACTIVE_,MATRIX_,n)
-
-#define MSIZE_SHIFT                             13
-#define MSIZE_LEN                                       12
-#ifndef __XXL_MSIZE__
-#define MSIZEMAX                                        (POW2(MSIZE_LEN)-1)
-#define UG_MSIZE(p)                                        (CW_READ(p,MSIZE_CE)+sizeof(MATRIX)-sizeof(DOUBLE))
-#define SETMSIZE(p,n)                           CW_WRITE(p,MSIZE_CE,(n-sizeof(MATRIX)+sizeof(DOUBLE)))
-#else
-#define MSIZEMAX                                        10000000
-#define UG_MSIZE(p)                                        ((p)->xxl_msize)
-#define SETMSIZE(p,n)                           (p)->xxl_msize = (n)
-#endif
-
-#define MTYPE(p)                                        (MDIAG(p) ? (MAXMATRICES+MROOTTYPE(p)) : (MROOTTYPE(p)*MAXVECTORS+MDESTTYPE(p)))
-
-#define MUSED(p)                                        USED(p)
-
-#ifdef ModelP
-#define XFERMATX_SHIFT                          25
-#define XFERMATX_LEN                            2
-#define XFERMATX(p)                             CW_READ(p,XFERMATX_CE)
-#define SETXFERMATX(p,n)                        CW_WRITE(p,XFERMATX_CE,n)
-#endif
-
-#define MNEXT(m)                                        ((m)->next)
-#define MDEST(m)                                        ((m)->vect)
-#define MADJ(m)                                         ((MDIAG(m)) ? (m) : ((MOFFSET(m)) ? (MDEC(m)) : (MINC(m))))
-#define MROOT(m)                                        MDEST(MADJ(m))
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -2375,14 +2164,12 @@ enum GM_OBJECTS {
 
   /* object numbers for algebra */
   VEOBJ,                            /*!< Vector object                                        */
-  MAOBJ,                            /*!< Matrix object                                        */
 
   NPREDEFOBJ,                       /*!< Number of predefined objects             */
 
   NOOBJ = -1                        /*!< No object */
 };
 #define LIOBJ           EDOBJ           /* link and edge are identified                 */
-#define COOBJ           MAOBJ           /* connection and matrix are identified         */
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -2432,7 +2219,7 @@ enum GM_OBJECTS {
 /****************************************************************************/
 
 /* control word offset */
-#define VERTEX_OFFSET                           0
+#define VERTEX_OFFSET                           offsetof(struct ivertex,control)/sizeof(UINT)
 
 #define MOVE_SHIFT                                      1
 #define MOVE_LEN                                        2
@@ -2493,7 +2280,7 @@ enum GM_OBJECTS {
 /****************************************************************************/
 
 /* control word offset */
-#define NODE_OFFSET                                     0
+#define NODE_OFFSET                 offsetof(struct node, control)/sizeof(UINT)
 
 #define NTYPE_SHIFT                                     0
 #define NTYPE_LEN                                       3
@@ -2524,12 +2311,6 @@ enum GM_OBJECTS {
 #define NNCLASS_LEN                 2
 #define NNCLASS(p)                  CW_READ_STATIC(p,NNCLASS_,NODE_)
 #define SETNNCLASS(p,n)             CW_WRITE_STATIC(p,NNCLASS_,NODE_,n)
-
-#if defined ModelP && defined __OVERLAP2__
-#define NO_DELETE_OVERLAP2_LEN                 1
-#define NO_DELETE_OVERLAP2(p)                  CW_READ(p,ce_NO_DELETE_OVERLAP2)
-#define SETNO_DELETE_OVERLAP2(p,n)             CW_WRITE(p,ce_NO_DELETE_OVERLAP2,n)
-#endif
 
 #define PREDN(p)                        ((p)->pred)
 #define SUCCN(p)                        ((p)->succ)
@@ -2562,7 +2343,7 @@ enum GM_OBJECTS {
 /* CAUTION: the controlword of LINK0 and its edge are identical (AVOID overlapping of flags) */
 
 /* control word offset */
-#define LINK_OFFSET                             0
+#define LINK_OFFSET                             offsetof(struct link, control)/sizeof(UINT)
 
 #define LOFFSET_SHIFT                           0
 #define LOFFSET_LEN                             1
@@ -2594,8 +2375,9 @@ provides the LINK in the list of node `b` pointing to `a`.
 /*                                                                                                                                                      */
 /****************************************************************************/
 
-/* control word offset */
-#define EDGE_OFFSET                             0
+/* control word offset: Use the control word of the link object contained in the edge object */
+
+#define EDGE_OFFSET                             offsetof(struct edge, links[0].control)/sizeof(UINT)
 
 #define NO_OF_ELEM_SHIFT                        2
 #define NO_OF_ELEM_LEN                          7
@@ -2642,9 +2424,9 @@ enum {TETRAHEDRON = 4,
       HEXAHEDRON = 7};
 
 /* control word offsets */
-#define ELEMENT_OFFSET                                  0
-#define FLAG_OFFSET                                             2
-#define PROPERTY_OFFSET                                 3
+#define ELEMENT_OFFSET                  offsetof(struct generic_element, control)/sizeof(UINT)
+#define FLAG_OFFSET                     offsetof(struct generic_element, flag)/sizeof(UINT)
+#define PROPERTY_OFFSET                 offsetof(struct generic_element, property)/sizeof(UINT)
 
 /* macros for control word */
 #define ECLASS_SHIFT                                    8
@@ -2826,7 +2608,6 @@ START_UGDIM_NAMESPACE
 #define SIDE_OPP_TO_CORNER(p,c)         (element_descriptors[TAG(p)]->side_opp_to_corner[(c)])
 #define EDGE_OF_CORNER(p,c,e)           (element_descriptors[TAG(p)]->edge_of_corner[(c)][(e)])
 
-#define CTRL2(p)        ((p)->ge.flag)
 #define FLAG(p)                 ((p)->ge.flag)
 #define SUCCE(p)                ((p)->ge.succ)
 #define PREDE(p)                ((p)->ge.pred)
@@ -2963,8 +2744,8 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 /* control word offset */
-#define GRID_OFFSET                                             0
-#define GRID_STATUS_OFFSET                              1
+#define GRID_OFFSET                                     offsetof(grid,control)/sizeof(UINT)
+#define GRID_STATUS_OFFSET                              offsetof(grid,status)/sizeof(UINT)
 
 #define GLEVEL(p)                                       ((p)->level)
 #define GFORMAT(p)                                      MGFORMAT(MYMG(p))
@@ -3120,7 +2901,7 @@ grid::dddContext()
 /****************************************************************************/
 
 /* control word offset */
-#define MULTIGRID_STATUS_OFFSET           ((sizeof(ENVDIR))/sizeof(UINT))
+#define MULTIGRID_STATUS_OFFSET         offsetof(struct multigrid, status)/sizeof(UINT)
 
 #define MGSTATUS(p)                     ((p)->status)
 #define RESETMGSTATUS(p)                {(p)->status=0; (p)->magic_cookie = (int)time(NULL); (p)->saved=0;}
@@ -3153,12 +2934,6 @@ grid::dddContext()
 /*                                                                          */
 /****************************************************************************/
 
-#ifdef UG_DIM_3
-#define FMT_S_VEC_TP                               (sizeof(double))
-#else
-#define FMT_S_VEC_TP                               (0)
-#endif
-
 /** \brief Constants for USED flags of objects */
 enum {MG_ELEMUSED =    1,
       MG_NODEUSED =    2,
@@ -3167,16 +2942,6 @@ enum {MG_ELEMUSED =    1,
       MG_VECTORUSED =  16,
       MG_MATRIXUSED =  32};
 
-
-/****************************************************************************/
-/*                                                                          */
-/* declaration of exported global variables                                 */
-/*                                                                          */
-/****************************************************************************/
-
-#if defined ModelP && defined __OVERLAP2__
-extern INT ce_NO_DELETE_OVERLAP2;
-#endif
 
 /****************************************************************************/
 /*                                                                          */
@@ -3263,8 +3028,6 @@ INT                     GetSideIDFromScratch    (ELEMENT *theElement, NODE *theN
 
 /* algebraic connections */
 INT             DisposeConnectionsInGrid (GRID *theGrid);
-INT         GetAllVectorsOfElement  (GRID *theGrid, ELEMENT *theElement,
-                                     VECTOR **vec);
 
 /* searching */
 INT          InnerBoundary          (ELEMENT *t, INT side);
@@ -3305,9 +3068,6 @@ INT             CheckSubdomains                 (MULTIGRID *theMG);
 /* multigrid user data space management (using the heaps.c block heap management) */
 INT             AllocateControlEntry    (INT cw_id, INT length, INT *ce_id);
 INT             FreeControlEntry                (INT ce_id);
-void            ListCWofObject                  (const void *obj, UINT offset);
-void            ListAllCWsOfObject              (const void *obj);
-void            ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf);
 UINT ReadCW                                     (const void *obj, INT ce);
 void            WriteCW                                 (void *obj, INT ce, INT n);
 

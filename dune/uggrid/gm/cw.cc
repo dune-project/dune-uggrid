@@ -58,33 +58,21 @@ USING_UGDIM_NAMESPACE
 #define CW_MGOBJ                BITWISE_TYPE(MGOBJ)
 #define CW_NDOBJ                BITWISE_TYPE(NDOBJ)
 #define CW_VEOBJ                BITWISE_TYPE(VEOBJ)
-#define CW_MAOBJ                (BITWISE_TYPE(MAOBJ) | BITWISE_TYPE(COOBJ))
 
 #define CW_VXOBJS               (BITWISE_TYPE(IVOBJ) | BITWISE_TYPE(BVOBJ))
 #define CW_ELOBJS               (BITWISE_TYPE(IEOBJ) | BITWISE_TYPE(BEOBJ))
 #define CW_GEOMOBJS             (CW_VXOBJS | CW_ELOBJS | CW_NDOBJ | CW_EDOBJ | CW_GROBJ)
 /* NOTE: CW_GEOMOBJS and GEOM_OBJECTS differ*/
 
-/** @name status of control word */
-/*@{*/
-#define CW_FREE                                         0
-#define CW_USED                                         1
-/*@}*/
-
-
 /** @name Status of control entry */
 /*@{*/
-#define CE_FREE                                         0
 #define CE_USED                                         1
 #define CE_LOCKED                                       1
 /*@}*/
 
 /** @name Initializer macros for control entry and word predefines */
 /*@{*/
-#define CW_INIT(used,cw,objs)                           {used, STR(cw), cw ## CW, cw ## OFFSET,objs}
-#define CW_INIT_UNUSED                                  {CW_FREE,0,0,0}
 #define CE_INIT(mode,cw,ce,objs)                        {mode, STR(ce), cw ## CW, ce ## CE, ce ## SHIFT, ce ## LEN, objs}
-#define CE_INIT_UNUSED                                  {CE_FREE, 0, 0, 0, 0, 0, 0}
 /*@}*/
 
 
@@ -96,10 +84,22 @@ USING_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
+/** \brief Description of a control word */
+typedef struct {
+
+  /** \brief where in object is it ? */
+  UINT offset_in_object;
+
+  /** \brief bitwise object ID */
+  INT objt_used;
+
+  /** \brief used bits */
+  UINT used_mask;
+
+} CONTROL_WORD;
+
 /** \brief Description of a control word predefines */
 typedef struct {
-  INT used;             /**< Used this entry					*/
-  const char *name;          /**< Name string						*/
   INT control_word_id;          /**< Index in control_words			*/
   UINT offset_in_object ;       /**< Where in object is it ?			*/
   INT objt_used;                                /**< Bitwise object ID */
@@ -122,7 +122,6 @@ typedef struct {
 /*                                                                          */
 /****************************************************************************/
 
-CONTROL_WORD NS_DIM_PREFIX control_words[MAX_CONTROL_WORDS];
 CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 
 /****************************************************************************/
@@ -131,27 +130,21 @@ CONTROL_ENTRY NS_DIM_PREFIX control_entries[MAX_CONTROL_ENTRIES];
 /*                                                                          */
 /****************************************************************************/
 
-static CONTROL_WORD_PREDEF cw_predefines[MAX_CONTROL_WORDS] = {
-  CW_INIT(CW_USED,VECTOR_,                        CW_VEOBJ),
-  CW_INIT(CW_USED,MATRIX_,                        CW_MAOBJ),
-  CW_INIT(CW_USED,VERTEX_,                        CW_VXOBJS),
-  CW_INIT(CW_USED,NODE_,                          CW_NDOBJ),
-  CW_INIT(CW_USED,LINK_,                          CW_EDOBJ),
-  CW_INIT(CW_USED,EDGE_,                          CW_EDOBJ),
-  CW_INIT(CW_USED,ELEMENT_,                       CW_ELOBJS),
-  CW_INIT(CW_USED,FLAG_,                          CW_ELOBJS),
-  CW_INIT(CW_USED,PROPERTY_,                      CW_ELOBJS),
-  CW_INIT(CW_USED,GRID_,                          CW_GROBJ),
-  CW_INIT(CW_USED,GRID_STATUS_,           CW_GROBJ),
-  CW_INIT(CW_USED,MULTIGRID_STATUS_,      CW_MGOBJ),
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
-  CW_INIT_UNUSED,
+// The order of the entries here has to match the GM_CW enumeration in gm.h
+
+constexpr INT MAX_CONTROL_WORDS = GM_N_CW;
+static CONTROL_WORD control_words[MAX_CONTROL_WORDS] = {
+  {VECTOR_OFFSET,               CW_VEOBJ,   0b0},
+  {VERTEX_OFFSET,               CW_VXOBJS,  0b0},
+  {NODE_OFFSET,                 CW_NDOBJ,   0b0},
+  {LINK_OFFSET,                 CW_EDOBJ,   0b0},
+  {EDGE_OFFSET,                 CW_EDOBJ,   0b0},
+  {ELEMENT_OFFSET,              CW_ELOBJS,  0b0},
+  {FLAG_OFFSET,                 CW_ELOBJS,  0b0},
+  {PROPERTY_OFFSET,             CW_ELOBJS,  0b0},
+  {GRID_OFFSET,                 CW_GROBJ,   0b0},
+  {GRID_STATUS_OFFSET,          CW_GROBJ,   0b0},
+  {MULTIGRID_STATUS_OFFSET,     CW_MGOBJ,   0b0}
 };
 
 static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
@@ -163,28 +156,10 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
   CE_INIT(CE_LOCKED,      VECTOR_,                VNCLASS_,               CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VNEW_,                  CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VCCUT_,                 CW_VEOBJ),
-  CE_INIT(CE_LOCKED,      VECTOR_,                VTYPE_,                 CW_VEOBJ),
-  CE_INIT(CE_LOCKED,      VECTOR_,                VPART_,                 CW_VEOBJ),
-  CE_INIT(CE_LOCKED,      VECTOR_,                VCCOARSE_,              CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                FINE_GRID_DOF_, CW_VEOBJ),
-  CE_INIT(CE_LOCKED,      VECTOR_,                NEW_DEFECT_,    CW_VEOBJ),
-  CE_INIT(CE_LOCKED,      VECTOR_,                VACTIVE_,       CW_VEOBJ),
 
-  CE_INIT(CE_LOCKED,      MATRIX_,                MOFFSET_,               CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MROOTTYPE_,             CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MDESTTYPE_,             CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MDIAG_,                 CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MSIZE_,                 CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MNEW_,                  CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                CEXTRA_,                CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MDOWN_,                 CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MUP_,                   CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MLOWER_,                CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MUPPER_,                CW_MAOBJ),
-  CE_INIT(CE_LOCKED,      MATRIX_,                MACTIVE_,               CW_MAOBJ),
-
-  CE_INIT(CE_LOCKED,      GENERAL_,               OBJ_,                   (CW_GEOMOBJS | CW_VEOBJ | CW_MAOBJ)),
-  CE_INIT(CE_LOCKED,      GENERAL_,               USED_,                  (CW_GEOMOBJS | CW_VEOBJ | CW_MAOBJ)),
+  CE_INIT(CE_LOCKED,      GENERAL_,               OBJ_,                   (CW_GEOMOBJS | CW_VEOBJ)),
+  CE_INIT(CE_LOCKED,      GENERAL_,               USED_,                  (CW_GEOMOBJS | CW_VEOBJ)),
   CE_INIT(CE_LOCKED,      GENERAL_,               THEFLAG_,               (CW_GEOMOBJS | CW_VEOBJ)),
   CE_INIT(CE_LOCKED,      GENERAL_,               LEVEL_,                 CW_GEOMOBJS),
 
@@ -220,7 +195,6 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
 
   CE_INIT(CE_USED,        FLAG_,                  MARK_,                  CW_ELOBJS),
   CE_INIT(CE_USED,        FLAG_,                  COARSEN_,               CW_ELOBJS),
-  CE_INIT(CE_USED,        FLAG_,                  EBUILDCON_,             CW_ELOBJS),
   CE_INIT(CE_USED,        FLAG_,                  DECOUPLED_,             CW_ELOBJS),
   CE_INIT(CE_USED,        FLAG_,                  UPDATE_GREEN_,  CW_ELOBJS),
   CE_INIT(CE_USED,        FLAG_,                  SIDEPATTERN_,   CW_ELOBJS),
@@ -232,303 +206,8 @@ static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
 
         #ifdef ModelP
   CE_INIT(CE_USED,        VECTOR_,                XFERVECTOR_,    CW_VEOBJ),
-  CE_INIT(CE_USED,        MATRIX_,                XFERMATX_,              CW_MAOBJ),
-        #else /* ModelP */
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
         #endif /* ModelP */
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
-  CE_INIT_UNUSED,
 };
-
-/****************************************************************************/
-/** \brief Print all control entries of an objects control word
-
- * @param obj - object pointer
- * @param offset - controlword offset in (UINT) in object
-
-   This function prints the contents of all control entries of an objects control word at a
-   given offset.
-
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListCWofObject (const void *obj, UINT offset)
-{
-  INT i,n,ce,last_ce,sub,min,cw_objt,oiw;
-
-  ASSERT(obj!=NULL);
-
-  cw_objt = BITWISE_TYPE(OBJT(obj));
-  sub = -1;
-  last_ce = -1;
-
-  /* print control word entries in ascending order of offsets in word */
-  do
-  {
-    min = INT_MAX;
-    for (i=0; i<MAX_CONTROL_ENTRIES; i++)
-      if (control_entries[i].used)
-        if (control_entries[i].objt_used & cw_objt)
-          if (control_entries[i].offset_in_object==offset)
-          {
-            oiw = control_entries[i].offset_in_word;
-            if ((oiw<min) && (oiw>=sub))
-            {
-              if ((oiw==sub) && (i<=last_ce))
-                continue;
-              ce = i;
-              min = oiw;
-            }
-          }
-    if (min==INT_MAX)
-      break;
-
-    n = CW_READ(obj,ce);
-    UserWriteF("  ce %s with offset in cw %3d: %10d\n",control_entries[ce].name,min,n);
-    sub = min;
-    last_ce = ce;
-  }
-  while (true);
-
-  ASSERT(sub>=0);
-}
-
-/****************************************************************************/
-/** \brief Print all control entries of all control words of an object
-
- * @param obj - object pointer
-
-   This function prints the contents of all control entries of all control words
-   of the object. 'ListCWofObject' is called.
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListAllCWsOfObject (const void *obj)
-{
-  INT i,cw,last_cw,sub,min,cw_objt,offset;
-
-  ASSERT(obj!=NULL);
-
-  cw_objt = BITWISE_TYPE(OBJT(obj));
-  sub = -1;
-  last_cw = -1;
-
-  /* print control word contents in ascending order of offsets */
-  do
-  {
-    min = INT_MAX;
-    for (i=0; i<MAX_CONTROL_WORDS; i++)
-      if (control_words[i].used)
-        if (control_words[i].objt_used & cw_objt)
-        {
-          offset = control_words[i].offset_in_object;
-          if ((offset<min) && (offset>=sub))
-          {
-            if ((offset==sub) && (i<=last_cw))
-              continue;
-            cw = i;
-            min = offset;
-          }
-        }
-    if (min==INT_MAX)
-      break;
-
-    UserWriteF("cw %s with offset %3d:\n",control_words[cw].name,min);
-    ListCWofObject(obj,min);
-    sub = min;
-    last_cw = cw;
-  }
-  while (true);
-
-  ASSERT(sub>=0);
-}
-
-/****************************************************************************/
-/** \brief Print used pattern of all control entries of an object types control word
-
- * @param obj - object pointer
- * @param offset - controlword offset in (UINT) in object
- * @param myprintf - pointer to a printf function (maybe UserWriteF)
-
-   This function prints the used pattern of all control entries of an object types control word at a
-   given offset.
- */
-/****************************************************************************/
-
-static void ListCWofObjectType (INT objt, UINT offset, PrintfProcPtr myprintf)
-{
-  INT i,ce,last_ce,sub,min,cw_objt,oiw;
-  char bitpat[33];
-
-  cw_objt = BITWISE_TYPE(objt);
-  sub = -1;
-  last_ce = -1;
-
-  /* print control word entries in ascending order of offsets in word */
-  do
-  {
-    min = INT_MAX;
-    for (i=0; i<MAX_CONTROL_ENTRIES; i++)
-      if (control_entries[i].used)
-        if (control_entries[i].objt_used & cw_objt)
-          if (control_entries[i].offset_in_object==offset)
-          {
-            oiw = control_entries[i].offset_in_word;
-            if ((oiw<min) && (oiw>=sub))
-            {
-              if ((oiw==sub) && (i<=last_ce))
-                continue;
-              ce = i;
-              min = oiw;
-            }
-          }
-    if (min==INT_MAX)
-      break;
-
-    INT_2_bitpattern(control_entries[ce].mask,bitpat);
-    myprintf("  ce %-20s offset in cw %3d, len %3d: %s\n",
-             control_entries[ce].name,
-             control_entries[ce].offset_in_word,
-             control_entries[ce].length,
-             bitpat);
-    sub = min;
-    last_ce = ce;
-  }
-  while (true);
-
-  if (sub==-1)
-    myprintf(" --- no ce found with objt %d\n",objt);
-}
-
-/****************************************************************************/
-/** \brief Print used pattern of all control entries of all
-    control words of an object type
-
- * @param obj - object pointer
- * @param myprintf - pointer to a printf function (maybe UserWriteF)
-
-   This function prints the used pattern of all control entries of all control words
-   of an object type. 'ListCWofObjectType' is called.
- */
-/****************************************************************************/
-
-static void ListAllCWsOfObjectType (INT objt, PrintfProcPtr myprintf)
-{
-  INT i,cw,last_cw,sub,min,cw_objt,offset;
-
-  cw_objt = BITWISE_TYPE(objt);
-  sub = -1;
-  last_cw = -1;
-
-  /* print control word contents in ascending order of offsets */
-  do
-  {
-    min = INT_MAX;
-    for (i=0; i<MAX_CONTROL_WORDS; i++)
-      if (control_words[i].used)
-        if (control_words[i].objt_used & cw_objt)
-        {
-          offset = control_words[i].offset_in_object;
-          if ((offset<min) && (offset>=sub))
-          {
-            if ((offset==sub) && (i<=last_cw))
-              continue;
-            cw = i;
-            min = offset;
-          }
-        }
-    if (min==INT_MAX)
-      break;
-
-    myprintf("cw %-20s with offset in object %3d (UINTs):\n",control_words[cw].name,min);
-    ListCWofObjectType(objt,min,myprintf);
-    sub = min;
-    last_cw = cw;
-  }
-  while (true);
-
-  if (sub==-1)
-    printf(" --- no cw found with objt %d\n",objt);
-}
-
-/****************************************************************************/
-/** \brief Print used pattern of all control entries of all
-    control words of all object types
-
- * @param obj - object pointer
- * @param myprintf - pointer to a printf function (maybe UserWriteF)
-
-   This function prints the used pattern of all control entries of all control words
-   of all object types. 'ListAllCWsOfObjectType' is called.
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX ListAllCWsOfAllObjectTypes (PrintfProcPtr myprintf)
-{
-  ListAllCWsOfObjectType(IVOBJ,myprintf);
-  ListAllCWsOfObjectType(IEOBJ,myprintf);
-  ListAllCWsOfObjectType(EDOBJ,myprintf);
-  ListAllCWsOfObjectType(NDOBJ,myprintf);
-  ListAllCWsOfObjectType(VEOBJ,myprintf);
-  ListAllCWsOfObjectType(MAOBJ,myprintf);
-  ListAllCWsOfObjectType(GROBJ,myprintf);
-  ListAllCWsOfObjectType(MGOBJ,myprintf);
-}
-
-/****************************************************************************/
-/** \brief Initialize control words
-
-   This function initializes the predefined control words.
-
- * @return <ul>
- * <li> GM_OK if ok </li>
- * <li> GM_ERROR if error occurred </li>
- * </ul>
- */
-/****************************************************************************/
-
-static INT InitPredefinedControlWords (void)
-{
-  INT i,nused;
-  CONTROL_WORD *cw;
-  CONTROL_WORD_PREDEF *pcw;
-
-  /* clear everything */
-  memset(control_words,0,MAX_CONTROL_WORDS*sizeof(CONTROL_WORD));
-
-  nused = 0;
-  for (i=0; i<MAX_CONTROL_WORDS; i++)
-    if (cw_predefines[i].used)
-    {
-      pcw = cw_predefines+i;
-      ASSERT(pcw->control_word_id<MAX_CONTROL_WORDS);
-
-      nused++;
-      cw = control_words+pcw->control_word_id;
-      if (cw->used)
-      {
-        printf("redefinition of control word '%s'\n",pcw->name);
-        return(__LINE__);
-      }
-      cw->used = pcw->used;
-      cw->name = pcw->name;
-      cw->offset_in_object = pcw->offset_in_object;
-      cw->objt_used = pcw->objt_used;
-    }
-
-  if (nused!=GM_N_CW)
-  {
-    printf("InitPredefinedControlWords: nused=%d != GM_N_CW=%d\n",nused,GM_N_CW);
-    assert(false);
-  }
-
-  return (GM_OK);
-}
 
 /****************************************************************************/
 /** \brief Initialize control word entries
@@ -569,7 +248,6 @@ static INT InitPredefinedControlEntries (void)
         return(__LINE__);
       }
       cw = control_words+pce->control_word;
-      ASSERT(cw->used);
       ce->used = pce->used;
       ce->name = pce->name;
       ce->control_word = pce->control_word;
@@ -592,8 +270,6 @@ static INT InitPredefinedControlEntries (void)
       {
         cw = control_words+k;
 
-        if (!cw->used)
-          continue;
         if (!(ce->objt_used & cw->objt_used))
           continue;
         if (cw->offset_in_object!=offset)
@@ -621,10 +297,6 @@ static INT InitPredefinedControlEntries (void)
         cw->used_mask |= mask;
       }
     }
-
-  IFDEBUG(gm,1)
-  ListAllCWsOfAllObjectTypes(printf);
-  ENDDEBUG
 
   /* TODO: enable next lines for error control */
   IFDEBUG(gm,1)
@@ -955,14 +627,8 @@ INT NS_DIM_PREFIX FreeControlEntry (INT ce_id)
 
 INT NS_DIM_PREFIX InitCW (void)
 {
-  if (InitPredefinedControlWords())
-    return (__LINE__);
   if (InitPredefinedControlEntries())
     return (__LINE__);
-
-        #ifdef _DEBUG_CW_
-  ResetCEstatistics();
-        #endif
 
   return (GM_OK);
 }

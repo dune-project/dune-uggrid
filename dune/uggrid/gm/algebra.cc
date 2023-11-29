@@ -131,12 +131,10 @@ INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object
 
   /* initialize data */
   SETOBJT(pv,VEOBJ);
-  SETVTYPE(pv,SIDEVEC);
   SETVDATATYPE(pv,BITWISE_TYPE(SIDEVEC));
   SETVOTYPE(pv,SIDEVEC);
   SETVCLASS(pv,3);
   SETVNCLASS(pv,0);
-  SETVBUILDCON(pv,1);
   SETVNEW(pv,1);
   /* SETPRIO(dddContext, pv,PrioMaster); */
 
@@ -194,7 +192,7 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
 
 
   /* delete the vector itself */
-  Size = sizeof(VECTOR)-sizeof(DOUBLE) + FMT_S_VEC_TP;
+  Size = sizeof(VECTOR);
   if (PutFreeObject(theGrid->mg,theVector,Size,VEOBJ))
     RETURN(1);
 
@@ -291,69 +289,6 @@ INT NS_DIM_PREFIX GetVectorsOfSides (const ELEMENT *theElement, INT *cnt, VECTOR
   return(GM_OK);
 }
 #endif
-
-/****************************************************************************/
-/** \brief Get a pointer list to all vector data of specified object type
-
- * @param theElement -  that element
- * @param type - fill array with vectors of this type
- * @param cnt - how many vectors
- * @param vList - array to store vector list
-
-   This function returns a pointer array to all VECTORs of the element of the specified type.
-
- * @return <ul>
- *   <li>    GM_OK if ok </li>
- *   <li>    GM_ERROR	if error occurred. </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetVectorsOfOType (const ELEMENT *theElement, INT type, INT *cnt, VECTOR **vList)
-{
-  switch (type)
-  {
-        #ifdef UG_DIM_3
-  case SIDEVEC :
-    return (GetVectorsOfSides(theElement,cnt,vList));
-        #endif
-  }
-  RETURN (GM_ERROR);
-}
-
-/****************************************************************************/
-/** \brief Get vector list
-
- * @param theGrid - pointer to a grid
- * @param theElement - pointer to an element
- * @param vec - vector list
-
-   This function gets a list of vectors corresponding to an element.
-
- * @return <ul>
- *   <li>   number of components </li>
- *   <li>   -1 if error occurred </li>
-   </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX GetAllVectorsOfElement (GRID *theGrid, ELEMENT *theElement, VECTOR **vec)
-{
-  INT cnt;
-
-  cnt = 0;
-    #ifdef UG_DIM_3
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
-  {
-    INT i;
-    if (GetVectorsOfSides(theElement,&i,vec+cnt) == GM_ERROR)
-      RETURN(-1);
-    cnt += i;
-  }
-    #endif
-
-  return (cnt);
-}
 
 /****************************************************************************/
 /** \brief Get pointers to elements having a common side
@@ -481,7 +416,6 @@ INT NS_DIM_PREFIX SetSurfaceClasses (MULTIGRID *theMG)
   {
     theGrid = GRID_ON_LEVEL(theMG,level);
     for (v=PFIRSTVECTOR(theGrid); v!= NULL; v=SUCCVC(v)) {
-      SETNEW_DEFECT(v,(VCLASS(v)>=2));
       SETFINE_GRID_DOF(v,((VCLASS(v)>=2)&&(VNCLASS(v)<=1)));
       if (FINE_GRID_DOF(v))
         fullrefine = level;
@@ -530,8 +464,6 @@ INT NS_DIM_PREFIX CreateAlgebra (MULTIGRID *theMG)
 
       /* loop elements and element sides */
       for (elem=PFIRSTELEMENT(g); elem!=NULL; elem=SUCCE(elem)) {
-        /* to tell GridCreateConnection to build connections */
-        if (EMASTER(elem)) SETEBUILDCON(elem,1);
 
         /* side vectors */
 #ifdef UG_DIM_3
@@ -653,10 +585,7 @@ INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
     for (theElement=PFIRSTELEMENT(GRID_ON_LEVEL(theMG,k)); theElement!=NULL; theElement=SUCCE(theElement))
     {
       SETUSED(theElement,0);
-      SETEBUILDCON(theElement,0);
     }
-    for (theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,k)); theVector!= NULL; theVector=SUCCVC(theVector))
-      SETVBUILDCON(theVector,0);
     for (theVector=PFIRSTVECTOR(GRID_ON_LEVEL(theMG,k)); theVector!= NULL; theVector=SUCCVC(theVector))
     {
       SETVNEW(theVector,0);
@@ -695,27 +624,13 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
 
   if (theVector == NULL)
   {
-    /* check if size is really 0 */
-    INT ds = FMT_S_VEC_TP;
-    if (ds>0)
-    {
       errors++;
       UserWriteF("%s ID=%ld  has NO VECTOR", ObjectString,
                  ID(theObject));
       UserWrite("\n");
-    }
   }
   else
   {
-    INT ds = FMT_S_VEC_TP;
-    if (ds==0)
-    {
-      errors++;
-      UserWriteF("%s ID=%ld  exists but should not\n", ObjectString,
-                 ID(theObject));
-    }
-    SETVCUSED(theVector,1);
-
     VecObject = VOBJECT(theVector);
     if (VecObject == NULL)
     {
@@ -829,7 +744,6 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
 INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 {
   ELEMENT *theElement;
-  VECTOR *theVector;
   INT errors;
 
   errors = 0;
@@ -844,13 +758,6 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
     return(errors);
   }
 
-  /* reset USED flag */
-  for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-  {
-    SETVCUSED(theVector,0);
-  }
-
   /* check pointers to element, side, edge vector */
   for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
        theElement=SUCCE(theElement))
@@ -861,31 +768,12 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
     {
       for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
-        theVector = SVECTOR(theElement,i);
+        VECTOR *theVector = SVECTOR(theElement,i);
         errors += CheckVector((GEOM_OBJECT *) theElement, "ELEMSIDE",
                               theVector, SIDEVEC,i);
       }
     }
                 #endif
-  }
-
-  /* check USED flag */
-  for (theVector=PFIRSTVECTOR(theGrid); theVector!=NULL;
-       theVector=SUCCVC(theVector))
-  {
-    if (VCUSED(theVector) != 1)
-    {
-      errors++;
-      UserWriteF("vector" VINDEX_FMTX " NOT referenced by an geom_object: "
-                 "vtype=%d, objptr=%x",
-                 VINDEX_PRTX(theVector), VTYPE(theVector), VOBJECT(theVector));
-      if (VOBJECT(theVector) != NULL)
-        UserWriteF(" objtype=%d\n",OBJT(VOBJECT(theVector)));
-      else
-        UserWrite("\n");
-    }
-    else
-      SETVCUSED(theVector,0);
   }
 
   return(errors);
@@ -915,15 +803,6 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, FieldVector<DOUBLE,DI
         #endif
 
   ASSERT(theVector != NULL);
-
-        #if defined __OVERLAP2__
-  if( VOBJECT(theVector) == NULL )
-  {
-    for (i=0; i<DIM; i++)
-      position[i] = -MAX_D;
-    return (0);
-  }
-        #endif
 
   switch (VOTYPE(theVector))
   {
