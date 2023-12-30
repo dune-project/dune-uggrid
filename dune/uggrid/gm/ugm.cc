@@ -6335,7 +6335,7 @@ static INT BElem2IElem (GRID *grid, ELEMENT **elemH)
   s_id = SUBDOMAIN(elem);
 
   /* create/dispose */
-  ielem = CreateElement(grid,TAG(elem),IEOBJ,nodes,EFATHER(elem),NO);
+  ielem = CreateElement(grid,TAG(elem),IEOBJ,nodes,EFATHER(elem),false);
   if (ielem==NULL)
     REP_ERR_RETURN(1);
 

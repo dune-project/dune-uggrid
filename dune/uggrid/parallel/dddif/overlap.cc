@@ -564,7 +564,7 @@ INT ConnectVerticalOverlap (MULTIGRID *theMG)
          theElement!=NULL; theElement=SUCCE(theElement))
     {
       INT prio = EPRIO(theElement);
-      INT neflag = NO;
+      bool neflag = false;
       INT i;
 
       if (prio == PrioMaster) break;
@@ -608,7 +608,7 @@ INT ConnectVerticalOverlap (MULTIGRID *theMG)
                 /* Father found, hence exit loop. Otherwise multiple fixes lead to element list inconsistency
                    and endless element loop */
                 /* Achim 030506 */
-                neflag = YES;
+                neflag = true;
                 break;
               }
               else
@@ -622,7 +622,7 @@ INT ConnectVerticalOverlap (MULTIGRID *theMG)
                 /* Father found, hence exit loop. Otherwise multiple fixes lead to element list inconsistency
                    and endless element loop */
                 /* Achim 030506 */
-                neflag = YES;
+                neflag = true;
                 break;
               }
               SETNSONS(el,NSONS(el)+1);
@@ -631,7 +631,7 @@ INT ConnectVerticalOverlap (MULTIGRID *theMG)
           /* Father found, hence exit loop. Otherwise multiple fixes lead to element list inconsistency
              and endless element loop */
           /* Achim 030506 */
-          if (neflag == YES)
+          if (neflag == true)
             break;
         }
       }

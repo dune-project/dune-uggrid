@@ -83,16 +83,6 @@ START_UG_NAMESPACE
 #define XSTR(s) # s
 #define STR(s) XSTR(s)
 
-#ifndef YES
-    #define YES         1
-#endif
-#define ON              1
-
-#ifndef NO
-    #define NO          0
-#endif
-#define OFF             0
-
 /****************************************************************************/
 /*                                                                          */
 /* definition of exported global variables                                  */

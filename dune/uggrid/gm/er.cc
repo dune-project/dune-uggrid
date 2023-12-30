@@ -471,17 +471,17 @@ static HRID Hash_InsertRule (INT etag, INT key, const ERULE *er, const DOUBLE oc
    doctext_disabled*/
 /****************************************************************************/
 
-static INT SonsAreEqual (INT nsons, const DOUBLE oco[], const HRULE *hr)
+static bool SonsAreEqual (INT nsons, const DOUBLE oco[], const HRULE *hr)
 {
   if (nsons!=HR_NSONS(hr))
-    return (NO);
+    return false;
   else
   {
     int s;
     for (s=0; s<nsons; s++)
       if (oco[s]!=HR_OCO(hr,s))
-        return (NO);
-    return (YES);
+        return false;
+    return true;
   }
 }
 
@@ -524,7 +524,7 @@ static HRID GetRuleID
   global.nelem_inspected[etag]++;
   global.nelems_inspected++;
 
-  PRINTDEBUG(gm,ER_DBG_ELEM,(ELEM_INFO("GetRuleID",YES,elem,ER_NSONS(er))));
+  PRINTDEBUG(gm,ER_DBG_ELEM,(ELEM_INFO("GetRuleID",true,elem,ER_NSONS(er))));
 
   FillOrderedSons(er,oco);
 
@@ -964,7 +964,7 @@ static int ExtractInterfaceERule (DDD::DDDContext&, DDD_OBJ obj)
     for (nsons=0; nsons<MAX_SONS; nsons++)
       if (sons[nsons]==NULL)
         break;
-    PrintDebug(ELEM_INFO("ExtractInterfaceERule",NO,elem,nsons));
+    PrintDebug(ELEM_INFO("ExtractInterfaceERule",false,elem,nsons));
     ENDDEBUG
   }
 
@@ -1144,7 +1144,7 @@ static INT ExtractRules (MULTIGRID *mg)
         for (nsons=0; nsons<MAX_SONS; nsons++)
           if (sons[nsons]==NULL)
             break;
-        PrintDebug(ELEM_INFO("ExtractRules",NO,elem,nsons));
+        PrintDebug(ELEM_INFO("ExtractRules",false,elem,nsons));
         if (NSONS(elem)!=nsons)
           PrintDebug("------ ERROR: NSONS!=nsons -------\n");
         ENDDEBUG
@@ -1313,12 +1313,12 @@ static void FillSonPaths (MGIO_RR_RULE *rule)
 
     RETURN VALUE:
     INT
-   .n   YES: ok, maybe there is a common father side
-   .n   NO:  sorry, center node definitely not on a father side
+   .n   true: ok, maybe there is a common father side
+   .n   false:  sorry, center node definitely not on a father side
    doctext_disabled*/
 /****************************************************************************/
 
-static INT GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SIDE], SHORT corner_on_side[MAX_CORNERS_OF_SIDE][MAX_SIDES_OF_ELEM])
+static bool GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SIDE], SHORT corner_on_side[MAX_CORNERS_OF_SIDE][MAX_SIDES_OF_ELEM])
 {
   int coe = CORNERS_OF_TAG(tag);
   int eoe = EDGES_OF_TAG(tag);
@@ -1333,7 +1333,7 @@ static INT GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SIDE
     if (corners[co]==coe+CENTER_NODE_INDEX_TAG(tag))
     {
       /* center node: can not be part of a father side */
-      return (NO);
+      return false;
     }
     else if (corners[co]<coe)
     {
@@ -1372,7 +1372,7 @@ static INT GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SIDE
   else
     ASSERT(false);                              /* Huh??? */
 
-  return (YES);
+  return true;
 }
 
 /****************************************************************************/
@@ -1430,12 +1430,12 @@ static INT GetCommonFSide (int nco, int nsi, SHORT corner_on_side[MAX_CORNERS_OF
 
     RETURN VALUE:
     INT
-   .n   YES: there is a  common father side
-   .n   NO:  there is no common father side
+   .n   true:  there is a  common father side
+   .n   false: there is no common father side
    doctext_disabled*/
 /****************************************************************************/
 
-static INT IsOnFatherSide (int tag, int nsco, SHORT sco[], SHORT *nb)
+static bool IsOnFatherSide (int tag, int nsco, SHORT sco[], SHORT *nb)
 {
   SHORT sco_on_side[MAX_CORNERS_OF_SIDE][MAX_SIDES_OF_ELEM];
 
@@ -1446,10 +1446,10 @@ static INT IsOnFatherSide (int tag, int nsco, SHORT sco[], SHORT *nb)
     if (fside<SIDES_OF_TAG(tag))
     {
       *nb = FATHER_SIDE_OFFSET+fside;
-      return (YES);
+      return true;
     }
   }
-  return (NO);
+  return false;
 }
 
 /****************************************************************************/
@@ -1469,12 +1469,12 @@ static INT IsOnFatherSide (int tag, int nsco, SHORT sco[], SHORT *nb)
 
     RETURN VALUE:
     INT
-   .n   YES: son sides are matching
-   .n   NO:  son sides are not matching
+   .n   true:  son sides are matching
+   .n   false: son sides are not matching
    doctext_disabled*/
 /****************************************************************************/
 
-static INT SidesMatch (int nsco, SHORT sco0[], SHORT sco1[])
+static bool SidesMatch (int nsco, SHORT sco0[], SHORT sco1[])
 {
   int i;
 
@@ -1491,9 +1491,9 @@ static INT SidesMatch (int nsco, SHORT sco0[], SHORT sco1[])
         break;
       }
     if (match)
-      return (YES);
+      return true;
   }
-  return (NO);
+  return false;
 }
 
 /****************************************************************************/
@@ -1574,7 +1574,7 @@ static void HRule2Mrule (const HRULE *hr, MGIO_RR_RULE *mr)
 
         if (!IsOnFatherSide(HR_TAG(hr),nsco0,sco0,&(sonData0->nb[sd0])))
         {
-          int found = NO;
+          bool found = false;
           int s1;
 
           /* find matching side of other son */
@@ -1601,7 +1601,7 @@ static void HRule2Mrule (const HRULE *hr, MGIO_RR_RULE *mr)
                   sonData0->nb[sd0] = s1;
                   sonData1->nb[sd1] = s0;
 
-                  found = YES;
+                  found = true;
                   break;
                 }
               }
