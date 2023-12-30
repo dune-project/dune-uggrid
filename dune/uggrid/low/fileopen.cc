@@ -37,9 +37,9 @@
 #include <cstring>
 #include <fcntl.h>
 #include <cassert>
+#include <ctime>
 
 #include "ugtypes.h"
-#include "ugtime.h"
 
 /* includes for filesize(), filetype() */
 #ifdef __MACINTOSH__

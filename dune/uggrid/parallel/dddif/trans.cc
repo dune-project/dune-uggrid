@@ -48,7 +48,6 @@
 #include <dune/uggrid/gm/ugm.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/namespace.h>
-#include <dune/uggrid/low/ugtime.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 /* UG namespaces: */
