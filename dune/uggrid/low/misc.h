@@ -121,14 +121,8 @@ extern int _partition_; /* to have in the serial case this variable as a dummy*/
 /****************************************************************************/
 
 /* general routines */
-void            INT_2_bitpattern        (INT n, char text[33]);
-INT                     CenterInPattern         (char *str, INT PatLen, const char *text, char p, const char *end);
 char       *expandfmt           (const char *fmt);
-char       *ExpandCShellVars    (char *string);
 const char *strntok             (const char *str, const char *sep, int n, char *token);
-
-INT             ReadMemSizeFromString   (const char *s, MEM *mem_size);
-INT                     WriteMemSizeToString    (MEM mem_size, char *s);
 
 END_UG_NAMESPACE
 
