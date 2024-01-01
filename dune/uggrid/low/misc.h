@@ -51,15 +51,6 @@ START_UG_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef PI
-#define PI                       3.141592653589793238462643383279
-#endif
-
-#define KBYTE                                   1024
-#define MBYTE                                   (KBYTE*KBYTE)
-#define GBYTE                                   (KBYTE*KBYTE*KBYTE)
-
-
 /* cleanup old definitions of macros */
 #define POW2(i)                  (1<<(i))
 
