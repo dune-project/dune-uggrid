@@ -237,7 +237,6 @@ DOUBLE          V_he                                                            
 /* 3D routines */
 INT             M3_Invert                                                       (DOUBLE *Inverse, const DOUBLE *Matrix);
 INT             V3_Normalize                                                    (FieldVector<DOUBLE,3>& a);
-INT             V3_Project                                                      (const DOUBLE *a, const DOUBLE *b, DOUBLE *r);
 
 
 /* volume calculations*/
