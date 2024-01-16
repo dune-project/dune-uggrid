@@ -1512,7 +1512,7 @@ INT NS_DIM_PREFIX GetRule_AnisotropicRed (ELEMENT *theElement, INT *Rule)
     area *= 0.5;
     V3_SUBTRACT(CVECT(MYVERTEX(CORNER(theElement,3))),CVECT(MYVERTEX(CORNER(theElement,0))),a);
     V3_EUKLIDNORM(a,norm);
-    if (norm < 0.25*SQRT(area))
+    if (norm < 0.25*std::sqrt(area))
     {
       *Rule=PRI_QUADSECT;
       return(1);

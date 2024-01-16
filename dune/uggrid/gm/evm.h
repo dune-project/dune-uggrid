@@ -60,13 +60,6 @@ START_UGDIM_NAMESPACE
 /****************************************************************************/
 
 
-/* misc macros */
-#define SQRT(a)                                 sqrt((double)(a))
-#define POW(a,b)                                pow((double)(a),(double)(b))
-
-/* macros for 1D vector operations */
-#define V1_COPY(A,C)                            {(C)[0] = (A)[0];}
-
 /* macros for 2D vector operations */
 #define V2_LINCOMB(a,A,b,B,C)              {(C)[0] = (a)*(A)[0] + (b)*(B)[0];\
                                             (C)[1] = (a)*(A)[1] + (b)*(B)[1];}
@@ -184,8 +177,6 @@ START_UGDIM_NAMESPACE
 
 #ifdef UG_DIM_2
 
-#define V_BDIM_COPY(A,C)                        V1_COPY(A,C)
-
 #define V_DIM_LINCOMB(a,A,b,B,C)                V2_LINCOMB(a,A,b,B,C)
 #define V_DIM_COPY(A,C)                         V2_COPY(A,C)
 #define V_DIM_SUBTRACT(A,B,C)                   V2_SUBTRACT(A,B,C)
@@ -204,8 +195,6 @@ START_UGDIM_NAMESPACE
 #endif
 
 #ifdef UG_DIM_3
-
-#define V_BDIM_COPY(A,C)                        V2_COPY(A,C)
 
 #define V_DIM_LINCOMB(a,A,b,B,C)                V3_LINCOMB(a,A,b,B,C)
 #define V_DIM_COPY(A,C)                         V3_COPY(A,C)
