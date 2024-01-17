@@ -88,7 +88,7 @@ int             FileTypeUsingSearchPaths        (const char *fname, const char *
 FILE            *fopen_r                                        (const char *fname, const char *mode, int do_rename);
 int             mkdir_r                                         (const char *fname, mode_t mode, int do_rename);
 
-int                     AppendTrailingSlash                     (char *path);
+bool            AppendTrailingSlash                     (char *path);
 char*           SimplifyPath                            (char *path);
 
 INT                     InitFileOpen                            (void);

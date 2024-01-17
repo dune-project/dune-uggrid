@@ -51,15 +51,6 @@ START_UG_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef PI
-#define PI                       3.141592653589793238462643383279
-#endif
-
-#define KBYTE                                   1024
-#define MBYTE                                   (KBYTE*KBYTE)
-#define GBYTE                                   (KBYTE*KBYTE*KBYTE)
-
-
 /* cleanup old definitions of macros */
 #define POW2(i)                  (1<<(i))
 
@@ -82,16 +73,6 @@ START_UG_NAMESPACE
 /* expand macro and transfer expanded to string */
 #define XSTR(s) # s
 #define STR(s) XSTR(s)
-
-#ifndef YES
-    #define YES         1
-#endif
-#define ON              1
-
-#ifndef NO
-    #define NO          0
-#endif
-#define OFF             0
 
 /****************************************************************************/
 /*                                                                          */
@@ -121,14 +102,8 @@ extern int _partition_; /* to have in the serial case this variable as a dummy*/
 /****************************************************************************/
 
 /* general routines */
-void            INT_2_bitpattern        (INT n, char text[33]);
-INT                     CenterInPattern         (char *str, INT PatLen, const char *text, char p, const char *end);
 char       *expandfmt           (const char *fmt);
-char       *ExpandCShellVars    (char *string);
 const char *strntok             (const char *str, const char *sep, int n, char *token);
-
-INT             ReadMemSizeFromString   (const char *s, MEM *mem_size);
-INT                     WriteMemSizeToString    (MEM mem_size, char *s);
 
 END_UG_NAMESPACE
 

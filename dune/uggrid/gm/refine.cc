@@ -71,7 +71,6 @@
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/heaps.h>
 #include <dune/uggrid/low/misc.h>
-#include <dune/uggrid/low/ugtimer.h>
 #include <dune/uggrid/low/ugtypes.h>
 
 /* dev module */

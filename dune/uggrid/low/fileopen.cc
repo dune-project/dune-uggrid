@@ -37,9 +37,9 @@
 #include <cstring>
 #include <fcntl.h>
 #include <cassert>
+#include <ctime>
 
 #include "ugtypes.h"
-#include "ugtime.h"
 
 /* includes for filesize(), filetype() */
 #ifdef __MACINTOSH__
@@ -895,14 +895,14 @@ int NS_PREFIX FileTypeUsingSearchPaths (const char *fname, const char *paths)
   return (FT_UNKNOWN);
 }
 
-int NS_PREFIX AppendTrailingSlash (char *path)
+bool NS_PREFIX AppendTrailingSlash (char *path)
 {
   if (path[0]!='\0' && path[strlen(path)-1]!='/')
   {
     strcat(path,"/");
-    return YES;
+    return true;
   }
-  return NO;
+  return false;
 }
 
 char * NS_PREFIX SimplifyPath (char *path)

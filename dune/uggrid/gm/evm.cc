@@ -265,46 +265,6 @@ INT NS_DIM_PREFIX V3_Normalize (FieldVector<DOUBLE,3>& a)
   return(0);
 }
 
-/****************************************************************************/
-/*D
-   V3_Project - Project a vector onto another vector.
-
-   SYNOPSIS:
-   INT V3_Project (const DOUBLE *a, const DOUBLE *b, DOUBLE *r);
-
-   PARAMETERS:
-   .  a - vector to project
-   .  b - vector onto project
-   .  r - resulting vector
-
-   DESCRIPTION:
-   This function projects vector 'a' onto 'b' store in 'r'.
-
-   RETURN VALUE:
-   INT
-   .n    0 if o.k.
-   .n    1 if error occurred.
-   D*/
-/****************************************************************************/
-
-INT NS_DIM_PREFIX V3_Project (const DOUBLE *a, const DOUBLE *b, DOUBLE *r)
-{
-  DOUBLE normb, scprd;
-
-  normb = b[0]*b[0]+b[1]*b[1]+b[2]*b[2];
-  if (normb==0.0)
-    return (1);
-  else
-  {
-    V3_SCALAR_PRODUCT(a,b,scprd)
-    scprd /= normb;
-    V3_COPY(b,r)
-    V3_SCALE(scprd,r)
-  }
-
-  return (0);
-}
-
 /* Volume computations, orientation is same as in general element definition !
    Idea of the computations:
    All the shapes are subdivided into pyramids whose bases are either triangles

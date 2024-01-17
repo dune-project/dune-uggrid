@@ -1186,14 +1186,14 @@ local2lambda (BND_PS * ps, const Dune::FieldVector<DOUBLE,DIM_OF_BND>& local, DO
   return (0);
 }
 
-static INT
+static bool
 SideIsCooriented (BND_PS * ps)
 {
 #       ifdef UG_DIM_2
   if (BND_LOCAL (ps, 1)[0] > BND_LOCAL (ps, 0)[0])
-    return (YES);
+    return true;
   else
-    return (NO);
+    return false;
 #       endif
 
 #       ifdef UG_DIM_3
@@ -1209,9 +1209,9 @@ SideIsCooriented (BND_PS * ps)
   ASSERT (fabs (vp) > SMALL_C);
 
   if (vp > SMALL_C)
-    return (YES);
+    return true;
   else
-    return (NO);
+    return false;
 #       endif
 }
 
