@@ -70,11 +70,6 @@ enum HeapType {GENERAL_HEAP,                  /**< Heap with alloc/free mechanis
                SIMPLE_HEAP         /**< Heap with mark/release mechanism*/
 };
 
-enum [[deprecated]] HeapAllocMode
-{FROM_TOP=1,                       /**< Allocate from top of stack      */
- FROM_BOTTOM=2                       /**< Allocate from bottom of stack   */
-};
-
 /****************************************************************************/
 /****************************************************************************/
 /** @name Defines and macros for the virtual heap management                 */
