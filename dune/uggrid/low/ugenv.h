@@ -199,12 +199,6 @@ INT              MoveEnvItem      (ENVITEM *item, ENVDIR *oldDir, ENVDIR *newDir
 /* search the environment for an item */
 ENVITEM *SearchEnv        (const char *name, const char *where, INT type, INT dirtype);
 
-/* allocate memory from the environment heap */
-void    *AllocEnvMemory (INT size);
-
-/* deallocate memory from the environment heap */
-void     FreeEnvMemory    (void *buffer);
-
 /* print used and size of environment heap */
 void     EnvHeapInfo     (char *s);
 
