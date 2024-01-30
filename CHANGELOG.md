@@ -8,6 +8,9 @@ SPDX-License-Identifier: LGPL-2.1-or-later
 * Remove deprecated `AllocEnvMemory` and `FreeEnvMemory`. They were
   wrappers of standard `malloc` and `free`.
 
+* Remove deprecated `Mark` and `Release`. Use `MarkTmpMem` and
+  `ReleaseTmpMem` instead.
+
 # dune-uggrid 2.9 (2022-11-25)
 
 * The `dune-uggrid` module does not set the preprocessor flag `HAVE_UG` anymore.

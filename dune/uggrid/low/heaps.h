@@ -136,16 +136,6 @@ void         DisposeMem             (HEAP *theHeap, void *buffer);
 INT          MarkTmpMem             (HEAP *theHeap, INT *key);
 void        *GetTmpMem              (HEAP *theHeap, MEM n, INT key);
 INT          ReleaseTmpMem          (HEAP *theHeap, INT key);
-[[deprecated("Mark taking a mode is deprecated")]] inline INT
-             Mark                   (HEAP *theHeap, INT mode, INT *key)
-{
-  return MarkTmpMem(theHeap,key);
-}
-[[deprecated("Release taking a mode is deprecated")]] inline INT
-             Release                (HEAP *theHeap, INT mode, INT key)
-{
-  return ReleaseTmpMem(theHeap,key);
-}
 /* @} */
 
 END_UG_NAMESPACE
