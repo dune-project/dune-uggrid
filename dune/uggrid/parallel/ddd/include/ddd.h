@@ -405,8 +405,6 @@ public:
 
 void     DDD_PrioritySet(DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 void     DDD_AttrSet (DDD_HDR, DDD_ATTR); /* this shouldn't be allowed */
-[[deprecated("Use `DDD_InfoProcListRange` instead")]]
-int  *   DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR);
 DDD_PROC DDD_InfoProcPrio(const DDD::DDDContext& context, DDD_HDR, DDD_PRIO);
 bool     DDD_InfoIsLocal(const DDD::DDDContext& context, DDD_HDR);
 int      DDD_InfoNCopies(const DDD::DDDContext& context, DDD_HDR);

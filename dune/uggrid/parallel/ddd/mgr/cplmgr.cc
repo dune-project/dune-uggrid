@@ -512,52 +512,6 @@ DDD_InfoProcListRange::DDD_InfoProcListRange(DDDContext& context, const DDD_HDR 
   }
 }
 
-/****************************************************************************/
-/*                                                                          */
-/* Function:  DDD_InfoProcList                                              */
-/*                                                                          */
-/* Purpose:   return list of couplings of certain object                    */
-/*                                                                          */
-/* Input:     hdr: DDD-header of object with coupling                       */
-/*                                                                          */
-/* Output:    pointer to localIBuffer, which has been filled with:          */
-/*               1) id of calling processor                                 */
-/*               2) priority of local object copy on calling processor      */
-/*               3) id of processor which holds an object copy              */
-/*               4) priority of copy on that processor                      */
-/*               5) 3+4 repeated for each coupling                          */
-/*               6) processor number = -1 as end mark                       */
-/*                                                                          */
-/****************************************************************************/
-
-int *DDD_InfoProcList (DDD::DDDContext& context, DDD_HDR hdr)
-{
-  auto& mctx = context.cplmgrContext();
-
-COUPLING *cpl;
-int i, objIndex = OBJ_INDEX(hdr);
-
-/* insert description of own (i.e. local) copy */
-mctx.localIBuffer[0] = context.me();
-mctx.localIBuffer[1] = OBJ_PRIO(hdr);
-
-i=2;
-
-/* append descriptions of foreign copies */
-if (objIndex < context.couplingContext().nCpls)
-{
-  for(cpl=IdxCplList(context, objIndex); cpl!=NULL; cpl=CPL_NEXT(cpl), i+=2) {
-    mctx.localIBuffer[i]   = CPL_PROC(cpl);
-    mctx.localIBuffer[i+1] = cpl->prio;
-  }
-}
-
-/* append end mark */
-mctx.localIBuffer[i] = -1;
-
-return(mctx.localIBuffer);
-}
-
 
 
 /****************************************************************************/
