@@ -16,6 +16,9 @@ SPDX-License-Identifier: LGPL-2.1-or-later
 
 * Remove deprecated `DDD_InfoProcList`, use `DDD_InfoProcListRange` instead.
 
+* Remove deprecated `DDD_IFOneway`, use method overload with context as first
+  argument instead.
+
 # dune-uggrid 2.9 (2022-11-25)
 
 * The `dune-uggrid` module does not set the preprocessor flag `HAVE_UG` anymore.
