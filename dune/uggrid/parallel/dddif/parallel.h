@@ -114,7 +114,7 @@ enum HandlerSets
 #define EVGHOST(e)                                              (EPRIO(e)==PrioVGhost || EPRIO(e)==PrioVHGhost)
 #define EHGHOST(e)                                              (EPRIO(e)==PrioHGhost  || EPRIO(e)==PrioVHGhost)
 #define EGID(e)                                                 DDD_InfoGlobalId(PARHDRE(e))
-#define EPROCLIST(context, e)                           DDD_InfoProcList(context, PARHDRE(e))
+#define EPROCLIST(context, e)                           DDD_InfoProcListRange(context, PARHDRE(e))
 #define EPROCPRIO(context, e,p)                         DDD_InfoProcPrio(context, PARHDRE(e),p)
 #define ENCOPIES(context, e)                                    DDD_InfoNCopies(context, PARHDRE(e))
 #define EATTR(e)                                                DDD_InfoAttr(PARHDRE(e))
@@ -133,7 +133,7 @@ enum HandlerSets
 #define VGHOST(e)                                               (PRIO(e)==PrioVGhost || PRIO(e)==PrioVHGhost)
 #define HGHOST(e)                                               (PRIO(e)==PrioHGhost  || PRIO(e)==PrioVHGhost)
 #define GID(e)                                                  DDD_InfoGlobalId(PARHDR(e))
-#define PROCLIST(context, e)                                    DDD_InfoProcList(context, PARHDR(e))
+#define PROCLIST(context, e)                                    DDD_InfoProcListRange(context, PARHDR(e))
 #define PROCPRIO(context, e,p)                          DDD_InfoProcPrio(context, PARHDR(e),p)
 #define NCOPIES(context, e)                                     DDD_InfoNCopies(context, PARHDR(e))
 #define ATTR(e)                                                 DDD_InfoAttr(PARHDR(e))
@@ -152,7 +152,7 @@ enum HandlerSets
 #define VXVGHOST(e)                                             (VXPRIO(e)==PrioVGhost || VXPRIO(e)==PrioVHGhost)
 #define VXHGHOST(e)                                             (VXPRIO(e)==PrioHGhost || VXPRIO(e)==PrioVHGhost)
 #define VXGID(e)                                                DDD_InfoGlobalId(PARHDRV(e))
-#define VXPROCLIST(context, e)                          DDD_InfoProcList(context, PARHDRV(e))
+#define VXPROCLIST(context, e)                          DDD_InfoProcListRange(context, PARHDRV(e))
 #define VXPROCPRIO(context, e,p)                        DDD_InfoProcPrio(context, PARHDRV(e),p)
 #define VXNCOPIES(context, e)                           DDD_InfoNCopies(context, PARHDRV(e))
 #define VXATTR(e)                                               DDD_InfoAttr(PARHDRV(e))
@@ -376,10 +376,6 @@ void globalDDDContext(const std::shared_ptr<DDD::DDDContext>& context);
 void globalDDDContext(std::nullptr_t);
 
 using ComProcPtr = int (*)(DDD_OBJ, void *);
-[[deprecated("Use `DDD_IFOneway(context, ...)` instead")]]
-void DDD_IFOneway(DDD_IF, DDD_IF_DIR, size_t, ComProcPtr, ComProcPtr);
-[[deprecated("Use `DDD_InfoProcListRange` instead")]]
-int* DDD_InfoProcList(DDD_HDR);
 
 #endif /* ModelP */
 

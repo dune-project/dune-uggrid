@@ -69,17 +69,4 @@ static int realScatterWrapper(DDD::DDDContext&, DDD_OBJ obj, void* data)
   return realGather(obj, data);
 }
 
-void DDD_IFOneway(DDD_IF interface, DDD_IF_DIR direction, std::size_t size, ComProcPtr gather, ComProcPtr scatter)
-{
-  realGather = gather;
-  realScatter = scatter;
-
-  DDD_IFOneway(globalDDDContext(), interface, direction, size, realGatherWrapper, realScatterWrapper);
-}
-
-int* DDD_InfoProcList(DDD_HDR hdr)
-{
-  return DDD_InfoProcList(globalDDDContext(), hdr);
-}
-
 END_UGDIM_NAMESPACE

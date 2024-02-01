@@ -568,38 +568,6 @@ ENVITEM * NS_PREFIX SearchEnv (const char *name, const char *where, INT type, IN
   return(SearchTree(name,type,dirtype));
 }
 
-
-/****************************************************************************/
-/** \brief For backward compatibility: Allocate memory from environment heap
-
- * @param   size - number of bytes to be allocated
-
-   \deprecated Simply a wrapper for malloc()
-
-   @return <ul>
-   Pointer to allocated memory
- */
-/****************************************************************************/
-
-void * NS_PREFIX AllocEnvMemory (INT size)
-{
-  return malloc(size);
-}
-
-/****************************************************************************/
-/** \brief For backward compatibility: Deallocate memory from environment heap
-
- * @param   buffer - pointer to buffer previously allocated
-
-   \deprecated Simply a wrapper for free()
- */
-/****************************************************************************/
-
-void NS_PREFIX FreeEnvMemory (void *buffer)
-{
-  free(buffer);
-}
-
 /****************************************************************************/
 /** \brief For backward compatibility: Print size and used of environment heap to string
 
