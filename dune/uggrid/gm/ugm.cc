@@ -1363,7 +1363,6 @@ INT GetSideIDFromScratchOld (ELEMENT *theElement, NODE *theNode)
   UserWriteF("GetSideIDFromScratch(): e=" EID_FMTX " f=" EID_FMTX "\n",
              EID_PRTX(theElement),EID_PRTX(theFather));
   return(0);
-  return(SIDES_OF_ELEM(theFather));
 }
 
 #endif /* UG_DIM_3 */
@@ -4778,7 +4777,6 @@ INT NS_DIM_PREFIX KeyForObject( KEY_OBJECT *obj )
   default :        sprintf( buffer, "unrecognized object type %d", OBJT(obj) );
     PrintErrorMessage('E',"KeyForObject",buffer);
     return(0);
-    assert(0);
   }
   return (GM_ERROR);
 }
