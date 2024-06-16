@@ -434,27 +434,24 @@ INT NS_DIM_PREFIX SetRefineInfo (MULTIGRID *theMG)
 
 static INT DropMarks (MULTIGRID *theMG)
 {
-  INT k, Mark;
-  GRID *theGrid;
-  ELEMENT *theElement, *FatherElement;
-
   return(GM_OK);
 
-  for (k=TOPLEVEL(theMG); k>0; k--)
+  for (INT k = TOPLEVEL(theMG); k > 0; k--)
   {
-    theGrid = GRID_ON_LEVEL(theMG,k);
-    for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
+    const GRID *theGrid = GRID_ON_LEVEL(theMG,k);
+    for (ELEMENT *theElement = FIRSTELEMENT(theGrid);
+         theElement != NULL;
          theElement=SUCCE(theElement))
       if ((MARKCLASS(theElement) == RED_CLASS) &&
           (ECLASS(theElement) != RED_CLASS))
       {
-        Mark = MARK(theElement);
+        INT Mark = MARK(theElement);
         /** \todo marks must be changed if element type changes */
         if (TAG(theElement)!=HEXAHEDRON &&
             TAG(EFATHER(theElement))==HEXAHEDRON) Mark = HEXA_RED;
         if (TAG(theElement)!=PYRAMID &&
             TAG(EFATHER(theElement))==PYRAMID) Mark = PYR_RED;
-        FatherElement = theElement;
+        ELEMENT *FatherElement = theElement;
 
         SETMARK(FatherElement,NO_REFINEMENT);
         SETMARKCLASS(FatherElement,NO_CLASS);
