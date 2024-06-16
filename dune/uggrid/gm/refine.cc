@@ -4345,7 +4345,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[pyrSideNode1Node2] = sides[1];
           sons[nelem].nb[pyrSideNode2Node3] = sides[2];
           sons[nelem].nb[pyrSideNode0Node3] = sides[3];
-          nelem++;
 
           break;
 
@@ -4385,7 +4384,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
               sons[nelem].nb[tetSideNode0Node1] = nelem-2;
               sons[nelem].nb[tetSideNode1Node2] = sides[(j+2)%nedges];
               sons[nelem].nb[tetSideNode0Node2] = nelem-1;
-              nelem++;
 
               break;
             }
@@ -4446,7 +4444,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[tetSideNode0Node1] = nelem-3;
             sons[nelem].nb[tetSideNode1Node2] = nelem-1;
             sons[nelem].nb[tetSideNode0Node2] = nelem-2;
-            nelem++;
           }
           else
           {
@@ -4472,7 +4469,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[pyrSideNode1Node2] = sides[(j+3)%nedges];
             sons[nelem].nb[pyrSideNode2Node3] = sides[(j)%nedges];
             sons[nelem].nb[pyrSideNode0Node3] = nelem-1;
-            nelem++;
           }
           break;
 
@@ -4524,7 +4520,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[tetSideNode0Node1] = nelem-2;
           sons[nelem].nb[tetSideNode1Node2] = nelem-1;
           sons[nelem].nb[tetSideNode0Node2] = nelem-3;
-          nelem++;
 
           break;
 
@@ -4554,7 +4549,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[pyrSideNode1Node2] = nelem-3;
           sons[nelem].nb[pyrSideNode2Node3] = nelem-2;
           sons[nelem].nb[pyrSideNode0Node3] = nelem-1;
-          nelem++;
           break;
 
         default :
@@ -4607,7 +4601,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[tetSideNode0Node1] = sides[0];
           sons[nelem].nb[tetSideNode1Node2] = sides[1];
           sons[nelem].nb[tetSideNode0Node2] = sides[2];
-          nelem++;
 
           break;
 
@@ -4637,7 +4630,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
               sons[nelem].nb[tetSideNode0Node1] = nelem-1;
               sons[nelem].nb[tetSideNode1Node2] = sides[(j+2)%nedges];
               sons[nelem].nb[tetSideNode0Node2] = sides[j];
-              nelem++;
 
               break;
             }
@@ -4709,8 +4701,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[tetSideNode0Node1] = nelem-2;
             sons[nelem].nb[tetSideNode1Node2] = sides[(j+2)%nedges];
             sons[nelem].nb[tetSideNode0Node2] = nelem-1;
-            nelem++;
-
           }
           else
           {
@@ -4742,8 +4732,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[tetSideNode0Node1] = nelem-2;
             sons[nelem].nb[tetSideNode1Node2] = sides[(j+2)%nedges];
             sons[nelem].nb[tetSideNode0Node2] = sides[j];
-            nelem++;
-
           }
 
           break;
@@ -4790,7 +4778,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[tetSideNode0Node1] = nelem-3;
           sons[nelem].nb[tetSideNode1Node2] = nelem-1;
           sons[nelem].nb[tetSideNode0Node2] = nelem-2;
-          nelem++;
 
           break;
 
@@ -4824,8 +4811,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[pyrSideNode0Node3] = nelem+2;
           else
             sons[nelem].nb[pyrSideNode0Node3] = nelem-1;
-          nelem++;
-
         }
         ASSERT(j==nedges);
       }
