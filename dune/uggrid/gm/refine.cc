@@ -3379,12 +3379,10 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
                                            INT NeedSons, INT ioflag,
                                            INT useRefineClass)
 {
-  INT i,j,nsons;
   enum MarkClass markclass;
 
   /* reset soncount */
   *Sons_of_Side = 0;
-  nsons = 0;
 
   /* get sons of element */
   if (NeedSons)
@@ -3397,7 +3395,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
              ID(theElement),TAG(theElement),REFINECLASS(theElement),MARKCLASS(theElement),
              REFINE(theElement),MARK(theElement),COARSEN(theElement),
              USED(theElement),NSONS(theElement),side,NeedSons);
-  for (i=0; SonList[i]!=NULL; i++)
+  for (INT i = 0; SonList[i] != NULL; i++)
     UserWriteF("   son[%d]=" EID_FMTX "\n",i,EID_PRTX(SonList[i]));
   ENDDEBUG
 
@@ -3437,8 +3435,8 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
   {
     /* determine sonnodes of side */
     NODE *SideNodes[MAX_SIDE_NODES];
-    INT corner[MAX_CORNERS_OF_SIDE];
-    INT n,nodes;
+    INT nodes;
+    INT nsons = 0;
 
     /* determine nodes of sons on side of element */
     GetSonSideNodes(theElement,side,&nodes,SideNodes,ioflag);
@@ -3448,9 +3446,9 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
 
     IFDEBUG(gm,3)
     UserWriteF("After qsort:\n");
-    for (i=0; i<MAX_SIDE_NODES; i++) UserWriteF(" %8d",i);
+    for (INT i = 0; i < MAX_SIDE_NODES; i++) UserWriteF(" %8d",i);
     UserWriteF("\n");
-    for (i=0; i<MAX_SIDE_NODES; i++)
+    for (INT i = 0; i < MAX_SIDE_NODES; i++)
       if (SideNodes[i]!=NULL) UserWriteF(" %x",SideNodes[i]);
       else UserWriteF(" %8d",0);
     UserWriteF("\n");
@@ -3458,11 +3456,12 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
 
     /* determine sonnode on side */
     /*			for (i=0; i<NSONS(theElement); i++) */
-    for (i=0; SonList[i]!=NULL; i++)
+    for (INT i = 0; SonList[i] != NULL; i++)
     {
-      n = 0;
+      INT n = 0;
+      INT corner[MAX_CORNERS_OF_SIDE];
 
-      for (j=0; j<MAX_CORNERS_OF_SIDE; j++)
+      for (INT j = 0; j < MAX_CORNERS_OF_SIDE; j++)
         corner[j] = -1;
 
       IFDEBUG(gm,4)
@@ -3470,7 +3469,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
       ENDDEBUG
 
       /* soncorners on side */
-      for (j=0; j<CORNERS_OF_ELEM(SonList[i]); j++)
+      for (INT j = 0; j < CORNERS_OF_ELEM(SonList[i]); j++)
       {
         NODE *nd = CORNER(SonList[i],j);
         if (std::binary_search(SideNodes, SideNodes + nodes, nd, compare_node))
@@ -3483,7 +3482,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
 
       IFDEBUG(gm,4)
       UserWriteF("\n nodes on side n=%d:",n);
-      for (j=0; j<MAX_CORNERS_OF_SIDE; j++)
+      for (INT j = 0; j < MAX_CORNERS_OF_SIDE; j++)
         UserWriteF(" %d",corner[j]);
       ENDDEBUG
 
@@ -3513,12 +3512,9 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
                                 #ifdef UG_DIM_3
       if (n==3 || n==4)
       {
-        INT edge0,edge1,sonside,side0,side1;
-
         /* determine side number */
-        edge0 = edge1 = -1;
-        edge0 = EDGE_WITH_CORNERS(SonList[i],corner[0],corner[1]);
-        edge1 = EDGE_WITH_CORNERS(SonList[i],corner[1],corner[2]);
+        INT edge0 = EDGE_WITH_CORNERS(SonList[i],corner[0],corner[1]);
+        INT edge1 = EDGE_WITH_CORNERS(SonList[i],corner[1],corner[2]);
         /* corners are not stored in local side numbering,      */
         /* therefore corner[x]-corner[y] might be the diagonal  */
         if (n==4 && edge0==-1)
@@ -3529,10 +3525,10 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
                                     corner[3]);
         assert(edge0!=-1 && edge1!=-1);
 
-        sonside = -1;
-        for (side0=0; side0<MAX_SIDES_OF_EDGE; side0++)
+        INT sonside = -1;
+        for (INT side0 = 0; side0 < MAX_SIDES_OF_EDGE; side0++)
         {
-          for (side1=0; side1<MAX_SIDES_OF_EDGE; side1++)
+          for (INT side1 = 0; side1 < MAX_SIDES_OF_EDGE; side1++)
           {
             IFDEBUG(gm,5)
             UserWriteF("edge0=%d side0=%d SIDE_WITH_EDGE=%d\n",
@@ -3558,12 +3554,10 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
         ENDDEBUG
 
         IFDEBUG(gm,3)
-        INT k;
-        ELEMENT *Nb;
 
-        for (k=0; k<SIDES_OF_ELEM(SonList[i]); k++)
+        for (INT k = 0; k < SIDES_OF_ELEM(SonList[i]); k++)
         {
-          Nb = NBELEM(SonList[i],k);
+          const ELEMENT *Nb = NBELEM(SonList[i],k);
           if (Nb!=NULL)
           {
             INT j;
@@ -3608,12 +3602,13 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
        #endif
      */
     {
-      for (i=0; SonList[i]!=NULL; i++)
+      INT nsons = 0;
+      for (INT i = 0; SonList[i] != NULL; i++)
       {
         SONDATA *sondata = SON_OF_RULE(MARK2RULEADR(theElement,
                                            MARK(theElement)),i);
 
-        for (j=0; j<SIDES_OF_ELEM(SonList[i]); j++)
+        for (INT j = 0; j < SIDES_OF_ELEM(SonList[i]); j++)
           if (SON_NB(sondata,j) == FATHER_SIDE_OFFSET+side)
           {
             SonSides[nsons] = j;
@@ -3632,13 +3627,13 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
         #ifdef ModelP
   IFDEBUG(gm,4)
   UserWriteF("Sons_of_Side=%d\n",*Sons_of_Side);
-  for (i=0; i<*Sons_of_Side; i++)
+  for (INT i = 0; i < *Sons_of_Side; i++)
     UserWriteF("son[%d]=" EID_FMTX " sonside[%d]=%d\n",i,
                EID_PRTX(SonList[i]),i,SonSides[i]);
   ENDDEBUG
         #endif
 
-  for (i=*Sons_of_Side; i<MAX_SONS; i++)
+  for (INT i = *Sons_of_Side; i < MAX_SONS; i++)
     SonList[i] = NULL;
 
   return(GM_OK);
