@@ -66,6 +66,7 @@
 #include <cstring>
 
 #include <algorithm>
+#include <array>
 
 /* low module */
 #include <dune/uggrid/low/debug.h>
@@ -3459,10 +3460,8 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
     for (INT i = 0; SonList[i] != NULL; i++)
     {
       INT n = 0;
-      INT corner[MAX_CORNERS_OF_SIDE];
-
-      for (INT j = 0; j < MAX_CORNERS_OF_SIDE; j++)
-        corner[j] = -1;
+      std::array<INT,MAX_CORNERS_OF_SIDE> corner;
+      std::fill(corner.begin(), corner.end(), -1);
 
       IFDEBUG(gm,4)
       UserWriteF("son=%d\n",i);
