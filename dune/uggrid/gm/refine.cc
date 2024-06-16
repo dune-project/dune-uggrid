@@ -2847,13 +2847,6 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
 
 static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementContext)
 {
-  bool toCreate;
-        #ifdef UG_DIM_3
-  ELEMENT *theNeighbor;                         /* neighbor and a son of current elem.	*/
-  EDGE *fatherEdge;
-  INT j;
-        #endif
-
   /* reset context to NULL */
   for(INT i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
     theElementContext[i] = NULL;
@@ -2891,8 +2884,8 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
 
     if (MARKED_NEW_GREEN(theElement))
     {
-      EDGE* theEdge = GetEdge(CORNER(theElement,Corner0),
-                        CORNER(theElement,Corner1));
+      const EDGE* theEdge = GetEdge(CORNER(theElement,Corner0),
+                                    CORNER(theElement,Corner1));
       ASSERT(theEdge != NULL);
 
       if (ADDPATTERN(theEdge) == 0)
@@ -2926,9 +2919,9 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
     {
       /* we need a midpoint node */
       if (MidNodes[i]!=NULL) continue;
-      NODE* Node0 = CORNER(theElement,Corner0);
-      NODE* Node1 = CORNER(theElement,Corner1);
-      EDGE* theEdge = GetEdge(Node0,Node1);
+      const NODE* Node0 = CORNER(theElement,Corner0);
+      const NODE* Node1 = CORNER(theElement,Corner1);
+      const EDGE* theEdge = GetEdge(Node0,Node1);
       if (theEdge == nullptr)
         RETURN(GM_FATAL);
       MidNodes[i] = MIDNODE(theEdge);
@@ -2964,18 +2957,18 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
     if (CORNERS_OF_SIDE(theElement,i) == 3) continue;
 #endif
 
-    toCreate = false;
+    bool toCreate = false;
     /* is side node needed */
     if (MARKED_NEW_GREEN(theElement))
     {
-      theNeighbor = NBELEM(theElement,i);
+      const ELEMENT *theNeighbor = NBELEM(theElement,i);
 
       if (theNeighbor!=NULL)
       {
         if (MARKCLASS(theNeighbor)!=GREEN_CLASS &&
             MARKCLASS(theNeighbor)!=YELLOW_CLASS)
         {
-
+          INT j;
           for (j=0; j<SIDES_OF_ELEM(theNeighbor); j++)
           {
             if (NBELEM(theNeighbor,j) == theElement) break;
@@ -3005,9 +2998,8 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
     if (SideNodes[i] != NULL)
       if (START(SideNodes[i])!=NULL)
       {
-        LINK *sidelink;
         UserWriteF("\n NO_OF_ELEM of EDGES:");
-        for (sidelink=START(SideNodes[i]);
+        for (LINK *sidelink = START(SideNodes[i]);
              sidelink!=NULL;
              sidelink=NEXT(sidelink))
         {
@@ -3020,8 +3012,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
 
     if (toCreate)
     {
-
-      theNeighbor = NBELEM(theElement,i);
+      const ELEMENT *theNeighbor = NBELEM(theElement,i);
 
       IFDEBUG(gm,1)
       if (theNeighbor != NULL)
@@ -3066,13 +3057,12 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
 
       IFDEBUG(gm,0)
       ASSERT(SideNodes[i]!=NULL);
-      for (j=0; j<EDGES_OF_SIDE(theElement,i); j++)
+      for (INT j = 0; j < EDGES_OF_SIDE(theElement,i); j++)
       {
+        const EDGE *fatherEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),0),
+                                         CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),1));
 
-        fatherEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),0),
-                             CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),1));
-
-        [[maybe_unused]] NODE* Node0 = MIDNODE(fatherEdge);
+        [[maybe_unused]] const NODE* Node0 = MIDNODE(fatherEdge);
 
         /* if side node exists all mid nodes must exist */
         ASSERT(Node0 != NULL);
@@ -3093,7 +3083,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
   NODE** CenterNode = MidNodes+CENTER_NODE_INDEX(theElement);
   CenterNode[0] = NULL;
 
-  toCreate = false;
+  bool toCreate = false;
   if (CenterNode[0] == NULL)
   {
 
