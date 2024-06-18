@@ -3706,17 +3706,14 @@ static INT Sort_Node_Ptr (INT n,NODE **nodes)
 static INT      Fill_Comp_Table (COMPARE_RECORD **SortTable, COMPARE_RECORD *Table, INT nelems,
                                  ELEMENT **Elements, INT *Sides)
 {
-  COMPARE_RECORD *Entry;
-  INT i,j;
-
-  for (i=0; i<nelems; i++)
+  for (INT i = 0; i < nelems; i++)
   {
     SortTable[i] = Table+i;
-    Entry = Table+i;
+    COMPARE_RECORD *Entry = Table+i;
     Entry->elem = Elements[i];
     Entry->side = Sides[i];
     Entry->nodes = CORNERS_OF_SIDE(Entry->elem,Entry->side);
-    for (j=0; j<CORNERS_OF_SIDE(Entry->elem,Entry->side); j++)
+    for (INT j = 0; j < CORNERS_OF_SIDE(Entry->elem, Entry->side); j++)
       Entry->nodeptr[j] = CORNER_OF_SIDE_PTR(Entry->elem,Entry->side,j);
     if (Sort_Node_Ptr(Entry->nodes,Entry->nodeptr)!=GM_OK) RETURN(GM_FATAL);
   }
