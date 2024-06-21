@@ -983,13 +983,11 @@ NODE * NS_DIM_PREFIX GetSideNode (const ELEMENT *theElement, INT side)
 
 static int CountSideNodes (ELEMENT *e)
 {
-  int i,side;
-  NODE *n;
+  int side = 0;
 
-  side = 0;
-  for (i=0; i<CORNERS_OF_ELEM(e); i++)
+  for (int i = 0; i < CORNERS_OF_ELEM(e); i++)
   {
-    n = CORNER(e,i);
+    const NODE *n = CORNER(e,i);
     if (SIDETYPE(n)) side++;
   }
   return(side);
@@ -997,20 +995,16 @@ static int CountSideNodes (ELEMENT *e)
 
 int GetSideIDFromScratchSpecialRule17Pyr (ELEMENT *theElement, NODE *theNode)
 {
-  int i,k,l,nodes;
-#ifdef Debug
-  INT cnodes,snodes;
-#endif
   ELEMENT *f = EFATHER(theElement);
-  NODE *fnode,*enode;
   int side = SIDES_OF_ELEM(f);
 
         #ifdef Debug
   assert(TAG(theElement)==PYRAMID);
-  snodes = cnodes = 0;
-  for (l=0; l<CORNERS_OF_ELEM(theElement); l++)
+  INT snodes = 0;
+  INT cnodes = 0;
+  for (int l = 0; l < CORNERS_OF_ELEM(theElement); l++)
   {
-    enode = CORNER(theElement,l);
+    const NODE *enode = CORNER(theElement,l);
     if (CORNERTYPE(enode)) cnodes++;
     if (SIDETYPE(enode)) snodes++;
   }
@@ -1018,15 +1012,15 @@ int GetSideIDFromScratchSpecialRule17Pyr (ELEMENT *theElement, NODE *theNode)
   assert(cnodes == 4);
         #endif
 
-  for (i=0; i<SIDES_OF_ELEM(f); i++)
+  for (int i = 0; i < SIDES_OF_ELEM(f); i++)
   {
-    nodes = 0;
-    for (k=0; k<CORNERS_OF_SIDE(f,i); k++)
+    int nodes = 0;
+    for (int k = 0; k < CORNERS_OF_SIDE(f,i); k++)
     {
-      fnode = CORNER(f,CORNER_OF_SIDE(f,i,k));
-      for (l=0; l<CORNERS_OF_ELEM(theElement); l++)
+      NODE *fnode = CORNER(f,CORNER_OF_SIDE(f,i,k));
+      for (int l = 0; l < CORNERS_OF_ELEM(theElement); l++)
       {
-        enode = CORNER(theElement,l);
+        const NODE *enode = CORNER(theElement,l);
         if (enode == SONNODE(fnode)) nodes++;
       }
     }
@@ -1234,42 +1228,39 @@ INT NS_DIM_PREFIX GetSideIDFromScratch (ELEMENT *theElement, NODE *theNode)
 
 INT GetSideIDFromScratchOld (ELEMENT *theElement, NODE *theNode)
 {
-  ELEMENT *theFather;
+  ELEMENT *theFather = EFATHER(theElement);
   NODE *nd[MAX_EDGES_OF_ELEM];
-  EDGE *edge;
-  INT i,j,k,l,cnt;
 
   ASSERT(NTYPE(theNode) == SIDE_NODE);
 
-  theFather = EFATHER(theElement);
-
   /* determine midnodes of father */
-  for (i=0; i<EDGES_OF_ELEM(theFather); i++)
+  for (INT i = 0; i < EDGES_OF_ELEM(theFather); i++)
   {
-    edge = GetEdge(CORNER_OF_EDGE_PTR(theFather,i,0),
-                   CORNER_OF_EDGE_PTR(theFather,i,1));
+    EDGE *edge = GetEdge(CORNER_OF_EDGE_PTR(theFather,i,0),
+                         CORNER_OF_EDGE_PTR(theFather,i,1));
     nd[i] = MIDNODE(edge);
   }
 
-  for (j=0; j<SIDES_OF_ELEM(theElement); j++)
+  for (INT j = 0; j < SIDES_OF_ELEM(theElement); j++)
   {
     if (3 == CORNERS_OF_SIDE(theElement,j)) continue;
 
-    for (l=0; l<CORNERS_OF_SIDE(theElement,j); l++)
+    INT l;
+    for (l = 0; l < CORNERS_OF_SIDE(theElement,j); l++)
       if (theNode == CORNER(theElement,CORNER_OF_SIDE(theElement,j,l)))
         break;
     if (l == CORNERS_OF_SIDE(theElement,j)) continue;
 
-    for (i=0; i<SIDES_OF_ELEM(theFather); i++)
+    for (INT i = 0; i < SIDES_OF_ELEM(theFather); i++)
     {
       if (3 == CORNERS_OF_SIDE(theFather,i)) continue;
 
-      cnt = 0;
-      for (k=0; k<EDGES_OF_SIDE(theFather,i); k++)
-        for (l=0; l<CORNERS_OF_SIDE(theElement,j); l++)
+      INT cnt = 0;
+      for (INT k = 0; k < EDGES_OF_SIDE(theFather,i); k++)
+        for (INT n = 0; n < CORNERS_OF_SIDE(theElement,j); n++)
         {
           if (nd[EDGE_OF_SIDE(theFather,i,k)] ==
-              CORNER(theElement,CORNER_OF_SIDE(theElement,j,l)))
+              CORNER(theElement,CORNER_OF_SIDE(theElement,j,n)))
             cnt++;
           if (cnt == 2)
             return(i);
@@ -1279,7 +1270,7 @@ INT GetSideIDFromScratchOld (ELEMENT *theElement, NODE *theNode)
 
 
   /* if side not found search over neighbor */
-  for (j=0; j<SIDES_OF_ELEM(theElement); j++)
+  for (INT j = 0; j < SIDES_OF_ELEM(theElement); j++)
   {
     ELEMENT *nb = NBELEM(theElement,j);
 
@@ -1299,25 +1290,26 @@ INT GetSideIDFromScratchOld (ELEMENT *theElement, NODE *theNode)
 
     if (nb == NULL) continue;
 
-    for (l=0; l<CORNERS_OF_ELEM(nb); l++)
+    for (INT l = 0; l < CORNERS_OF_ELEM(nb); l++)
       if (theNode == CORNER(nb,l))
         return(GetSideIDFromScratch(nb,theNode));
   }
 
 
-  for (j=0; j<SIDES_OF_ELEM(theElement); j++)
+  for (INT j = 0; j < SIDES_OF_ELEM(theElement); j++)
   {
     if (4 != CORNERS_OF_SIDE(theElement,j)) continue;
-    for (l=0; l<4; l++)
+    INT l;
+    for (l = 0; l < 4; l++)
       if (theNode == CORNER(theElement,CORNER_OF_SIDE(theElement,j,l)))
         break;
     if (l < 4)
     {
       INT l1 = (l+1) % 4;
 
-      for (i=0; i<SIDES_OF_ELEM(theFather); i++) {
+      for (INT i = 0; i < SIDES_OF_ELEM(theFather); i++) {
         if (3 == CORNERS_OF_SIDE(theFather,i)) continue;
-        for (k=0; k<EDGES_OF_SIDE(theFather,i); k++) {
+        for (INT k = 0; k < EDGES_OF_SIDE(theFather,i); k++) {
           if (nd[EDGE_OF_SIDE(theFather,i,k)] ==
               CORNER(theElement,CORNER_OF_SIDE(theElement,j,l1)))
             return(i);
@@ -1330,23 +1322,24 @@ INT GetSideIDFromScratchOld (ELEMENT *theElement, NODE *theNode)
   }
 
   /* treatment of special green rule 17 and 22 */
-  for (j=0; j<SIDES_OF_ELEM(theElement); j++)
+  for (INT j = 0; j < SIDES_OF_ELEM(theElement); j++)
   {
+    INT l;
     for (l=0; l<CORNERS_OF_SIDE(theElement,j); l++)
       if (theNode == CORNER(theElement,CORNER_OF_SIDE(theElement,j,l)))
         break;
     if (l == CORNERS_OF_SIDE(theElement,j)) continue;
 
-    for (i=0; i<SIDES_OF_ELEM(theFather); i++)
+    for (INT i = 0; i < SIDES_OF_ELEM(theFather); i++)
     {
       if (3 == CORNERS_OF_SIDE(theFather,i)) continue;
 
-      cnt = 0;
-      for (k=0; k<EDGES_OF_SIDE(theFather,i); k++)
-        for (l=0; l<CORNERS_OF_SIDE(theElement,j); l++)
+      INT cnt = 0;
+      for (INT k = 0; k < EDGES_OF_SIDE(theFather,i); k++)
+        for (INT n = 0; n < CORNERS_OF_SIDE(theElement,j); n++)
         {
           if (nd[EDGE_OF_SIDE(theFather,i,k)] ==
-              CORNER(theElement,CORNER_OF_SIDE(theElement,j,l)))
+              CORNER(theElement,CORNER_OF_SIDE(theElement,j,n)))
             cnt++;
           if (cnt==1 && ECLASS(theElement)==GREEN_CLASS &&
               TAG(theElement)==TETRAHEDRON &&
@@ -1363,7 +1356,6 @@ INT GetSideIDFromScratchOld (ELEMENT *theElement, NODE *theNode)
   UserWriteF("GetSideIDFromScratch(): e=" EID_FMTX " f=" EID_FMTX "\n",
              EID_PRTX(theElement),EID_PRTX(theFather));
   return(0);
-  return(SIDES_OF_ELEM(theFather));
 }
 
 #endif /* UG_DIM_3 */
@@ -4778,7 +4770,6 @@ INT NS_DIM_PREFIX KeyForObject( KEY_OBJECT *obj )
   default :        sprintf( buffer, "unrecognized object type %d", OBJT(obj) );
     PrintErrorMessage('E',"KeyForObject",buffer);
     return(0);
-    assert(0);
   }
   return (GM_ERROR);
 }
