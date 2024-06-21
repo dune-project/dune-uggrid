@@ -274,9 +274,8 @@ static struct {
 static DOUBLE Corner2DCorners (INT n, SHORT corners[])
 {
   DOUBLE dco = corners[0];
-  int i;
 
-  for (i=1; i<n; i++)
+  for (int i = 1; i < n; i++)
   {
     dco *= MAX_REFINED_CORNERS_DIM;
     dco += corners[i];
@@ -310,9 +309,7 @@ static DOUBLE Corner2DCorners (INT n, SHORT corners[])
 
 static void DCorners2Corners (INT n, DOUBLE dco, SHORT corners[])
 {
-  int i;
-
-  for (i=n-1; i>=0; i--)
+  for (int i = n-1; i >= 0; i--)
   {
     DOUBLE x = floor(dco/((DOUBLE)MAX_REFINED_CORNERS_DIM));
     corners[i] = (SHORT)(dco-x*MAX_REFINED_CORNERS_DIM);
@@ -343,10 +340,9 @@ static void DCorners2Corners (INT n, DOUBLE dco, SHORT corners[])
 static void FillOrderedSons (const ERULE *er, DOUBLE oco[])
 {
   SHORT corners[MAX_CORNERS_OF_ELEM_DIM];
-  int s;
 
   /* sort corners of each son */
-  for (s=0; s<ER_NSONS(er); s++)
+  for (int s = 0; s < ER_NSONS(er); s++)
   {
     DCorners2Corners(ER_NCO(er,s),ER_DCO(er,s),corners);
     std::sort(corners, corners + ER_NCO(er,s));
@@ -380,13 +376,11 @@ static void FillOrderedSons (const ERULE *er, DOUBLE oco[])
 #if (defined UG_DIM_3) || (defined __DEBUG_ER__)
 static INT Hash_Init (int MarkKey)
 {
-  int i;
-
   global.hash_table = (HRULE**) GetTmpMem(global.heap,HASH_SIZE*sizeof(HRULE*),MarkKey);
   if (global.hash_table==NULL)
     REP_ERR_RETURN(1);
 
-  for (i=0; i<HASH_SIZE; i++)
+  for (int i = 0; i < HASH_SIZE; i++)
     global.hash_table[i] = NULL;
 
   return (0);
@@ -475,14 +469,13 @@ static bool SonsAreEqual (INT nsons, const DOUBLE oco[], const HRULE *hr)
 {
   if (nsons!=HR_NSONS(hr))
     return false;
-  else
+
+  for (int s = 0; s < nsons; s++)
   {
-    int s;
-    for (s=0; s<nsons; s++)
-      if (oco[s]!=HR_OCO(hr,s))
+    if (oco[s] != HR_OCO(hr, s))
         return false;
-    return true;
   }
+  return true;
 }
 
 /****************************************************************************/
@@ -517,9 +510,7 @@ static HRID GetRuleID
 )
 {
   DOUBLE key = 0;
-  HRULE *hr;
   DOUBLE oco[MAX_SONS];
-  int s,h;
 
   global.nelem_inspected[etag]++;
   global.nelems_inspected++;
@@ -528,14 +519,14 @@ static HRID GetRuleID
 
   FillOrderedSons(er,oco);
 
-  for (s=0; s<ER_NSONS(er); s++)
+  for (int s = 0; s < ER_NSONS(er); s++)
     key += oco[s];
 
   /** \todo (HRR 971211): use tag also for key? */
 
-  h = HASH_ADDRESS(key);
+  int h = HASH_ADDRESS(key);
 
-  hr = global.hash_table[h];
+  HRULE *hr = global.hash_table[h];
   if (hr==NULL)
     return (Hash_InsertRule(etag,key,er,oco,&(global.hash_table[h])));
 
@@ -575,7 +566,6 @@ static INT RuleCompare (int id, const URULE *ur, const ERULE *er)
 {
   const int ns0   = NSONS_OF_RULE(ur);
   const int ns1   = ER_NSONS(er);
-  int s0,s1;
 
   if (ns0!=ns1)
   {
@@ -584,12 +574,13 @@ static INT RuleCompare (int id, const URULE *ur, const ERULE *er)
   }
 
   /* compare sons */
-  for (s0=0; s0<ns0; s0++)
+  for (int s0 = 0; s0 < ns0; s0++)
   {
     const SONDATA *son0     = SON_OF_RULE(ur,s0);
     int nco0                        = CORNERS_OF_TAG(SON_TAG(son0));
 
-    for (s1=0; s1<ns1; s1++)
+    int s1;
+    for (s1 = 0; s1 < ns1; s1++)
     {
       int nco1 = ER_NCO(er,s1);
 
@@ -654,7 +645,6 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
   int nsons = NSONS(elem);
   ELEMENT *sons[MAX_SONS];
   NODE *nodes[MAX_REFINED_CORNERS_DIM];
-  int s;
 
   if (GetNodeContext(elem,nodes))
     REP_ERR_RETURN(1);
@@ -664,12 +654,11 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
     REP_ERR_RETURN(1);
 
   ER_NSONS(er) = 0;
-  for (s=0; s<nsons; s++)
+  for (int s = 0; s < nsons; s++)
   {
     ELEMENT *son = sons[s];
     int coe = CORNERS_OF_ELEM(son);
     SHORT corners[MAX_CORNERS_OF_ELEM_DIM];
-    int k,j;
 
     if (EGHOST(son)) continue;
 
@@ -677,11 +666,12 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
 
     /* corners and dcorners */
     ER_NCO(er,s) = coe;
-    for (j=0; j<coe; j++)
+    for (int j = 0; j < coe; j++)
     {
       const NODE *node = CORNER(son,j);
 
-      for (k=0; k<MAX_REFINED_CORNERS_DIM; k++)
+      int k;
+      for (k = 0; k < MAX_REFINED_CORNERS_DIM; k++)
         if (node==nodes[k])
           break;
       ASSERT(k<MAX_REFINED_CORNERS_DIM);
@@ -998,10 +988,8 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
   auto& context = mg->dddContext();
   const auto& dddctrl = ddd_ctrl(context);
 
-  int lev;
-
   /* TODO (HRR 971211): don't include TOPLEVEL (no elem refined there) */
-  for (lev=0; lev<=TOPLEVEL(mg); lev++)
+  for (int lev = 0; lev <= TOPLEVEL(mg); lev++)
   {
     GRID *grid = GRID_ON_LEVEL(mg,lev);
 
@@ -1040,10 +1028,9 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
 
       IFDEBUG(gm,ER_DBG_GENERAL)
       long N_er = 0;
-      int tag;
 
       PrintDebug("ExtractInterfaceRules: number of refrules extracted from interface on level %d:\n",lev);
-      for (tag=0; tag<TAGS; tag++)
+      for (int tag = 0; tag < TAGS; tag++)
       {
         long n_er = global.maxrule[tag] - UGMAXRULE(tag);
         N_er += n_er;
@@ -1085,11 +1072,9 @@ static INT ExtractInterfaceRules (MULTIGRID *mg)
 #if (defined UG_DIM_3) || (defined __DEBUG_ER__)
 static INT ExtractRules (MULTIGRID *mg)
 {
-  ELEMENT *elem;
   ERULE er;
-  HRID id;
   INT MarkKey;
-  int l,tag,h,maxrules;
+  int maxrules;
 
   /* for hash table */
   if (MarkTmpMem(global.heap,&MarkKey))
@@ -1099,22 +1084,22 @@ static INT ExtractRules (MULTIGRID *mg)
     REP_ERR_RETURN(1);
 
   global.nelems_inspected = global.nelems_not_inspected = 0;
-  for (tag=0; tag<TAGS; tag++)
+  for (int tag = 0; tag < TAGS; tag++)
     global.nelem_inspected[tag] = global.nelem_not_inspected[tag] = 0;
 
   /* loop elements and extract rules */
         #ifdef ModelP
   /* TODO (HRR 971211): don't include TOPLEVEL (no elem refined there) */
-  for (l=0; l<=TOPLEVEL(mg); l++)
-    for (elem=FIRSTELEMENT(GRID_ON_LEVEL(mg,l)); elem!=NULL; elem=SUCCE(elem))
+  for (int l = 0; l <= TOPLEVEL(mg); l++)
+    for (ELEMENT *elem = FIRSTELEMENT(GRID_ON_LEVEL(mg, l)); elem != NULL; elem = SUCCE(elem))
       SETUSED(elem,false);
   if (ExtractInterfaceRules(mg))
     REP_ERR_RETURN(1);
         #endif
 
   /* TODO (HRR 971211): don't include TOPLEVEL (no elem refined there) */
-  for (l=0; l<=TOPLEVEL(mg); l++)
-    for (elem=FIRSTELEMENT(GRID_ON_LEVEL(mg,l)); elem!=NULL; elem=SUCCE(elem))
+  for (int l = 0; l <= TOPLEVEL(mg); l++)
+    for (ELEMENT *elem = FIRSTELEMENT(GRID_ON_LEVEL(mg, l)); elem != NULL; elem = SUCCE(elem))
                         #ifdef ModelP
       if (!USED(elem))
       {
@@ -1123,7 +1108,7 @@ static INT ExtractRules (MULTIGRID *mg)
       {
         if (ExtractERule(elem,&er))
           REP_ERR_RETURN(1);
-        id = GetRuleID(
+        HRID id = GetRuleID(
                                                                 #ifdef Debug
           elem,
                                                                 #endif
@@ -1154,7 +1139,7 @@ static INT ExtractRules (MULTIGRID *mg)
 #endif
 
   global.maxrules = maxrules = 0;
-  for (tag=0; tag<TAGS; tag++)
+  for (int tag = 0; tag < TAGS; tag++)
   {
     global.maxrules += global.maxrule[tag];
     maxrules += global.maxrule[tag] - UGMAXRULE(tag);
@@ -1176,10 +1161,10 @@ static INT ExtractRules (MULTIGRID *mg)
                                          global.maxrules*sizeof(HRULE*),NOOBJ);
     if (global.hrule[0]==NULL)
       REP_ERR_RETURN(1);
-    for (tag=1; tag<TAGS; tag++)
+    for (int tag = 1; tag < TAGS; tag++)
       global.hrule[tag] = global.hrule[tag-1]+global.maxrule[tag-1];
 
-    for (h=0; h<HASH_SIZE; h++)
+    for (int h = 0; h < HASH_SIZE; h++)
     {
       int list_len = 0;
       HRULE *hr;
@@ -1231,26 +1216,23 @@ static INT ExtractRules (MULTIGRID *mg)
 
 static void FindPathForNeighbours (MGIO_RR_RULE *rule, SHORT myID, SHORT Status[MAX_SONS])
 {
-  SHORT i,nbID;
-
-  for (i=0; i<MAX_SIDES_OF_ELEM; i++)
-    if (((nbID=rule->sons[myID].nb[i])<FATHER_SIDE_OFFSET) && (Status[nbID]==NB_NOTDONE))
+  for (SHORT i = 0; i < MAX_SIDES_OF_ELEM; i++) {
+    SHORT nbID = rule->sons[myID].nb[i];
+    if ((nbID < FATHER_SIDE_OFFSET) && (Status[nbID] == NB_NOTDONE))
     {
-      INT nbPath;
-      SHORT nbPathDepth;
-
       /* copy myPath to nbPath */
-      nbPath = rule->sons[myID].path;
+      INT nbPath = rule->sons[myID].path;
 
       /* complete nbPath */
-      nbPathDepth = PATHDEPTH(nbPath);
+      SHORT nbPathDepth = PATHDEPTH(nbPath);
       SETNEXTSIDE(nbPath,nbPathDepth,i);
       SETPATHDEPTH(nbPath,++nbPathDepth);
       Status[nbID] = NB_TOUCHED;
     }
+  }
 
   /* recursive call for NB_TOUCHED sons */
-  for (nbID=1; nbID<rule->nsons; nbID++)
+  for (SHORT nbID = 1; nbID < rule->nsons; nbID++)
     if (Status[nbID]==NB_TOUCHED)
     {
       Status[nbID] = NB_DONE;
@@ -1280,7 +1262,6 @@ static void FindPathForNeighbours (MGIO_RR_RULE *rule, SHORT myID, SHORT Status[
 static void FillSonPaths (MGIO_RR_RULE *rule)
 {
   SHORT Status[MAX_SONS];
-  int i;
 
   /* TODO (HRR 971211): debug recursive path construction
      (taken from GenerateRules but not used by ugio) */
@@ -1288,7 +1269,7 @@ static void FillSonPaths (MGIO_RR_RULE *rule)
   /* son 0 has trivial path */
   Status[0] = NB_DONE;
   rule->sons[0].path = 0;
-  for (i=1; i<rule->nsons; i++)
+  for (int i = 1; i < rule->nsons; i++)
     Status[i] = NB_NOTDONE;
 
   /* start recursion with son 0 */
@@ -1323,13 +1304,12 @@ static bool GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SID
   int coe = CORNERS_OF_TAG(tag);
   int eoe = EDGES_OF_TAG(tag);
   int soe = SIDES_OF_TAG(tag);
-  int co,side;
 
-  for (co=0; co<n; co++)
-    for (side=0; side<soe; side++)
+  for (int co = 0; co < n; co++)
+    for (int side = 0; side < soe; side++)
       corner_on_side[co][side] = false;
 
-  for (co=0; co<n; co++)
+  for (int co = 0; co < n; co++)
     if (corners[co]==coe+CENTER_NODE_INDEX_TAG(tag))
     {
       /* center node: can not be part of a father side */
@@ -1340,7 +1320,7 @@ static bool GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SID
       /* father corner */
       int fco = corners[co];
 
-      for (side=0; side<soe; side++)
+      for (int side = 0; side < soe; side++)
         if (CORNER_OF_SIDE_INV_TAG(tag,side,fco)>=0)
           corner_on_side[co][side] = true;
     }
@@ -1352,8 +1332,7 @@ static bool GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SID
                         #ifdef UG_DIM_2
       corner_on_side[co][ed] = true;
                         #else
-      int i;
-      for (i=0; i<MAX_SIDES_OF_EDGE; i++)
+      for (int i = 0; i < MAX_SIDES_OF_EDGE; i++)
       {
         int sd = SIDE_WITH_EDGE_TAG(tag,ed,i);
         if (sd>=0)
@@ -1399,11 +1378,10 @@ static bool GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SID
 
 static INT GetCommonFSide (int nco, int nsi, SHORT corner_on_side[MAX_CORNERS_OF_SIDE][MAX_SIDES_OF_ELEM])
 {
-  int i,side;
-
-  for (side=0; side<nsi; side++)
+  for (int side = 0; side < nsi; side++)
   {
-    for (i=0; i<nco; i++)
+    int i;
+    for (i = 0; i < nco; i++)
       if (!corner_on_side[i][side])
         break;
     if (i>=nco)
@@ -1476,15 +1454,12 @@ static bool IsOnFatherSide (int tag, int nsco, SHORT sco[], SHORT *nb)
 
 static bool SidesMatch (int nsco, SHORT sco0[], SHORT sco1[])
 {
-  int i;
-
   /* try each permutation of first with reverse order of second */
-  for (i=0; i<nsco; i++)
+  for (int i = 0; i < nsco; i++)
   {
     int match = true;
-    int j;
 
-    for (j=0; j<nsco; j++)
+    for (int j = 0; j < nsco; j++)
       if (sco0[(i+j)%nsco]!=sco1[nsco-j-1])
       {
         match = false;
@@ -1519,18 +1494,17 @@ static bool SidesMatch (int nsco, SHORT sco0[], SHORT sco1[])
 static void HRule2Mrule (const HRULE *hr, MGIO_RR_RULE *mr)
 {
   int coe = CORNERS_OF_TAG(HR_TAG(hr));
-  int s,s0;
 
   /* extracted rules are always irregular */
   /* TODO (HRR 971208): is that really ok (actually not used)? */
   mr->rclass = GREEN_CLASS;
   mr->nsons = HR_NSONS(hr);
 
-  {int i; for (i=0; i<MGIO_MAX_NEW_CORNERS; i++)
-     mr->pattern[i] = 0;}
+  for (int i = 0; i < MGIO_MAX_NEW_CORNERS; i++)
+     mr->pattern[i] = 0;
 
   /* son tags, corners, sonandnode, pattern */
-  for (s=0; s<mr->nsons; s++)
+  for (int s = 0; s < mr->nsons; s++)
   {
     struct mgio_sondata *sonData = &(mr->sons[s]);
     int nco = HR_NCO(hr,s);
@@ -1557,33 +1531,30 @@ static void HRule2Mrule (const HRULE *hr, MGIO_RR_RULE *mr)
   }
 
   /* son nb */
-  for (s0=0; s0<mr->nsons; s0++)
+  for (int s0 = 0; s0 < mr->nsons; s0++)
   {
     struct mgio_sondata *sonData0 = mr->sons+s0;
-    int sd0;
 
-    for (sd0=0; sd0<MAX_SIDES_OF_ELEM; sd0++)
+    for (int sd0 = 0; sd0 < MAX_SIDES_OF_ELEM; sd0++)
       if (sonData0->nb[sd0] == NOTDONE)
       {
         int stag0 = sonData0->tag;
         int nsco0 = CORNERS_OF_SIDE_TAG(stag0,sd0);
         SHORT sco0[MAX_CORNERS_OF_SIDE];
 
-        {int j; for (j=0; j<nsco0; j++)
-           sco0[j] = sonData0->corners[CORNER_OF_SIDE_TAG(stag0,sd0,j)];}
+        for (int j = 0; j < nsco0; j++)
+           sco0[j] = sonData0->corners[CORNER_OF_SIDE_TAG(stag0,sd0,j)];
 
         if (!IsOnFatherSide(HR_TAG(hr),nsco0,sco0,&(sonData0->nb[sd0])))
         {
           bool found = false;
-          int s1;
 
           /* find matching side of other son */
-          for (s1=s0+1; s1<mr->nsons; s1++)
+          for (int s1 = s0+1; s1 < mr->nsons; s1++)
           {
             struct mgio_sondata *sonData1 = mr->sons+s1;
-            int sd1;
 
-            for (sd1=0; sd1<MAX_SIDES_OF_ELEM; sd1++)
+            for (int sd1 = 0; sd1 < MAX_SIDES_OF_ELEM; sd1++)
             {
               int stag1 = sonData1->tag;
               int nsco1 = CORNERS_OF_SIDE_TAG(stag1,sd1);
@@ -1643,25 +1614,23 @@ static void HRule2Mrule (const HRULE *hr, MGIO_RR_RULE *mr)
 
 static void URule2Mrule (const URULE *ur, MGIO_RR_RULE *mr)
 {
-  int j,k;
-
   mr->rclass = ur->rclass;
   mr->nsons = ur->nsons;
-  for (j=0; j<MGIO_MAX_NEW_CORNERS; j++)
+  for (int j = 0; j < MGIO_MAX_NEW_CORNERS; j++)
     mr->pattern[j] = ur->pattern[j];
-  for (j=0; j<MGIO_MAX_NEW_CORNERS; j++)
+  for (int j = 0; j < MGIO_MAX_NEW_CORNERS; j++)
   {
     mr->sonandnode[j][0] = ur->sonandnode[j][0];
     mr->sonandnode[j][1] = ur->sonandnode[j][1];
   }
-  for (j=0; j<mr->nsons; j++)
+  for (int j = 0; j < mr->nsons; j++)
   {
     struct mgio_sondata *sonData = &(mr->sons[j]);
 
     sonData->tag = ur->sons[j].tag;
-    for (k=0; k<MGIO_MAX_CORNERS_OF_ELEM; k++)
+    for (int k = 0; k < MGIO_MAX_CORNERS_OF_ELEM; k++)
       sonData->corners[k] = ur->sons[j].corners[k];
-    for (k=0; k<MGIO_MAX_SIDES_OF_ELEM; k++)
+    for (int k = 0; k < MGIO_MAX_SIDES_OF_ELEM; k++)
       sonData->nb[k] = ur->sons[j].nb[k];
     sonData->path = ur->sons[j].path;
   }
@@ -1672,12 +1641,11 @@ static void WriteDebugInfo (void)
   long N_rm=0,N_er=0;
   long Nelem_inspected = 0;
   long Nelem_not_inspected = 0;
-  int tag;
 
   /* number of rules (rm+er) */
   PrintDebug("------------- Write_RefRules statistics --------------\n");
   PrintDebug("number of refrules:\n");
-  for (tag=0; tag<TAGS; tag++)
+  for (int tag = 0; tag < TAGS; tag++)
   {
     long n_rm = UGMAXRULE(tag);
     long n_er = global.maxrule[tag]-UGMAXRULE(tag);
@@ -1703,16 +1671,15 @@ static void WriteDebugInfo (void)
 
 INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NODE **NodeContext, ELEMENT **SonList, INT *nmax)
 {
-  INT i,j,k,l,found;
   ELEMENT *NonorderedSonList[MAX_SONS];
 
   *nmax = 0;
 
   if (GetAllSons(theElement,NonorderedSonList)) REP_ERR_RETURN(1);
-  for (i=0; i<theRule->nsons; i++)
+  for (INT i = 0; i < theRule->nsons; i++)
   {
-    found=1;
-    for (j=0; j<CORNERS_OF_TAG(theRule->sons[i].tag); j++)
+    INT found = 1;
+    for (INT j = 0; j < CORNERS_OF_TAG(theRule->sons[i].tag); j++)
       if (NodeContext[theRule->sons[i].corners[j]] == NULL)
       {
         found=0;
@@ -1725,13 +1692,13 @@ INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NO
     }
 
     /* identify (hopefully) an element of SonList */
-    for (j=0; NonorderedSonList[j]!=NULL; j++)
+    for (INT j = 0; NonorderedSonList[j] != NULL; j++)
     {
       found=0;
-      for (l=0; l<CORNERS_OF_TAG(theRule->sons[i].tag); l++)
+      for (INT l = 0; l < CORNERS_OF_TAG(theRule->sons[i].tag); l++)
       {
         const NODE *theNode = NodeContext[theRule->sons[i].corners[l]];
-        for (k=0; k<CORNERS_OF_ELEM(NonorderedSonList[j]); k++)
+        for (INT k = 0; k < CORNERS_OF_ELEM(NonorderedSonList[j]); k++)
           if (theNode==CORNER(NonorderedSonList[j],k))
           {
             found++;
@@ -1756,15 +1723,13 @@ static int CheckNBrelations (MGIO_RR_RULE *mr, int rule, int tag)
 {
   int n = mr->nsons;
   int err=0;
-  int s;
 
-  for (s=0; s<n; s++)
+  for (int s = 0; s < n; s++)
   {
     struct mgio_sondata *son = &(mr->sons[s]);
     int ns = SIDES_OF_TAG(son->tag);
-    int i;
 
-    for (i=0; i<ns; i++)
+    for (int i = 0; i < ns; i++)
     {
       int nb = son->nb[i];
       if (nb<FATHER_SIDE_OFFSET)
@@ -1789,13 +1754,10 @@ static int CheckNBrelations (MGIO_RR_RULE *mr, int rule, int tag)
 
 static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrules)
 {
-  ELEMENT *elem;
-  int l;
   int max_path_depth = 0;
   int use_bug_in_rule = true;
   short *bug_in_rule[TAGS];
   INT MarkKey;
-  int tg;
 
   if (MarkTmpMem(global.heap,&MarkKey))
     use_bug_in_rule = false;
@@ -1806,28 +1768,26 @@ static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrule
       use_bug_in_rule = false;
     else
     {
-      int t,i;
-      for (t=0; t<TAGS; t++)
+      for (int t = 0; t < TAGS; t++)
       {
         bug_in_rule[t] = bug_in_rule[0] + RefRuleOffset[t];
-        for (i=0; i<global.maxrule[t]; i++)
+        for (int i = 0; i < global.maxrule[t]; i++)
           bug_in_rule[t][i] = false;
       }
     }
   }
 
   /* check symmetry of nb relations */
-  for (tg=0; tg<TAGS; tg++)
+  for (int tg = 0; tg < TAGS; tg++)
   {
-    int i;
-    for (i=0; i<global.maxrule[tg]; i++)
+    for (int i = 0; i < global.maxrule[tg]; i++)
       if (CheckNBrelations(mrules+RefRuleOffset[tg]+i,i,tg))
         if (use_bug_in_rule)
           bug_in_rule[tg][i] = true;
   }
 
-  for (l=0; l<TOPLEVEL(mg); l++)
-    for (elem=PFIRSTELEMENT(GRID_ON_LEVEL(mg,l)); elem!=NULL; elem=SUCCE(elem))
+  for (int l = 0; l < TOPLEVEL(mg); l++)
+    for (ELEMENT *elem = PFIRSTELEMENT(GRID_ON_LEVEL(mg,l )); elem != NULL; elem = SUCCE(elem))
       if (NSONS(elem)>0)
       {
         int refi                        = REFINE(elem);
@@ -1842,7 +1802,6 @@ static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrule
         INT maxsonex            = 0;
         ELEMENT *sons[MAX_SONS];
         int error = 0;
-        int s,i;
 
         /* check nsons */
         if (NSONS(elem)!=nsons)
@@ -1852,7 +1811,7 @@ static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrule
           ASSERT(false);
 
         /* check pattern */
-        for (i=0; i<MAX_NEW_CORNERS_DIM; i++)
+        for (int i = 0; i < MAX_NEW_CORNERS_DIM; i++)
           if (mr->pattern[i])
           {
                                                 #ifndef ModelP
@@ -1873,7 +1832,7 @@ static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrule
         if (maxsonex!=nsons)
           PD_ERR(ER_DBG_RULE_VERBOSE,("ERROR in CheckMRules, elem %ld: wrong number of sons (%d vs %d)\n",id,maxsonex,nsons),error);
                                 #endif
-        for (s=0; s<maxsonex; s++)
+        for (int s = 0; s < maxsonex; s++)
         {
           ELEMENT *son = sons[s];
           if (son!=NULL)
@@ -1881,18 +1840,17 @@ static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrule
             struct mgio_sondata *rson = &(mr->sons[s]);
             int nco = CORNERS_OF_ELEM(son);
             int nsi = SIDES_OF_ELEM(son);
-            int co,si;
 
             if (rson->tag!=TAG(son))
               PD_ERR(ER_DBG_RULE_VERBOSE,("ERROR in CheckMRules, elem %ld: wrong tag of son %d (%d vs %d)\n",id,s,rson->tag,TAG(son)),error);
 
             /* check corners */
-            for (co=0; co<nco; co++)
+            for (int co = 0; co < nco; co++)
               if (CORNER(son,co)!=nodes[rson->corners[co]])
                 PD_ERR(ER_DBG_RULE_VERBOSE,("ERROR in CheckMRules, elem %ld: corner %d of son %d inconsistent\n",id,co,s),error);
 
             /* check neighbours */
-            for (si=0; si<nsi; si++)
+            for (int si = 0; si < nsi; si++)
             {
               const ELEMENT *nb = NBELEM(son,si);
               if (nb!=NULL)
@@ -1994,12 +1952,10 @@ static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrule
 
   if (use_bug_in_rule)
   {
-    int t,i;
-
     PrintDebug("--------------- CheckMRules: rules with bugs ---------------\n");
 
-    for (t=0; t<TAGS; t++)
-      for (i=0; i<global.maxrule[t]; i++)
+    for (int t = 0; t < TAGS; t++)
+      for (int i = 0; i < global.maxrule[t]; i++)
         if (bug_in_rule[t][i])
         {
           PrintDebug("-- rule %4d of %d\n",i,t);
@@ -2047,7 +2003,6 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
   MGIO_RR_GENERAL rr_general;
   MGIO_RR_RULE *mrule;
   INT BotMarkKey;
-  int tag;
 
   if (mg==NULL)
     REP_ERR_RETURN(1);
@@ -2059,7 +2014,7 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
   /* init rule counters (continue with last rule IDs of rm) */
   /* TODO (HRR 971207): this is important for matching existing rules after loading a grid (coarsening)
                                             but CAUTION: refine should never address a rule beyond rm rules! */
-  for (tag=0; tag<TAGS; tag++)
+  for (int tag = 0; tag < TAGS; tag++)
     global.maxrule[tag] = UGMAXRULE(tag);
 
         #if (defined UG_DIM_3) || (defined __DEBUG_ER__)
@@ -2069,12 +2024,12 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
         #endif
 
   global.maxrules = 0;
-  for (tag=0; tag<TAGS; tag++)
+  for (int tag = 0; tag < TAGS; tag++)
     global.maxrules += global.maxrule[tag];
 
   /* write refrules general */
   RefRuleOffset[0] = 0;
-  for (tag=0; tag<TAGS; tag++)
+  for (int tag = 0; tag < TAGS; tag++)
   {
     if (tag>0) RefRuleOffset[tag] = RefRuleOffset[tag-1] + global.maxrule[tag-1];
     rr_general.RefRuleOffset[tag] = RefRuleOffset[tag];
@@ -2090,7 +2045,7 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
 
   /* write refrules */
   mrule = *mrule_handle;
-  for (tag=0; tag<TAGS; tag++)
+  for (int tag = 0; tag < TAGS; tag++)
   {
     int i;
 
@@ -2149,14 +2104,13 @@ INT NS_DIM_PREFIX NEW_Write_RefRules (MULTIGRID *mg, INT RefRuleOffset[], INT Ma
 
 INT NS_DIM_PREFIX ResetRefineTagsBeyondRuleManager (MULTIGRID *mg)
 {
-  ELEMENT *elem;
 #ifdef Debug
   int n = 0;
 #endif
 
   /** \todo (HRR 971211): don't include TOPLEVEL (no elem refined there) */
   for (int l=0; l<=TOPLEVEL(mg); l++)
-    for (elem=PFIRSTELEMENT(GRID_ON_LEVEL(mg,l)); elem!=NULL; elem=SUCCE(elem))
+    for (ELEMENT *elem = PFIRSTELEMENT(GRID_ON_LEVEL(mg, l)); elem != NULL; elem = SUCCE(elem))
       if (BEYOND_UG_RULES(elem))
       {
         SETREFINE(elem,COPY);
