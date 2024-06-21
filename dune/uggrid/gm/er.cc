@@ -679,7 +679,7 @@ static INT ExtractERule (ELEMENT *elem, ERULE *er)
     ER_NCO(er,s) = coe;
     for (j=0; j<coe; j++)
     {
-      NODE *node = CORNER(son,j);
+      const NODE *node = CORNER(son,j);
 
       for (k=0; k<MAX_REFINED_CORNERS_DIM; k++)
         if (node==nodes[k])
@@ -1705,7 +1705,6 @@ INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NO
 {
   INT i,j,k,l,found;
   ELEMENT *NonorderedSonList[MAX_SONS];
-  NODE *theNode;
 
   *nmax = 0;
 
@@ -1731,7 +1730,7 @@ INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NO
       found=0;
       for (l=0; l<CORNERS_OF_TAG(theRule->sons[i].tag); l++)
       {
-        theNode = NodeContext[theRule->sons[i].corners[l]];
+        const NODE *theNode = NodeContext[theRule->sons[i].corners[l]];
         for (k=0; k<CORNERS_OF_ELEM(NonorderedSonList[j]); k++)
           if (theNode==CORNER(NonorderedSonList[j],k))
           {
@@ -1770,7 +1769,7 @@ static int CheckNBrelations (MGIO_RR_RULE *mr, int rule, int tag)
       int nb = son->nb[i];
       if (nb<FATHER_SIDE_OFFSET)
       {
-        struct mgio_sondata *nbson = &(mr->sons[nb]);
+        const struct mgio_sondata *nbson = &(mr->sons[nb]);
         int nnbs = SIDES_OF_TAG(nbson->tag);
         int j;
 
@@ -1895,10 +1894,10 @@ static void CheckMRules (MULTIGRID *mg, INT RefRuleOffset[], MGIO_RR_RULE *mrule
             /* check neighbours */
             for (si=0; si<nsi; si++)
             {
-              ELEMENT *nb = NBELEM(son,si);
+              const ELEMENT *nb = NBELEM(son,si);
               if (nb!=NULL)
               {
-                ELEMENT *nbf = EFATHER(nb);
+                const ELEMENT *nbf = EFATHER(nb);
 
                 if (nbf==elem)
                 {
