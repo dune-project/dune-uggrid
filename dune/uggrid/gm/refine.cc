@@ -66,6 +66,7 @@
 #include <cstring>
 
 #include <algorithm>
+#include <array>
 
 /* low module */
 #include <dune/uggrid/low/debug.h>
@@ -433,27 +434,24 @@ INT NS_DIM_PREFIX SetRefineInfo (MULTIGRID *theMG)
 
 static INT DropMarks (MULTIGRID *theMG)
 {
-  INT k, Mark;
-  GRID *theGrid;
-  ELEMENT *theElement, *FatherElement;
-
   return(GM_OK);
 
-  for (k=TOPLEVEL(theMG); k>0; k--)
+  for (INT k = TOPLEVEL(theMG); k > 0; k--)
   {
-    theGrid = GRID_ON_LEVEL(theMG,k);
-    for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
+    const GRID *theGrid = GRID_ON_LEVEL(theMG,k);
+    for (ELEMENT *theElement = FIRSTELEMENT(theGrid);
+         theElement != NULL;
          theElement=SUCCE(theElement))
       if ((MARKCLASS(theElement) == RED_CLASS) &&
           (ECLASS(theElement) != RED_CLASS))
       {
-        Mark = MARK(theElement);
+        INT Mark = MARK(theElement);
         /** \todo marks must be changed if element type changes */
         if (TAG(theElement)!=HEXAHEDRON &&
             TAG(EFATHER(theElement))==HEXAHEDRON) Mark = HEXA_RED;
         if (TAG(theElement)!=PYRAMID &&
             TAG(EFATHER(theElement))==PYRAMID) Mark = PYR_RED;
-        FatherElement = theElement;
+        ELEMENT *FatherElement = theElement;
 
         SETMARK(FatherElement,NO_REFINEMENT);
         SETMARKCLASS(FatherElement,NO_CLASS);
@@ -2846,13 +2844,6 @@ static void CheckElementContextConsistency(ELEMENT *theElement,
 
 static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementContext)
 {
-  bool toCreate;
-        #ifdef UG_DIM_3
-  ELEMENT *theNeighbor;                         /* neighbor and a son of current elem.	*/
-  EDGE *fatherEdge;
-  INT j;
-        #endif
-
   /* reset context to NULL */
   for(INT i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
     theElementContext[i] = NULL;
@@ -2890,8 +2881,8 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
 
     if (MARKED_NEW_GREEN(theElement))
     {
-      EDGE* theEdge = GetEdge(CORNER(theElement,Corner0),
-                        CORNER(theElement,Corner1));
+      const EDGE* theEdge = GetEdge(CORNER(theElement,Corner0),
+                                    CORNER(theElement,Corner1));
       ASSERT(theEdge != NULL);
 
       if (ADDPATTERN(theEdge) == 0)
@@ -2925,9 +2916,9 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
     {
       /* we need a midpoint node */
       if (MidNodes[i]!=NULL) continue;
-      NODE* Node0 = CORNER(theElement,Corner0);
-      NODE* Node1 = CORNER(theElement,Corner1);
-      EDGE* theEdge = GetEdge(Node0,Node1);
+      const NODE* Node0 = CORNER(theElement,Corner0);
+      const NODE* Node1 = CORNER(theElement,Corner1);
+      const EDGE* theEdge = GetEdge(Node0,Node1);
       if (theEdge == nullptr)
         RETURN(GM_FATAL);
       MidNodes[i] = MIDNODE(theEdge);
@@ -2963,18 +2954,18 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
     if (CORNERS_OF_SIDE(theElement,i) == 3) continue;
 #endif
 
-    toCreate = false;
+    bool toCreate = false;
     /* is side node needed */
     if (MARKED_NEW_GREEN(theElement))
     {
-      theNeighbor = NBELEM(theElement,i);
+      const ELEMENT *theNeighbor = NBELEM(theElement,i);
 
       if (theNeighbor!=NULL)
       {
         if (MARKCLASS(theNeighbor)!=GREEN_CLASS &&
             MARKCLASS(theNeighbor)!=YELLOW_CLASS)
         {
-
+          INT j;
           for (j=0; j<SIDES_OF_ELEM(theNeighbor); j++)
           {
             if (NBELEM(theNeighbor,j) == theElement) break;
@@ -3004,9 +2995,8 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
     if (SideNodes[i] != NULL)
       if (START(SideNodes[i])!=NULL)
       {
-        LINK *sidelink;
         UserWriteF("\n NO_OF_ELEM of EDGES:");
-        for (sidelink=START(SideNodes[i]);
+        for (LINK *sidelink = START(SideNodes[i]);
              sidelink!=NULL;
              sidelink=NEXT(sidelink))
         {
@@ -3019,8 +3009,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
 
     if (toCreate)
     {
-
-      theNeighbor = NBELEM(theElement,i);
+      const ELEMENT *theNeighbor = NBELEM(theElement,i);
 
       IFDEBUG(gm,1)
       if (theNeighbor != NULL)
@@ -3065,13 +3054,12 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
 
       IFDEBUG(gm,0)
       ASSERT(SideNodes[i]!=NULL);
-      for (j=0; j<EDGES_OF_SIDE(theElement,i); j++)
+      for (INT j = 0; j < EDGES_OF_SIDE(theElement,i); j++)
       {
+        const EDGE *fatherEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),0),
+                                         CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),1));
 
-        fatherEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),0),
-                             CORNER_OF_EDGE_PTR(theElement,EDGE_OF_SIDE(theElement,i,j),1));
-
-        [[maybe_unused]] NODE* Node0 = MIDNODE(fatherEdge);
+        [[maybe_unused]] const NODE* Node0 = MIDNODE(fatherEdge);
 
         /* if side node exists all mid nodes must exist */
         ASSERT(Node0 != NULL);
@@ -3092,7 +3080,7 @@ static int UpdateContext (GRID *theGrid, ELEMENT *theElement, NODE **theElementC
   NODE** CenterNode = MidNodes+CENTER_NODE_INDEX(theElement);
   CenterNode[0] = NULL;
 
-  toCreate = false;
+  bool toCreate = false;
   if (CenterNode[0] == NULL)
   {
 
@@ -3379,12 +3367,10 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
                                            INT NeedSons, INT ioflag,
                                            INT useRefineClass)
 {
-  INT i,j,nsons;
   enum MarkClass markclass;
 
   /* reset soncount */
   *Sons_of_Side = 0;
-  nsons = 0;
 
   /* get sons of element */
   if (NeedSons)
@@ -3397,7 +3383,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
              ID(theElement),TAG(theElement),REFINECLASS(theElement),MARKCLASS(theElement),
              REFINE(theElement),MARK(theElement),COARSEN(theElement),
              USED(theElement),NSONS(theElement),side,NeedSons);
-  for (i=0; SonList[i]!=NULL; i++)
+  for (INT i = 0; SonList[i] != NULL; i++)
     UserWriteF("   son[%d]=" EID_FMTX "\n",i,EID_PRTX(SonList[i]));
   ENDDEBUG
 
@@ -3437,8 +3423,8 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
   {
     /* determine sonnodes of side */
     NODE *SideNodes[MAX_SIDE_NODES];
-    INT corner[MAX_CORNERS_OF_SIDE];
-    INT n,nodes;
+    INT nodes;
+    INT nsons = 0;
 
     /* determine nodes of sons on side of element */
     GetSonSideNodes(theElement,side,&nodes,SideNodes,ioflag);
@@ -3448,9 +3434,9 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
 
     IFDEBUG(gm,3)
     UserWriteF("After qsort:\n");
-    for (i=0; i<MAX_SIDE_NODES; i++) UserWriteF(" %8d",i);
+    for (INT i = 0; i < MAX_SIDE_NODES; i++) UserWriteF(" %8d",i);
     UserWriteF("\n");
-    for (i=0; i<MAX_SIDE_NODES; i++)
+    for (INT i = 0; i < MAX_SIDE_NODES; i++)
       if (SideNodes[i]!=NULL) UserWriteF(" %x",SideNodes[i]);
       else UserWriteF(" %8d",0);
     UserWriteF("\n");
@@ -3458,19 +3444,18 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
 
     /* determine sonnode on side */
     /*			for (i=0; i<NSONS(theElement); i++) */
-    for (i=0; SonList[i]!=NULL; i++)
+    for (INT i = 0; SonList[i] != NULL; i++)
     {
-      n = 0;
-
-      for (j=0; j<MAX_CORNERS_OF_SIDE; j++)
-        corner[j] = -1;
+      INT n = 0;
+      std::array<INT,MAX_CORNERS_OF_SIDE> corner;
+      std::fill(corner.begin(), corner.end(), -1);
 
       IFDEBUG(gm,4)
       UserWriteF("son=%d\n",i);
       ENDDEBUG
 
       /* soncorners on side */
-      for (j=0; j<CORNERS_OF_ELEM(SonList[i]); j++)
+      for (INT j = 0; j < CORNERS_OF_ELEM(SonList[i]); j++)
       {
         NODE *nd = CORNER(SonList[i],j);
         if (std::binary_search(SideNodes, SideNodes + nodes, nd, compare_node))
@@ -3483,7 +3468,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
 
       IFDEBUG(gm,4)
       UserWriteF("\n nodes on side n=%d:",n);
-      for (j=0; j<MAX_CORNERS_OF_SIDE; j++)
+      for (INT j = 0; j < MAX_CORNERS_OF_SIDE; j++)
         UserWriteF(" %d",corner[j]);
       ENDDEBUG
 
@@ -3513,12 +3498,9 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
                                 #ifdef UG_DIM_3
       if (n==3 || n==4)
       {
-        INT edge0,edge1,sonside,side0,side1;
-
         /* determine side number */
-        edge0 = edge1 = -1;
-        edge0 = EDGE_WITH_CORNERS(SonList[i],corner[0],corner[1]);
-        edge1 = EDGE_WITH_CORNERS(SonList[i],corner[1],corner[2]);
+        INT edge0 = EDGE_WITH_CORNERS(SonList[i],corner[0],corner[1]);
+        INT edge1 = EDGE_WITH_CORNERS(SonList[i],corner[1],corner[2]);
         /* corners are not stored in local side numbering,      */
         /* therefore corner[x]-corner[y] might be the diagonal  */
         if (n==4 && edge0==-1)
@@ -3529,10 +3511,10 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
                                     corner[3]);
         assert(edge0!=-1 && edge1!=-1);
 
-        sonside = -1;
-        for (side0=0; side0<MAX_SIDES_OF_EDGE; side0++)
+        INT sonside = -1;
+        for (INT side0 = 0; side0 < MAX_SIDES_OF_EDGE; side0++)
         {
-          for (side1=0; side1<MAX_SIDES_OF_EDGE; side1++)
+          for (INT side1 = 0; side1 < MAX_SIDES_OF_EDGE; side1++)
           {
             IFDEBUG(gm,5)
             UserWriteF("edge0=%d side0=%d SIDE_WITH_EDGE=%d\n",
@@ -3558,12 +3540,10 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
         ENDDEBUG
 
         IFDEBUG(gm,3)
-        INT k;
-        ELEMENT *Nb;
 
-        for (k=0; k<SIDES_OF_ELEM(SonList[i]); k++)
+        for (INT k = 0; k < SIDES_OF_ELEM(SonList[i]); k++)
         {
-          Nb = NBELEM(SonList[i],k);
+          const ELEMENT *Nb = NBELEM(SonList[i],k);
           if (Nb!=NULL)
           {
             INT j;
@@ -3608,12 +3588,13 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
        #endif
      */
     {
-      for (i=0; SonList[i]!=NULL; i++)
+      INT nsons = 0;
+      for (INT i = 0; SonList[i] != NULL; i++)
       {
         SONDATA *sondata = SON_OF_RULE(MARK2RULEADR(theElement,
                                            MARK(theElement)),i);
 
-        for (j=0; j<SIDES_OF_ELEM(SonList[i]); j++)
+        for (INT j = 0; j < SIDES_OF_ELEM(SonList[i]); j++)
           if (SON_NB(sondata,j) == FATHER_SIDE_OFFSET+side)
           {
             SonSides[nsons] = j;
@@ -3632,13 +3613,13 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
         #ifdef ModelP
   IFDEBUG(gm,4)
   UserWriteF("Sons_of_Side=%d\n",*Sons_of_Side);
-  for (i=0; i<*Sons_of_Side; i++)
+  for (INT i = 0; i < *Sons_of_Side; i++)
     UserWriteF("son[%d]=" EID_FMTX " sonside[%d]=%d\n",i,
                EID_PRTX(SonList[i]),i,SonSides[i]);
   ENDDEBUG
         #endif
 
-  for (i=*Sons_of_Side; i<MAX_SONS; i++)
+  for (INT i = *Sons_of_Side; i < MAX_SONS; i++)
     SonList[i] = NULL;
 
   return(GM_OK);
@@ -3725,17 +3706,14 @@ static INT Sort_Node_Ptr (INT n,NODE **nodes)
 static INT      Fill_Comp_Table (COMPARE_RECORD **SortTable, COMPARE_RECORD *Table, INT nelems,
                                  ELEMENT **Elements, INT *Sides)
 {
-  COMPARE_RECORD *Entry;
-  INT i,j;
-
-  for (i=0; i<nelems; i++)
+  for (INT i = 0; i < nelems; i++)
   {
     SortTable[i] = Table+i;
-    Entry = Table+i;
+    COMPARE_RECORD *Entry = Table+i;
     Entry->elem = Elements[i];
     Entry->side = Sides[i];
     Entry->nodes = CORNERS_OF_SIDE(Entry->elem,Entry->side);
-    for (j=0; j<CORNERS_OF_SIDE(Entry->elem,Entry->side); j++)
+    for (INT j = 0; j < CORNERS_OF_SIDE(Entry->elem, Entry->side); j++)
       Entry->nodeptr[j] = CORNER_OF_SIDE_PTR(Entry->elem,Entry->side,j);
     if (Sort_Node_Ptr(Entry->nodes,Entry->nodeptr)!=GM_OK) RETURN(GM_FATAL);
   }
@@ -4364,7 +4342,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[pyrSideNode1Node2] = sides[1];
           sons[nelem].nb[pyrSideNode2Node3] = sides[2];
           sons[nelem].nb[pyrSideNode0Node3] = sides[3];
-          nelem++;
 
           break;
 
@@ -4404,7 +4381,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
               sons[nelem].nb[tetSideNode0Node1] = nelem-2;
               sons[nelem].nb[tetSideNode1Node2] = sides[(j+2)%nedges];
               sons[nelem].nb[tetSideNode0Node2] = nelem-1;
-              nelem++;
 
               break;
             }
@@ -4465,7 +4441,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[tetSideNode0Node1] = nelem-3;
             sons[nelem].nb[tetSideNode1Node2] = nelem-1;
             sons[nelem].nb[tetSideNode0Node2] = nelem-2;
-            nelem++;
           }
           else
           {
@@ -4491,7 +4466,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[pyrSideNode1Node2] = sides[(j+3)%nedges];
             sons[nelem].nb[pyrSideNode2Node3] = sides[(j)%nedges];
             sons[nelem].nb[pyrSideNode0Node3] = nelem-1;
-            nelem++;
           }
           break;
 
@@ -4543,7 +4517,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[tetSideNode0Node1] = nelem-2;
           sons[nelem].nb[tetSideNode1Node2] = nelem-1;
           sons[nelem].nb[tetSideNode0Node2] = nelem-3;
-          nelem++;
 
           break;
 
@@ -4573,7 +4546,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[pyrSideNode1Node2] = nelem-3;
           sons[nelem].nb[pyrSideNode2Node3] = nelem-2;
           sons[nelem].nb[pyrSideNode0Node3] = nelem-1;
-          nelem++;
           break;
 
         default :
@@ -4626,7 +4598,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[tetSideNode0Node1] = sides[0];
           sons[nelem].nb[tetSideNode1Node2] = sides[1];
           sons[nelem].nb[tetSideNode0Node2] = sides[2];
-          nelem++;
 
           break;
 
@@ -4656,7 +4627,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
               sons[nelem].nb[tetSideNode0Node1] = nelem-1;
               sons[nelem].nb[tetSideNode1Node2] = sides[(j+2)%nedges];
               sons[nelem].nb[tetSideNode0Node2] = sides[j];
-              nelem++;
 
               break;
             }
@@ -4728,8 +4698,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[tetSideNode0Node1] = nelem-2;
             sons[nelem].nb[tetSideNode1Node2] = sides[(j+2)%nedges];
             sons[nelem].nb[tetSideNode0Node2] = nelem-1;
-            nelem++;
-
           }
           else
           {
@@ -4761,8 +4729,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[tetSideNode0Node1] = nelem-2;
             sons[nelem].nb[tetSideNode1Node2] = sides[(j+2)%nedges];
             sons[nelem].nb[tetSideNode0Node2] = sides[j];
-            nelem++;
-
           }
 
           break;
@@ -4809,7 +4775,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
           sons[nelem].nb[tetSideNode0Node1] = nelem-3;
           sons[nelem].nb[tetSideNode1Node2] = nelem-1;
           sons[nelem].nb[tetSideNode0Node2] = nelem-2;
-          nelem++;
 
           break;
 
@@ -4843,8 +4808,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
             sons[nelem].nb[pyrSideNode0Node3] = nelem+2;
           else
             sons[nelem].nb[pyrSideNode0Node3] = nelem-1;
-          nelem++;
-
         }
         ASSERT(j==nedges);
       }
