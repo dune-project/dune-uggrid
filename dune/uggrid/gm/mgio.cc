@@ -552,23 +552,21 @@ int NS_DIM_PREFIX Read_GE_Elements (int n, MGIO_GE_ELEMENT *ge_element)
 
 int NS_DIM_PREFIX Write_GE_Elements (int n, MGIO_GE_ELEMENT *ge_element)
 {
-  int i,j,s;
-  MGIO_GE_ELEMENT *pge;
+  MGIO_GE_ELEMENT *pge = ge_element;
 
-  pge = ge_element;
-  for (i=0; i<n; i++)
+  for (int i = 0; i < n; i++)
   {
-    s=0;
+    int s = 0;
     intList[s++] = lge[i].tag = pge->tag;
     intList[s++] = lge[i].nCorner = pge->nCorner;
     intList[s++] = lge[i].nEdge = pge->nEdge;
     intList[s++] = lge[i].nSide = pge->nSide;
-    for (j=0; j<pge->nEdge; j++)
+    for (int j = 0; j < pge->nEdge; j++)
     {
       intList[s++] = lge[i].CornerOfEdge[j][0] = pge->CornerOfEdge[j][0];
       intList[s++] = lge[i].CornerOfEdge[j][1] = pge->CornerOfEdge[j][1];
     }
-    for (j=0; j<pge->nSide; j++)
+    for (int j = 0; j < pge->nSide; j++)
     {
       intList[s++] = lge[i].CornerOfSide[j][0] = pge->CornerOfSide[j][0];
       intList[s++] = lge[i].CornerOfSide[j][1] = pge->CornerOfSide[j][1];
@@ -607,12 +605,12 @@ int NS_DIM_PREFIX Write_GE_Elements (int n, MGIO_GE_ELEMENT *ge_element)
 
 int NS_DIM_PREFIX Read_RR_General (MGIO_RR_GENERAL *mgio_rr_general)
 {
-  int i,s;
+  if (Bio_Read_mint(1+MGIO_TAGS,intList))
+    return 1;
 
-  if (Bio_Read_mint(1+MGIO_TAGS,intList)) return (1);
-  s=0;
+  int s = 0;
   mgio_rr_general->nRules = intList[s++];
-  for (i=0; i<MGIO_TAGS; i++)
+  for (int i = 0; i < MGIO_TAGS; i++)
     mgio_rr_general->RefRuleOffset[i] = intList[s++];
 
   return (0);
@@ -642,11 +640,9 @@ int NS_DIM_PREFIX Read_RR_General (MGIO_RR_GENERAL *mgio_rr_general)
 
 int NS_DIM_PREFIX Write_RR_General (MGIO_RR_GENERAL *mgio_rr_general)
 {
-  int i,s;
-
-  s=0;
+  int s = 0;
   intList[s++] = mgio_rr_general->nRules;
-  for (i=0; i<MGIO_TAGS; i++)
+  for (int i = 0; i < MGIO_TAGS; i++)
     intList[s++] = mgio_rr_general->RefRuleOffset[i];
   if (Bio_Write_mint(s,intList)) return (1);
 
@@ -905,13 +901,10 @@ int NS_DIM_PREFIX Read_CG_Points (int n, MGIO_CG_POINT *cg_point)
 
 int NS_DIM_PREFIX Write_CG_Points (int n, MGIO_CG_POINT *cg_point)
 {
-  int i,j;
-  MGIO_CG_POINT *cgp;
-
-  for(i=0; i<n; i++)
+  for (int i = 0; i < n; i++)
   {
-    cgp = MGIO_CG_POINT_PS(cg_point,i);
-    for(j=0; j<MGIO_DIM; j++)
+    MGIO_CG_POINT *cgp = MGIO_CG_POINT_PS(cg_point,i);
+    for (int j = 0; j < MGIO_DIM; j++)
       doubleList[j] = cgp->position[j];
     if (Bio_Write_mdouble(MGIO_DIM,doubleList)) return (1);
     if (MGIO_PARFILE)
@@ -936,7 +929,6 @@ int NS_DIM_PREFIX Write_CG_Points (int n, MGIO_CG_POINT *cg_point)
 
 int NS_DIM_PREFIX Read_pinfo (int ge, MGIO_PARINFO *pinfo)
 {
-  int i,m,s,np;
 #if (MGIO_DEBUG>0)
   char buffer[28];
   static int nb=0;
@@ -951,15 +943,15 @@ int NS_DIM_PREFIX Read_pinfo (int ge, MGIO_PARINFO *pinfo)
   nb++;
 #endif
 
-  s=0;
-  m = 3+6*lge[ge].nCorner;
+  int s = 0;
+  int m = 3 + 6 * lge[ge].nCorner;
   if (Bio_Read_mint(m,intList)) return (1);
   pinfo->prio_elem = intList[s++];
   assert(pinfo->prio_elem<32);
   pinfo->ncopies_elem = intList[s++];
-  np = pinfo->ncopies_elem;
+  int np = pinfo->ncopies_elem;
   pinfo->e_ident = intList[s++];
-  for (i=0; i<lge[ge].nCorner; i++)
+  for (int i = 0; i < lge[ge].nCorner; i++)
   {
     pinfo->prio_node[i] = intList[s++];
     assert(pinfo->prio_node[i]<32);
@@ -967,7 +959,7 @@ int NS_DIM_PREFIX Read_pinfo (int ge, MGIO_PARINFO *pinfo)
     np+= pinfo->ncopies_node[i];
     pinfo->n_ident[i] = intList[s++];
   }
-  for (i=0; i<lge[ge].nCorner; i++)
+  for (int i = 0; i < lge[ge].nCorner; i++)
   {
     pinfo->prio_vertex[i] = intList[s++];
     assert(pinfo->prio_vertex[i]<32);
@@ -978,7 +970,7 @@ int NS_DIM_PREFIX Read_pinfo (int ge, MGIO_PARINFO *pinfo)
   s=0;
   m = 3*lge[ge].nEdge;
   if (Bio_Read_mint(m,intList)) return (1);
-  for (i=0; i<lge[ge].nEdge; i++)
+  for (int i = 0; i < lge[ge].nEdge; i++)
   {
     pinfo->prio_edge[i] = intList[s++];
     assert(pinfo->prio_edge[i]<32);
@@ -986,8 +978,10 @@ int NS_DIM_PREFIX Read_pinfo (int ge, MGIO_PARINFO *pinfo)
     np+= pinfo->ncopies_edge[i];
     pinfo->ed_ident[i] = intList[s++];
   }
-  if (np > 0) if (Bio_Read_mint(np,intList)) return (1);
-  for (i=0; i<np; i++)
+  if ((np > 0) && Bio_Read_mint(np,intList))
+    return 1;
+
+  for (int i = 0; i < np; i++)
   {
     pinfo->proclist[i] = intList[i];
     ASSERT(pinfo->proclist[i]<nparfiles);
@@ -1007,24 +1001,24 @@ int NS_DIM_PREFIX Read_pinfo (int ge, MGIO_PARINFO *pinfo)
 
 int NS_DIM_PREFIX Write_pinfo (int ge, MGIO_PARINFO *pinfo)
 {
-  int i,s,np;
+  int np;
 
 #if (MGIO_DEBUG>0)
   if (Bio_Write_string("PINFO_BEGIN")) return (1);
 #endif
 
-  s=0;
+  int s = 0;
   intList[s++] = pinfo->prio_elem;
   intList[s++] = np = pinfo->ncopies_elem;
   intList[s++] = pinfo->e_ident;
-  for (i=0; i<lge[ge].nCorner; i++)
+  for (int i = 0; i < lge[ge].nCorner; i++)
   {
     intList[s++] = pinfo->prio_node[i];
     intList[s++] = pinfo->ncopies_node[i];
     np+= pinfo->ncopies_node[i];
     intList[s++] = pinfo->n_ident[i];
   }
-  for (i=0; i<lge[ge].nCorner; i++)
+  for (int i = 0; i < lge[ge].nCorner; i++)
   {
     intList[s++] = pinfo->prio_vertex[i];
     intList[s++] = pinfo->ncopies_vertex[i];
@@ -1033,7 +1027,7 @@ int NS_DIM_PREFIX Write_pinfo (int ge, MGIO_PARINFO *pinfo)
   }
   if (Bio_Write_mint(s,intList)) RETURN (1);
   s=0;
-  for (i=0; i<lge[ge].nEdge; i++)
+  for (int i = 0; i<lge[ge].nEdge; i++)
   {
     intList[s++] = pinfo->prio_edge[i];
     intList[s++] = pinfo->ncopies_edge[i];
@@ -1041,12 +1035,13 @@ int NS_DIM_PREFIX Write_pinfo (int ge, MGIO_PARINFO *pinfo)
     intList[s++] = pinfo->ed_ident[i];
   }
   if (Bio_Write_mint(s,intList)) RETURN (1);
-  for (i=0; i<np; i++)
+  for (int i = 0; i < np; i++)
   {
     intList[i] = pinfo->proclist[i];
     ASSERT(intList[i]<nparfiles);
   }
-  if (np > 0) if (Bio_Write_mint(np,intList)) RETURN (1);
+  if ((np > 0) && Bio_Write_mint(np,intList))
+    return 1;
 
   return (0);
 }
@@ -1145,20 +1140,17 @@ int NS_DIM_PREFIX Read_CG_Elements (int n, MGIO_CG_ELEMENT *cg_element)
 
 int NS_DIM_PREFIX Write_CG_Elements (int n, MGIO_CG_ELEMENT *cg_element)
 {
-  int i,j,s;
-  MGIO_CG_ELEMENT *pe;
-
-  for (i=0; i<n; i++)
+  for (int i = 0; i < n; i++)
   {
-    pe = MGIO_CG_ELEMENT_PS(cg_element,i);
+    const MGIO_CG_ELEMENT *pe = MGIO_CG_ELEMENT_PS(cg_element, i);
 
     /* coarse grid part */
-    s=0;
+    int s = 0;
     intList[s++] = pe->ge;
     intList[s++] = pe->nref;
-    for (j=0; j<lge[pe->ge].nCorner; j++)
+    for (int j = 0; j < lge[pe->ge].nCorner; j++)
       intList[s++] = pe->cornerid[j];
-    for (j=0; j<lge[pe->ge].nSide; j++)
+    for (int j = 0; j < lge[pe->ge].nSide; j++)
       intList[s++] = pe->nbid[j];
     intList[s++] = pe->se_on_bnd;
     intList[s++] = pe->subdomain;
@@ -1176,9 +1168,9 @@ int NS_DIM_PREFIX Write_CG_Elements (int n, MGIO_CG_ELEMENT *cg_element)
     /* write debug extension */
     s=0;
     intList[s++] = pe->mykey;
-    for (j=0; j<lge[pe->ge].nCorner; j++)
+    for (int j = 0; j < lge[pe->ge].nCorner; j++)
       intList[s++] = pe->nodekey[j];
-    for (j=0; j<lge[pe->ge].nSide; j++)
+    for (int j = 0; j < lge[pe->ge].nSide; j++)
       intList[s++] = pe->neighborkey[j];
     if (Bio_Write_mint(s,intList)) return (1);
 #endif
@@ -1213,9 +1205,6 @@ int NS_DIM_PREFIX Write_CG_Elements (int n, MGIO_CG_ELEMENT *cg_element)
 
 int NS_DIM_PREFIX Read_Refinement (MGIO_REFINEMENT *pr, MGIO_RR_RULE *rr_rules)
 {
-  int j,k,s,tag;
-  unsigned int ctrl;
-
 #if (MGIO_DEBUG>0)
   char buffer[128];
   if (Bio_Read_string(buffer)) assert(0);                                                  /*return (1);*/
@@ -1224,7 +1213,7 @@ int NS_DIM_PREFIX Read_Refinement (MGIO_REFINEMENT *pr, MGIO_RR_RULE *rr_rules)
 #endif
 
   if (Bio_Read_mint(2,intList)) assert(0);       /*return (1);*/
-  ctrl = intList[0];
+  unsigned int ctrl = intList[0];
   pr->sonref = intList[1];
   pr->refrule = MGIO_ECTRL_RF(ctrl)-1;
   if (pr->refrule>-1)
@@ -1234,17 +1223,17 @@ int NS_DIM_PREFIX Read_Refinement (MGIO_REFINEMENT *pr, MGIO_RR_RULE *rr_rules)
     pr->refclass = MGIO_ECTRL_RC(ctrl);
     if (pr->nnewcorners+pr->nmoved>0)
       if (Bio_Read_mint(pr->nnewcorners+pr->nmoved,intList)) assert(0);                   /*return (1);*/
-    s=0;
-    for (j=0; j<pr->nnewcorners; j++)
+    int s = 0;
+    for (int j = 0; j < pr->nnewcorners; j++)
       pr->newcornerid[j] = intList[s++];
-    for (j=0; j<pr->nmoved; j++)
+    for (int j = 0; j < pr->nmoved; j++)
       pr->mvcorner[j].id = intList[s++];
     if (pr->nmoved>0)
     {
       if (Bio_Read_mdouble(MGIO_DIM*pr->nmoved,doubleList)) assert(0);                   /*return (1);*/
       s=0;
-      for (j=0; j<pr->nmoved; j++)
-        for (k=0; k<MGIO_DIM; k++)
+      for (int j = 0; j < pr->nmoved; j++)
+        for (int k = 0; k < MGIO_DIM; k++)
           pr->mvcorner[j].position[k] = doubleList[s++];
     }
   }
@@ -1252,23 +1241,25 @@ int NS_DIM_PREFIX Read_Refinement (MGIO_REFINEMENT *pr, MGIO_RR_RULE *rr_rules)
   if (MGIO_PARFILE)
   {
     pr->orphanid_ex = MGIO_ECTRL_ON(ctrl);
-    s=2; if (pr->orphanid_ex) s+= pr->nnewcorners;
+    int s = 2;
+    if (pr->orphanid_ex)
+      s += pr->nnewcorners;
     if (Bio_Read_mint(s,intList)) assert(0);             /*return (1);*/
     s=0;
     pr->sonex = intList[s++];
     pr->nbid_ex = intList[s++];
     if (pr->orphanid_ex)
-      for (j=0; j<pr->nnewcorners; j++)
+      for (int j = 0; j < pr->nnewcorners; j++)
         pr->orphanid[j] = intList[s++];
-    for (k=0; k<MGIO_MAX_SONS_OF_ELEM; k++)
+    for (int k = 0; k < MGIO_MAX_SONS_OF_ELEM; k++)
       if ((pr->sonex>>k)&1)
       {
-        tag = rr_rules[pr->refrule].sons[k].tag;
+        int tag = rr_rules[pr->refrule].sons[k].tag;
         if (Read_pinfo(tag,&pr->pinfo[k])) assert(0);                         /*return (1);*/
         if ((pr->nbid_ex>>k)&1)
         {
           if (Bio_Read_mint(lge[tag].nSide,intList)) assert(0);                               /*return (1);*/
-          for (j=0; j<lge[tag].nSide; j++)
+          for (int j = 0; j < lge[tag].nSide; j++)
             pr->nbid[k][j] = intList[j];
         }
       }
@@ -1291,8 +1282,8 @@ int NS_DIM_PREFIX Read_Refinement (MGIO_REFINEMENT *pr, MGIO_RR_RULE *rr_rules)
   assert(pr->mycorners>0);
 
   if (Bio_Read_mint(3*pr->mycorners,intList)) assert(0);   /*return (1);*/
-  s=0;
-  for (j=0; j<pr->mycorners; j++)
+  int s = 0;
+  for (int j = 0; j < pr->mycorners; j++)
   {
     pr->mycornerkey[j] = intList[s++];
     pr->mycornerfatherkey[j] = intList[s++];
@@ -1304,7 +1295,7 @@ int NS_DIM_PREFIX Read_Refinement (MGIO_REFINEMENT *pr, MGIO_RR_RULE *rr_rules)
     if (MGIO_PARFILE)
     {
       /* read sonskey[], sonsnbkey[][] and nbkey[][] */
-      for (k=0; k<MGIO_MAX_SONS_OF_ELEM; k++)
+      for (int k = 0; k < MGIO_MAX_SONS_OF_ELEM; k++)
         if ((pr->sonex>>k)&1)
         {
           tag = rr_rules[pr->refrule].sons[k].tag;
@@ -1313,7 +1304,7 @@ int NS_DIM_PREFIX Read_Refinement (MGIO_REFINEMENT *pr, MGIO_RR_RULE *rr_rules)
 
           s=0;
           pr->sonskey[k] = intList[s++];
-          for (j=0; j<lge[tag].nSide; j++)
+          for (int j = 0; j < lge[tag].nSide; j++)
             pr->sonsnbkey[k][j] = intList[s++];
         }
         else
@@ -1549,12 +1540,10 @@ int NS_DIM_PREFIX Write_BD_General (MGIO_BD_GENERAL *bd_general)
 
 int NS_DIM_PREFIX Read_PBndDesc (BVP *theBVP, HEAP *theHeap, int n, BNDP **BndPList)
 {
-  int i;
-
   if (theBVP!=NULL && theHeap==NULL) return (1);
   if (theBVP!=NULL)
   {
-    for (i=0; i<n; i++)
+    for (int i = 0; i <n; i++)
     {
       BndPList[i] = BNDP_LoadBndP (theBVP,theHeap);
       if (BndPList[i]==NULL) return (1);
@@ -1562,7 +1551,7 @@ int NS_DIM_PREFIX Read_PBndDesc (BVP *theBVP, HEAP *theHeap, int n, BNDP **BndPL
   }
   else
   {
-    for (i=0; i<n; i++)
+    for (int i = 0; i < n; i++)
     {
       BndPList[i] = BNDP_LoadBndP_Ext ();
       if (BndPList[i]==NULL) return (1);
@@ -1600,17 +1589,15 @@ int NS_DIM_PREFIX Read_PBndDesc (BVP *theBVP, HEAP *theHeap, int n, BNDP **BndPL
 
 int NS_DIM_PREFIX Write_PBndDesc (int n, BNDP **BndPList)
 {
-  int i;
-
   if (n>0)
   {
-    for (i=0; i<n; i++)
+    for (int i = 0; i < n; i++)
       if (BNDP_SaveBndP (BndPList[i])) return (1);
   }
   else
   {
     n=-n;
-    for (i=0; i<n; i++)
+    for (int i = 0; i < n; i++)
       if (BNDP_SaveBndP_Ext (BndPList[i])) return (1);
   }
   return (0);
