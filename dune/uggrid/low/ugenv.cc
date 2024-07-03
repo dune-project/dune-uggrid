@@ -29,6 +29,7 @@
 /****************************************************************************/
 
 #include <config.h>
+#include <array>
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
@@ -63,7 +64,7 @@ USING_UG_NAMESPACE
 /** \brief Path to current directory
 
    We only need the first entry to be zero-initialized. */
-static ENVDIR *path[MAXENVPATH] = {NULL};
+static std::array<ENVDIR*, MAXENVPATH> path{nullptr};
 static int pathIndex;                   /* entry to path array              */
 
 
@@ -119,7 +120,7 @@ INT NS_PREFIX InitUgEnv ()
 
 ENVDIR * NS_PREFIX ChangeEnvDir (const char *s)
 {
-  ENVDIR *newPath[MAXENVPATH];
+  std::array<ENVDIR*, MAXENVPATH> newPath;
   ENVDIR *theDir;
   INT i,k,len;
   char token[NAMESIZE];

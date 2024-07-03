@@ -62,6 +62,7 @@
 
 /* standard C library */
 #include <config.h>
+#include <array>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -137,7 +138,7 @@ struct MSG_TYPE
 {
   const char *name;                      /* textual description of msgtype */
   int nComps;                            /* number of components */
-  COMP_DESC comp[MAX_COMPONENTS];        /* component array */
+  std::array<COMP_DESC, MAX_COMPONENTS> comp;        /* component array */
 
   MSG_TYPE *next;         /* linked list of all message types */
 };
