@@ -31,6 +31,7 @@
 
 /* standard C library */
 #include <config.h>
+#include <array>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -371,7 +372,7 @@ void DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE type_id)
 {
   std::ostream& out = std::cout;
   TYPE_DESC* desc = &context.typeDefs()[type_id];
-  int r, c, changed_rows[MAX_PRIO];
+  int r, c;
 
   if (context.me() != 0)
     return;
@@ -390,6 +391,8 @@ void DDD_PrioMergeDisplay (DDD::DDDContext& context, DDD_TYPE type_id)
   }
 
   /* find out which rows/columns we will have to print */
+  std::array<bool, MAX_PRIO> changed_rows;
+
   for(r=0; r<MAX_PRIO; r++)
   {
     changed_rows[r] = false;

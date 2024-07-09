@@ -66,6 +66,7 @@
 #include <cstring>
 
 #include <algorithm>
+#include <array>
 
 /* gm */
 #include "rm.h"
@@ -227,13 +228,13 @@ static struct {
   HEAP *heap;                                                   /* multigrid heap						*/
 
   HRULE **hash_table;                                   /* hash table							*/
-  HRULE **hrule[TAGS];                          /* tables with hrules sorted by id		*/
+  std::array<HRULE**, TAGS> hrule;                          /* tables with hrules sorted by id		*/
 
-  long maxrule[TAGS];                                   /* max rule id per tag (rm+er)			*/
+  std::array<long, TAGS> maxrule;                                   /* max rule id per tag (rm+er)			*/
   long maxrules;                                        /* max rule id (rm+er)					*/
-  long nelem_inspected[TAGS];                   /* elements getting er-rules per tag	*/
+  std::array<long, TAGS> nelem_inspected;                   /* elements getting er-rules per tag	*/
   long nelems_inspected;                        /* elements getting er-rules			*/
-  long nelem_not_inspected[TAGS];       /* elements having rm-rules per tag		*/
+  std::array<long, TAGS> nelem_not_inspected;       /* elements having rm-rules per tag		*/
   long nelems_not_inspected;                    /* elements having rm-rules				*/
 
         #ifdef ModelP

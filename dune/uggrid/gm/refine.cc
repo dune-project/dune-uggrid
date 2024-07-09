@@ -59,6 +59,7 @@
 
 /* standard C library */
 #include <config.h>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -4170,28 +4171,26 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
     short tag;
     /** \brief Boundary element: yes (=1) or no (=0) */
     short bdy;
-    NODE            *corners[MAX_CORNERS_OF_ELEM];
+    std::array<NODE*, MAX_CORNERS_OF_ELEM> corners;
     int nb[MAX_SIDES_OF_ELEM];
     ELEMENT         *theSon;
   };
   typedef struct greensondata GREENSONDATA;
 
-  GREENSONDATA sons[MAX_GREEN_SONS];
+  std::array<GREENSONDATA, MAX_GREEN_SONS> sons;
 
   NODE *theNode, *theNode1;
-  NODE *theSideNodes[8];
   NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
   int i,j,k,l,m,n,s;
   int nelem,nedges,node0;
   bool bdy,found;
-  int edge, sides[4], side0, side1;
+  int edge, side0, side1;
   int tetNode0, tetNode1, tetNode2, tetEdge0, tetEdge1, tetEdge2,
       tetSideNode0Node1, tetSideNode0Node2, tetSideNode1Node2,
       pyrNode0, pyrNode1, pyrNode2, pyrNode3,
       pyrEdge0, pyrEdge1, pyrEdge2, pyrEdge3,
       pyrSideNode0Node1, pyrSideNode1Node2, pyrSideNode2Node3,
       pyrSideNode0Node3;
-  int elementsSide0[5], elementsSide1[5];
 
   IFDEBUG(gm,1)
   UserWriteF("RefineElementGreen(): ELEMENT ID=%d\n",ID(theElement));
@@ -4282,6 +4281,9 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
     pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge3,0);
 
   /* create edges on inner of sides, create son elements and connect them */
+  std::array<int, 4> sides;
+  std::array<NODE*, 8> theSideNodes;
+
   for (i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
     theNode = theContext[CORNERS_OF_ELEM(theElement)+
@@ -4865,6 +4867,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       /* four elements share this edge */
 
       /* get son elements for this edge */
+      std::array<int, 5> elementsSide0;
       l = 0;
       for (j=side0*5; j<(side0*5+5); j++)
       {
@@ -4874,6 +4877,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       }
       ASSERT(l==2);
 
+      std::array<int, 5> elementsSide1;
       l = 0;
       for (j=side1*5; j<(side1*5+5); j++)
       {
@@ -5158,8 +5162,7 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
   /* is something to do ? */
   if (!MARKED(theElement)) return(GM_OK);
 
-  ELEMENT *SonList[MAX_SONS];
-  for (INT i=0; i<MAX_SONS; i++) SonList[i] = NULL;
+  std::array<ELEMENT*, MAX_SONS> SonList = {};
 
   REFRULE const* rule = MARK2RULEADR(theElement,MARK(theElement));
 

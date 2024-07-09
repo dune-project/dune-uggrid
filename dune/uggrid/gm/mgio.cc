@@ -31,6 +31,7 @@
 
 #include <config.h>
 
+#include <array>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -124,7 +125,7 @@ static double doubleList[MGIO_DOUBLESIZE]; /* general purpose double list*/
 static int nparfiles;                                     /* nb of parallel files		*/
 
 /* local storage of general elements */
-static MGIO_GE_ELEMENT lge[MGIO_TAGS];
+static std::array<MGIO_GE_ELEMENT, MGIO_TAGS> lge;
 
 
 /****************************************************************************/
