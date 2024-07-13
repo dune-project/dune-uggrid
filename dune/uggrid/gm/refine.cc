@@ -639,7 +639,7 @@ static INT UpdateClosureFIFO (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT ManageParallelFIFO (const PPIF::PPIFContext& context, ELEMENT *firstElement)
+static INT ManageParallelFIFO (const PPIF::PPIFContext& context, const ELEMENT *firstElement)
 {
 #if defined(FIFO) && defined(ModelP)
   ELEMENT *theElement;
@@ -715,7 +715,7 @@ INT NS_DIM_PREFIX Refinement_Changes (ELEMENT *theElement)
  */
 /****************************************************************************/
 
-static INT PrepareGridClosure (GRID *theGrid)
+static INT PrepareGridClosure (const GRID *theGrid)
 {
   INT j;
   ELEMENT *theElement;
@@ -1037,7 +1037,7 @@ static INT ExchangeClosureInfo (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT ComputePatterns (GRID *theGrid)
+static INT ComputePatterns (const GRID *theGrid)
 {
   SHORT   *thePattern;
   INT i,Mark;
@@ -1763,7 +1763,7 @@ static INT SetAddPatterns (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT BuildGreenClosure (GRID *theGrid)
+static INT BuildGreenClosure (const GRID *theGrid)
 {
   INT i;
   ELEMENT *theElement;
@@ -2542,7 +2542,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
  */
 /****************************************************************************/
 
-static INT RestrictMarks (GRID *theGrid)
+static INT RestrictMarks (const GRID *theGrid)
 {
   ELEMENT *theElement,*SonList[MAX_SONS];
   INT flag;
@@ -3458,7 +3458,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
       /* soncorners on side */
       for (INT j = 0; j < CORNERS_OF_ELEM(SonList[i]); j++)
       {
-        NODE *nd = CORNER(SonList[i],j);
+        const NODE *nd = CORNER(SonList[i], j);
         if (std::binary_search(SideNodes, SideNodes + nodes, nd, compare_node))
         {
           corner[n] = j;
@@ -3592,8 +3592,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
       INT nsons = 0;
       for (INT i = 0; SonList[i] != NULL; i++)
       {
-        SONDATA *sondata = SON_OF_RULE(MARK2RULEADR(theElement,
-                                           MARK(theElement)),i);
+        const SONDATA *sondata = SON_OF_RULE(MARK2RULEADR(theElement, MARK(theElement)), i);
 
         for (INT j = 0; j < SIDES_OF_ELEM(SonList[i]); j++)
           if (SON_NB(sondata,j) == FATHER_SIDE_OFFSET+side)
@@ -3705,7 +3704,7 @@ static INT Sort_Node_Ptr (INT n,NODE **nodes)
 /****************************************************************************/
 
 static INT      Fill_Comp_Table (COMPARE_RECORD **SortTable, COMPARE_RECORD *Table, INT nelems,
-                                 ELEMENT **Elements, INT *Sides)
+                                 ELEMENT **Elements, const INT *Sides)
 {
   for (INT i = 0; i < nelems; i++)
   {
@@ -4021,10 +4020,10 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   {
     for (int i = 0; i < Sons_of_Side; i++)
     {
-      COMPARE_RECORD *Entry = ElemSortTable[i];
+      const COMPARE_RECORD *Entry = ElemSortTable[i];
       for (k=0; k<Sons_of_NbSide; k++)
       {
-        COMPARE_RECORD *NbEntry = NbSortTable[k];
+        const COMPARE_RECORD *NbEntry = NbSortTable[k];
 
         if (Entry->nodes != NbEntry->nodes) continue;
 
@@ -4179,7 +4178,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   std::array<GREENSONDATA, MAX_GREEN_SONS> sons;
 
-  NODE *theNode, *theNode1;
   NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
   int i,j,k,l,m,n,s;
   int nelem,nedges,node0;
@@ -4286,7 +4284,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   for (i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
-    theNode = theContext[CORNERS_OF_ELEM(theElement)+
+    NODE *theNode = theContext[CORNERS_OF_ELEM(theElement)+
                          EDGES_OF_ELEM(theElement)+i];
     nedges = EDGES_OF_SIDE(theElement,i);
 
@@ -4890,7 +4888,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       /* determine neighboring elements */
       for (j=0; j<CORNERS_OF_EDGE; j++)
       {
-        theNode1 = theContext[CORNER_OF_EDGE(theElement,i,j)];
+        const NODE *theNode1 = theContext[CORNER_OF_EDGE(theElement,i,j)];
         found = false;
         for (l=0; l<2; l++)
         {
