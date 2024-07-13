@@ -4152,17 +4152,10 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   std::array<GREENSONDATA, MAX_GREEN_SONS> sons;
 
-  NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
-  int i,j,k,l,m,n,s;
+  int i, j, k, l;
   int nelem,nedges,node0;
-  bool bdy,found;
+  bool bdy;
   int edge, side0, side1;
-  int tetNode0, tetNode1, tetNode2, tetEdge0, tetEdge1, tetEdge2,
-      tetSideNode0Node1, tetSideNode0Node2, tetSideNode1Node2,
-      pyrNode0, pyrNode1, pyrNode2, pyrNode3,
-      pyrEdge0, pyrEdge1, pyrEdge2, pyrEdge3,
-      pyrSideNode0Node1, pyrSideNode1Node2, pyrSideNode2Node3,
-      pyrSideNode0Node3;
 
   IFDEBUG(gm,1)
   UserWriteF("RefineElementGreen(): ELEMENT ID=%d\n",ID(theElement));
@@ -4201,23 +4194,23 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   /* init indices for son elements */
   /* outer side for tetrahedra is side 0 */
-    tetNode0 = CORNER_OF_SIDE_TAG(TETRAHEDRON,0,0);
-  tetNode1 = CORNER_OF_SIDE_TAG(TETRAHEDRON,0,1);
-  tetNode2 = CORNER_OF_SIDE_TAG(TETRAHEDRON,0,2);
+  const int tetNode0 = CORNER_OF_SIDE_TAG(TETRAHEDRON, 0, 0);
+  const int tetNode1 = CORNER_OF_SIDE_TAG(TETRAHEDRON, 0, 1);
+  const int tetNode2 = CORNER_OF_SIDE_TAG(TETRAHEDRON, 0, 2);
 
-  tetEdge0 = EDGE_OF_SIDE_TAG(TETRAHEDRON,0,0);
-  tetEdge1 = EDGE_OF_SIDE_TAG(TETRAHEDRON,0,1);
-  tetEdge2 = EDGE_OF_SIDE_TAG(TETRAHEDRON,0,2);
+  const int tetEdge0 = EDGE_OF_SIDE_TAG(TETRAHEDRON, 0, 0);
+  const int tetEdge1 = EDGE_OF_SIDE_TAG(TETRAHEDRON, 0, 1);
+  const int tetEdge2 = EDGE_OF_SIDE_TAG(TETRAHEDRON, 0, 2);
 
-  tetSideNode0Node1 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge0,0);
+  int tetSideNode0Node1 = SIDE_WITH_EDGE_TAG(TETRAHEDRON, tetEdge0, 0);
   if (tetSideNode0Node1 == 0)
     tetSideNode0Node1 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge0,1);
 
-  tetSideNode1Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge1,0);
+  int tetSideNode1Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON, tetEdge1, 0);
   if (tetSideNode1Node2 == 0)
     tetSideNode1Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge1,1);
 
-  tetSideNode0Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge2,0);
+  int tetSideNode0Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON, tetEdge2, 0);
   if (tetSideNode0Node2 == 0)
     tetSideNode0Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge2,1);
 
@@ -4225,29 +4218,29 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   for (i=0; i<SIDES_OF_TAG(PYRAMID); i++)
     if (CORNERS_OF_SIDE_TAG(PYRAMID,i) == 4)
       break;
-  pyrNode0 = CORNER_OF_SIDE_TAG(PYRAMID,i,0);
-  pyrNode1 = CORNER_OF_SIDE_TAG(PYRAMID,i,1);
-  pyrNode2 = CORNER_OF_SIDE_TAG(PYRAMID,i,2);
-  pyrNode3 = CORNER_OF_SIDE_TAG(PYRAMID,i,3);
+  const int pyrNode0 = CORNER_OF_SIDE_TAG(PYRAMID, i, 0);
+  const int pyrNode1 = CORNER_OF_SIDE_TAG(PYRAMID, i, 1);
+  const int pyrNode2 = CORNER_OF_SIDE_TAG(PYRAMID, i, 2);
+  const int pyrNode3 = CORNER_OF_SIDE_TAG(PYRAMID, i, 3);
 
-  pyrEdge0 = EDGE_OF_SIDE_TAG(PYRAMID,i,0);
-  pyrEdge1 = EDGE_OF_SIDE_TAG(PYRAMID,i,1);
-  pyrEdge2 = EDGE_OF_SIDE_TAG(PYRAMID,i,2);
-  pyrEdge3 = EDGE_OF_SIDE_TAG(PYRAMID,i,3);
+  const int pyrEdge0 = EDGE_OF_SIDE_TAG(PYRAMID, i, 0);
+  const int pyrEdge1 = EDGE_OF_SIDE_TAG(PYRAMID, i, 1);
+  const int pyrEdge2 = EDGE_OF_SIDE_TAG(PYRAMID, i, 2);
+  const int pyrEdge3 = EDGE_OF_SIDE_TAG(PYRAMID, i, 3);
 
-  pyrSideNode0Node1 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge0,1);
+  int pyrSideNode0Node1 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge0, 1);
   if (pyrSideNode0Node1 == i)
     pyrSideNode0Node1 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge0,0);
 
-  pyrSideNode1Node2 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge1,1);
+  int pyrSideNode1Node2 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge1, 1);
   if (pyrSideNode1Node2 == i)
     pyrSideNode1Node2 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge1,0);
 
-  pyrSideNode2Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge2,1);
+  int pyrSideNode2Node3 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge2, 1);
   if (pyrSideNode2Node3 == i)
     pyrSideNode2Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge2,0);
 
-  pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge3,1);
+  int pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge3, 1);
   if (pyrSideNode0Node3 == i)
     pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge3,0);
 
@@ -4804,7 +4797,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       /* two elements share this edge */
 
       /* get son elements for this edge */
-      found = false;
+      bool found = false;
       for (j=side0*5; j<(side0*5+5); j++)
       {
         for (k=0; k<MAX_SIDES_OF_ELEM; k++)
@@ -4818,6 +4811,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       ASSERT(j<side0*5+5);
 
       found = false;
+      int m;
       for (l=side1*5; l<side1*5+5; l++)
       {
         for (m=0; m<MAX_SIDES_OF_ELEM; m++)
@@ -4852,7 +4846,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       l = 0;
       for (j=side1*5; j<(side1*5+5); j++)
       {
-        for (m=0; m<MAX_SIDES_OF_ELEM; m++)
+        for (int m = 0; m < MAX_SIDES_OF_ELEM; m++)
           if ((sons[j].nb[m]-MAX_GREEN_SONS)==side0)
             elementsSide1[l++] = j;
       }
@@ -4862,7 +4856,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       for (j=0; j<CORNERS_OF_EDGE; j++)
       {
         const NODE *theNode1 = theContext[CORNER_OF_EDGE(theElement,i,j)];
-        found = false;
+        bool found = false;
         for (l=0; l<2; l++)
         {
           for (k=0; k<MAX_CORNERS_OF_ELEM; k++)
@@ -4879,6 +4873,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
         ASSERT(l<2);
 
         found = false;
+        int m;
         for (m=0; m<2; m++)
         {
           for (k=0; k<MAX_CORNERS_OF_ELEM; k++)
@@ -4914,7 +4909,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   IFDEBUG(gm,1)
   UserWriteF("    Creating SON elements for element ID=%d:\n",ID(theElement));
   ENDDEBUG
-    n = 0;
+  int n = 0;
   for (i=0; i<MAX_GREEN_SONS; i++)
   {
     if (sons[i].tag >= 0)
@@ -4925,6 +4920,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
         UserWriteF("     SIDE %d:\n",i/5);
       ENDDEBUG
 
+      NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
         l = 0;
       for (j=0; j<CORNERS_OF_TAG(sons[i].tag); j++)
       {
@@ -4949,7 +4945,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       IFDEBUG(gm,0)
       for (j=0; j<CORNERS_OF_ELEM(sons[i].theSon); j++)
       {
-        for (m=0; m<CORNERS_OF_ELEM(sons[i].theSon); m++)
+        for (int m = 0; m < CORNERS_OF_ELEM(sons[i].theSon); m++)
         {
           if (sons[i].corners[j] == NULL || sons[i].corners[m] == NULL)
           {
@@ -4991,7 +4987,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       SETECLASS(sons[i].theSon,GREEN_CLASS);
                         #endif
       if (i == 0) SET_SON(theElement,0,sons[i].theSon);
-      for (s=0; s<SIDES_OF_ELEM(sons[i].theSon); s++)
+      for (int s = 0; s < SIDES_OF_ELEM(sons[i].theSon); s++)
         SET_NBELEM(sons[i].theSon,s,NULL);
 
       n++;
@@ -5010,7 +5006,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       IFDEBUG(gm,0)
       for (j=0; j<SIDES_OF_ELEM(sons[i].theSon); j++)
       {
-        for (m=0; m<SIDES_OF_ELEM(sons[i].theSon); m++)
+        for (int m = 0; m < SIDES_OF_ELEM(sons[i].theSon); m++)
         {
           if (sons[i].nb[j] == sons[i].nb[m] && (m!=j))
             UserWriteF("     ERROR: son %d has equivalent "
