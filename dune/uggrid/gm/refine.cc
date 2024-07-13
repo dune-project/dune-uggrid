@@ -4949,21 +4949,28 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
       IFDEBUG(gm,0)
       for (j=0; j<CORNERS_OF_ELEM(sons[i].theSon); j++)
+      {
         for (m=0; m<CORNERS_OF_ELEM(sons[i].theSon); m++)
+        {
           if (sons[i].corners[j] == NULL || sons[i].corners[m] == NULL)
           {
             if ((m!=j) && (sons[i].corners[j] == sons[i].corners[m]))
+            {
               UserWriteF("     ERROR: son %d has equivalent corners "
                          "%d=%d adr=%x adr=%x\n",
                          n,j,m,sons[i].corners[j],sons[i].corners[m]);
+            }
           }
-          else
-          if ((m!=j) && (sons[i].corners[j] == sons[i].corners[m] ||
-                         (_ID_(sons[i].corners[j]) == _ID_(sons[i].corners[m]))))
+          else if ((m != j)
+                   && (sons[i].corners[j] == sons[i].corners[m] || (_ID_(sons[i].corners[j]) == _ID_(sons[i].corners[m]))))
+          {
             UserWriteF("     ERROR: son %d has equivalent corners "
                        "%d=%d  ID=%d ID=%d adr=%x adr=%x\n",
                        n,j,m,_ID_(sons[i].corners[j]),_ID_(sons[i].corners[m]),
                        sons[i].corners[j],sons[i].corners[m]);
+          }
+        }
+      }
       ENDDEBUG
 
       IFDEBUG(gm,2)
