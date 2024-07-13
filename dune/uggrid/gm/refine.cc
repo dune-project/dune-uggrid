@@ -4193,8 +4193,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   IFDEBUG(gm,3)
   for (i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
   {
-    if (theContext[i] == NULL) continue;
-    if (NDOBJ != OBJT(theContext[i]))
+    if ((theContext[i] != nullptr) && (NDOBJ != OBJT(theContext[i])))
       UserWriteF(" ERROR NO NDOBJ(5) OBJT(i=%d)=%d ID=%d adr=%x\n",\
                  i,OBJT(theContext[i]),ID(theContext[i]),theContext[i]);
   }
