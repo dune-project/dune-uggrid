@@ -499,23 +499,18 @@ static INT InitClosureFIFO (void)
 
 static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, INT NewPattern)
 {
-        #ifdef UG_DIM_2
-  INT j;
-  EDGE    *theEdge;
-  ELEMENT *NbElement;
-        #endif
 
   if (MARKCLASS(theElement)==RED_CLASS && thePattern!=NewPattern)
   {
                 #ifdef UG_DIM_2
-    for (j=0; j<EDGES_OF_ELEM(theElement); j++)
+    for (INT j = 0; j < EDGES_OF_ELEM(theElement); j++)
     {
       if (EDGE_IN_PAT(thePattern,j)==0 &&
           EDGE_IN_PAT(NewPattern,j))
       {
 
-        theEdge=GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
-                        CORNER_OF_EDGE_PTR(theElement,j,1));
+        EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, j, 0),
+                                CORNER_OF_EDGE_PTR(theElement, j, 1));
         ASSERT(theEdge != NULL);
 
         SETPATTERN(theEdge,1);
@@ -524,7 +519,7 @@ static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, 
         if (SIDE_ON_BND(theElement,j)) continue;
 
         /* add the element sharing this edge to fifo_queue */
-        NbElement = NBELEM(theElement,j);
+        ELEMENT *NbElement = NBELEM(theElement, j);
 
         if (NbElement==NULL) continue;
 
@@ -585,10 +580,8 @@ static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, 
 
 static INT UpdateClosureFIFO (GRID *theGrid)
 {
-  ELEMENT *theElement;
-
   /* insert fifo work list into elementlist */
-  for (theElement=fifo_last; theElement!=NULL;
+  for (ELEMENT *theElement = fifo_last; theElement != nullptr;
        theElement=PREDE(theElement))
   {
     SUCCE(theElement) = FIRSTELEMENT(theGrid);
@@ -606,7 +599,7 @@ static INT UpdateClosureFIFO (GRID *theGrid)
 
     IFDEBUG(gm,2)
     UserWriteF(" FIFO Queue:");
-    for (theElement=fifo_first; theElement!=NULL;
+    for (ELEMENT *theElement = fifo_first; theElement != nullptr;
          theElement=SUCCE(theElement))
       UserWriteF(" %d\n", ID(theElement));
     ENDDEBUG
@@ -642,8 +635,6 @@ static INT UpdateClosureFIFO (GRID *theGrid)
 static INT ManageParallelFIFO (const PPIF::PPIFContext& context, const ELEMENT *firstElement)
 {
 #if defined(FIFO) && defined(ModelP)
-  ELEMENT *theElement;
-
   if (context.procs() == 1) return(0);
 
   do
@@ -652,7 +643,7 @@ static INT ManageParallelFIFO (const PPIF::PPIFContext& context, const ELEMENT *
     IF_FIF0AndPat_S2M(GLEVEL(grid));
 
     /* add all master elements of horizontal interface to FIFO */
-    for (theElement=firstElement; theElement!=NULL;
+    for (ELEMENT *theElement = firstElement; theElement != nullptr;
          theElement=SUCCE(theElement))
     {
       if (IS_HOR_MASTER(theElement) && FIFO(theElement))
@@ -717,13 +708,9 @@ INT NS_DIM_PREFIX Refinement_Changes (ELEMENT *theElement)
 
 static INT PrepareGridClosure (const GRID *theGrid)
 {
-  INT j;
-  ELEMENT *theElement;
-  EDGE    *theEdge;
-
   /* reset USED flag of elements and PATTERN and */
   /* ADDPATTERN flag on the edges                */
-  for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
+  for (ELEMENT *theElement = PFIRSTELEMENT(theGrid); theElement != nullptr;
        theElement=SUCCE(theElement))
   {
     SETUSED(theElement,0);
@@ -734,10 +721,10 @@ static INT PrepareGridClosure (const GRID *theGrid)
       SETMARKCLASS(theElement,0);
     }
 
-    for (j=0; j<EDGES_OF_ELEM(theElement); j++)
+    for (INT j = 0; j < EDGES_OF_ELEM(theElement); j++)
     {
-      theEdge=GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
-                      CORNER_OF_EDGE_PTR(theElement,j,1));
+      EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, j, 0),
+                              CORNER_OF_EDGE_PTR(theElement, j, 1));
       ASSERT(theEdge != NULL);
 
       SETPATTERN(theEdge,0);
@@ -771,13 +758,12 @@ static INT PrepareGridClosure (const GRID *theGrid)
 
 static int Gather_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT refinedata;
   ELEMENT *theElement = (ELEMENT *)obj;
 
   PRINTDEBUG(gm,1,("Gather_ElementClosureInfo(): e=" EID_FMTX "\n",
                    EID_PRTX(theElement)))
 
-  refinedata = 0;
+  INT refinedata = 0;
 
         #ifdef UG_DIM_2
   GetEdgeInfo(theElement,&refinedata,PATTERN);
@@ -819,13 +805,12 @@ static int Gather_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data,
 
 static int Scatter_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT refinedata;
   ELEMENT *theElement = (ELEMENT *)obj;
 
   PRINTDEBUG(gm,1,("Scatter_ElementClosureInfo(): e=" EID_FMTX "\n",
                    EID_PRTX(theElement)))
 
-  refinedata = ((INT *)data)[0];
+  INT refinedata = ((INT *)data)[0];
 
         #ifdef UG_DIM_2
   SetEdgeInfo(theElement,refinedata,PATTERN,|);
@@ -925,13 +910,12 @@ static INT ExchangeElementRefine (GRID *theGrid)
 
 static int Gather_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
-  INT pattern;
   EDGE    *theEdge = (EDGE *)obj;
 
   PRINTDEBUG(gm,1,("Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
                    ID_PRTX(theEdge),PATTERN(theEdge)))
 
-  pattern = PATTERN(theEdge);
+  INT pattern = PATTERN(theEdge);
 
   ((INT *)data)[0] = pattern;
 
@@ -960,10 +944,9 @@ static int Gather_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
 static int Scatter_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
-  INT pattern;
   EDGE    *theEdge = (EDGE *)obj;
 
-  pattern = std::max((INT)PATTERN(theEdge),((INT *)data)[0]);
+  INT pattern = std::max((INT)PATTERN(theEdge),((INT *)data)[0]);
 
   PRINTDEBUG(gm,1,("Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
                    ID_PRTX(theEdge),pattern))
@@ -1039,11 +1022,6 @@ static INT ExchangeClosureInfo (GRID *theGrid)
 
 static INT ComputePatterns (const GRID *theGrid)
 {
-  SHORT   *thePattern;
-  INT i,Mark;
-  ELEMENT *theElement;
-  EDGE    *theEdge;
-
   /* ComputePatterns works only on master elements      */
   /* since ghost elements have no information from      */
   /* RestrictMarks() up to this time and this may       */
@@ -1052,7 +1030,7 @@ static INT ComputePatterns (const GRID *theGrid)
   /* reset EDGE/SIDEPATTERN in elements                 */
   /* set SIDEPATTERN in elements                        */
   /* set PATTERN on the edges                           */
-  for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
+  for (ELEMENT *theElement = PFIRSTELEMENT(theGrid); theElement != nullptr;
        theElement=SUCCE(theElement))
   {
                 #ifdef ModelP
@@ -1067,14 +1045,14 @@ static INT ComputePatterns (const GRID *theGrid)
 
     if (MARKCLASS(theElement)==RED_CLASS)
     {
-      Mark = MARK(theElement);
-      thePattern = MARK2PATTERN(theElement,Mark);
+      INT Mark = MARK(theElement);
+      SHORT *thePattern = MARK2PATTERN(theElement,Mark);
 
-      for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+      for (INT i = 0; i < EDGES_OF_ELEM(theElement); i++)
         if (EDGE_IN_PATTERN(thePattern,i))
         {
-          theEdge=GetEdge(CORNER_OF_EDGE_PTR(theElement,i,0),
-                          CORNER_OF_EDGE_PTR(theElement,i,1));
+          EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, i, 0),
+                                  CORNER_OF_EDGE_PTR(theElement, i, 1));
 
           ASSERT(theEdge != NULL);
 
@@ -1085,7 +1063,7 @@ static INT ComputePatterns (const GRID *theGrid)
       /* SIDEPATTERN must be reset here for master elements, */
       /* because it overlaps with MARK (980217 s.l.)         */
       SETSIDEPATTERN(theElement,0);
-      for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+      for (INT i = 0; i < SIDES_OF_ELEM(theElement); i++)
       {
 #ifdef DUNE_UGGRID_TET_RULESET
         if (CORNERS_OF_SIDE(theElement,i)==4)
@@ -1140,18 +1118,16 @@ static INT ComputePatterns (const GRID *theGrid)
 
 static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *theNeighbor, INT j)
 {
-  INT k;
   INT theEdgeNum,theEdgePattern=0;
   INT NbEdgeNum,NbEdgePattern,NbSidePattern,NbSideMask;
-  EDGE    *theEdge,*NbEdge;
 
   if (TAG(theElement)==PYRAMID || TAG(theElement)==PRISM)
     return(GM_OK);
 
-  for (k=EDGES_OF_ELEM(theElement)-1; k>=0; k--)
+  for (INT k = EDGES_OF_ELEM(theElement) - 1; k >= 0; k--)
   {
-    theEdge=GetEdge(CORNER_OF_EDGE_PTR(theElement,k,0),
-                    CORNER_OF_EDGE_PTR(theElement,k,1));
+    EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, k, 0),
+                            CORNER_OF_EDGE_PTR(theElement, k, 1));
     ASSERT(theEdge!=NULL);
 
     theEdgePattern = (theEdgePattern<<1) | PATTERN(theEdge);
@@ -1173,10 +1149,10 @@ static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *t
 
     NbEdgePattern = 0;
 
-    for (k=0; k<EDGES_OF_ELEM(theNeighbor); k++)
+    for (INT k = 0; k < EDGES_OF_ELEM(theNeighbor); k++)
     {
-      NbEdge=GetEdge(CORNER_OF_EDGE_PTR(theNeighbor,k,0),
-                     CORNER_OF_EDGE_PTR(theNeighbor,k,1));
+      EDGE *NbEdge = GetEdge(CORNER_OF_EDGE_PTR(theNeighbor, k, 0),
+                             CORNER_OF_EDGE_PTR(theNeighbor, k, 1));
       ASSERT(NbEdge!=NULL);
       NbEdgePattern = NbEdgePattern | (PATTERN(NbEdge)<<k);
     }
@@ -1223,14 +1199,12 @@ static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *t
   {
     INT trisectionedge=-1;
 
-    for (k=0; k<CORNERS_OF_SIDE(theNeighbor,j); k++)
+    for (INT k = 0; k < CORNERS_OF_SIDE(theNeighbor, j); k++)
     {
-      INT edge;
+      INT edge = EDGE_OF_SIDE(theElement, j, k);
 
-      edge = EDGE_OF_SIDE(theElement,j,k);
-
-      NbEdge=GetEdge(CORNER_OF_EDGE_PTR(theNeighbor,edge,0),
-                     CORNER_OF_EDGE_PTR(theNeighbor,edge,1));
+      EDGE *NbEdge = GetEdge(CORNER_OF_EDGE_PTR(theNeighbor, edge, 0),
+                             CORNER_OF_EDGE_PTR(theNeighbor, edge, 1));
       ASSERT(NbEdge!=NULL);
 
       if (PATTERN(NbEdge) && (edge>trisectionedge))
