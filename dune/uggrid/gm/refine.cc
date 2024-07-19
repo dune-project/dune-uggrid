@@ -4152,7 +4152,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   std::array<GREENSONDATA, MAX_GREEN_SONS> sons;
 
-  int i, j, k, l;
+  int j, k, l;
   int node0;
   bool bdy;
 
@@ -4161,7 +4161,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   ENDDEBUG
 
   /* init son data array */
-  for (i=0; i<MAX_GREEN_SONS; i++)
+  for (int i = 0; i < MAX_GREEN_SONS; i++)
   {
     sons[i].tag = -1;
     sons[i].bdy = -1;
@@ -4172,10 +4172,10 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   IFDEBUG(gm,2)
   UserWriteF("         Element ID=%d actual CONTEXT is:\n",ID(theElement));
-  for (i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
+  for (int i = 0; i < MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
     UserWriteF(" %3d",i);
   UserWrite("\n");
-  for (i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
+  for (int i = 0; i < MAX_CORNERS_OF_ELEM + MAX_NEW_CORNERS_DIM; i++)
     if (theContext[i] != NULL)
       UserWriteF(" %3d",ID(theContext[i]));
     else
@@ -4248,7 +4248,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   std::array<int, 4> sides;
   std::array<NODE*, 8> theSideNodes;
 
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+  for (int i = 0; i < SIDES_OF_ELEM(theElement); i++)
   {
     NODE *theNode = theContext[CORNERS_OF_ELEM(theElement)+
                          EDGES_OF_ELEM(theElement)+i];
@@ -4787,7 +4787,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   }
 
   /* connect elements over edges */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+  for (int i = 0; i < EDGES_OF_ELEM(theElement); i++)
   {
     const int side0 = SIDE_WITH_EDGE(theElement, i, 0);
     const int side1 = SIDE_WITH_EDGE(theElement, i, 1);
@@ -4910,7 +4910,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   UserWriteF("    Creating SON elements for element ID=%d:\n",ID(theElement));
   ENDDEBUG
   int n = 0;
-  for (i=0; i<MAX_GREEN_SONS; i++)
+  for (int i = 0; i < MAX_GREEN_SONS; i++)
   {
     if (sons[i].tag >= 0)
     {
@@ -4998,7 +4998,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   ENDDEBUG
 
   /* translate neighbor information */
-  for (i=0; i<MAX_GREEN_SONS; i++)
+  for (int i = 0; i < MAX_GREEN_SONS; i++)
   {
     if (sons[i].tag >= 0)              /* valid son entry */
     {
@@ -5038,7 +5038,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
    */
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
-    for (i=0; i<MAX_GREEN_SONS; i++)
+    for (int i = 0; i < MAX_GREEN_SONS; i++)
     {
       if (sons[i].tag < 0)        /* empty son entry */
         continue;
@@ -5065,7 +5065,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 #endif
 
   /* connect sons over outer sides */
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+  for (int i = 0; i < SIDES_OF_ELEM(theElement); i++)
   {
     INT Sons_of_Side;
     ELEMENT *Sons_of_Side_List[MAX_SONS];
