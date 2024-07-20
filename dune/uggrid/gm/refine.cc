@@ -5397,39 +5397,30 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
 #endif
 {
   INT modified = 0;
-  ELEMENT *theElement;
   ELEMENT *NextElement;
-  ELEMENTCONTEXT theContext;
-  GRID *UpGrid;
 #ifdef ModelP
   const int me = theGrid->ppifContext().me();
   auto& dddContext = theGrid->dddContext();
 #endif
 
-  UpGrid = UPGRID(theGrid);
-  if (UpGrid==NULL)
+  GRID *UpGrid = UPGRID(theGrid);
+  if (UpGrid == nullptr)
     RETURN(GM_FATAL);
 
   REFINE_GRID_LIST(1,MYMG(theGrid),GLEVEL(theGrid),("AdaptGrid(%d):\n",GLEVEL(theGrid)),"");
 
         #ifdef IDENT_ONLY_NEW
   /* reset ident flags for old objects */
+  for (NODE *theNode = PFIRSTNODE(UpGrid); theNode != nullptr; theNode = SUCCN(theNode))
+    SETNEW_NIDENT(theNode, 0);
+
+  for (ELEMENT* theElement = PFIRSTELEMENT(UpGrid); theElement != nullptr; theElement = SUCCE(theElement))
   {
-    INT i;
-    NODE *theNode;
-    EDGE *theEdge;
-
-    for (theNode=PFIRSTNODE(UpGrid); theNode!=NULL; theNode=SUCCN(theNode))
-      SETNEW_NIDENT(theNode,0);
-
-    for (theElement=PFIRSTELEMENT(UpGrid); theElement!=NULL; theElement=SUCCE(theElement))
+    for (INT i = 0; i < EDGES_OF_ELEM(theElement); i++)
     {
-      for (i=0; i<EDGES_OF_ELEM(theElement); i++)
-      {
-        theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,i,0),
-                          CORNER_OF_EDGE_PTR(theElement,i,1));
-        SETNEW_EDIDENT(theEdge,0);
-      }
+      EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, i, 0),
+                              CORNER_OF_EDGE_PTR(theElement, i, 1));
+      SETNEW_EDIDENT(theEdge, 0);
     }
   }
         #endif
@@ -5438,7 +5429,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
   /* ModelP: first loop over master elems, then loop over ghost elems */
   /* this assures that no unnecessary disposures of objects are done  */
   /* which may cause trouble during identification (s.l. 9803020      */
-  for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
+  for (ELEMENT *theElement = FIRSTELEMENT(theGrid); theElement != nullptr;
        theElement=NextElement)
   {
     NextElement = SUCCE(theElement);
@@ -5507,6 +5498,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
 
       if (EMASTER(theElement))
       {
+        ELEMENTCONTEXT theContext;
         if (UpdateContext(UpGrid,theElement,theContext)!=0)
           RETURN(GM_FATAL);
 
@@ -5595,9 +5587,8 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
         #ifdef UPDATE_FULLOVERLAP
   DDD_XferBegin(theGrid->dddContext());
   {
-    ELEMENT *theElement;
-    for (theElement=PFIRSTELEMENT(FinerGrid);
-         theElement!=NULL;
+    for (ELEMENT *theElement = PFIRSTELEMENT(FinerGrid);
+         theElement != nullptr;
          theElement=SUCCE(theElement))
     {
       if (EPRIO(theElement) == PrioHGhost) DisposeElement(FinerGrid,theElement,true);
