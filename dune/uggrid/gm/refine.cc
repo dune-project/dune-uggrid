@@ -5885,11 +5885,7 @@ static INT      PostProcessAdaptMultiGrid(MULTIGRID *theMG)
 
 INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtest)
 {
-  INT level,toplevel,nrefined,nadapted;
-  INT newlevel;
-  NODE *theNode;
-  GRID *theGrid, *FinerGrid;
-  ELEMENT *theElement;
+  INT nrefined,nadapted;
 
   /* check necessary condition */
   if (!MG_COARSE_FIXED(theMG))
@@ -5911,7 +5907,7 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
        * the loop is the correct fix, or whether it just papers over the problem.
        * Anyway, no crashes for now.
        */
-      for (level=0; level<TOPLEVEL(theMG); level++)
+      for (int level = 0; level < TOPLEVEL(theMG); level++)
         if (RestrictPartitioning(theMG)) RETURN(GM_FATAL);
       if (CheckPartitioning(theMG)) assert(0);
     }
@@ -5964,16 +5960,16 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
 
   SUM_TIMER(algebra_timer)
 
-  toplevel = TOPLEVEL(theMG);
+  const INT toplevel = TOPLEVEL(theMG);
 
   REFINE_MULTIGRID_LIST(1,theMG,"AdaptMultiGrid()","","")
 
   /* compute modification of coarser levels from above */
   START_TIMER(closure_timer)
 
-  for (level=toplevel; level>0; level--)
+  for (INT level = toplevel; level > 0; level--)
   {
-    theGrid = GRID_ON_LEVEL(theMG,level);
+    GRID *theGrid = GRID_ON_LEVEL(theMG,level);
 
     if (hFlag)
     {
@@ -6007,22 +6003,27 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
   IdentifyInit(theMG);
         #endif
 
-  newlevel = 0;
-  for (level=0; level<=toplevel; level++)
+  INT newlevel = 0;
+  for (INT level = 0; level <= toplevel; level++)
   {
-    theGrid = GRID_ON_LEVEL(theMG,level);
-    if (level<toplevel) FinerGrid = GRID_ON_LEVEL(theMG,level+1);else FinerGrid = NULL;
+    GRID *theGrid = GRID_ON_LEVEL(theMG,level);
+    GRID *FinerGrid = nullptr;
+    if (level < toplevel)
+      FinerGrid = GRID_ON_LEVEL(theMG,level+1);
 
     START_TIMER(closure_timer)
 
     /* reset MODIFIED flags for grid and nodes */
     SETMODIFIED(theGrid,0);
-    for (theNode=FIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode)) SETMODIFIED(theNode,0);
+    for (NODE *theNode = FIRSTNODE(theGrid); theNode != nullptr; theNode = SUCCN(theNode))
+    {
+      SETMODIFIED(theNode,0);
+    }
 
     if (hFlag)
     {
       /* leave only regular marks */
-      for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
+      for (ELEMENT *theElement = PFIRSTELEMENT(theGrid); theElement != nullptr; theElement = SUCCE(theElement))
       {
         if ((ECLASS(theElement)==RED_CLASS) && MARKCLASS(theElement)==RED_CLASS) continue;
         SETMARK(theElement,NO_REFINEMENT);
@@ -6100,7 +6101,7 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
       /* and compute the vector classes on the new (or changed) level */
       ClearNodeClasses(FinerGrid);
 
-      for (theElement=FIRSTELEMENT(FinerGrid); theElement!=NULL; theElement=SUCCE(theElement))
+      for (ELEMENT *theElement = FIRSTELEMENT(FinerGrid); theElement != nullptr; theElement = SUCCE(theElement))
         if (ECLASS(theElement)>=GREEN_CLASS || (rFlag==GM_COPY_ALL)) {
           SeedNodeClasses(theElement);
         }
