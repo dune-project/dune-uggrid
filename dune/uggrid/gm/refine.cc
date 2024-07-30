@@ -499,23 +499,18 @@ static INT InitClosureFIFO (void)
 
 static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, INT NewPattern)
 {
-        #ifdef UG_DIM_2
-  INT j;
-  EDGE    *theEdge;
-  ELEMENT *NbElement;
-        #endif
 
   if (MARKCLASS(theElement)==RED_CLASS && thePattern!=NewPattern)
   {
                 #ifdef UG_DIM_2
-    for (j=0; j<EDGES_OF_ELEM(theElement); j++)
+    for (INT j = 0; j < EDGES_OF_ELEM(theElement); j++)
     {
       if (EDGE_IN_PAT(thePattern,j)==0 &&
           EDGE_IN_PAT(NewPattern,j))
       {
 
-        theEdge=GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
-                        CORNER_OF_EDGE_PTR(theElement,j,1));
+        EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, j, 0),
+                                CORNER_OF_EDGE_PTR(theElement, j, 1));
         ASSERT(theEdge != NULL);
 
         SETPATTERN(theEdge,1);
@@ -524,7 +519,7 @@ static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, 
         if (SIDE_ON_BND(theElement,j)) continue;
 
         /* add the element sharing this edge to fifo_queue */
-        NbElement = NBELEM(theElement,j);
+        ELEMENT *NbElement = NBELEM(theElement, j);
 
         if (NbElement==NULL) continue;
 
@@ -585,10 +580,8 @@ static INT UpdateFIFOLists (GRID *theGrid, ELEMENT *theElement, INT thePattern, 
 
 static INT UpdateClosureFIFO (GRID *theGrid)
 {
-  ELEMENT *theElement;
-
   /* insert fifo work list into elementlist */
-  for (theElement=fifo_last; theElement!=NULL;
+  for (ELEMENT *theElement = fifo_last; theElement != nullptr;
        theElement=PREDE(theElement))
   {
     SUCCE(theElement) = FIRSTELEMENT(theGrid);
@@ -606,7 +599,7 @@ static INT UpdateClosureFIFO (GRID *theGrid)
 
     IFDEBUG(gm,2)
     UserWriteF(" FIFO Queue:");
-    for (theElement=fifo_first; theElement!=NULL;
+    for (ELEMENT *theElement = fifo_first; theElement != nullptr;
          theElement=SUCCE(theElement))
       UserWriteF(" %d\n", ID(theElement));
     ENDDEBUG
@@ -639,11 +632,9 @@ static INT UpdateClosureFIFO (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT ManageParallelFIFO (const PPIF::PPIFContext& context, ELEMENT *firstElement)
+static INT ManageParallelFIFO (const PPIF::PPIFContext& context, const ELEMENT *firstElement)
 {
 #if defined(FIFO) && defined(ModelP)
-  ELEMENT *theElement;
-
   if (context.procs() == 1) return(0);
 
   do
@@ -652,7 +643,7 @@ static INT ManageParallelFIFO (const PPIF::PPIFContext& context, ELEMENT *firstE
     IF_FIF0AndPat_S2M(GLEVEL(grid));
 
     /* add all master elements of horizontal interface to FIFO */
-    for (theElement=firstElement; theElement!=NULL;
+    for (ELEMENT *theElement = firstElement; theElement != nullptr;
          theElement=SUCCE(theElement))
     {
       if (IS_HOR_MASTER(theElement) && FIFO(theElement))
@@ -715,15 +706,11 @@ INT NS_DIM_PREFIX Refinement_Changes (ELEMENT *theElement)
  */
 /****************************************************************************/
 
-static INT PrepareGridClosure (GRID *theGrid)
+static INT PrepareGridClosure (const GRID *theGrid)
 {
-  INT j;
-  ELEMENT *theElement;
-  EDGE    *theEdge;
-
   /* reset USED flag of elements and PATTERN and */
   /* ADDPATTERN flag on the edges                */
-  for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
+  for (ELEMENT *theElement = PFIRSTELEMENT(theGrid); theElement != nullptr;
        theElement=SUCCE(theElement))
   {
     SETUSED(theElement,0);
@@ -734,10 +721,10 @@ static INT PrepareGridClosure (GRID *theGrid)
       SETMARKCLASS(theElement,0);
     }
 
-    for (j=0; j<EDGES_OF_ELEM(theElement); j++)
+    for (INT j = 0; j < EDGES_OF_ELEM(theElement); j++)
     {
-      theEdge=GetEdge(CORNER_OF_EDGE_PTR(theElement,j,0),
-                      CORNER_OF_EDGE_PTR(theElement,j,1));
+      EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, j, 0),
+                              CORNER_OF_EDGE_PTR(theElement, j, 1));
       ASSERT(theEdge != NULL);
 
       SETPATTERN(theEdge,0);
@@ -771,13 +758,12 @@ static INT PrepareGridClosure (GRID *theGrid)
 
 static int Gather_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT refinedata;
   ELEMENT *theElement = (ELEMENT *)obj;
 
   PRINTDEBUG(gm,1,("Gather_ElementClosureInfo(): e=" EID_FMTX "\n",
                    EID_PRTX(theElement)))
 
-  refinedata = 0;
+  INT refinedata = 0;
 
         #ifdef UG_DIM_2
   GetEdgeInfo(theElement,&refinedata,PATTERN);
@@ -819,13 +805,12 @@ static int Gather_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data,
 
 static int Scatter_ElementClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  INT refinedata;
   ELEMENT *theElement = (ELEMENT *)obj;
 
   PRINTDEBUG(gm,1,("Scatter_ElementClosureInfo(): e=" EID_FMTX "\n",
                    EID_PRTX(theElement)))
 
-  refinedata = ((INT *)data)[0];
+  INT refinedata = ((INT *)data)[0];
 
         #ifdef UG_DIM_2
   SetEdgeInfo(theElement,refinedata,PATTERN,|);
@@ -925,13 +910,12 @@ static INT ExchangeElementRefine (GRID *theGrid)
 
 static int Gather_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
-  INT pattern;
   EDGE    *theEdge = (EDGE *)obj;
 
   PRINTDEBUG(gm,1,("Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
                    ID_PRTX(theEdge),PATTERN(theEdge)))
 
-  pattern = PATTERN(theEdge);
+  INT pattern = PATTERN(theEdge);
 
   ((INT *)data)[0] = pattern;
 
@@ -960,10 +944,9 @@ static int Gather_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
 static int Scatter_EdgeClosureInfo (DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
-  INT pattern;
   EDGE    *theEdge = (EDGE *)obj;
 
-  pattern = std::max((INT)PATTERN(theEdge),((INT *)data)[0]);
+  INT pattern = std::max((INT)PATTERN(theEdge),((INT *)data)[0]);
 
   PRINTDEBUG(gm,1,("Gather_EdgeClosureInfo(): e=" ID_FMTX "pattern=%d \n",
                    ID_PRTX(theEdge),pattern))
@@ -1037,13 +1020,8 @@ static INT ExchangeClosureInfo (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT ComputePatterns (GRID *theGrid)
+static INT ComputePatterns (const GRID *theGrid)
 {
-  SHORT   *thePattern;
-  INT i,Mark;
-  ELEMENT *theElement;
-  EDGE    *theEdge;
-
   /* ComputePatterns works only on master elements      */
   /* since ghost elements have no information from      */
   /* RestrictMarks() up to this time and this may       */
@@ -1052,7 +1030,7 @@ static INT ComputePatterns (GRID *theGrid)
   /* reset EDGE/SIDEPATTERN in elements                 */
   /* set SIDEPATTERN in elements                        */
   /* set PATTERN on the edges                           */
-  for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
+  for (ELEMENT *theElement = PFIRSTELEMENT(theGrid); theElement != nullptr;
        theElement=SUCCE(theElement))
   {
                 #ifdef ModelP
@@ -1067,14 +1045,14 @@ static INT ComputePatterns (GRID *theGrid)
 
     if (MARKCLASS(theElement)==RED_CLASS)
     {
-      Mark = MARK(theElement);
-      thePattern = MARK2PATTERN(theElement,Mark);
+      INT Mark = MARK(theElement);
+      SHORT *thePattern = MARK2PATTERN(theElement,Mark);
 
-      for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+      for (INT i = 0; i < EDGES_OF_ELEM(theElement); i++)
         if (EDGE_IN_PATTERN(thePattern,i))
         {
-          theEdge=GetEdge(CORNER_OF_EDGE_PTR(theElement,i,0),
-                          CORNER_OF_EDGE_PTR(theElement,i,1));
+          EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, i, 0),
+                                  CORNER_OF_EDGE_PTR(theElement, i, 1));
 
           ASSERT(theEdge != NULL);
 
@@ -1085,7 +1063,7 @@ static INT ComputePatterns (GRID *theGrid)
       /* SIDEPATTERN must be reset here for master elements, */
       /* because it overlaps with MARK (980217 s.l.)         */
       SETSIDEPATTERN(theElement,0);
-      for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+      for (INT i = 0; i < SIDES_OF_ELEM(theElement); i++)
       {
 #ifdef DUNE_UGGRID_TET_RULESET
         if (CORNERS_OF_SIDE(theElement,i)==4)
@@ -1140,18 +1118,16 @@ static INT ComputePatterns (GRID *theGrid)
 
 static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *theNeighbor, INT j)
 {
-  INT k;
   INT theEdgeNum,theEdgePattern=0;
   INT NbEdgeNum,NbEdgePattern,NbSidePattern,NbSideMask;
-  EDGE    *theEdge,*NbEdge;
 
   if (TAG(theElement)==PYRAMID || TAG(theElement)==PRISM)
     return(GM_OK);
 
-  for (k=EDGES_OF_ELEM(theElement)-1; k>=0; k--)
+  for (INT k = EDGES_OF_ELEM(theElement) - 1; k >= 0; k--)
   {
-    theEdge=GetEdge(CORNER_OF_EDGE_PTR(theElement,k,0),
-                    CORNER_OF_EDGE_PTR(theElement,k,1));
+    EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, k, 0),
+                            CORNER_OF_EDGE_PTR(theElement, k, 1));
     ASSERT(theEdge!=NULL);
 
     theEdgePattern = (theEdgePattern<<1) | PATTERN(theEdge);
@@ -1173,10 +1149,10 @@ static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *t
 
     NbEdgePattern = 0;
 
-    for (k=0; k<EDGES_OF_ELEM(theNeighbor); k++)
+    for (INT k = 0; k < EDGES_OF_ELEM(theNeighbor); k++)
     {
-      NbEdge=GetEdge(CORNER_OF_EDGE_PTR(theNeighbor,k,0),
-                     CORNER_OF_EDGE_PTR(theNeighbor,k,1));
+      EDGE *NbEdge = GetEdge(CORNER_OF_EDGE_PTR(theNeighbor, k, 0),
+                             CORNER_OF_EDGE_PTR(theNeighbor, k, 1));
       ASSERT(NbEdge!=NULL);
       NbEdgePattern = NbEdgePattern | (PATTERN(NbEdge)<<k);
     }
@@ -1223,14 +1199,12 @@ static INT CorrectTetrahedronSidePattern (ELEMENT *theElement, INT i, ELEMENT *t
   {
     INT trisectionedge=-1;
 
-    for (k=0; k<CORNERS_OF_SIDE(theNeighbor,j); k++)
+    for (INT k = 0; k < CORNERS_OF_SIDE(theNeighbor, j); k++)
     {
-      INT edge;
+      INT edge = EDGE_OF_SIDE(theElement, j, k);
 
-      edge = EDGE_OF_SIDE(theElement,j,k);
-
-      NbEdge=GetEdge(CORNER_OF_EDGE_PTR(theNeighbor,edge,0),
-                     CORNER_OF_EDGE_PTR(theNeighbor,edge,1));
+      EDGE *NbEdge = GetEdge(CORNER_OF_EDGE_PTR(theNeighbor, edge, 0),
+                             CORNER_OF_EDGE_PTR(theNeighbor, edge, 1));
       ASSERT(NbEdge!=NULL);
 
       if (PATTERN(NbEdge) && (edge>trisectionedge))
@@ -1763,7 +1737,7 @@ static INT SetAddPatterns (GRID *theGrid)
  */
 /****************************************************************************/
 
-static INT BuildGreenClosure (GRID *theGrid)
+static INT BuildGreenClosure (const GRID *theGrid)
 {
   INT i;
   ELEMENT *theElement;
@@ -2542,7 +2516,7 @@ static INT RestrictElementMark(ELEMENT *theElement)
  */
 /****************************************************************************/
 
-static INT RestrictMarks (GRID *theGrid)
+static INT RestrictMarks (const GRID *theGrid)
 {
   ELEMENT *theElement,*SonList[MAX_SONS];
   INT flag;
@@ -3458,7 +3432,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
       /* soncorners on side */
       for (INT j = 0; j < CORNERS_OF_ELEM(SonList[i]); j++)
       {
-        NODE *nd = CORNER(SonList[i],j);
+        const NODE *nd = CORNER(SonList[i], j);
         if (std::binary_search(SideNodes, SideNodes + nodes, nd, compare_node))
         {
           corner[n] = j;
@@ -3592,8 +3566,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
       INT nsons = 0;
       for (INT i = 0; SonList[i] != NULL; i++)
       {
-        SONDATA *sondata = SON_OF_RULE(MARK2RULEADR(theElement,
-                                           MARK(theElement)),i);
+        const SONDATA *sondata = SON_OF_RULE(MARK2RULEADR(theElement, MARK(theElement)), i);
 
         for (INT j = 0; j < SIDES_OF_ELEM(SonList[i]); j++)
           if (SON_NB(sondata,j) == FATHER_SIDE_OFFSET+side)
@@ -3705,7 +3678,7 @@ static INT Sort_Node_Ptr (INT n,NODE **nodes)
 /****************************************************************************/
 
 static INT      Fill_Comp_Table (COMPARE_RECORD **SortTable, COMPARE_RECORD *Table, INT nelems,
-                                 ELEMENT **Elements, INT *Sides)
+                                 ELEMENT **Elements, const INT *Sides)
 {
   for (INT i = 0; i < nelems; i++)
   {
@@ -4021,10 +3994,10 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
   {
     for (int i = 0; i < Sons_of_Side; i++)
     {
-      COMPARE_RECORD *Entry = ElemSortTable[i];
+      const COMPARE_RECORD *Entry = ElemSortTable[i];
       for (k=0; k<Sons_of_NbSide; k++)
       {
-        COMPARE_RECORD *NbEntry = NbSortTable[k];
+        const COMPARE_RECORD *NbEntry = NbSortTable[k];
 
         if (Entry->nodes != NbEntry->nodes) continue;
 
@@ -4179,25 +4152,16 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   std::array<GREENSONDATA, MAX_GREEN_SONS> sons;
 
-  NODE *theNode, *theNode1;
-  NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
-  int i,j,k,l,m,n,s;
-  int nelem,nedges,node0;
-  bool bdy,found;
-  int edge, side0, side1;
-  int tetNode0, tetNode1, tetNode2, tetEdge0, tetEdge1, tetEdge2,
-      tetSideNode0Node1, tetSideNode0Node2, tetSideNode1Node2,
-      pyrNode0, pyrNode1, pyrNode2, pyrNode3,
-      pyrEdge0, pyrEdge1, pyrEdge2, pyrEdge3,
-      pyrSideNode0Node1, pyrSideNode1Node2, pyrSideNode2Node3,
-      pyrSideNode0Node3;
+  int j, k, l;
+  int node0;
+  bool bdy;
 
   IFDEBUG(gm,1)
   UserWriteF("RefineElementGreen(): ELEMENT ID=%d\n",ID(theElement));
   ENDDEBUG
 
   /* init son data array */
-  for (i=0; i<MAX_GREEN_SONS; i++)
+  for (int i = 0; i < MAX_GREEN_SONS; i++)
   {
     sons[i].tag = -1;
     sons[i].bdy = -1;
@@ -4208,98 +4172,98 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
   IFDEBUG(gm,2)
   UserWriteF("         Element ID=%d actual CONTEXT is:\n",ID(theElement));
-  for (i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
+  for (int i = 0; i < MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
     UserWriteF(" %3d",i);
   UserWrite("\n");
-  for (i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
+  for (int i = 0; i < MAX_CORNERS_OF_ELEM + MAX_NEW_CORNERS_DIM; i++)
     if (theContext[i] != NULL)
       UserWriteF(" %3d",ID(theContext[i]));
     else
       UserWriteF("    ");
   UserWrite("\n");
   ENDDEBUG
+  int corner;
   IFDEBUG(gm,3)
-  for (i=0; i<MAX_CORNERS_OF_ELEM+MAX_NEW_CORNERS_DIM; i++)
+  for (corner = 0; corner < MAX_CORNERS_OF_ELEM + MAX_NEW_CORNERS_DIM; corner++)
   {
-    if (theContext[i] == NULL) continue;
-    if (NDOBJ != OBJT(theContext[i]))
-      UserWriteF(" ERROR NO NDOBJ(5) OBJT(i=%d)=%d ID=%d adr=%x\n",\
-                 i,OBJT(theContext[i]),ID(theContext[i]),theContext[i]);
+    if ((theContext[corner] != nullptr) && (NDOBJ != OBJT(theContext[corner])))
+      UserWriteF(" ERROR NO NDOBJ(5) OBJT(corner=%d)=%d ID=%d adr=%x\n",\
+                 corner,OBJT(theContext[corner]),ID(theContext[corner]),theContext[corner]);
   }
   ENDDEBUG
 
   /* init indices for son elements */
   /* outer side for tetrahedra is side 0 */
-    tetNode0 = CORNER_OF_SIDE_TAG(TETRAHEDRON,0,0);
-  tetNode1 = CORNER_OF_SIDE_TAG(TETRAHEDRON,0,1);
-  tetNode2 = CORNER_OF_SIDE_TAG(TETRAHEDRON,0,2);
+  const int tetNode0 = CORNER_OF_SIDE_TAG(TETRAHEDRON, 0, 0);
+  const int tetNode1 = CORNER_OF_SIDE_TAG(TETRAHEDRON, 0, 1);
+  const int tetNode2 = CORNER_OF_SIDE_TAG(TETRAHEDRON, 0, 2);
 
-  tetEdge0 = EDGE_OF_SIDE_TAG(TETRAHEDRON,0,0);
-  tetEdge1 = EDGE_OF_SIDE_TAG(TETRAHEDRON,0,1);
-  tetEdge2 = EDGE_OF_SIDE_TAG(TETRAHEDRON,0,2);
+  const int tetEdge0 = EDGE_OF_SIDE_TAG(TETRAHEDRON, 0, 0);
+  const int tetEdge1 = EDGE_OF_SIDE_TAG(TETRAHEDRON, 0, 1);
+  const int tetEdge2 = EDGE_OF_SIDE_TAG(TETRAHEDRON, 0, 2);
 
-  tetSideNode0Node1 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge0,0);
+  int tetSideNode0Node1 = SIDE_WITH_EDGE_TAG(TETRAHEDRON, tetEdge0, 0);
   if (tetSideNode0Node1 == 0)
     tetSideNode0Node1 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge0,1);
 
-  tetSideNode1Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge1,0);
+  int tetSideNode1Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON, tetEdge1, 0);
   if (tetSideNode1Node2 == 0)
     tetSideNode1Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge1,1);
 
-  tetSideNode0Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge2,0);
+  int tetSideNode0Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON, tetEdge2, 0);
   if (tetSideNode0Node2 == 0)
     tetSideNode0Node2 = SIDE_WITH_EDGE_TAG(TETRAHEDRON,tetEdge2,1);
 
   /* outer side for pyramid has 4 corners */
-  for (i=0; i<SIDES_OF_TAG(PYRAMID); i++)
-    if (CORNERS_OF_SIDE_TAG(PYRAMID,i) == 4)
+  for (corner = 0; corner < SIDES_OF_TAG(PYRAMID); corner++)
+    if (CORNERS_OF_SIDE_TAG(PYRAMID, corner) == 4)
       break;
-  pyrNode0 = CORNER_OF_SIDE_TAG(PYRAMID,i,0);
-  pyrNode1 = CORNER_OF_SIDE_TAG(PYRAMID,i,1);
-  pyrNode2 = CORNER_OF_SIDE_TAG(PYRAMID,i,2);
-  pyrNode3 = CORNER_OF_SIDE_TAG(PYRAMID,i,3);
+  const int pyrNode0 = CORNER_OF_SIDE_TAG(PYRAMID, corner, 0);
+  const int pyrNode1 = CORNER_OF_SIDE_TAG(PYRAMID, corner, 1);
+  const int pyrNode2 = CORNER_OF_SIDE_TAG(PYRAMID, corner, 2);
+  const int pyrNode3 = CORNER_OF_SIDE_TAG(PYRAMID, corner, 3);
 
-  pyrEdge0 = EDGE_OF_SIDE_TAG(PYRAMID,i,0);
-  pyrEdge1 = EDGE_OF_SIDE_TAG(PYRAMID,i,1);
-  pyrEdge2 = EDGE_OF_SIDE_TAG(PYRAMID,i,2);
-  pyrEdge3 = EDGE_OF_SIDE_TAG(PYRAMID,i,3);
+  const int pyrEdge0 = EDGE_OF_SIDE_TAG(PYRAMID, corner, 0);
+  const int pyrEdge1 = EDGE_OF_SIDE_TAG(PYRAMID, corner, 1);
+  const int pyrEdge2 = EDGE_OF_SIDE_TAG(PYRAMID, corner, 2);
+  const int pyrEdge3 = EDGE_OF_SIDE_TAG(PYRAMID, corner, 3);
 
-  pyrSideNode0Node1 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge0,1);
-  if (pyrSideNode0Node1 == i)
+  int pyrSideNode0Node1 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge0, 1);
+  if (pyrSideNode0Node1 == corner)
     pyrSideNode0Node1 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge0,0);
 
-  pyrSideNode1Node2 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge1,1);
-  if (pyrSideNode1Node2 == i)
+  int pyrSideNode1Node2 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge1, 1);
+  if (pyrSideNode1Node2 == corner)
     pyrSideNode1Node2 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge1,0);
 
-  pyrSideNode2Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge2,1);
-  if (pyrSideNode2Node3 == i)
+  int pyrSideNode2Node3 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge2, 1);
+  if (pyrSideNode2Node3 == corner)
     pyrSideNode2Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge2,0);
 
-  pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge3,1);
-  if (pyrSideNode0Node3 == i)
+  int pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge3, 1);
+  if (pyrSideNode0Node3 == corner)
     pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge3,0);
 
   /* create edges on inner of sides, create son elements and connect them */
   std::array<int, 4> sides;
   std::array<NODE*, 8> theSideNodes;
 
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+  for (int i = 0; i < SIDES_OF_ELEM(theElement); i++)
   {
-    theNode = theContext[CORNERS_OF_ELEM(theElement)+
+    NODE *theNode = theContext[CORNERS_OF_ELEM(theElement)+
                          EDGES_OF_ELEM(theElement)+i];
-    nedges = EDGES_OF_SIDE(theElement,i);
+    const int nedges = EDGES_OF_SIDE(theElement,i);
 
     bdy = (OBJT(theElement) == BEOBJ && SIDE_ON_BND(theElement,i));
 
-    nelem = 5*i;                   /* A face in 3d gets subdivided into at most 5 (yes, 5) parts */
+    int nelem = 5*i;                   /* A face in 3d gets subdivided into at most 5 (yes, 5) parts */
     for (j=nelem; j<(nelem+5); j++)
       sons[j].bdy = bdy;
 
     k = 0;
     for (j=0; j<EDGES_OF_SIDE(theElement,i); j++)
     {
-      edge = EDGE_OF_SIDE(theElement,i,j);
+      const int edge = EDGE_OF_SIDE(theElement,i,j);
       for (l=0; l<MAX_SIDES_OF_ELEM; l++)
         if (SIDE_WITH_EDGE(theElement,edge,l) != i)
         {
@@ -4823,17 +4787,17 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   }
 
   /* connect elements over edges */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+  for (int i = 0; i < EDGES_OF_ELEM(theElement); i++)
   {
-    side0 = SIDE_WITH_EDGE(theElement,i,0);
-    side1 = SIDE_WITH_EDGE(theElement,i,1);
+    const int side0 = SIDE_WITH_EDGE(theElement, i, 0);
+    const int side1 = SIDE_WITH_EDGE(theElement, i, 1);
 
     if (theContext[i+CORNERS_OF_ELEM(theElement)] == NULL)              /* No new node in the middle of this edge */
     {
       /* two elements share this edge */
 
       /* get son elements for this edge */
-      found = false;
+      bool found = false;
       for (j=side0*5; j<(side0*5+5); j++)
       {
         for (k=0; k<MAX_SIDES_OF_ELEM; k++)
@@ -4847,6 +4811,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       ASSERT(j<side0*5+5);
 
       found = false;
+      int m;
       for (l=side1*5; l<side1*5+5; l++)
       {
         for (m=0; m<MAX_SIDES_OF_ELEM; m++)
@@ -4881,7 +4846,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       l = 0;
       for (j=side1*5; j<(side1*5+5); j++)
       {
-        for (m=0; m<MAX_SIDES_OF_ELEM; m++)
+        for (int m = 0; m < MAX_SIDES_OF_ELEM; m++)
           if ((sons[j].nb[m]-MAX_GREEN_SONS)==side0)
             elementsSide1[l++] = j;
       }
@@ -4890,8 +4855,8 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       /* determine neighboring elements */
       for (j=0; j<CORNERS_OF_EDGE; j++)
       {
-        theNode1 = theContext[CORNER_OF_EDGE(theElement,i,j)];
-        found = false;
+        const NODE *theNode1 = theContext[CORNER_OF_EDGE(theElement,i,j)];
+        bool found = false;
         for (l=0; l<2; l++)
         {
           for (k=0; k<MAX_CORNERS_OF_ELEM; k++)
@@ -4908,6 +4873,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
         ASSERT(l<2);
 
         found = false;
+        int m;
         for (m=0; m<2; m++)
         {
           for (k=0; k<MAX_CORNERS_OF_ELEM; k++)
@@ -4943,8 +4909,8 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   IFDEBUG(gm,1)
   UserWriteF("    Creating SON elements for element ID=%d:\n",ID(theElement));
   ENDDEBUG
-    n = 0;
-  for (i=0; i<MAX_GREEN_SONS; i++)
+  int n = 0;
+  for (int i = 0; i < MAX_GREEN_SONS; i++)
   {
     if (sons[i].tag >= 0)
     {
@@ -4954,6 +4920,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
         UserWriteF("     SIDE %d:\n",i/5);
       ENDDEBUG
 
+      NODE *ElementNodes[MAX_CORNERS_OF_ELEM];
         l = 0;
       for (j=0; j<CORNERS_OF_TAG(sons[i].tag); j++)
       {
@@ -4977,21 +4944,28 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 
       IFDEBUG(gm,0)
       for (j=0; j<CORNERS_OF_ELEM(sons[i].theSon); j++)
-        for (m=0; m<CORNERS_OF_ELEM(sons[i].theSon); m++)
+      {
+        for (int m = 0; m < CORNERS_OF_ELEM(sons[i].theSon); m++)
+        {
           if (sons[i].corners[j] == NULL || sons[i].corners[m] == NULL)
           {
             if ((m!=j) && (sons[i].corners[j] == sons[i].corners[m]))
+            {
               UserWriteF("     ERROR: son %d has equivalent corners "
                          "%d=%d adr=%x adr=%x\n",
                          n,j,m,sons[i].corners[j],sons[i].corners[m]);
+            }
           }
-          else
-          if ((m!=j) && (sons[i].corners[j] == sons[i].corners[m] ||
-                         (_ID_(sons[i].corners[j]) == _ID_(sons[i].corners[m]))))
+          else if ((m != j)
+                   && (sons[i].corners[j] == sons[i].corners[m] || (_ID_(sons[i].corners[j]) == _ID_(sons[i].corners[m]))))
+          {
             UserWriteF("     ERROR: son %d has equivalent corners "
                        "%d=%d  ID=%d ID=%d adr=%x adr=%x\n",
                        n,j,m,_ID_(sons[i].corners[j]),_ID_(sons[i].corners[m]),
                        sons[i].corners[j],sons[i].corners[m]);
+          }
+        }
+      }
       ENDDEBUG
 
       IFDEBUG(gm,2)
@@ -5013,7 +4987,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       SETECLASS(sons[i].theSon,GREEN_CLASS);
                         #endif
       if (i == 0) SET_SON(theElement,0,sons[i].theSon);
-      for (s=0; s<SIDES_OF_ELEM(sons[i].theSon); s++)
+      for (int s = 0; s < SIDES_OF_ELEM(sons[i].theSon); s++)
         SET_NBELEM(sons[i].theSon,s,NULL);
 
       n++;
@@ -5024,7 +4998,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   ENDDEBUG
 
   /* translate neighbor information */
-  for (i=0; i<MAX_GREEN_SONS; i++)
+  for (int i = 0; i < MAX_GREEN_SONS; i++)
   {
     if (sons[i].tag >= 0)              /* valid son entry */
     {
@@ -5032,7 +5006,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       IFDEBUG(gm,0)
       for (j=0; j<SIDES_OF_ELEM(sons[i].theSon); j++)
       {
-        for (m=0; m<SIDES_OF_ELEM(sons[i].theSon); m++)
+        for (int m = 0; m < SIDES_OF_ELEM(sons[i].theSon); m++)
         {
           if (sons[i].nb[j] == sons[i].nb[m] && (m!=j))
             UserWriteF("     ERROR: son %d has equivalent "
@@ -5064,7 +5038,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
    */
   if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
   {
-    for (i=0; i<MAX_GREEN_SONS; i++)
+    for (int i = 0; i < MAX_GREEN_SONS; i++)
     {
       if (sons[i].tag < 0)        /* empty son entry */
         continue;
@@ -5091,7 +5065,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
 #endif
 
   /* connect sons over outer sides */
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+  for (int i = 0; i < SIDES_OF_ELEM(theElement); i++)
   {
     INT Sons_of_Side;
     ELEMENT *Sons_of_Side_List[MAX_SONS];
@@ -5423,39 +5397,30 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
 #endif
 {
   INT modified = 0;
-  ELEMENT *theElement;
   ELEMENT *NextElement;
-  ELEMENTCONTEXT theContext;
-  GRID *UpGrid;
 #ifdef ModelP
   const int me = theGrid->ppifContext().me();
   auto& dddContext = theGrid->dddContext();
 #endif
 
-  UpGrid = UPGRID(theGrid);
-  if (UpGrid==NULL)
+  GRID *UpGrid = UPGRID(theGrid);
+  if (UpGrid == nullptr)
     RETURN(GM_FATAL);
 
   REFINE_GRID_LIST(1,MYMG(theGrid),GLEVEL(theGrid),("AdaptGrid(%d):\n",GLEVEL(theGrid)),"");
 
         #ifdef IDENT_ONLY_NEW
   /* reset ident flags for old objects */
+  for (NODE *theNode = PFIRSTNODE(UpGrid); theNode != nullptr; theNode = SUCCN(theNode))
+    SETNEW_NIDENT(theNode, 0);
+
+  for (ELEMENT* theElement = PFIRSTELEMENT(UpGrid); theElement != nullptr; theElement = SUCCE(theElement))
   {
-    INT i;
-    NODE *theNode;
-    EDGE *theEdge;
-
-    for (theNode=PFIRSTNODE(UpGrid); theNode!=NULL; theNode=SUCCN(theNode))
-      SETNEW_NIDENT(theNode,0);
-
-    for (theElement=PFIRSTELEMENT(UpGrid); theElement!=NULL; theElement=SUCCE(theElement))
+    for (INT i = 0; i < EDGES_OF_ELEM(theElement); i++)
     {
-      for (i=0; i<EDGES_OF_ELEM(theElement); i++)
-      {
-        theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement,i,0),
-                          CORNER_OF_EDGE_PTR(theElement,i,1));
-        SETNEW_EDIDENT(theEdge,0);
-      }
+      EDGE *theEdge = GetEdge(CORNER_OF_EDGE_PTR(theElement, i, 0),
+                              CORNER_OF_EDGE_PTR(theElement, i, 1));
+      SETNEW_EDIDENT(theEdge, 0);
     }
   }
         #endif
@@ -5464,7 +5429,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
   /* ModelP: first loop over master elems, then loop over ghost elems */
   /* this assures that no unnecessary disposures of objects are done  */
   /* which may cause trouble during identification (s.l. 9803020      */
-  for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
+  for (ELEMENT *theElement = FIRSTELEMENT(theGrid); theElement != nullptr;
        theElement=NextElement)
   {
     NextElement = SUCCE(theElement);
@@ -5533,6 +5498,7 @@ static int AdaptGrid (GRID *theGrid, INT *nadapted)
 
       if (EMASTER(theElement))
       {
+        ELEMENTCONTEXT theContext;
         if (UpdateContext(UpGrid,theElement,theContext)!=0)
           RETURN(GM_FATAL);
 
@@ -5621,9 +5587,8 @@ static int AdaptGrid (GRID *theGrid, INT toplevel, INT level, INT newlevel, INT 
         #ifdef UPDATE_FULLOVERLAP
   DDD_XferBegin(theGrid->dddContext());
   {
-    ELEMENT *theElement;
-    for (theElement=PFIRSTELEMENT(FinerGrid);
-         theElement!=NULL;
+    for (ELEMENT *theElement = PFIRSTELEMENT(FinerGrid);
+         theElement != nullptr;
          theElement=SUCCE(theElement))
     {
       if (EPRIO(theElement) == PrioHGhost) DisposeElement(FinerGrid,theElement,true);
@@ -5911,11 +5876,7 @@ static INT      PostProcessAdaptMultiGrid(MULTIGRID *theMG)
 
 INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtest)
 {
-  INT level,toplevel,nrefined,nadapted;
-  INT newlevel;
-  NODE *theNode;
-  GRID *theGrid, *FinerGrid;
-  ELEMENT *theElement;
+  INT nrefined,nadapted;
 
   /* check necessary condition */
   if (!MG_COARSE_FIXED(theMG))
@@ -5937,7 +5898,7 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
        * the loop is the correct fix, or whether it just papers over the problem.
        * Anyway, no crashes for now.
        */
-      for (level=0; level<TOPLEVEL(theMG); level++)
+      for (int level = 0; level < TOPLEVEL(theMG); level++)
         if (RestrictPartitioning(theMG)) RETURN(GM_FATAL);
       if (CheckPartitioning(theMG)) assert(0);
     }
@@ -5990,16 +5951,16 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
 
   SUM_TIMER(algebra_timer)
 
-  toplevel = TOPLEVEL(theMG);
+  const INT toplevel = TOPLEVEL(theMG);
 
   REFINE_MULTIGRID_LIST(1,theMG,"AdaptMultiGrid()","","")
 
   /* compute modification of coarser levels from above */
   START_TIMER(closure_timer)
 
-  for (level=toplevel; level>0; level--)
+  for (INT level = toplevel; level > 0; level--)
   {
-    theGrid = GRID_ON_LEVEL(theMG,level);
+    GRID *theGrid = GRID_ON_LEVEL(theMG,level);
 
     if (hFlag)
     {
@@ -6033,22 +5994,27 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
   IdentifyInit(theMG);
         #endif
 
-  newlevel = 0;
-  for (level=0; level<=toplevel; level++)
+  INT newlevel = 0;
+  for (INT level = 0; level <= toplevel; level++)
   {
-    theGrid = GRID_ON_LEVEL(theMG,level);
-    if (level<toplevel) FinerGrid = GRID_ON_LEVEL(theMG,level+1);else FinerGrid = NULL;
+    GRID *theGrid = GRID_ON_LEVEL(theMG,level);
+    GRID *FinerGrid = nullptr;
+    if (level < toplevel)
+      FinerGrid = GRID_ON_LEVEL(theMG,level+1);
 
     START_TIMER(closure_timer)
 
     /* reset MODIFIED flags for grid and nodes */
     SETMODIFIED(theGrid,0);
-    for (theNode=FIRSTNODE(theGrid); theNode!=NULL; theNode=SUCCN(theNode)) SETMODIFIED(theNode,0);
+    for (NODE *theNode = FIRSTNODE(theGrid); theNode != nullptr; theNode = SUCCN(theNode))
+    {
+      SETMODIFIED(theNode,0);
+    }
 
     if (hFlag)
     {
       /* leave only regular marks */
-      for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
+      for (ELEMENT *theElement = PFIRSTELEMENT(theGrid); theElement != nullptr; theElement = SUCCE(theElement))
       {
         if ((ECLASS(theElement)==RED_CLASS) && MARKCLASS(theElement)==RED_CLASS) continue;
         SETMARK(theElement,NO_REFINEMENT);
@@ -6126,7 +6092,7 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
       /* and compute the vector classes on the new (or changed) level */
       ClearNodeClasses(FinerGrid);
 
-      for (theElement=FIRSTELEMENT(FinerGrid); theElement!=NULL; theElement=SUCCE(theElement))
+      for (ELEMENT *theElement = FIRSTELEMENT(FinerGrid); theElement != nullptr; theElement = SUCCE(theElement))
         if (ECLASS(theElement)>=GREEN_CLASS || (rFlag==GM_COPY_ALL)) {
           SeedNodeClasses(theElement);
         }
