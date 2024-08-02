@@ -272,7 +272,7 @@ static struct {
    doctext_disabled*/
 /****************************************************************************/
 
-static DOUBLE Corner2DCorners (INT n, SHORT corners[])
+static DOUBLE Corner2DCorners (INT n, const SHORT corners[])
 {
   DOUBLE dco = corners[0];
 
@@ -1300,7 +1300,7 @@ static void FillSonPaths (MGIO_RR_RULE *rule)
    doctext_disabled*/
 /****************************************************************************/
 
-static bool GetFSidesOfCorners (int tag, int n, SHORT corners[MAX_CORNERS_OF_SIDE], SHORT corner_on_side[MAX_CORNERS_OF_SIDE][MAX_SIDES_OF_ELEM])
+static bool GetFSidesOfCorners (int tag, int n, const SHORT corners[MAX_CORNERS_OF_SIDE], SHORT corner_on_side[MAX_CORNERS_OF_SIDE][MAX_SIDES_OF_ELEM])
 {
   int coe = CORNERS_OF_TAG(tag);
   int eoe = EDGES_OF_TAG(tag);
@@ -1453,7 +1453,7 @@ static bool IsOnFatherSide (int tag, int nsco, SHORT sco[], SHORT *nb)
    doctext_disabled*/
 /****************************************************************************/
 
-static bool SidesMatch (int nsco, SHORT sco0[], SHORT sco1[])
+static bool SidesMatch (int nsco, const SHORT sco0[], const SHORT sco1[])
 {
   /* try each permutation of first with reverse order of second */
   for (int i = 0; i < nsco; i++)

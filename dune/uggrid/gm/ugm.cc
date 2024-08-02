@@ -4181,7 +4181,7 @@ static INT NeighborSearch_O_n(INT tag, ELEMENT *theElement, NODE **Node, MULTIGR
  */
 /****************************************************************************/
 
-static INT Neighbor_Direct_Insert(INT tag, ELEMENT **ElemList, INT *NbgSdList, INT* NbrS, ELEMENT **Nbr)
+static INT Neighbor_Direct_Insert(INT tag, ELEMENT **ElemList, const INT *NbgSdList, INT* NbrS, ELEMENT **Nbr)
 {
   INT i;
 

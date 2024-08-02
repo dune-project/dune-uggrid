@@ -817,7 +817,7 @@ static INT Write_RefRules (MULTIGRID *theMG, INT *RefRuleOffset, INT MarkKey)
 static INT SetRefinement (GRID *theGrid, ELEMENT *theElement,
                           NODE **NodeContext, ELEMENT *SonList[MAX_SONS],
                           INT nmax, MGIO_REFINEMENT *refinement,
-                          INT *RefRuleOffset)
+                          INT const *RefRuleOffset)
 {
   MGIO_RR_RULE *theRule;
   INT i,j,n,sonRefined,sonex,nex;
