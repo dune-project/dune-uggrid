@@ -1050,7 +1050,7 @@ GetNumberOfCommonPatches (const PATCH * p0, const PATCH * p1, INT * Pid)
 
 #ifdef UG_DIM_3
 static INT
-GetCommonPatchId (PATCH * p0, PATCH * p1, INT k)
+GetCommonPatchId (const PATCH * p0, const PATCH * p1, INT k)
 {
   INT i, j, cnt;
 

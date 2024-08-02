@@ -30,12 +30,12 @@ static NS_DIM_PREFIX REFRULE Empty_Rule =
 
 
 template<class T>
-int writeArray(FILE* stream, T* array, int const n)
+int writeArray(FILE* stream, const T* array, int const n)
 {
   int num_chars = 0;
   for(int i=0; i < n;i++)
   {
-    num_chars += std::fprintf( stream,"%d,", int(array[i]));
+    num_chars += std::fprintf(stream,"%d,", static_cast<int>(array[i]));
   }
   return num_chars;
 }

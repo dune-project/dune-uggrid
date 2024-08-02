@@ -962,7 +962,7 @@ size_t LC_MsgPrepareSend (DDD::DDDContext& context, LC_MSGHANDLE msg)
 
 
 
-DDD_PROC LC_MsgGetProc (LC_MSGHANDLE md)
+DDD_PROC LC_MsgGetProc (const LC_MSGHANDLE md)
 {
   return md->proc;
 }
@@ -1003,7 +1003,7 @@ void LC_MsgSend(const DDD::DDDContext& context, LC_MSGHANDLE md)
 }
 
 
-size_t LC_GetBufferSize (LC_MSGHANDLE md)
+size_t LC_GetBufferSize (const LC_MSGHANDLE md)
 {
   return(md->bufferSize);
 }

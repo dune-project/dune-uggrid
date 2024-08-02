@@ -1111,7 +1111,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
 
 #if defined(UG_DIM_2) || defined(ModelP)
 
-INT CheckSubdomains (MULTIGRID *theMG)
+INT CheckSubdomains (const MULTIGRID *theMG)
 {
   return (0);
 }
@@ -1725,7 +1725,7 @@ static INT CheckGeometry (GRID *theGrid)
   return(errors);
 }
 
-static INT CheckElementList (GRID *theGrid)
+static INT CheckElementList (const GRID *theGrid)
 {
   ELEMENT *theElement;
 
