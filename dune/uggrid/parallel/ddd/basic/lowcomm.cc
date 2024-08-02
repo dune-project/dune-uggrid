@@ -386,7 +386,7 @@ static void LC_MsgRecv (MSG_DESC *md)
   int i, j;
 
   /* get message address */
-  ULONG    *hdr = (ULONG *)md->buffer;
+  const ULONG *hdr = (ULONG *)md->buffer;
 
   /* get number of chunks */
   int n = (int)(hdr[1]);

@@ -645,8 +645,6 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
 {
   INT i,j,k,found,edgenode0,edgenode1;
   ELEMENT *theElement,*theSon,*SonList[MAX_SONS];
-  NODE    *theNode,*SonNode,*FatherNode,*EdgeNode0,*EdgeNode1;
-  EDGE    *theEdge,*FatherEdge;
   VERTEX  *theVertex;
   DOUBLE diff;
   DOUBLE_VECTOR global;
@@ -661,12 +659,13 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
       for (j=0; j<CORNERS_OF_ELEM(theSon); j++)
       {
         found = 0;
-        SonNode = CORNER(theSon,j);
+        NODE *SonNode = CORNER(theSon, j);
         switch(NTYPE(SonNode))
         {
         case CORNER_NODE :
-          FatherNode = (NODE *) NFATHER(SonNode);
-          if (FatherNode != NULL)
+        {
+          const NODE *FatherNode = (NODE *) NFATHER(SonNode);
+          if (FatherNode != nullptr)
           {
             assert(SONNODE(FatherNode) == SonNode);
             break;
@@ -674,7 +673,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
           assert(!MOVED(MYVERTEX(SonNode)));
           for (k=0; k<CORNERS_OF_ELEM(theElement); k++)
           {
-            theNode = CORNER(theElement,k);
+            NODE *theNode = CORNER(theElement,k);
             if (MYVERTEX(theNode) == MYVERTEX(SonNode))
             {
               assert(found == 0);
@@ -690,9 +689,11 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
             }
           }
           break;
+        }
         case MID_NODE :
-          FatherEdge = (EDGE *) NFATHER(SonNode);
-          if (FatherEdge != NULL)
+        {
+          const EDGE *FatherEdge = (EDGE *) NFATHER(SonNode);
+          if (FatherEdge != nullptr)
           {
             assert(MIDNODE(FatherEdge) == SonNode);
             break;
@@ -702,12 +703,12 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
           {
             edgenode0 = CORNER_OF_EDGE(theElement,k,0);
             edgenode1 = CORNER_OF_EDGE(theElement,k,1);
-            EdgeNode0 = CORNER(theElement,edgenode0);
-            EdgeNode1 = CORNER(theElement,edgenode1);
+            const NODE *EdgeNode0 = CORNER(theElement, edgenode0);
+            const NODE *EdgeNode1 = CORNER(theElement, edgenode1);
             assert(EdgeNode0!=NULL && EdgeNode1!=NULL);
 
-            theEdge = GetEdge(EdgeNode0,EdgeNode1);
-            assert(theEdge != NULL);
+            EDGE *theEdge = GetEdge(EdgeNode0, EdgeNode1);
+            assert(theEdge != nullptr);
             const FieldVector<DOUBLE,DIM>& songlobal = CVECT(MYVERTEX(SonNode));
             V_DIM_LINCOMB(0.5, CVECT(MYVERTEX(EdgeNode0)),
                           0.5, CVECT(MYVERTEX(EdgeNode1)),global);
@@ -747,6 +748,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
             }
           }
           break;
+        }
         case SIDE_NODE :
         case CENTER_NODE :
           /* do nothing */

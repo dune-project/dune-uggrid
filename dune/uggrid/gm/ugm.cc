@@ -1017,7 +1017,7 @@ int GetSideIDFromScratchSpecialRule17Pyr (ELEMENT *theElement, NODE *theNode)
     int nodes = 0;
     for (int k = 0; k < CORNERS_OF_SIDE(f,i); k++)
     {
-      NODE *fnode = CORNER(f,CORNER_OF_SIDE(f,i,k));
+      const NODE *fnode = CORNER(f, CORNER_OF_SIDE(f, i, k));
       for (int l = 0; l < CORNERS_OF_ELEM(theElement); l++)
       {
         const NODE *enode = CORNER(theElement,l);
@@ -1044,8 +1044,6 @@ int GetSideIDFromScratchSpecialRule22Tet (ELEMENT *theElement, NODE *theNode)
   INT cnodes, snodes, mnodes;
 #endif
   ELEMENT *f = EFATHER(theElement);
-  NODE *fnode,*enode;
-  EDGE *edge;
   int side = SIDES_OF_ELEM(f);
 
         #ifdef Debug
@@ -1053,7 +1051,7 @@ int GetSideIDFromScratchSpecialRule22Tet (ELEMENT *theElement, NODE *theNode)
   snodes = cnodes = mnodes = 0;
   for (l=0; l<CORNERS_OF_ELEM(theElement); l++)
   {
-    enode = CORNER(theElement,l);
+    const NODE *enode = CORNER(theElement,l);
     if (CORNERTYPE(enode)) cnodes++;
     if (MIDTYPE(enode)) mnodes++;
     if (SIDETYPE(enode)) snodes++;
@@ -1069,15 +1067,15 @@ int GetSideIDFromScratchSpecialRule22Tet (ELEMENT *theElement, NODE *theNode)
     midnodes = 0;
     for (k=0; k<CORNERS_OF_SIDE(f,i); k++)
     {
-      fnode = CORNER(f,CORNER_OF_SIDE(f,i,k));
+      const NODE *fnode = CORNER(f,CORNER_OF_SIDE(f,i,k));
 
-      edge = GetEdge(CORNER_OF_SIDE_PTR(f,i,k),
+      const EDGE *edge = GetEdge(CORNER_OF_SIDE_PTR(f,i,k),
                      CORNER_OF_SIDE_PTR(f,i,(k+1)%CORNERS_OF_SIDE(f,i)));
       assert(edge != NULL);
 
       for (l=0; l<CORNERS_OF_ELEM(theElement); l++)
       {
-        enode = CORNER(theElement,l);
+        const NODE *enode = CORNER(theElement,l);
         if (enode == SONNODE(fnode)) nodes++;
         if (enode == MIDNODE(edge)) midnodes++;
       }

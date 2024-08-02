@@ -930,7 +930,7 @@ static int ExtractInterfaceERule (DDD::DDDContext&, DDD_OBJ obj)
 
   if (THEFLAG(elem))
   {
-    ERULE *er       = global.interface_rules+REFINE(elem);
+    const ERULE *er = global.interface_rules + REFINE(elem);
     int id          = GetRuleID(
                                                                 #ifdef Debug
       elem,

@@ -155,7 +155,7 @@ static int TransferGridToMaster (MULTIGRID *theMG, INT fl, INT tl)
   {
     for (int l = fl; l <= tl; l++)
     {
-      GRID *theGrid = GRID_ON_LEVEL(theMG,l);
+      const GRID *theGrid = GRID_ON_LEVEL(theMG,l);
 
       /* create element copies */
       for (ELEMENT *e = FIRSTELEMENT(theGrid); e != NULL; e = SUCCE(e))

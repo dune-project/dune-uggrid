@@ -342,7 +342,6 @@ static INT InitPredefinedControlEntries (void)
 
 UINT NS_DIM_PREFIX ReadCW (const void *obj, INT ceID)
 {
-  CONTROL_ENTRY *ce;
   UINT off_in_obj,mask,i,off_in_wrd,cw,cw_objt;
 
   ASSERT(obj!=NULL);
@@ -353,7 +352,7 @@ UINT NS_DIM_PREFIX ReadCW (const void *obj, INT ceID)
     assert(false);
   }
 
-  ce = control_entries+ceID;
+  const CONTROL_ENTRY *ce = control_entries + ceID;
 
   if (!ce->used)
   {
@@ -411,7 +410,6 @@ UINT NS_DIM_PREFIX ReadCW (const void *obj, INT ceID)
 
 void NS_DIM_PREFIX WriteCW (void *obj, INT ceID, INT n)
 {
-  CONTROL_ENTRY *ce;
   UINT off_in_obj,mask,i,j,off_in_wrd,xmsk;
   UINT *pcw;
 
@@ -423,7 +421,7 @@ void NS_DIM_PREFIX WriteCW (void *obj, INT ceID, INT n)
     assert(false);
   }
 
-  ce = control_entries+ceID;
+  const CONTROL_ENTRY *ce = control_entries + ceID;
 
   if (!ce->used)
   {
