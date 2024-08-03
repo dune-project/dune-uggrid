@@ -150,7 +150,7 @@ static void IFDeleteAll(DDD::DDDContext& context, DDD_IF ifId)
 
 
 /* TODO  el-set relation, VERY inefficient! */
-static bool is_elem (DDD_PRIO el, int n, DDD_PRIO *set)
+static bool is_elem (DDD_PRIO el, int n, const DDD_PRIO *set)
 {
   for(int i=0; i<n; i++)
     if (set[i]==el)

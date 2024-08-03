@@ -222,7 +222,7 @@ static void InheritPartition (ELEMENT *e)
 
 void BalanceGridRCB (MULTIGRID *theMG, int level)
 {
-  GRID *theGrid = GRID_ON_LEVEL(theMG,level);
+  const GRID *theGrid = GRID_ON_LEVEL(theMG,level);
   DDD::DDDContext& context = theMG->dddContext();
   const PPIF::PPIFContext& ppifContext = theMG->ppifContext();
 

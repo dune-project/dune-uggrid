@@ -338,7 +338,6 @@ static INT SaveSurfaceGrid  (MULTIGRID *theMG, FILE *stream)
 static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *comment)
 {
   FILE *stream;
-  GRID *theGrid;
   NODE *theNode;
   ELEMENT *theElement;
   VERTEX *theVertex;
@@ -374,7 +373,7 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
   if (TOPLEVEL(theMG) > 0)
     return(SaveSurfaceGrid(theMG,stream));
 
-  theGrid = GRID_ON_LEVEL(theMG,0);
+  const GRID *theGrid = GRID_ON_LEVEL(theMG,0);
 
   /* find all boundary nodes witch are no corner nodes */
   fprintf(stream,BN_HEADER_FMT);
@@ -483,8 +482,6 @@ static INT OrphanCons(MULTIGRID *theMG)
   INT i,j,error,orphan;
   GRID    *theGrid;
   ELEMENT *theElement, *el_father, *nb_el, *nb_el_father;
-  NODE    *theNode,*FatherNode;
-  EDGE    *theEdge;
 
         #if defined(ModelP) && defined(__ConnectVerticalOverlap__)
   if (ConnectVerticalOverlap(theMG)) assert(0);
@@ -500,12 +497,13 @@ static INT OrphanCons(MULTIGRID *theMG)
       orphan = 0;
       for (j=0; j<CORNERS_OF_ELEM(theElement); j++)
       {
-        theNode = CORNER(theElement,j);
+        const NODE *theNode = CORNER(theElement, j);
         switch (NTYPE(theNode))
         {
         case (CORNER_NODE) :
-          FatherNode = (NODE *)NFATHER(theNode);
-          if (FatherNode == NULL)
+        {
+          const NODE *FatherNode = static_cast<NODE*>(NFATHER(theNode));
+          if (FatherNode == nullptr)
           {
             if (EGHOST(theElement)) orphan = 1;
             else if (LEVEL(theElement) != 0)
@@ -518,9 +516,11 @@ static INT OrphanCons(MULTIGRID *theMG)
           else
             assert (SONNODE(FatherNode) == theNode);
           break;
+        }
         case (MID_NODE) :
-          theEdge = (EDGE *)NFATHER(theNode);
-          if (theEdge == NULL)
+        {
+          const EDGE *theEdge = (EDGE *)NFATHER(theNode);
+          if (theEdge == nullptr)
           {
             if (EGHOST(theElement)) orphan = 1;
             else if (LEVEL(theElement) != 0)
@@ -533,6 +533,7 @@ static INT OrphanCons(MULTIGRID *theMG)
           else
             assert (MIDNODE(theEdge) == theNode);
           break;
+        }
         default :
           break;
         }
@@ -817,7 +818,7 @@ static INT Write_RefRules (MULTIGRID *theMG, INT *RefRuleOffset, INT MarkKey)
 static INT SetRefinement (GRID *theGrid, ELEMENT *theElement,
                           NODE **NodeContext, ELEMENT *SonList[MAX_SONS],
                           INT nmax, MGIO_REFINEMENT *refinement,
-                          INT *RefRuleOffset)
+                          INT const *RefRuleOffset)
 {
   MGIO_RR_RULE *theRule;
   INT i,j,n,sonRefined,sonex,nex;
@@ -2540,11 +2541,8 @@ static int Gather_EClasses (DDD::DDDContext&, DDD_OBJ obj, void *data)
 
 static int Scatter_EClasses(DDD::DDDContext&, DDD_OBJ obj, void *data)
 {
-  ELEMENT *p;
-  int *d;
-
-  p = (ELEMENT *)obj;
-  d = (int *)data;
+  ELEMENT *p = (ELEMENT*)obj;
+  const int *d = (int*)data;
   SETECLASS(p,*d);
 
   return (0);

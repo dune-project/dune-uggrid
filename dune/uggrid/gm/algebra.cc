@@ -743,10 +743,7 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
 
 INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
 {
-  ELEMENT *theElement;
-  INT errors;
-
-  errors = 0;
+  INT errors = 0;
 
   if ((GLEVEL(theGrid)==0) && !MG_COARSE_FIXED(MYMG(theGrid)))
   {
@@ -759,7 +756,7 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   }
 
   /* check pointers to element, side, edge vector */
-  for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL;
+  for (ELEMENT *theElement = PFIRSTELEMENT(theGrid); theElement != nullptr;
        theElement=SUCCE(theElement))
   {
                 #ifdef UG_DIM_3

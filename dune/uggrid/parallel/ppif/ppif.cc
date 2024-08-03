@@ -403,7 +403,7 @@ VChannelPtr PPIF::ConnASync(const PPIFContext&, int p, int id)
   return NewVChan(p, id);
 }
 
-int PPIF::InfoAConn(const PPIFContext&, VChannelPtr v)
+int PPIF::InfoAConn(const PPIFContext&, const VChannelPtr v)
 {
   return (v ? 1 : -1);
 }
@@ -414,7 +414,7 @@ int PPIF::DiscASync(const PPIFContext&, VChannelPtr v)
   return (PPIF_SUCCESS);
 }
 
-int PPIF::InfoADisc(const PPIFContext&, VChannelPtr v)
+int PPIF::InfoADisc(const PPIFContext&, const VChannelPtr v)
 {
   return (true);
 }

@@ -1397,7 +1397,7 @@ static int Scatter_TestEdgeInfo (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_
 
 static int Gather_IdentSonEdge (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  EDGE *theEdge = (EDGE *)obj;
+  const EDGE *theEdge = (EDGE *)obj;
 
   /* identification is only done between master objects */
   ASSERT(identlevel-1 == LEVEL(theEdge));

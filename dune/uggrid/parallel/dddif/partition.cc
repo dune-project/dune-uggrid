@@ -146,7 +146,7 @@ INT NS_DIM_PREFIX CheckPartitioning (MULTIGRID *theMG)
   /* reset used flags */
   for (i=TOPLEVEL(theMG); i>0; i--)
   {
-    GRID *theGrid = GRID_ON_LEVEL(theMG,i);
+    const GRID *theGrid = GRID_ON_LEVEL(theMG,i);
     for (theElement=FIRSTELEMENT(theGrid); theElement!=NULL;
          theElement=SUCCE(theElement))
     {

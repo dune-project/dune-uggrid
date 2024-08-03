@@ -619,46 +619,42 @@ int NS_PREFIX DirCreateUsingSearchPaths (const char *fname, const char *paths)
 
 int NS_PREFIX DirCreateUsingSearchPaths_r (const char *fname, const char *paths, int rename)
 {
-  PATHS *thePaths;
-  FILE *parentDir;
-
-  char fullname[MAXPATHLENGTH];
-  INT i,fnamelen,error;
-  mode_t mode;
-
-  fnamelen = strlen(fname);
+  INT fnamelen = strlen(fname);
         #ifndef __MACINTOSH__
-  mode = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP;
+  mode_t mode = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP;
         #else
   mode = 0;       /* ignored on Macintosh */
         #endif
 
   PRINTDEBUG(low,1,("DirCreateUsingSearchPaths\n"));
-  if (paths == NULL)
+  if (paths == nullptr)
   {
-    if ((error=mkdir_r(fname,mode,rename))!=0)
+    if (mkdir_r(fname, mode, rename) != 0)
       return (1);
     return (0);
   }
 
-  if ((thePaths=GetPaths(paths))==NULL)
+  const PATHS *thePaths = GetPaths(paths);
+  if (thePaths == nullptr)
     return (1);
 
-  for (i=0; i<thePaths->nPaths; i++)
+  for (INT i = 0; i < thePaths->nPaths; i++)
   {
     /* test whether parent directory exists */
-    if ( (parentDir=fopen(thePaths->path[i],"r")) == NULL )
+    FILE *parentDir = fopen(thePaths->path[i],"r");
+    if (parentDir == nullptr)
       continue;                         /* this parent directory doesn't exist; try the next one */
-    if( (error=fclose(parentDir)) != 0 )
+    if (fclose(parentDir) != 0)
       return (1);
 
     if (strlen(thePaths->path[i])+fnamelen>MAXPATHLENGTH)
       return (1);
 
+    char fullname[MAXPATHLENGTH];
     strcpy(fullname,thePaths->path[i]);
     strcat(fullname,fname);
 
-    if ((error=mkdir_r(fullname,mode,rename))!=0)
+    if (mkdir_r(fullname,mode,rename) != 0)
       return (1);
     return (0);                 /* subdirectory created successfully */
   }
@@ -739,29 +735,27 @@ FILE * NS_PREFIX FileOpenUsingSearchPaths (const char *fname, const char *mode, 
 
 FILE * NS_PREFIX FileOpenUsingSearchPaths_r (const char *fname, const char *mode, const char *paths, int rename)
 {
-  PATHS *thePaths;
-  FILE *theFile;
-  char fullname[MAXPATHLENGTH];
-  INT i,fnamelen;
+  INT fnamelen = strlen(fname);
 
-  fnamelen = strlen(fname);
+  const PATHS *thePaths = GetPaths(paths);
+  if (thePaths == nullptr)
+    return nullptr;
 
-  if ((thePaths=GetPaths(paths))==NULL)
-    return (NULL);
-
-  for (i=0; i<thePaths->nPaths; i++)
+  for (INT i = 0; i < thePaths->nPaths; i++)
   {
     if (strlen(thePaths->path[i])+fnamelen>MAXPATHLENGTH)
-      return (NULL);
+      return nullptr;
 
+    char fullname[MAXPATHLENGTH];
     strcpy(fullname,thePaths->path[i]);
     strcat(fullname,fname);
 
-    if ((theFile=fileopen_r(fullname,mode,rename))!=NULL)
-      return (theFile);
+    FILE *theFile = fileopen_r(fullname,mode,rename);
+    if (theFile != nullptr)
+      return theFile;
   }
 
-  return (NULL);
+  return nullptr;
 }
 
 /****************************************************************************/
@@ -870,25 +864,23 @@ FILE * NS_PREFIX FileOpenUsingSearchPath_r (const char *fname, const char *mode,
 
 int NS_PREFIX FileTypeUsingSearchPaths (const char *fname, const char *paths)
 {
-  PATHS *thePaths;
-  int ftype;
-  char fullname[MAXPATHLENGTH];
-  INT i,fnamelen;
+  INT fnamelen = strlen(fname);
 
-  fnamelen = strlen(fname);
-
-  if ((thePaths=GetPaths(paths))==NULL)
+  const PATHS *thePaths = GetPaths(paths);
+  if (thePaths == nullptr)
     return (FT_UNKNOWN);
 
-  for (i=0; i<thePaths->nPaths; i++)
+  for (INT i = 0; i < thePaths->nPaths; i++)
   {
     if (strlen(thePaths->path[i])+fnamelen>MAXPATHLENGTH)
       return (FT_UNKNOWN);
 
+    char fullname[MAXPATHLENGTH];
     strcpy(fullname,thePaths->path[i]);
     strcat(fullname,fname);
 
-    if ((ftype=filetype(fullname))!=FT_UNKNOWN)
+    int ftype = filetype(fullname);
+    if (ftype != FT_UNKNOWN)
       return (ftype);
   }
 

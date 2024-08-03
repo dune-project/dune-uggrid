@@ -251,12 +251,9 @@ RemoveDomain (const char *name)
 
 UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
 {
-  BND_PS *ps;
-  PATCH *patch;
-
-  ps = (BND_PS *) boundarySegment;
-  patch = currBVP->patches[ps->patch_id];
-  if (patch == NULL) {
+  const BND_PS *ps = (BND_PS*)boundarySegment;
+  const PATCH *patch = currBVP->patches[ps->patch_id];
+  if (patch == nullptr) {
     PrintErrorMessageF ('E', "GetBoundarySegmentId", "invalid argument");
     return 0;
   }
@@ -1050,7 +1047,7 @@ GetNumberOfCommonPatches (const PATCH * p0, const PATCH * p1, INT * Pid)
 
 #ifdef UG_DIM_3
 static INT
-GetCommonPatchId (PATCH * p0, PATCH * p1, INT k)
+GetCommonPatchId (const PATCH * p0, const PATCH * p1, INT k)
 {
   INT i, j, cnt;
 
@@ -1068,7 +1065,6 @@ static INT
 GetCommonLinePatchId (PATCH * p0, PATCH * p1)
 {
   INT i, k, l, cnt, cnt1;
-  PATCH *p;
 
   if (PATCH_TYPE (p0) == LINE_PATCH_TYPE)
     return (PATCH_ID (p0));
@@ -1082,7 +1078,7 @@ GetCommonLinePatchId (PATCH * p0, PATCH * p1)
 
   for (k = currBVP->ncorners; k < currBVP->sideoffset; k++)
   {
-    p = currBVP->patches[k];
+    PATCH *p = currBVP->patches[k];
     if (LINE_PATCH_N (p) != cnt)
       continue;
     cnt1 = 0;
@@ -1149,9 +1145,7 @@ PatchGlobal (const PATCH * p, DOUBLE * lambda, Dune::FieldVector<DOUBLE,DIM>& gl
 static INT
 local2lambda (BND_PS * ps, const Dune::FieldVector<DOUBLE,DIM_OF_BND>& local, DOUBLE lambda[])
 {
-  PATCH *p;
-
-  p = currBVP->patches[ps->patch_id];
+  const PATCH *p = currBVP->patches[ps->patch_id];
 
   if ((PATCH_TYPE (p) == PARAMETRIC_PATCH_TYPE)
       || (PATCH_TYPE (p) == LINEAR_PATCH_TYPE))
@@ -1410,12 +1404,10 @@ BNDP_BndPDesc (BNDP * theBndP, INT * move)
 INT NS_DIM_PREFIX
 BNDP_BndEDesc (BNDP * aBndP0, BNDP * aBndP1)
 {
-  BND_PS *bp0, *bp1;
+  const BND_PS *bp0 = (BND_PS*)aBndP0;
+  const BND_PS *bp1 = (BND_PS*)aBndP1;
 
-  bp0 = (BND_PS *) aBndP0;
-  bp1 = (BND_PS *) aBndP1;
-
-  if ((bp0 == NULL) || (bp1 == NULL))
+  if ((bp0 == nullptr) || (bp1 == nullptr))
     REP_ERR_RETURN (1);
 
   return (0);
