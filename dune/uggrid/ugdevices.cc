@@ -269,7 +269,7 @@ int NS_PREFIX UserWriteF (const char *format, ...)
   /* initialize args */
   va_start(args,format);
                 #ifndef NDEBUG
-  int count = vsprintf(buffer,format,args);
+  int count = vsnprintf(buffer,VAR_ARG_BUFLEN,format,args);
   assert(count<VAR_ARG_BUFLEN-1);
                 #endif
   if (mutelevel>-1000)
@@ -371,7 +371,7 @@ void NS_PREFIX PrintErrorMessageF (char type, const char *procName, const char *
   /* initialize args */
   va_start(args,format);
 
-  vsprintf(buffer,format,args);
+  vsnprintf(buffer,256,format,args);
 
   PrintErrorMessage(type,procName,buffer);
 

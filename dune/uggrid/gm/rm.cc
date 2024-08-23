@@ -2830,25 +2830,25 @@ static INT PrintSonData (struct sondata theSonData, PrintfProcPtr Printf)
   Printf("tag=%d ",(int)theSonData.tag);
 
   j = 0;
-  j = sprintf(buffer," corners=");
+  j = snprintf(buffer,128," corners=");
   for (i=0; i<element_descriptors[theSonData.tag]->corners_of_elem; i++)
   {
-    j += sprintf(buffer+j,"%2d ",(int)theSonData.corners[i]);
+    j += snprintf(buffer+j,128-j,"%2d ",(int)theSonData.corners[i]);
   }
   Printf(buffer);
 
   j = 0;
-  j += sprintf(buffer,"  nb=");
+  j += snprintf(buffer,128,"  nb=");
   for (i=0; i<element_descriptors[theSonData.tag]->sides_of_elem; i++)
   {
-    j += sprintf(buffer+j,"%2d ",(int)theSonData.nb[i]);
+    j += snprintf(buffer+j,128-j,"%2d ",(int)theSonData.nb[i]);
   }
   Printf(buffer);
 
   Printf("  path of depth %d=",pd);
   /*for (i=8*sizeof(INT)-1; i>=0; i--)
      {
-          sprintf(buffer,"%d",(int)((theSonData.path>>i) & 0x1));
+          snprintf(buffer,128,"%d",(int)((theSonData.path>>i) & 0x1));
           if (i%2 == 0 && theSonData.tag == TETRAHEDRON)	sprintf(buffer+1," ");
           if (i%3 == 0 && theSonData.tag == HEXAHEDRON)	sprintf(buffer+1," ");
           Printf(buffer);

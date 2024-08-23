@@ -1308,7 +1308,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
       if (lastnumber<0) REP_ERR_RETURN(1);
       lastnumber++;
       strcpy(itype,l);
-      sprintf(buf,".%06d",lastnumber);
+      snprintf(buf,64,".%06d",lastnumber);
       strcat(filename,buf);
     }
     else
@@ -1330,7 +1330,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   if (strcmp(itype,"asc")==0) mode = BIO_ASCII;
   else if (strcmp(itype,"bin")==0) mode = BIO_BIN;
   else REP_ERR_RETURN(1);
-  sprintf(buf,".ug.mg.");
+  snprintf(buf,64,".ug.mg.");
   strcat(filename,buf);
   strcat(filename,itype);
 #ifdef ModelP
@@ -1352,7 +1352,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   }
   if (MGIO_PARFILE)
   {
-    sprintf(buf,"/mg.%04d",(int)theMG->ppifContext().me());
+    snprintf(buf,64,"/mg.%04d",(int)theMG->ppifContext().me());
     strcat(filename,buf);
   }
 #endif
@@ -2740,7 +2740,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
     if (name==NULL) return (NULL);
     strcpy(filename,name);
   }
-  sprintf(buf,".ug.mg.");
+  snprintf(buf,64,".ug.mg.");
   strcat(filename,buf);
   strcat(filename,itype);
 
@@ -2752,7 +2752,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   nparfiles = 1;
   if (MGIO_filetype(filename) == FT_DIR)
   {
-    sprintf(buf,"/mg.%04d",(int)me);
+    snprintf(buf,64,"/mg.%04d",(int)me);
     strcat(filename,buf);
     if (Read_OpenMGFile (filename))                 {nparfiles = -1;}
     else
@@ -2790,7 +2790,7 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
 }
 else
 {
-  sprintf(buf,"/mg.%04d",(int)me);                      /* Also me>=nparfiles needs its filename to be stored in the multigrid */
+  snprintf(buf,64,"/mg.%04d",(int)me);                      /* Also me>=nparfiles needs its filename to be stored in the multigrid */
   strcat(filename,buf);
   Broadcast(*ppifContext, &nparfiles,sizeof(int));
   if (me < nparfiles)
