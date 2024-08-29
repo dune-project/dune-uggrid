@@ -180,7 +180,7 @@ void DDD_PrintError (char error_class, int error_no, const char *text)
     classText = "USER";
     break;
   }
-  sprintf(buffer,"DDD %s %05d: %s\n",classText,error_no,text);
+  snprintf(buffer,256,"DDD %s %05d: %s\n",classText,error_no,text);
   DDD_PrintLine(buffer);
 }
 

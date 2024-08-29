@@ -1644,13 +1644,13 @@ BNDP_SaveInsertedBndP (BNDP * theBndP, char *data, INT max_data_size)
   PRINTDEBUG (dom, 1, (" Insert pid %d %d\n", bp->patch_id, pid));
 
 #ifdef UG_DIM_2
-  if (sprintf (data, "bn %d %f", pid, (float) bp->local[0][0]) >
+  if (snprintf (data, max_data_size, "bn %d %f", pid, (float) bp->local[0][0]) >
       max_data_size)
     return (1);
 #endif
 
 #ifdef UG_DIM_3
-  if (sprintf (data, "bn %d %f %f", (int) pid,
+  if (snprintf (data, max_data_size, "bn %d %f %f", (int) pid,
                (float) bp->local[0][0],
                (float) bp->local[0][1]) > max_data_size)
     return (1);

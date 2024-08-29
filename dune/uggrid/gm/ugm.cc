@@ -4765,7 +4765,7 @@ INT NS_DIM_PREFIX KeyForObject( KEY_OBJECT *obj )
     /* return the key of the midpoint as the key for the edge */
     return LEVEL(obj)+COORDINATE_TO_KEY(coord,&dummy);
 
-  default :        sprintf( buffer, "unrecognized object type %d", OBJT(obj) );
+  default :        snprintf( buffer, 4*256, "unrecognized object type %d", OBJT(obj) );
     PrintErrorMessage('E',"KeyForObject",buffer);
     return(0);
   }
@@ -4775,9 +4775,9 @@ INT NS_DIM_PREFIX KeyForObject( KEY_OBJECT *obj )
 void NS_DIM_PREFIX ListMultiGridHeader (const INT longformat)
 {
   if (longformat)
-    sprintf(buffer,"   %-20.20s %-20.20s %-20.20s %10.10s %10.10s\n","mg name","domain name","problem name","heap size","heap used");
+    snprintf(buffer, 4*256,"   %-20.20s %-20.20s %-20.20s %10.10s %10.10s\n","mg name","domain name","problem name","heap size","heap used");
   else
-    sprintf(buffer,"   %-20.20s\n","mg name");
+    snprintf(buffer, 4*256,"   %-20.20s\n","mg name");
 }
 
 /****************************************************************************/
@@ -6845,18 +6845,18 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
   default :                strcpy(ekind,"???    "); break;
   }
   if(full)
-    sprintf(out,"ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx FLAG=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
+    snprintf(out, 2000,"ELEMID=" EID_FFMTE " %5s %5s CTRL=%8lx FLAG=%8lx REFINE=%2d MARK=%2d LEVEL=%2d",
             EID_PRTE(theElement),ekind,etype,
             (long)CTRL(theElement),(long)FLAG(theElement),REFINE(theElement),MARK(theElement),LEVEL(theElement));
   else
-    sprintf(out,"ELEMID=" EID_FFMTE, EID_PRTE(theElement));
+    snprintf(out, 2000,"ELEMID=" EID_FFMTE, EID_PRTE(theElement));
 
   if (COARSEN(theElement)) strcat(out," COARSEN");
   strcat(out,"\n");
   for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
                 #ifdef UG_DIM_2
-    sprintf(tmp,"    N%d=" ID_FMTX " x=%g  y=%g\n",
+    snprintf(tmp, 200,"    N%d=" ID_FMTX " x=%g  y=%g\n",
             i,
             ID_PRTX(CORNER(theElement,i)),
             CVECT(MYVERTEX(CORNER(theElement,i)))[0],
@@ -6864,7 +6864,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
             );
                 #endif
                 #ifdef UG_DIM_3
-    sprintf(tmp,"    N%d=" ID_FMTX " x=%g  y=%g z=%g\n",
+    snprintf(tmp, 200,"    N%d=" ID_FMTX " x=%g  y=%g z=%g\n",
             i,
             ID_PRTX(CORNER(theElement,i)),
             CVECT(MYVERTEX(CORNER(theElement,i)))[0],
@@ -6877,7 +6877,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
 
   if (EFATHER(theElement))
   {
-    sprintf(tmp,"    FA=" EID_FMTX "\n" ,EID_PRTX(EFATHER(theElement)));
+    snprintf(tmp, 200,"    FA=" EID_FMTX "\n" ,EID_PRTX(EFATHER(theElement)));
     strcat( out, tmp );
   }
   else
@@ -6890,13 +6890,13 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
     {
       for (i=0; SonList[i] != NULL; i++)
       {
-        sprintf(tmp,"    SON%d " EID_FMTX "\n" ,i,EID_PRTX(SonList[i]));
+        snprintf(tmp, 200,"    SON%d " EID_FMTX "\n" ,i,EID_PRTX(SonList[i]));
         strcat( out, tmp );
 
         for (j=0; j<CORNERS_OF_ELEM(SonList[i]); j++)
         {
                                         #ifdef UG_DIM_2
-          sprintf(tmp,"        N%d= " ID_FMTX " x=%g  y=%g\n",
+          snprintf(tmp, 200,"        N%d= " ID_FMTX " x=%g  y=%g\n",
                   j,
                   ID_PRTX(CORNER(SonList[i],j)),
                   CVECT(MYVERTEX(CORNER(SonList[i],j)))[0],
@@ -6904,7 +6904,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
                   );
                                         #endif
                                         #ifdef UG_DIM_3
-          sprintf(tmp,"        N%d= " ID_FMTX " x=%g  y=%g z=%g\n",
+          snprintf(tmp, 200,"        N%d= " ID_FMTX " x=%g  y=%g z=%g\n",
                   j,
                   ID_PRTX(CORNER(SonList[i],j)),
                   CVECT(MYVERTEX(CORNER(SonList[i],j)))[0],
@@ -6917,7 +6917,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
       }
     }
   }
-  sprintf(tmp," key=%d\n", KeyForObject((KEY_OBJECT *)theElement) );
+  snprintf(tmp, 200," key=%d\n", KeyForObject((KEY_OBJECT *)theElement) );
   strcat( out, tmp );
 
   if(full)
@@ -6932,13 +6932,13 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
       for(j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
       {
                                 #ifdef UG_DIM_2
-        sprintf(tmp,"    NODE[ID=%ld]: x=%g y=%g",
+        snprintf(tmp, 200,"    NODE[ID=%ld]: x=%g y=%g",
                 (long)(ID(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j)))),
                 CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j))))[0],
                 CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j))))[1]);
                                 #endif
                                 #ifdef UG_DIM_3
-        sprintf(tmp,"    NODE[ID=%ld]: x=%g y=%g z=%g",
+        snprintf(tmp, 200,"    NODE[ID=%ld]: x=%g y=%g z=%g",
                 (long)(ID(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j)))),
                 CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j))))[0],
                 CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,i,j))))[1],
