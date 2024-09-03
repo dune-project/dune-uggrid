@@ -5,6 +5,9 @@ SPDX-License-Identifier: LGPL-2.1-or-later
 
 # dune-uggrid 2.10 (unreleased)
 
+- `dune-uggrid` now builds a dynamic library by default, because using a shared library
+  together with the Python just-in-time compilation lead to hard-to-diagnose crashes.
+
 * Remove deprecated `AllocEnvMemory` and `FreeEnvMemory`. They were
   wrappers of standard `malloc` and `free`.
 

@@ -9,6 +9,27 @@ project("dune-uggrid" C CXX)
 #circumvent not building docs
 set(BUILD_DOCS 1)
 
+# Build shared libraries by default.
+#
+# Rationale: When using Dune via its C++ interface you can use static
+# or dynamic libraries as you like.  However, for the Python bindings
+# you have to use dynamic libraries.  That is because dune-uggrid
+# contains a few global variables.  The just-in-time compiler that builds
+# the Dune Python bindings produces a collection of dynamic libraries.
+# If dune-uggrid is built as a static library, then a copy of this
+# static library is included in each of the JIT-compiled dynamic libraries.
+# As a consequence, the global variables of dune-uggrid exist not once,
+# but once in every JIT-compiled dynamic library.  However, only one
+# of the copies gets actually initialized, but eventually the process
+# will access one of the other copies, which leads to hard-to-diagnose
+# crashes and wrong results.
+#
+# In dune-uggrid, this happens in particular with the 'element_descriptors'
+# array in the file 'elements.h'.  As that array is merely a C-style
+# reimplementation of virtual functions it may disappear from dune-uggrid
+# eventually.  When that happens the situation may be reassessed.
+set(BUILD_SHARED_LIBS 1)
+
 # Guess the dune-common build directory if it is not yet set
 if(NOT (dune-common_DIR OR dune-common_ROOT OR
       "${CMAKE_PREFIX_PATH}" MATCHES ".*dune-common.*"))
