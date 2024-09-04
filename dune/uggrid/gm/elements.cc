@@ -167,48 +167,6 @@ static GENERAL_ELEMENT def_hexahedron = {
 
    \param el pointer to an element description
 
-   STRUCTURES:
-   \verbatim
-   typedef struct {
-    INT tag;                                // element type to be defined
-
-    // the following parameters determine size of refs array in element
-    INT sides_of_elem;                      // how many sides ?
-    INT corners_of_elem;                    // how many corners ?
-
-    // more size parameters
-    INT edges_of_elem;                      // how many edges ?
-    INT edges_of_side[MAX_SIDES_OF_ELEM];   // number of edges for each side
-    INT corners_of_side[MAX_SIDES_OF_ELEM]; // number of corners for each side
-    INT corners_of_edge;                    // is always 2 !
-
-    // index computations
-    // Within each element sides, edges, corners are numbered in some way.
-    // Within each side the edges and corners are numbered, within the edge the
-    // corners are numbered. The following arrays map the local numbers within
-    // the side or edge to the numbering within the element.
-    INT edge_of_side[MAX_SIDES_OF_ELEM][MAX_EDGES_OF_SIDE];
-    INT corner_of_side[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_SIDE];
-    INT corner_of_edge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
-
-    // the following parameters are derived from data above
-    INT mapped_inner_objt;                  // tag to objt mapping for free list
-    INT mapped_bnd_objt;                    // tag to objt mapping for free list
-    INT inner_size, bnd_size;               // size in bytes used for alloc
-    INT edge_with_corners[MAX_CORNERS_OF_ELEM][MAX_CORNERS_OF_ELEM];
-    INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
-    INT corner_of_side_inv[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_ELEM];
-    INT edges_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-    INT corner_opp_to_side[MAX_SIDES_OF_ELEM];
-    INT opposite_edge[MAX_EDGES_OF_ELEM];
-    INT side_opp_to_corner[MAX_CORNERS_OF_ELEM];
-    INT edge_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-    INT edge_of_two_sides[MAX_SIDES_OF_ELEM][MAX_SIDES_OF_ELEM];
-
-   } GENERAL_ELEMENT;
-   \endverbatim
-
-
    This function processes a topology description of an element type and computes
    index mappings. Currently descriptions for triangles,
    quadrilaterals and tetrahedra are included. Hexahedral elements have been implemented
@@ -546,47 +504,6 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 /** \brief Compute offsets and size for a given element type
 
    \param el    pointer to an element description
-
-   STRUCTURES:
-   \verbatim
-   typedef struct {
-    INT tag;                                // element type to be defined
-
-    // the following parameters determine size of refs array in element
-    INT sides_of_elem;                      // how many sides ?
-    INT corners_of_elem;                    // how many corners ?
-
-    // more size parameters
-    INT edges_of_elem;                      // how many edges ?
-    INT edges_of_side[MAX_SIDES_OF_ELEM];   // number of edges for each side
-    INT corners_of_side[MAX_SIDES_OF_ELEM]; // number of corners for each side
-    INT corners_of_edge;                    // is always 2 !
-
-    // index computations
-    // Within each element sides, edges, corners are numbered in some way.
-    // Within each side the edges and corners are numbered, within the edge the
-    // corners are numbered. The following arrays map the local numbers within
-    // the side or edge to the numbering within the element.
-    INT edge_of_side[MAX_SIDES_OF_ELEM][MAX_EDGES_OF_SIDE];
-    INT corner_of_side[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_SIDE];
-    INT corner_of_edge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
-
-    // the following parameters are derived from data above
-    INT mapped_inner_objt;                  // tag to objt mapping for free list
-    INT mapped_bnd_objt;                    // tag to objt mapping for free list
-    INT inner_size, bnd_size;               // size in bytes used for alloc
-    INT edge_with_corners[MAX_CORNERS_OF_ELEM][MAX_CORNERS_OF_ELEM];
-    INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
-    INT corner_of_side_inv[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_ELEM];
-    INT edges_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-        INT corner_opp_to_side[MAX_SIDES_OF_ELEM];
-        INT opposite_edge[MAX_EDGES_OF_ELEM];
-        INT side_opp_to_corner[MAX_CORNERS_OF_ELEM];
-        INT edge_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-        INT edge_of_two_sides[MAX_SIDES_OF_ELEM][MAX_SIDES_OF_ELEM];
-
-   } GENERAL_ELEMENT;
-   \endverbatim
 
    This function processes a topology description of an element type and computes
    the appropriate sizes for memory allocation and offsets in the 'refs' array of the
