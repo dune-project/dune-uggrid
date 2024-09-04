@@ -202,7 +202,7 @@ static GENERAL_ELEMENT def_hexahedron = {
  */
 /****************************************************************************/
 
-static void PreProcessElementDescription (GENERAL_ELEMENT *el)
+static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 {
   INT i,j,k;
 
@@ -503,32 +503,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
   /* make description globally available */
   element_descriptors[tag] = el;
-}
 
-/****************************************************************************/
-/** \brief Compute offsets and size for a given element type
-
-   \param el    pointer to an element description
-
-   This function processes a topology description of an element type and computes
-   the appropriate sizes for memory allocation and offsets in the 'refs' array of the
-   'generic_element'. All other data are fixed and do not depend on the multigrid or format.
-   Before calling this function 'PreProcessElementDescription' has to be called once
-   during initialization.
-
-   SEE ALSO:
-
-   'ELEMENT', 'PreProcessElementDescription'.
-
-   \return <ul>
-   <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occurred. </li>
-   </ul>
- */
-/****************************************************************************/
-
-static INT ProcessElementDescription (GENERAL_ELEMENT *el)
-{
   /* get a free object id for free list */
   if (el->mapped_inner_objt < 0)
     el->mapped_inner_objt = GetFreeOBJT();
@@ -559,33 +534,25 @@ INT NS_DIM_PREFIX InitElementTypes()
 {
   INT err;
 
-  // The splitting between PreProcessElementDescription and ProcessElementDescription
-  // is historical and can be removed.
 #ifdef UG_DIM_2
-  PreProcessElementDescription(&def_triangle);
   err = ProcessElementDescription(&def_triangle);
   if (err!=GM_OK)
     return err;
-  PreProcessElementDescription(&def_quadrilateral);
   err = ProcessElementDescription(&def_quadrilateral);
   if (err!=GM_OK)
     return err;
 #endif
 
 #ifdef UG_DIM_3
-  PreProcessElementDescription(&def_tetrahedron);
   err = ProcessElementDescription(&def_tetrahedron);
   if (err!=GM_OK)
     return err;
-  PreProcessElementDescription(&def_pyramid);
   err = ProcessElementDescription(&def_pyramid);
   if (err!=GM_OK)
     return err;
-  PreProcessElementDescription(&def_prism);
   err = ProcessElementDescription(&def_prism);
   if (err!=GM_OK)
     return err;
-  PreProcessElementDescription(&def_hexahedron);
   err = ProcessElementDescription(&def_hexahedron);
   if (err!=GM_OK)
     return err;
