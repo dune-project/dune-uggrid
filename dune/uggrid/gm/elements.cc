@@ -81,7 +81,9 @@ static GENERAL_ELEMENT def_triangle = {
   .corners_of_side = {2,2,2,-1},
   .edge_of_side = {{0,-1,-1},{1,-1,-1},{2,-1,-1},{-1,-1,-1}},
   .corner_of_side = {{0,1,-1},{1,2,-1},{2,0,-1},{-1,-1,-1}},
-  .corner_of_edge = {{0,1},{1,2},{2,0},{-1,-1},{-1,-1},{-1,-1}}
+  .corner_of_edge = {{0,1},{1,2},{2,0},{-1,-1},{-1,-1},{-1,-1}},
+  .inner_size = offsetof(triangle,bnds),
+  .bnd_size = sizeof(triangle)
 } ;
 
 static GENERAL_ELEMENT def_quadrilateral = {
@@ -94,7 +96,9 @@ static GENERAL_ELEMENT def_quadrilateral = {
   .corners_of_side = {2,2,2,2},
   .edge_of_side = {{0,-1,-1},{1,-1,-1},{2,-1,-1},{3,-1,-1}},
   .corner_of_side = {{0,1,-1},{1,2,-1},{2,3,-1},{3,0,-1}},
-  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{-1,-1},{-1,-1}}
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{-1,-1},{-1,-1}},
+  .inner_size = offsetof(quadrilateral,bnds),
+  .bnd_size = sizeof(quadrilateral)
 } ;
 #endif
 
@@ -109,7 +113,9 @@ static GENERAL_ELEMENT def_tetrahedron = {
   .corners_of_side = {3,3,3,3,-1,-1},
   .edge_of_side = {{2,1,0,-1},{1,5,4,-1},{3,5,2,-1},{0,4,3,-1}},
   .corner_of_side = {{0,2,1,-1},{1,2,3,-1},{0,3,2,-1},{0,1,3,-1}},
-  .corner_of_edge = {{0,1},{1,2},{0,2},{0,3},{1,3},{2,3} }
+  .corner_of_edge = {{0,1},{1,2},{0,2},{0,3},{1,3},{2,3}},
+  .inner_size = offsetof(tetrahedron,bnds),
+  .bnd_size = sizeof(tetrahedron)
 } ;
 
 static GENERAL_ELEMENT def_pyramid = {
@@ -122,7 +128,9 @@ static GENERAL_ELEMENT def_pyramid = {
   .corners_of_side = {4,3,3,3,3,-1},
   .edge_of_side = {{3,2,1,0},{0,5,4,-1},{1,6,5,-1},{2,7,6,-1},{3,4,7,-1}},
   .corner_of_side = {{0,3,2,1},{0,1,4,-1},{1,2,4,-1},{2,3,4,-1},{3,0,4,-1}},
-  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,4},{2,4},{3,4}}
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,4},{2,4},{3,4}},
+  .inner_size = offsetof(pyramid,bnds),
+  .bnd_size = sizeof(pyramid)
 } ;
 
 static GENERAL_ELEMENT def_prism = {
@@ -136,7 +144,9 @@ static GENERAL_ELEMENT def_prism = {
   .corners_of_side = {3,4,4,4,3,-1},
   .edge_of_side = {{2,1,0,-1},{0,4,6,3},{1,5,7,4},{2,3,8,5},{6,7,8,-1}},
   .corner_of_side = {{0,2,1,-1},{0,1,4,3},{1,2,5,4},{2,0,3,5},{3,4,5,-1}},
-  .corner_of_edge = {{0,1},{1,2},{2,0},{0,3},{1,4},{2,5},{3,4},{4,5},{5,3}}
+  .corner_of_edge = {{0,1},{1,2},{2,0},{0,3},{1,4},{2,5},{3,4},{4,5},{5,3}},
+  .inner_size = offsetof(prism,bnds),
+  .bnd_size = sizeof(prism)
 } ;
 
 static GENERAL_ELEMENT def_hexahedron = {
@@ -152,7 +162,9 @@ static GENERAL_ELEMENT def_hexahedron = {
   .corners_of_side = {4,4,4,4,4,4},
   .edge_of_side = {{3,2,1,0},{0,5,8,4},{1,6,9,5},{2,7,10,6},{3,4,11,7},{8,9,10,11}},
   .corner_of_side = {{0,3,2,1},{0,1,5,4},{1,2,6,5},{2,3,7,6},{3,0,4,7},{4,5,6,7}},
-  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,5},{2,6},{3,7},{4,5},{5,6},{6,7},{7,4}}
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,5},{2,6},{3,7},{4,5},{5,6},{6,7},{7,4}},
+  .inner_size = offsetof(hexahedron,bnds),
+  .bnd_size = sizeof(hexahedron)
 } ;
 #endif
 
@@ -517,41 +529,6 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
 static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 {
-#ifdef UG_DIM_2
-  switch (el->tag)
-  {
-  case TRIANGLE :
-    el->inner_size = offsetof(triangle,bnds);
-    el->bnd_size = sizeof(triangle);
-    break;
-  case QUADRILATERAL :
-    el->inner_size = offsetof(quadrilateral,bnds);
-    el->bnd_size = sizeof(quadrilateral);
-    break;
-  }
-#endif
-#ifdef UG_DIM_3
-  switch (el->tag)
-  {
-  case TETRAHEDRON :
-    el->inner_size = offsetof(tetrahedron,bnds);
-    el->bnd_size = sizeof(tetrahedron);
-    break;
-  case PYRAMID :
-    el->inner_size = offsetof(pyramid,bnds);
-    el->bnd_size = sizeof(pyramid);
-    break;
-  case PRISM :
-    el->inner_size = offsetof(prism,bnds);
-    el->bnd_size = sizeof(prism);
-    break;
-  case HEXAHEDRON :
-    el->inner_size = offsetof(hexahedron,bnds);
-    el->bnd_size = sizeof(hexahedron);
-    break;
-  }
-#endif
-
   /* get a free object id for free list */
   if (el->mapped_inner_objt < 0)
     el->mapped_inner_objt = GetFreeOBJT();
