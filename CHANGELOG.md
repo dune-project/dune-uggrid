@@ -3,7 +3,11 @@ SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE
 SPDX-License-Identifier: LGPL-2.1-or-later
 -->
 
-# dune-uggrid 2.10 (unreleased)
+# Master (will become release 2.11)
+
+* ...
+
+# dune-uggrid 2.10 (2024-09-04)
 
 * Remove deprecated `AllocEnvMemory` and `FreeEnvMemory`. They were
   wrappers of standard `malloc` and `free`.
