@@ -137,7 +137,7 @@ START_UGDIM_NAMESPACE
 /** \brief max number of corners of a side */
 #define MAX_CORNERS_OF_SIDE     4
 /** \brief an edge has always two corners.. */
-#define MAX_CORNERS_OF_EDGE             2
+#define CORNERS_OF_EDGE             2
 /** \brief two sides have one edge in common */
 #define MAX_SIDES_OF_EDGE               2
 /** \brief max number of sons of an element */
@@ -1500,7 +1500,6 @@ MACROS:
 #SONS_OF_ELEM (ELEMENT *p)
 #EDGES_OF_SIDE (ELEMENT *p,INT i)
 #CORNERS_OF_SIDE (ELEMENT *p,INT i)
-#CORNERS_OF_EDGE 2
 
 #EDGE_OF_SIDE (ELEMENT *p,INT s,INT e)
 #CORNER_OF_SIDE (ELEMENT *p,INT s,INT c)
@@ -2467,7 +2466,6 @@ struct GENERAL_ELEMENT {
   INT edges_of_elem;                 /**< How many edges ?         */
   INT edges_of_side[MAX_SIDES_OF_ELEM];     /**< Number of edges for each side        */
   INT corners_of_side[MAX_SIDES_OF_ELEM];   /**< Number of corners for each side  */
-  INT corners_of_edge;                                      /**< Is always 2 !         */
 
   /* index computations */
   /* Within each element sides, edges, corners are numbered in some way.      */
@@ -2476,7 +2474,7 @@ struct GENERAL_ELEMENT {
   /* the side or edge to the numbering within the element.                                        */
   INT edge_of_side[MAX_SIDES_OF_ELEM][MAX_EDGES_OF_SIDE];
   INT corner_of_side[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_SIDE];
-  INT corner_of_edge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
+  INT corner_of_edge[MAX_EDGES_OF_ELEM][CORNERS_OF_EDGE];
 
   /* the following parameters are derived from data above */
   GM_OBJECTS mapped_inner_objt = NOOBJ;                               /* tag to objt mapping for free list*/
@@ -2532,9 +2530,6 @@ START_UGDIM_NAMESPACE
 
 /** \brief Returns the number of corners of side i of the given element. */
 #define CORNERS_OF_SIDE(p,i)            (element_descriptors[TAG(p)]->corners_of_side[(i)])
-
-/** \brief This definition is provided only to make the description complete. */
-#define CORNERS_OF_EDGE                         2
 
 /** \brief Returns the number of edge e of side s within the element p. */
 #define EDGE_OF_SIDE(p,s,e)             (element_descriptors[TAG(p)]->edge_of_side[(s)][(e)])

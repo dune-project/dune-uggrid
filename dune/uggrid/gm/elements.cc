@@ -79,7 +79,6 @@ static GENERAL_ELEMENT def_triangle = {
   .edges_of_elem = 3,
   .edges_of_side = {1,1,1,-1},
   .corners_of_side = {2,2,2,-1},
-  .corners_of_edge = 2,
   .edge_of_side = {{0,-1,-1},{1,-1,-1},{2,-1,-1},{-1,-1,-1}},
   .corner_of_side = {{0,1,-1},{1,2,-1},{2,0,-1},{-1,-1,-1}},
   .corner_of_edge = {{0,1},{1,2},{2,0},{-1,-1},{-1,-1},{-1,-1}}
@@ -93,7 +92,6 @@ static GENERAL_ELEMENT def_quadrilateral = {
   .edges_of_elem = 4,
   .edges_of_side = {1,1,1,1},
   .corners_of_side = {2,2,2,2},
-  .corners_of_edge = 2,
   .edge_of_side = {{0,-1,-1},{1,-1,-1},{2,-1,-1},{3,-1,-1}},
   .corner_of_side = {{0,1,-1},{1,2,-1},{2,3,-1},{3,0,-1}},
   .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{-1,-1},{-1,-1}}
@@ -109,7 +107,6 @@ static GENERAL_ELEMENT def_tetrahedron = {
   .edges_of_elem = 6,
   .edges_of_side = {3,3,3,3,-1,-1},
   .corners_of_side = {3,3,3,3,-1,-1},
-  .corners_of_edge = 2,
   .edge_of_side = {{2,1,0,-1},{1,5,4,-1},{3,5,2,-1},{0,4,3,-1}},
   .corner_of_side = {{0,2,1,-1},{1,2,3,-1},{0,3,2,-1},{0,1,3,-1}},
   .corner_of_edge = {{0,1},{1,2},{0,2},{0,3},{1,3},{2,3} }
@@ -123,7 +120,6 @@ static GENERAL_ELEMENT def_pyramid = {
   .edges_of_elem = 8,
   .edges_of_side = {4,3,3,3,3,-1},
   .corners_of_side = {4,3,3,3,3,-1},
-  .corners_of_edge = 2,
   .edge_of_side = {{3,2,1,0},{0,5,4,-1},{1,6,5,-1},{2,7,6,-1},{3,4,7,-1}},
   .corner_of_side = {{0,3,2,1},{0,1,4,-1},{1,2,4,-1},{2,3,4,-1},{3,0,4,-1}},
   .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,4},{2,4},{3,4}}
@@ -138,7 +134,6 @@ static GENERAL_ELEMENT def_prism = {
   .edges_of_elem = 9,
   .edges_of_side = {3,4,4,4,3,-1},
   .corners_of_side = {3,4,4,4,3,-1},
-  .corners_of_edge = 2,
   .edge_of_side = {{2,1,0,-1},{0,4,6,3},{1,5,7,4},{2,3,8,5},{6,7,8,-1}},
   .corner_of_side = {{0,2,1,-1},{0,1,4,3},{1,2,5,4},{2,0,3,5},{3,4,5,-1}},
   .corner_of_edge = {{0,1},{1,2},{2,0},{0,3},{1,4},{2,5},{3,4},{4,5},{5,3}}
@@ -155,7 +150,6 @@ static GENERAL_ELEMENT def_hexahedron = {
   .edges_of_elem = 12,
   .edges_of_side = {4,4,4,4,4,4},
   .corners_of_side = {4,4,4,4,4,4},
-  .corners_of_edge = 2,
   .edge_of_side = {{3,2,1,0},{0,5,8,4},{1,6,9,5},{2,7,10,6},{3,4,11,7},{8,9,10,11}},
   .corner_of_side = {{0,3,2,1},{0,1,5,4},{1,2,6,5},{2,3,7,6},{3,0,4,7},{4,5,6,7}},
   .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,5},{2,6},{3,7},{4,5},{5,6},{6,7},{7,4}}
@@ -185,7 +179,6 @@ static GENERAL_ELEMENT def_hexahedron = {
    . edges_of_elem - Number of edges for that element type.
    . edges_of_side - Number of edges for each side.
    . corners_of_side - Number of corners of each side.
-   . corners_of_edge - is always 2.
    . edge_of_side[s][e] - The edges are numbered in the element and in each side of the
    element. This array provides a mapping that tells you the number of edge 'e' of side
    's' with respect to the numbering in the element.
@@ -251,7 +244,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
   for (i=0; i<MAX_CORNERS_OF_ELEM; i++)
     for (j=0; j<MAX_EDGES_OF_ELEM; j++) el->edges_of_corner[i][j] = -1;
   for (i=0; i<el->edges_of_elem; i++)
-    for (j=0; j<el->corners_of_edge; j++)
+    for (j=0; j<CORNERS_OF_EDGE; j++)
     {
       const INT n = el->corner_of_edge[i][j];
       for (k=0; k<MAX_EDGES_OF_ELEM; k++)
@@ -284,7 +277,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
   /* edge_of_corner(i,j)	  */
   for (i=0; i<el->edges_of_elem; i++) {
-    for (j=0; j<el->corners_of_edge; j++) {
+    for (j=0; j<CORNERS_OF_EDGE; j++) {
       if (el->corner_of_edge[i][j] >=0) {
         for (k=0; k<el->edges_of_elem; k++)
           if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
@@ -317,7 +310,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
       INT n = 0;
-      for (j=0; j<el->corners_of_edge; j++) {
+      for (j=0; j<CORNERS_OF_EDGE; j++) {
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[el->corner_of_edge[i][j]][k] >= 0)
             n |= (0x1<<(el->edges_of_corner[el->corner_of_edge[i][j]][k]));
@@ -365,7 +358,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
       INT n = 0;
-      for (j=0; j<el->corners_of_edge; j++) {
+      for (j=0; j<CORNERS_OF_EDGE; j++) {
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[el->corner_of_edge[i][j]][k] >= 0)
             n |= (0x1<<(el->edges_of_corner[el->corner_of_edge[i][j]][k]));
@@ -453,12 +446,12 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
       INT n = 0;
-      for (j=0; j<el->corners_of_edge; j++) {
+      for (j=0; j<CORNERS_OF_EDGE; j++) {
         const INT n1 = el->corner_of_edge[i][j];
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[n1][k] >= 0) {
             n |= (0x1<<(el->edges_of_corner[n1][k]));
-            for (INT l=0; l<el->corners_of_edge; l++) {
+            for (INT l=0; l<CORNERS_OF_EDGE; l++) {
               const INT n2 = el->corner_of_edge[el->edges_of_corner[n1][k]][l];
               if (n2 != n1) {
                 for (INT m=0; m<el->edges_of_elem; m++) {
