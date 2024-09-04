@@ -2457,7 +2457,6 @@ struct GENERAL_ELEMENT {
   INT tag;                           /**< Element type to be defined       */
 
   /* the following parameters determine size of refs array in element */
-  INT max_sons_of_elem;              /**< Max number of sons for this type */
   INT sides_of_elem;                 /**< How many sides ?                 */
   INT corners_of_elem;               /**< How many corners ?               */
 
@@ -2524,14 +2523,6 @@ START_UGDIM_NAMESPACE
 */
 #define CORNERS_OF_ELEM(p)              (element_descriptors[TAG(p)]->corners_of_elem)
 #define LOCAL_COORD_OF_ELEM(p,c)    (element_descriptors[TAG(p)]->local_corner[(c)])
-
-/** \brief Returns the maximum number of sons possible for a given element.
- *
- * This is the size of the sons array in 2D. The actual number of sons depends
- * on the refinement rule that has been applied to the element and is given by the NSONS macro
- * (see CONTROL WORDS section below).
- */
-#define SONS_OF_ELEM(p)                         (element_descriptors[TAG(p)]->max_sons_of_elem) /* this is the number of pointers ! */
 
 /** \brief Returns the number of edges of side i of the given element.
  *
@@ -2693,8 +2684,6 @@ START_UGDIM_NAMESPACE
 #define EDGES_OF_TAG(t)                         (element_descriptors[t]->edges_of_elem)
 #define CORNERS_OF_TAG(t)                       (element_descriptors[t]->corners_of_elem)
 #define LOCAL_COORD_OF_TAG(t,c)                 (element_descriptors[t]->local_corner[(c)])
-
-#define SONS_OF_TAG(t)                                  (element_descriptors[t]->max_sons_of_elem) /* this is the number of pointers ! */
 
 #define EDGES_OF_SIDE_TAG(t,i)                  (element_descriptors[t]->edges_of_side[(i)])
 #define CORNERS_OF_SIDE_TAG(t,i)                (element_descriptors[t]->corners_of_side[(i)])

@@ -73,7 +73,6 @@ GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
 #ifdef UG_DIM_2
 static GENERAL_ELEMENT def_triangle = {
   .tag = TRIANGLE,
-  .max_sons_of_elem = 4,
   .sides_of_elem = 3,
   .corners_of_elem = 3,
   .local_corner = {{0.0,0.0},{1.0,0.0},{0.0,1.0}},
@@ -88,7 +87,6 @@ static GENERAL_ELEMENT def_triangle = {
 
 static GENERAL_ELEMENT def_quadrilateral = {
   .tag = QUADRILATERAL,
-  .max_sons_of_elem = 4,
   .sides_of_elem = 4,
   .corners_of_elem = 4,
   .local_corner = {{0.0,0.0},{1.0,0.0},{1.0,1.0},{0.0,1.0}},
@@ -105,7 +103,6 @@ static GENERAL_ELEMENT def_quadrilateral = {
 #ifdef UG_DIM_3
 static GENERAL_ELEMENT def_tetrahedron = {
   .tag = TETRAHEDRON,
-  .max_sons_of_elem = 12,
   .sides_of_elem = 4,
   .corners_of_elem = 4,
   .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0}},
@@ -120,7 +117,6 @@ static GENERAL_ELEMENT def_tetrahedron = {
 
 static GENERAL_ELEMENT def_pyramid = {
   .tag = PYRAMID,
-  .max_sons_of_elem = 0,
   .sides_of_elem = 5,
   .corners_of_elem = 5,
   .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{1.0,1.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0}},
@@ -135,7 +131,6 @@ static GENERAL_ELEMENT def_pyramid = {
 
 static GENERAL_ELEMENT def_prism = {
   .tag = PRISM,
-  .max_sons_of_elem = 0,
   .sides_of_elem = 5,
   .corners_of_elem = 6,
   .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{0.0,1.0,0.0},
@@ -151,7 +146,6 @@ static GENERAL_ELEMENT def_prism = {
 
 static GENERAL_ELEMENT def_hexahedron = {
   .tag = HEXAHEDRON,
-  .max_sons_of_elem = 30,
   .sides_of_elem = 6,
   .corners_of_elem = 8,
   .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},
@@ -179,7 +173,6 @@ static GENERAL_ELEMENT def_hexahedron = {
     INT tag;                                // element type to be defined
 
     // the following parameters determine size of refs array in element
-    INT max_sons_of_elem;                   // max number of sons for this type
     INT sides_of_elem;                      // how many sides ?
     INT corners_of_elem;                    // how many corners ?
 
@@ -229,7 +222,6 @@ static GENERAL_ELEMENT def_hexahedron = {
    All other components are derived from the given information.
 
    . tag - New tag for the element which will be delivered by the 'TAG' macro.
-   . max_sons_of_elem - Max number of sons allowed for that element type.
    . sides_of_elem - Number of sides for that element type.
    . corners_of_elem - Number of corners for that element type.
    . edges_of_elem - Number of edges for that element type.
@@ -561,7 +553,6 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
     INT tag;                                // element type to be defined
 
     // the following parameters determine size of refs array in element
-    INT max_sons_of_elem;                   // max number of sons for this type
     INT sides_of_elem;                      // how many sides ?
     INT corners_of_elem;                    // how many corners ?
 

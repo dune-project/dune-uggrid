@@ -181,14 +181,6 @@ static void ddd_InitGenericElement(DDD::DDDContext& context, INT tag, DDD_TYPE d
   DDD_TypeDefine(context, dddType,
                  EL_OBJPTR, r+n_offset[tag]*sizeof(void*),       ps*desc->corners_of_elem, dddctrl.TypeNode,
                  EL_OBJPTR, r+father_offset[tag]*sizeof(void*),  ps,                       dddType,
-                 /* TODO: delete
-                    #ifdef UG_DIM_2
-                                 EL_LDATA, r+sons_offset[tag]*sizeof(void*),    ps*desc->max_sons_of_elem,
-                    #endif
-                    #ifdef UG_DIM_3
-                                 EL_LDATA, r+sons_offset[tag]*sizeof(void*),    ps*1,
-                    #endif
-                  */
                  EL_LDATA, r+sons_offset[tag]*sizeof(void*),     ps*2,
                  EL_OBJPTR, r+nb_offset[tag]*sizeof(void*),      ps*desc->sides_of_elem,   dddType,
                  EL_CONTINUE);
