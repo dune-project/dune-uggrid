@@ -193,13 +193,8 @@ enum VectorType {NOVTYPE=-1,  //** Undefined */
 /*                                                                          */
 /****************************************************************************/
 
-/**      0 = OK as usual */
 /** @name result codes of user supplied functions*/
 /*@{*/
-/** \brief coordinate out of range                              */
-#define OUT_OF_RANGE                    1
-/** \brief configProblem could not init problem */
-#define CANNOT_INIT_PROBLEM     1
 
 /** \brief Use of GSTATUS (for grids), use power of 2 */
 enum {GSTATUS_BDF         = 1,
@@ -288,24 +283,6 @@ enum NodeType {CORNER_NODE,
 /*@{*/
 using DOUBLE_VECTOR = FieldVector<DOUBLE,DIM>;
 /*@}*/
-
-/*----------- typedef for functions ----------------------------------------*/
-
-/** \brief Print user data --> string
- * @param pointer to user data
- * @param Prefix for each line
- * @param resulting string
- */
-typedef INT (*ConversionProcPtr)(void *, const char *, char *);
-
-/** \brief Tagged print user data --> string
- *
- */
-typedef INT (*TaggedConversionProcPtr)(INT,            /**< Tag for data identification */
-                                       void *,             /**< Pointer to user data */
-                                       const char *,      /**< Prefix for each line */
-                                       char *              /**< Resulting string */
-                                       );
 
 
 /*----------- definition of structs ----------------------------------------*/
