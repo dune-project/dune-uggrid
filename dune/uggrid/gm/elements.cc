@@ -72,111 +72,99 @@ GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
 
 #ifdef UG_DIM_2
 static GENERAL_ELEMENT def_triangle = {
-  3,                                                                                    /* tag							*/
-  4,                                                                                    /* max number of sons			*/
-  3,                                                                                    /* number of sides				*/
-  3,                                                                                    /* number of corners			*/
-  {{0.0,0.0},{1.0,0.0},{0.0,1.0}},                      /* local coordinates			*/
-  3,                                                                                    /* number of edges				*/
-  {1,1,1,-1},                                                                   /* edges for each side	(2D!)	*/
-  {2,2,2,-1},                                                                   /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{0,-1,-1},{1,-1,-1},{2,-1,-1},{-1,-1,-1}},       /* number of edge j of side i   */
-  {{0,1,-1},{1,2,-1},{2,0,-1},{-1,-1,-1}},          /* number of corner j of side i */
-  {{0,1},{1,2},{2,0},{-1,-1},{-1,-1},{-1,-1}}       /* number of corner j of edge i */
+  .tag = TRIANGLE,
+  .max_sons_of_elem = 4,
+  .sides_of_elem = 3,
+  .corners_of_elem = 3,
+  .local_corner = {{0.0,0.0},{1.0,0.0},{0.0,1.0}},
+  .edges_of_elem = 3,
+  .edges_of_side = {1,1,1,-1},
+  .corners_of_side = {2,2,2,-1},
+  .corners_of_edge = 2,
+  .edge_of_side = {{0,-1,-1},{1,-1,-1},{2,-1,-1},{-1,-1,-1}},
+  .corner_of_side = {{0,1,-1},{1,2,-1},{2,0,-1},{-1,-1,-1}},
+  .corner_of_edge = {{0,1},{1,2},{2,0},{-1,-1},{-1,-1},{-1,-1}}
 } ;
 
 static GENERAL_ELEMENT def_quadrilateral = {
-  4,                                                                                    /* tag							*/
-  4,                                                                                    /* max number of sons			*/
-  4,                                                                                    /* number of sides				*/
-  4,                                                                                    /* number of corners			*/
-  {{0.0,0.0},{1.0,0.0},{1.0,1.0},
-   {0.0,1.0}},                                                          /* local coordinates			*/
-  4,                                                                                    /* number of edges				*/
-  {1,1,1,1},                                                                    /* edges for each side	(2D!)	*/
-  {2,2,2,2},                                                                    /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{0,-1,-1},{1,-1,-1},{2,-1,-1},{3,-1,-1}},       /* number of edge j of side i   */
-  {{0,1,-1},{1,2,-1},{2,3,-1},{3,0,-1}},           /* number of corner j of side i */
-  {{0,1},{1,2},{2,3},{3,0},{-1,-1},{-1,-1}}        /* number of corner j of edge i */
+  .tag = QUADRILATERAL,
+  .max_sons_of_elem = 4,
+  .sides_of_elem = 4,
+  .corners_of_elem = 4,
+  .local_corner = {{0.0,0.0},{1.0,0.0},{1.0,1.0},{0.0,1.0}},
+  .edges_of_elem = 4,
+  .edges_of_side = {1,1,1,1},
+  .corners_of_side = {2,2,2,2},
+  .corners_of_edge = 2,
+  .edge_of_side = {{0,-1,-1},{1,-1,-1},{2,-1,-1},{3,-1,-1}},
+  .corner_of_side = {{0,1,-1},{1,2,-1},{2,3,-1},{3,0,-1}},
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{-1,-1},{-1,-1}}
 } ;
 #endif
 
 #ifdef UG_DIM_3
 static GENERAL_ELEMENT def_tetrahedron = {
-  4,                                                                                    /* tag							*/
-  12,                                                                                   /* max number of sons			*/
-  4,                                                                                    /* number of sides				*/
-  4,                                                                                    /* number of corners			*/
-  {{0.0,0.0,0.0},{1.0,0.0,0.0},
-   {0.0,1.0,0.0},{0.0,0.0,1.0}},                        /* local coordinates			*/
-  6,                                                                                    /* number of edges				*/
-  {3,3,3,3,-1,-1},                                                      /* edges for each side	(2D!)	*/
-  {3,3,3,3,-1,-1},                                                      /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{2,1,0,-1},{1,5,4,-1},{3,5,2,-1},{0,4,3,-1}},       /* number of edge j of side i   */
-  {{0,2,1,-1},{1,2,3,-1},{0,3,2,-1},{0,1,3,-1}},       /* number of corner j of side i */
-  {{0,1},{1,2},{0,2},{0,3},{1,3},{2,3} }        /* number of corner j of edge i */
+  .tag = TETRAHEDRON,
+  .max_sons_of_elem = 12,
+  .sides_of_elem = 4,
+  .corners_of_elem = 4,
+  .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0}},
+  .edges_of_elem = 6,
+  .edges_of_side = {3,3,3,3,-1,-1},
+  .corners_of_side = {3,3,3,3,-1,-1},
+  .corners_of_edge = 2,
+  .edge_of_side = {{2,1,0,-1},{1,5,4,-1},{3,5,2,-1},{0,4,3,-1}},
+  .corner_of_side = {{0,2,1,-1},{1,2,3,-1},{0,3,2,-1},{0,1,3,-1}},
+  .corner_of_edge = {{0,1},{1,2},{0,2},{0,3},{1,3},{2,3} }
 } ;
 
 static GENERAL_ELEMENT def_pyramid = {
-  5,                                                                                    /* tag							*/
-  0,                                                                                    /* max number of sons			*/
-  5,                                                                                    /* number of sides				*/
-  5,                                                                                    /* number of corners			*/
-  {{0.0,0.0,0.0},{1.0,0.0,0.0},{1.0,1.0,0.0},
-   {0.0,1.0,0.0},{0.0,0.0,1.0}},                        /* local coordinates			*/
-  8,                                                                                    /* number of edges				*/
-  {4,3,3,3,3,-1},                                                       /* edges for each side	(2D!)	*/
-  {4,3,3,3,3,-1},                                                       /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{3,2,1,0},{0,5,4,-1},{1,6,5,-1},                     /* number of edge j of side i   */
-   {2,7,6,-1},{3,4,7,-1}},
-  {{0,3,2,1},{0,1,4,-1},{1,2,4,-1},                     /* number of corner j of side i */
-   {2,3,4,-1},{3,0,4,-1}},
-  {{0,1},{1,2},{2,3},{3,0},{0,4},{1,4},         /* number of corner j of edge i */
-   {2,4},{3,4}}
+  .tag = PYRAMID,
+  .max_sons_of_elem = 0,
+  .sides_of_elem = 5,
+  .corners_of_elem = 5,
+  .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{1.0,1.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0}},
+  .edges_of_elem = 8,
+  .edges_of_side = {4,3,3,3,3,-1},
+  .corners_of_side = {4,3,3,3,3,-1},
+  .corners_of_edge = 2,
+  .edge_of_side = {{3,2,1,0},{0,5,4,-1},{1,6,5,-1},{2,7,6,-1},{3,4,7,-1}},
+  .corner_of_side = {{0,3,2,1},{0,1,4,-1},{1,2,4,-1},{2,3,4,-1},{3,0,4,-1}},
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,4},{2,4},{3,4}}
 } ;
 
 static GENERAL_ELEMENT def_prism = {
-  6,                                                                                    /* tag							*/
-  0,                                                                                    /* max number of sons			*/
-  5,                                                                                    /* number of sides				*/
-  6,                                                                                    /* number of corners			*/
-  {{0.0,0.0,0.0},{1.0,0.0,0.0},{0.0,1.0,0.0},
-   {0.0,0.0,1.0},{1.0,0.0,1.0},{0.0,1.0,1.0}},       /* local coordinates		*/
-  9,                                                                                    /* number of edges				*/
-  {3,4,4,4,3,-1},                                                       /* edges for each side	(2D!)	*/
-  {3,4,4,4,3,-1},                                                       /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{2,1,0,-1},{0,4,6,3},{1,5,7,4},                      /* number of edge j of side i   */
-   {2,3,8,5},{6,7,8,-1}},
-  {{0,2,1,-1},{0,1,4,3},{1,2,5,4},                      /* number of corner j of side i */
-   {2,0,3,5},{3,4,5,-1}},
-  {{0,1},{1,2},{2,0},{0,3},{1,4},{2,5},         /* number of corner j of edge i */
-   {3,4},{4,5},{5,3}}
+  .tag = PRISM,
+  .max_sons_of_elem = 0,
+  .sides_of_elem = 5,
+  .corners_of_elem = 6,
+  .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{0.0,1.0,0.0},
+   {0.0,0.0,1.0},{1.0,0.0,1.0},{0.0,1.0,1.0}},
+  .edges_of_elem = 9,
+  .edges_of_side = {3,4,4,4,3,-1},
+  .corners_of_side = {3,4,4,4,3,-1},
+  .corners_of_edge = 2,
+  .edge_of_side = {{2,1,0,-1},{0,4,6,3},{1,5,7,4},{2,3,8,5},{6,7,8,-1}},
+  .corner_of_side = {{0,2,1,-1},{0,1,4,3},{1,2,5,4},{2,0,3,5},{3,4,5,-1}},
+  .corner_of_edge = {{0,1},{1,2},{2,0},{0,3},{1,4},{2,5},{3,4},{4,5},{5,3}}
 } ;
 
 static GENERAL_ELEMENT def_hexahedron = {
-  7,                                                                                    /* tag							*/
-  30,                                                                                   /* max number of sons			*/
-  6,                                                                                    /* number of sides				*/
-  8,                                                                                    /* number of corners			*/
-  {{0.0,0.0,0.0},{1.0,0.0,0.0},
+  .tag = HEXAHEDRON,
+  .max_sons_of_elem = 30,
+  .sides_of_elem = 6,
+  .corners_of_elem = 8,
+  .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},
    {1.0,1.0,0.0},{0.0,1.0,0.0},
    {0.0,0.0,1.0},{1.0,0.0,1.0},
-   {1.0,1.0,1.0},{0.0,1.0,1.0}},                        /* local coordinates			*/
-  12,                                                                                   /* number of edges				*/
-  {4,4,4,4,4,4},                                                        /* edges for each side	(2D!)	*/
-  {4,4,4,4,4,4},                                                        /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{3,2,1,0},{0,5,8,4},{1,6,9,5},                       /* number of edge j of side i   */
-   {2,7,10,6},{3,4,11,7},{8,9,10,11}},
-  {{0,3,2,1},{0,1,5,4},{1,2,6,5},                       /* number of corner j of side i */
-   {2,3,7,6},{3,0,4,7},{4,5,6,7}},
-  {{0,1},{1,2},{2,3},{3,0},{0,4},{1,5},         /* number of corner j of edge i */
-   {2,6},{3,7},{4,5},{5,6},{6,7},{7,4}}
+   {1.0,1.0,1.0},{0.0,1.0,1.0}},
+  .edges_of_elem = 12,
+  .edges_of_side = {4,4,4,4,4,4},
+  .corners_of_side = {4,4,4,4,4,4},
+  .corners_of_edge = 2,
+  .edge_of_side = {{3,2,1,0},{0,5,8,4},{1,6,9,5},{2,7,10,6},{3,4,11,7},{8,9,10,11}},
+  .corner_of_side = {{0,3,2,1},{0,1,5,4},{1,2,6,5},{2,3,7,6},{3,0,4,7},{4,5,6,7}},
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,5},{2,6},{3,7},{4,5},{5,6},{6,7},{7,4}}
 } ;
 #endif
 
