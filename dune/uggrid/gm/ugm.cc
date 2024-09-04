@@ -1383,7 +1383,7 @@ NODE * NS_DIM_PREFIX GetCenterNode (const ELEMENT *theElement)
   theNode = NULL;
   if (GetAllSons(theElement,SonList) != GM_OK) assert(0);
 
-  for (i=0; SonList[i]!=NULL; i++)
+  for (i=0; i<MAX_SONS && SonList[i]!=NULL; i++)
   {
     theSon = SonList[i];
     for (j=0; j<CORNERS_OF_ELEM(theSon); j++)

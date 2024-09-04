@@ -124,6 +124,29 @@ START_UGDIM_NAMESPACE
 
 /** @name Some size macros for allocation purposes */
 /*@{*/
+#ifdef UG_DIM_2
+
+/** \brief max number of sides of an element */
+#define MAX_SIDES_OF_ELEM               4
+/** \brief max number of edges of an element */
+#define MAX_EDGES_OF_ELEM               4
+/** \brief max number of corners of an element */
+#define MAX_CORNERS_OF_ELEM             4
+/** \brief max number of edges of a side */
+#define MAX_EDGES_OF_SIDE               1
+/** \brief max number of edges meeting in a corner */
+#define MAX_EDGES_OF_CORNER             2
+/** \brief max number of corners of a side */
+#define MAX_CORNERS_OF_SIDE             2
+/** \brief two sides have one edge in common */
+#define MAX_SIDES_OF_EDGE               2
+/** \brief max number of sons of an element */
+enum {MAX_SONS = 4};
+/** \brief max number of nodes on elem side */
+#define MAX_SIDE_NODES                  3
+
+#else  // UG_DIM_3
+
 /** \brief max number of sides of an element */
 #define MAX_SIDES_OF_ELEM               6
 /** \brief max number of edges of an element */
@@ -136,14 +159,17 @@ START_UGDIM_NAMESPACE
 #define MAX_EDGES_OF_CORNER             4
 /** \brief max number of corners of a side */
 #define MAX_CORNERS_OF_SIDE     4
-/** \brief an edge has always two corners.. */
-#define CORNERS_OF_EDGE             2
 /** \brief two sides have one edge in common */
 #define MAX_SIDES_OF_EDGE               2
 /** \brief max number of sons of an element */
 enum {MAX_SONS = 30};
 /** \brief max number of nodes on elem side */
 #define MAX_SIDE_NODES                  9
+
+#endif
+
+/** \brief an edge has always two corners.. */
+#define CORNERS_OF_EDGE             2
 /** \brief max number of son edges of edge  */
 #define MAX_SON_EDGES                   2
 

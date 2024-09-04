@@ -79,9 +79,9 @@ static GENERAL_ELEMENT def_triangle = {
   .edges_of_elem = 3,
   .edges_of_side = {1,1,1,-1},
   .corners_of_side = {2,2,2,-1},
-  .edge_of_side = {{0,-1,-1},{1,-1,-1},{2,-1,-1},{-1,-1,-1}},
-  .corner_of_side = {{0,1,-1},{1,2,-1},{2,0,-1},{-1,-1,-1}},
-  .corner_of_edge = {{0,1},{1,2},{2,0},{-1,-1},{-1,-1},{-1,-1}},
+  .edge_of_side = {{0},{1},{2},{-1}},
+  .corner_of_side = {{0,1},{1,2},{2,0},{-1,-1}},
+  .corner_of_edge = {{0,1},{1,2},{2,0},{-1,-1}},
   .inner_size = offsetof(triangle,bnds),
   .bnd_size = sizeof(triangle)
 } ;
@@ -94,9 +94,9 @@ static GENERAL_ELEMENT def_quadrilateral = {
   .edges_of_elem = 4,
   .edges_of_side = {1,1,1,1},
   .corners_of_side = {2,2,2,2},
-  .edge_of_side = {{0,-1,-1},{1,-1,-1},{2,-1,-1},{3,-1,-1}},
-  .corner_of_side = {{0,1,-1},{1,2,-1},{2,3,-1},{3,0,-1}},
-  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{-1,-1},{-1,-1}},
+  .edge_of_side = {{0},{1},{2},{3}},
+  .corner_of_side = {{0,1},{1,2},{2,3},{3,0}},
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0}},
   .inner_size = offsetof(quadrilateral,bnds),
   .bnd_size = sizeof(quadrilateral)
 } ;

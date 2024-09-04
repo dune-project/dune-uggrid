@@ -3419,7 +3419,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
 
     /* determine sonnode on side */
     /*			for (i=0; i<NSONS(theElement); i++) */
-    for (INT i = 0; SonList[i] != NULL; i++)
+    for (INT i = 0; i<MAX_SONS && SonList[i] != NULL; i++)
     {
       INT n = 0;
       std::array<INT,MAX_CORNERS_OF_SIDE> corner;
