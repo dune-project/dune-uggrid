@@ -124,6 +124,29 @@ START_UGDIM_NAMESPACE
 
 /** @name Some size macros for allocation purposes */
 /*@{*/
+#ifdef UG_DIM_2
+
+/** \brief max number of sides of an element */
+#define MAX_SIDES_OF_ELEM               4
+/** \brief max number of edges of an element */
+#define MAX_EDGES_OF_ELEM               4
+/** \brief max number of corners of an element */
+#define MAX_CORNERS_OF_ELEM             4
+/** \brief max number of edges of a side */
+#define MAX_EDGES_OF_SIDE               1
+/** \brief max number of edges meeting in a corner */
+#define MAX_EDGES_OF_CORNER             2
+/** \brief max number of corners of a side */
+#define MAX_CORNERS_OF_SIDE             2
+/** \brief two sides have one edge in common */
+#define MAX_SIDES_OF_EDGE               2
+/** \brief max number of sons of an element */
+enum {MAX_SONS = 4};
+/** \brief max number of nodes on elem side */
+#define MAX_SIDE_NODES                  3
+
+#else  // UG_DIM_3
+
 /** \brief max number of sides of an element */
 #define MAX_SIDES_OF_ELEM               6
 /** \brief max number of edges of an element */
@@ -136,14 +159,17 @@ START_UGDIM_NAMESPACE
 #define MAX_EDGES_OF_CORNER             4
 /** \brief max number of corners of a side */
 #define MAX_CORNERS_OF_SIDE     4
-/** \brief an edge has always two corners.. */
-#define MAX_CORNERS_OF_EDGE             2
 /** \brief two sides have one edge in common */
 #define MAX_SIDES_OF_EDGE               2
 /** \brief max number of sons of an element */
 enum {MAX_SONS = 30};
 /** \brief max number of nodes on elem side */
 #define MAX_SIDE_NODES                  9
+
+#endif
+
+/** \brief an edge has always two corners.. */
+#define CORNERS_OF_EDGE             2
 /** \brief max number of son edges of edge  */
 #define MAX_SON_EDGES                   2
 
@@ -193,13 +219,8 @@ enum VectorType {NOVTYPE=-1,  //** Undefined */
 /*                                                                          */
 /****************************************************************************/
 
-/**      0 = OK as usual */
 /** @name result codes of user supplied functions*/
 /*@{*/
-/** \brief coordinate out of range                              */
-#define OUT_OF_RANGE                    1
-/** \brief configProblem could not init problem */
-#define CANNOT_INIT_PROBLEM     1
 
 /** \brief Use of GSTATUS (for grids), use power of 2 */
 enum {GSTATUS_BDF         = 1,
@@ -288,24 +309,6 @@ enum NodeType {CORNER_NODE,
 /*@{*/
 using DOUBLE_VECTOR = FieldVector<DOUBLE,DIM>;
 /*@}*/
-
-/*----------- typedef for functions ----------------------------------------*/
-
-/** \brief Print user data --> string
- * @param pointer to user data
- * @param Prefix for each line
- * @param resulting string
- */
-typedef INT (*ConversionProcPtr)(void *, const char *, char *);
-
-/** \brief Tagged print user data --> string
- *
- */
-typedef INT (*TaggedConversionProcPtr)(INT,            /**< Tag for data identification */
-                                       void *,             /**< Pointer to user data */
-                                       const char *,      /**< Prefix for each line */
-                                       char *              /**< Resulting string */
-                                       );
 
 
 /*----------- definition of structs ----------------------------------------*/
@@ -1523,7 +1526,6 @@ MACROS:
 #SONS_OF_ELEM (ELEMENT *p)
 #EDGES_OF_SIDE (ELEMENT *p,INT i)
 #CORNERS_OF_SIDE (ELEMENT *p,INT i)
-#CORNERS_OF_EDGE 2
 
 #EDGE_OF_SIDE (ELEMENT *p,INT s,INT e)
 #CORNER_OF_SIDE (ELEMENT *p,INT s,INT c)
@@ -2480,7 +2482,6 @@ struct GENERAL_ELEMENT {
   INT tag;                           /**< Element type to be defined       */
 
   /* the following parameters determine size of refs array in element */
-  INT max_sons_of_elem;              /**< Max number of sons for this type */
   INT sides_of_elem;                 /**< How many sides ?                 */
   INT corners_of_elem;               /**< How many corners ?               */
 
@@ -2491,7 +2492,6 @@ struct GENERAL_ELEMENT {
   INT edges_of_elem;                 /**< How many edges ?         */
   INT edges_of_side[MAX_SIDES_OF_ELEM];     /**< Number of edges for each side        */
   INT corners_of_side[MAX_SIDES_OF_ELEM];   /**< Number of corners for each side  */
-  INT corners_of_edge;                                      /**< Is always 2 !         */
 
   /* index computations */
   /* Within each element sides, edges, corners are numbered in some way.      */
@@ -2500,7 +2500,7 @@ struct GENERAL_ELEMENT {
   /* the side or edge to the numbering within the element.                                        */
   INT edge_of_side[MAX_SIDES_OF_ELEM][MAX_EDGES_OF_SIDE];
   INT corner_of_side[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_SIDE];
-  INT corner_of_edge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
+  INT corner_of_edge[MAX_EDGES_OF_ELEM][CORNERS_OF_EDGE];
 
   /* the following parameters are derived from data above */
   GM_OBJECTS mapped_inner_objt = NOOBJ;                               /* tag to objt mapping for free list*/
@@ -2548,14 +2548,6 @@ START_UGDIM_NAMESPACE
 #define CORNERS_OF_ELEM(p)              (element_descriptors[TAG(p)]->corners_of_elem)
 #define LOCAL_COORD_OF_ELEM(p,c)    (element_descriptors[TAG(p)]->local_corner[(c)])
 
-/** \brief Returns the maximum number of sons possible for a given element.
- *
- * This is the size of the sons array in 2D. The actual number of sons depends
- * on the refinement rule that has been applied to the element and is given by the NSONS macro
- * (see CONTROL WORDS section below).
- */
-#define SONS_OF_ELEM(p)                         (element_descriptors[TAG(p)]->max_sons_of_elem) /* this is the number of pointers ! */
-
 /** \brief Returns the number of edges of side i of the given element.
  *
  * In 2D a side has always one edge since edges and sides coincide.
@@ -2564,9 +2556,6 @@ START_UGDIM_NAMESPACE
 
 /** \brief Returns the number of corners of side i of the given element. */
 #define CORNERS_OF_SIDE(p,i)            (element_descriptors[TAG(p)]->corners_of_side[(i)])
-
-/** \brief This definition is provided only to make the description complete. */
-#define CORNERS_OF_EDGE                         2
 
 /** \brief Returns the number of edge e of side s within the element p. */
 #define EDGE_OF_SIDE(p,s,e)             (element_descriptors[TAG(p)]->edge_of_side[(s)][(e)])
@@ -2716,8 +2705,6 @@ START_UGDIM_NAMESPACE
 #define EDGES_OF_TAG(t)                         (element_descriptors[t]->edges_of_elem)
 #define CORNERS_OF_TAG(t)                       (element_descriptors[t]->corners_of_elem)
 #define LOCAL_COORD_OF_TAG(t,c)                 (element_descriptors[t]->local_corner[(c)])
-
-#define SONS_OF_TAG(t)                                  (element_descriptors[t]->max_sons_of_elem) /* this is the number of pointers ! */
 
 #define EDGES_OF_SIDE_TAG(t,i)                  (element_descriptors[t]->edges_of_side[(i)])
 #define CORNERS_OF_SIDE_TAG(t,i)                (element_descriptors[t]->corners_of_side[(i)])

@@ -58,14 +58,6 @@ USING_UG_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-/* defines and macros for the virtual heap management                        */
-
-#define B_OFFSET(bhm,i)         ((bhm)->BlockDesc[i].offset)
-#define B_SIZE(bhm,i)            ((bhm)->BlockDesc[i].size)
-#define B_ID(bhm,i)             ((bhm)->BlockDesc[i].id)
-
-#define CALC_B_OFFSET(bhm,i)    (((i)==0) ? 0 : (B_OFFSET(theVHM,(i)-1)+B_SIZE(theVHM,(i)-1)))
-
 /****************************************************************************/
 /** \brief Install a new heap structure
 

@@ -108,12 +108,12 @@ START_UGDIM_NAMESPACE
         #if (MGIO_DIM==2)
         #define MGIO_CHECKEXTMACROS                                     {assert(MGIO_MAXLEVEL==32); \
                                                                          assert(MGIO_TAGS==8); \
-                                                                         assert(MGIO_MAX_SONS_OF_ELEM==30); \
-                                                                         assert(MGIO_MAX_EDGES_OF_ELEM==12); \
-                                                                         assert(MGIO_MAX_CORNERS_OF_ELEM==8); \
-                                                                         assert(MGIO_MAX_SIDES_OF_ELEM==6); \
+                                                                         assert(MGIO_MAX_SONS_OF_ELEM==4); \
+                                                                         assert(MGIO_MAX_EDGES_OF_ELEM==4); \
+                                                                         assert(MGIO_MAX_CORNERS_OF_ELEM==4); \
+                                                                         assert(MGIO_MAX_SIDES_OF_ELEM==4); \
                                                                          assert(MGIO_MAX_NEW_CORNERS==5); \
-                                                                         assert(MGIO_MAX_CORNERS_OF_SIDE==4);}
+                                                                         assert(MGIO_MAX_CORNERS_OF_SIDE==2);}
         #endif
         #if (MGIO_DIM==3)
         #define MGIO_CHECKEXTMACROS                                     {assert(MGIO_MAXLEVEL==32); \

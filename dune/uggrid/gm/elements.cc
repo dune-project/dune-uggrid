@@ -72,111 +72,99 @@ GENERAL_ELEMENT * NS_DIM_PREFIX element_descriptors[TAGS];
 
 #ifdef UG_DIM_2
 static GENERAL_ELEMENT def_triangle = {
-  3,                                                                                    /* tag							*/
-  4,                                                                                    /* max number of sons			*/
-  3,                                                                                    /* number of sides				*/
-  3,                                                                                    /* number of corners			*/
-  {{0.0,0.0},{1.0,0.0},{0.0,1.0}},                      /* local coordinates			*/
-  3,                                                                                    /* number of edges				*/
-  {1,1,1,-1},                                                                   /* edges for each side	(2D!)	*/
-  {2,2,2,-1},                                                                   /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{0,-1,-1},{1,-1,-1},{2,-1,-1},{-1,-1,-1}},       /* number of edge j of side i   */
-  {{0,1,-1},{1,2,-1},{2,0,-1},{-1,-1,-1}},          /* number of corner j of side i */
-  {{0,1},{1,2},{2,0},{-1,-1},{-1,-1},{-1,-1}}       /* number of corner j of edge i */
+  .tag = TRIANGLE,
+  .sides_of_elem = 3,
+  .corners_of_elem = 3,
+  .local_corner = {{0.0,0.0},{1.0,0.0},{0.0,1.0}},
+  .edges_of_elem = 3,
+  .edges_of_side = {1,1,1,-1},
+  .corners_of_side = {2,2,2,-1},
+  .edge_of_side = {{0},{1},{2},{-1}},
+  .corner_of_side = {{0,1},{1,2},{2,0},{-1,-1}},
+  .corner_of_edge = {{0,1},{1,2},{2,0},{-1,-1}},
+  .inner_size = offsetof(triangle,bnds),
+  .bnd_size = sizeof(triangle)
 } ;
 
 static GENERAL_ELEMENT def_quadrilateral = {
-  4,                                                                                    /* tag							*/
-  4,                                                                                    /* max number of sons			*/
-  4,                                                                                    /* number of sides				*/
-  4,                                                                                    /* number of corners			*/
-  {{0.0,0.0},{1.0,0.0},{1.0,1.0},
-   {0.0,1.0}},                                                          /* local coordinates			*/
-  4,                                                                                    /* number of edges				*/
-  {1,1,1,1},                                                                    /* edges for each side	(2D!)	*/
-  {2,2,2,2},                                                                    /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{0,-1,-1},{1,-1,-1},{2,-1,-1},{3,-1,-1}},       /* number of edge j of side i   */
-  {{0,1,-1},{1,2,-1},{2,3,-1},{3,0,-1}},           /* number of corner j of side i */
-  {{0,1},{1,2},{2,3},{3,0},{-1,-1},{-1,-1}}        /* number of corner j of edge i */
+  .tag = QUADRILATERAL,
+  .sides_of_elem = 4,
+  .corners_of_elem = 4,
+  .local_corner = {{0.0,0.0},{1.0,0.0},{1.0,1.0},{0.0,1.0}},
+  .edges_of_elem = 4,
+  .edges_of_side = {1,1,1,1},
+  .corners_of_side = {2,2,2,2},
+  .edge_of_side = {{0},{1},{2},{3}},
+  .corner_of_side = {{0,1},{1,2},{2,3},{3,0}},
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0}},
+  .inner_size = offsetof(quadrilateral,bnds),
+  .bnd_size = sizeof(quadrilateral)
 } ;
 #endif
 
 #ifdef UG_DIM_3
 static GENERAL_ELEMENT def_tetrahedron = {
-  4,                                                                                    /* tag							*/
-  12,                                                                                   /* max number of sons			*/
-  4,                                                                                    /* number of sides				*/
-  4,                                                                                    /* number of corners			*/
-  {{0.0,0.0,0.0},{1.0,0.0,0.0},
-   {0.0,1.0,0.0},{0.0,0.0,1.0}},                        /* local coordinates			*/
-  6,                                                                                    /* number of edges				*/
-  {3,3,3,3,-1,-1},                                                      /* edges for each side	(2D!)	*/
-  {3,3,3,3,-1,-1},                                                      /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{2,1,0,-1},{1,5,4,-1},{3,5,2,-1},{0,4,3,-1}},       /* number of edge j of side i   */
-  {{0,2,1,-1},{1,2,3,-1},{0,3,2,-1},{0,1,3,-1}},       /* number of corner j of side i */
-  {{0,1},{1,2},{0,2},{0,3},{1,3},{2,3} }        /* number of corner j of edge i */
+  .tag = TETRAHEDRON,
+  .sides_of_elem = 4,
+  .corners_of_elem = 4,
+  .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0}},
+  .edges_of_elem = 6,
+  .edges_of_side = {3,3,3,3,-1,-1},
+  .corners_of_side = {3,3,3,3,-1,-1},
+  .edge_of_side = {{2,1,0,-1},{1,5,4,-1},{3,5,2,-1},{0,4,3,-1}},
+  .corner_of_side = {{0,2,1,-1},{1,2,3,-1},{0,3,2,-1},{0,1,3,-1}},
+  .corner_of_edge = {{0,1},{1,2},{0,2},{0,3},{1,3},{2,3}},
+  .inner_size = offsetof(tetrahedron,bnds),
+  .bnd_size = sizeof(tetrahedron)
 } ;
 
 static GENERAL_ELEMENT def_pyramid = {
-  5,                                                                                    /* tag							*/
-  0,                                                                                    /* max number of sons			*/
-  5,                                                                                    /* number of sides				*/
-  5,                                                                                    /* number of corners			*/
-  {{0.0,0.0,0.0},{1.0,0.0,0.0},{1.0,1.0,0.0},
-   {0.0,1.0,0.0},{0.0,0.0,1.0}},                        /* local coordinates			*/
-  8,                                                                                    /* number of edges				*/
-  {4,3,3,3,3,-1},                                                       /* edges for each side	(2D!)	*/
-  {4,3,3,3,3,-1},                                                       /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{3,2,1,0},{0,5,4,-1},{1,6,5,-1},                     /* number of edge j of side i   */
-   {2,7,6,-1},{3,4,7,-1}},
-  {{0,3,2,1},{0,1,4,-1},{1,2,4,-1},                     /* number of corner j of side i */
-   {2,3,4,-1},{3,0,4,-1}},
-  {{0,1},{1,2},{2,3},{3,0},{0,4},{1,4},         /* number of corner j of edge i */
-   {2,4},{3,4}}
+  .tag = PYRAMID,
+  .sides_of_elem = 5,
+  .corners_of_elem = 5,
+  .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{1.0,1.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0}},
+  .edges_of_elem = 8,
+  .edges_of_side = {4,3,3,3,3,-1},
+  .corners_of_side = {4,3,3,3,3,-1},
+  .edge_of_side = {{3,2,1,0},{0,5,4,-1},{1,6,5,-1},{2,7,6,-1},{3,4,7,-1}},
+  .corner_of_side = {{0,3,2,1},{0,1,4,-1},{1,2,4,-1},{2,3,4,-1},{3,0,4,-1}},
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,4},{2,4},{3,4}},
+  .inner_size = offsetof(pyramid,bnds),
+  .bnd_size = sizeof(pyramid)
 } ;
 
 static GENERAL_ELEMENT def_prism = {
-  6,                                                                                    /* tag							*/
-  0,                                                                                    /* max number of sons			*/
-  5,                                                                                    /* number of sides				*/
-  6,                                                                                    /* number of corners			*/
-  {{0.0,0.0,0.0},{1.0,0.0,0.0},{0.0,1.0,0.0},
-   {0.0,0.0,1.0},{1.0,0.0,1.0},{0.0,1.0,1.0}},       /* local coordinates		*/
-  9,                                                                                    /* number of edges				*/
-  {3,4,4,4,3,-1},                                                       /* edges for each side	(2D!)	*/
-  {3,4,4,4,3,-1},                                                       /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{2,1,0,-1},{0,4,6,3},{1,5,7,4},                      /* number of edge j of side i   */
-   {2,3,8,5},{6,7,8,-1}},
-  {{0,2,1,-1},{0,1,4,3},{1,2,5,4},                      /* number of corner j of side i */
-   {2,0,3,5},{3,4,5,-1}},
-  {{0,1},{1,2},{2,0},{0,3},{1,4},{2,5},         /* number of corner j of edge i */
-   {3,4},{4,5},{5,3}}
+  .tag = PRISM,
+  .sides_of_elem = 5,
+  .corners_of_elem = 6,
+  .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},{0.0,1.0,0.0},
+   {0.0,0.0,1.0},{1.0,0.0,1.0},{0.0,1.0,1.0}},
+  .edges_of_elem = 9,
+  .edges_of_side = {3,4,4,4,3,-1},
+  .corners_of_side = {3,4,4,4,3,-1},
+  .edge_of_side = {{2,1,0,-1},{0,4,6,3},{1,5,7,4},{2,3,8,5},{6,7,8,-1}},
+  .corner_of_side = {{0,2,1,-1},{0,1,4,3},{1,2,5,4},{2,0,3,5},{3,4,5,-1}},
+  .corner_of_edge = {{0,1},{1,2},{2,0},{0,3},{1,4},{2,5},{3,4},{4,5},{5,3}},
+  .inner_size = offsetof(prism,bnds),
+  .bnd_size = sizeof(prism)
 } ;
 
 static GENERAL_ELEMENT def_hexahedron = {
-  7,                                                                                    /* tag							*/
-  30,                                                                                   /* max number of sons			*/
-  6,                                                                                    /* number of sides				*/
-  8,                                                                                    /* number of corners			*/
-  {{0.0,0.0,0.0},{1.0,0.0,0.0},
+  .tag = HEXAHEDRON,
+  .sides_of_elem = 6,
+  .corners_of_elem = 8,
+  .local_corner = {{0.0,0.0,0.0},{1.0,0.0,0.0},
    {1.0,1.0,0.0},{0.0,1.0,0.0},
    {0.0,0.0,1.0},{1.0,0.0,1.0},
-   {1.0,1.0,1.0},{0.0,1.0,1.0}},                        /* local coordinates			*/
-  12,                                                                                   /* number of edges				*/
-  {4,4,4,4,4,4},                                                        /* edges for each side	(2D!)	*/
-  {4,4,4,4,4,4},                                                        /* corners for each side		*/
-  2,                                                                                    /* an edge has 2 corners		*/
-  {{3,2,1,0},{0,5,8,4},{1,6,9,5},                       /* number of edge j of side i   */
-   {2,7,10,6},{3,4,11,7},{8,9,10,11}},
-  {{0,3,2,1},{0,1,5,4},{1,2,6,5},                       /* number of corner j of side i */
-   {2,3,7,6},{3,0,4,7},{4,5,6,7}},
-  {{0,1},{1,2},{2,3},{3,0},{0,4},{1,5},         /* number of corner j of edge i */
-   {2,6},{3,7},{4,5},{5,6},{6,7},{7,4}}
+   {1.0,1.0,1.0},{0.0,1.0,1.0}},
+  .edges_of_elem = 12,
+  .edges_of_side = {4,4,4,4,4,4},
+  .corners_of_side = {4,4,4,4,4,4},
+  .edge_of_side = {{3,2,1,0},{0,5,8,4},{1,6,9,5},{2,7,10,6},{3,4,11,7},{8,9,10,11}},
+  .corner_of_side = {{0,3,2,1},{0,1,5,4},{1,2,6,5},{2,3,7,6},{3,0,4,7},{4,5,6,7}},
+  .corner_of_edge = {{0,1},{1,2},{2,3},{3,0},{0,4},{1,5},{2,6},{3,7},{4,5},{5,6},{6,7},{7,4}},
+  .inner_size = offsetof(hexahedron,bnds),
+  .bnd_size = sizeof(hexahedron)
 } ;
 #endif
 
@@ -184,49 +172,6 @@ static GENERAL_ELEMENT def_hexahedron = {
 /** \brief Compute index fields for a given element type
 
    \param el pointer to an element description
-
-   STRUCTURES:
-   \verbatim
-   typedef struct {
-    INT tag;                                // element type to be defined
-
-    // the following parameters determine size of refs array in element
-    INT max_sons_of_elem;                   // max number of sons for this type
-    INT sides_of_elem;                      // how many sides ?
-    INT corners_of_elem;                    // how many corners ?
-
-    // more size parameters
-    INT edges_of_elem;                      // how many edges ?
-    INT edges_of_side[MAX_SIDES_OF_ELEM];   // number of edges for each side
-    INT corners_of_side[MAX_SIDES_OF_ELEM]; // number of corners for each side
-    INT corners_of_edge;                    // is always 2 !
-
-    // index computations
-    // Within each element sides, edges, corners are numbered in some way.
-    // Within each side the edges and corners are numbered, within the edge the
-    // corners are numbered. The following arrays map the local numbers within
-    // the side or edge to the numbering within the element.
-    INT edge_of_side[MAX_SIDES_OF_ELEM][MAX_EDGES_OF_SIDE];
-    INT corner_of_side[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_SIDE];
-    INT corner_of_edge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
-
-    // the following parameters are derived from data above
-    INT mapped_inner_objt;                  // tag to objt mapping for free list
-    INT mapped_bnd_objt;                    // tag to objt mapping for free list
-    INT inner_size, bnd_size;               // size in bytes used for alloc
-    INT edge_with_corners[MAX_CORNERS_OF_ELEM][MAX_CORNERS_OF_ELEM];
-    INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
-    INT corner_of_side_inv[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_ELEM];
-    INT edges_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-    INT corner_opp_to_side[MAX_SIDES_OF_ELEM];
-    INT opposite_edge[MAX_EDGES_OF_ELEM];
-    INT side_opp_to_corner[MAX_CORNERS_OF_ELEM];
-    INT edge_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-    INT edge_of_two_sides[MAX_SIDES_OF_ELEM][MAX_SIDES_OF_ELEM];
-
-   } GENERAL_ELEMENT;
-   \endverbatim
-
 
    This function processes a topology description of an element type and computes
    index mappings. Currently descriptions for triangles,
@@ -241,13 +186,11 @@ static GENERAL_ELEMENT def_hexahedron = {
    All other components are derived from the given information.
 
    . tag - New tag for the element which will be delivered by the 'TAG' macro.
-   . max_sons_of_elem - Max number of sons allowed for that element type.
    . sides_of_elem - Number of sides for that element type.
    . corners_of_elem - Number of corners for that element type.
    . edges_of_elem - Number of edges for that element type.
    . edges_of_side - Number of edges for each side.
    . corners_of_side - Number of corners of each side.
-   . corners_of_edge - is always 2.
    . edge_of_side[s][e] - The edges are numbered in the element and in each side of the
    element. This array provides a mapping that tells you the number of edge 'e' of side
    's' with respect to the numbering in the element.
@@ -259,7 +202,7 @@ static GENERAL_ELEMENT def_hexahedron = {
  */
 /****************************************************************************/
 
-static void PreProcessElementDescription (GENERAL_ELEMENT *el)
+static INT ProcessElementDescription (GENERAL_ELEMENT *el)
 {
   INT i,j,k;
 
@@ -313,7 +256,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
   for (i=0; i<MAX_CORNERS_OF_ELEM; i++)
     for (j=0; j<MAX_EDGES_OF_ELEM; j++) el->edges_of_corner[i][j] = -1;
   for (i=0; i<el->edges_of_elem; i++)
-    for (j=0; j<el->corners_of_edge; j++)
+    for (j=0; j<CORNERS_OF_EDGE; j++)
     {
       const INT n = el->corner_of_edge[i][j];
       for (k=0; k<MAX_EDGES_OF_ELEM; k++)
@@ -346,7 +289,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
   /* edge_of_corner(i,j)	  */
   for (i=0; i<el->edges_of_elem; i++) {
-    for (j=0; j<el->corners_of_edge; j++) {
+    for (j=0; j<CORNERS_OF_EDGE; j++) {
       if (el->corner_of_edge[i][j] >=0) {
         for (k=0; k<el->edges_of_elem; k++)
           if (el->edge_of_corner[el->corner_of_edge[i][j]][k] < 0)
@@ -379,7 +322,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
       INT n = 0;
-      for (j=0; j<el->corners_of_edge; j++) {
+      for (j=0; j<CORNERS_OF_EDGE; j++) {
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[el->corner_of_edge[i][j]][k] >= 0)
             n |= (0x1<<(el->edges_of_corner[el->corner_of_edge[i][j]][k]));
@@ -427,7 +370,7 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
       INT n = 0;
-      for (j=0; j<el->corners_of_edge; j++) {
+      for (j=0; j<CORNERS_OF_EDGE; j++) {
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[el->corner_of_edge[i][j]][k] >= 0)
             n |= (0x1<<(el->edges_of_corner[el->corner_of_edge[i][j]][k]));
@@ -515,12 +458,12 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
     /* opposite_edge(i)		  */
     for (i=0; i<el->edges_of_elem; i++) {
       INT n = 0;
-      for (j=0; j<el->corners_of_edge; j++) {
+      for (j=0; j<CORNERS_OF_EDGE; j++) {
         const INT n1 = el->corner_of_edge[i][j];
         for (k=0; k<el->edges_of_elem; k++) {
           if (el->edges_of_corner[n1][k] >= 0) {
             n |= (0x1<<(el->edges_of_corner[n1][k]));
-            for (INT l=0; l<el->corners_of_edge; l++) {
+            for (INT l=0; l<CORNERS_OF_EDGE; l++) {
               const INT n2 = el->corner_of_edge[el->edges_of_corner[n1][k]][l];
               if (n2 != n1) {
                 for (INT m=0; m<el->edges_of_elem; m++) {
@@ -560,108 +503,6 @@ static void PreProcessElementDescription (GENERAL_ELEMENT *el)
 
   /* make description globally available */
   element_descriptors[tag] = el;
-}
-
-/****************************************************************************/
-/** \brief Compute offsets and size for a given element type
-
-   \param el    pointer to an element description
-
-   STRUCTURES:
-   \verbatim
-   typedef struct {
-    INT tag;                                // element type to be defined
-
-    // the following parameters determine size of refs array in element
-    INT max_sons_of_elem;                   // max number of sons for this type
-    INT sides_of_elem;                      // how many sides ?
-    INT corners_of_elem;                    // how many corners ?
-
-    // more size parameters
-    INT edges_of_elem;                      // how many edges ?
-    INT edges_of_side[MAX_SIDES_OF_ELEM];   // number of edges for each side
-    INT corners_of_side[MAX_SIDES_OF_ELEM]; // number of corners for each side
-    INT corners_of_edge;                    // is always 2 !
-
-    // index computations
-    // Within each element sides, edges, corners are numbered in some way.
-    // Within each side the edges and corners are numbered, within the edge the
-    // corners are numbered. The following arrays map the local numbers within
-    // the side or edge to the numbering within the element.
-    INT edge_of_side[MAX_SIDES_OF_ELEM][MAX_EDGES_OF_SIDE];
-    INT corner_of_side[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_SIDE];
-    INT corner_of_edge[MAX_EDGES_OF_ELEM][MAX_CORNERS_OF_EDGE];
-
-    // the following parameters are derived from data above
-    INT mapped_inner_objt;                  // tag to objt mapping for free list
-    INT mapped_bnd_objt;                    // tag to objt mapping for free list
-    INT inner_size, bnd_size;               // size in bytes used for alloc
-    INT edge_with_corners[MAX_CORNERS_OF_ELEM][MAX_CORNERS_OF_ELEM];
-    INT side_with_edge[MAX_EDGES_OF_ELEM][MAX_SIDES_OF_EDGE];
-    INT corner_of_side_inv[MAX_SIDES_OF_ELEM][MAX_CORNERS_OF_ELEM];
-    INT edges_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-        INT corner_opp_to_side[MAX_SIDES_OF_ELEM];
-        INT opposite_edge[MAX_EDGES_OF_ELEM];
-        INT side_opp_to_corner[MAX_CORNERS_OF_ELEM];
-        INT edge_of_corner[MAX_CORNERS_OF_ELEM][MAX_EDGES_OF_ELEM];
-        INT edge_of_two_sides[MAX_SIDES_OF_ELEM][MAX_SIDES_OF_ELEM];
-
-   } GENERAL_ELEMENT;
-   \endverbatim
-
-   This function processes a topology description of an element type and computes
-   the appropriate sizes for memory allocation and offsets in the 'refs' array of the
-   'generic_element'. All other data are fixed and do not depend on the multigrid or format.
-   Before calling this function 'PreProcessElementDescription' has to be called once
-   during initialization.
-
-   SEE ALSO:
-
-   'ELEMENT', 'PreProcessElementDescription'.
-
-   \return <ul>
-   <li> GM_OK if ok </li>
-   <li> GM_ERROR if error occurred. </li>
-   </ul>
- */
-/****************************************************************************/
-
-static INT ProcessElementDescription (GENERAL_ELEMENT *el)
-{
-#ifdef UG_DIM_2
-  switch (el->tag)
-  {
-  case TRIANGLE :
-    el->inner_size = offsetof(triangle,bnds);
-    el->bnd_size = sizeof(triangle);
-    break;
-  case QUADRILATERAL :
-    el->inner_size = offsetof(quadrilateral,bnds);
-    el->bnd_size = sizeof(quadrilateral);
-    break;
-  }
-#endif
-#ifdef UG_DIM_3
-  switch (el->tag)
-  {
-  case TETRAHEDRON :
-    el->inner_size = offsetof(tetrahedron,bnds);
-    el->bnd_size = sizeof(tetrahedron);
-    break;
-  case PYRAMID :
-    el->inner_size = offsetof(pyramid,bnds);
-    el->bnd_size = sizeof(pyramid);
-    break;
-  case PRISM :
-    el->inner_size = offsetof(prism,bnds);
-    el->bnd_size = sizeof(prism);
-    break;
-  case HEXAHEDRON :
-    el->inner_size = offsetof(hexahedron,bnds);
-    el->bnd_size = sizeof(hexahedron);
-    break;
-  }
-#endif
 
   /* get a free object id for free list */
   if (el->mapped_inner_objt < 0)
@@ -693,33 +534,25 @@ INT NS_DIM_PREFIX InitElementTypes()
 {
   INT err;
 
-  // The splitting between PreProcessElementDescription and ProcessElementDescription
-  // is historical and can be removed.
 #ifdef UG_DIM_2
-  PreProcessElementDescription(&def_triangle);
   err = ProcessElementDescription(&def_triangle);
   if (err!=GM_OK)
     return err;
-  PreProcessElementDescription(&def_quadrilateral);
   err = ProcessElementDescription(&def_quadrilateral);
   if (err!=GM_OK)
     return err;
 #endif
 
 #ifdef UG_DIM_3
-  PreProcessElementDescription(&def_tetrahedron);
   err = ProcessElementDescription(&def_tetrahedron);
   if (err!=GM_OK)
     return err;
-  PreProcessElementDescription(&def_pyramid);
   err = ProcessElementDescription(&def_pyramid);
   if (err!=GM_OK)
     return err;
-  PreProcessElementDescription(&def_prism);
   err = ProcessElementDescription(&def_prism);
   if (err!=GM_OK)
     return err;
-  PreProcessElementDescription(&def_hexahedron);
   err = ProcessElementDescription(&def_hexahedron);
   if (err!=GM_OK)
     return err;
