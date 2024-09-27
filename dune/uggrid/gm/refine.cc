@@ -3136,7 +3136,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
 
   if (GetAllSons(theElement,SonList)!=GM_OK) RETURN(GM_FATAL);
 
-  for (s=0; SonList[s]!=NULL; s++)
+  for (s=0; s<MAX_SONS && SonList[s]!=NULL; s++)
   {
     theSon = SonList[s];
     SETMARK(theSon,NO_REFINEMENT);
@@ -3162,7 +3162,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
         #endif
 
   [[maybe_unused]] const int me = theGrid->ppifContext().me();
-  for (s=0; SonList[s]!=NULL; s++)
+  for (s=0; s<MAX_SONS && SonList[s]!=NULL; s++)
   {
     /** \todo delete special debug */
     /* if (ID(SonList[s])==11644) { RETURN(GM_FATAL); } */
