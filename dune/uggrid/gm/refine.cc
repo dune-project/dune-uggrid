@@ -2589,7 +2589,7 @@ static INT RestrictMarks (const GRID *theGrid)
                 #endif
 
     flag = 0;
-    for (UINT i=0; SonList[i]!=NULL; i++)
+    for (UINT i=0; i < MAX_SONS && SonList[i]!=NULL; i++)
     {
       /* if not all sons are marked no unrefinement is possible */
       if (!COARSEN(SonList[i]) || REFINECLASS(SonList[i])==RED_CLASS)
@@ -3136,7 +3136,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
 
   if (GetAllSons(theElement,SonList)!=GM_OK) RETURN(GM_FATAL);
 
-  for (s=0; SonList[s]!=NULL; s++)
+  for (s=0; s<MAX_SONS && SonList[s]!=NULL; s++)
   {
     theSon = SonList[s];
     SETMARK(theSon,NO_REFINEMENT);
@@ -3162,7 +3162,7 @@ static INT UnrefineElement (GRID *theGrid, ELEMENT *theElement)
         #endif
 
   [[maybe_unused]] const int me = theGrid->ppifContext().me();
-  for (s=0; SonList[s]!=NULL; s++)
+  for (s=0; s<MAX_SONS && SonList[s]!=NULL; s++)
   {
     /** \todo delete special debug */
     /* if (ID(SonList[s])==11644) { RETURN(GM_FATAL); } */
@@ -3358,7 +3358,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
              ID(theElement),TAG(theElement),REFINECLASS(theElement),MARKCLASS(theElement),
              REFINE(theElement),MARK(theElement),COARSEN(theElement),
              USED(theElement),NSONS(theElement),side,NeedSons);
-  for (INT i = 0; SonList[i] != NULL; i++)
+  for (INT i = 0; i < MAX_SONS && SonList[i] != NULL; i++)
     UserWriteF("   son[%d]=" EID_FMTX "\n",i,EID_PRTX(SonList[i]));
   ENDDEBUG
 
@@ -3564,7 +3564,7 @@ INT NS_DIM_PREFIX Get_Sons_of_ElementSide (const ELEMENT *theElement, INT side, 
      */
     {
       INT nsons = 0;
-      for (INT i = 0; SonList[i] != NULL; i++)
+      for (INT i = 0; i < MAX_SONS && SonList[i] != NULL; i++)
       {
         const SONDATA *sondata = SON_OF_RULE(MARK2RULEADR(theElement, MARK(theElement)), i);
 
@@ -3844,12 +3844,12 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
                EID_PRTX(theNeighbor),Sons_of_Side,Sons_of_NbSide);
     fflush(stdout);
     GetAllSons(theElement,SonList);
-    for (int i = 0; SonList[i] != NULL; i++)
+    for (int i = 0; i < MAX_SONS && SonList[i] != NULL; i++)
     {
       REFINE_ELEMENT_LIST(0,SonList[i],"son:");
     }
     GetAllSons(theNeighbor,SonList);
-    for (int i = 0; SonList[i] != NULL; i++)
+    for (int i = 0; i < MAX_SONS && SonList[i] != NULL; i++)
     {
       REFINE_ELEMENT_LIST(0,SonList[i],"nbson:");
     }
