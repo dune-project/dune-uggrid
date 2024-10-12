@@ -308,7 +308,7 @@ static int Scatter_GhostCmd (DDD::DDDContext& context, DDD_OBJ obj, void *data, 
     {
       if (GetAllSons(theElement,SonList) != 0) return(1);
       i = 0;
-      while (SonList[i] != NULL)
+      while (i<MAX_SONS && SonList[i] != NULL)
       {
         if (PARTITION(SonList[i]) == me) return(0);
         i++;
@@ -422,7 +422,7 @@ static int Scatter_VHGhostCmd (DDD::DDDContext& context, DDD_OBJ obj, void *data
   /* if a son resides as master keep element as vghost */
   if (GetAllSons(theElement,SonList) != GM_OK) return(0);
   INT i = 0;
-  while (SonList[i] != NULL)
+  while (i<MAX_SONS && SonList[i] != NULL)
   {
     if (PARTITION(SonList[i]) == me) return(0);
     i++;
@@ -554,7 +554,7 @@ static int XferGridWithOverlap (GRID *theGrid)
       {
         if (GetAllSons(theElement,SonList) != 0) assert(0);
         i = 0;
-        while (SonList[i] != NULL)
+        while (i<MAX_SONS && SonList[i] != NULL)
         {
           if (PARTITION(SonList[i]) == me)
           {
