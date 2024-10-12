@@ -352,7 +352,6 @@ static VERTEX *CreateInnerVertex (GRID *theGrid)
  * @param  vertex  - vertex of the node
  * @param  FatherNode - father node (may be NULL)
  * @param  NodeType - node type (CORNER_NODE..., cf. gm.h)
- * @param   with_vector
 
    This function creates and initializes a new node structure
    and returns a pointer to it.
@@ -364,7 +363,7 @@ static VERTEX *CreateInnerVertex (GRID *theGrid)
 /****************************************************************************/
 
 static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
-                         GEOM_OBJECT *Father, INT NodeType, INT with_vector)
+                         GEOM_OBJECT *Father, INT NodeType)
 {
   NODE *pn;
   INT size;
@@ -442,7 +441,7 @@ NODE *NS_DIM_PREFIX CreateSonNode (GRID *theGrid, NODE *FatherNode)
 
   theVertex = MYVERTEX(FatherNode);
 
-  pn = CreateNode(theGrid,theVertex,(GEOM_OBJECT *)FatherNode,CORNER_NODE,1);
+  pn = CreateNode(theGrid,theVertex,(GEOM_OBJECT *)FatherNode,CORNER_NODE);
   if (pn == NULL)
     return(NULL);
   SONNODE(FatherNode) = pn;
@@ -543,7 +542,7 @@ NODE *NS_DIM_PREFIX CreateMidNode (GRID *theGrid, ELEMENT *theElement, VERTEX *t
     SETONEDGE(theVertex,edge);
   }
   /* allocate node */
-  NODE* theNode = CreateNode(theGrid,theVertex,(GEOM_OBJECT *)theEdge,MID_NODE,1);
+  NODE* theNode = CreateNode(theGrid,theVertex,(GEOM_OBJECT *)theEdge,MID_NODE);
   if (theNode==NULL && vertex_null)
   {
     DisposeVertex(theGrid,theVertex);
@@ -727,7 +726,7 @@ NODE *NS_DIM_PREFIX CreateSideNode (GRID *theGrid, ELEMENT *theElement, VERTEX *
   }
   /* create node */
   theNode = CreateNode(theGrid,theVertex,
-                       (GEOM_OBJECT *)theElement,SIDE_NODE,1);
+                       (GEOM_OBJECT *)theElement,SIDE_NODE);
   if (theNode==NULL && vertex_null)
   {
     DisposeVertex(theGrid,theVertex);
@@ -1491,7 +1490,7 @@ NODE * NS_DIM_PREFIX CreateCenterNode (GRID *theGrid, ELEMENT *theElement, VERTE
     VFATHER(theVertex) = theElement;
   }
 
-  theNode = CreateNode(theGrid,theVertex,(GEOM_OBJECT *)theElement,CENTER_NODE,1);
+  theNode = CreateNode(theGrid,theVertex,(GEOM_OBJECT *)theElement,CENTER_NODE);
   if (theNode==NULL && vertex_null)
   {
     DisposeVertex(theGrid,theVertex);
@@ -3801,7 +3800,7 @@ NODE * NS_DIM_PREFIX InsertInnerNode (GRID *theGrid, const DOUBLE *pos)
     PrintErrorMessage('E',"InsertInnerNode","cannot create vertex");
     return(NULL);
   }
-  theNode = CreateNode(theGrid,theVertex,NULL,LEVEL_0_NODE,0);
+  theNode = CreateNode(theGrid,theVertex,NULL,LEVEL_0_NODE);
   if (theNode==NULL)
   {
     DisposeVertex(theGrid,theVertex);
@@ -3858,7 +3857,7 @@ NODE * NS_DIM_PREFIX InsertBoundaryNode (GRID *theGrid, BNDP *bndp)
   SETMOVE(theVertex,move);
   V_BNDP(theVertex) = bndp;
 
-  theNode = CreateNode(theGrid,theVertex,NULL,LEVEL_0_NODE,0);
+  theNode = CreateNode(theGrid,theVertex,NULL,LEVEL_0_NODE);
   if (theNode==NULL)
   {
     DisposeVertex(theGrid,theVertex);
@@ -4594,7 +4593,7 @@ INT NS_DIM_PREFIX InsertMesh (MULTIGRID *theMG, MESH *theMesh)
         NODE *curListNode = NList[theMesh->Element_corner_ids[j][k][l]];
         if (curListNode == NULL || LEVEL(curListNode) < i)
         {
-          Nodes[l] = CreateNode(theGrid,VList[theMesh->Element_corner_ids[j][k][l]],NULL,LEVEL_0_NODE,0);
+          Nodes[l] = CreateNode(theGrid,VList[theMesh->Element_corner_ids[j][k][l]],NULL,LEVEL_0_NODE);
           if (Nodes[l]==NULL) assert(0);
           NList[theMesh->Element_corner_ids[j][k][l]] = Nodes[l];
           if (curListNode == NULL || LEVEL(curListNode) < i-1)
