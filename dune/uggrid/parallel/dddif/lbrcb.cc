@@ -194,7 +194,7 @@ static void InheritPartition (ELEMENT *e)
 
   if (GetAllSons(e,SonList)==0)
   {
-    for(int i=0; SonList[i]!=NULL; i++)
+    for(int i=0; i<MAX_SONS && SonList[i]!=NULL; i++)
     {
       PARTITION(SonList[i]) = PARTITION(e);
       InheritPartition(SonList[i]);

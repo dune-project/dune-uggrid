@@ -3197,7 +3197,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
     if (GetAllSons(theElement,SonList)) RETURN(GM_FATAL);
 
     INT i = 0;
-    while (SonList[i] != NULL)
+    while (i<MAX_SONS && SonList[i] != NULL)
     {
       PRINTDEBUG(gm,2,(PFMT "DisposeElement(): elem=" EID_FMTX
                        " deleting fatherpointer of son=" EID_FMTX "\n",
@@ -5632,7 +5632,7 @@ void NS_DIM_PREFIX ListElement (const MULTIGRID *theMG, const ELEMENT *theElemen
     UserWriteF("  NSONS=%d\n",NSONS(theElement));
 
     if (GetAllSons(theElement,SonList)!=0) return;
-    for (i=0; SonList[i] != NULL; i++)
+    for (i=0; i<MAX_SONS && SonList[i] != NULL; i++)
     {
       UserWriteF("    S%d=" EID_FMTX ,i,EID_PRTX(SonList[i]));
       if ((i+1)%4 == 0) UserWrite("\n");
@@ -6887,7 +6887,7 @@ char *PrintElementInfo (ELEMENT *theElement,INT full)
     UserWriteF("  NSONS=%d\n",NSONS(theElement));
     if (GetAllSons(theElement,SonList)==0)
     {
-      for (i=0; SonList[i] != NULL; i++)
+      for (i=0; i<MAX_SONS && SonList[i] != NULL; i++)
       {
         snprintf(tmp, 200,"    SON%d " EID_FMTX "\n" ,i,EID_PRTX(SonList[i]));
         strcat( out, tmp );

@@ -125,7 +125,7 @@ static void PrintSons (ELEMENT *theElement)
   int i;
 
   if (GetAllSons(theElement,SonList)) ASSERT(0);
-  for (i=0; SonList[i] != NULL; )
+  for (i=0; i<MAX_SONS && SonList[i] != NULL; )
   {
     UserWriteF("elem=" EID_FMTX " son[%d]=" EID_FMTX "\n",
                EID_PRTX(theElement),i,EID_PRTX(SonList[i]));
@@ -139,7 +139,7 @@ static int CheckNSons (ELEMENT *theElement, char *buffer)
   int i,nsons;
 
   if (GetAllSons(theElement,SonList)) ASSERT(0);
-  for (i=0; SonList[i] != NULL; ) i++;
+  for (i=0; i<MAX_SONS && SonList[i] != NULL; ) i++;
 
   nsons = NSONS(theElement);
   if(i != nsons)
@@ -1311,7 +1311,7 @@ static void ElementObjMkCons (DDD::DDDContext& context, DDD_OBJ obj, int newness
       /* check whether NSONS of father must be incremented */
       if (GetAllSons(theFather,SonList)) ASSERT(0);
       int i = 0;
-      while (SonList[i] != NULL)
+      while (i<MAX_SONS && SonList[i] != NULL)
       {
         if (SonList[i] == pe) return;
         i++;
@@ -1473,7 +1473,7 @@ static void ElementPriorityUpdate (DDD::DDDContext& context, DDD_OBJ obj, DDD_PR
 
     if (GetAllSons(theFather,SonList)) ASSERT(0);
     i = 0;
-    while (SonList[i] != NULL)
+    while (i<MAX_SONS && SonList[i] != NULL)
     {
       if (SonList[i] == pe) lostson = 0;
       i++;
