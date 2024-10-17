@@ -169,18 +169,14 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
   return PATCH_ID(patch) - currBVP->sideoffset;
 }
 
-/* configuring a domain */
-INT NS_DIM_PREFIX STD_BVP_Configure(INT argc, char **argv, DOMAIN *theDomain)
+/* configuring a domain
+ * \todo This method really does not do more than setting the 'Domain' pointer.
+ * It may as well be removed.  However, for that to actually work, we need
+ * to move the STD_BVP definition out of the std_internal.h header first.
+ */
+INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, DOMAIN *theDomain)
 {
-  STD_BVP *theBVP;
-  char BVPName[NAMESIZE];
-
-  /* get BVP name */
-  if (sscanf(argv[0], expandfmt(" configure %" NAMELENSTR "[ -~]"), BVPName) != 1
-      || strlen(BVPName) == 0)
-    return 1;
-
-  theBVP = (STD_BVP *) BVP_GetByName(BVPName);
+  STD_BVP *theBVP = (STD_BVP *) BVP_GetByName(BVPName.c_str());
   if (theBVP == nullptr)
     return 1;
 
