@@ -78,7 +78,6 @@ enum MeshStatus {MESHSTAT_NOTINIT,
 
 /** @name Function formats */
 /*@{*/
-typedef INT (*ConfigProcPtr)(INT argc, char **argv);
 typedef INT (*CoeffProcPtr)(DOUBLE *, DOUBLE *);
 typedef INT (*UserProcPtr)(DOUBLE *, DOUBLE *);
 /*@}*/
@@ -89,7 +88,6 @@ typedef INT (*UserProcPtr)(DOUBLE *, DOUBLE *);
 #define BVPD_MIDPOINT(d)     ((d)->midpoint)
 #define BVPD_RADIUS(d)       ((d)->radius)
 #define BVPD_CONVEX(d)       ((d)->convex)
-#define BVPD_CONFIG(d)       ((d)->ConfigProc)
 #define BVPD_NCOEFFF(d)      ((d)->numOfCoeffFct)
 #define BVPD_NUSERF(d)       ((d)->numOfUserFct)
 /*@}*/
@@ -115,9 +113,6 @@ struct BVP_Descriptor
 
   /** @name Problem part */
   /*@{*/
-  /** \brief Configuration function              */
-  ConfigProcPtr ConfigProc;
-
   /** \brief Number of coefficient functions        */
   INT numOfCoeffFct;
 

@@ -160,14 +160,9 @@ better when the grid is refined.
 A domain is made up of one or several `boundary segments` which are defined by the
 \ref boundary_segment structure. The points where boundary segments join are
 called corners of the domain. For each corner a \ref node is automatically created.
-
-Domains are created with the function \ref CreateDomain.
 */
 struct domain
 {
-  /** \brief Fields for environment directory. Also stores the name of the domain */
-  NS_PREFIX ENVDIR d;
-
   /** \brief Number of boundary segments */
   INT numOfSegments;
 
@@ -191,13 +186,7 @@ typedef INT (*BndCondProcPtr)(void *, void *, DOUBLE *, DOUBLE *, INT *);
 
 /* --- public functions --- */
 
-
-/* domain definition */
-domain                   *CreateDomain                        (const char *name,
-                                                               INT segments,
-                                                               INT corners);
-
-void RemoveDomain(const char* name);
+INT STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<domain>&& theDomain);
 
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);

@@ -5,6 +5,8 @@
 #ifndef UG_STD_INTERNAL_H
 #define UG_STD_INTERNAL_H
 
+#include <memory>
+
 #include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/namespace.h>
 
@@ -111,7 +113,7 @@ struct std_BoundaryValueProblem
   NS_PREFIX ENVDIR d;
 
   /** \brief Domain pointer                      */
-  struct domain *Domain;
+  std::unique_ptr<domain> Domain;
 
   /** \brief File name for boundary infos        */
   char bnd_file[NS_PREFIX NAMESIZE];
@@ -131,9 +133,6 @@ struct std_BoundaryValueProblem
 
   /** @name Problem part */
   /*@{*/
-  /** \brief Configuration function              */
-  ConfigProcPtr ConfigProc;
-
   /** \brief Number of coefficient functions        */
   INT numOfCoeffFct;
 
@@ -342,14 +341,6 @@ typedef struct bnd_ps BND_PS;
 /* definition of exported global variables                                  */
 /*                                                                          */
 /****************************************************************************/
-
-/****************************************************************************/
-/*                                                                          */
-/* function declarations                                                    */
-/*                                                                          */
-/****************************************************************************/
-
-DOMAIN *GetDomain                           (const char *name);
 
 END_UGDIM_NAMESPACE
 

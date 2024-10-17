@@ -118,8 +118,6 @@ USING_UGDIM_NAMESPACE
 static INT theProblemDirID;     /*!< env type for Problem dir                   */
 static INT theBdryCondVarID;    /*!<  env type for Problem vars                 */
 
-static INT theDomainDirID;      /*!<  env type for Domain dir                           */
-
 static INT theBVPDirID;         /*!<  env type for BVP dir                                      */
 
 static STD_BVP *currBVP;
@@ -157,98 +155,6 @@ linear_segment::linear_segment(INT idA,
     points[i] = point[i];
 }
 
-
-/****************************************************************************/
-/** \brief Create a new DOMAIN data structure
- *
- * @param  name - name of the domain
- * @param  MidPoint - coordinates of some inner point
- * @param  radius - radius of a circle, containing the domain
- * @param  segments - number of the boundary segments
- * @param  corners - number of corners
- * @param  Convex - 0, if convex, 1 - else
- *
- * This function allocates and initializes a new DOMAIN data structure in the
- * /domains directory in the environment.
- *
- * @return <ul>
- *   <li>     pointer to a DOMAIN </li>
- *   <li>     NULL if out of memory. </li>
- * </ul>
- */
-/****************************************************************************/
-
-domain *NS_DIM_PREFIX
-CreateDomain (const char *name, INT segments,
-              INT corners)
-{
-  DOMAIN *newDomain;
-
-  /* change to /domains directory */
-  if (ChangeEnvDir ("/Domains") == NULL)
-    return (NULL);
-
-  /* allocate new domain structure */
-  newDomain = (DOMAIN *) MakeEnvItem (name, theDomainDirID, sizeof (DOMAIN));
-  if (newDomain == NULL)
-    return (NULL);
-
-  /* fill in data */
-  DOMAIN_NSEGMENT (newDomain) = segments;
-  DOMAIN_NCORNER (newDomain) = corners;
-
-  if (ChangeEnvDir (name) == NULL)
-    return (NULL);
-  UserWrite ("domain ");
-  UserWrite (name);
-  UserWrite (" installed\n");
-
-  return (newDomain);
-}
-
-/****************************************************************************/
-/** \brief Get a pointer to a domain structure
- *
- * @param  name - name of the domain
- *
- * This function searches the environment for a domain with the name `name`
- * and return a pointer to the domain structure.
- *
- * @return <ul>
- *   <li>     pointer to a DOMAIN </li>
- *   <li>     NULL if not found or error.  </li>
- * </ul>
- */
-/****************************************************************************/
-
-DOMAIN *NS_DIM_PREFIX
-GetDomain (const char *name)
-{
-  return ((DOMAIN *)
-          SearchEnv (name, "/Domains", theDomainDirID, theDomainDirID));
-}
-
-/****************************************************************************/
-/** \brief Remove a domain structure
- *
- * @param  name - name of the domain
- *
- * This function searches the environment for a domain with the name `name`
- * and removes it.
- *
- */
-/****************************************************************************/
-
-void NS_DIM_PREFIX
-RemoveDomain (const char *name)
-{
-  ENVITEM* d = SearchEnv (name, "/Domains", theDomainDirID, theDomainDirID);
-  if (d!=0) {
-    d->v.locked = false;
-    RemoveEnvDir(d);
-  }
-}
-
 UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
 {
   const BND_PS *ps = (BND_PS*)boundarySegment;
@@ -263,35 +169,21 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
   return PATCH_ID(patch) - currBVP->sideoffset;
 }
 
-/* configuring a domain */
-static INT STD_BVP_Configure(INT argc, char **argv)
+/* configuring a domain
+ * \todo This method really does not do more than setting the 'Domain' pointer.
+ * It may as well be removed.  However, for that to actually work, we need
+ * to move the STD_BVP definition out of the std_internal.h header first.
+ */
+INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<DOMAIN>&& theDomain)
 {
-  STD_BVP *theBVP;
-  DOMAIN *theDomain;
-  char BVPName[NAMESIZE];
-  char DomainName[NAMESIZE];
-  INT i;
-
-  /* get BVP name */
-  if (sscanf(argv[0], expandfmt(" configure %" NAMELENSTR "[ -~]"), BVPName) != 1
-      || strlen(BVPName) == 0)
-    return 1;
-
-  theBVP = (STD_BVP *) BVP_GetByName(BVPName);
+  STD_BVP *theBVP = (STD_BVP *) BVP_GetByName(BVPName.c_str());
   if (theBVP == nullptr)
     return 1;
 
-  for (i=0; i<argc; i++)
-    if (argv[i][0] == 'd' && argv[i][1] == ' ')
-      if (sscanf(argv[i], expandfmt("d %" NAMELENSTR "[ -~]"), DomainName) != 1
-          || strlen(DomainName) == 0)
-        continue;
-
-  theDomain = GetDomain(DomainName);
   if (theDomain == nullptr)
     return 1;
 
-  theBVP->Domain = theDomain;
+  theBVP->Domain = std::move(theDomain);
 
   return 0;
 }
@@ -325,7 +217,6 @@ CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
     theBVP->CU_ProcPtr[i + numOfCoeffFct] = (void *) (userfct[i]);
 
   theBVP->Domain = NULL;
-  theBVP->ConfigProc = STD_BVP_Configure;
   theBVP->GeneralBndCond = theBndCond;
 
   UserWriteF ("BVP %s installed.\n", BVPName);
@@ -600,7 +491,6 @@ BVP *NS_DIM_PREFIX
 BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 {
   STD_BVP *theBVP;
-  DOMAIN *theDomain;
   PATCH **corners, **sides;
   unsigned short* segmentsPerPoint, *cornerCounters;
   INT i, j, n, m, ncorners, nlines, nsides;
@@ -615,7 +505,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     return (NULL);
   currBVP = theBVP;
 
-  theDomain = theBVP->Domain;
+  auto& theDomain = theBVP->Domain;
   if (theDomain == NULL)
     return (NULL);
 
@@ -961,7 +851,6 @@ BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
   /* the domain part */
   BVPD_NCOEFFF (theBVPDesc) = theBVP->numOfCoeffFct;
   BVPD_NUSERF (theBVPDesc) = theBVP->numOfUserFct;
-  BVPD_CONFIG (theBVPDesc) = theBVP->ConfigProc;
 
   currBVP = theBVP;
 
@@ -1839,14 +1728,6 @@ InitDom (void)
   /* get env dir/var IDs for the problems */
   theProblemDirID = GetNewEnvDirID ();
   theBdryCondVarID = GetNewEnvVarID ();
-
-  /* install the /Domains directory */
-  theDomainDirID = GetNewEnvDirID ();
-  if (MakeEnvItem ("Domains", theProblemDirID, sizeof (ENVDIR)) == NULL)
-  {
-    PrintErrorMessage ('F', "InitDom", "could not install '/Domains' dir");
-    return (__LINE__);
-  }
 
   /* install the /BVP directory */
   theBVPDirID = GetNewEnvDirID ();
