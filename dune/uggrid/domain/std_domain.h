@@ -199,6 +199,8 @@ domain                   *CreateDomain                        (const char *name,
 
 void RemoveDomain(const char* name);
 
+INT STD_BVP_Configure(INT argc, char **argv);
+
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);
 

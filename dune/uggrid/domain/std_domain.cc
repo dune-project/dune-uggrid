@@ -264,7 +264,7 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
 }
 
 /* configuring a domain */
-static INT STD_BVP_Configure(INT argc, char **argv)
+INT NS_DIM_PREFIX STD_BVP_Configure(INT argc, char **argv)
 {
   STD_BVP *theBVP;
   DOMAIN *theDomain;
@@ -325,7 +325,6 @@ CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
     theBVP->CU_ProcPtr[i + numOfCoeffFct] = (void *) (userfct[i]);
 
   theBVP->Domain = NULL;
-  theBVP->ConfigProc = STD_BVP_Configure;
   theBVP->GeneralBndCond = theBndCond;
 
   UserWriteF ("BVP %s installed.\n", BVPName);
@@ -961,7 +960,6 @@ BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
   /* the domain part */
   BVPD_NCOEFFF (theBVPDesc) = theBVP->numOfCoeffFct;
   BVPD_NUSERF (theBVPDesc) = theBVP->numOfUserFct;
-  BVPD_CONFIG (theBVPDesc) = theBVP->ConfigProc;
 
   currBVP = theBVP;
 

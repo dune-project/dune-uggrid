@@ -131,9 +131,6 @@ struct std_BoundaryValueProblem
 
   /** @name Problem part */
   /*@{*/
-  /** \brief Configuration function              */
-  ConfigProcPtr ConfigProc;
-
   /** \brief Number of coefficient functions        */
   INT numOfCoeffFct;
 
