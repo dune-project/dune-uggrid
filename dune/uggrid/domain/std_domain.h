@@ -186,7 +186,7 @@ typedef INT (*BndCondProcPtr)(void *, void *, DOUBLE *, DOUBLE *, INT *);
 
 /* --- public functions --- */
 
-INT STD_BVP_Configure(const std::string& BVPName, domain *theDomain);
+INT STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<domain>&& theDomain);
 
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);

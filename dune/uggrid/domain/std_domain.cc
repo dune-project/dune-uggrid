@@ -174,7 +174,7 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
  * It may as well be removed.  However, for that to actually work, we need
  * to move the STD_BVP definition out of the std_internal.h header first.
  */
-INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, DOMAIN *theDomain)
+INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<DOMAIN>&& theDomain)
 {
   STD_BVP *theBVP = (STD_BVP *) BVP_GetByName(BVPName.c_str());
   if (theBVP == nullptr)
@@ -183,7 +183,7 @@ INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, DOMAIN *theDomai
   if (theDomain == nullptr)
     return 1;
 
-  theBVP->Domain = theDomain;
+  theBVP->Domain = std::move(theDomain);
 
   return 0;
 }
@@ -491,7 +491,6 @@ BVP *NS_DIM_PREFIX
 BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 {
   STD_BVP *theBVP;
-  DOMAIN *theDomain;
   PATCH **corners, **sides;
   unsigned short* segmentsPerPoint, *cornerCounters;
   INT i, j, n, m, ncorners, nlines, nsides;
@@ -506,7 +505,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     return (NULL);
   currBVP = theBVP;
 
-  theDomain = theBVP->Domain;
+  auto& theDomain = theBVP->Domain;
   if (theDomain == NULL)
     return (NULL);
 
