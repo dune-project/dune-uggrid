@@ -177,13 +177,6 @@ struct domain
 };
 
 
-/** \brief ???
- *
- * \todo Please doc me!
- */
-typedef INT (*BndCondProcPtr)(void *, void *, DOUBLE *, DOUBLE *, INT *);
-
-
 /* --- public functions --- */
 
 INT STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<domain>&& theDomain);
@@ -191,7 +184,7 @@ INT STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<domain>&& theD
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);
 
-BVP   *CreateBoundaryValueProblem (const char *BVPname, BndCondProcPtr theBndCond,
+BVP   *CreateBoundaryValueProblem (const char *BVPname,
                                    int numOfCoeffFct, CoeffProcPtr coeffs[],
                                    int numOfUserFct, UserProcPtr userfct[]);
 

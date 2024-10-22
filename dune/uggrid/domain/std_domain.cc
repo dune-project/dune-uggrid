@@ -189,7 +189,7 @@ INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<
 }
 
 BVP *NS_DIM_PREFIX
-CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
+CreateBoundaryValueProblem (const char *BVPName,
                             int numOfCoeffFct, CoeffProcPtr coeffs[],
                             int numOfUserFct, UserProcPtr userfct[])
 {
@@ -217,7 +217,6 @@ CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
     theBVP->CU_ProcPtr[i + numOfCoeffFct] = (void *) (userfct[i]);
 
   theBVP->Domain = NULL;
-  theBVP->GeneralBndCond = theBndCond;
 
   UserWriteF ("BVP %s installed.\n", BVPName);
 

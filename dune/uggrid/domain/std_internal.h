@@ -139,9 +139,6 @@ struct std_BoundaryValueProblem
   /** \brief Number of user functions               */
   INT numOfUserFct;
 
-  /** \brief General bnd. cond. (if exists)      */
-  BndCondProcPtr GeneralBndCond;
-
   /** \brief Coefficient functions                           */
   void *CU_ProcPtr[1];
   /*@}*/
