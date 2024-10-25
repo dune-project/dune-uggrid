@@ -136,9 +136,6 @@ struct std_BoundaryValueProblem
   /** \brief Number of coefficient functions        */
   INT numOfCoeffFct;
 
-  /** \brief Number of user functions               */
-  INT numOfUserFct;
-
   /** \brief Coefficient functions                           */
   void *CU_ProcPtr[1];
   /*@}*/

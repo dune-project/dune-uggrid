@@ -185,8 +185,7 @@ INT STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<domain>&& theD
 UINT GetBoundarySegmentId(BNDS* boundarySegment);
 
 BVP   *CreateBoundaryValueProblem (const char *BVPname,
-                                   int numOfCoeffFct, CoeffProcPtr coeffs[],
-                                   int numOfUserFct, UserProcPtr userfct[]);
+                                   int numOfCoeffFct, CoeffProcPtr coeffs[]);
 
 END_UGDIM_NAMESPACE
 

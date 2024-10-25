@@ -79,7 +79,6 @@ enum MeshStatus {MESHSTAT_NOTINIT,
 /** @name Function formats */
 /*@{*/
 typedef INT (*CoeffProcPtr)(DOUBLE *, DOUBLE *);
-typedef INT (*UserProcPtr)(DOUBLE *, DOUBLE *);
 /*@}*/
 
 /** @name Macros for BVPDescriptor */
@@ -89,7 +88,6 @@ typedef INT (*UserProcPtr)(DOUBLE *, DOUBLE *);
 #define BVPD_RADIUS(d)       ((d)->radius)
 #define BVPD_CONVEX(d)       ((d)->convex)
 #define BVPD_NCOEFFF(d)      ((d)->numOfCoeffFct)
-#define BVPD_NUSERF(d)       ((d)->numOfUserFct)
 /*@}*/
 
 /****************************************************************************/
@@ -115,9 +113,6 @@ struct BVP_Descriptor
   /*@{*/
   /** \brief Number of coefficient functions        */
   INT numOfCoeffFct;
-
-  /** \brief Number of user functions               */
-  INT numOfUserFct;
   /*@}*/
 };
 typedef struct BVP_Descriptor BVP_DESC;
@@ -320,22 +315,6 @@ INT         BVP_SetBVPDesc        (BVP *theBVP, BVP_DESC *theBVPDesc);
  */
 /****************************************************************************/
 INT         BVP_SetCoeffFct       (BVP *theBVP, INT n, CoeffProcPtr *CoeffFct);
-
-/****************************************************************************/
-/** \brief Set coefficient function(s)
- *
- * @param theBVP - BVP structure
- * @param n - Number of user function or -1 for all
-
-   This function gives one or all user functions.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT         BVP_SetUserFct        (BVP *theBVP, INT n, UserProcPtr *UserFct);
 
 /****************************************************************************/
 /** \brief Check consistency of BVP

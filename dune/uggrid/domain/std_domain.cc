@@ -190,8 +190,7 @@ INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<
 
 BVP *NS_DIM_PREFIX
 CreateBoundaryValueProblem (const char *BVPName,
-                            int numOfCoeffFct, CoeffProcPtr coeffs[],
-                            int numOfUserFct, UserProcPtr userfct[])
+                            int numOfCoeffFct, CoeffProcPtr coeffs[])
 {
   STD_BVP *theBVP;
   INT i, n;
@@ -201,7 +200,7 @@ CreateBoundaryValueProblem (const char *BVPName,
     return (NULL);
 
   /* allocate new domain structure */
-  n = (numOfCoeffFct + numOfUserFct - 1) * sizeof (void *);
+  n = numOfCoeffFct * sizeof (void *);
   theBVP =
     (STD_BVP *) MakeEnvItem (BVPName, theBVPDirID, sizeof (STD_BVP) + n);
   if (theBVP == NULL)
@@ -210,11 +209,8 @@ CreateBoundaryValueProblem (const char *BVPName,
     return (NULL);
 
   theBVP->numOfCoeffFct = numOfCoeffFct;
-  theBVP->numOfUserFct = numOfUserFct;
   for (i = 0; i < numOfCoeffFct; i++)
     theBVP->CU_ProcPtr[i] = (void *) (coeffs[i]);
-  for (i = 0; i < numOfUserFct; i++)
-    theBVP->CU_ProcPtr[i + numOfCoeffFct] = (void *) (userfct[i]);
 
   theBVP->Domain = NULL;
 
@@ -849,7 +845,6 @@ BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
 
   /* the domain part */
   BVPD_NCOEFFF (theBVPDesc) = theBVP->numOfCoeffFct;
-  BVPD_NUSERF (theBVPDesc) = theBVP->numOfUserFct;
 
   currBVP = theBVP;
 
@@ -874,29 +869,6 @@ BVP_SetCoeffFct (BVP * aBVP, INT n, CoeffProcPtr * CoeffFct)
       CoeffFct[i] = (CoeffProcPtr) theBVP->CU_ProcPtr[i];
   else
     CoeffFct[0] = (CoeffProcPtr) theBVP->CU_ProcPtr[n];
-
-  return (0);
-}
-
-/* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
-BVP_SetUserFct (BVP * aBVP, INT n, UserProcPtr * UserFct)
-{
-  STD_BVP *theBVP;
-  INT i;
-
-  theBVP = GetSTD_BVP (aBVP);
-
-  /* check */
-  if (n < -1 || n >= theBVP->numOfUserFct)
-    return (1);
-
-  if (n == -1)
-    for (i = 0; i < theBVP->numOfUserFct; i++)
-      UserFct[i] =
-        (UserProcPtr) theBVP->CU_ProcPtr[i + theBVP->numOfCoeffFct];
-  else
-    UserFct[0] = (UserProcPtr) theBVP->CU_ProcPtr[n + theBVP->numOfCoeffFct];
 
   return (0);
 }
