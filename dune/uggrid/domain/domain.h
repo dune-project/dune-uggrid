@@ -76,15 +76,9 @@ enum MeshStatus {MESHSTAT_NOTINIT,
                  MESHSTAT_SURFMESH,
                  MESHSTAT_MESH};
 
-/** @name Function formats */
-/*@{*/
-typedef INT (*CoeffProcPtr)(DOUBLE *, DOUBLE *);
-/*@}*/
-
 /** @name Macros for BVPDescriptor */
 /*@{*/
 #define BVPD_NAME(d)         ((d)->name)
-#define BVPD_NCOEFFF(d)      ((d)->numOfCoeffFct)
 /*@}*/
 
 /****************************************************************************/
@@ -104,12 +98,6 @@ struct BVP_Descriptor
   /*@{*/
   /** \brief Name of the BVP */
   char name[NS_PREFIX NAMELEN];
-  /*@}*/
-
-  /** @name Problem part */
-  /*@{*/
-  /** \brief Number of coefficient functions        */
-  INT numOfCoeffFct;
   /*@}*/
 };
 typedef struct BVP_Descriptor BVP_DESC;
@@ -296,22 +284,6 @@ INT         BVP_Dispose           (BVP *theBVP);
 /****************************************************************************/
 INT         BVP_SetBVPDesc        (BVP *theBVP, BVP_DESC *theBVPDesc);
 
-
-/****************************************************************************/
-/** \brief Set coefficient function(s)
- *
- * @param theBVP - BVP structure
- * @param n - Number of coefficient function or -1 for all
-
-   This function one or all coefficient functions.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT         BVP_SetCoeffFct       (BVP *theBVP, INT n, CoeffProcPtr *CoeffFct);
 
 /****************************************************************************/
 /** \brief Write command to insert this BNDP

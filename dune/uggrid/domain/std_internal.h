@@ -130,15 +130,6 @@ struct std_BoundaryValueProblem
   /** \brief list of patches */
   union patch **patches;
   /*@}*/
-
-  /** @name Problem part */
-  /*@{*/
-  /** \brief Number of coefficient functions        */
-  INT numOfCoeffFct;
-
-  /** \brief Coefficient functions                           */
-  void *CU_ProcPtr[1];
-  /*@}*/
 };
 
 /****************************************************************************/

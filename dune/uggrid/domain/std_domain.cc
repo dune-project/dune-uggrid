@@ -189,28 +189,21 @@ INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<
 }
 
 BVP *NS_DIM_PREFIX
-CreateBoundaryValueProblem (const char *BVPName,
-                            int numOfCoeffFct, CoeffProcPtr coeffs[])
+CreateBoundaryValueProblem (const char *BVPName)
 {
   STD_BVP *theBVP;
-  INT i, n;
 
   /* change to /BVP directory */
   if (ChangeEnvDir ("/BVP") == NULL)
     return (NULL);
 
   /* allocate new domain structure */
-  n = numOfCoeffFct * sizeof (void *);
   theBVP =
-    (STD_BVP *) MakeEnvItem (BVPName, theBVPDirID, sizeof (STD_BVP) + n);
+    (STD_BVP *) MakeEnvItem (BVPName, theBVPDirID, sizeof (STD_BVP));
   if (theBVP == NULL)
     return (NULL);
   if (ChangeEnvDir (BVPName) == NULL)
     return (NULL);
-
-  theBVP->numOfCoeffFct = numOfCoeffFct;
-  for (i = 0; i < numOfCoeffFct; i++)
-    theBVP->CU_ProcPtr[i] = (void *) (coeffs[i]);
 
   theBVP->Domain = NULL;
 
@@ -843,32 +836,7 @@ BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
   /* general part */
   strcpy (BVPD_NAME (theBVPDesc), ENVITEM_NAME (theBVP));
 
-  /* the domain part */
-  BVPD_NCOEFFF (theBVPDesc) = theBVP->numOfCoeffFct;
-
   currBVP = theBVP;
-
-  return (0);
-}
-
-/* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
-BVP_SetCoeffFct (BVP * aBVP, INT n, CoeffProcPtr * CoeffFct)
-{
-  STD_BVP *theBVP;
-  INT i;
-
-  theBVP = GetSTD_BVP (aBVP);
-
-  /* check */
-  if (n < -1 || n >= theBVP->numOfCoeffFct)
-    return (1);
-
-  if (n == -1)
-    for (i = 0; i < theBVP->numOfCoeffFct; i++)
-      CoeffFct[i] = (CoeffProcPtr) theBVP->CU_ProcPtr[i];
-  else
-    CoeffFct[0] = (CoeffProcPtr) theBVP->CU_ProcPtr[n];
 
   return (0);
 }
