@@ -873,15 +873,6 @@ BVP_SetCoeffFct (BVP * aBVP, INT n, CoeffProcPtr * CoeffFct)
   return (0);
 }
 
-/* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
-BVP_Check (BVP * aBVP)
-{
-  UserWrite ("BVP_Check: not implemented\n");
-
-  return (0);
-}
-
 static INT
 GetNumberOfCommonPatches (const PATCH * p0, const PATCH * p1, INT * Pid)
 {

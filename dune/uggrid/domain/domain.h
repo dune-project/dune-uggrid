@@ -314,21 +314,6 @@ INT         BVP_SetBVPDesc        (BVP *theBVP, BVP_DESC *theBVPDesc);
 INT         BVP_SetCoeffFct       (BVP *theBVP, INT n, CoeffProcPtr *CoeffFct);
 
 /****************************************************************************/
-/** \brief Check consistency of BVP
- *
- * @param aBVP - BVP structure
-
-   This function checks consistency of BVP
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT             BVP_Check                         (BVP *aBVP);
-
-/****************************************************************************/
 /** \brief Write command to insert this BNDP
  *
  * @param theBndP - BNDP structure
