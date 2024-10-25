@@ -344,7 +344,6 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
   time_t Time;
   const char *fmt;
   char buffer[BUFFERSIZE];
-  BVP_DESC theBVPDesc;
   INT i,id,move;
 
   if (gridpaths_set)
@@ -359,8 +358,7 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
   }
 
   /* get BVPDesc */
-  if (BVP_SetBVPDesc(MG_BVP(theMG),&theBVPDesc))
-    RETURN (GM_ERROR);
+  const std::string theBVPName = theMG->BVP_Name;
 
   /* get time */
   fmt = "%a %b %d %H:%M:%S %Y";
@@ -368,7 +366,7 @@ static INT SaveMultiGrid_SCR (MULTIGRID *theMG, const char *name, const char *co
   strftime(buffer,BUFFERSIZE,fmt,localtime(&Time));
 
   /* write header */
-  fprintf(stream,HEADER_FMT,BVPD_NAME(&theBVPDesc),buffer,name,comment);
+  fprintf(stream,HEADER_FMT,theBVPName.c_str(),buffer,name,comment);
 
   if (TOPLEVEL(theMG) > 0)
     return(SaveSurfaceGrid(theMG,stream));
@@ -1238,8 +1236,6 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   ELEMENT *theElement;
   HEAP *theHeap;
   MGIO_MG_GENERAL mg_general;
-  BVP *theBVP;
-  BVP_DESC theBVPDesc;
   MGIO_GE_GENERAL ge_general;
   MGIO_GE_ELEMENT ge_element[TAGS];
   MGIO_CG_GENERAL cg_general;
@@ -1359,8 +1355,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   if (Write_OpenMGFile (filename,(int)rename)) REP_ERR_RETURN(1);
 
   /* write general information */
-  theBVP = MG_BVP(theMG);
-  if (BVP_SetBVPDesc(theBVP,&theBVPDesc)) REP_ERR_RETURN(1);
+  std::string theBVPName = theMG->BVP_Name;
   mg_general.mode                 = mode;
   mg_general.dim                  = DIM;
   Broadcast(theMG->ppifContext(), &MG_MAGIC_COOKIE(theMG),sizeof(INT));
@@ -1377,7 +1372,7 @@ static INT SaveMultiGrid_SPF (MULTIGRID *theMG, const char *name, const char *ty
   }
   strcpy(mg_general.version,MGIO_VERSION);
   strcpy(mg_general.ident,"---");
-  strcpy(mg_general.DomainName,BVPD_NAME(&theBVPDesc));
+  strcpy(mg_general.DomainName,theBVPName.c_str());
   strcpy(mg_general.MultiGridName,MGNAME(theMG));
   std::string formatName = "DuneFormat" + std::to_string( DIM ) + "d";
   strcpy(mg_general.Formatname,formatName.c_str());
@@ -2692,7 +2687,6 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   BNDP **BndPList = nullptr;
   DOUBLE *Positions;
   BVP *theBVP;
-  BVP_DESC theBVPDesc;
   MESH theMesh;
   char FormatName[NAMESIZE], BndValName[NAMESIZE], MGName[NAMESIZE], filename[NAMESIZE];
   INT i,j,*Element_corner_uniq_subdom, *Ecusdp[2],**Enusdp[2],**Ecidusdp[2],
@@ -2888,7 +2882,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   theHeap = MGHEAP(theMG);
   theBVP = MG_BVP(theMG);
   if (theBVP==NULL)                                                               {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
-  if (BVP_SetBVPDesc(theBVP,&theBVPDesc))                 {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}
+  const std::string theBVPName = theMG->BVP_Name;
 
   /* read general element information */
   if (Read_GE_General(&ge_general))                               {CloseMGFile (); DisposeMultiGrid(theMG); return (NULL);}

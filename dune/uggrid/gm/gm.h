@@ -1784,7 +1784,7 @@ struct multigrid {
   BVP *theBVP;
 
   /** \brief description of BVP-properties                */
-  BVP_DESC theBVPD;
+  std::string BVP_Name;
 
   /** \brief associated heap structure                    */
   NS_PREFIX HEAP *theHeap;

@@ -76,11 +76,6 @@ enum MeshStatus {MESHSTAT_NOTINIT,
                  MESHSTAT_SURFMESH,
                  MESHSTAT_MESH};
 
-/** @name Macros for BVPDescriptor */
-/*@{*/
-#define BVPD_NAME(d)         ((d)->name)
-/*@}*/
-
 /****************************************************************************/
 /*                                                                          */
 /* data structures exported by the corresponding source file                */
@@ -90,18 +85,6 @@ enum MeshStatus {MESHSTAT_NOTINIT,
 typedef void *BVP;                 /*!< Structure handled by domain module    */
 typedef void *BNDS;                /*!< Structure handled by domain module    */
 typedef void *BNDP;                /*!< Structure handled by domain module    */
-
-/** \todo Please doc me! */
-struct BVP_Descriptor
-{
-  /** @name General part */
-  /*@{*/
-  /** \brief Name of the BVP */
-  char name[NS_PREFIX NAMELEN];
-  /*@}*/
-};
-typedef struct BVP_Descriptor BVP_DESC;
-
 
 /** \todo Please doc me! */
 struct mesh
@@ -267,23 +250,6 @@ BVP *BVP_Init (const char *filename, NS_PREFIX HEAP *theHeap, MESH *Mesh, INT Ma
  */
 /****************************************************************************/
 INT         BVP_Dispose           (BVP *theBVP);
-
-/****************************************************************************/
-/** \brief Set BVP-descriptor
- *
- * @param theBVP - BVP structure
- * @param theBVPDesc - descriptor to set
-
-   This function sets the BVP descriptor according to the BVP.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT         BVP_SetBVPDesc        (BVP *theBVP, BVP_DESC *theBVPDesc);
-
 
 /****************************************************************************/
 /** \brief Write command to insert this BNDP

@@ -822,25 +822,6 @@ BVP_GetByName (const char *name)
   return ((BVP *) SearchEnv (name, "/BVP", theBVPDirID, theBVPDirID));
 }
 
-INT NS_DIM_PREFIX
-BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
-{
-  STD_BVP *theBVP;
-
-  if (aBVP == NULL)
-    return (1);
-
-  /* cast */
-  theBVP = GetSTD_BVP (aBVP);
-
-  /* general part */
-  strcpy (BVPD_NAME (theBVPDesc), ENVITEM_NAME (theBVP));
-
-  currBVP = theBVP;
-
-  return (0);
-}
-
 static INT
 GetNumberOfCommonPatches (const PATCH * p0, const PATCH * p1, INT * Pid)
 {

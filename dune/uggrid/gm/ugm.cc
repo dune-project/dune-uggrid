@@ -2807,11 +2807,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
     PrintErrorMessage('E',"CreateMultiGrid","BVP not found");
     return(NULL);
   }
-  if (BVP_SetBVPDesc(theBVP,&theMG->theBVPD))
-  {
-    PrintErrorMessage('E',"CreateMultiGrid","BVP not evaluated");
-    return(NULL);
-  }
+  theMG->BVP_Name = ENVITEM_NAME (theBVP);
 
   /* 1: general user data space */
   // As we are using this version only with DUNE, we will never have UG user data
@@ -4794,16 +4790,12 @@ void NS_DIM_PREFIX ListMultiGridHeader (const INT longformat)
 void NS_DIM_PREFIX ListMultiGrid (const MULTIGRID *theMG, const INT isCurrent, const INT longformat)
 {
   char c;
-  const BVP_DESC *theBVPDesc;
-
-  /* get BVP description */
-  theBVPDesc = MG_BVPD(theMG);
 
   c = isCurrent ? '*' : ' ';
 
   if (longformat)
     UserWriteF(" %c %-20.20s %-20.20s\n",c,ENVITEM_NAME(theMG),
-               BVPD_NAME(theBVPDesc));
+               theMG->BVP_Name.c_str());
   else
     UserWriteF(" %c %-20.20s\n",c,ENVITEM_NAME(theMG));
 }
