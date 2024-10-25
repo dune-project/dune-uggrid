@@ -84,9 +84,6 @@ typedef INT (*CoeffProcPtr)(DOUBLE *, DOUBLE *);
 /** @name Macros for BVPDescriptor */
 /*@{*/
 #define BVPD_NAME(d)         ((d)->name)
-#define BVPD_MIDPOINT(d)     ((d)->midpoint)
-#define BVPD_RADIUS(d)       ((d)->radius)
-#define BVPD_CONVEX(d)       ((d)->convex)
 #define BVPD_NCOEFFF(d)      ((d)->numOfCoeffFct)
 /*@}*/
 
