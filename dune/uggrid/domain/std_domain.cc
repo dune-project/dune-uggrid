@@ -115,9 +115,6 @@ USING_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-static INT theProblemDirID;     /*!< env type for Problem dir                   */
-static INT theBdryCondVarID;    /*!<  env type for Problem vars                 */
-
 static INT theBVPDirID;         /*!<  env type for BVP dir                                      */
 
 static STD_BVP *currBVP;
@@ -1635,10 +1632,6 @@ InitDom (void)
     PrintErrorMessage ('F', "InitDom", "could not changedir to root");
     return (__LINE__);
   }
-
-  /* get env dir/var IDs for the problems */
-  theProblemDirID = GetNewEnvDirID ();
-  theBdryCondVarID = GetNewEnvVarID ();
 
   /* install the /BVP directory */
   theBVPDirID = GetNewEnvDirID ();
