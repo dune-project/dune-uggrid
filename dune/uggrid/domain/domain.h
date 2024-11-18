@@ -82,7 +82,9 @@ enum MeshStatus {MESHSTAT_NOTINIT,
 /*                                                                          */
 /****************************************************************************/
 
-typedef void *BVP;                 /*!< Structure handled by domain module    */
+struct std_BoundaryValueProblem;
+
+typedef std_BoundaryValueProblem *BVP;                 /*!< Structure handled by domain module    */
 typedef void *BNDS;                /*!< Structure handled by domain module    */
 typedef void *BNDP;                /*!< Structure handled by domain module    */
 
