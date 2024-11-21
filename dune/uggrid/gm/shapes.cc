@@ -35,6 +35,7 @@
 
 #include <algorithm>
 
+#include <dune/common/math.hh>
 #include <dune/uggrid/low/architecture.h>
 #include <dune/uggrid/low/misc.h>
 #include <dune/uggrid/low/ugtypes.h>
@@ -207,7 +208,7 @@ INT NS_DIM_PREFIX TetMaxSideAngle (ELEMENT *theElement, const DOUBLE **theCorner
     max = std::max(help,max);
   }
   max = std::min(max,1.0);
-  *MaxAngle = 180.0/M_PI*acos(-max);
+  *MaxAngle = 180.0/Dune::StandardMathematicalConstants<double>::pi()*acos(-max);
 
   return (0);
 }
