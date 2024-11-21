@@ -376,33 +376,28 @@ static int rename_if_necessary( const char *fname, int do_rename)
    D*/
 /****************************************************************************/
 
-int NS_PREFIX mkdir_r (const char *fname, mode_t mode, int do_rename)
+int NS_PREFIX mkdir_r (const char *fname, std::filesystem::perms mode, int do_rename)
 {
   const char *converted_name = BasedConvertedFilename(fname);
 
+  std::error_code ec;
   if (do_rename)
   {
     if (rename_if_necessary( converted_name, do_rename)!=0)
       return (1);
-#ifdef __MINGW32__
-    return mkdir(converted_name);
-#else
-    return mkdir(converted_name,mode);
-#endif
+    if (std::filesystem::create_directory(converted_name, ec))
+      std::filesystem::permissions(converted_name, mode, ec);
   }
   else
   {
     switch (filetype(fname))                    /* filetype needs an NOT BasedConvertedFilename'ed filename */
     {
     case FT_UNKNOWN :                           /* file doesn't exist, thus create it */
-#ifdef __MINGW32__
-      return mkdir(converted_name);
-#else
-      return mkdir(converted_name,mode);
-#endif
+      if (std::filesystem::create_directory(converted_name, ec))
+        std::filesystem::permissions(converted_name, mode, ec);
 
     case FT_DIR :
-      return 0;                                         /* OK, directory exists already */
+      return ec.value();                                         /* OK, directory exists already */
 
     case FT_FILE :
       UserWriteF("mkdir_r(): file %s exists already as ordinary file; can't create directory with same name.\n",converted_name);
@@ -417,6 +412,7 @@ int NS_PREFIX mkdir_r (const char *fname, mode_t mode, int do_rename)
       return 1;
     }
   }
+  return ec.value();
 }
 
 /****************************************************************************/
@@ -620,11 +616,8 @@ int NS_PREFIX DirCreateUsingSearchPaths (const char *fname, const char *paths)
 int NS_PREFIX DirCreateUsingSearchPaths_r (const char *fname, const char *paths, int rename)
 {
   INT fnamelen = strlen(fname);
-        #ifndef __MACINTOSH__
-  mode_t mode = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP;
-        #else
-  mode = 0;       /* ignored on Macintosh */
-        #endif
+  using perms = std::filesystem::perms;
+  perms mode = perms::owner_write | perms::owner_read | perms::owner_exec | perms::group_read | perms::group_exec;
 
   PRINTDEBUG(low,1,("DirCreateUsingSearchPaths\n"));
   if (paths == nullptr)

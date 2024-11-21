@@ -58,6 +58,7 @@
 #include <numeric>
 
 #include <dune/common/fvector.hh>
+#include <dune/common/math.hh>
 
 #include <dune/uggrid/domain/domain.h>
 #include <dune/uggrid/low/debug.h>
@@ -2014,13 +2015,13 @@ enum LV_MODIFIERS {
    take from this again the sigificant digits */
 #ifdef UG_DIM_2
 #define COORDINATE_TO_KEY(coord,dummy_int_ptr)  ((INT)(SIGNIFICANT_DIGITS((SIGNIFICANT_DIGITS((coord)[0],(dummy_int_ptr))*1.246509423749342 + \
-                                                                           SIGNIFICANT_DIGITS((coord)[1],(dummy_int_ptr))*M_PI)\
+                                                                           SIGNIFICANT_DIGITS((coord)[1],(dummy_int_ptr))*Dune::StandardMathematicalConstants<double>::pi())\
                                                                           , (dummy_int_ptr))))
 #endif
 
 #ifdef UG_DIM_3
 #define COORDINATE_TO_KEY(coord,dummy_int_ptr)  ((INT)(SIGNIFICANT_DIGITS((SIGNIFICANT_DIGITS((coord)[0],(dummy_int_ptr))*1.246509423749342 + \
-                                                                           SIGNIFICANT_DIGITS((coord)[1],(dummy_int_ptr))*M_PI + \
+                                                                           SIGNIFICANT_DIGITS((coord)[1],(dummy_int_ptr))*Dune::StandardMathematicalConstants<double>::pi() + \
                                                                            SIGNIFICANT_DIGITS((coord)[2],(dummy_int_ptr))*0.76453456834568356936598)\
                                                                           , (dummy_int_ptr))))
 #endif

@@ -33,7 +33,7 @@
 #include <cstdio>
 #include <fcntl.h>
 
-#include <sys/stat.h>
+#include <filesystem>
 
 #include "ugtypes.h"
 #include "namespace.h"
@@ -86,7 +86,7 @@ FILE            *FileOpenUsingSearchPath        (const char *fname, const char *
 FILE            *FileOpenUsingSearchPath_r      (const char *fname, const char *mode, const char *path, int rename);
 int             FileTypeUsingSearchPaths        (const char *fname, const char *pathsvar);
 FILE            *fopen_r                                        (const char *fname, const char *mode, int do_rename);
-int             mkdir_r                                         (const char *fname, mode_t mode, int do_rename);
+int             mkdir_r                                         (const char *fname, std::filesystem::perms mode, int do_rename);
 
 bool            AppendTrailingSlash                     (char *path);
 char*           SimplifyPath                            (char *path);
