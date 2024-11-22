@@ -166,25 +166,6 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
   return PATCH_ID(patch) - currBVP->sideoffset;
 }
 
-/* configuring a domain
- * \todo This method really does not do more than setting the 'Domain' pointer.
- * It may as well be removed.  However, for that to actually work, we need
- * to move the STD_BVP definition out of the std_internal.h header first.
- */
-INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<DOMAIN>&& theDomain)
-{
-  STD_BVP *theBVP = (STD_BVP *) BVP_GetByName(BVPName.c_str());
-  if (theBVP == nullptr)
-    return 1;
-
-  if (theDomain == nullptr)
-    return 1;
-
-  theBVP->Domain = std::move(theDomain);
-
-  return 0;
-}
-
 BVP *NS_DIM_PREFIX
 CreateBoundaryValueProblem (const char *BVPName)
 {

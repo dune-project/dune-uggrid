@@ -474,8 +474,6 @@ typedef struct bnd_ps BND_PS;
 
 /* --- public functions --- */
 
-INT STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<domain>&& theDomain);
-
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);
 
