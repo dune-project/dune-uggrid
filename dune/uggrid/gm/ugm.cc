@@ -2760,14 +2760,13 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
    </ul> */
 /****************************************************************************/
 
-MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProblem,
+MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, BVP theBVP,
                                            const char *format, INT optimizedIE, INT insertMesh,
                                            std::shared_ptr<PPIF::PPIFContext> ppifContext)
 {
   HEAP *theHeap;
   MULTIGRID *theMG;
   INT i;
-  BVP *theBVP;
   MESH mesh;
   INT MarkKey;
 
@@ -2799,9 +2798,9 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   MG_MARK_KEY(theMG) = MarkKey;
 
   if (insertMesh)
-    theBVP = BVP_Init(BndValProblem,theHeap,&mesh,MarkKey);
+    BVP_Init(theBVP,theHeap,&mesh,MarkKey);
   else
-    theBVP = BVP_Init(BndValProblem,theHeap,NULL,MarkKey);
+    BVP_Init(theBVP,theHeap,NULL,MarkKey);
   if (theBVP==NULL)
   {
     PrintErrorMessage('E',"CreateMultiGrid","BVP not found");
@@ -2825,7 +2824,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   theMG->vectorIdCounter = 0;
 #endif
   theMG->topLevel = -1;
-  MG_BVP(theMG) = theBVP;
+  MG_BVP(theMG) = (BVP*)theBVP;
   RESETMGSTATUS(theMG);
 
   theMG->theHeap = theHeap;

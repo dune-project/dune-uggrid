@@ -224,19 +224,13 @@ void Set_Current_BVP(BVP* theBVP);
 /****************************************************************************/
 /** \brief Initialize a BVP and return a mesh
  *
- * @param filename - name of file
  * @param theHeap - heap
  * @param MarkKey - use key for temporary memory allocation (do not Mark/Release)
 
    Function initialize a BVP and returns a mesh.
-
- * @return <ul>
- *   <li>    0 if ok  </li>
- *   <li>    1 if error.       </li>
- * </ul>
  */
 /****************************************************************************/
-BVP *BVP_Init (const char *filename, NS_PREFIX HEAP *theHeap, MESH *Mesh, INT MarkKey);
+void BVP_Init (BVP theBVP, NS_PREFIX HEAP *theHeap, MESH *Mesh, INT MarkKey);
 
 /****************************************************************************/
 /** \brief Dispose a BVP

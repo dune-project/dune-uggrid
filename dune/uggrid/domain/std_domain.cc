@@ -453,10 +453,9 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH **corners, PATCH **lines, PATCH **sid
 }
 #endif
 
-BVP *NS_DIM_PREFIX
-BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
+void NS_DIM_PREFIX
+BVP_Init (STD_BVP* theBVP, HEAP * Heap, MESH * Mesh, INT MarkKey)
 {
-  STD_BVP *theBVP;
   PATCH **corners, **sides;
   unsigned short* segmentsPerPoint, *cornerCounters;
   INT i, j, n, m, ncorners, nlines, nsides;
@@ -466,14 +465,11 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   INT nn;
 #       endif
 
-  theBVP = (STD_BVP *) BVP_GetByName (name);
-  if (theBVP == NULL)
-    return (NULL);
+  assert(theBVP);
   currBVP = theBVP;
 
   auto& theDomain = theBVP->Domain;
-  if (theDomain == NULL)
-    return (NULL);
+  assert(theDomain);
 
   /* fill in data of domain */
   ncorners = theDomain->numOfCorners;
@@ -481,19 +477,18 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
   /* create parameter patches */
   sides = (PATCH **) GetTmpMem (Heap, nsides * sizeof (PATCH *), MarkKey);
-  if (sides == NULL)
-    return (NULL);
+  assert (sides);
 
   for (i = 0; i < nsides; i++)
     sides[i] = NULL;
   theBVP->nsides = nsides;
   for (const boundary_segment& theSegment : theDomain->boundarySegments)
   {
-    if ((theSegment.id < 0) || (theSegment.id >= nsides))
-      return (NULL);
+    assert((theSegment.id >= 0) && (theSegment.id < nsides));
+
     PATCH* thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (PARAMETER_PATCH));
-    if (thePatch == NULL)
-      return (NULL);
+    assert (thePatch);
+
     PATCH_TYPE (thePatch) = PARAMETRIC_PATCH_TYPE;
     PATCH_ID (thePatch) = theSegment.id;
     for (i = 0; i < 2 * DIM_OF_BND; i++)
@@ -518,11 +513,11 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   }
   for (const linear_segment& theLinSegment : theDomain->linearSegments)
   {
-    if ((theLinSegment.id < 0) || (theLinSegment.id >= nsides))
-      return (NULL);
+    assert((theLinSegment.id >= 0) && (theLinSegment.id < nsides));
+
     PATCH* thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (LINEAR_PATCH));
-    if (thePatch == NULL)
-      return (NULL);
+    assert(thePatch);
+
     PATCH_TYPE (thePatch) = LINEAR_PATCH_TYPE;
     PATCH_ID (thePatch) = theLinSegment.id;
     LINEAR_PATCH_N (thePatch) = theLinSegment.n;
@@ -539,13 +534,12 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
                          LINEAR_PATCH_RIGHT (thePatch)));
   }
   for (i = 0; i < nsides; i++)
-    if (sides[i] == NULL)
-      return (NULL);
+    assert(sides[i]);
 
   /* create point patches */
   corners = (PATCH **) GetTmpMem (Heap, ncorners * sizeof (PATCH *), MarkKey);
-  if (corners == NULL)
-    return (NULL);
+  assert(corners);
+
   theBVP->ncorners = ncorners;
 
   /* precompute the number of segments at each point patch */
@@ -573,8 +567,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     PATCH* thePatch =
       (PATCH *) GetFreelistMemory (Heap, sizeof (POINT_PATCH)
                                    + (m-1) * sizeof (struct point_on_patch));
-    if (thePatch == NULL)
-      return (NULL);
+    assert(thePatch);
 
     PATCH_TYPE (thePatch) = POINT_PATCH_TYPE;
     PATCH_ID (thePatch) = i;
@@ -623,8 +616,8 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   lines =
     (PATCH **) GetTmpMem (Heap, nsides * 2 * sizeof (PATCH *),
                           MarkKey);
-  if (lines == NULL)
-    return (NULL);
+  assert(lines);
+
   err = 0;
 
   /* We create the set of all boundary lines by looping over the sides
@@ -744,19 +737,15 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     Mesh->ElemSideOnBnd = NULL;
     Mesh->theBndPs =
       (BNDP **) GetTmpMem (Heap, n * sizeof (BNDP *), MarkKey);
-    if (Mesh->theBndPs == NULL)
-      return (NULL);
+    assert(Mesh->theBndPs);
 
-    if (CreateCornerPoints (Heap, theBVP, Mesh->theBndPs))
-      return (NULL);
+    CreateCornerPoints (Heap, theBVP, Mesh->theBndPs);
 
     PRINTDEBUG (dom, 1, ("mesh n %d\n", Mesh->nBndP));
     for (i = 0; i < theBVP->ncorners; i++)
       PRINTDEBUG (dom, 1, (" id %d\n",
                            BND_PATCH_ID ((BND_PS *) (Mesh->theBndPs[i]))));
   }
-
-  return ((BVP *) theBVP);
 }
 
 /* domain interface function: for description see domain.h */

@@ -2627,7 +2627,7 @@ static INT CheckCGKeys (INT ne, ELEMENT** eid_e, MGIO_CG_ELEMENT *cg_elem)
 MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
                                          const char *name,
                                          const char *type,
-                                         const char *BVPName,
+                                         BVP *theBVP,
                                          const char *format,
                                          unsigned long heapSize,
                                          INT force,
@@ -2686,9 +2686,8 @@ MULTIGRID * NS_DIM_PREFIX LoadMultiGrid (const char *MultigridName,
   MGIO_REFINEMENT *refinement;
   BNDP **BndPList = nullptr;
   DOUBLE *Positions;
-  BVP *theBVP;
   MESH theMesh;
-  char FormatName[NAMESIZE], BndValName[NAMESIZE], MGName[NAMESIZE], filename[NAMESIZE];
+  char FormatName[NAMESIZE], MGName[NAMESIZE], filename[NAMESIZE];
   INT i,j,*Element_corner_uniq_subdom, *Ecusdp[2],**Enusdp[2],**Ecidusdp[2],
   **Element_corner_ids_uniq_subdom,*Element_corner_ids,max,**Element_nb_uniq_subdom,
   *Element_nb_ids,level;
@@ -2820,8 +2819,6 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
     return (NULL);
   }
   /* BVP and format */
-  if (BVPName==NULL) strcpy(BndValName,mg_general.DomainName);
-  else strcpy(BndValName,BVPName);
   if (MultigridName==NULL) strcpy(MGName,mg_general.MultiGridName);
   else strcpy(MGName,MultigridName);
   if (format==NULL) strcpy(FormatName,mg_general.Formatname);
@@ -2829,7 +2826,7 @@ nparfiles = UG_GlobalMinINT(*ppifContext, nparfiles);
   if (heapSize==0) heapSize = mg_general.heapsize * 1024;   // Size in kilobytes
 
   /* create a virginenal multigrid on the BVP */
-  theMG = CreateMultiGrid(MGName,BndValName,FormatName,true,false, ppifContext);
+  theMG = CreateMultiGrid(MGName,(BVP)theBVP,FormatName,true,false, ppifContext);
   if (theMG==NULL) {
     UserWrite("ERROR(ugio): cannot create multigrid\n");
     CloseMGFile ();
