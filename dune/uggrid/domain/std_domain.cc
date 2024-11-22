@@ -782,13 +782,6 @@ Set_Current_BVP(BVP* theBVP)
   currBVP = (STD_BVP*)theBVP;
 }
 
-/* domain interface function: for description see domain.h */
-BVP *NS_DIM_PREFIX
-BVP_GetByName (const char *name)
-{
-  return ((BVP *) SearchEnv (name, "/BVP", theBVPDirID, theBVPDirID));
-}
-
 static INT
 GetNumberOfCommonPatches (const PATCH * p0, const PATCH * p1, INT * Pid)
 {

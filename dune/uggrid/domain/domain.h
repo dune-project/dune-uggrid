@@ -201,24 +201,6 @@ typedef struct mesh MESH;
 
 
 
-
-
-
-/****************************************************************************/
-/** \brief Get pointer to BVP by name
- *
- * @param name - name of BVP
-
-   This function returns the pointer to the BVP specified by its \<name\>.
-
- * @return <ul>
- *   <li> pointer to BVP </li>
- *   <li> NULL if error. </li>
- * </ul>
- */
-/****************************************************************************/
-BVP        *BVP_GetByName         (const char *name);
-
 void Set_Current_BVP(BVP* theBVP);
 
 /****************************************************************************/
