@@ -115,8 +115,6 @@ USING_UGDIM_NAMESPACE
 /*                                                                          */
 /****************************************************************************/
 
-static INT theBVPDirID;         /*!<  env type for BVP dir                                      */
-
 static STD_BVP *currBVP;
 
 
@@ -1550,40 +1548,6 @@ BNDP_LoadBndP_Ext (void)
   }
 
   return ((BNDP *) bp);
-}
-
-/****************************************************************************/
-/** \brief Create and initialize the std_domain
- *
- * This function creates the environments domain, problem and BVP.
- *
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 when error occurred.
- * </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX
-InitDom (void)
-{
-
-  /* change to root directory */
-  if (ChangeEnvDir ("/") == NULL)
-  {
-    PrintErrorMessage ('F', "InitDom", "could not changedir to root");
-    return (__LINE__);
-  }
-
-  /* install the /BVP directory */
-  theBVPDirID = GetNewEnvDirID ();
-  if (MakeEnvItem ("BVP", theBVPDirID, sizeof (ENVDIR)) == NULL)
-  {
-    PrintErrorMessage ('F', "InitDom", "could not install '/BVP' dir");
-    return (__LINE__);
-  }
-
-  return (0);
 }
 
 /** @} */

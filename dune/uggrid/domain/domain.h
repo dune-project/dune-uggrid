@@ -450,10 +450,6 @@ void BVertexScatterBndP  (const DDD::DDDContext& context, BNDP **bndp, int cnt, 
 
 #endif
 
-/* miscellaneous */
-INT         InitDom               (void);
-
-
 END_UGDIM_NAMESPACE
 
 #endif
