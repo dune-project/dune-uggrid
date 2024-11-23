@@ -2806,7 +2806,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, BVP theBVP,
     PrintErrorMessage('E',"CreateMultiGrid","BVP not found");
     return(NULL);
   }
-  theMG->BVP_Name = ENVITEM_NAME (theBVP);
+  theMG->BVP_Name = "dummy BVP name";
 
   /* 1: general user data space */
   // As we are using this version only with DUNE, we will never have UG user data

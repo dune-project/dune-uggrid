@@ -169,23 +169,8 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
 BVP *NS_DIM_PREFIX
 CreateBoundaryValueProblem (const char *BVPName)
 {
-  STD_BVP *theBVP;
-
-  /* change to /BVP directory */
-  if (ChangeEnvDir ("/BVP") == NULL)
-    return (NULL);
-
   /* allocate new domain structure */
-  theBVP =
-    (STD_BVP *) MakeEnvItem (BVPName, theBVPDirID, sizeof (STD_BVP));
-  if (theBVP == NULL)
-    return (NULL);
-  if (ChangeEnvDir (BVPName) == NULL)
-    return (NULL);
-
-  theBVP->Domain = NULL;
-
-  UserWriteF ("BVP %s installed.\n", BVPName);
+  STD_BVP* theBVP = new STD_BVP;
 
   return ((BVP *) theBVP);
 }
@@ -765,13 +750,7 @@ BVP_Dispose (BVP * theBVP)
 
   free ( stdBVP->patches );
 
-  /* Unlock the item so it can be deleted from the environment tree */
-  ((ENVITEM*)theBVP)->d.locked = 0;
-
-  if (ChangeEnvDir("/BVP")==NULL)
-    return (1);
-  if (RemoveEnvItem((ENVITEM *)theBVP))
-    return (1);
+  delete theBVP;
 
   return (0);
 }
