@@ -3709,8 +3709,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
   DisposeHeap(MGHEAP(theMG));
 
   /* dispose BVP */
-  if (MG_BVP(theMG)!=NULL)
-    if (BVP_Dispose(MG_BVP(theMG))) return (GM_ERROR);
+  delete MG_BVP(theMG);
 
   /* first unlock the mg */
   ((ENVITEM*) theMG)->v.locked = false;

@@ -215,21 +215,6 @@ void Set_Current_BVP(BVP* theBVP);
 void BVP_Init (BVP theBVP, NS_PREFIX HEAP *theHeap, MESH *Mesh, INT MarkKey);
 
 /****************************************************************************/
-/** \brief Dispose a BVP
- *
- * @param theBVP - BVP structure
-
-   This function disposes a BVP.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT         BVP_Dispose           (BVP *theBVP);
-
-/****************************************************************************/
 /** \brief Write command to insert this BNDP
  *
  * @param theBndP - BNDP structure

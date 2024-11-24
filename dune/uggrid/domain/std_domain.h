@@ -259,6 +259,8 @@ enum PatchType {POINT_PATCH_TYPE,
  */
 struct std_BoundaryValueProblem
 {
+  ~std_BoundaryValueProblem();
+
   /** \brief Domain pointer                      */
   std::unique_ptr<domain> Domain;
 

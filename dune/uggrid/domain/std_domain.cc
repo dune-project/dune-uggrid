@@ -732,25 +732,15 @@ BVP_Init (STD_BVP* theBVP, HEAP * Heap, MESH * Mesh, INT MarkKey)
 }
 
 /* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
-BVP_Dispose (BVP * theBVP)
+NS_DIM_PREFIX std_BoundaryValueProblem::~std_BoundaryValueProblem()
 {
-  /* Deallocate the patch pointers
-     The memory pointed to by theBVP->patches should also be freed when
-     not using the system heap.  However the UG heap data structure is not
-     available here, and for this I don't know how to do the proper deallocation. */
-  STD_BVP* stdBVP = (STD_BVP *) theBVP;
   /* npatches is the number of corners plus the number of lines plus the number of sides.
    * You apparently can't access nlines directly here, but sideoffset should be ncorners + nlines. */
-  int npatches = stdBVP->sideoffset + stdBVP->nsides;
+  int npatches = sideoffset + nsides;
   for (int i=0; i<npatches; i++)
-    free ( stdBVP->patches[i] );
+    free (patches[i]);
 
-  free ( stdBVP->patches );
-
-  delete theBVP;
-
-  return (0);
+  free (patches);
 }
 
 void NS_DIM_PREFIX
