@@ -164,15 +164,6 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
   return PATCH_ID(patch) - currBVP->sideoffset;
 }
 
-BVP *NS_DIM_PREFIX
-CreateBoundaryValueProblem (const char *BVPName)
-{
-  /* allocate new domain structure */
-  STD_BVP* theBVP = new STD_BVP;
-
-  return ((BVP *) theBVP);
-}
-
 static INT
 GetNumberOfPatches (const PATCH * p)
 {

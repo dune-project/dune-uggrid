@@ -476,8 +476,6 @@ typedef struct bnd_ps BND_PS;
 /** \brief Access the id of the segment (used by DUNE) */
 UINT GetBoundarySegmentId(BNDS* boundarySegment);
 
-BVP *CreateBoundaryValueProblem (const char *BVPname);
-
 END_UGDIM_NAMESPACE
 
 /** @} */
