@@ -2760,14 +2760,13 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
    </ul> */
 /****************************************************************************/
 
-MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProblem,
+MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, BVP theBVP,
                                            const char *format, INT optimizedIE, INT insertMesh,
                                            std::shared_ptr<PPIF::PPIFContext> ppifContext)
 {
   HEAP *theHeap;
   MULTIGRID *theMG;
   INT i;
-  BVP *theBVP;
   MESH mesh;
   INT MarkKey;
 
@@ -2799,19 +2798,15 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   MG_MARK_KEY(theMG) = MarkKey;
 
   if (insertMesh)
-    theBVP = BVP_Init(BndValProblem,theHeap,&mesh,MarkKey);
+    BVP_Init(theBVP,theHeap,&mesh,MarkKey);
   else
-    theBVP = BVP_Init(BndValProblem,theHeap,NULL,MarkKey);
+    BVP_Init(theBVP,theHeap,NULL,MarkKey);
   if (theBVP==NULL)
   {
     PrintErrorMessage('E',"CreateMultiGrid","BVP not found");
     return(NULL);
   }
-  if (BVP_SetBVPDesc(theBVP,&theMG->theBVPD))
-  {
-    PrintErrorMessage('E',"CreateMultiGrid","BVP not evaluated");
-    return(NULL);
-  }
+  theMG->BVP_Name = "dummy BVP name";
 
   /* 1: general user data space */
   // As we are using this version only with DUNE, we will never have UG user data
@@ -2829,7 +2824,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, char *BndValProb
   theMG->vectorIdCounter = 0;
 #endif
   theMG->topLevel = -1;
-  MG_BVP(theMG) = theBVP;
+  MG_BVP(theMG) = (BVP*)theBVP;
   RESETMGSTATUS(theMG);
 
   theMG->theHeap = theHeap;
@@ -3714,8 +3709,7 @@ INT NS_DIM_PREFIX DisposeMultiGrid (MULTIGRID *theMG)
   DisposeHeap(MGHEAP(theMG));
 
   /* dispose BVP */
-  if (MG_BVP(theMG)!=NULL)
-    if (BVP_Dispose(MG_BVP(theMG))) return (GM_ERROR);
+  delete MG_BVP(theMG);
 
   /* first unlock the mg */
   ((ENVITEM*) theMG)->v.locked = false;
@@ -4794,16 +4788,12 @@ void NS_DIM_PREFIX ListMultiGridHeader (const INT longformat)
 void NS_DIM_PREFIX ListMultiGrid (const MULTIGRID *theMG, const INT isCurrent, const INT longformat)
 {
   char c;
-  const BVP_DESC *theBVPDesc;
-
-  /* get BVP description */
-  theBVPDesc = MG_BVPD(theMG);
 
   c = isCurrent ? '*' : ' ';
 
   if (longformat)
     UserWriteF(" %c %-20.20s %-20.20s\n",c,ENVITEM_NAME(theMG),
-               BVPD_NAME(theBVPDesc));
+               theMG->BVP_Name.c_str());
   else
     UserWriteF(" %c %-20.20s\n",c,ENVITEM_NAME(theMG));
 }

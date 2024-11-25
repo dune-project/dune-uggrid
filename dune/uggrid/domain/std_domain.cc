@@ -74,7 +74,7 @@
 
 /* domain module */
 #include "domain.h"
-#include "std_internal.h"
+#include <dune/uggrid/domain/std_domain.h>
 
 USING_UGDIM_NAMESPACE
   USING_UG_NAMESPACE
@@ -114,11 +114,6 @@ USING_UGDIM_NAMESPACE
 /* definition of variables global to this source file only (static!)	    */
 /*                                                                          */
 /****************************************************************************/
-
-static INT theProblemDirID;     /*!< env type for Problem dir                   */
-static INT theBdryCondVarID;    /*!<  env type for Problem vars                 */
-
-static INT theBVPDirID;         /*!<  env type for BVP dir                                      */
 
 static STD_BVP *currBVP;
 
@@ -167,61 +162,6 @@ UINT NS_DIM_PREFIX GetBoundarySegmentId(BNDS* boundarySegment)
   /* The ids in the patch data structure are consecutive but they
      start at currBVP->sideoffset instead of zero. */
   return PATCH_ID(patch) - currBVP->sideoffset;
-}
-
-/* configuring a domain
- * \todo This method really does not do more than setting the 'Domain' pointer.
- * It may as well be removed.  However, for that to actually work, we need
- * to move the STD_BVP definition out of the std_internal.h header first.
- */
-INT NS_DIM_PREFIX STD_BVP_Configure(const std::string& BVPName, std::unique_ptr<DOMAIN>&& theDomain)
-{
-  STD_BVP *theBVP = (STD_BVP *) BVP_GetByName(BVPName.c_str());
-  if (theBVP == nullptr)
-    return 1;
-
-  if (theDomain == nullptr)
-    return 1;
-
-  theBVP->Domain = std::move(theDomain);
-
-  return 0;
-}
-
-BVP *NS_DIM_PREFIX
-CreateBoundaryValueProblem (const char *BVPName, BndCondProcPtr theBndCond,
-                            int numOfCoeffFct, CoeffProcPtr coeffs[],
-                            int numOfUserFct, UserProcPtr userfct[])
-{
-  STD_BVP *theBVP;
-  INT i, n;
-
-  /* change to /BVP directory */
-  if (ChangeEnvDir ("/BVP") == NULL)
-    return (NULL);
-
-  /* allocate new domain structure */
-  n = (numOfCoeffFct + numOfUserFct - 1) * sizeof (void *);
-  theBVP =
-    (STD_BVP *) MakeEnvItem (BVPName, theBVPDirID, sizeof (STD_BVP) + n);
-  if (theBVP == NULL)
-    return (NULL);
-  if (ChangeEnvDir (BVPName) == NULL)
-    return (NULL);
-
-  theBVP->numOfCoeffFct = numOfCoeffFct;
-  theBVP->numOfUserFct = numOfUserFct;
-  for (i = 0; i < numOfCoeffFct; i++)
-    theBVP->CU_ProcPtr[i] = (void *) (coeffs[i]);
-  for (i = 0; i < numOfUserFct; i++)
-    theBVP->CU_ProcPtr[i + numOfCoeffFct] = (void *) (userfct[i]);
-
-  theBVP->Domain = NULL;
-  theBVP->GeneralBndCond = theBndCond;
-
-  UserWriteF ("BVP %s installed.\n", BVPName);
-
-  return ((BVP *) theBVP);
 }
 
 static INT
@@ -487,10 +427,9 @@ CreateLine(INT i, INT j, HEAP *Heap, PATCH **corners, PATCH **lines, PATCH **sid
 }
 #endif
 
-BVP *NS_DIM_PREFIX
-BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
+void NS_DIM_PREFIX
+BVP_Init (STD_BVP* theBVP, HEAP * Heap, MESH * Mesh, INT MarkKey)
 {
-  STD_BVP *theBVP;
   PATCH **corners, **sides;
   unsigned short* segmentsPerPoint, *cornerCounters;
   INT i, j, n, m, ncorners, nlines, nsides;
@@ -500,14 +439,11 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   INT nn;
 #       endif
 
-  theBVP = (STD_BVP *) BVP_GetByName (name);
-  if (theBVP == NULL)
-    return (NULL);
+  assert(theBVP);
   currBVP = theBVP;
 
   auto& theDomain = theBVP->Domain;
-  if (theDomain == NULL)
-    return (NULL);
+  assert(theDomain);
 
   /* fill in data of domain */
   ncorners = theDomain->numOfCorners;
@@ -515,19 +451,18 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
   /* create parameter patches */
   sides = (PATCH **) GetTmpMem (Heap, nsides * sizeof (PATCH *), MarkKey);
-  if (sides == NULL)
-    return (NULL);
+  assert (sides);
 
   for (i = 0; i < nsides; i++)
     sides[i] = NULL;
   theBVP->nsides = nsides;
   for (const boundary_segment& theSegment : theDomain->boundarySegments)
   {
-    if ((theSegment.id < 0) || (theSegment.id >= nsides))
-      return (NULL);
+    assert((theSegment.id >= 0) && (theSegment.id < nsides));
+
     PATCH* thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (PARAMETER_PATCH));
-    if (thePatch == NULL)
-      return (NULL);
+    assert (thePatch);
+
     PATCH_TYPE (thePatch) = PARAMETRIC_PATCH_TYPE;
     PATCH_ID (thePatch) = theSegment.id;
     for (i = 0; i < 2 * DIM_OF_BND; i++)
@@ -552,11 +487,11 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   }
   for (const linear_segment& theLinSegment : theDomain->linearSegments)
   {
-    if ((theLinSegment.id < 0) || (theLinSegment.id >= nsides))
-      return (NULL);
+    assert((theLinSegment.id >= 0) && (theLinSegment.id < nsides));
+
     PATCH* thePatch = (PATCH *) GetFreelistMemory (Heap, sizeof (LINEAR_PATCH));
-    if (thePatch == NULL)
-      return (NULL);
+    assert(thePatch);
+
     PATCH_TYPE (thePatch) = LINEAR_PATCH_TYPE;
     PATCH_ID (thePatch) = theLinSegment.id;
     LINEAR_PATCH_N (thePatch) = theLinSegment.n;
@@ -573,13 +508,12 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
                          LINEAR_PATCH_RIGHT (thePatch)));
   }
   for (i = 0; i < nsides; i++)
-    if (sides[i] == NULL)
-      return (NULL);
+    assert(sides[i]);
 
   /* create point patches */
   corners = (PATCH **) GetTmpMem (Heap, ncorners * sizeof (PATCH *), MarkKey);
-  if (corners == NULL)
-    return (NULL);
+  assert(corners);
+
   theBVP->ncorners = ncorners;
 
   /* precompute the number of segments at each point patch */
@@ -607,8 +541,7 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     PATCH* thePatch =
       (PATCH *) GetFreelistMemory (Heap, sizeof (POINT_PATCH)
                                    + (m-1) * sizeof (struct point_on_patch));
-    if (thePatch == NULL)
-      return (NULL);
+    assert(thePatch);
 
     PATCH_TYPE (thePatch) = POINT_PATCH_TYPE;
     PATCH_ID (thePatch) = i;
@@ -657,8 +590,8 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
   lines =
     (PATCH **) GetTmpMem (Heap, nsides * 2 * sizeof (PATCH *),
                           MarkKey);
-  if (lines == NULL)
-    return (NULL);
+  assert(lines);
+
   err = 0;
 
   /* We create the set of all boundary lines by looping over the sides
@@ -778,137 +711,33 @@ BVP_Init (const char *name, HEAP * Heap, MESH * Mesh, INT MarkKey)
     Mesh->ElemSideOnBnd = NULL;
     Mesh->theBndPs =
       (BNDP **) GetTmpMem (Heap, n * sizeof (BNDP *), MarkKey);
-    if (Mesh->theBndPs == NULL)
-      return (NULL);
+    assert(Mesh->theBndPs);
 
-    if (CreateCornerPoints (Heap, theBVP, Mesh->theBndPs))
-      return (NULL);
+    CreateCornerPoints (Heap, theBVP, Mesh->theBndPs);
 
     PRINTDEBUG (dom, 1, ("mesh n %d\n", Mesh->nBndP));
     for (i = 0; i < theBVP->ncorners; i++)
       PRINTDEBUG (dom, 1, (" id %d\n",
                            BND_PATCH_ID ((BND_PS *) (Mesh->theBndPs[i]))));
   }
-
-  return ((BVP *) theBVP);
 }
 
 /* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
-BVP_Dispose (BVP * theBVP)
+NS_DIM_PREFIX std_BoundaryValueProblem::~std_BoundaryValueProblem()
 {
-  /* Deallocate the patch pointers
-     The memory pointed to by theBVP->patches should also be freed when
-     not using the system heap.  However the UG heap data structure is not
-     available here, and for this I don't know how to do the proper deallocation. */
-  STD_BVP* stdBVP = (STD_BVP *) theBVP;
   /* npatches is the number of corners plus the number of lines plus the number of sides.
    * You apparently can't access nlines directly here, but sideoffset should be ncorners + nlines. */
-  int npatches = stdBVP->sideoffset + stdBVP->nsides;
+  int npatches = sideoffset + nsides;
   for (int i=0; i<npatches; i++)
-    free ( stdBVP->patches[i] );
+    free (patches[i]);
 
-  free ( stdBVP->patches );
-
-  /* Unlock the item so it can be deleted from the environment tree */
-  ((ENVITEM*)theBVP)->d.locked = 0;
-
-  if (ChangeEnvDir("/BVP")==NULL)
-    return (1);
-  if (RemoveEnvItem((ENVITEM *)theBVP))
-    return (1);
-
-  return (0);
+  free (patches);
 }
 
 void NS_DIM_PREFIX
 Set_Current_BVP(BVP* theBVP)
 {
   currBVP = (STD_BVP*)theBVP;
-}
-
-/* domain interface function: for description see domain.h */
-BVP *NS_DIM_PREFIX
-BVP_GetByName (const char *name)
-{
-  return ((BVP *) SearchEnv (name, "/BVP", theBVPDirID, theBVPDirID));
-}
-
-INT NS_DIM_PREFIX
-BVP_SetBVPDesc (BVP * aBVP, BVP_DESC * theBVPDesc)
-{
-  STD_BVP *theBVP;
-
-  if (aBVP == NULL)
-    return (1);
-
-  /* cast */
-  theBVP = GetSTD_BVP (aBVP);
-
-  /* general part */
-  strcpy (BVPD_NAME (theBVPDesc), ENVITEM_NAME (theBVP));
-
-  /* the domain part */
-  BVPD_NCOEFFF (theBVPDesc) = theBVP->numOfCoeffFct;
-  BVPD_NUSERF (theBVPDesc) = theBVP->numOfUserFct;
-
-  currBVP = theBVP;
-
-  return (0);
-}
-
-/* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
-BVP_SetCoeffFct (BVP * aBVP, INT n, CoeffProcPtr * CoeffFct)
-{
-  STD_BVP *theBVP;
-  INT i;
-
-  theBVP = GetSTD_BVP (aBVP);
-
-  /* check */
-  if (n < -1 || n >= theBVP->numOfCoeffFct)
-    return (1);
-
-  if (n == -1)
-    for (i = 0; i < theBVP->numOfCoeffFct; i++)
-      CoeffFct[i] = (CoeffProcPtr) theBVP->CU_ProcPtr[i];
-  else
-    CoeffFct[0] = (CoeffProcPtr) theBVP->CU_ProcPtr[n];
-
-  return (0);
-}
-
-/* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
-BVP_SetUserFct (BVP * aBVP, INT n, UserProcPtr * UserFct)
-{
-  STD_BVP *theBVP;
-  INT i;
-
-  theBVP = GetSTD_BVP (aBVP);
-
-  /* check */
-  if (n < -1 || n >= theBVP->numOfUserFct)
-    return (1);
-
-  if (n == -1)
-    for (i = 0; i < theBVP->numOfUserFct; i++)
-      UserFct[i] =
-        (UserProcPtr) theBVP->CU_ProcPtr[i + theBVP->numOfCoeffFct];
-  else
-    UserFct[0] = (UserProcPtr) theBVP->CU_ProcPtr[n + theBVP->numOfCoeffFct];
-
-  return (0);
-}
-
-/* domain interface function: for description see domain.h */
-INT NS_DIM_PREFIX
-BVP_Check (BVP * aBVP)
-{
-  UserWrite ("BVP_Check: not implemented\n");
-
-  return (0);
 }
 
 static INT
@@ -1700,44 +1529,6 @@ BNDP_LoadBndP_Ext (void)
   }
 
   return ((BNDP *) bp);
-}
-
-/****************************************************************************/
-/** \brief Create and initialize the std_domain
- *
- * This function creates the environments domain, problem and BVP.
- *
- * @return <ul>
- *   <li>   0 if ok
- *   <li>   1 when error occurred.
- * </ul>
- */
-/****************************************************************************/
-
-INT NS_DIM_PREFIX
-InitDom (void)
-{
-
-  /* change to root directory */
-  if (ChangeEnvDir ("/") == NULL)
-  {
-    PrintErrorMessage ('F', "InitDom", "could not changedir to root");
-    return (__LINE__);
-  }
-
-  /* get env dir/var IDs for the problems */
-  theProblemDirID = GetNewEnvDirID ();
-  theBdryCondVarID = GetNewEnvVarID ();
-
-  /* install the /BVP directory */
-  theBVPDirID = GetNewEnvDirID ();
-  if (MakeEnvItem ("BVP", theBVPDirID, sizeof (ENVDIR)) == NULL)
-  {
-    PrintErrorMessage ('F', "InitDom", "could not install '/BVP' dir");
-    return (__LINE__);
-  }
-
-  return (0);
 }
 
 /** @} */

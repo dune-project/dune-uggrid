@@ -170,17 +170,6 @@ INT NS_DIM_PREFIX InitUg (int *argcp, char ***argvp)
   }
 #endif
 
-  /* init the domain module */
-  if ((err = InitDom ()) != 0)
-  {
-    printf
-      ("ERROR in InitDom while InitDom (line %d): called routine line %d\n",
-      (int) HiWrd (err), (int) LoWrd (err));
-    printf ("aborting ug\n");
-
-    return (1);
-  }
-
   /* init the gm module */
   if ((err = InitGm ()) != 0)
   {

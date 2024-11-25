@@ -53,7 +53,6 @@
 /* domain module */
 #include "domain.h"
 #include "std_domain.h"
-#include "std_internal.h"
 
 USING_UGDIM_NAMESPACE
   USING_UG_NAMESPACE

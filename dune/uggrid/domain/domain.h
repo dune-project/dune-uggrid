@@ -76,52 +76,17 @@ enum MeshStatus {MESHSTAT_NOTINIT,
                  MESHSTAT_SURFMESH,
                  MESHSTAT_MESH};
 
-/** @name Function formats */
-/*@{*/
-typedef INT (*CoeffProcPtr)(DOUBLE *, DOUBLE *);
-typedef INT (*UserProcPtr)(DOUBLE *, DOUBLE *);
-/*@}*/
-
-/** @name Macros for BVPDescriptor */
-/*@{*/
-#define BVPD_NAME(d)         ((d)->name)
-#define BVPD_MIDPOINT(d)     ((d)->midpoint)
-#define BVPD_RADIUS(d)       ((d)->radius)
-#define BVPD_CONVEX(d)       ((d)->convex)
-#define BVPD_NCOEFFF(d)      ((d)->numOfCoeffFct)
-#define BVPD_NUSERF(d)       ((d)->numOfUserFct)
-/*@}*/
-
 /****************************************************************************/
 /*                                                                          */
 /* data structures exported by the corresponding source file                */
 /*                                                                          */
 /****************************************************************************/
 
-typedef void *BVP;                 /*!< Structure handled by domain module    */
+struct std_BoundaryValueProblem;
+
+typedef std_BoundaryValueProblem *BVP;                 /*!< Structure handled by domain module    */
 typedef void *BNDS;                /*!< Structure handled by domain module    */
 typedef void *BNDP;                /*!< Structure handled by domain module    */
-
-/** \todo Please doc me! */
-struct BVP_Descriptor
-{
-  /** @name General part */
-  /*@{*/
-  /** \brief Name of the BVP */
-  char name[NS_PREFIX NAMELEN];
-  /*@}*/
-
-  /** @name Problem part */
-  /*@{*/
-  /** \brief Number of coefficient functions        */
-  INT numOfCoeffFct;
-
-  /** \brief Number of user functions               */
-  INT numOfUserFct;
-  /*@}*/
-};
-typedef struct BVP_Descriptor BVP_DESC;
-
 
 /** \todo Please doc me! */
 struct mesh
@@ -236,121 +201,18 @@ typedef struct mesh MESH;
 
 
 
-
-
-
-/****************************************************************************/
-/** \brief Get pointer to BVP by name
- *
- * @param name - name of BVP
-
-   This function returns the pointer to the BVP specified by its \<name\>.
-
- * @return <ul>
- *   <li> pointer to BVP </li>
- *   <li> NULL if error. </li>
- * </ul>
- */
-/****************************************************************************/
-BVP        *BVP_GetByName         (const char *name);
-
 void Set_Current_BVP(BVP* theBVP);
 
 /****************************************************************************/
 /** \brief Initialize a BVP and return a mesh
  *
- * @param filename - name of file
  * @param theHeap - heap
  * @param MarkKey - use key for temporary memory allocation (do not Mark/Release)
 
    Function initialize a BVP and returns a mesh.
-
- * @return <ul>
- *   <li>    0 if ok  </li>
- *   <li>    1 if error.       </li>
- * </ul>
  */
 /****************************************************************************/
-BVP *BVP_Init (const char *filename, NS_PREFIX HEAP *theHeap, MESH *Mesh, INT MarkKey);
-
-/****************************************************************************/
-/** \brief Dispose a BVP
- *
- * @param theBVP - BVP structure
-
-   This function disposes a BVP.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT         BVP_Dispose           (BVP *theBVP);
-
-/****************************************************************************/
-/** \brief Set BVP-descriptor
- *
- * @param theBVP - BVP structure
- * @param theBVPDesc - descriptor to set
-
-   This function sets the BVP descriptor according to the BVP.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT         BVP_SetBVPDesc        (BVP *theBVP, BVP_DESC *theBVPDesc);
-
-
-/****************************************************************************/
-/** \brief Set coefficient function(s)
- *
- * @param theBVP - BVP structure
- * @param n - Number of coefficient function or -1 for all
-
-   This function one or all coefficient functions.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT         BVP_SetCoeffFct       (BVP *theBVP, INT n, CoeffProcPtr *CoeffFct);
-
-/****************************************************************************/
-/** \brief Set coefficient function(s)
- *
- * @param theBVP - BVP structure
- * @param n - Number of user function or -1 for all
-
-   This function gives one or all user functions.
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT         BVP_SetUserFct        (BVP *theBVP, INT n, UserProcPtr *UserFct);
-
-/****************************************************************************/
-/** \brief Check consistency of BVP
- *
- * @param aBVP - BVP structure
-
-   This function checks consistency of BVP
-
- * @return <ul>
- *   <li> 0 if ok </li>
- *   <li> 1 if error. </li>
- * </ul>
- */
-/****************************************************************************/
-INT             BVP_Check                         (BVP *aBVP);
+void BVP_Init (BVP theBVP, NS_PREFIX HEAP *theHeap, MESH *Mesh, INT MarkKey);
 
 /****************************************************************************/
 /** \brief Write command to insert this BNDP
@@ -572,10 +434,6 @@ void BVertexGatherBndP   (BNDP *bndp, int cnt, char *data);
 void BVertexScatterBndP  (const DDD::DDDContext& context, BNDP **bndp, int cnt, char *data);
 
 #endif
-
-/* miscellaneous */
-INT         InitDom               (void);
-
 
 END_UGDIM_NAMESPACE
 

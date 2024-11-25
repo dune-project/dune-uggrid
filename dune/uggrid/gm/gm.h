@@ -1785,7 +1785,7 @@ struct multigrid {
   BVP *theBVP;
 
   /** \brief description of BVP-properties                */
-  BVP_DESC theBVPD;
+  std::string BVP_Name;
 
   /** \brief associated heap structure                    */
   NS_PREFIX HEAP *theHeap;
@@ -2975,14 +2975,14 @@ MULTIGRID               *GetFirstMultigrid                      (void);
 MULTIGRID               *GetNextMultigrid                       (const MULTIGRID *theMG);
 
 /* create, saving and disposing a multigrid structure */
-MULTIGRID *CreateMultiGrid (char *MultigridName, char *BndValProblem,
+MULTIGRID *CreateMultiGrid (char *MultigridName, BVP theBVP,
                             const char *format,
                             INT optimizedIE, INT insertMesh,
                             std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
 MULTIGRID *OpenMGFromDataFile(MULTIGRID *theMG, INT number, char *type,
                               char *DataFileName, NS_PREFIX MEM heapSize);
 MULTIGRID       *LoadMultiGrid  (const char *MultigridName, const char *name, const char *type,
-                                 const char *BndValProblem, const char *format,
+                                 BVP *theBVP, const char *format,
                                  unsigned long heapSize,INT force,INT optimizedIE, INT autosave,
                                  std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
 INT             SaveMultiGrid (MULTIGRID *theMG, const char *name, const char *type, const char *comment, INT autosave, INT rename);
