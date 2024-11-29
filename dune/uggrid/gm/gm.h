@@ -790,11 +790,6 @@ struct node {
   /** \brief Corresponding vertex structure               */
   union vertex *myvertex;
 
-  /** \brief Associated data pointer
-   *
-   * WARNING: The allocation of the data pointer depends on the format */
-  void *data;
-
 #ifdef ModelP
   const char* message_buffer() const
     { return message_buffer_; }
