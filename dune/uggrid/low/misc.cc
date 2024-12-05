@@ -38,7 +38,6 @@
 #include <cstddef>
 #include <cstdio>
 #include <climits>
-#include <float.h>
 
 #include "ugtypes.h"
 #include "architecture.h"
