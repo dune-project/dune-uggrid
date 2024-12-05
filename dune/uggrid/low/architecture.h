@@ -16,13 +16,13 @@
 /* SMALL..: least number s.t. 1 + SMALL../SMALL_FAC != 1 */
 #define SMALL_FAC 10
 
-#include <float.h>
-#define MAX_F            FLT_MAX
-#define SMALL_F         (FLT_EPSILON*SMALL_FAC)
-#define MAX_D            DBL_MAX
-#define SMALL_D         (DBL_EPSILON*SMALL_FAC)
-#define MAX_C            FLT_MAX
-#define SMALL_C         (FLT_EPSILON*SMALL_FAC)
+#include <limits>
+constexpr float MAX_F =    std::numeric_limits<float>::max();
+constexpr float SMALL_F =  std::numeric_limits<float>::epsilon() * SMALL_FAC;
+constexpr float MAX_C =    std::numeric_limits<float>::max();
+constexpr float SMALL_C =  std::numeric_limits<float>::epsilon() * SMALL_FAC;
+constexpr double MAX_D =   std::numeric_limits<double>::max();
+constexpr double SMALL_D = std::numeric_limits<double>::epsilon() * SMALL_FAC;
 
 /* data alignment of 8 should suffice on all architecture */
 /* !!! set after testing? */
