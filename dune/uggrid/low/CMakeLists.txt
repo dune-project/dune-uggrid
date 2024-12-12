@@ -14,6 +14,7 @@ target_sources(duneuggrid PRIVATE
   ugenv.cc)
 
 install(FILES
+  architecture.h
   debug.h
   dimension.h
   fileopen.h
