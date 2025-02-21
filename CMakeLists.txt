@@ -24,6 +24,9 @@ list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
 #include the dune macros
 include(DuneMacros)
 
+# deactivate global include-directories
+dune_policy(SET DP_DEFAULT_INCLUDE_DIRS NEW)
+
 # start a dune project with information from dune.module
 dune_project()
 
@@ -67,6 +70,9 @@ dune_add_library(duneuggrid EXPORT_NAME UGGrid)
 target_compile_definitions(duneuggrid PUBLIC ${UG_COMPILE_DEFINITIONS})
 target_link_libraries(duneuggrid PUBLIC Dune::Common)
 add_dune_mpi_flags(duneuggrid)
+
+# set include directories for duneuggrid library
+dune_default_include_directories(duneuggrid PUBLIC)
 
 check_include_file(sys/time.h HAVE_SYS_TIME_H)
 check_include_file(time.h HAVE_TIME_H)
