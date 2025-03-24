@@ -15,7 +15,6 @@ target_sources_dims(duneuggrid PRIVATE
   rm-write2file.cc
   rm.cc
   shapes.cc
-  ugio.cc
   ugm.cc)
 
 dune_add_test(
