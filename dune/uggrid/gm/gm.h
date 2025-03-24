@@ -2976,11 +2976,6 @@ MULTIGRID *CreateMultiGrid (char *MultigridName, BVP theBVP,
                             std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
 MULTIGRID *OpenMGFromDataFile(MULTIGRID *theMG, INT number, char *type,
                               char *DataFileName, NS_PREFIX MEM heapSize);
-MULTIGRID       *LoadMultiGrid  (const char *MultigridName, const char *name, const char *type,
-                                 BVP *theBVP, const char *format,
-                                 unsigned long heapSize,INT force,INT optimizedIE, INT autosave,
-                                 std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
-INT             SaveMultiGrid (MULTIGRID *theMG, const char *name, const char *type, const char *comment, INT autosave, INT rename);
 INT         DisposeGrid             (GRID *theGrid);
 INT             DisposeMultiGrid                (MULTIGRID *theMG);
 INT         Collapse                (MULTIGRID *theMG);
@@ -3055,7 +3050,6 @@ UINT ReadCW                                     (const void *obj, INT ce);
 void            WriteCW                                 (void *obj, INT ce, INT n);
 
 /* miscellaneous */
-INT             RenumberMultiGrid                                       (MULTIGRID *theMG, INT *nboe, INT *nioe, INT *nbov, INT *niov, NODE ***vid_n, INT *foid, INT *non, INT MarkKey);
 INT         MGSetVectorClasses                              (MULTIGRID *theMG);
 INT         SetEdgeSubdomainFromElements        (GRID *theGrid);
 INT         SetSubdomainIDfromBndInfo           (MULTIGRID *theMG);

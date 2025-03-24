@@ -43,7 +43,6 @@
 #include "algebra.h"
 #include "cw.h"
 #include "ugm.h"
-#include "ugio.h"
 #include "elements.h"
 #include "refine.h"
 #include "rm.h"
@@ -101,13 +100,6 @@ INT NS_DIM_PREFIX InitGm ()
 
   /* ugm.c */
   if ((err=InitUGManager())!=0)
-  {
-    SetHiWrd(err,__LINE__);
-    return (err);
-  }
-
-  /* ugio.c */
-  if ((err=InitUgio())!=0)
   {
     SetHiWrd(err,__LINE__);
     return (err);
