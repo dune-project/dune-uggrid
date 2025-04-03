@@ -89,4 +89,12 @@ set(DDD_MAX_PROCBITS_IN_GID ${UG_DDD_MACROBITS})
 # Use package init to set additional information
 set(dune-uggrid_INIT "set(UG_PARALLEL ${UG_ENABLE_PARALLEL})")
 
+# make sure downstream projects must find MPI too
+if (UG_ENABLE_PARALLEL)
+  string(JOIN "\n" DUNE_CUSTOM_PKG_CONFIG_SECTION
+    "include(CMakeFindDependencyMacro)"
+    "find_dependency(MPI)"
+  )
+endif()
+
 finalize_dune_project()
