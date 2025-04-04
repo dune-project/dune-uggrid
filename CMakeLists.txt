@@ -92,7 +92,6 @@ set(dune-uggrid_INIT "set(UG_PARALLEL ${UG_ENABLE_PARALLEL})")
 # make sure downstream projects must find MPI too
 if (UG_ENABLE_PARALLEL)
   string(JOIN "\n" DUNE_CUSTOM_PKG_CONFIG_SECTION
-    "include(CMakeFindDependencyMacro)"
     "find_dependency(MPI)"
   )
 endif()
