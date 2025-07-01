@@ -70,9 +70,6 @@ enum MeshStatus {MESHSTAT_NOTINIT,
                  MESHSTAT_SURFMESH,
                  MESHSTAT_MESH};
 
-struct std_BoundaryValueProblem;
-
-typedef std_BoundaryValueProblem *BVP;                 /*!< Structure handled by domain module    */
 typedef void *BNDS;                /*!< Structure handled by domain module    */
 typedef void *BNDP;                /*!< Structure handled by domain module    */
 
@@ -562,7 +559,7 @@ struct mesh
 typedef struct mesh MESH;
 
 
-void Set_Current_BVP(BVP* theBVP);
+void Set_Current_BVP(STD_BVP *theBVP);
 
 /****************************************************************************/
 /** \brief Initialize a BVP and return a mesh
@@ -573,7 +570,7 @@ void Set_Current_BVP(BVP* theBVP);
    Function initialize a BVP and returns a mesh.
  */
 /****************************************************************************/
-void BVP_Init (BVP theBVP, NS_PREFIX HEAP *theHeap, MESH *Mesh, INT MarkKey);
+void BVP_Init (STD_BVP *theBVP, NS_PREFIX HEAP *theHeap, MESH *Mesh, INT MarkKey);
 
 /****************************************************************************/
 /** \brief Write command to insert this BNDP
@@ -714,7 +711,7 @@ INT         BNDP_SaveBndP_Ext     (BNDP *theBndP);
  *   <li>    1 if error.      </li>
  * </ul> */
 /****************************************************************************/
-BNDP       *BNDP_LoadBndP         (BVP *theBVP, NS_PREFIX HEAP *Heap);
+BNDP       *BNDP_LoadBndP         (STD_BVP *theBVP, NS_PREFIX HEAP *Heap);
 BNDP       *BNDP_LoadBndP_Ext     (void);
 
 /****************************************************************************/

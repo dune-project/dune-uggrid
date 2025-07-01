@@ -734,9 +734,9 @@ NS_DIM_PREFIX std_BoundaryValueProblem::~std_BoundaryValueProblem()
 }
 
 void NS_DIM_PREFIX
-Set_Current_BVP(BVP* theBVP)
+Set_Current_BVP(STD_BVP *theBVP)
 {
-  currBVP = (STD_BVP*)theBVP;
+  currBVP = theBVP;
 }
 
 static INT
@@ -1475,7 +1475,7 @@ BNDP_SaveBndP_Ext (BNDP * BndP)
 
 /* domain interface function: for description see domain.h */
 BNDP *NS_DIM_PREFIX
-BNDP_LoadBndP (BVP * theBVP, HEAP * Heap)
+BNDP_LoadBndP (STD_BVP *theBVP, HEAP * Heap)
 {
   BND_PS *bp;
   int i, j, pid, n;
