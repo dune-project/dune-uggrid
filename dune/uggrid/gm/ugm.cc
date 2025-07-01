@@ -67,7 +67,7 @@
 #include "ugm.h"
 #include "shapes.h"
 #include "refine.h"
-#include <dune/uggrid/domain/domain.h>
+#include <dune/uggrid/domain/std_domain.h>
 #include "pargm.h"
 
 #ifdef ModelP

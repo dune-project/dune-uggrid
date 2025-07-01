@@ -73,7 +73,6 @@
 #include <dune/uggrid/ugdevices.h>
 
 /* domain module */
-#include "domain.h"
 #include <dune/uggrid/domain/std_domain.h>
 
 USING_UGDIM_NAMESPACE

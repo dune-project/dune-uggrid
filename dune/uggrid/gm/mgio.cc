@@ -42,7 +42,6 @@
 
 #ifdef __MGIO_USE_IN_UG__
 
-        #include <dune/uggrid/domain/domain.h>
         #include <dune/uggrid/low/debug.h>
         #include <dune/uggrid/low/fileopen.h>
 

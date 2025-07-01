@@ -60,7 +60,7 @@
 #include <dune/common/fvector.hh>
 #include <dune/common/math.hh>
 
-#include <dune/uggrid/domain/domain.h>
+#include <dune/uggrid/domain/std_domain.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/heaps.h>
