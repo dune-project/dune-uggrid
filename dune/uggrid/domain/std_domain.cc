@@ -666,8 +666,7 @@ BVP_Init (STD_BVP* theBVP, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
   m = ncorners + nlines;
   theBVP->sideoffset = m;
-  n = m + nsides;
-  theBVP->patches = (PATCH **) GetFreelistMemory (Heap, n * sizeof (PATCH *));
+  theBVP->patches.resize(m+nsides);
   n = 0;
   for (i = 0; i < ncorners; i++)
   {
@@ -724,13 +723,8 @@ BVP_Init (STD_BVP* theBVP, HEAP * Heap, MESH * Mesh, INT MarkKey)
 /* domain interface function: for description see domain.h */
 NS_DIM_PREFIX std_BoundaryValueProblem::~std_BoundaryValueProblem()
 {
-  /* npatches is the number of corners plus the number of lines plus the number of sides.
-   * You apparently can't access nlines directly here, but sideoffset should be ncorners + nlines. */
-  int npatches = sideoffset + nsides;
-  for (int i=0; i<npatches; i++)
-    free (patches[i]);
-
-  free (patches);
+  for (auto&& p : patches)
+    free (p);
 }
 
 void NS_DIM_PREFIX

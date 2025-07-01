@@ -297,7 +297,7 @@ struct std_BoundaryValueProblem
   INT sideoffset;
 
   /** \brief list of patches */
-  union patch **patches;
+  std::vector<union patch*> patches;
   /*@}*/
 };
 
