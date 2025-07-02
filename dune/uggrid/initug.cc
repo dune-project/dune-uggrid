@@ -59,9 +59,6 @@ using namespace PPIF;
 /* devices module */
 #include <dune/uggrid/ugdevices.h>
 
-/* domain module */
-#include <dune/uggrid/domain/domain.h>
-
 /* grid manager module */
 #include <dune/uggrid/gm/initgm.h>
 

@@ -41,7 +41,7 @@
 #include <cassert>
 
 #include <dune/uggrid/ugdevices.h>
-#include <dune/uggrid/domain/domain.h>
+#include <dune/uggrid/domain/std_domain.h>
 #include "parallel.h"
 #include <dune/uggrid/gm/algebra.h>
 #include <dune/uggrid/gm/evm.h>

@@ -67,7 +67,7 @@
 #include "ugm.h"
 #include "shapes.h"
 #include "refine.h"
-#include <dune/uggrid/domain/domain.h>
+#include <dune/uggrid/domain/std_domain.h>
 #include "pargm.h"
 
 #ifdef ModelP
@@ -2757,7 +2757,7 @@ MULTIGRID * NS_DIM_PREFIX GetNextMultigrid (const MULTIGRID *theMG)
    </ul> */
 /****************************************************************************/
 
-MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, BVP theBVP,
+MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, STD_BVP *theBVP,
                                            const char *format, INT optimizedIE, INT insertMesh,
                                            std::shared_ptr<PPIF::PPIFContext> ppifContext)
 {
@@ -2821,7 +2821,7 @@ MULTIGRID * NS_DIM_PREFIX CreateMultiGrid (char *MultigridName, BVP theBVP,
   theMG->vectorIdCounter = 0;
 #endif
   theMG->topLevel = -1;
-  MG_BVP(theMG) = (BVP*)theBVP;
+  MG_BVP(theMG) = theBVP;
   RESETMGSTATUS(theMG);
 
   theMG->theHeap = theHeap;

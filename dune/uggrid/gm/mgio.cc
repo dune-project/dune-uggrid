@@ -42,7 +42,6 @@
 
 #ifdef __MGIO_USE_IN_UG__
 
-        #include <dune/uggrid/domain/domain.h>
         #include <dune/uggrid/low/debug.h>
         #include <dune/uggrid/low/fileopen.h>
 
@@ -1539,7 +1538,7 @@ int NS_DIM_PREFIX Write_BD_General (MGIO_BD_GENERAL *bd_general)
 
 #ifdef __MGIO_USE_IN_UG__
 
-int NS_DIM_PREFIX Read_PBndDesc (BVP *theBVP, HEAP *theHeap, int n, BNDP **BndPList)
+int NS_DIM_PREFIX Read_PBndDesc (STD_BVP *theBVP, HEAP *theHeap, int n, BNDP **BndPList)
 {
   if (theBVP!=NULL && theHeap==NULL) return (1);
   if (theBVP!=NULL)

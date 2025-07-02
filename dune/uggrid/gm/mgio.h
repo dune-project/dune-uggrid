@@ -40,14 +40,13 @@
 #define __MGIO__
 
 #include <cstdio>
-#include <dune/uggrid/domain/domain.h>
+#include <dune/uggrid/domain/std_domain.h>
 
 #ifdef __MGIO_USE_IN_UG__
 
         #include <dune/uggrid/low/heaps.h>
         #include "gm.h"
         #include "rm.h"
-        #include <dune/uggrid/domain/domain.h>
 
 #endif
 
@@ -434,7 +433,7 @@ int             Write_BD_General        (MGIO_BD_GENERAL *bd_general);
 int             Read_pinfo                      (int ge, MGIO_PARINFO *pinfo);
 int             Write_pinfo                     (int ge, MGIO_PARINFO *pinfo);
 int             MGIO_filetype           (char *filename);
-int             Read_PBndDesc           (BVP *theBVP, NS_PREFIX HEAP *theHeap, int n, BNDP **BndPList);
+int             Read_PBndDesc           (STD_BVP *theBVP, NS_PREFIX HEAP *theHeap, int n, BNDP **BndPList);
 int             Write_PBndDesc          (int n, BNDP **BndPList);
 #endif
 

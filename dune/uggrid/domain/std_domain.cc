@@ -73,7 +73,6 @@
 #include <dune/uggrid/ugdevices.h>
 
 /* domain module */
-#include "domain.h"
 #include <dune/uggrid/domain/std_domain.h>
 
 USING_UGDIM_NAMESPACE
@@ -667,8 +666,7 @@ BVP_Init (STD_BVP* theBVP, HEAP * Heap, MESH * Mesh, INT MarkKey)
 
   m = ncorners + nlines;
   theBVP->sideoffset = m;
-  n = m + nsides;
-  theBVP->patches = (PATCH **) GetFreelistMemory (Heap, n * sizeof (PATCH *));
+  theBVP->patches.resize(m+nsides);
   n = 0;
   for (i = 0; i < ncorners; i++)
   {
@@ -725,19 +723,14 @@ BVP_Init (STD_BVP* theBVP, HEAP * Heap, MESH * Mesh, INT MarkKey)
 /* domain interface function: for description see domain.h */
 NS_DIM_PREFIX std_BoundaryValueProblem::~std_BoundaryValueProblem()
 {
-  /* npatches is the number of corners plus the number of lines plus the number of sides.
-   * You apparently can't access nlines directly here, but sideoffset should be ncorners + nlines. */
-  int npatches = sideoffset + nsides;
-  for (int i=0; i<npatches; i++)
-    free (patches[i]);
-
-  free (patches);
+  for (auto&& p : patches)
+    free (p);
 }
 
 void NS_DIM_PREFIX
-Set_Current_BVP(BVP* theBVP)
+Set_Current_BVP(STD_BVP *theBVP)
 {
-  currBVP = (STD_BVP*)theBVP;
+  currBVP = theBVP;
 }
 
 static INT
@@ -1476,7 +1469,7 @@ BNDP_SaveBndP_Ext (BNDP * BndP)
 
 /* domain interface function: for description see domain.h */
 BNDP *NS_DIM_PREFIX
-BNDP_LoadBndP (BVP * theBVP, HEAP * Heap)
+BNDP_LoadBndP (STD_BVP *theBVP, HEAP * Heap)
 {
   BND_PS *bp;
   int i, j, pid, n;

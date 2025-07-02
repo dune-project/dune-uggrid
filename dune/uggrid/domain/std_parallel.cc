@@ -51,7 +51,6 @@
 #include <dune/uggrid/parallel/dddif/parallel.h>
 
 /* domain module */
-#include "domain.h"
 #include "std_domain.h"
 
 USING_UGDIM_NAMESPACE

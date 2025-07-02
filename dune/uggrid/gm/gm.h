@@ -60,7 +60,7 @@
 #include <dune/common/fvector.hh>
 #include <dune/common/math.hh>
 
-#include <dune/uggrid/domain/domain.h>
+#include <dune/uggrid/domain/std_domain.h>
 #include <dune/uggrid/low/debug.h>
 #include <dune/uggrid/low/dimension.h>
 #include <dune/uggrid/low/heaps.h>
@@ -1777,7 +1777,7 @@ struct multigrid {
   INT fullrefineLevel;
 
   /** \brief pointer to BndValProblem                             */
-  BVP *theBVP;
+  STD_BVP *theBVP;
 
   /** \brief description of BVP-properties                */
   std::string BVP_Name;
@@ -2970,7 +2970,7 @@ MULTIGRID               *GetFirstMultigrid                      (void);
 MULTIGRID               *GetNextMultigrid                       (const MULTIGRID *theMG);
 
 /* create, saving and disposing a multigrid structure */
-MULTIGRID *CreateMultiGrid (char *MultigridName, BVP theBVP,
+MULTIGRID *CreateMultiGrid (char *MultigridName, STD_BVP *theBVP,
                             const char *format,
                             INT optimizedIE, INT insertMesh,
                             std::shared_ptr<PPIF::PPIFContext> ppifContext = nullptr);
