@@ -1765,14 +1765,6 @@ struct multigrid {
   /** \brief Finest grid level currently allocated in the MULTIGRID */
   INT topLevel;
 
-  /** \brief level we are working on
-   *
-   * Any number between 0 and topLevel. The currentLevel is used by many commands
-   * that work on a grid level as default value. It can be changed with the
-   * level command from the UG shell.
-   */
-  INT currentLevel;
-
   /** \brief last level with complete surface     */
   INT fullrefineLevel;
 
@@ -2893,7 +2885,6 @@ grid::dddContext()
 #define NIDCNT(p)                       ((p)->nodeIdCounter)
 #define EIDCNT(p)                       ((p)->elemIdCounter)
 #define TOPLEVEL(p)                     ((p)->topLevel)
-#define CURRENTLEVEL(p)                 ((p)->currentLevel)
 #define FULLREFINELEVEL(p)              ((p)->fullrefineLevel)
 #define MG_BVP(p)                               ((p)->theBVP)
 #define MG_BVPD(p)                              (&((p)->theBVPD))
@@ -2957,9 +2948,6 @@ enum {GM_KEEP_BOUNDARY_NODES,
 enum {GM_REFINE_PARALLEL, GM_REFINE_SEQUENTIAL};
 
 enum {GM_REFINE_NOHEAPTEST, GM_REFINE_HEAPTEST};
-
-enum {GM_ALL_LEVELS = 1,
-      GM_CURRENT_LEVEL = 2};
 
 /*@}*/
 
