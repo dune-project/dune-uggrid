@@ -6340,7 +6340,7 @@ static INT FinishGrid (MULTIGRID *mg)
   HEAP *heap=MGHEAP(mg);
   FIFO unused,shell;
   INT MarkKey = MG_MARK_KEY(mg);
-  INT i,side,id,nbid,found,s_id;
+  INT side,nbid,s_id;
   INT *sd_table;
   void *fifoBuffer;
 
@@ -6398,8 +6398,8 @@ static INT FinishGrid (MULTIGRID *mg)
       fifo_clear(&shell);
       fifo_in(&shell,elem);
       SETTHEFLAG(elem,true);
-      for (i=0; i<=nsd; i++) sd_table[i] = 0;
-      found = false;
+      for (INT i=0; i<=nsd; i++) sd_table[i] = 0;
+      INT found = false;
       while (!fifo_empty(&shell))
       {
         elem = (ELEMENT*) fifo_out(&shell);
@@ -6408,6 +6408,7 @@ static INT FinishGrid (MULTIGRID *mg)
           for (side=0; side<SIDES_OF_ELEM(elem); side++)
             if (SIDE_ON_BND(elem,side))
             {
+              INT id;
               if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&id,&nbid))
                 REP_ERR_RETURN (GM_ERROR);
 
@@ -6484,7 +6485,8 @@ static INT FinishGrid (MULTIGRID *mg)
       }
 
       /* count occurrences of subdom ids (max 2 different) */
-      for (found=0, i=0; i<=nsd; i++)
+      found=0;
+      for (INT i=0; i<=nsd; i++)
         if (sd_table[i])
           found++;
       if (found>2)
@@ -6513,6 +6515,7 @@ static INT FinishGrid (MULTIGRID *mg)
                 /* push unused neighbour across boundary to unused fifo */
                 fifo_in(&unused,nb);
 
+              INT id;
               if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&id,&nbid))
                 REP_ERR_RETURN (GM_ERROR);
 
