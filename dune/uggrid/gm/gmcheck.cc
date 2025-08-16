@@ -501,7 +501,7 @@ static INT CheckNode (ELEMENT *theElement, NODE* theNode, INT i)
   return(nerrors);
 }
 
-static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, INT i)
+static INT CheckEdge (ELEMENT *theElement, EDGE* theEdge, UINT i)
 {
   INT nerrors = 0;
   NODE    *theNode;
@@ -663,7 +663,7 @@ int EdgeHasTMasterCopy (DDD::DDDContext& context, ELEMENT *e, int i)
 static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT *EdgeError,
                          INT *NodeError, INT *ESonError, INT *NSonError, INT *errors)
 {
-  INT i,j,k,l,n,nsons,bserror,nerrors;
+  INT j,k,l,n,nsons,bserror,nerrors;
   NODE    *theNode,*theNode1;
   EDGE    *theEdge;
   ELEMENT *NbElement,*theFather;
@@ -692,7 +692,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   }
 
   /* check side information */
-  for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+  for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
   {
     if (OBJT(theElement) == BEOBJ)
       if (ELEM_BNDS(theElement,i) != NULL) {
@@ -916,7 +916,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   }
 
   /* check node information */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
   {
     theNode = CORNER(theElement,i);
 
@@ -931,7 +931,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   }
 
   /* check edge information */
-  for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+  for (INT i=0; i<EDGES_OF_ELEM(theElement); i++)
   {
     theNode  = CORNER(theElement,CORNER_OF_EDGE(theElement,i,0));
     theNode1 = CORNER(theElement,CORNER_OF_EDGE(theElement,i,1));
@@ -959,7 +959,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   }
 
   /* check orientation */
-  for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+  for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
     Vertices[i] = MYVERTEX(CORNER(theElement,i));
   if (0)
     if (!CheckOrientation(CORNERS_OF_ELEM(theElement),Vertices))
@@ -973,7 +973,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
   if (theFather != NULL)
   {
     /* check MIDNODE information of father */
-    for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+    for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
     {
       theNode = CORNER(theElement,i);
       if (NTYPE(theNode) == MID_NODE)
@@ -1012,6 +1012,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
       UserWrite("cannot get sons\n");
       return (1);
     }
+    UINT i;
     for (i=0; i<NSONS(theFather); i++)
     {
       if (SonList[i] == theElement) break;
@@ -1051,7 +1052,7 @@ static INT CheckElement (GRID *theGrid, ELEMENT *theElement, INT *SideError, INT
       UserWrite("cannot get sons\n");
       return (1);
     }
-    for (i=0; (SonList[i]!=NULL || i<nsons) && i<MAX_SONS; i++)
+    for (INT i=0; (SonList[i]!=NULL || i<nsons) && i<MAX_SONS; i++)
     {
       IFDEBUG(gm,1)
       if (REFINE(theElement)==0)
@@ -1438,7 +1439,6 @@ static INT CheckGeometry (GRID *theGrid)
   ELEMENT *theElement;
   EDGE *theEdge;
   LINK *theLink;
-  int i,j;
   INT SideError, EdgeError, NodeError, ESonError, NSonError, count;
   INT errors = 0;
 
@@ -1461,13 +1461,13 @@ static INT CheckGeometry (GRID *theGrid)
 
     /* evaluate side information */
     if (SideError)
-      for (i=0; i<SIDES_OF_ELEM(theElement); i++)
+      for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         /* back pointer failure */
         if (SideError & 1<<i)
         {
           UserWriteF("   SIDE[%d]=(",i);
-          for (j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
+          for (INT j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
           {
             UserWriteF(ID_FMTX,ID_PRTX(CORNER(theElement,
                                               CORNER_OF_SIDE(theElement,i,j))));
@@ -1486,7 +1486,7 @@ static INT CheckGeometry (GRID *theGrid)
           errors++;
 
           UserWriteF("   SIDE[%d]=(",i);
-          for (j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
+          for (INT j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
           {
             UserWriteF(ID_FMTX,ID_PRTX(CORNER(theElement,
                                               CORNER_OF_SIDE(theElement,i,j))));
@@ -1522,7 +1522,7 @@ static INT CheckGeometry (GRID *theGrid)
           errors++;
 
           UserWriteF("   SIDE[%d]=(",i);
-          for (j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
+          for (INT j=0; j<CORNERS_OF_SIDE(theElement,i); j++)
           {
             UserWriteF(ID_FMTX,ID_PRTX(CORNER(theElement,
                                               CORNER_OF_SIDE(theElement,i,j))));
@@ -1536,7 +1536,7 @@ static INT CheckGeometry (GRID *theGrid)
 
     /* evaluate edge information */
     if (EdgeError)
-      for (i=0; i<EDGES_OF_ELEM(theElement); i++)
+      for (INT i=0; i<EDGES_OF_ELEM(theElement); i++)
       {
         if (!(EdgeError & 1<<i)) continue;
 
@@ -1548,7 +1548,7 @@ static INT CheckGeometry (GRID *theGrid)
 
     /* evaluate node information */
     if (NodeError)
-      for (i=0; i<CORNERS_OF_ELEM(theElement); i++)
+      for (INT i=0; i<CORNERS_OF_ELEM(theElement); i++)
       {
         if (NodeError & (1<<i))
         {
@@ -1569,7 +1569,7 @@ static INT CheckGeometry (GRID *theGrid)
     /* evaluate son information */
     if (ESonError)
     {
-      for (i=0; i<NSONS(theElement); i++)
+      for (UINT i=0; i<NSONS(theElement); i++)
       {
         if ((ESonError & 1<<i))
         {
@@ -1582,7 +1582,7 @@ static INT CheckGeometry (GRID *theGrid)
 
     if (NSonError)
     {
-      for (i=0; i<MAX_CORNERS_OF_ELEM; i++)
+      for (INT i=0; i<MAX_CORNERS_OF_ELEM; i++)
       {
         if (NSonError & (1<<i))
         {
@@ -1596,7 +1596,7 @@ static INT CheckGeometry (GRID *theGrid)
         }
       }
 
-      for (i=0; i<MAX_EDGES_OF_ELEM; i++)
+      for (INT i=0; i<MAX_EDGES_OF_ELEM; i++)
       {
 
         if (NSonError & (1<<(i+MAX_CORNERS_OF_ELEM)))
