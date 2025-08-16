@@ -1682,7 +1682,7 @@ struct grid {
   INT status;
 
   /** \brief Level within the multigrid structure */
-  INT level;
+  UINT level;
 
   /** \brief Number of vertices */
   INT nVert[NS_DIM_PREFIX MAX_PRIOS];
