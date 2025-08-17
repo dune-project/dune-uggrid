@@ -394,7 +394,7 @@ void lbs (const char *argv, MULTIGRID *theMG)
     n = sscanf(argv,"%d %d %d %d",
                &param,&dest,&fromlevel,&tolevel);
     if (n < 4) tolevel = TOPLEVEL(theMG);
-    if (n < 3) fromlevel = CURRENTLEVEL(theMG);
+    if (n < 3) fromlevel = 0;
     if (n < 2) break;
     CollectElementsNearSegment(theMG,fromlevel,tolevel,dest);
     UserWriteF(PFMT "lbs() collect to proc %d\n",

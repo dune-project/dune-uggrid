@@ -2539,7 +2539,6 @@ GRID * NS_DIM_PREFIX CreateNewLevel (MULTIGRID *theMG)
   MYMG(theGrid) = theMG;
   GRID_ON_LEVEL(theMG,l) = theGrid;
     TOPLEVEL(theMG) = l;
-    CURRENTLEVEL(theMG) = l;
 
   return(theGrid);
 }
@@ -3493,7 +3492,6 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
   GRID_ON_LEVEL(theMG,0) = theGrid;
   theMG->topLevel = 0;
   theMG->fullrefineLevel = 0;
-  theMG->currentLevel = 0;
 
   for (theNode=PFIRSTNODE(theGrid); theNode != NULL;
        theNode = SUCCN(theNode)) {
@@ -3591,8 +3589,6 @@ INT NS_DIM_PREFIX DisposeTopLevel (MULTIGRID *theMG)
   GRID_ON_LEVEL(theMG,l) = NULL;
   GRID_ON_LEVEL(theMG,l-1)->finer = NULL;
   (theMG->topLevel)--;
-  if (theMG->currentLevel>theMG->topLevel)
-    theMG->currentLevel = theMG->topLevel;
 
   PutFreeObject(theMG,theGrid,sizeof(GRID),GROBJ);
 
@@ -3647,7 +3643,7 @@ INT NS_DIM_PREFIX DisposeGrid (GRID *theGrid)
 
   /* remove from grids array */
   GRID_ON_LEVEL(theMG,0) = NULL;
-  theMG->currentLevel = theMG->topLevel = -1;
+  theMG->topLevel = -1;
   theMG->nodeIdCounter = 0;
   theMG->vertIdCounter = 0;
   theMG->elemIdCounter = 0;
@@ -4445,7 +4441,7 @@ INT NS_DIM_PREFIX DeleteElement (MULTIGRID *theMG, ELEMENT *theElement) /* 3D VE
   INT i,j,found;
 
   /* check level */
-  if ((CURRENTLEVEL(theMG)!=0)||(TOPLEVEL(theMG)!=0))
+  if (TOPLEVEL(theMG)!=0)
   {
     PrintErrorMessage('E',"DeleteElement",
                       "only a multigrid with exactly one level can be edited");
@@ -5207,12 +5203,9 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
   EDGE *theEdge;
   LINK *theLink;
   VECTOR *vec;
-  char c;
   DOUBLE hmin,hmax,h;
-  INT l,cl,minl,i,soe,eos,coe,side,e;
+  INT l,minl,i,soe,eos,coe,side,e;
   INT nn,ne,nt,ns,nvec,nc;
-
-  cl = CURRENTLEVEL(theMG);
 
   UserWriteF("grids of '%s':\n",ENVITEM_NAME(theMG));
 
@@ -5222,8 +5215,6 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
   for (l=0; l<=TOPLEVEL(theMG); l++)
   {
     theGrid = GRID_ON_LEVEL(theMG,l);
-
-    c = (l==cl) ? '*' : ' ';
 
     /* calculate minimal and maximal edge */
     hmin = MAX_C;
@@ -5247,17 +5238,17 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
           if (SIDE_ON_BND(theElement,i))
             ns++;
 
-    UserWriteF("%c %3d %8d %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",c,l,(int)TOPLEVEL(theMG),
+    UserWriteF("  %3d %8d %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",l,TOPLEVEL(theMG),
                (long)NV(theGrid),(long)NN(theGrid),(long)NE(theGrid),(long)NT(theGrid),
                (long)ns,(long)NVEC(theGrid),(float)hmin,(float)hmax);
   }
 
-  /* surface grid up to current level */
-  minl = cl;
+  /* surface grid */
+  minl = TOPLEVEL(theMG);
   hmin = MAX_C;
   hmax = 0.0;
   nn = ne = nt = ns = nvec = nc = 0;
-  for (l=0; l<=cl; l++)
+  for (l=0; l<=TOPLEVEL(theMG); l++)
   {
     theGrid = GRID_ON_LEVEL(theMG,l);
 
@@ -5271,14 +5262,14 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
 
     /* count vectors and connections */
     for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-      if ((l==cl) || (VNCLASS(vec)<1))
+      if ((l==TOPLEVEL(theMG)) || (VNCLASS(vec)<1))
       {
         nvec++;
       }
 
     /* count other objects */
     for (theElement=PFIRSTELEMENT(theGrid); theElement!=NULL; theElement=SUCCE(theElement))
-      if ((NSONS(theElement)==0) || (l==cl))
+      if ((NSONS(theElement)==0) || (l==TOPLEVEL(theMG)))
       {
         nt++;
 
@@ -5291,7 +5282,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
           if (USED(theNode)) continue;
           SETUSED(theNode,1);
 
-          if ((SONNODE(theNode)==NULL) || (l==cl))
+          if ((SONNODE(theNode)==NULL) || (l==TOPLEVEL(theMG)))
             nn++;
         }
 
@@ -5302,7 +5293,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
             if (ELEM_BNDS(theElement,side)!=NULL) ns++;
 
           /* check neighbour element */
-          if (l<cl)
+          if (l<TOPLEVEL(theMG))
             if ((NBElem=NBELEM(theElement,side))!=NULL)
               if (NSONS(NBElem)>0)
                 continue;                                                       /* objects of this side will be counted by the neighbour */
@@ -5340,18 +5331,18 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
       }
   }
 
-  UserWrite("\nsurface grid up to current level:\n");
-  UserWriteF("%c %3d %8d %8s %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",' ',minl,(int)cl,
+  UserWrite("\nsurface grid up to top level:\n");
+  UserWriteF("%c %3d %8d %8s %8ld %8ld %8ld %8ld %8ld %8ld %9.3e %9.3e\n",' ',minl,(int)TOPLEVEL(theMG),
              "---",(long)nn,(long)ne,(long)nt,
              (long)ns,(long)nvec,(long)nc,(float)hmin,(float)hmax);
 
     #ifdef ModelP
   /* surface grid up to current level */
-  minl = cl;
+  minl = TOPLEVEL(theMG);
   hmin = MAX_C;
   hmax = 0.0;
   nn = ne = nt = ns = nvec = nc = 0;
-  for (l=0; l<=cl; l++)
+  for (l=0; l<=TOPLEVEL(theMG); l++)
   {
     theGrid = GRID_ON_LEVEL(theMG,l);
 
@@ -5364,7 +5355,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
     }
     /* count vectors and connections */
     for (vec=FIRSTVECTOR(theGrid); vec!=NULL; vec=SUCCVC(vec))
-      if ((l==cl) || (VNCLASS(vec)<1))
+      if ((l==TOPLEVEL(theMG)) || (VNCLASS(vec)<1))
         if (PRIO(vec) == PrioMaster) nvec++;
 
     /* count other objects */
@@ -5383,7 +5374,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
           if (USED(theNode)) continue;
           SETUSED(theNode,1);
 
-          if ((SONNODE(theNode)==NULL) || (l==cl))
+          if ((SONNODE(theNode)==NULL) || (l==TOPLEVEL(theMG)))
             if (PRIO(theNode) == PrioMaster) nn++;
         }
 
@@ -5394,7 +5385,7 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
             if (ELEM_BNDS(theElement,side)!=NULL) ns++;
 
           /* check neighbour element */
-          if (l<cl)
+          if (l<TOPLEVEL(theMG))
             if ((NBElem=NBELEM(theElement,side))!=NULL)
               if (NSONS(NBElem)>0)
                 continue;                                                       /* objects of this side will be counted by the neighbour */
@@ -5422,9 +5413,9 @@ void NS_DIM_PREFIX ListGrids (const MULTIGRID *theMG)
   nc = UG_GlobalSumINT(theMG->ppifContext(), nc);
   hmin = UG_GlobalMinDOUBLE(theMG->ppifContext(), hmin);
   hmax = UG_GlobalMaxDOUBLE(theMG->ppifContext(), hmax);
-  UserWrite("\nsurface of all processors up to current level:\n");
+  UserWrite("\nsurface of all processors up to top level:\n");
   UserWriteF("%c %3d %8d %8s %8ld %8s %8ld %8ld %8ld %8s %9.3e %9.3e\n",
-             ' ',minl,(int)cl,
+             ' ',minl,TOPLEVEL(theMG),
              "---",(long)nn,"        ",(long)nt,
              (long)ns,(long)nvec,"        ",(float)hmin,(float)hmax);
         #endif
@@ -6349,7 +6340,7 @@ static INT FinishGrid (MULTIGRID *mg)
   HEAP *heap=MGHEAP(mg);
   FIFO unused,shell;
   INT MarkKey = MG_MARK_KEY(mg);
-  INT i,side,id,nbid,found,s_id;
+  INT side,nbid,s_id;
   INT *sd_table;
   void *fifoBuffer;
 
@@ -6407,8 +6398,8 @@ static INT FinishGrid (MULTIGRID *mg)
       fifo_clear(&shell);
       fifo_in(&shell,elem);
       SETTHEFLAG(elem,true);
-      for (i=0; i<=nsd; i++) sd_table[i] = 0;
-      found = false;
+      for (INT i=0; i<=nsd; i++) sd_table[i] = 0;
+      INT found = false;
       while (!fifo_empty(&shell))
       {
         elem = (ELEMENT*) fifo_out(&shell);
@@ -6417,6 +6408,7 @@ static INT FinishGrid (MULTIGRID *mg)
           for (side=0; side<SIDES_OF_ELEM(elem); side++)
             if (SIDE_ON_BND(elem,side))
             {
+              INT id;
               if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&id,&nbid))
                 REP_ERR_RETURN (GM_ERROR);
 
@@ -6493,7 +6485,8 @@ static INT FinishGrid (MULTIGRID *mg)
       }
 
       /* count occurrences of subdom ids (max 2 different) */
-      for (found=0, i=0; i<=nsd; i++)
+      found=0;
+      for (INT i=0; i<=nsd; i++)
         if (sd_table[i])
           found++;
       if (found>2)
@@ -6522,6 +6515,7 @@ static INT FinishGrid (MULTIGRID *mg)
                 /* push unused neighbour across boundary to unused fifo */
                 fifo_in(&unused,nb);
 
+              INT id;
               if (BNDS_BndSDesc(ELEM_BNDS(elem,side),&id,&nbid))
                 REP_ERR_RETURN (GM_ERROR);
 

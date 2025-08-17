@@ -6117,7 +6117,6 @@ INT NS_DIM_PREFIX AdaptMultiGrid (MULTIGRID *theMG, INT flag, INT seq, INT mgtes
 
   DisposeTopLevel(theMG);
   if (TOPLEVEL(theMG) > 0) DisposeTopLevel(theMG);
-  CURRENTLEVEL(theMG) = TOPLEVEL(theMG);
 
   if (PostProcessAdaptMultiGrid(theMG)) REP_ERR_RETURN(1);
 
