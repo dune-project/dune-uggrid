@@ -42,6 +42,7 @@
 #include <cstdio>
 
 #include <iomanip>
+#include <source_location>
 
 #include <dune/common/exceptions.hh>
 #include <dune/common/stdstreams.hh>

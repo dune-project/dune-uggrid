@@ -51,22 +51,6 @@
 
 /****************************************************************************/
 /*                                                                          */
-/* auxiliary macros                                                         */
-/*                                                                          */
-/****************************************************************************/
-
-#ifndef IF_AUX_MACROS
-#define IF_AUX_MACROS
-
-#define CONCAT(txt,fct)    txt FUNCNAME_STR(fct)
-#define FUNCNAME_STR(f)   #f
-
-
-#endif
-
-
-/****************************************************************************/
-/*                                                                          */
 /* routines                                                                 */
 /*                                                                          */
 /****************************************************************************/
@@ -173,7 +157,7 @@ void IF_FUNCNAME (
 	/* finally poll send completion */
 	if (recv_mesgs>0)
 	{
-                Dune::dwarn << FUNCNAME_STR(IF_FUNCNAME) ": receive-timeout for IF " << setw(2) << "\n";
+                Dune::dwarn << std::source_location::current().function_name() << ": receive-timeout for IF " << setw(2) << "\n";
 
 		ForIF(context, aIF, ifHead)
 		{
@@ -194,7 +178,7 @@ void IF_FUNCNAME (
 
 		if (! NS_DIM_PREFIX IFPollSend(context, aIF))
 		{
-			Dune::dwarn << FUNCNAME_STR(IF_FUNCNAME) ": send-timeout for IF " << setw(2) << aIF << "\n";
+			Dune::dwarn << std::source_location::current().function_name() << ": send-timeout for IF " << setw(2) << aIF << "\n";
 
 			ForIF(context, aIF, ifHead)
 			{
