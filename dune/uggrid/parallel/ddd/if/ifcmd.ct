@@ -63,18 +63,8 @@
 #ifndef IF_AUX_MACROS
 #define IF_AUX_MACROS
 
-#define FIND_ATTR \
-	ifAttr = ifHead->ifAttr;                          \
-	while ((ifAttr!=NULL) && (ifAttr->attr!=aAttr))   \
-	{                                                 \
-		ifAttr = ifAttr->next;                        \
-	}                                                 \
-	if (ifAttr==NULL) continue;
-
-
 #define CONCAT(txt,fct)    txt FUNCNAME_STR(fct)
 #define FUNCNAME_STR(f)   #f
-
 
 #endif
 
@@ -217,8 +207,11 @@ void IF_FUNCNAME (
 	ForIF(context, aIF, ifHead)
 	{
 		#ifdef IF_WITH_ATTR
-			NS_DIM_PREFIX IF_ATTR	    *ifAttr;
-			FIND_ATTR; /* find ifAttr */
+		NS_DIM_PREFIX IF_ATTR *ifAttr = ifHead->ifAttr;
+		while ((ifAttr!=NULL) && (ifAttr->attr!=aAttr))
+			ifAttr = ifAttr->next;
+
+		if (ifAttr==NULL) continue;
 		#endif
 
 		EXEC_LOOP(context, ExecProc, D_BA(PART),  PART->nBA);
@@ -239,9 +232,6 @@ void IF_FUNCNAME (
 	/* allocate storage for in and out buffers */
 	ForIF(context, aIF, ifHead)
 	{
-		#ifdef IF_WITH_ATTR
-			NS_DIM_PREFIX IF_ATTR	    *ifAttr;
-		#endif
 		#ifdef IF_ONEWAY
 			int      nOut, nIn;
 		#endif
@@ -250,8 +240,12 @@ void IF_FUNCNAME (
 			/* reset buffers */
 			ifHead->bufIn.clear();
 			ifHead->bufOut.clear();
-			FIND_ATTR; /* find ifAttr */
 			/* if no ATTR can be found, buffers will be empty */
+			NS_DIM_PREFIX IF_ATTR *ifAttr = ifHead->ifAttr;
+			while ((ifAttr!=NULL) && (ifAttr->attr!=aAttr))
+				ifAttr = ifAttr->next;
+
+			if (ifAttr==NULL) continue;
 		#endif
 
 		#ifdef IF_EXCHANGE
@@ -287,9 +281,6 @@ void IF_FUNCNAME (
 	ForIF(context, aIF, ifHead)
 	{
 		char   *buffer;
-		#ifdef IF_WITH_ATTR
-			NS_DIM_PREFIX IF_ATTR *ifAttr;
-		#endif
 		#ifdef IF_ONEWAY
 			int      nOut;
 			#ifdef IF_WITH_XARGS
@@ -300,7 +291,11 @@ void IF_FUNCNAME (
 		#endif
 
 		#ifdef IF_WITH_ATTR
-		FIND_ATTR; /* find ifAttr */
+			NS_DIM_PREFIX IF_ATTR *ifAttr = ifHead->ifAttr;
+			while ((ifAttr!=NULL) && (ifAttr->attr!=aAttr))
+				ifAttr = ifAttr->next;
+
+			if (ifAttr==NULL) continue;
 		#endif
 
 		buffer = ifHead->bufOut.data();
@@ -354,9 +349,6 @@ void IF_FUNCNAME (
 						NS_DIM_PREFIX IFObjPtr  *datIn;
 						#endif
 					#endif
-					#ifdef IF_WITH_ATTR
-						NS_DIM_PREFIX IF_ATTR  *ifAttr;
-					#endif
 
 					#ifdef CtrlTimeoutsDetailed
 					printf("%4d: IFCTRL %02d received msg    from "
@@ -370,7 +362,11 @@ void IF_FUNCNAME (
 					ifHead->msgIn=NO_MSGID;
 
 					#ifdef IF_WITH_ATTR
-					FIND_ATTR; /* find ifAttr */
+					NS_DIM_PREFIX IF_ATTR *ifAttr = ifHead->ifAttr;
+					while ((ifAttr!=NULL) && (ifAttr->attr!=aAttr))
+					ifAttr = ifAttr->next;
+
+					if (ifAttr==nullptr) continue;
 					#endif
 
 					buffer = ifHead->bufIn.data();
