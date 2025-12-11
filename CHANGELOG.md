@@ -3,9 +3,9 @@ SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE
 SPDX-License-Identifier: LGPL-2.1-or-later
 -->
 
-# Master (will become release 2.11)
+# Release 2.11
 
-* ...
+* Cleanup and simplifications
 
 # dune-uggrid 2.10 (2024-09-04)
 
