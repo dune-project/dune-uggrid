@@ -322,7 +322,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
     /* check for vertical ghost */
     vghost = 0;
     GetAllSons(theElement,SonList);
-    for (i=0; SonList[i]!=NULL; i++)
+    for (i=0; SonList[i]!=NULL && i<MAX_SONS; i++)
     {
       if (PARTITION(SonList[i]) == me)
       {
