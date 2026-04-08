@@ -373,6 +373,7 @@ static int gridadaptl_timer,ident_timer,overlap_timer,gridcons_timer;
 static int algebra_timer;
 #endif
 
+#ifdef UG_DIM_3
 #ifdef DUNE_UGGRID_TET_RULESET
 /* determine number of edge from reduced (i.e. restricted to one side) edgepattern */
 /* if there are two edges marked for bisection, if not deliver -1. If the edge-    */
@@ -390,6 +391,7 @@ static INT TriSectionEdge[64][2] =
 /* the indices of the edges of each side */
 static INT CondensedEdgeOfSide[4] = {0x07,0x32,0x2C,0x19};
 #endif
+#endif // UG_DIM_3
 
 /****************************************************************************/
 /*																			*/
@@ -4153,7 +4155,6 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   std::array<GREENSONDATA, MAX_GREEN_SONS> sons;
 
   int j, k, l;
-  int node0;
   bool bdy;
 
   IFDEBUG(gm,1)
@@ -4191,6 +4192,10 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
                  corner,OBJT(theContext[corner]),ID(theContext[corner]),theContext[corner]);
   }
   ENDDEBUG
+
+// The following code is only needed for 3d (and contains past end array access for 2d)
+#ifdef UG_DIM_3
+  int node0;
 
   /* init indices for son elements */
   /* outer side for tetrahedra is side 0 */
@@ -4243,6 +4248,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
   int pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID, pyrEdge3, 1);
   if (pyrSideNode0Node3 == corner)
     pyrSideNode0Node3 = SIDE_WITH_EDGE_TAG(PYRAMID,pyrEdge3,0);
+#endif // UG_DIM_3
 
   /* create edges on inner of sides, create son elements and connect them */
   std::array<int, 4> sides;
@@ -4287,6 +4293,8 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
     UserWriteF("    SIDE %d has %d nodes and sidenode=%x\n",i,k,theNode);
     ENDDEBUG
 
+// The following code does nothing in 2d since it only covers sides with 3 and 4 corners
+#ifdef UG_DIM_3
     switch (CORNERS_OF_SIDE(theElement,i))
     {
 
@@ -4784,6 +4792,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
       assert(0);
       break;
     }
+#endif // UG_DIM_3
   }
 
   /* connect elements over edges */
