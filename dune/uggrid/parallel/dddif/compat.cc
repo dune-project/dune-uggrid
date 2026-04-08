@@ -56,17 +56,4 @@ void globalDDDContext(std::nullptr_t)
   globalDDDContext_ = nullptr;
 }
 
-static ComProcPtr realGather;
-static ComProcPtr realScatter;
-
-static int realGatherWrapper(DDD::DDDContext&, DDD_OBJ obj, void* data)
-{
-  return realGather(obj, data);
-}
-
-static int realScatterWrapper(DDD::DDDContext&, DDD_OBJ obj, void* data)
-{
-  return realGather(obj, data);
-}
-
 END_UGDIM_NAMESPACE
