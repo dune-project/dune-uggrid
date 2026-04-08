@@ -163,7 +163,7 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
   const auto& degree = context.ppifContext().degree();
 
   NOTIFY_INFO  *newInfos;
-  int l, i, j, n, unknownInfos, myInfos;
+  int l, i, j, n, unknownInfos;
   int local_exception = exception;
 
 #if     DebugNotify<=4
@@ -214,15 +214,12 @@ int NotifyTwoWave(DDD::DDDContext& context, NOTIFY_INFO *allInfos, int lastInfo,
     std::sort(allInfos, allInfos + lastInfo, sort_XferInfos);
     i = j = 0;
     unknownInfos = lastInfo;
-    myInfos = 0;
     while (i<lastInfo && allInfos[j].to==PROC_INVALID_TEMP)
     {
       if (allInfos[j].from==allInfos[i].to)
       {
         allInfos[i].flag = (allInfos[i].to==me) ? NotifyTypes::MYSELF : NotifyTypes::KNOWN;
         unknownInfos--;
-        if (allInfos[i].to==me)
-          myInfos++;
         i++;
       } else {
         if (allInfos[j].from<allInfos[i].to)
