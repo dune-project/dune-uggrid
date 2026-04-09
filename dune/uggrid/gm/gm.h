@@ -1898,7 +1898,6 @@ enum GM_CW {
   PROPERTY_CW,
   GRID_CW,
   GRID_STATUS_CW,
-  MULTIGRID_STATUS_CW,
 
   GM_N_CW
 };
@@ -2876,7 +2875,6 @@ grid::dddContext()
 /****************************************************************************/
 
 /* control word offset */
-#define MULTIGRID_STATUS_OFFSET         offsetof(struct multigrid, status)/sizeof(UINT)
 
 #define MGSTATUS(p)                     ((p)->status)
 #define RESETMGSTATUS(p)                {(p)->status=0; (p)->magic_cookie = (int)time(NULL); (p)->saved=0;}

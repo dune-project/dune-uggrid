@@ -143,8 +143,7 @@ static CONTROL_WORD control_words[MAX_CONTROL_WORDS] = {
   {FLAG_OFFSET,                 CW_ELOBJS,  0b0},
   {PROPERTY_OFFSET,             CW_ELOBJS,  0b0},
   {GRID_OFFSET,                 CW_GROBJ,   0b0},
-  {GRID_STATUS_OFFSET,          CW_GROBJ,   0b0},
-  {MULTIGRID_STATUS_OFFSET,     CW_MGOBJ,   0b0}
+  {GRID_STATUS_OFFSET,          CW_GROBJ,   0b0}
 };
 
 static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
