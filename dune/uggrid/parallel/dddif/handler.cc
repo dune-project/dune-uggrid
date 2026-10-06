@@ -417,6 +417,13 @@ static void DuneEntityScatter (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE 
   std::memcpy(&size, data, sizeof size);
   data += sizeof size;
 
+  // Do not allocate a buffer for empty messages: std::malloc(0) might return a non-null
+  // pointer that is never freed, since empty buffers are skipped when scattering the data.
+  if (size == 0) {
+    entity->message_buffer(nullptr, 0);
+    return;
+  }
+
   char* buffer = static_cast<char*>(std::malloc(size));
   std::memcpy(buffer, data, size);
   entity->message_buffer(buffer, size);
