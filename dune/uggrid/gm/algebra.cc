@@ -131,8 +131,6 @@ INT NS_DIM_PREFIX CreateSideVector (GRID *theGrid, INT side, GEOM_OBJECT *object
 
   /* initialize data */
   SETOBJT(pv,VEOBJ);
-  SETVDATATYPE(pv,BITWISE_TYPE(SIDEVEC));
-  SETVOTYPE(pv,SIDEVEC);
   SETVCLASS(pv,3);
   SETVNCLASS(pv,0);
   SETVNEW(pv,1);
@@ -223,7 +221,7 @@ INT NS_DIM_PREFIX DisposeVector (GRID *theGrid, VECTOR *theVector)
 #ifdef UG_DIM_3
 INT NS_DIM_PREFIX DisposeDoubledSideVector (GRID *theGrid, ELEMENT *Elem0, INT Side0, ELEMENT *Elem1, INT Side1)
 {
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
   {
     assert(NBELEM(Elem0,Side0)==Elem1 && NBELEM(Elem1,Side1)==Elem0);
     VECTOR *Vector0 = SVECTOR(Elem0,Side0);
@@ -282,7 +280,6 @@ INT NS_DIM_PREFIX GetVectorsOfSides (const ELEMENT *theElement, INT *cnt, VECTOR
   for (i=0; i<(*cnt); i++)
   {
     assert(vList[i] != NULL);
-    assert(VOTYPE(vList[i]) == SIDEVEC);
   }
   ENDDEBUG
 
@@ -315,8 +312,6 @@ INT NS_DIM_PREFIX GetElementInfoFromSideVector (const VECTOR *theVector, ELEMENT
   INT i;
   ELEMENT *theNeighbor;
 
-  if (VOTYPE(theVector) != SIDEVEC)
-    RETURN (1);
   Elements[0] = (ELEMENT *)VOBJECT(theVector);
   Sides[0] = VECTORSIDE(theVector);
 
@@ -602,8 +597,7 @@ INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
  * @param theObject - the object which points to theVector
  * @param ObjectString - for error message
  * @param theVector - the vector of theObject
- * @param VectorObjType - NODEVEC,...
- * @param side - element side for SIDEVEC
+ * @param side - element side of the side vector
 
    This function checks the consistency between an geom_object and
    its vector.
@@ -617,7 +611,7 @@ INT NS_DIM_PREFIX PrepareAlgebraModification (MULTIGRID *theMG)
 
 #ifdef UG_DIM_3
 static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
-                        VECTOR *theVector, INT VectorObjType, INT side)
+                        VECTOR *theVector, INT side)
 {
   GEOM_OBJECT *VecObject;
   INT errors = 0;
@@ -694,12 +688,8 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
         else
         {
                                         #ifdef UG_DIM_3
-          if (VectorObjType == SIDEVEC)
-          {
-            /* TODO: check side vector */
-          }
-          else
-                                        #endif
+          /* TODO: check side vector */
+                                        #else
           {
             errors++;
             UserWriteF("%s vector=" VINDEX_FMTX " is referenced by "
@@ -716,6 +706,7 @@ static INT CheckVector (GEOM_OBJECT *theObject, const char *ObjectString,
                          GID(NBNODE(LINK1(&(VecObject->ed)))) );
                                                 #endif
           }
+                                        #endif
         }
       }
     }
@@ -761,13 +752,13 @@ INT NS_DIM_PREFIX CheckAlgebra (GRID *theGrid)
   {
                 #ifdef UG_DIM_3
     /* check side vectors */
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
     {
       for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         VECTOR *theVector = SVECTOR(theElement,i);
         errors += CheckVector((GEOM_OBJECT *) theElement, "ELEMSIDE",
-                              theVector, SIDEVEC,i);
+                              theVector, i);
       }
     }
                 #endif
@@ -801,25 +792,18 @@ INT NS_DIM_PREFIX VectorPosition (const VECTOR *theVector, FieldVector<DOUBLE,DI
 
   ASSERT(theVector != NULL);
 
-  switch (VOTYPE(theVector))
-  {
                 #ifdef UG_DIM_3
-  case SIDEVEC :
-    theElement = (ELEMENT *)VOBJECT(theVector);
-    theSide = VECTORSIDE(theVector);
-    for (INT i=0; i<DIM; i++)
-    {
-      position[i] = 0.0;
-      for(j=0; j<CORNERS_OF_SIDE(theElement,theSide); j++)
-        position[i] += CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,theSide,j))))[i];
-      position[i] /= CORNERS_OF_SIDE(theElement,theSide);
-    }
-    return (0);
-                #endif
-
-  default : PrintErrorMessage('E',"VectorPosition","unrecognized object type for vector");
-    assert(0);
+  theElement = (ELEMENT *)VOBJECT(theVector);
+  theSide = VECTORSIDE(theVector);
+  for (INT i=0; i<DIM; i++)
+  {
+    position[i] = 0.0;
+    for(j=0; j<CORNERS_OF_SIDE(theElement,theSide); j++)
+      position[i] += CVECT(MYVERTEX(CORNER(theElement,CORNER_OF_SIDE(theElement,theSide,j))))[i];
+    position[i] /= CORNERS_OF_SIDE(theElement,theSide);
   }
+  return (0);
+                #endif
 
   RETURN (GM_ERROR);
 }
@@ -846,7 +830,7 @@ INT NS_DIM_PREFIX SeedVectorClasses (GRID *theGrid, ELEMENT *theElement)
   INT cnt;
 
   VECTOR *vList[20];
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
   {
     GetVectorsOfSides(theElement,&cnt,vList);
     for (INT i=0; i<cnt; i++)
@@ -1023,7 +1007,7 @@ INT NS_DIM_PREFIX SeedNextVectorClasses (GRID *theGrid, ELEMENT *theElement)
 {
 
         #ifdef UG_DIM_3
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
   {
     VECTOR *vList[20];
     INT cnt;

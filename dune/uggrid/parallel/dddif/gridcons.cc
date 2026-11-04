@@ -151,7 +151,7 @@ static void ConstructConsistentGridLevel (GRID *theGrid)
   {
     /* This is the SideVector part */
 #ifdef UG_DIM_3
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
       for (INT i=0; i<SIDES_OF_ELEM(theElement); i++)
         SETVCOUNT(SVECTOR(theElement,i), (NBELEM(theElement,i) ? 2 : 1));
 #endif

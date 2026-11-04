@@ -209,11 +209,6 @@ enum {MAX_SONS = 30};
 /** \todo Please doc me! */
 #define DIAGMATRIXTYPE(rt)  (MAXMATRICES+rt)
 
-/** \brief Type of geometric entity which a certain vector is attached to */
-enum VectorType {NOVTYPE=-1,  //** Undefined */
-                 SIDEVEC    /**< Vector associated to an element side */
-};
-
 /****************************************************************************/
 /*                                                                          */
 /* various defines                                                          */
@@ -327,10 +322,7 @@ A VECTOR stores a user definable number of DOUBLE values and
 is associated with a geometric object of the mesh (nodes, edges, sides and elements).
 The size of the VECTOR can be specified differently for each type of
 geometric object, but not (yet) for each individual VECTOR object.
-Since there are four different geometric objects that can have degrees
-of freedom, there are four different `vector types`. The vector type
-is stored in the control word (see VTYPE macro) but currently it can only have
-the value SIDEVECTOR.
+The vector is always associated with a side of an element.
 
 The VECTOR provides access to the rows of the sparse matrix belonging to
 all degrees of freedom stored in the vector.
@@ -361,11 +353,6 @@ void SETTHEFLAG (VECTOR *p, INT n);
 \verbatim
 Macro name                            Pos Len Purpose
 -----------------------------------------------------------------------------
-VTYPE (VECTOR *v);                    0   2   Type of geometric object the
-SETVTYPE (VECTOR *v, INT n);                  vector belongs to. Values:
-                                              NODEVECTOR, EDGEVECTOR, SIDEVECTOR
-                                              or ELEMVECTOR.
-
 VCOUNT (VECTOR *v);                   5   2   internal use
 SETVCOUNT (VECTOR *v, INT n);
 
@@ -374,9 +361,6 @@ SETVECTORSIDE (VECTOR *v, INT n);             belongs to (SIDEVECTOR only)
 
 VCLASS (VECTOR *v);                   11  2   Vector class for local multigrid
 SETVCLASS (VECTOR *v, INT n);                 between 0 and 3.
-
-VDATATYPE (VECTOR *v);                13  4   This is 2^VTYPE(v)
-SETVDATATYPE (VECTOR *v, INT n);
 
 VNCLASS (VECTOR *v);                  17  2   Vector class of vector at same
 SETVNCLASS (VECTOR *v, INT n);                position on finer level
@@ -1904,11 +1888,9 @@ enum GM_CW {
 
 /** \brief Enumeration list of all control entry of gm.h */
 enum GM_CE {
-  VOTYPE_CE,
   VCOUNT_CE,
   VECTORSIDE_CE,
   VCLASS_CE,
-  VDATATYPE_CE,
   VNCLASS_CE,
   VNEW_CE,
   VCCUT_CE,
@@ -1966,7 +1948,6 @@ enum LV_MODIFIERS {
 /* all objects:                                                             */
 /*                                                                          */
 /* vectors:                                                                 */
-/* VOTYPE        |0 - 1 |*| | node-,edge-,side- or elemvector               */
 /* VCUSED        |4     |*| | flag for general use                          */
 /* VCOUNT        |5-6   |*| | The number of elements that reference         */
 /*                            the vector (if it is a side vector)           */
@@ -1974,7 +1955,6 @@ enum LV_MODIFIERS {
 /* VCLASS        |11-12 |*| | class of v. (3: if corr. to red/green elem) */
 /*                                        (2: if corr. to first algebraic nb.) */
 /*                                        (1: if corr. to second algebraic nb.) */
-/* VDATATYPE |13-16 |*| | data type used bitwise */
 /* VNCLASS       |17-18 |*| | type of elem on finer grid the v. lies geom. in:  */
 /*                                                      0: no elem on finer grid                                                */
 /*                                                      1: elem of 'second alg. nbhood' only                    */
@@ -2022,22 +2002,6 @@ enum LV_MODIFIERS {
 #define VECTOR_OFFSET                           offsetof(struct NS_DIM_PREFIX vector, control)/sizeof(UINT)
 
 /* predefined control word entries */
-#define VOTYPE_SHIFT                            0
-#define VOTYPE_LEN                                      2
-#define VOTYPE(p)                                       CW_READ_STATIC(p,VOTYPE_,VECTOR_)
-#define SETVOTYPE(p,n)                          CW_WRITE_STATIC(p,VOTYPE_,VECTOR_,n)
-#if (MAXVOBJECTS > POW2(VOTYPE_LEN))
-        #error  *** VOTYPE_LEN too small ***
-#endif
-
-#define VDATATYPE_SHIFT                         4
-#define VDATATYPE_LEN                           4
-#define VDATATYPE(p)                            CW_READ_STATIC(p,VDATATYPE_,VECTOR_)
-#define SETVDATATYPE(p,n)                       CW_WRITE_STATIC(p,VDATATYPE_,VECTOR_,n)
-#if (MAXVTYPES > VDATATYPE_LEN)
-        #error  *** VDATATYPE_LEN too small ***
-#endif
-
 #define VCLASS_SHIFT                            8
 #define VCLASS_LEN                                      2
 #define VCLASS(p)                                       CW_READ_STATIC(p,VCLASS_,VECTOR_)
@@ -2839,9 +2803,9 @@ START_UGDIM_NAMESPACE
 #define NE(p)                           ((p)->nEdge)
 #define NS(p)                           ((p)->nSide)
 #ifdef UG_DIM_3
-#define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (true)   // 3d grids have side vectors
+#define VEC_DEF_IN_OBJ_OF_GRID(p)        (true)   // 3d grids have side vectors
 #else
-#define VEC_DEF_IN_OBJ_OF_GRID(p,tp)     (false)  // 2d grids have no vectors at all
+#define VEC_DEF_IN_OBJ_OF_GRID(p)        (false)  // 2d grids have no vectors at all
 #endif
 #define NIMAT(p)                        ((p)->nIMat)
 
@@ -2891,9 +2855,9 @@ grid::dddContext()
 #define GRID_ON_LEVEL(p,i)              ((p)->grids[i])
 #define MGNAME(p)                               ((p)->v.name)
 #ifdef UG_DIM_3
-#define VEC_DEF_IN_OBJ_OF_MG(p,tp)     (true)   // 3d grids have side vectors
+#define VEC_DEF_IN_OBJ_OF_MG(p)        (true)   // 3d grids have side vectors
 #else
-#define VEC_DEF_IN_OBJ_OF_MG(p,tp)     (false)  // 2d grids have no vectors at all
+#define VEC_DEF_IN_OBJ_OF_MG(p)        (false)  // 2d grids have no vectors at all
 #endif
 #define MG_SAVED(p)                             ((p)->saved)
 

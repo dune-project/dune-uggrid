@@ -279,7 +279,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
       SETUSED(theEdge,0); SETTHEFLAG(theEdge,0);
     }
 #ifdef UG_DIM_3
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         VECTOR *theVector = SVECTOR(theElement,i);
@@ -435,7 +435,7 @@ void NS_DIM_PREFIX SetGhostObjectPriorities (GRID *theGrid)
                         #ifdef UG_DIM_3
     /* if one(all) of the side nodes is (are) a hghost (vghost) node   */
     /* then its a hghost (vghost) side vector                          */
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
       for (i=0; i<SIDES_OF_ELEM(theElement); i++)
       {
         VECTOR *theVector = SVECTOR(theElement,i);

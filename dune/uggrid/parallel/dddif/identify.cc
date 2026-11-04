@@ -979,7 +979,7 @@ static INT IdentifyObjectsOfElementSide(GRID *theGrid, ELEMENT *theElement,
       }
 
                         #ifdef UG_DIM_3
-      if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+      if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
       {
         auto& context = theGrid->dddContext();
         IdentifySideVector(context, theElement,theNeighbor,SonList[j],SonSides[j]);

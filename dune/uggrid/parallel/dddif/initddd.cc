@@ -388,7 +388,7 @@ static void ddd_DefineTypes(DDD::DDDContext& context)
                  /* object must be LDATA, because reftype may be a non-DDD-object */
                  /* (e.g., edge). therefore, 'object' must be updated by MKCONS-  */
                  /* handler of associated object. 960404 KB */
-                 /* TODO: decide whether LDATA or OBJPTR for different VectorTypes*/
+                 /* TODO: decide whether LDATA or OBJPTR */
                  /* EL_OBJPTR, ELDEF(VECTOR,object), TypeNode, */
                  EL_LDATA,  ELDEF(VECTOR,object),
                  EL_LDATA,  ELDEF(VECTOR,pred),
@@ -887,7 +887,7 @@ void NS_DIM_PREFIX InitCurrMG (MULTIGRID *MG)
   dddctrl.nodeData = 0;
   dddctrl.edgeData = 0;
   dddctrl.elemData = 0;
-  dddctrl.sideData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG,SIDEVEC);
+  dddctrl.sideData = VEC_DEF_IN_OBJ_OF_MG(dddctrl.currMG);
 
   InitDDDTypes(MG->dddContext());
 }

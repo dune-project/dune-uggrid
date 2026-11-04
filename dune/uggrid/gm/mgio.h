@@ -154,16 +154,6 @@ START_UGDIM_NAMESPACE
 /* defines for MGIO_MG_GENERAL */
 #define MGIO_NAMELEN                            128
 #define MGIO_IDENTLEN               4096
-#define MGIO_NODEVECTOR                         1
-#define MGIO_EDGEVECTOR                         2
-#define MGIO_SIDEVECTOR                         4
-#define MGIO_ELEMVECTOR                         8
-
-/* macros for MGIO_MG_GENERAL */
-#define MGIO_SET_VECTYPE(p,i)           (p)->VectorTypes=(i)
-#define MGIO_ADD_VECTYPE(p,i)           (p)->VectorTypes|=(i)
-#define MGIO_IS_VECTYPE(p,i)            (p)->VectorTypes==(i)
-#define MGIO_CONT_VECTYPE(p,i)          (p)->VectorTypes&(i)
 
 /****************************************************************************/
 /*                                                                                                                                                      */
@@ -197,7 +187,6 @@ struct mgio_mg_general {
   /* information on algebraic structure */
   char Formatname[MGIO_NAMELEN];                /* name of format used in ug            */
   int heapsize;                                                 /* heapsize in kbyte, used in ug        */
-  int VectorTypes;                                              /* macros see above                                     */
 };
 
 struct mgio_ge_general {

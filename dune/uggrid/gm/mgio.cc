@@ -322,7 +322,7 @@ int NS_DIM_PREFIX Read_MG_General (MGIO_MG_GENERAL *mg_general)
   if (Bio_Read_string(mg_general->DomainName)) return (1);
   if (Bio_Read_string(mg_general->MultiGridName)) return (1);
   if (Bio_Read_string(mg_general->Formatname)) return (1);
-  if (Bio_Read_mint(11,intList)) return (1);
+  if (Bio_Read_mint(10,intList)) return (1);
   mg_general->dim                 = intList[0];
   mg_general->magic_cookie= intList[1];
   mg_general->heapsize    = intList[2];
@@ -330,10 +330,9 @@ int NS_DIM_PREFIX Read_MG_General (MGIO_MG_GENERAL *mg_general)
   mg_general->nNode               = intList[4];
   mg_general->nPoint              = intList[5];
   mg_general->nElement    = intList[6];
-  mg_general->VectorTypes = intList[7];
-  mg_general->me                  = intList[8];
-  mg_general->nparfiles   = intList[9];
-  if (intList[10]!=MGIO_DEBUG)
+  mg_general->me                  = intList[7];
+  mg_general->nparfiles   = intList[8];
+  if (intList[9]!=MGIO_DEBUG)
     RETURN (1);                   /* check debug-level of file: 0: no debug information */
 
   /* init global parameters */
@@ -390,11 +389,10 @@ int NS_DIM_PREFIX Write_MG_General (MGIO_MG_GENERAL *mg_general)
   intList[4] = mg_general->nNode;
   intList[5] = mg_general->nPoint;
   intList[6] = mg_general->nElement;
-  intList[7] = mg_general->VectorTypes;
-  intList[8] = mg_general->me;
-  intList[9] = mg_general->nparfiles;
-  intList[10]= MGIO_DEBUG;
-  if (Bio_Write_mint(11,intList)) return (1);
+  intList[7] = mg_general->me;
+  intList[8] = mg_general->nparfiles;
+  intList[9] = MGIO_DEBUG;
+  if (Bio_Write_mint(10,intList)) return (1);
 
   /* init global parameters */
   nparfiles                               = mg_general->nparfiles;

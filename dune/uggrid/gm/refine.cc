@@ -4026,7 +4026,7 @@ INT NS_DIM_PREFIX Connect_Sons_of_ElementSide (GRID *theGrid, ELEMENT *theElemen
       SET_NBELEM(NbSortTable[i]->elem,NbSortTable[i]->side,
                  ElemSortTable[i]->elem);
 #ifdef UG_DIM_3
-      if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+      if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
         if (DisposeDoubledSideVector(theGrid,ElemSortTable[i]->elem,
                                      ElemSortTable[i]->side,
                                      NbSortTable[i]->elem,
@@ -5045,7 +5045,7 @@ static int RefineElementGreen (GRID *theGrid, ELEMENT *theElement, NODE **theCon
    * vectors shared with elements in the rest of the grid are treated in the method Connect_Sons_of_ElementSide,
    * called further below.
    */
-  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+  if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
   {
     for (int i = 0; i < MAX_GREEN_SONS; i++)
     {
@@ -5257,7 +5257,7 @@ static int RefineElementRed (GRID *theGrid, ELEMENT *theElement, NODE **theEleme
 
         /* dispose doubled side vectors if */
                                 #ifdef UG_DIM_3
-        if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+        if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
         {
           INT l;
           for (l=0; l<SIDES_OF_ELEM(SonList[side]); l++)

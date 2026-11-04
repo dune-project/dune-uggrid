@@ -147,11 +147,9 @@ static CONTROL_WORD control_words[MAX_CONTROL_WORDS] = {
 };
 
 static CONTROL_ENTRY_PREDEF ce_predefines[MAX_CONTROL_ENTRIES] = {
-  CE_INIT(CE_LOCKED,      VECTOR_,                VOTYPE_,                CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VCOUNT_,                CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VECTORSIDE_,    CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VCLASS_,                CW_VEOBJ),
-  CE_INIT(CE_LOCKED,      VECTOR_,                VDATATYPE_,             CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VNCLASS_,               CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VNEW_,                  CW_VEOBJ),
   CE_INIT(CE_LOCKED,      VECTOR_,                VCCUT_,                 CW_VEOBJ),

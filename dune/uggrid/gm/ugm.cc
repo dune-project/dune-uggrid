@@ -3334,7 +3334,7 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
     ELEMENT *theNeighbor = NBELEM(theElement,i);
 
                 #ifdef UG_DIM_3
-    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+    if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
     {
       theVector = SVECTOR(theElement,i);
       if (theVector!=NULL)
@@ -4407,7 +4407,7 @@ ELEMENT * NS_DIM_PREFIX InsertElement (GRID *theGrid, INT n, NODE **Node, ELEMEN
       }
       SET_NBELEM(Neighbor[i],NeighborSide[i],theElement);
             #ifdef UG_DIM_3
-      if (VEC_DEF_IN_OBJ_OF_GRID(theGrid,SIDEVEC))
+      if (VEC_DEF_IN_OBJ_OF_GRID(theGrid))
         if (DisposeDoubledSideVector(theGrid,Neighbor[i],
                                      NeighborSide[i],theElement,i))
           return(NULL);
@@ -5664,7 +5664,7 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
   DOUBLE_VECTOR pos;
 
   /* print index and type of vector */
-  UserWriteF("IND=" VINDEX_FFMTE " VTYPE=%d(SIDEVECTOR) ",
+  UserWriteF("IND=" VINDEX_FFMTE " VTYPE=SIDEVECTOR ",
              VINDEX_PRTE(theVector));
 
   if (READ_FLAG(modifiers,LV_POS))
@@ -5681,22 +5681,14 @@ void NS_DIM_PREFIX ListVector (const MULTIGRID *theMG, const VECTOR *theVector, 
 
   /* print object type of vector */
   if (READ_FLAG(modifiers,LV_VO_INFO))
-    switch (VOTYPE(theVector))
-    {
                 #ifdef UG_DIM_3
-    case SIDEVEC :
-    {
-      ELEMENT *theElement = (ELEMENT*)VOBJECT(theVector);
-      UserWriteF("SIDE-V elemID=" EID_FFMT
-                 "                ",
-                 EID_PRT(theElement));
-    }
-    break;
+  {
+    ELEMENT *theElement = (ELEMENT*)VOBJECT(theVector);
+    UserWriteF("SIDE-V elemID=" EID_FFMT
+               "                ",
+               EID_PRT(theElement));
+  }
                 #endif
-
-    default : PrintErrorMessage( 'E', "ListVector", "unrecognized VECTOR type" );
-      assert(0);
-    }
 
   UserWriteF("VCLASS=%1d VNCLASS=%1d",VCLASS(theVector),VNCLASS(theVector));
   UserWriteF(" key=%d\n", KeyForObject((KEY_OBJECT *)theVector) );
