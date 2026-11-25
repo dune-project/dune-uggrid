@@ -563,8 +563,12 @@ void NS_DIM_PREFIX buggy (MULTIGRID *theMG)
       do {
         printf("%04d: buggy> ", proc);
         fflush(stdout);
-        received = scanf("%s", buff);
+        received = scanf("%99s", buff);
       } while (received > 0 && buff[0] == 0);
+
+      /* quit on end of input or read error */
+      if (received <= 0)
+        buff[0] = 'q';
 
       switch (buff[0])
       {
