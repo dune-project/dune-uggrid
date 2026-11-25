@@ -383,7 +383,7 @@ static NODE *CreateNode (GRID *theGrid, VERTEX *vertex,
   START(pn) = NULL;
   SONNODE(pn) = NULL;
   MYVERTEX(pn) = vertex;
-  if (NOOFNODE(vertex)<NOOFNODEMAX)
+  if (NOOFNODE(vertex) < NOOFNODEMAX - 1)
     INCNOOFNODE(vertex);
   else
     ASSERT(0);

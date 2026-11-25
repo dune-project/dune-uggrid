@@ -2078,7 +2078,7 @@ enum LV_MODIFIERS {
 /* ONEDGE        |3 - 6 |*| | | | | |no. of edge in father element                              */
 /* ONSIDE        |3 - 5 |*| | | | | |no. of side in father element                              */
 /* ONNBSIDE      |6 - 8 |*| | | | | |no. of side in the neighbor of the father   */
-/* NOOFNODE      |9 -13 |*| | | | | |???                                                                            */
+/* NOOFNODE      |9 -14 |*| | | | | |no. of nodes of the vertex                                                                         */
 /*                                                                                                                                                      */
 /* nodes:                                                                                                                                       */
 /* NSUBDOM       |0-3   | |*| | | | |subdomain id                                       */
@@ -2201,10 +2201,11 @@ enum GM_OBJECTS {
 #define SETONNBSIDE(p,n)                        CW_WRITE_STATIC(p,ONNBSIDE_,VERTEX_,n)
 
 #define NOOFNODE_SHIFT                          9
-#define NOOFNODE_LEN                            5
+#define NOOFNODE_LEN                            6
 #define NOOFNODEMAX                                     POW2(NOOFNODE_LEN)
-#if (MAXLEVEL > NOOFNODEMAX)
-#error  ****  set NOOFNODEMAX/_LEN appropriate to MAXLEVEL: 2^NOOFNODE_LEN = NOOFNODEMAX >= MAXLEVEL ****
+/* a vertex can have one node per level, i.e., NOOFNODE must be able to hold the value MAXLEVEL */
+#if (MAXLEVEL > NOOFNODEMAX-1)
+#error  ****  set NOOFNODEMAX/_LEN appropriate to MAXLEVEL: 2^NOOFNODE_LEN = NOOFNODEMAX > MAXLEVEL ****
 #endif
 #define NOOFNODE(p)                                     CW_READ_STATIC(p,NOOFNODE_,VERTEX_)
 #define SETNOOFNODE(p,n)                        CW_WRITE_STATIC(p,NOOFNODE_,VERTEX_,n)
