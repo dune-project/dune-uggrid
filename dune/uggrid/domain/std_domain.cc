@@ -441,6 +441,11 @@ BVP_Init (STD_BVP* theBVP, HEAP * Heap, MESH * Mesh, INT MarkKey)
   assert(theBVP);
   currBVP = theBVP;
 
+  /* the BVP may be reused for a new multigrid: free patches of a previous initialization */
+  for (auto&& p : theBVP->patches)
+    free (p);
+  theBVP->patches.clear();
+
   auto& theDomain = theBVP->Domain;
   assert(theDomain);
 
