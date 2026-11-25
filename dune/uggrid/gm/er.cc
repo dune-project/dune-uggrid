@@ -1693,7 +1693,7 @@ INT NS_DIM_PREFIX GetOrderedSons (ELEMENT *theElement, MGIO_RR_RULE *theRule, NO
     }
 
     /* identify (hopefully) an element of SonList */
-    for (INT j = 0; NonorderedSonList[j] != NULL; j++)
+    for (INT j = 0; j < MAX_SONS && NonorderedSonList[j] != NULL; j++)
     {
       found=0;
       for (INT l = 0; l < CORNERS_OF_TAG(theRule->sons[i].tag); l++)

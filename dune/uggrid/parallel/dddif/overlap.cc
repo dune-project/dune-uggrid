@@ -408,7 +408,7 @@ INT ConnectGridOverlap (GRID *theGrid)
       ELEMENT *SonList[MAX_SONS];
 
       GetAllSons(theElement,SonList);
-      for (i=0; SonList[i]!=NULL; i++)
+      for (i=0; i<MAX_SONS && SonList[i]!=NULL; i++)
       {
         INT ok = 0;
         theSon = SonList[i];
@@ -653,7 +653,7 @@ static INT ConnectOverlapVerticalGrid (GRID *theGrid)
   {
     /* reconstruct node relations using element relations */
     if (GetAllSons(theElement,SonList) != GM_OK) REP_ERR_RETURN(1);
-    for (i=0; SonList[i]!=NULL; i++)
+    for (i=0; i<MAX_SONS && SonList[i]!=NULL; i++)
     {
       theSon = SonList[i];
       for (j=0; j<CORNERS_OF_ELEM(theSon); j++)

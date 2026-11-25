@@ -261,7 +261,7 @@ static void buggy_ElemShow (ELEMENT *e)
 
   if (GetAllSons(e,SonList)==0)
   {
-    for(i=0; SonList[i]!=NULL; i++)
+    for(i=0; i<MAX_SONS && SonList[i]!=NULL; i++)
     {
       printf("    son[%d]=" DDD_GID_FMT " prio=%d\n",
              i,

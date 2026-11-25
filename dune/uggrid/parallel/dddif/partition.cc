@@ -327,7 +327,7 @@ static int Scatter_RestrictedPartition (DDD::DDDContext&, DDD_OBJ obj, void *dat
     int partition = ((int *)data)[0];
     /* send master sons to master element partition */
     if (GetSons(theElement,SonList)) RETURN(GM_ERROR);
-    for (int i = 0; SonList[i] != NULL; i++)
+    for (int i = 0; i < MAX_SONS && SonList[i] != NULL; i++)
       PARTITION(SonList[i]) = partition;
   }
 
@@ -432,7 +432,7 @@ INT NS_DIM_PREFIX RestrictPartitioning (MULTIGRID *theMG)
 
       /* push partition to the sons */
       GetAllSons(theElement,SonList);
-      for (j=0; SonList[j]!=NULL; j++)
+      for (j=0; j<MAX_SONS && SonList[j]!=NULL; j++)
       {
         SETUSED(SonList[j],1);
         if (EMASTER(SonList[j]))
