@@ -121,8 +121,13 @@ void NS_PREFIX DisposeHeap (HEAP *theHeap)
      * these std::vectors explicitly.  Otherwise we get memory leaks.
      */
     using namespace std;
-    for (INT i=0; i<MARK_STACK_SIZE; i++)
+    for (INT i=0; i<=MARK_STACK_SIZE; i++)
+    {
+      /* free temporary memory that has not been released by ReleaseTmpMem */
+      for (void* ptr : theHeap->markedMemory[i])
+        free(ptr);
       theHeap->markedMemory[i].~vector<void*>();
+    }
 
     free(theHeap);
   }

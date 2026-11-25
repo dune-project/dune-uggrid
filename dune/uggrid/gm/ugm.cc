@@ -3487,6 +3487,7 @@ INT NS_DIM_PREFIX Collapse (MULTIGRID *theMG)
                        theVertex,VXPRIO(theVertex));
     }
     GRID_ON_LEVEL(theMG,l) = NULL;
+    PutFreeObject(theMG,theGrid,sizeof(GRID),GROBJ);
   }
 
 #ifdef ModelP
