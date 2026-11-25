@@ -551,7 +551,6 @@ static int Gather_EdgeObjectGids (DDD::DDDContext&, DDD_OBJ obj, void *data, DDD
 
 static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *data, DDD_PROC proc, DDD_PRIO prio)
 {
-  DDD_GID remotegid;
   EDGE *theEdge = (EDGE *)obj;
 
   /* this check allows no edges copies of type VGHOST */
@@ -594,13 +593,13 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
   }
   i++;
 
-  /* compare node0 gids with buffer gids */
-  if (((DDD_GID *)data)[i]>0)
-    remotegid = ((DDD_GID *)data)[i]-1;
+  /* compare midnode gids with buffer gids: the sender writes GID+1, or 0 if there is no midnode */
+  const bool remoteHasMidNode = ((DDD_GID *)data)[i]>0;
+  const DDD_GID remotegid = remoteHasMidNode ? ((DDD_GID *)data)[i]-1 : 0;
 
   if (MidNode != NULL)
   {
-    if (remotegid != GID(MidNode))
+    if (!remoteHasMidNode || remotegid != GID(MidNode))
     {
       UserWriteF("EDGE=" ID_FMTX " #ERROR#: MIDNODE=" ID_FMTX " gids don't match "
                  "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
@@ -613,7 +612,7 @@ static int Scatter_EdgeObjectGids (DDD::DDDContext& context, DDD_OBJ obj, void *
   else
   {
 
-    if (remotegid != 0)
+    if (remoteHasMidNode)
     {
       UserWriteF("EDGE=" ID_FMTX " #ERROR#: MIDNODE=NULL gids don't match "
                  "local=%08x remote=%08x remoteproc/prio=%d/%d\n",
