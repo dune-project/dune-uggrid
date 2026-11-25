@@ -3263,22 +3263,35 @@ INT NS_DIM_PREFIX DisposeElement (GRID *theGrid, ELEMENT *theElement)
       if (VFATHER(theVertex) == theElement) {
                 #ifdef UG_DIM_2
         theFather = NBELEM(theElement,j);
-        VFATHER(theVertex) = theFather;
         if (theFather != NULL)
         {
-          /* calculate new local coords */
-          int co0,co1;
-
-          /* reconstruct local coordinates of vertex */
-          co0 = CORNER_OF_EDGE(theFather,j,0);
-          co1 = CORNER_OF_EDGE(theFather,j,1);
-
-          /* local coordinates have to be local towards pe */
-          V_DIM_LINCOMB(0.5, LOCAL_COORD_OF_ELEM(theFather,co0),
-                        0.5, LOCAL_COORD_OF_ELEM(theFather,co1),
-                        LCVECT(theVertex));
-          SETONEDGE(theVertex,j);
+          /* the edge generally has a different number in the neighbor:
+             find it by its corner nodes */
+          NODE *n0 = CORNER(theElement,CORNER_OF_EDGE(theElement,j,0));
+          NODE *n1 = CORNER(theElement,CORNER_OF_EDGE(theElement,j,1));
+          INT co0 = -1, co1 = -1, nbEdge;
+          for (nbEdge = 0; nbEdge < EDGES_OF_ELEM(theFather); nbEdge++)
+          {
+            co0 = CORNER_OF_EDGE(theFather,nbEdge,0);
+            co1 = CORNER_OF_EDGE(theFather,nbEdge,1);
+            if ((CORNER(theFather,co0)==n0 && CORNER(theFather,co1)==n1) ||
+                (CORNER(theFather,co0)==n1 && CORNER(theFather,co1)==n0))
+              break;
+          }
+          ASSERT(nbEdge<EDGES_OF_ELEM(theFather));
+          if (nbEdge==EDGES_OF_ELEM(theFather))
+            theFather = NULL;
+          else
+          {
+            /* reconstruct local coordinates of vertex,
+               local coordinates have to be local towards pe */
+            V_DIM_LINCOMB(0.5, LOCAL_COORD_OF_ELEM(theFather,co0),
+                          0.5, LOCAL_COORD_OF_ELEM(theFather,co1),
+                          LCVECT(theVertex));
+            SETONEDGE(theVertex,nbEdge);
+          }
         }
+        VFATHER(theVertex) = theFather;
                             #endif
                 #ifdef UG_DIM_3
         VFATHER(theVertex) = NULL;
