@@ -417,10 +417,14 @@ static void DuneEntityScatter (DDD::DDDContext&, DDD_OBJ obj, int cnt, DDD_TYPE 
   std::memcpy(&size, data, sizeof size);
   data += sizeof size;
 
+  // The scatter handler is not only called for new objects, but also for objects that
+  // already exist locally, so release a previous buffer first.
+  // For new objects, the LDATA constructor has already reset the buffer to nullptr.
+  entity->message_buffer_free();
+
   // Do not allocate a buffer for empty messages: std::malloc(0) might return a non-null
   // pointer that is never freed, since empty buffers are skipped when scattering the data.
   if (size == 0) {
-    entity->message_buffer(nullptr, 0);
     return;
   }
 
