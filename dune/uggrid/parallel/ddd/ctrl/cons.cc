@@ -637,8 +637,19 @@ static int ConsCheckDoubleObj(const DDD::DDDContext& context)
 
 int DDD_ConsCheck(DDD::DDDContext& context)
 {
-  int cpl_errors;
   int total_errors=0;
+
+  /* add the errors of a coupling check, -1 means out of memory */
+  auto addCplErrors = [&total_errors](int cpl_errors, const char* name)
+  {
+    if (cpl_errors==-1)
+    {
+      Dune::dgrave << "    DDD-GCC Error: out of memory in " << name << "()\n";
+      total_errors++;
+    }
+    else
+      total_errors += cpl_errors;
+  };
 
   DDD_Flush();
   Synchronize(context.ppifContext());
@@ -651,19 +662,11 @@ int DDD_ConsCheck(DDD::DDDContext& context)
   total_errors += ConsCheckDoubleObj(context);
 
         #ifdef CHECK_CPL_PAIRS
-  cpl_errors = ConsCheckGlobalCpl(context);
+  addCplErrors(ConsCheckGlobalCpl(context), "ConsCheckGlobalCpl");
         #endif
         #ifdef CHECK_CPL_ALLTOALL
-  cpl_errors = Cons2CheckGlobalCpl(context);
+  addCplErrors(Cons2CheckGlobalCpl(context), "Cons2CheckGlobalCpl");
         #endif
-
-  if (cpl_errors==-1)
-  {
-    Dune::dgrave << "    DDD-GCC Error: out of memory in ConsCheckGlobalCpl()\n";
-    total_errors++;
-  }
-  else
-    total_errors += cpl_errors;
 
   total_errors += DDD_CheckInterfaces(context);
 
